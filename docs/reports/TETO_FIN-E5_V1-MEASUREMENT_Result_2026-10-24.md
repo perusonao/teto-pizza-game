@@ -263,3 +263,46 @@ iPhone Safari で `http://<PC の LAN IP>:4173/teto-pizza-game/seed.html` を開
 - 結果 JSON: `kit/out-m-results.json`（実ラウンド 3 状態・失敗・識別・リング）、`kit/out-m2-bench.json`（ベンチ 4 状態・対照・見え方）、`kit/out-m3-results.json`（採点・R8）、`kit/out-m4-results.json`（Research 経路）。
 - 画像: `docs/reports/screenshots/fin-e5-v1-measurement/`。動画は含めない（HV 方針）。
 - 測定中に 1 度、テスト進行が止まった（同じページを再利用して連続ラウンドを回した場合）。原因は調べていない（測定用スクリプト側の問題と見て、ラウンドごとに新しいページを使う形に直した。アプリの不具合かは未確認）。
+
+## 10. 第 2 版の更新（2026-10-24、Owner 回答の反映と最新 main での再測定）
+
+**E5 の本番公開は引き続き HOLD。** 以下は §1〜§9 を書き換えず、更新点だけを足す（§2 の #639・#640 の「進行中」は下記のとおり merge 済みに更新）。
+
+### 10.1 決定の反映
+`docs/decisions/TETO_FIN-E5_O1-O10_DECISION-RECORD_2026-10-24.md`（第 2 版）に反映。O-2〜O-5・O-10 は Owner 伝達済み（内容は監査 §7 の推奨案と同一として記録、**原文はこのセッションから参照できないため【内容は要確認】**）。O-11 暫定許容（ただし復旧通知・保存整合性は実機必須）、O-12 実機で判定・現段階未判定、O-13 承認（R-A は配置上限ではなく Reference・採点側の基準）。§8 の「Owner 判断（未回答）」のうち、O-2・O-3・O-4・O-5・O-10・O-11・O-13 は解消。**O-12 は未判定のまま残る。**
+
+### 10.2 最新 main（`976b9f0`）での確認
+- `main` は `3570f44` → #640（`95c791f`）→ #639（`976b9f0`）。スイッチは両方とも `false` のまま（`lateCatalog.ts:32`、`freeCookFinishGate.ts:13`）。ピン留めテスト 2 本（`freeCookFinishGate.test.ts:16`、`lateCatalog.offGolden.test.ts:28`）も `toBe(false)` のまま。
+- 変更は 9 ファイル（#639: `doughSelection.ts`・`gameReducer.ts` ほか、#640: `lateCatalog.ts`・`discoveryCatalog.ts` ほか、テスト・docs）。`package-lock.json` は同一。E5 のスイッチ行（32 行目）は #640 の import 追加（29 行目付近）と近接するが、**パッチは現 main にそのまま適用できる**（`git apply --check` 済）。
+- **最小再測定（§2 の方針どおり）を main `976b9f0` + 同じ 2 リテラルで実施**（同じスクリプト一式、V1 の安全条件 6 項目を再確認: origin `127.0.0.1`、`localStorage` 空、Firebase なし、外部通信 0 件、repo 作業ツリー clean）。**7 本すべて通過**。結果:
+  - ベンチ 4 状態の後乗せ画素 SHA-256 は `1b122218…aa3b7` で 4 状態一致、対照は 4 状態で別。**`3570f44` と完全に同一（`out-m2-bench.json` の全値が一致）**。
+  - 実ラウンド 3 状態（59 / 68 / 77）の後乗せ画素 SHA-256 は `c7bc7788…67030` で 3 つ一致、`3570f44` と同一。
+  - 採点・識別（8 通り）、R8 の B-1 / D-1 / B-2 の近似、Research 経路の結果は `3570f44` と同一。
+  - 差は、ピースの大きさの個体差に由来する数値（座標・幅が 0.1〜2 px 程度）のみ。判定に影響しない。
+  - 保存: `kit/main976b9f0-*.json`。動画: `AC8-v2-evidence-976b9f0.webm`（33.16 秒、1,069,401 bytes、SHA-256 `351cdeea2c86e441d21d2c13f83ff80552f55c716f08e544e4077f3f3466da8c`）を Owner へ直接送付（repo には入れない）。
+- #639・#640 が先に入ったことで、§2 の再測定の前提（E5 PR の HEAD で取り直す）は、**E5 PR を作る時点の main で再度取り直す**に更新（PR 作成後の最終 HEAD で CI と最小再測定）。
+
+### 10.3 #633 の最終 Gate（読み取りのみ）
+| 項目 | 状態 |
+|---|---|
+| 状態 | **Draft**、open、`mergeable_state: unknown`。base は旧 `829d449`（main は `976b9f0` まで進んだ）。変更は docs 1 ファイル（新規）なので衝突は見込まれないが、**merge 前に base の更新確認が要る** |
+| CI（head `e2bd79d`） | build / classify / Layout Contract Gate / WebKit Gate は **success**。layout-chromium と WebKit shard は docs-only のため skipped（正常） |
+| Codex | head `e2bd79d` に対し「Didn't find any major issues」、サマリは `has_unresolved_findings: false` |
+| スレッド | 0 件 / レビュー 0 件 |
+| 内容の鮮度 | 第 3 版（2026-10-23）。その後の決定（O-2〜O-5・O-11〜O-13）、V1 の実測、#639・#640 の merge は**含まれない**。#621 のコメントと本決定記録が最新 |
+| 判定 | **Gate 条件（CI・Codex・スレッド）は満たしている。残りは Owner の操作**: Draft を ready にして merge する／しない。merge 前に base を更新し、必要なら決定記録・本 Result へのリンクを #633 に足す。**本セッションは #633 を変更・merge しない** |
+
+### 10.4 実機 HV と LAN 方式
+`TETO_FIN-E5_IPHONE-HV_Runbook_2026-10-24.md` に整理。**LAN 方式（I1）は V1 の文言どおりには満たさない（条件 2・3・4）**。推奨の補完 A1（iPhone のホットスポットに PC を接続し、サーバをそのホットスポット側 IP だけに束縛・2 台のみ・時間限定・アクセスログ）は **V1-LAN の追補として Owner の承認が要る**。承認までは接続・公開しない。
+
+### 10.5 残るブロッカー（更新）
+| # | ブロッカー | 担当 | 状態 |
+|---|---|---|---|
+| 1 | AC-8: 動画確認・#621 添付・PASS 記録（手順は Runbook §2） | Owner | 判定待ち |
+| 2 | **V1-LAN 追補の承認**（無ければ実機 HV は開始できない） | Owner | 未承認 |
+| 3 | iPhone 実機 HV（E-1〜E-7、O-12 の視認性判定を含む） | Owner | 未実施 |
+| 4 | R8 実機: B-1 通知の表示・保存整合性、D-1、B-2（最小 5 回の強制終了、Runbook §3） | Owner | 未実施 |
+| 5 | #633 を merge する（O-10。Draft・base 更新） | Owner | 未実施 |
+| 6 | O-2〜O-5・O-10 の内容の確認（決定記録の【内容は要確認】） | Owner | 要確認 |
+| 7 | E5 実装 PR（まだ作らない）。作成時: 最新 main で 2 リテラル、ピン留め 2 本の意図的な反転、ON 用 golden・E2E、最終 HEAD の CI（AC-9） | セッション | 未着手（Owner 承認後） |
+| 8 | 360×800 と WebKit は未測定（CI と実機） | CI / Owner | 未確認 |

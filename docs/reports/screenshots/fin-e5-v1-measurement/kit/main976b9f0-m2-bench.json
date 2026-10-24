@@ -1,0 +1,177 @@
+{
+  "postSha": {
+    "none": "1b1222189f415759e011bff1372535aed42378901fd77ce5fc1092f1f2aaa3b7",
+    "raw": "1b1222189f415759e011bff1372535aed42378901fd77ce5fc1092f1f2aaa3b7",
+    "perfect": "1b1222189f415759e011bff1372535aed42378901fd77ce5fc1092f1f2aaa3b7",
+    "burnt": "1b1222189f415759e011bff1372535aed42378901fd77ce5fc1092f1f2aaa3b7"
+  },
+  "postIdentical": true,
+  "preBakePiecesSha_control": {
+    "none": "ef39a01e566bc9b7595275631c9f5a724671b8139da572f32d884fdc4396190f",
+    "raw": "a262cdc3f230af1161b31a456995d2409920597b695c5b91e872af67923de96f",
+    "perfect": "85eaaa2d12468f9df37bbb208846905f43b33cf7364a8f173508bbb718d7a19d",
+    "burnt": "fc3c5a3f8cdc9f0fd029171407a71295bed1c7e5642bcef00a364c511431d0ac"
+  },
+  "preBakePiecesChangeAcrossStates": 4,
+  "roeInsideDoughSha_control": {
+    "none": "70da81f003afeea37164b333d7c1148281958a2359d11c36bcf595900b2a5fdd",
+    "raw": "91dee06eb4baea7ebc2836e623cfd560297478b95d1a7317d874c422bdbc0963",
+    "perfect": "19c2cf0f7c5e1fa6e71c002e880fa536f39ff03f9d36a3d8350791a2a7ced145",
+    "burnt": "7118cc8ee8570b9cc9ec6c235efc3057428d7e312da3d8b7880c99bbd6eea732"
+  },
+  "roeInsideDoughChangeAcrossStates": 4,
+  "visibility": {
+    "none": [
+      {
+        "box": {
+          "w": 19.6,
+          "h": 24
+        },
+        "inner": [
+          219.4,
+          144.3,
+          85
+        ],
+        "ring": [
+          236.2,
+          183.9,
+          151.6
+        ],
+        "rgbDistance": 79.3,
+        "wcagContrast": 1.45
+      },
+      {
+        "box": {
+          "w": 19.6,
+          "h": 24
+        },
+        "inner": [
+          220.3,
+          145.6,
+          87.7
+        ],
+        "ring": [
+          235,
+          184.8,
+          147.8
+        ],
+        "rgbDistance": 73.2,
+        "wcagContrast": 1.44
+      }
+    ],
+    "raw": [
+      {
+        "box": {
+          "w": 19.6,
+          "h": 24
+        },
+        "inner": [
+          221.2,
+          147.3,
+          90.7
+        ],
+        "ring": [
+          240.7,
+          202.9,
+          185.8
+        ],
+        "rgbDistance": 111.9,
+        "wcagContrast": 1.66
+      },
+      {
+        "box": {
+          "w": 19.6,
+          "h": 24
+        },
+        "inner": [
+          221.7,
+          148.1,
+          92.2
+        ],
+        "ring": [
+          239.8,
+          205,
+          184.7
+        ],
+        "rgbDistance": 110.1,
+        "wcagContrast": 1.66
+      }
+    ],
+    "perfect": [
+      {
+        "box": {
+          "w": 19.6,
+          "h": 24
+        },
+        "inner": [
+          217.9,
+          140.2,
+          78
+        ],
+        "ring": [
+          230.4,
+          166.6,
+          122.8
+        ],
+        "rgbDistance": 53.5,
+        "wcagContrast": 1.29
+      },
+      {
+        "box": {
+          "w": 19.6,
+          "h": 24
+        },
+        "inner": [
+          218.7,
+          141.7,
+          81.4
+        ],
+        "ring": [
+          226.3,
+          163.2,
+          115.3
+        ],
+        "rgbDistance": 40.9,
+        "wcagContrast": 1.22
+      }
+    ],
+    "burnt": [
+      {
+        "box": {
+          "w": 19.6,
+          "h": 24
+        },
+        "inner": [
+          199.8,
+          123.2,
+          65.5
+        ],
+        "ring": [
+          122.9,
+          86.9,
+          65.4
+        ],
+        "rgbDistance": 85,
+        "wcagContrast": 1.94
+      },
+      {
+        "box": {
+          "w": 19.6,
+          "h": 24
+        },
+        "inner": [
+          201.2,
+          125.6,
+          68.9
+        ],
+        "ring": [
+          116,
+          82,
+          60.1
+        ],
+        "rgbDistance": 96.1,
+        "wcagContrast": 2.17
+      }
+    ]
+  }
+}
