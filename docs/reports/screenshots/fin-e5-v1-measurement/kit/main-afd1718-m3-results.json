@@ -1,0 +1,116 @@
+{
+  "safety": {
+    "origin": "http://127.0.0.1:5193",
+    "host": "127.0.0.1",
+    "ls": 0,
+    "ss": 0
+  },
+  "scoring": {
+    "bake59-roe2-shiso1": {
+      "headline": "🍳 新しい調理法を発見！ 「ソースなし」 「後乗せ」 NEW PIZZA! ✨ いくらとサーモンのピザ を発見しました！ 📖 ピザ図鑑に登録！ No.29（第4章 1/29） 🔎 次のピザを選んで研究する 📖 図鑑を見る ★★★☆☆ 63点 +133 Pitz（初回発見 +50） 内訳を見る",
+      "stars": "★★★☆☆",
+      "bake": "",
+      "debug": "🧪 Scoring 2.0 Debug（開発用・phase-4a-2-shadow-4-quantity） Total: 63 / 100 Sauce N/A Pieces 45 Recipe 100 Bake 100 Q ×1.000 cream-cheese 2/2 量 100% 配置 11% 38 salmon 3/3 量 100% 配置 27% 49 shiso 1/1 量 100% 配置 0% 30 salmon-roe 2/2 量 100% 配置 48% 64 必須 4/4 余分な種類 0 純度 100% 焼き加減 perfect 目標との差 0 類似度 100%"
+    },
+    "bake68-roe2-shiso1": {
+      "headline": "🍳 新しい調理法を発見！ 「ソースなし」 「後乗せ」 NEW PIZZA! ✨ いくらとサーモンのピザ を発見しました！ 📖 ピザ図鑑に登録！ No.29（第4章 1/29） 🔎 次のピザを選んで研究する 📖 図鑑を見る ★★★☆☆ 63点 +133 Pitz（初回発見 +50） 内訳を見る",
+      "stars": "★★★☆☆",
+      "bake": "",
+      "debug": "🧪 Scoring 2.0 Debug（開発用・phase-4a-2-shadow-4-quantity） Total: 63 / 100 Sauce N/A Pieces 45 Recipe 100 Bake 100 Q ×1.000 cream-cheese 2/2 量 100% 配置 11% 38 salmon 3/3 量 100% 配置 27% 49 shiso 1/1 量 100% 配置 0% 30 salmon-roe 2/2 量 100% 配置 48% 64 必須 4/4 余分な種類 0 純度 100% 焼き加減 perfect 目標との差 0 類似度 100%"
+    },
+    "bake77-roe2-shiso1": {
+      "headline": "🍳 新しい調理法を発見！ 「ソースなし」 「後乗せ」 NEW PIZZA! ✨ いくらとサーモンのピザ を発見しました！ 📖 ピザ図鑑に登録！ No.29（第4章 1/29） 🔎 次のピザを選んで研究する 📖 図鑑を見る ★★★☆☆ 63点 +133 Pitz（初回発見 +50） 内訳を見る",
+      "stars": "★★★☆☆",
+      "bake": "",
+      "debug": "🧪 Scoring 2.0 Debug（開発用・phase-4a-2-shadow-4-quantity） Total: 63 / 100 Sauce N/A Pieces 45 Recipe 100 Bake 100 Q ×1.000 cream-cheese 2/2 量 100% 配置 11% 38 salmon 3/3 量 100% 配置 27% 49 shiso 1/1 量 100% 配置 0% 30 salmon-roe 2/2 量 100% 配置 48% 64 必須 4/4 余分な種類 0 純度 100% 焼き加減 perfect 目標との差 0 類似度 100%"
+    },
+    "bake68-roe1-shiso1": {
+      "headline": "🍳 新しい調理法を発見！ 「ソースなし」 「後乗せ」 NEW PIZZA! ✨ いくらとサーモンのピザ を発見しました！ 📖 ピザ図鑑に登録！ No.29（第4章 1/29） 🔎 次のピザを選んで研究する 📖 図鑑を見る ★★☆☆☆ 50点 +100 Pitz（初回発見 +50） いくらがお",
+      "stars": "★★☆☆☆",
+      "bake": "",
+      "debug": "🧪 Scoring 2.0 Debug（開発用・phase-4a-2-shadow-4-quantity） Total: 50 / 100 Sauce N/A Pieces 51 Recipe 100 Bake 100 Q ×0.750 cream-cheese 2/2 量 100% 配置 11% 38 salmon 3/3 量 100% 配置 27% 49 shiso 1/1 量 100% 配置 0% 30 salmon-roe 1/2 量 67% 配置 97% 88 必須 4/4 余分な種類 0 純度 100% 焼き加減 perfect 目標との差 0 類似度 100%"
+    },
+    "bake68-roe5-shiso1": {
+      "headline": "🍳 新しい調理法を発見！ 「ソースなし」 「後乗せ」 NEW PIZZA! ✨ いくらとサーモンのピザ を発見しました！ 📖 ピザ図鑑に登録！ No.29（第4章 1/29） 🔎 次のピザを選んで研究する 📖 図鑑を見る ★★☆☆☆ 44点 +100 Pitz（初回発見 +50） いくらがお",
+      "stars": "★★☆☆☆",
+      "bake": "",
+      "debug": "🧪 Scoring 2.0 Debug（開発用・phase-4a-2-shadow-4-quantity） Total: 44 / 100 Sauce N/A Pieces 29 Recipe 100 Bake 100 Q ×0.850 cream-cheese 2/2 量 100% 配置 11% 38 salmon 3/3 量 100% 配置 27% 49 shiso 1/1 量 100% 配置 0% 30 salmon-roe 5/2 量 0% 配置 98% 0 必須 4/4 余分な種類 0 純度 100% 焼き加減 perfect 目標との差 0 類似度 100%"
+    },
+    "bake68-roe2-shiso0": {
+      "headline": "🧪 オリジナルピザ まだ新しいレシピは見つかっていません 🧀 クリームチーズ 🍣 サーモン いくら ⭐ 焼き加減: ジャスト 💡 ヒントを見る 図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。 もう一度試す レシピを選んで作る",
+      "stars": "",
+      "bake": "焼き加減: ジャスト",
+      "debug": null
+    },
+    "bake68-roe0-shiso1": {
+      "headline": "🧪 オリジナルピザ まだ新しいレシピは見つかっていません 🧀 クリームチーズ 🍣 サーモン 大葉 ⭐ 焼き加減: ジャスト 💡 ヒントを見る 図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。 もう一度試す レシピを選んで作る",
+      "stars": "",
+      "bake": "焼き加減: ジャスト",
+      "debug": null
+    },
+    "bake68-roe2-shiso2": {
+      "headline": "🍳 新しい調理法を発見！ 「ソースなし」 「後乗せ」 NEW PIZZA! ✨ いくらとサーモンのピザ を発見しました！ 📖 ピザ図鑑に登録！ No.29（第4章 1/29） 🔎 次のピザを選んで研究する 📖 図鑑を見る ★★☆☆☆ 56点 +100 Pitz（初回発見 +50） 大葉がお手",
+      "stars": "★★☆☆☆",
+      "bake": "",
+      "debug": "🧪 Scoring 2.0 Debug（開発用・phase-4a-2-shadow-4-quantity） Total: 56 / 100 Sauce N/A Pieces 50 Recipe 100 Bake 100 Q ×0.850 cream-cheese 2/2 量 100% 配置 11% 38 salmon 3/3 量 100% 配置 27% 49 shiso 2/1 量 50% 配置 100% 50 salmon-roe 2/2 量 100% 配置 48% 64 必須 4/4 余分な種類 0 純度 100% 焼き加減 perfect 目標との差 0 類似度 100%"
+    }
+  },
+  "externalB": [],
+  "r8": {
+    "before": {
+      "inv": {
+        "cc": 9,
+        "salmon": 9,
+        "roe": 9,
+        "shiso": 9
+      },
+      "dex": 0,
+      "pitz": 0
+    },
+    "midFinish": {
+      "inv": {
+        "cc": 7,
+        "salmon": 6,
+        "roe": 9,
+        "shiso": 9
+      },
+      "dex": 0,
+      "hasPendingRound": true,
+      "pendingStatus": "pending"
+    },
+    "b1": {
+      "noticeVisible": 1,
+      "noticeText": "中断していたピザを完成させました オリジナルのピザとして記録しました。 確認した",
+      "save": {
+        "inv": {
+          "cc": 7,
+          "salmon": 6,
+          "roe": 9,
+          "shiso": 9
+        },
+        "dex": [],
+        "pitz": 0,
+        "pendingStatus": "settled"
+      }
+    },
+    "d1": {
+      "snapshotsAfter3ForceQuits": [
+        "c08923565e38b761",
+        "c08923565e38b761",
+        "c08923565e38b761"
+      ],
+      "identical": true,
+      "noticeStillShown": 1
+    },
+    "b2": {
+      "noticeAfterRestart": 0,
+      "pendingRoundGone": true,
+      "sameDexPitzInvAsBeforeAck": true,
+      "dex": []
+    },
+    "quitBeforeAnyPiece": {
+      "noticeText": "中断していたピザを完成させました オリジナルのピザとして記録しました。 確認した"
+    }
+  },
+  "external": []
+}

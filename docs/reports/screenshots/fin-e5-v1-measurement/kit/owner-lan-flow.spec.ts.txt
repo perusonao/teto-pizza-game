@@ -1,0 +1,46 @@
+import { writeFileSync } from "node:fs";
+import { test, expect } from "@playwright/test";
+import { completeDoughStep, tapDoughPercent, enterBakePaused, landNeedleAndTakeOut } from "../e2e/gestures";
+import { pickChip } from "../v1spec/helpers";
+test("V1-LAN server: Owner flow under the server's CSP; app causes 0 violations; injected external requests are blocked by CSP", async ({ page }) => {
+  test.setTimeout(120_000);
+  const R: Record<string, any> = {};
+  const seen: string[] = [];
+  page.on("console", (m) => { if (/Content Security Policy|violates/i.test(m.text())) seen.push(m.text().slice(0, 160)); });
+  const reqHosts = new Set<string>(); page.on("request", (r) => reqHosts.add(new URL(r.url()).host));
+  await page.goto("seed.html");
+  R.seedInfo = (await page.locator("#info").innerText()).replace(/\n/g, " | ");
+  await page.locator("#seed").click(); await page.locator("#go").click();
+  await page.waitForSelector(".app-frame");
+  await page.getByRole("button", { name: /ピザ図鑑/ }).click(); await page.waitForSelector(".dex-overlay");
+  const section = page.locator(".dex-overlay__research"); await section.scrollIntoViewIfNeeded();
+  await section.getByRole("button", { name: /を研究する/ }).first().click(); await page.waitForSelector(".pizza-stage");
+  R.tabs = await page.locator(".making-step-tabs > *").allInnerTexts();
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click(); await page.getByRole("button", { name: /次へ/ }).click();
+  expect(await pickChip(page, /クリームチーズ/)).toBe(true); await tapDoughPercent(page, 38, 50); await tapDoughPercent(page, 62, 50);
+  await page.getByRole("button", { name: /次へ/ }).click();
+  expect(await pickChip(page, /サーモン/)).toBe(true); await tapDoughPercent(page, 38, 32); await tapDoughPercent(page, 62, 32); await tapDoughPercent(page, 50, 70);
+  await enterBakePaused(page); await landNeedleAndTakeOut(page, { start: 67, end: 69 });
+  await expect(page.getByTestId("finish-dock")).toBeVisible();
+  expect(await pickChip(page, /いくら/)).toBe(true); await tapDoughPercent(page, 36, 40); await tapDoughPercent(page, 64, 40);
+  expect(await pickChip(page, /大葉/)).toBe(true); await tapDoughPercent(page, 50, 56);
+  await page.getByTestId("finish-complete").click(); await page.waitForSelector(".result-panel");
+  R.result = (await page.locator(".result-panel").innerText()).replace(/\s+/g, " ").slice(0, 120);
+  R.appViolations = [...seen]; R.hostsContactedByApp = [...reqHosts];
+  // negative control: inject external requests; CSP must block them in the browser
+  const injected = await page.evaluate(async () => {
+    const v: string[] = []; document.addEventListener("securitypolicyviolation", (e) => v.push(e.violatedDirective + " " + e.blockedURI));
+    let fetchErr = ""; try { await fetch("https://example.com/x"); } catch (e) { fetchErr = String(e).slice(0, 60); }
+    const img = new Image(); img.src = "https://example.com/p.png";
+    const sc = document.createElement("script"); sc.src = "https://example.com/a.js"; document.head.appendChild(sc);
+    await new Promise((r) => setTimeout(r, 800));
+    return { v, fetchErr };
+  });
+  R.injected = injected;
+  const trav = await page.evaluate(async () => { const r = await fetch("/etc/passwd"); return r.status; });
+  R.traversalAsAllowedClient = trav;
+  writeFileSync("out/lan-flow.json", JSON.stringify(R, null, 2)); console.log(JSON.stringify(R, null, 2));
+  expect(R.appViolations).toEqual([]);
+  expect(injected.v.length).toBeGreaterThanOrEqual(3);
+});
