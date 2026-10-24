@@ -51,9 +51,26 @@ git checkout origin/claude/teto-pizza-production-audit-jiu7oy -- docs/reports/sc
 git apply docs/reports/screenshots/fin-e5-v1-measurement/kit/v1-literals.patch.txt     # ON リテラル 2 個。commit しない
 git status --short                         # src/data の 2 ファイル + kit だけ。他に変更があれば中止
 npm ci
-# macOS/Linux: VITE_PREVIEW_MODE=1 npm run build        Windows PowerShell: $env:VITE_PREVIEW_MODE=1; npm run build
+```
+ビルド（**実行する 1 つだけ**を選ぶ。どちらも Firebase を使わない Preview ビルド）:
+```
+# macOS / Linux
+VITE_PREVIEW_MODE=1 npm run build
+```
+```
+# Windows PowerShell
+$env:VITE_PREVIEW_MODE = "1"; npm run build
+```
+ビルド後に `dist` ができたことを確認してから、seed とサーバを置く:
+```
+# macOS / Linux
 cp docs/reports/screenshots/fin-e5-v1-measurement/kit/owner-seed.html.txt dist/seed.html
 cp docs/reports/screenshots/fin-e5-v1-measurement/kit/owner-lan-server.mjs.txt owner-lan-server.mjs
+```
+```
+# Windows PowerShell
+Copy-Item docs/reports/screenshots/fin-e5-v1-measurement/kit/owner-seed.html.txt dist/seed.html
+Copy-Item docs/reports/screenshots/fin-e5-v1-measurement/kit/owner-lan-server.mjs.txt owner-lan-server.mjs
 ```
 
 **B. ホットスポットへ切替**
@@ -82,10 +99,10 @@ Safari の**通常タブ**で `http://<PC の IP>:4173/teto-pizza-game/seed.html
 | 3 | **E-1** ピザ図鑑 → 研究中のピザ → 「このピザを研究する」。タブ 6 つ（…焼く / 仕上げ）が 1 行に収まる | 横スクロールなし |
 | 4 | **E-2** 生地 → ソースは何もせず次へ → チーズ **クリームチーズ ×2** → 具材 **サーモン ×3** → 焼く → 針を窓の中（65〜71 付近）で取り出す | 仕上げに進む。皿の名前は出ない |
 | 5 | **E-4（O-12 の実機判定）** 仕上げで **いくら ×2・大葉 ×1** を置き、**見えるか**を Owner が判定（「見える／見づらい／不可」＋所見） | **未判定を PASS にしない**。見づらければ針の位置（下端 約 60・上端 約 76）でも見る |
-| 6 | **R-1 = B-1**（この状態、**完成は押さない**）: 所持数を見て（クリームチーズ ×7・サーモン ×6 のはず）、**アプリスイッチャーで Safari を上にスワイプして終了** → 同じ URL を開く **［強制終了 1 回目］** | ホームに「中断していたピザを完成させました」（「オリジナルのピザとして記録しました。」、**「未完成」の行が無いのは暫定許容**）。**表示された文言を収録で確認**。所持数は戻らない（×7・×6）、いくら・大葉 ×9、Pitz 999、図鑑の件数不変 |
+| 6 | **R-1 = B-1**（この状態、**完成は押さない**）: 所持数を見て（クリームチーズ ×7・サーモン ×6 のはず）、**アプリスイッチャーで Safari を上にスワイプして終了** → 同じ URL を開く **［強制終了 1 回目］** | ホームに「中断していたピザを完成させました」（「オリジナルのピザとして記録しました。」、**「未完成」の行が無いのは暫定許容**）。**表示された文言を収録で確認**。所持数は戻らない（手順 2 の記録との差: クリームチーズ −2・サーモン −3、いくら・大葉は差 0。記録が ×9 なら ×7・×6・×9）、Pitz と図鑑の件数は手順 2 と同一（Pitz 999） |
 | 7 | **R-2 = D-1**: 通知を**確認せず**、終了 → 再起動を **2 回** **［2・3 回目］**（B-1 の再起動と合わせて確認しない再起動が 3 回） | 毎回、Pitz・図鑑・所持数が同一、通知は 1 つのまま |
 | 8 | **R-3 = B-2**: 「**確認した**」→ 終了 → 再起動 **［4 回目］** | 通知が出ない。Pitz・図鑑・所持数は「確認した」の直前と同一 |
-| 9 | **E-3**: もう 1 ラウンド（図鑑 → 研究）で、仕上げのいくら ×2・大葉 ×1 → **完成** | 「いくらとサーモンのピザ を発見しました！」＋「後乗せ」 |
+| 9 | **E-3**: **R の後の新しいラウンド**（図鑑 → 研究）で、仕上げのいくら ×2・大葉 ×1 → **完成** | 「いくらとサーモンのピザ を発見しました！」＋「後乗せ」 |
 | 10 | **E-5**: 焼成で生焼け（早く取り出す）／焦げ（遅く） | 仕上げに進まず「失敗」、Pitz +0 |
 | 11 | **E-6**: いくらを焼成前（具材）に置く／大葉を置かない | オリジナル（発見にならない） |
 
