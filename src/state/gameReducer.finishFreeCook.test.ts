@@ -17,8 +17,9 @@ import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 /**
  * FINISH FIN-E3a (Issue #604 / #294, Owner Decision UD-B): the Free Cooking FINISH step through the real reducer, behind the gate.
  *
- * `gate.open` stands in for `freeCookFinishEnabled()` -- the only thing that differs between a Production Free round (OFF) and a
- * round with the permanent 仕上げ tab (ON). Production is OFF; every ON test below is a test of code that does not run in Production.
+ * `gate.open` stands in for `freeCookFinishEnabled()` -- the only thing that differs between a Free round without FINISH (the pre-E5
+ * Production state and the rollback) and a round with the permanent 仕上げ tab. E5 switched Production ON: the ON tests below are the shipped
+ * behaviour, the OFF ones pin the rollback. (e5.ikuraProduction.test.ts runs the real, unmocked Production gate.)
  * The central property is parity: a Free round that places nothing in FINISH ends exactly as the same round without FINISH.
  */
 const gate = vi.hoisted(() => ({ open: false }));

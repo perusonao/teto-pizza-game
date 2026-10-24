@@ -7,6 +7,7 @@ import {
   dough,
   familyRow,
   HAND_ON_OWNED,
+  HAND_ON_OWNED_SHORT_LAST_PAGE,
   labelsOf,
   settle,
   shot,
@@ -135,7 +136,7 @@ for (const vp of VIEWPORTS) {
 
   test(`family row stays put while paging the full list to its last page (a short page): ${wh}`, async ({ page }, testInfo) => {
     runOnlyOnWidth(testInfo, vp.width);
-    await bootFree(page, vp.width, vp.height, HAND_ON_OWNED);
+    await bootFree(page, vp.width, vp.height, HAND_ON_OWNED_SHORT_LAST_PAGE);
     await toTopping(page);
     await settle(page);
     const first = await stack(page);

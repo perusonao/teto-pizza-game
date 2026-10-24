@@ -192,7 +192,7 @@ test("Free Cooking FINISH: a reload in FINISH registers the previous pizza, the 
   test.setTimeout(120_000);
   await bootFreeFinish(page, freeSave());
   await prepareFreeMargherita(page);
-  await bakeToTarget(page, FREE_BAKE);
+  await bakeToTarget(page, FREE_BAKE, { finish: false }); // the FINISH step is what these specs quit in
   await expect(page.getByRole("button", { name: /完成/ })).toBeVisible();
   const mid = await readSave(page);
   expect(mid?.pendingRound?.kind).toBe("FREE_COOK");
@@ -217,7 +217,7 @@ test("Free Cooking FINISH: the stock stays consumed after a reload in FINISH (a 
     await page.getByRole("button", { name: /たまねぎ/ }).click();
     await tapDoughPercent(page, 50, 52);
   });
-  await bakeToTarget(page, FREE_BAKE);
+  await bakeToTarget(page, FREE_BAKE, { finish: false }); // the FINISH step is what these specs quit in
   await expect(page.getByRole("button", { name: /完成/ })).toBeVisible();
   expect((await readSave(page))?.inventory.onion).toBe(8); // consumed, saved together with the journal
 
