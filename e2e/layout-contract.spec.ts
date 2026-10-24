@@ -454,8 +454,8 @@ test.describe("I5b-5 Layout Contract", () => {
     await lc.apply(mount);
     await page.getByRole("button", { name: /ピザを作る/ }).first().click();
     await page.waitForSelector(".pizza-select-grid-card");
-    await expect(page.locator(".pizza-select-grid-card")).toHaveCount(27);
-    await lc.checkpoint({ label: "Pizza Select grid (27 cards)", meta: { screen: "PIZZA_SELECT" } }, ["L-D", "L-L"], {
+    await expect(page.locator(".pizza-select-grid-card")).toHaveCount(28);
+    await lc.checkpoint({ label: "Pizza Select grid (28 cards)", meta: { screen: "PIZZA_SELECT" } }, ["L-D", "L-L"], {
       primary: ".pizza-select-grid-card",
       names: { name: ".pizza-select-grid-card .pizza-select-card__name", card: ".pizza-select-grid-card" },
     }, mount);
