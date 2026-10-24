@@ -1103,6 +1103,7 @@ Rules for this sequence:
 1. Inspect fresh GitHub `main`, open PRs, issues and Actions state.
 2. Read this file, Issue #22 and the current execution issue.
 3. Treat fresh GitHub state as authoritative if anything conflicts.
+   Decision records are authoritative for Owner decisions; do not re-ask (`docs/decisions/TETO_SESSION-OPERATIONS_1.0.md` §8).
 4. Read the latest relevant audit/result report before implementation.
 5. Scoring 2.0 is now authoritative (A1 implemented and merged via PR #60; A2 Human Review
    PASSED) — do not re-open the Shadow-only question without a specific regression to justify
