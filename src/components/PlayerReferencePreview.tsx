@@ -3,6 +3,9 @@ import { buildIdealSauceFixture } from "../data/referencePizza";
 import { getIngredient } from "../data/ingredients";
 import { getRecipe } from "../data/recipes";
 import { createIdealDoughShape } from "../logic/doughShape";
+import { buildIdealSquareSauceFixture } from "../logic/pan/squareReference";
+import { activePanShape } from "../preview/panShapePreview";
+import "./square/squarePanStage.css";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { buildPieceCountLabels, renderPizzaVisualPieces } from "./PizzaVisualPieces";
 
@@ -17,6 +20,7 @@ interface PlayerReferencePreviewProps {
 
 const IDEAL_DOUGH_SHAPE = createIdealDoughShape();
 const IDEAL_SAUCE_FIXTURE = buildIdealSauceFixture();
+const IDEAL_SQUARE_SAUCE_FIXTURE = buildIdealSquareSauceFixture();
 
 /**
  * Issue #47 Slice B Finding F: player-facing completed-pizza reference for every recipe that
@@ -48,6 +52,8 @@ export function PlayerReferencePreview({
 }: PlayerReferencePreviewProps) {
   const recipe = getRecipe(reference.recipeId);
   const recipeName = recipe?.nameJa ?? "";
+  // Square Dough E-1: a square-pan recipe's sample is drawn on the square pan; every other recipe is the round sample, unchanged.
+  const pan = activePanShape(recipe);
   const sauceIngredient = reference.sauceIngredientId ? getIngredient(reference.sauceIngredientId) : null;
 
   const pieceCaption = buildPieceCountLabels(reference.pieceGroups).join("、");
@@ -88,10 +94,11 @@ export function PlayerReferencePreview({
               </button>
             </div>
 
-            <div className="player-reference-mini-pizza" aria-hidden="true">
+            <div className={`player-reference-mini-pizza${pan === "square" ? " player-reference-mini-pizza--square" : ""}`} aria-hidden="true">
               {sauceIngredient && (
                 <SauceHeatmapCanvas
-                  deposits={IDEAL_SAUCE_FIXTURE}
+                  deposits={pan === "square" ? IDEAL_SQUARE_SAUCE_FIXTURE : IDEAL_SAUCE_FIXTURE}
+                  pan={pan}
                   doughShape={IDEAL_DOUGH_SHAPE}
                   color={sauceIngredient.color}
                   className={`player-reference-mini-pizza__sauce ${sauceIngredient.id === "olive-oil" ? "pizza-sauce-heatmap--oil" : ""}`}

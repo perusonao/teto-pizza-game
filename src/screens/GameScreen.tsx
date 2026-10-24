@@ -814,6 +814,7 @@ export function GameScreen({
             <ReferencePreview
               reference={referencePizza}
               recipeNameJa={state.recipe.nameJa}
+              pan={effectivePanShape(state.recipe, state.pizza)}
               isOpen={isReferencePopoverOpen}
               onOpenChange={onReferencePopoverChange}
               renderTrigger={false}

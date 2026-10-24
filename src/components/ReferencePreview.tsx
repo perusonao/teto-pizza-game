@@ -6,6 +6,10 @@ import { createIdealDoughShape } from "../logic/doughShape";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { buildPieceCountLabels, renderPizzaVisualPieces } from "./PizzaVisualPieces";
 import { SAUCE_TARGET_RADIUS } from "../logic/sauceField";
+import { SQUARE_TARGET_HALF_SIDE } from "../logic/pan/panGeometry";
+import type { PanShape } from "../logic/pan/panShape";
+import { buildIdealSquareSauceFixture, sauceTargetForPan } from "../logic/pan/squareReference";
+import "./square/squarePanStage.css";
 
 interface ReferencePreviewProps {
   reference: ReferencePizza;
@@ -24,10 +28,13 @@ interface ReferencePreviewProps {
    *  panel itself. Defaults to true (unchanged existing behavior) so every pre-existing
    *  caller/test that doesn't pass this prop keeps rendering its own inline 見本 button. */
   renderTrigger?: boolean;
+  /** Square Dough E-1: the pan the round is cooked on, so the sample and its targets match what Scoring 2.0 now measures. Absent / `"round"` is unchanged. */
+  pan?: PanShape;
 }
 
 const IDEAL_DOUGH_SHAPE = createIdealDoughShape();
 const IDEAL_SAUCE_FIXTURE = buildIdealSauceFixture();
+const IDEAL_SQUARE_SAUCE_FIXTURE = buildIdealSquareSauceFixture();
 
 /**
  * Phase 4A-1A: "見本" (Reference) button + compact popover. Shown during FREE PREPARE for any
@@ -57,9 +64,10 @@ export function ReferencePreview({
   isOpen,
   onOpenChange,
   renderTrigger = true,
+  pan = "round",
 }: ReferencePreviewProps) {
   // TQ-1D: a recipe made without a sauce (`reference.sauce === null`) shows no sauce caption, bars or heatmap.
-  const referenceSauce = reference.sauce;
+  const referenceSauce = reference.sauce ? sauceTargetForPan(pan, reference.sauce) : null;
   const sauceIngredient = referenceSauce ? getIngredient(referenceSauce.ingredientId) : undefined;
   const pieceCaption = buildPieceCountLabels(reference.pieceGroups).join("と");
 
@@ -99,18 +107,19 @@ export function ReferencePreview({
               </button>
             </div>
 
-            <div className="reference-mini-pizza" aria-hidden="true">
+            <div className={`reference-mini-pizza${pan === "square" ? " reference-mini-pizza--square" : ""}`} aria-hidden="true">
               {/* Human Feel Fix 2 (Target Area Guide, brief section 2): the same
                   SAUCE_TARGET_RADIUS boundary PizzaStage's own guide ring uses, so the
                   Reference popover never shows a different "leave the ear" area than the
                   one the player's own dough guide (and edgeAmount/edgeRatio scoring) uses. */}
               <div
                 className="reference-mini-pizza__target-guide"
-                style={{ "--target-radius": `${SAUCE_TARGET_RADIUS}%` } as CSSProperties}
+                style={{ "--target-radius": `${pan === "square" ? SQUARE_TARGET_HALF_SIDE : SAUCE_TARGET_RADIUS}%` } as CSSProperties}
               />
               {sauceIngredient && (
                 <SauceHeatmapCanvas
-                  deposits={IDEAL_SAUCE_FIXTURE}
+                  deposits={pan === "square" ? IDEAL_SQUARE_SAUCE_FIXTURE : IDEAL_SAUCE_FIXTURE}
+                  pan={pan}
                   doughShape={IDEAL_DOUGH_SHAPE}
                   color={sauceIngredient.color}
                   className={`reference-mini-pizza__sauce ${sauceIngredient.id === "olive-oil" ? "pizza-sauce-heatmap--oil" : ""}`}
