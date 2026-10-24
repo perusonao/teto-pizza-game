@@ -149,3 +149,61 @@ Artifact の公開、GitHub の Organization・リポジトリ・Pages の作成
 
 ### 9.5 停止点
 このセッションは **P1 / P2 へ進まない**。P0 の結果（Owner の iPhone での確認）を待つ。結果に応じた分岐: ①印が残り、遷移・遮断も通る → P1（ゲーム本体の Artifact）を Owner が承認するか判断 ②印が残らない → この方式は R8 に使えず、実機 HV は PC が使えるまで待機（Organization Pages へは移行しない、Owner 方針）③外部 fetch が遮断されない → 方式 C を中止（Firebase 遮断をビルド側だけに頼らない）。
+
+## 10. P0 の Owner 実測と、P1 の準備（2026-10-24）
+
+### 10.1 P0 の Owner 実測（iPhone、Owner の報告）
+| 項目 | 結果（Owner） |
+|---|---|
+| localStorage の保存（書き込み・読み出し） | **PASS** |
+| ページ遷移後の保存維持（`sub/index.html`） | **PASS** |
+| 外部 fetch の遮断 | **PASS** |
+| アプリの強制終了・再起動後の保存維持 | **PASS** |
+
+**Owner 判断**: P0 PASS、P1 への移行を承認。方式 C（非公開 Artifact）で、**保存が強制終了後も残る**ことが実機で確認された（§4 X-1 の主要な懸念が解消）。P0 の結果は FINISH E5 の本番公開を承認するものではない（E5 は HOLD、本番スイッチ OFF）。長時間後の保持（ITP）は P0 では未確認のまま。
+
+### 10.2 P1 の範囲（Owner 承認）
+**ゲーム本体の動作確認だけ**（起動・通常操作・Canvas 描画）。**P2（ON ビルド）の作成・公開、E5 実装 PR、Production・共有 Preview の変更、Firebase 接続・実ユーザーデータ、新規ホスティング、無断 merge は行わない。** P1 成功後に P2 の実施可否を Owner が判断する。
+
+### 10.3 P1 の構成
+| 項目 | 内容 |
+|---|---|
+| 元のコード | `main` `dde0660`（変更なし。`git archive` の展開物、リポジトリの外） |
+| ビルド | `VITE_PREVIEW_MODE=1`、**Firebase 変数なし**、`vite build --base=./`（相対パス）。本番スイッチは**ソースのまま OFF**（`lateCatalog.ts:32`・`freeCookFinishGate.ts:13`）= ON パッチなし。「仕上げ」タブは出ない |
+| 混入防止 | 展開物はリポジトリに戻さない。Artifact のファイルとして公開しただけで、`main`・Pages・workflow を通らない |
+| Firebase | dist に Google API キー形式の文字列は **0 件**（SDK のコード上のフィールド名 `apiKey` のみ）。Firebase 設定の値・本番 Firebase の接続先は含まない。Artifact の CSP が外部通信を遮断（P0 で実機確認済み） |
+| 公開物 | **非公開 Artifact 1 件**: https://claude.ai/artifact/761CbquonsHA2trQsFKg3b（版 `1792827548-f3aa`）。23 ファイル（起動用 `index.html` ＋ ゲーム `app/index.html`・`app/assets/*`・`app/icons/*`・`app/manifest.webmanifest`、計約 2.2 MB）。`capabilities` の宣言なし。サイズは 16 MB 以下 |
+| 起動用ページ | 「ゲームを開く」リンク（`app/index.html` へ遷移。P0 の遷移と同じ方式）と、確認項目の案内のみ |
+
+### 10.4 アクセス制限・origin・外部通信制約が P0 と同等であることの確認
+| 項目 | P0 | P1 | 結果 |
+|---|---|---|---|
+| 公開時の表示 | 「非公開。所有者と、所有者が許可した人のみ。共有は変更できない」 | 同じ文言 | **同等** |
+| 認証なしの外殻 | 共通の外殻（中身なし） | 同じ（33,680 bytes、P1 の文字列を含まない） | **同等** |
+| 枠のホスト（origin） | `<uuid>.frame.claudeusercontent.com`、全パス 404 | 別の uuid、`/`・`/index.html`・`/app/index.html`・`/app/assets/index-….js`・`/app/manifest.webmanifest` がすべて **404** | **同等**（認証なしでは中身を取得できない） |
+| API | 403 | 403 | **同等** |
+| 外殻の CSP | `frame-src` と `connect-src` は枠のホストのみ | 同じ | **同等** |
+| 枠の中の CSP | 実機で外部 fetch が遮断されることを確認（Owner） | 同じ配信基盤・同じ設定のはず（**P1 では枠内 CSP を直接読めない**。ゲームが外部通信しないことは下のローカル検証で補完） | 同等と**見なす**（直接確認は不可） |
+
+### 10.5 公開前のローカル検証（Chromium 390×844、使い捨て静的サーバ、P0 結果に近い厳しい CSP を付与）
+相対 base のビルドを `/app/` 配下で配信し、`default-src 'none'`、`script-src 'self' 'unsafe-inline'`、`connect-src 'self'` などの CSP を付けて検証: ① ホームが描画される（画像・ヘッダー・PREVIEW バッジ）② 「レシピ発見」→ 生地 → ソース → チーズ → 具材 → 焼成 → 結果（**マルゲリータを発見、59 点**）まで通常操作で進める ③ ソースを塗ると **Canvas に描画される**（透明でない画素 0 → 18,328）④ 通信したホストは配信元のみ、**CSP 違反 0 件、ページエラー 0 件**。**これは PC 上の Chromium の結果で、iPhone の実機結果ではない。**
+
+### 10.6 iPhone での確認（P1、Owner の操作）
+URL: https://claude.ai/artifact/761CbquonsHA2trQsFKg3b
+1. 開く → 「ゲームを開く」→ ホーム（右下 PREVIEW、画像が出る）。
+2. 「レシピ発見」→ 生地を指でなぞって広げる → 「次へ」。
+3. トマトソースを選び、なぞって塗る → **赤いソースが描かれる**（Canvas）。
+4. チーズ・バジルをタップで置く → 「焼く」→ ちょうどよいところで取り出す。
+5. 結果画面（マルゲリータを発見）まで進む。固まる・真っ白・反応しない所があれば、その画面を報告。
+6. （任意）途中でアプリを終了して開き直す → ホームに戻り、保存した進行（図鑑）が残っている。
+
+### 10.7 P1 で実証できること／できないこと
+| 実証できる（Owner が iPhone で確認） | 実証できない |
+|---|---|
+| ゲーム本体の起動（module script・大きな JS・CSS・画像が、Artifact の枠で読み込まれる） | FINISH・後乗せ・R8 そのもの（P2。ON ビルドが必要） |
+| 通常操作（タップ・ドラッグ・長押し、画面遷移） | 長時間後の保持（ITP）、本番と同じ実行形態（`github.io` のトップレベル、ホーム画面追加） |
+| Canvas 描画（ソース・生地・焼き色） | 枠内 CSP の直接確認、Firebase 通信の遮断の実証（構成上通信しない） |
+| 保存の持続（P0 の続き。進行がアプリ終了後も残る） | `confirm()` を使う画面（ホームへ戻る確認、リセット確認）の動作（Artifact では常に false） |
+
+### 10.8 停止点
+**P1 の実機結果を待って停止する。** P2（ON ビルド）は作成・公開しない。P1 が成功しても、E5 の本番公開は自動承認されない。
