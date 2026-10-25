@@ -119,7 +119,7 @@ describe("dough-pinsa-romana affordance and discovery", () => {
       expect(techniqueDexViews([], credited(CREDITED.length)).filter((v) => v.id === ID)).toEqual([]);
       expect(round(pizzaOf(PINSA), { context: productionTechniqueContext() }).newlyDiscovered).toEqual([]);
     } else {
-      // gate open (`TETO_PINSA_ON=1`): the only requiring target is pinsa-romana, the step is DERIVED from its materials (arugula's), and the Dex shows a riddle only
+      // gate open (the shipped state): the only requiring target is pinsa-romana, the step is DERIVED from its materials (arugula's), and the Dex shows a riddle only
       expect(techniqueAffordanceStep(ID, catalog, materialStep)).toBe(Math.max(0, ...ITEMS.map((id) => ingredientUnlockStep(id) ?? Infinity)));
       const views = techniqueDexViews([], credited(CREDITED.length)).filter((v) => v.id === ID);
       expect(views.map((v) => v.state)).toEqual(["RIDDLE"]);
