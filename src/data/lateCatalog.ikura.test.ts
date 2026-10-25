@@ -69,25 +69,28 @@ describe("ON: the ordinary catalog followed by the ikura content", () => {
   it("recipe, ingredient, order, taxonomy row and size class join; every ordinary entry is unchanged", async () => {
     const off = await load(false);
     const on = await load(true);
-    expect(on.recipes.RECIPES.map((r) => r.id)).toEqual([...off.recipes.RECIPES.map((r) => r.id), IKURA, ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
+    // (New Sauces Phase B U1: yuzu-shrimp-pizza follows ikura, before pinsa-romana, so Pinsa stays the last late recipe; asserted on its own in lateCatalog.yuzu.test.ts)
+    expect(on.recipes.RECIPES.map((r) => r.id)).toEqual([...off.recipes.RECIPES.map((r) => r.id), IKURA, "yuzu-shrimp-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
     expect(JSON.stringify(on.recipes.RECIPES.slice(0, off.recipes.RECIPES.length))).toBe(JSON.stringify(off.recipes.RECIPES));
-    expect(on.ingredients.INGREDIENTS.at(-1)?.id).toBe("salmon-roe");
+    expect(on.ingredients.INGREDIENTS.slice(off.ingredients.INGREDIENTS.length).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho"]); // the late ingredients, in authored order
     expect(on.ingredients.STARTER_INGREDIENT_IDS).toEqual(off.ingredients.STARTER_INGREDIENT_IDS);
-    expect(on.orders.ORDERS.at(pinsaEnabled() ? -2 : -1)?.recipeId).toBe(IKURA); // (pinsa-romana follows it while its own gate is open)
+    expect(on.orders.ORDERS.slice(off.orders.ORDERS.length).map((o) => o.recipeId)).toEqual([IKURA, "yuzu-shrimp-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // (pinsa-romana follows them while its own gate is open)
     expect(on.taxonomy.ingredientAttributeFamily("salmon-roe")).toBe("seafood");
     expect(on.sizes.TOPPING_SIZE_CLASS_BY_ID["salmon-roe"]).toBe("xs");
   });
 
-  it("the late step is appended after every ordinary step, keyed to ikura, with no star gate; the OFF ladder is an exact prefix", async () => {
+  it("the late steps are appended after every ordinary step (ikura's first, then yuzu's), with no star gate; the OFF ladder is an exact prefix", async () => {
     const off = await load(false);
     const on = await load(true);
     const offSteps = off.ladder.DISCOVERY_LADDER.steps;
     const onSteps = on.ladder.DISCOVERY_LADDER.steps;
-    expect(onSteps).toHaveLength(offSteps.length + 1);
+    expect(onSteps).toHaveLength(offSteps.length + 2); // New Sauces Phase B U1: + the yuzu-kosho late step
     expect(JSON.stringify(onSteps.slice(0, offSteps.length))).toBe(JSON.stringify(offSteps));
     const late = onSteps[offSteps.length];
     expect(late).toMatchObject({ ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });
     expect(late.starGates).toBeUndefined();
+    expect(onSteps[offSteps.length + 1]).toMatchObject({ ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" });
+    expect(onSteps[offSteps.length + 1].starGates).toBeUndefined();
     expect(on.ladderLogic.validateAppendOnlyExtension(off.ladder.DISCOVERY_LADDER, on.ladder.DISCOVERY_LADDER)).toEqual([]);
     expect(on.ladderLogic.validateDiscoveryLadder(on.ladder.DISCOVERY_LADDER)).toEqual([]);
     // shiso (the other material) is an ordinary step, earlier than the late one: the recipe is makeable once the late step is reached.
@@ -97,25 +100,26 @@ describe("ON: the ordinary catalog followed by the ikura content", () => {
   it("an ordinary batch appended later moves only the late step's NUMBER; its key, materials and order are unchanged, and nothing already reached moves", async () => {
     const on = await load(true);
     const steps = on.ladder.DISCOVERY_LADDER.steps;
-    const ordinary = steps.slice(0, -1);
-    const lateStep = steps[steps.length - 1];
+    const lateSteps = steps.slice(-2); // ikura's, then yuzu's
+    const ordinary = steps.slice(0, -2);
     // An ordinary step appended after the current ordinary tail (a stand-in material): rebuild the ON ladder as ordinary + new + late.
     const withNewOrdinary = on.ladderLogic.appendLadderSteps(
       on.ladderLogic.appendLadderSteps(
         { ...on.ladder.DISCOVERY_LADDER, steps: ordinary },
         [{ ingredientIds: ["synthetic-new"], keyRecipeId: "synthetic-key" }],
       ),
-      [{ ingredientIds: lateStep.ingredientIds, keyRecipeId: lateStep.keyRecipeId }],
+      lateSteps.map((s) => ({ ingredientIds: s.ingredientIds, keyRecipeId: s.keyRecipeId })),
     );
     const after = withNewOrdinary.steps;
     expect(after).toHaveLength(steps.length + 1);
     // Every step that existed before the batch keeps its number and content.
     expect(JSON.stringify(after.slice(0, ordinary.length))).toBe(JSON.stringify(ordinary));
-    // The late step is still last, with the same key and material; only its number moved by exactly +1.
-    const moved = after[after.length - 1];
-    expect(moved.ingredientIds).toEqual(lateStep.ingredientIds);
-    expect(moved.keyRecipeId).toBe(lateStep.keyRecipeId);
-    expect(moved.step).toBe(lateStep.step + 1);
+    // The late steps are still last, in order, with the same keys and materials; only their numbers moved by exactly +1.
+    after.slice(-2).forEach((moved, i) => {
+      expect(moved.ingredientIds).toEqual(lateSteps[i].ingredientIds);
+      expect(moved.keyRecipeId).toBe(lateSteps[i].keyRecipeId);
+      expect(moved.step).toBe(lateSteps[i].step + 1);
+    });
   });
 
   it("passes the structural validators (late catalog, ladder progression) on the real data", async () => {

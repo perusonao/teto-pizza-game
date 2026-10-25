@@ -110,6 +110,8 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ["green-onion", 56, "T4", 2, 20, 120, 60],
   // E5 (late catalog on): the late step is "ordinary ladder length + 1" (FIN-E4b-ikura); salmon-roe is the late recipe's finite material, k = 2 (its two roe), T4 like the step before it.
   ...(lateCatalogEnabled() ? [["salmon-roe", 57, "T4", 2, 20, 120, 60] as [string, number, string, number, number, number, number]] : []),
+  // New Sauces Phase B U1 (#578, late catalog on): the next late step ("ordinary length + 2"); yuzu-kosho is the late recipe's finite sauce, k = 1 (one painted use), T4 like the steps before it.
+  ...(lateCatalogEnabled() ? [["yuzu-kosho", 58, "T4", 1, 10, 120, 60] as [string, number, string, number, number, number, number]] : []),
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -258,7 +260,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(13)).toEqual({ discoveriesNeeded: 1, step: 14 });
   });
 
-  it("points at the appended steps 25-56 after the W1 24, and is null once the ladder is complete", () => {
+  it("points at the appended steps 25-56 (and the late steps) after the W1 24, and is null once the ladder is complete", () => {
     expect(nextMaterialHint(24)).toEqual({ discoveriesNeeded: 1, step: 25 });
     expect(nextMaterialHint(25)).toEqual({ discoveriesNeeded: 1, step: 26 });
     expect(nextMaterialHint(26)).toEqual({ discoveriesNeeded: 1, step: 27 });
@@ -267,7 +269,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(29)).toEqual({ discoveriesNeeded: 1, step: 30 });
     expect(nextMaterialHint(30)).toEqual({ discoveriesNeeded: 1, step: 31 });
     expect(nextMaterialHint(31)).toEqual({ discoveriesNeeded: 1, step: 32 });
-    const last = 56 + (lateCatalogEnabled() ? 1 : 0); // E5: + the late step
+    const last = 56 + (lateCatalogEnabled() ? 2 : 0); // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step
     for (let n = 32; n < last; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
     expect(nextMaterialHint(last)).toBeNull();
     expect(nextMaterialHint(last)).toBeNull();

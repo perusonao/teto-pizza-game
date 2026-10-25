@@ -66,11 +66,12 @@ function finishRound(round: GameState, pizza: PizzaState, post: readonly string[
 }
 
 describe.runIf(pinsaEnabled())("Production switches (gate open)", () => {
-  it("Pinsa is the tail of the catalog after ikura; E5 stays on; the ladder, Grandma and every other recipe are as before", () => {
+  it("Pinsa is the tail of the catalog after ikura and yuzu-shrimp-pizza; E5 stays on; the ladder, Grandma and every other recipe are as before", () => {
     expect(LATE_CATALOG_PRODUCTION).toBe(true);
     expect(FREE_COOK_FINISH_PRODUCTION).toBe(true);
-    expect(RECIPES.slice(-2).map((r) => r.id)).toEqual(["ikura-salmon-pizza", PINSA]);
-    expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "ikura-salmon-pizza" }); // no Pinsa step
+    // New Sauces Phase B U1 (#578): yuzu-shrimp-pizza (late, credited) sits between ikura and Pinsa, so Pinsa stays the tail; the last ladder step is yuzu's late step (still no Pinsa step).
+    expect(RECIPES.slice(-3).map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", PINSA]);
+    expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "yuzu-shrimp-pizza" }); // no Pinsa step
     expect(countsTowardLadder(PINSA)).toBe(false);
     const grandma = RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === "grandma-pizza")!;
     expect(grandma.identityDimensions).toMatchObject({ pan: "tray" });

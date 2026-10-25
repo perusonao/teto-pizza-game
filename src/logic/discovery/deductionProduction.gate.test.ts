@@ -14,7 +14,7 @@ import { guardedAnswerForParts, hypotheticalReserves, reserveInHypotheses, targe
 import { deductionKnownLines, requestDeductionHint, type DeductionFamily } from "./deductionRequest";
 import { attackStateOf, endgameAttack, type GuardUnderAttack } from "./testSupport/deductionAttacker";
 import { ALL_INGREDIENT_IDS, inversionCandidates, observeGuardedWithClause, sweepStates } from "./testSupport/deductionInversion";
-import { DOUGH_PINSA_ROMANA_RECIPE_IDS, PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
+import { DOUGH_PINSA_ROMANA_RECIPE_IDS, LATE_ADDITION_RECIPE_IDS, PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 import { MULTI_SAUCE_RECIPE_IDS } from "../testSupport/requiredSauces";
 import { ordinaryLadderSteps } from "../catalog/testSupport/lateIds";
 import { lateCatalogEnabled } from "../../data/lateCatalog";
@@ -129,7 +129,7 @@ describe("DH4-PROD gate: the production switch and price (OD-DH4-PROD-1)", () =>
  * listed here; adding one is a deliberate act that re-runs this whole gate (see docs/reports/TETO_SQUARE-DOUGH_F_RESEARCH-AUDIT.md §7).
  * `PAN_TRAY_RECIPE_IDS` (shared, ../testSupport/techniqueAllowlists.ts) is empty until Square Dough E (#521) adds the first tray recipe.
  */
-const TECHNIQUE_REQUIRING_RECIPE_IDS = (): string[] => [...noSauceRecipeIds(), ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS].sort();
+const TECHNIQUE_REQUIRING_RECIPE_IDS = (): string[] => [...noSauceRecipeIds(), ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS, ...LATE_ADDITION_RECIPE_IDS].sort();
 
 describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes (TQ-1D contract)", () => {
   it("every production recipe has exactly one sauce except the NO_SAUCE (Technique) recipes of the sauce-profile authority and the allowlisted two-sauce recipes", () => {

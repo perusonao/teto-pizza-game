@@ -100,7 +100,7 @@ describe("b-1: the data (gate ON)", () => {
     const on = await load(true);
     const { late } = on;
     const base = {
-      recipeIds: on.recipes.RECIPES.slice(0, -2).map((r) => r.id as string),
+      recipeIds: on.recipes.RECIPES.filter((r) => !late.LATE_RECIPES.some((l) => l.id === r.id)).map((r) => r.id as string), // the ordinary catalog (the late recipes are the ones under test)
       ingredientIds: on.ingredients.INGREDIENTS.filter((i) => !late.LATE_INGREDIENTS.some((l) => l.id === i.id)).map((i) => i.id),
       discoveryTargetIds: Object.values(on.catalog.RECIPE_DISCOVERY_TARGET_IDS),
     };

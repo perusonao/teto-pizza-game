@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { pinsaEnabled } from "../data/pinsaGate";
 import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder";
 import { DINNER_REWARD_TABLES } from "../mission/dinner/dinnerReward";
 import { estimateEconomy } from "./catalog/testSupport/ladderEconomyEstimate";
@@ -31,7 +30,9 @@ const ACCEPTED_DIRECTLY_GATED = ["california-style-pizza", "spinach-artichoke-pi
  *  (an improvement from catalog growth alone; the gate values are unchanged, and ★1 still holds both back). A ratchet step in the allowed direction, not a relaxation. */
 /** Pinsa Romana (#577 P3-b), only while PINSA_PRODUCTION is open: one more discoverable recipe lifts a uniform-★2 Dex to 132 stars, past spinach's 130-star gate -- the same
  *  catalog-growth-only improvement (the gate values are unchanged; ★1 still holds both back). A ratchet step in the allowed direction, not a relaxation. */
-const ACCEPTED_DIRECTLY_GATED_AT_BEST2 = pinsaEnabled() ? [] : ["spinach-artichoke-pizza"];
+/** New Sauces Phase B U1 (#578): yuzu-shrimp-pizza (credited, late catalog) makes 61 credited recipes; a uniform-★2 Dex then reaches 132 stars, past spinach's 130-star gate -- the same catalog-growth-only
+ *  improvement (the gate values are unchanged; ★1 still holds both back). A ratchet step in the allowed direction, not a relaxation. With the Pinsa gate open it is already empty (above). */
+const ACCEPTED_DIRECTLY_GATED_AT_BEST2: string[] = [];
 const ACCEPTED_COLLATERAL: string[] = [];
 const ACCEPTED_BLOCKED_STEPS: number[] = [];
 /** Credited recipes beyond the ladder steps once every directly-gated recipe is set aside (>= 0 or a step closes). Issue #561: 56 - 53 - 2 = 1; Batch 8b / New Sauces Phase A: 58 - 55 - 2 = 1 (every new recipe brings its own step, so the slack is unchanged). */
