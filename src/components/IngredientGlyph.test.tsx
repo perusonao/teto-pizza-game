@@ -47,6 +47,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "green-onion-slices",
   "salmon-roe-grains",
   "arugula-leaves",
+  "shrimp-curl",
   "sesame-seeds",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
@@ -76,9 +77,11 @@ const PHASE_B1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
 };
 /** Pinsa follow-up: arugula's dedicated sprig of lobed leaves (Owner-approved on iPhone) instead of the 🥗 emoji. */
 const ARUGULA_DEDICATED: Record<string, DedicatedIngredientVisual> = { arugula: "arugula-leaves" };
+/** Peeled shrimp (Owner-approved 2026-10-25, Style Lock v2 §1d): dedicated art instead of the shelled 🦐. */
+const SHRIMP_DEDICATED: Record<string, DedicatedIngredientVisual> = { shrimp: "shrimp-curl" };
 // E5: with the late catalog on (Production) the late salmon-roe is a production row too (its art is pinned in the FIN-E4b-ikura block below).
 const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains", "white-sesame": "sesame-seeds" } : {};
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...LATE_DEDICATED };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -104,7 +107,7 @@ function fixture(overrides: Partial<Ingredient>): Ingredient {
 }
 
 describe("IngredientGlyph: default emoji path (every production ingredient without a dedicated visual)", () => {
-  it("only capers / clam / fresh-tomato (I5a), the Pilot A four and Batch 8b's shiso / whitebait declare a dedicated visual", () => {
+  it("only capers / clam / fresh-tomato (I5a), the Pilot A four, Batch 8b's shiso / whitebait, arugula, green-onion, the peeled shrimp (and the late salmon-roe) declare a dedicated visual", () => {
     expect(
       Object.fromEntries(INGREDIENTS.filter((i) => i.pieceVisual !== undefined).map((i) => [i.id, i.pieceVisual])),
     ).toEqual(ALL_DEDICATED);
@@ -680,6 +683,37 @@ describe("Batch 8b: shiso / whitebait dedicated art (production rows)", () => {
       const own = getIngredient(id)!.emoji;
       expect(INGREDIENTS.filter((i) => i.emoji === own).map((i) => i.id)).toEqual([id]);
     }
+  });
+});
+
+/**
+ * Peeled shrimp (Style Lock v2 §1d): `shrimp` is drawn by `shrimp-curl`, never by 🦐. Its `emoji` stays the required text fallback and must never reach the DOM.
+ * The glyph is the only thing that changes: id, family, recipes (pesto-gamberi, yuzu-shrimp-pizza), scoring and the save are untouched.
+ */
+describe("peeled shrimp: shrimp-curl dedicated art (production row)", () => {
+  const shrimp = getIngredient("shrimp")!;
+
+  it("declares the visual and keeps its identity", () => {
+    expect(shrimp).toMatchObject({ id: "shrimp", nameJa: "エビ", category: "topping", placement: "scatter", pieceVisual: "shrimp-curl" });
+  });
+
+  it("draws an SVG on the glyph and on the placed piece, and never prints its emoji", () => {
+    for (const node of [<IngredientGlyph key="g" ingredient={shrimp} />, <IngredientPieceVisual key="p" ingredient={shrimp} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector('svg[data-ingredient-visual="shrimp-curl"]');
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      unmount();
+    }
+  });
+
+  it("is a peeled shrimp: no eye (circle), no feelers or legs (the adopted shelled art had both)", () => {
+    const { container } = render(<span><IngredientGlyph ingredient={shrimp} /></span>);
+    expect(container.querySelectorAll("circle")).toHaveLength(0);
+    expect(container.innerHTML).not.toContain("#8a2f1c"); // the shelled art's dark-red outline colour
   });
 });
 

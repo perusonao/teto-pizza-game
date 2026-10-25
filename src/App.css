@@ -818,12 +818,13 @@
   margin: -0.075em;
 }
 
-/* Batch 8b / 8c / Phase B-1 / U2: the shiso leaf, the whitebait school, the salmon-roe grains, the green-onion slices and the sesame seeds are drawn inside a 64-box with generous margins, so they read smaller than the neighbouring emoji (which overfill
-   their 1em box). Same fix class as the tomato slice above; scoped to these five visuals only. */
+/* Batch 8b / 8c / Phase B-1 / U2 (+ shrimp-curl): the shiso leaf, the whitebait school, the salmon-roe grains, the green-onion slices, the peeled shrimp and the sesame seeds are drawn inside a 64-box with generous margins, so they read smaller than the neighbouring emoji (which overfill
+   their 1em box). Same fix class as the tomato slice above; scoped to these six visuals only. */
 .ingredient-glyph--shiso-leaf,
 .ingredient-glyph--whitebait-school,
 .ingredient-glyph--salmon-roe-grains,
 .ingredient-glyph--green-onion-slices,
+.ingredient-glyph--shrimp-curl,
 .ingredient-glyph--sesame-seeds {
   width: 1.2em;
   height: 1.2em;

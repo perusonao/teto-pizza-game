@@ -33,6 +33,7 @@ export type DedicatedIngredientVisual =
   | "whitebait-school"
   | "salmon-roe-grains"
   | "green-onion-slices"
+  | "shrimp-curl"
   | "sesame-seeds";
 
 export interface Ingredient {
@@ -581,7 +582,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
    * -- unlocked at appended ladder step 26 (T3: first purchase 100 / refill 50 Pitz, pack 30 from
    * k = 3 x pack-pizzas), sold only by the material Shop, so no legacy `pricePitz` /
    * `restockQuantity` / `starterGrantOnly`. Family `seafood` lives in ./ingredientTaxonomy.ts.
-   * 🦐 is the ingredient glyph; the seafood Hint class symbol is 🌊 (hintClassDisplay.ts, G18).
+   * Drawn by the dedicated `shrimp-curl` visual (a peeled shrimp: a slim C-curl, pale-pink flesh, orange outline, no eyes / feelers / legs; Owner-approved over the shelled 🦐);
+   * 🦐 is only the required text fallback; the seafood Hint class symbol is 🌊 (hintClassDisplay.ts, G18).
    */
   {
     id: "shrimp",
@@ -589,6 +591,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "エビ",
     color: "#f08a6b",
     emoji: "\u{1F990}",
+    pieceVisual: "shrimp-curl",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },

@@ -226,14 +226,14 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
   },
   /**
    * New Sauces Phase B U1 (Issue #578): `yuzu-kosho`, a late-only finite ladder material (T4 by its late step, no star gate). A spread sauce painted in the SAUCE step (the existing PAINT);
-   * sauces carry no topping family. `color` `#b5c56a` (a yellow-green) is PROVISIONAL until the Owner HV on a real device (a red yuzu-kosho would be near tomato-sauce and is not used).
+   * sauces carry no topping family. `color` `#a3ad52` (a muted yellow-olive; the first `#b5c56a` read as a wide yellow-green paste, Owner decision 2026-10-25 after a side-by-side comparison) stays PROVISIONAL until the Owner HV on a real device (a red yuzu-kosho would be near tomato-sauce and is not used).
    * `emoji` is only the tray / shop chip fallback. Its PIZZA DB use (painted before the bake) is a provisional game-design assumption, not confirmed by the original.
    */
   {
     id: "yuzu-kosho",
     category: "sauce",
     nameJa: "柚子胡椒",
-    color: "#b5c56a",
+    color: "#a3ad52",
     emoji: "\u{1F343}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },

@@ -85,9 +85,9 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     expect(description).not.toMatch(/焼成|焼き上|焼いた|あと|仕上げ|後乗せ/);
   });
 
-  it("yuzu-kosho: a late-only finite sauce (spread, ladder-gated, no topping family, no size class), colour #b5c56a", () => {
+  it("yuzu-kosho: a late-only finite sauce (spread, ladder-gated, no topping family, no size class), colour #a3ad52", () => {
     const ingredient = getIngredient(SAUCE)!;
-    expect(ingredient).toMatchObject({ category: "sauce", placement: "spread", color: "#b5c56a", nameJa: "柚子胡椒" });
+    expect(ingredient).toMatchObject({ category: "sauce", placement: "spread", color: "#a3ad52", nameJa: "柚子胡椒" });
     expect(ingredient.unlockCondition).toBeDefined();
   });
 

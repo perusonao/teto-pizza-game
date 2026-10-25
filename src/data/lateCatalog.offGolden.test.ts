@@ -20,6 +20,7 @@ import { isLateRecipeId as recipeIsLate } from "../logic/catalog/testSupport/lat
  *
  * The `ingredients` digest was regenerated once, on purpose: arugula gained `pieceVisual: "arugula-leaves"` (Owner-approved drawing change, replaces the 🥗
  * emoji; no id, order, placement or unlock change). Same bytes otherwise.
+ * Regenerated a second time for the same reason: `shrimp` gained `pieceVisual: "shrimp-curl"` (Owner-approved peeled-shrimp art replacing the shelled 🦐; no id, order, placement or unlock change).
  */
 const canon = (value: unknown): string =>
   JSON.stringify(value, (_key, v) =>
