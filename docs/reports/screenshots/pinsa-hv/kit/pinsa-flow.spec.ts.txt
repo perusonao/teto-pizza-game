@@ -1,0 +1,100 @@
+import { test, expect, type Page } from "@playwright/test";
+import { completeDoughStep, tapDoughPercent, enterBakePaused, landNeedleAndTakeOut, paintSauceRing } from "../e2e/gestures";
+import { pickChip } from "./helpers";
+
+/**
+ * Pinsa HV rehearsal on a Preview-mode build whose only change is PINSA_PRODUCTION = true (the Pinsa literal patch). Runs the shortest on-device path:
+ * seed -> Dex -> Research -> DOUGH chips -> ほかの生地 -> sauce / cheese / prosciutto -> bake -> FINISH arugula -> 完成 -> discovery -> Dex.
+ */
+const SEED_BUTTON = process.env.SEED === "B" ? "#seedB" : "#seedA";
+const SHOT = process.env.SHOTS ?? "out/shots";
+
+async function shot(page: Page, name: string) {
+  await page.screenshot({ path: `${SHOT}/${process.env.SEED ?? "A"}-${name}.png` });
+}
+
+test(`Pinsa flow (seed ${process.env.SEED ?? "A"})`, async ({ page, context }) => {
+  test.setTimeout(180_000);
+  const ext: string[] = [];
+  await context.route("**/*", (r) => {
+    const u = new URL(r.request().url());
+    if (u.hostname !== (process.env.HVHOST ?? "127.0.0.1")) { ext.push(u.href); return r.abort(); }
+    return r.continue();
+  });
+  await page.goto("seed.html");
+  await page.locator(SEED_BUTTON).click();
+  await page.locator("#go").click();
+  await page.waitForSelector(".app-frame");
+  await expect(page.getByText(/PREVIEW/).first()).toBeVisible();
+  await shot(page, "1-home");
+
+  await page.getByRole("button", { name: /ピザ図鑑/ }).click();
+  await page.waitForSelector(".dex-overlay");
+  const section = page.locator(".dex-overlay__research");
+  await section.scrollIntoViewIfNeeded();
+  const entries = await section.getByRole("button", { name: /を研究する/ }).allInnerTexts();
+  console.log("research entries:", JSON.stringify(entries));
+  const labels = await section.locator("*").evaluateAll((els) => els.map((e) => (e.textContent ?? "").trim()).filter((t) => /？？？ピザ/.test(t) && t.length < 40));
+  console.log("research labels:", JSON.stringify([...new Set(labels)]));
+  await shot(page, "2-research-list");
+  const ruccola = (await section.getByText(/？？？ピザ.*ルッコラ/).allInnerTexts()).map((t) => t.replace(/\s+/g, " "));
+  console.log("arugula cohort labels:", JSON.stringify(ruccola));
+
+  // the Pinsa entry is the arugula one; with seed B there are two (A / B), with seed A only Pinsa
+  const targetBtn = section.getByRole("button", { name: /ルッコラ/ }).first();
+  if (await targetBtn.count()) await targetBtn.click(); else await section.getByRole("button", { name: /を研究する/ }).first().click();
+  // seed B: a choice may be required (two candidates)
+  const startBtn = page.getByRole("button", { name: /このピザを研究する/ });
+  if (await startBtn.count()) await startBtn.first().click();
+  await page.waitForSelector(".pizza-stage");
+  console.log("tabs", await page.locator(".making-step-tabs > *").allInnerTexts());
+
+  // DOUGH step: the two chips
+  const group = page.getByTestId("dough-kind-switch");
+  await expect(group).toBeVisible();
+  console.log("dough chips:", JSON.stringify(await group.getByRole("radio").allInnerTexts()));
+  await shot(page, "3-dough-chips");
+  await group.getByRole("radio", { name: "ほかの生地" }).click();
+  await expect(group.getByRole("radio", { name: "ほかの生地" })).toHaveAttribute("aria-checked", "true");
+  await shot(page, "4-dough-other-selected");
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click();
+
+  await page.getByRole("button", { name: /トマトソース/ }).click();
+  await paintSauceRing(page, 25, 16);
+  await page.getByRole("button", { name: /次へ/ }).click();
+
+  expect(await pickChip(page, /モッツァレラ/)).toBe(true);
+  await tapDoughPercent(page, 40, 50); await tapDoughPercent(page, 60, 50);
+  await page.getByRole("button", { name: /次へ/ }).click();
+
+  expect(await pickChip(page, /生ハム/)).toBe(true);
+  await tapDoughPercent(page, 38, 34); await tapDoughPercent(page, 62, 34); await tapDoughPercent(page, 50, 70);
+  await shot(page, "5-toppings");
+  await enterBakePaused(page);
+  await landNeedleAndTakeOut(page, { start: 58, end: 78 }, { finish: false });
+  console.log("after take-out tabs:", JSON.stringify(await page.locator(".making-step-tabs > *").allInnerTexts()), "| result?", await page.locator(".result-panel").count(), "| dock?", await page.getByTestId("finish-dock").count());
+  await expect(page.getByTestId("finish-dock")).toBeVisible();
+  await shot(page, "6-finish");
+  expect(await pickChip(page, /ルッコラ/)).toBe(true);
+  await tapDoughPercent(page, 28, 62); await tapDoughPercent(page, 30, 36);
+  await shot(page, "7-finish-arugula");
+  await page.getByTestId("finish-complete").click();
+  await page.waitForSelector(".result-panel");
+  const result = (await page.locator(".result-panel").innerText()).replace(/\s+/g, " ");
+  console.log("RESULT", result.slice(0, 240));
+  await shot(page, "8-result");
+  expect(result).toMatch(/ピンサ・ロマーナ/);
+  expect(result).not.toMatch(/dough-pinsa|material-multigrain|late-addition/);
+
+  // Dex shows it
+  const reg = page.getByRole("button", { name: /図鑑に登録|登録/ });
+  if (await reg.count()) await reg.first().click();
+  await page.getByRole("button", { name: /ホーム|閉じる|戻る/ }).first().click().catch(() => undefined);
+  await page.getByRole("button", { name: /ピザ図鑑/ }).click();
+  await page.waitForSelector(".dex-overlay");
+  const dexText = (await page.locator(".dex-overlay").innerText()).replace(/\s+/g, " ");
+  console.log("DEX has Pinsa:", /ピンサ・ロマーナ/.test(dexText), "| techniques:", (dexText.match(/ピンサ生地|後乗せ|生地の仕立て/g) ?? []).join(","));
+  await shot(page, "9-dex");
+  expect(ext).toEqual([]);
+});
