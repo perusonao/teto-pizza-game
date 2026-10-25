@@ -46,6 +46,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "whitebait-school",
   "green-onion-slices",
   "salmon-roe-grains",
+  "arugula-leaves",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -72,9 +73,11 @@ const BATCH8B_DEDICATED: Record<string, DedicatedIngredientVisual> = {
 const PHASE_B1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
   "green-onion": "green-onion-slices",
 };
+/** Pinsa follow-up: arugula's dedicated sprig of lobed leaves (Owner-approved on iPhone) instead of the 🥗 emoji. */
+const ARUGULA_DEDICATED: Record<string, DedicatedIngredientVisual> = { arugula: "arugula-leaves" };
 // E5: with the late catalog on (Production) the late salmon-roe is a production row too (its art is pinned in the FIN-E4b-ikura block below).
 const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains" } : {};
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...LATE_DEDICATED };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
