@@ -106,7 +106,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await expect(shrimp).toHaveCount(1);
     await expect(shrimp).toHaveAttribute("data-shop-state", "NEW");
     await expect(shrimp).toContainText("エビ");
-    await expect(shrimp).toContainText("🦐");
+    await expect(shrimp.locator('svg[data-ingredient-visual="shrimp-curl"]')).toHaveCount(1); // peeled-shrimp art (was 🦐)
     await expect(shrimp).toContainText("10ピザ分（30個）");
     await expect(shrimp).toContainText(/初回 .*100 Pitz/);
     await shrimp.scrollIntoViewIfNeeded();
@@ -121,13 +121,13 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await page.locator(".shop-overlay__panel").getByRole("button", { name: "閉じる" }).click();
     await expect(page.locator(".shop-overlay__panel")).toHaveCount(0);
 
-    // 2. Inventory: shrimp is listed as an individual ingredient (🦐), seafood shelf.
+    // 2. Inventory: shrimp is listed as an individual ingredient (peeled-shrimp art), seafood shelf.
     await page.getByRole("button", { name: /材料/ }).click();
     await page.waitForSelector(".inventory-overlay__panel");
     const invRow = page.locator(".inventory-overlay__panel").getByText("エビ").first();
     await invRow.scrollIntoViewIfNeeded();
     await expect(invRow).toBeVisible();
-    await expect(page.locator(".inventory-overlay__panel")).toContainText("🦐");
+    await expect(page.locator(".inventory-overlay__panel").locator('svg[data-ingredient-visual="shrimp-curl"]').first()).toBeVisible();
     await noOverflow(page, "inventory");
     await capture(page, "exp1-inventory-shrimp", project);
     await hold(page, 2200);
