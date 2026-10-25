@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:pinsa-on": "TETO_PINSA_ON=1 vitest run",
+    "test:pinsa-off": "TETO_PINSA_OFF=1 vitest run",
     "test:e2e": "playwright test"
   },
   "dependencies": {

@@ -1,0 +1,11 @@
+--- a/src/data/pinsaGate.ts
++++ b/src/data/pinsaGate.ts
+@@ -8,7 +8,7 @@
+  *
+  * A literal on purpose (like `LATE_CATALOG_PRODUCTION`) so a bundler drops the Pinsa branch. Tests mock this module to exercise the ON state.
+  */
+-export const PINSA_PRODUCTION = false;
++export const PINSA_PRODUCTION = true;
+ 
+ export function pinsaEnabled(): boolean {
+   return PINSA_PRODUCTION;
