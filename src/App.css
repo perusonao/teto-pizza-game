@@ -8168,12 +8168,14 @@ p.hint-sheet__step {
   clip-path: ellipse(48% 48% at 50% 50%);
 }
 
-/* The same oval, scaled down, for the small pizzas that stand for an oval-dough recipe (Pizza Select card, 見本 thumbnail and popovers): the footprint's width is kept, the height is
-   2/3 of it, and the thumbnail stays vertically centred in the 64px row the cards are laid out on. */
-.pizza-thumbnail--oval,
-.reference-thumbnail--oval {
-  height: calc(64px * 2 / 3);
-  margin-block: calc((64px - 64px * 2 / 3) / 2);
+/* The same oval, scaled down, for the small pizzas that stand for an oval-dough recipe (Pizza Select card, 見本 thumbnail and popovers): each context keeps its own width and the height
+   follows the 3:2 ratio. The contextual size rules (.pizza-select-card, .mini-reference__thumb, ...) set both dimensions with up to three classes, so the modifier is repeated to out-rank them. */
+.pizza-thumbnail.pizza-thumbnail--oval.pizza-thumbnail--oval,
+.reference-thumbnail.reference-thumbnail--oval.reference-thumbnail--oval {
+  height: auto;
+  aspect-ratio: 3 / 2;
+  align-self: center;
+  margin-block: auto;
 }
 
 .reference-mini-pizza--oval,

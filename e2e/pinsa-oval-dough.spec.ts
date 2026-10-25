@@ -191,4 +191,29 @@ test.describe("Pinsa oval dough", () => {
     await expect(page.locator(".pizza-paint-trail")).not.toHaveAttribute("preserveAspectRatio", /./);
     expect(await page.locator(".pizza-paint-trail").evaluate((el) => getComputedStyle(el).clipPath)).toMatch(/circle/);
   });
+
+  test("the small oval thumbnails out-rank the contextual square sizes (見本 mini, Pizza Select cards)", async ({ page }) => {
+    await freeCook(page, "");
+    const ratios = await page.evaluate(() => {
+      const out: Record<string, number> = {};
+      for (const [key, parent, cls] of [
+        ["mini", "mini-reference__thumb", "reference-thumbnail"],
+        ["select-grid", "pizza-select-grid-card", "pizza-thumbnail"],
+        ["select-card", "pizza-select-card", "pizza-thumbnail"],
+      ] as const) {
+        const host = document.createElement("div");
+        host.className = parent;
+        host.style.cssText = "position:fixed;left:0;top:0;display:flex";
+        const el = document.createElement("div");
+        el.className = `${cls} ${cls}--oval`;
+        host.appendChild(el);
+        document.body.appendChild(host);
+        const r = el.getBoundingClientRect();
+        out[key] = r.width / r.height;
+        host.remove();
+      }
+      return out;
+    });
+    for (const v of Object.values(ratios)) expect(Math.abs(v - ASPECT)).toBeLessThan(0.05);
+  });
 });
