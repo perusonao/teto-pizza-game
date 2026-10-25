@@ -1,0 +1,118 @@
+// V1-LAN A1 server for the iPhone HV of FINISH E5 (Owner runs it on the PC; copy to owner-lan-server.mjs).
+// Static server for ONE built dist directory. Not part of the game. Never deployed. Node >= 18, no dependencies.
+//
+//   node owner-lan-server.mjs --dist dist --bind <PC hotspot IP> --allow <iPhone IP> [--port 4173] [--ttl-minutes 60] [--log lan-access.jsonl]
+//
+// Safety properties (each is checked at start-up or enforced per request; start-up refuses on any failure):
+//  S1 bind: ONE private/loopback IPv4 address only. 0.0.0.0, ::, hostnames and public addresses are refused.
+//  S2 client allow-list: only the --allow address(es) get content; everyone else gets 403 and a DENIED log line.
+//  S3 Firebase unused: no VITE_FIREBASE_* in the environment, no Google API key pattern in the dist, and the dist is a PREVIEW build
+//     (it uses the preview save key, so it can never touch a production save key even by mistake).
+//  S4 external traffic blocked on the device: every response carries a Content-Security-Policy with default-src 'none' and every fetch /
+//     script / image / font / frame source limited to 'self' (connect-src 'self'): the browser itself refuses any other host.
+//     Violations are POSTed back to /teto-pizza-game/__csp and logged as CSP-VIOLATION.
+//  S5 disposable data: only this origin's localStorage is used (seed.html writes a synthetic save; its wipe button removes it).
+//  S6 access log: one JSON line per request (time, client ip, method, path, status, bytes) + a summary on exit.
+//  S7 time-limited: the server exits after --ttl-minutes (default 60, max 240).
+//  S8 read-only: GET/HEAD/the CSP report POST only; path traversal is refused; nothing outside --dist is readable.
+import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import crypto from "node:crypto";
+
+const args = Object.fromEntries(process.argv.slice(2).reduce((acc, v, i, a) => (v.startsWith("--") ? [...acc, [v.slice(2), a[i + 1] && !a[i + 1].startsWith("--") ? a[i + 1] : "true"]] : acc), []));
+const fail = (m) => { console.error("REFUSED: " + m); process.exit(2); };
+
+const dist = path.resolve(args.dist ?? "");
+if (!args.dist || !fs.existsSync(path.join(dist, "index.html"))) fail("--dist must be a built dist directory containing index.html");
+
+// S1
+const bind = args.bind ?? "";
+const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+const m = ipv4.exec(bind);
+if (!m || m.slice(1).some((x) => Number(x) > 255)) fail("--bind must be a literal IPv4 address (no hostnames, no 0.0.0.0, no ::)");
+const [a, b] = [Number(m[1]), Number(m[2])];
+if (bind === "0.0.0.0") fail("--bind 0.0.0.0 would expose the server on every interface");
+const isPrivate = a === 127 || a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254);
+if (!isPrivate) fail("--bind must be a private / loopback address (10/8, 172.16/12, 192.168/16, 169.254/16, 127/8)");
+
+// S2
+const allow = new Set(String(args.allow ?? "").split(",").map((s) => s.trim()).filter(Boolean));
+if (allow.size === 0 || [...allow].some((x) => !ipv4.test(x) || x === "0.0.0.0")) fail("--allow must list the iPhone's literal IPv4 address (comma-separated for more than one)");
+if (allow.has(bind)) fail("--allow must not be the server's own address");
+
+// S3
+const firebaseEnv = Object.keys(process.env).filter((k) => k.startsWith("VITE_FIREBASE_"));
+if (firebaseEnv.length) fail("VITE_FIREBASE_* is set in this shell: " + firebaseEnv.join(", "));
+const files = [];
+(function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); e.isDirectory() ? walk(p) : files.push(p); } })(dist);
+let sawPreviewKey = false;
+const manifest = crypto.createHash("sha256");
+for (const f of files.sort()) {
+  const buf = fs.readFileSync(f);
+  manifest.update(path.relative(dist, f) + "\0").update(buf);
+  if (/\.(js|html|css|json|webmanifest)$/.test(f)) {
+    const t = buf.toString("utf8");
+    if (/AIza[0-9A-Za-z_-]{35}/.test(t)) fail("a Google API key pattern is in " + path.relative(dist, f) + " (this dist was built with Firebase configured)");
+    if (t.includes("teto-pizza-preview-save-v1")) sawPreviewKey = true;
+  }
+}
+if (!sawPreviewKey) fail("this dist is not a PREVIEW build (VITE_PREVIEW_MODE=1); the preview save key was not found");
+const distHash = manifest.digest("hex");
+
+// S7
+const ttl = Math.min(Number(args["ttl-minutes"] ?? 60), 240);
+if (!(ttl > 0)) fail("--ttl-minutes must be > 0");
+const port = Number(args.port ?? 4173);
+const base = "/teto-pizza-game/";
+const logFile = args.log ?? "lan-access.jsonl";
+const counts = { total: 0, ok: 0, denied: 0, notFound: 0, csp: 0 };
+const clients = new Set();
+const log = (o) => { fs.appendFileSync(logFile, JSON.stringify({ t: new Date().toISOString(), ...o }) + "\n"); };
+
+const CSP = ["default-src 'none'", "script-src 'self' 'unsafe-inline'", "style-src 'self' 'unsafe-inline'", "img-src 'self' data: blob:", "font-src 'self' data:",
+  "connect-src 'self'", "manifest-src 'self'", "worker-src 'self' blob:", "media-src 'self' data: blob:", "base-uri 'none'", "form-action 'none'", "frame-ancestors 'none'",
+  "report-uri " + base + "__csp"].join("; ");
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".webmanifest": "application/manifest+json", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8" };
+
+const server = http.createServer((req, res) => {
+  const client = (req.socket.remoteAddress ?? "").replace(/^::ffff:/, "");
+  counts.total += 1;
+  const done = (status, bytes = 0, note) => { log({ client, method: req.method, path: req.url, status, bytes, ...(note ? { note } : {}) }); };
+  const send = (status, body, type = "text/plain; charset=utf-8", extra = {}) => {
+    res.writeHead(status, { "Content-Type": type, "Content-Security-Policy": CSP, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", ...extra });
+    res.end(req.method === "HEAD" ? undefined : body); done(status, Buffer.byteLength(body ?? ""));
+  };
+  // S2
+  if (!allow.has(client)) { counts.denied += 1; res.writeHead(403, { "Content-Type": "text/plain" }); res.end("forbidden"); done(403, 9, "DENIED"); return; }
+  clients.add(client);
+  const url = new URL(req.url ?? "/", "http://x");
+  if (req.method === "POST" && url.pathname === base + "__csp") {
+    let body = ""; req.on("data", (c) => { if (body.length < 4000) body += c; });
+    req.on("end", () => { counts.csp += 1; log({ client, note: "CSP-VIOLATION", report: body.slice(0, 1500) }); res.writeHead(204); res.end(); });
+    return;
+  }
+  if (req.method !== "GET" && req.method !== "HEAD") { send(405, "method not allowed"); return; }
+  let rel = decodeURIComponent(url.pathname);
+  if (rel === "/") { res.writeHead(302, { Location: base }); res.end(); done(302); return; }
+  if (!rel.startsWith(base)) { counts.notFound += 1; send(404, "not found"); return; }
+  rel = rel.slice(base.length) || "index.html";
+  const file = path.resolve(dist, rel);
+  if (file !== dist && !file.startsWith(dist + path.sep)) { counts.denied += 1; send(403, "forbidden", undefined, {}); return; }
+  fs.readFile(file, (err, buf) => {
+    if (err) { counts.notFound += 1; send(404, "not found"); return; }
+    counts.ok += 1;
+    res.writeHead(200, { "Content-Type": TYPES[path.extname(file)] ?? "application/octet-stream", "Content-Security-Policy": CSP, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" });
+    res.end(req.method === "HEAD" ? undefined : buf); done(200, buf.length);
+  });
+});
+
+server.listen(port, bind, () => {
+  const addr = server.address();
+  if (addr.address !== bind) { console.error("REFUSED: bound to " + addr.address + " instead of " + bind); process.exit(2); }
+  console.log(`serving ${dist}\n  dist manifest sha256: ${distHash}\n  listening ONLY on http://${bind}:${port}${base}  (allowed client(s): ${[...allow].join(", ")})\n  CSP: ${CSP}\n  log: ${path.resolve(logFile)}\n  exits in ${ttl} min (Ctrl+C to stop sooner)`);
+  log({ note: "START", bind, port, allow: [...allow], distHash, ttlMinutes: ttl });
+});
+const stop = (why) => { const s = { note: "STOP", why, ...counts, clients: [...clients] }; log(s); console.log("\n" + JSON.stringify(s)); server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 500); };
+setTimeout(() => stop("ttl"), ttl * 60_000).unref();
+process.on("SIGINT", () => stop("sigint")); process.on("SIGTERM", () => stop("sigterm"));

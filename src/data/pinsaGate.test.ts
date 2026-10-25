@@ -18,7 +18,7 @@ import { RECIPES, getRecipe, participatesInLunchRush } from "./recipes";
 import { getReferencePizza, listReferencePizzas } from "./referencePizza";
 
 /**
- * Pinsa Romana public gate (#577 P3-b, Owner option A): the REAL modules, nothing mocked. While `PINSA_PRODUCTION` is false (the shipped value) Pinsa must not
+ * Pinsa Romana public gate (#577 P3-b, Owner option A): the REAL modules, nothing mocked. In the ROLLBACK state (`PINSA_PRODUCTION` compiled to false) Pinsa must not
  * exist on any path a player or a save can reach: recipe, order, Dex / discovery target, ladder, Research, Hint, technique, chapter, Reference, Dinner, Lunch Rush.
  * The type-keyed tables keep a `pinsa-romana` row (so `RecipeId` is exhaustive); every reader of those tables is checked here.
  * The ON state is exercised, with the gate mocked, in lateCatalog.pinsa.test.ts. Changing the literal is a separate Owner decision (the
@@ -27,23 +27,21 @@ import { getReferencePizza, listReferencePizzas } from "./referencePizza";
 const PINSA = "pinsa-romana";
 const WORDS = /ピンサ|ロマーナ|pinsa|romana|material-multigrain/i;
 
-/** `TETO_PINSA_ON=1` (vitest.config.ts) compiles the gate open to rehearse the publish: the runtime OFF checks below are then skipped, and the shipped TEXT is still pinned. */
-const REHEARSING_ON = pinsaEnabled();
+/** `TETO_PINSA_OFF=1` (vitest.config.ts, `npm run test:pinsa-off`) compiles the gate closed to prove the rollback: only then do the runtime OFF checks below run. The shipped TEXT is pinned either way. */
+const ROLLED_BACK = !pinsaEnabled();
 
 describe("the gate literal", () => {
-  it("is false in the shipped source (publishing Pinsa is a separate Owner approval; the text is read raw, so a rehearsal run cannot hide a flipped literal)", () => {
+  it("is true in the shipped source (Owner publish approval 2026-10-25; the text is read raw, so a rollback run cannot hide a changed literal)", () => {
     const sources = import.meta.glob<string>("./pinsaGate.ts", { query: "?raw", import: "default", eager: true });
     const text = Object.values(sources)[0];
-    expect(text).toMatch(/^export const PINSA_PRODUCTION = false;$/m);
+    expect(text).toMatch(/^export const PINSA_PRODUCTION = true;$/m);
     expect(text).not.toMatch(/import\.meta\.env/);
-    if (!REHEARSING_ON) {
-      expect(PINSA_PRODUCTION).toBe(false);
-      expect(pinsaEnabled()).toBe(false);
-    }
+    expect(PINSA_PRODUCTION).toBe(!ROLLED_BACK);
+    expect(pinsaEnabled()).toBe(!ROLLED_BACK);
   });
 });
 
-describe.skipIf(REHEARSING_ON)("OFF: Pinsa exists in no runtime catalog", () => {
+describe.runIf(ROLLED_BACK)("OFF (rollback): Pinsa exists in no runtime catalog", () => {
   it("RECIPES / ORDERS / discovery catalog / ladder / ingredients / late arrays name no Pinsa", () => {
     for (const [name, value] of Object.entries({ RECIPES, ORDERS, RECIPE_DISCOVERY_CATALOG, DISCOVERY_LADDER, INGREDIENTS, LATE_RECIPES, LATE_ORDERS, LATE_DISCOVERY_TARGET_IDS })) {
       expect(JSON.stringify(value), name).not.toMatch(WORDS);
@@ -83,7 +81,7 @@ describe.skipIf(REHEARSING_ON)("OFF: Pinsa exists in no runtime catalog", () => 
   });
 });
 
-describe.skipIf(REHEARSING_ON)("OFF: Research, Hint and the technique Dex show nothing of Pinsa, at any progress", () => {
+describe.runIf(ROLLED_BACK)("OFF (rollback): Research, Hint and the technique Dex show nothing of Pinsa, at any progress", () => {
   const allOwned = INGREDIENTS.map((i) => i.id);
 
   it("Research candidates (every material owned, empty Dex) never contain it, and arugula's cohort is jamon alone (no letter)", () => {

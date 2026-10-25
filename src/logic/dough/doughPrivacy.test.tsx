@@ -66,7 +66,7 @@ describe.skipIf(pinsaEnabled())("unpublished Pinsa does not leak (production cat
   });
 });
 
-// The gate-open counterpart (`TETO_PINSA_ON=1`): the recipe is published, but the dough TECHNIQUE still surfaces only as a riddle, never by name, and a dough cook alone is no discovery.
+// The gate-open counterpart (the shipped state): the recipe is published, but the dough TECHNIQUE still surfaces only as a riddle, never by name, and a dough cook alone is no discovery.
 describe.runIf(pinsaEnabled())("published Pinsa (gate open): the dough technique is still never named before it is discovered", () => {
   it("the Dex 調理法 section shows the dough technique as a riddle only (no name, no id, no Pinsa word), at every progress", () => {
     for (let n = 0; n <= RECIPES.length; n++) {
