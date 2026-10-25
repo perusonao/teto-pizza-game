@@ -32,7 +32,8 @@ export type DedicatedIngredientVisual =
   | "arugula-leaves"
   | "whitebait-school"
   | "salmon-roe-grains"
-  | "green-onion-slices";
+  | "green-onion-slices"
+  | "sesame-seeds";
 
 export interface Ingredient {
   id: string;

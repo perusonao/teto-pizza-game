@@ -47,6 +47,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "green-onion-slices",
   "salmon-roe-grains",
   "arugula-leaves",
+  "sesame-seeds",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -76,7 +77,7 @@ const PHASE_B1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
 /** Pinsa follow-up: arugula's dedicated sprig of lobed leaves (Owner-approved on iPhone) instead of the 🥗 emoji. */
 const ARUGULA_DEDICATED: Record<string, DedicatedIngredientVisual> = { arugula: "arugula-leaves" };
 // E5: with the late catalog on (Production) the late salmon-roe is a production row too (its art is pinned in the FIN-E4b-ikura block below).
-const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains" } : {};
+const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains", "white-sesame": "sesame-seeds" } : {};
 const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
@@ -735,5 +736,39 @@ describe("Phase B-1: green-onion dedicated art (production row)", () => {
   it("the text fallback is shared with no other ingredient", () => {
     const own = getIngredient("green-onion")!.emoji;
     expect(INGREDIENTS.filter((i) => i.emoji === own).map((i) => i.id)).toEqual(["green-onion"]);
+  });
+});
+
+/**
+ * New Sauces Phase B U2 (Issue #578): the late-catalog `white-sesame` is drawn by its own grain art (a few small pale pointed ovals), never by its emoji and never by a leaf / ring visual.
+ */
+describe("Phase B U2: white-sesame dedicated art (late-catalog row)", () => {
+  const sesame = LATE_INGREDIENTS.find((i) => i.id === "white-sesame")!;
+
+  it("declares the dedicated visual and is a production row exactly when the late catalog is on", () => {
+    expect(sesame.pieceVisual).toBe("sesame-seeds");
+    expect(INGREDIENTS.some((i) => i.id === "white-sesame")).toBe(lateCatalogEnabled());
+  });
+
+  it("draws an SVG grain cluster on the glyph and on the placed piece, and never prints its emoji (no id / url(#) references)", () => {
+    for (const node of [<IngredientGlyph key="g" ingredient={sesame} />, <IngredientPieceVisual key="p" ingredient={sesame} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector('svg[data-ingredient-visual="sesame-seeds"]');
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.querySelectorAll("path").length).toBeGreaterThanOrEqual(5); // the grains, not a leaf or a ring
+      expect(container.querySelector("circle")).toBeNull();
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      unmount();
+    }
+  });
+
+  it("its text fallback is shared with no other ingredient (G18), and the miso-sauce chip fallback is unique too", () => {
+    for (const id of ["white-sesame", "miso-sauce"]) {
+      const own = getIngredient(id)!.emoji;
+      expect(INGREDIENTS.filter((i) => i.emoji === own).map((i) => i.id)).toEqual([id]);
+    }
   });
 });

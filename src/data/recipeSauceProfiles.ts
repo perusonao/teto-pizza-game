@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho";
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce";
   interaction: SauceInteractionKind;
 }
 
@@ -321,6 +321,12 @@ export const RECIPE_SAUCE_PROFILES = {
   "yuzu-shrimp-pizza": {
     recipeId: "yuzu-shrimp-pizza",
     ingredientId: "yuzu-kosho",
+    interaction: "PAINT",
+  },
+  // New Sauces Phase B U2 (late catalog): miso-sauce painted before the bake (GAMEPLAY ASSUMPTION, not confirmed by the original).
+  "eggplant-dengaku-pizza": {
+    recipeId: "eggplant-dengaku-pizza",
+    ingredientId: "miso-sauce",
     interaction: "PAINT",
   },
   // Pinsa Romana (#577 P3-b-1, late catalog; exists only while PINSA_PRODUCTION): same sauce as jamon-serrano-pizza.

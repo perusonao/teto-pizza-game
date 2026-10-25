@@ -32,7 +32,7 @@ export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH
 export const PINSA_ROMANA_BATCH: RecipeBatchManifest = {
   batchId: "pinsa-romana",
   status: "landed",
-  afterRecipeId: "yuzu-shrimp-pizza", // (New Sauces Phase B U1: yuzu-shrimp-pizza is appended after ikura, before Pinsa, so Pinsa stays the last late recipe)
+  afterRecipeId: "eggplant-dengaku-pizza", // (New Sauces Phase B U1 / U2: yuzu-shrimp-pizza and eggplant-dengaku-pizza are appended after ikura, before Pinsa, so Pinsa stays the last late recipe)
   recipes: [{ recipeId: "pinsa-romana", keyIngredientId: "arugula", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
   acceptedLetterShifts: { "jamon-serrano-pizza": "-->B" },
 };
@@ -48,5 +48,19 @@ export const YUZU_SHRIMP_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "ikura-salmon-pizza",
   recipes: [{ recipeId: "yuzu-shrimp-pizza", keyIngredientId: "yuzu-kosho", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
+  followedBy: ["eggplant-dengaku-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U2: eggplant-dengaku-pizza is appended after yuzu-shrimp-pizza)
+};
+
+/**
+ * New Sauces Phase B U2 (#578, late catalog): the manifest of `eggplant-dengaku-pizza`, evaluated by `lateCatalog.dengaku.test.ts` over the full catalog (the late recipes included). Like the yuzu batch it is deliberately NOT in
+ * `RECIPE_BATCHES`. The recipe is credited, so its own late ladder step (after the yuzu step) unlocks `miso-sauce` and `white-sesame`; its Research cohort key is `white-sesame` (the last material of the step), a single-member
+ * cohort, so no existing recipe changes its Research letter. It is followed by Pinsa only while the Pinsa gate is open. The original PIZZA DB page was not read: the miso-sauce PAINT before the bake, the eggplant before the bake
+ * (no pre-cooking) and the white sesame AFTER the bake are GAMEPLAY ASSUMPTIONS (Owner 2026-10-25).
+ */
+export const EGGPLANT_DENGAKU_BATCH: RecipeBatchManifest = {
+  batchId: "new-sauces-u2-eggplant-dengaku",
+  status: "landed",
+  afterRecipeId: "yuzu-shrimp-pizza",
+  recipes: [{ recipeId: "eggplant-dengaku-pizza", keyIngredientId: "white-sesame", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
   followedBy: pinsaEnabled() ? ["pinsa-romana"] : [],
 };

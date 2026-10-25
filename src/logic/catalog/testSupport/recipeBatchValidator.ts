@@ -248,9 +248,12 @@ export function validateBatchManifest(manifest: RecipeBatchManifest, view: Catal
   const landedRecipes = view.recipes.filter((r) => !followedBy.includes(r.id));
 
   // Append-only ladder: the batch adds steps after the base's, one per recipe, in manifest order.
-  const baseSteps = view.ladder.steps.filter((s) => !ids.includes(s.keyRecipeId));
+  // A recipe that follows this batch (`followedBy`) may carry its own late ladder step AFTER this batch's (New Sauces Phase B U2: eggplant-dengaku-pizza after yuzu-shrimp-pizza): those steps are neither
+  // the base nor this batch's, so they are set aside before the frozen prefix is checked.
+  const followerSteps = view.ladder.steps.filter((s) => followedBy.includes(s.keyRecipeId));
+  const baseSteps = view.ladder.steps.filter((s) => !ids.includes(s.keyRecipeId) && !followedBy.includes(s.keyRecipeId));
   const addedSteps = view.ladder.steps.filter((s) => ids.includes(s.keyRecipeId));
-  const baseStepCount = view.ladder.steps.length - addedSteps.length;
+  const baseStepCount = view.ladder.steps.length - addedSteps.length - followerSteps.length;
   if (view.ladder.steps.slice(0, baseStepCount).some((s) => ids.includes(s.keyRecipeId))) problems.push("LADDER_NOT_APPENDED: a batch step sits inside the frozen prefix");
   const wantCredited = manifest.recipes.filter((r) => r.ladderCredit !== false && !r.creditedWithoutStep);
   for (const r of manifest.recipes.filter((m) => m.creditedWithoutStep)) {

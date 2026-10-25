@@ -99,11 +99,12 @@ describe("isChapterCleared (K2)", () => {
     const real = buildRecipeChapters().find((c) => c.chapter === 4)!;
     expect(real.recipes.some((r) => r.id === "ikura-salmon-pizza")).toBe(true);
     expect(real.recipes.some((r) => r.id === "yuzu-shrimp-pizza")).toBe(true); // New Sauces Phase B U1: its key step (yuzu-kosho) is a T4 step, so chapter 4
+    expect(real.recipes.some((r) => r.id === "eggplant-dengaku-pizza")).toBe(true); // New Sauces Phase B U2: its key step (miso-sauce / white-sesame) is a T4 step, so chapter 4
     const ordinary = real.recipes.filter((r) => !isLateRecipeId(r.id)).map((r) => r.id);
     expect(isChapterCleared(real, discoverAll(ordinary))).toBe(true);
-    // every late recipe in the chapter adds to the displayed total and none is required for the mark (ikura and yuzu-shrimp-pizza; with the Pinsa gate open, pinsa-romana too: its key step is arugula's, in chapter 4)
+    // every late recipe in the chapter adds to the displayed total and none is required for the mark (ikura, yuzu-shrimp-pizza and eggplant-dengaku-pizza; with the Pinsa gate open, pinsa-romana too: its key step is arugula's, in chapter 4)
     const lateInChapter = real.recipes.length - ordinary.length;
-    expect(lateInChapter).toBe(pinsaEnabled() ? 3 : 2);
+    expect(lateInChapter).toBe(pinsaEnabled() ? 4 : 3);
     expect(chapterProgress(real, discoverAll(ordinary))).toEqual({ discovered: ordinary.length, total: ordinary.length + lateInChapter });
   });
 

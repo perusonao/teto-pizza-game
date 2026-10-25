@@ -10,7 +10,9 @@ import type { DexEntry } from "./dex";
 
 const ROE = "salmon-roe";
 const YUZU_KOSHO = "yuzu-kosho";
-const LATE_MATERIALS = [ROE, YUZU_KOSHO];
+const MISO_SAUCE = "miso-sauce";
+const WHITE_SESAME = "white-sesame";
+const LATE_MATERIALS = [ROE, YUZU_KOSHO, MISO_SAUCE, WHITE_SESAME];
 const dexOf = (ids: readonly string[]): DexEntry[] => ids.map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }));
 /** A save as an E5-era player holds it before ever launching the E5 build: the ledger has no late material yet. */
 const staleSave = (count: number) => {
@@ -127,3 +129,50 @@ describe("late material compatibility floor: yuzu-kosho (New Sauces Phase B U1)"
   });
 });
 
+
+describe("late material compatibility floor: miso-sauce + white-sesame (New Sauces Phase B U2)", () => {
+  it("the dengaku step derives number 59 today (ordinary 56 + roe, yuzu, dengaku); the floors are the FIXED 59 for both materials and the earlier floors are unchanged", () => {
+    const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
+    expect([stepOf(ROE), stepOf(YUZU_KOSHO), stepOf(MISO_SAUCE), stepOf(WHITE_SESAME)]).toEqual([57, 58, 59, 59]);
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ [ROE]: 57, [YUZU_KOSHO]: 58, [MISO_SAUCE]: 59, [WHITE_SESAME]: 59 });
+  });
+
+  it.each([0, 1, 2, 3])("a never-launched save at the step they shipped at gets all four late materials with %i ordinary steps added later", (k) => {
+    const s = staleSave(59);
+    const ladder = withOrdinary(k);
+    expect(ladder.steps.find((x) => x.ingredientIds.includes(MISO_SAUCE))!.step).toBe(59 + k);
+    const r = resolveShopEntitlement(s.dex, s.owned, s.ledger, ladder);
+    expect(r.unlockedForShopIngredientIds).toEqual(expect.arrayContaining([ROE, YUZU_KOSHO, MISO_SAUCE, WHITE_SESAME]));
+    expect(r.newlyUnlockedMaterialIds).toEqual(expect.arrayContaining([MISO_SAUCE, WHITE_SESAME]));
+    expect(r.unlockedForShopIngredientIds.slice(0, s.ledger.length)).toEqual(s.ledger); // the ledger only grows
+  });
+
+  it("each floor is its own: count 58 gets the roe and yuzu-kosho but not the dengaku materials, 57 the roe only, 56 none", () => {
+    const at58 = staleSave(58);
+    const r58 = resolveShopEntitlement(at58.dex, at58.owned, at58.ledger, withOrdinary(2));
+    expect(r58.unlockedForShopIngredientIds).toEqual(expect.arrayContaining([ROE, YUZU_KOSHO]));
+    expect(r58.unlockedForShopIngredientIds).not.toContain(MISO_SAUCE);
+    expect(r58.unlockedForShopIngredientIds).not.toContain(WHITE_SESAME);
+    const at57 = staleSave(57);
+    const r57 = resolveShopEntitlement(at57.dex, at57.owned, at57.ledger, withOrdinary(2));
+    expect(r57.unlockedForShopIngredientIds).toContain(ROE);
+    for (const id of [YUZU_KOSHO, MISO_SAUCE, WHITE_SESAME]) expect(r57.unlockedForShopIngredientIds).not.toContain(id);
+    const at56 = staleSave(56);
+    const r56 = resolveShopEntitlement(at56.dex, at56.owned, at56.ledger, withOrdinary(2));
+    for (const id of LATE_MATERIALS) expect(r56.unlockedForShopIngredientIds).not.toContain(id);
+  });
+
+  it("a save that already holds a material (ledger or owned) is unchanged, a second resolve announces nothing and returns the ledger by reference (idempotent), and an unknown id stays", () => {
+    const raw = ladderSave(59);
+    const dex = dexOf(raw.dex.map((e) => e.recipeId));
+    const held = resolveShopEntitlement(dex, raw.ownedIngredientIds, raw.unlockedForShopIngredientIds, withOrdinary(1));
+    for (const id of [MISO_SAUCE, WHITE_SESAME]) expect(held.unlockedForShopIngredientIds.filter((i) => i === id)).toHaveLength(1);
+    const s = staleSave(59);
+    const first = resolveShopEntitlement(s.dex, [...s.owned, MISO_SAUCE], [...s.ledger, "from-a-newer-build"], withOrdinary(1));
+    expect(first.unlockedForShopIngredientIds.filter((i) => i === MISO_SAUCE)).toHaveLength(1);
+    expect(first.unlockedForShopIngredientIds).toContain("from-a-newer-build");
+    const second = resolveShopEntitlement(s.dex, s.owned, first.unlockedForShopIngredientIds, withOrdinary(1));
+    expect(second.newlyUnlockedMaterialIds).toEqual([]);
+    expect(second.unlockedForShopIngredientIds).toBe(first.unlockedForShopIngredientIds);
+  });
+});

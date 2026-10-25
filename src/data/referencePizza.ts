@@ -4016,6 +4016,60 @@ export const YUZU_SHRIMP_PIZZA_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * New Sauces Phase B U1 (Issue #578, late catalog): Reference Truth for `eggplant-dengaku-pizza` (the miso-sauce PAINT sauce is not a piece). Pieces (mozzarella 2 / eggplant 3 / white-sesame 1 = 6) take the
+ * RT-01 8-piece ring consecutively in `requiredIngredients` order. The white-sesame is the POST_BAKE group (placed in FINISH; a fine grain, not a leaf: HEAVY_SQUASH like the other non-leafy pieces). Slot assignment is GAMEPLAY / REFERENCE
+ * CALIBRATION (tuned in the real-device Human Verification), not source authority.
+ */
+export const EGGPLANT_DENGAKU_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "eggplant-dengaku-pizza",
+  sauce: computeMechanicalSauceReference("eggplant-dengaku-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "eggplant",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "white-sesame",
+      positions: [
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
  * Batch 7a: Reference Truth for `new-zealand-lamb-pizza` (NO_SAUCE: `sauce: null`, the `aussie` shape). Pieces (mozzarella 2 / rosemary 1 / lamb 3 / sweet-potato 2 = 8) take
  * the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
  * not source authority.
@@ -4192,6 +4246,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [GRANDMA_PIZZA_REFERENCE.recipeId, GRANDMA_PIZZA_REFERENCE],
   [IKURA_SALMON_PIZZA_REFERENCE.recipeId, IKURA_SALMON_PIZZA_REFERENCE],
   [YUZU_SHRIMP_PIZZA_REFERENCE.recipeId, YUZU_SHRIMP_PIZZA_REFERENCE],
+  [EGGPLANT_DENGAKU_PIZZA_REFERENCE.recipeId, EGGPLANT_DENGAKU_PIZZA_REFERENCE],
   [PINSA_ROMANA_REFERENCE.recipeId, PINSA_ROMANA_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);
