@@ -129,7 +129,7 @@ pizzadb.jp は Claude Code の環境から到達できない（CONNECT tunnel fa
 | OD-U0-1 | 原典ページの確認 | 到達できる環境で、テンプレート §1 の確認項目（D-1〜D-7、T-1〜T-7、Y-1〜Y-6）を確認して共有。優先は柚子えび（Y-1〜Y-3） | （未回答） |
 | OD-U0-2 | 柚子えびの保留（OD-B9-1）を解除するか | OD-U0-1 の結果後 | （未回答） |
 | OD-U0-3 | `white-sesame` の family | `other` は gate 違反（再現済み）のため選べない。候補: `herb` / `vegetable` / `spice`。測定は privacy 系 gate 通過のみ。語義・ヒント絞り込み力は未評価 | （未回答） |
-| OD-U0-4 | `pomegranate` の family | `fruit`（privacy 系 gate 通過）。ほかの候補は未検討 | （未回答） |
+| OD-U0-4 | `pomegranate` の family | `fruit`（privacy 系 gate 通過）。ほかの候補は未検討 | **暫定採用 `fruit`（Owner、2026-10-25）。** 描画は案A'・サイズ `xs` も暫定採用。記録: `docs/design/candidates/pomegranate-u3/README.md`。実装は U2 の merge 後 |
 | OD-U0-5 | タヒニの役割 | 塗る（sauce / PAINT）か、かける（ソース後乗せ）か。原典 T-2 の結果次第 | （未回答） |
 | OD-U0-6 | 味噌だれの id・表示名 | `miso-sauce` / 別名。原典 D-2 の結果次第 | （未回答） |
 | OD-U0-7 | ikura の late step 番号移動に伴う既存セーブ対策 | M0 受容 / M1 運用 / M3 下限（推奨候補）/ M2 別 Issue（§3.4） | （未回答） |
