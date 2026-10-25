@@ -11,7 +11,7 @@ import { CATALOG_COUNTS, materialsUpTo } from "../src/logic/catalog/testSupport/
  * New Sauces Phase B U1 representative E2E (Issue #578; the late catalog: yuzu-kosho -> yuzu-shrimp-pizza). The yuzu-kosho PAINT before the bake, the shrimp placed before the bake without
  * pre-cooking and every count are PROVISIONAL game-design values (the original page is not confirmed on them; the shiso is a finishing touch in the original). The late sauce played end to end:
  * Shop NEW (T4, 120 Pitz, 10 uses) and purchase, the single Research Entry (the label names only the cohort key; no identity leak), the SAUCE step painted with the existing PAINT gesture (the
- * yellow-green `#b5c56a` is PROVISIONAL until the Owner HV, so the painted dough is captured), the CHEESE step (mozzarella 2), shrimp 3, the bake, the shiso placed in FINISH, NEW DISCOVERY and the Dex.
+ * muted yellow-olive `#a3ad52` (was `#b5c56a`) is PROVISIONAL until the Owner HV, so the painted dough is captured), the CHEESE step (mozzarella 2), shrimp 3, the bake, the shiso placed in FINISH, NEW DISCOVERY and the Dex.
  * The save does not list the new step's material: the ladder (the late step) grants it on load.
  *
  * Optional output: HV_SCREENSHOT_DIR (screenshots), HV_VIDEO=1 (Playwright video, 390x844 project only).
