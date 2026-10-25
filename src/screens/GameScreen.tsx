@@ -83,6 +83,7 @@ import { SquareDoughGauge } from "../components/SquareDoughGauge";
 import { SquareDoughNext, SquareDoughSteps } from "../components/SquareDoughGuide";
 import { createLumpySquareDough } from "../logic/pan/squareDoughFixtures";
 import { wantsLumpySquareStart } from "../preview/panShapePreview";
+import { doughOutlineOf } from "../logic/dough/doughOutline";
 import { effectivePanShape } from "../logic/pan/effectivePan";
 import { panSwitchOffered, type PanChoice } from "../state/panSelection";
 import { isDinnerRound } from "../state/roundKind";
@@ -806,6 +807,7 @@ export function GameScreen({
                   referencePizza ? (referencePizza.sauce?.ingredientId ?? null) : playerReference.sauceIngredientId
                 }
                 pieceGroups={referencePizza ? referencePizza.pieceGroups : playerReference.pieceGroups}
+                oval={effectivePanShape(state.recipe, state.pizza) !== "square" && doughOutlineOf(state.pizza, state.recipe) === "oval"}
               />
             </span>
             <span className="mini-reference__label">見本</span>

@@ -265,11 +265,13 @@ export async function tapDoughPercent(page: Page, xPercent: number, yPercent: nu
 }
 
 export async function completeDoughStep(page: Page) {
-  const { cx, cy, r } = await doughBox(page);
+  const { cx, cy, r, box } = await doughBox(page);
+  // An oval dough (3:2) keeps the circular percent space, so the ring is an ellipse with the box's own aspect; a round dough has ry === r.
+  const ry = r * (box.height / box.width);
   for (let i = 0; i < 8; i += 1) {
     const angle = (i / 8) * Math.PI * 2;
     const x = cx + Math.cos(angle) * r;
-    const y = cy + Math.sin(angle) * r;
+    const y = cy + Math.sin(angle) * ry;
     await waitUntilDoughReady(page, { x, y });
     await page.mouse.move(x, y);
     await page.mouse.down();

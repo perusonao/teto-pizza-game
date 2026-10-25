@@ -39,6 +39,7 @@ import type { SquareDoughRamp } from "../logic/pan/squareDoughView";
 import { getPanGeometry } from "../logic/pan/panGeometry";
 import { effectivePanShape } from "../logic/pan/effectivePan";
 import type { PanShape } from "../logic/pan/panShape";
+import { doughOutlineOf } from "../logic/dough/doughOutline";
 import { SquareTargetGuide } from "./square/SquareTargetGuide";
 import { squareCheesePoolClipPath } from "./square/squarePanStage";
 import "./square/squarePanStage.css";
@@ -274,6 +275,11 @@ export function PizzaStage({
   const panProp = panShape === "square" ? ({ pan: panShape } as const) : {};
   const pan = getPanGeometry(panShape);
   const squarePan = panShape === "square";
+  // Pinsa Romana (#577): the dough kind's outline. An oval is the same circular dough-percent space drawn in a wider-than-tall box (../logic/dough/doughOutline.ts), so every
+  // rule below -- hit test, clamp, sauce, placement, scoring -- is the round pizza's own; only the box (CSS `.pizza-dough--oval`) and the viewBox-based overlays differ. A
+  // square tray stays square. `preserveAspectRatio="none"` makes those overlays follow the box (a no-op in a square box, so it is only passed for an oval).
+  const oval = !squarePan && doughOutlineOf(pizza, recipe) === "oval";
+  const ovalSvgProps = oval ? ({ preserveAspectRatio: "none" } as const) : {};
   const pathRef = useRef<SVGPathElement>(null);
   const gestureRef = useRef<GestureState>(createGestureState());
   const fadeTimeoutRef = useRef<number | null>(null);
@@ -1561,7 +1567,7 @@ export function PizzaStage({
         aria-label={isKeyboardPlaceable ? "ピザ。選択中の素材を置くにはEnterまたはスペース" : "ピザ"}
         className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
           bakeState ? `pizza-dough--${bakeState}` : ""
-        } ${showDoughShape && !squarePan ? "pizza-dough--has-shape-layer" : ""}${squarePan ? " pizza-dough--square-pan" : ""}`}
+        } ${showDoughShape && !squarePan ? "pizza-dough--has-shape-layer" : ""}${squarePan ? " pizza-dough--square-pan" : ""}${oval ? " pizza-dough--oval" : ""}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -1635,7 +1641,7 @@ export function PizzaStage({
           />
         )}
         {isDoughStep && interactive && !showSquareDough && !squarePan && (
-          <svg className="dough-target-guide" viewBox="0 0 100 100" aria-hidden="true">
+          <svg className="dough-target-guide" viewBox="0 0 100 100" {...ovalSvgProps} aria-hidden="true">
             <circle cx="50" cy="50" r={DOUGH_RADIUS} />
           </svg>
         )}
@@ -1648,7 +1654,7 @@ export function PizzaStage({
             player can actually paint (referenceModeEnabled + interactive), never during
             BAKE/RESULT or behind the Reference popover. */}
         {referenceModeEnabled && interactive && !squarePan && (
-          <svg className="sauce-target-guide" viewBox="0 0 100 100" aria-hidden="true">
+          <svg className="sauce-target-guide" viewBox="0 0 100 100" {...ovalSvgProps} aria-hidden="true">
             <circle cx="50" cy="50" r={SAUCE_TARGET_RADIUS} />
           </svg>
         )}
@@ -1660,7 +1666,7 @@ export function PizzaStage({
         {/* Issue #418: CUT's capture zone reaches past the pizza so a stroke can start outside it. */}
         {isCutStep && interactive && <div className="pizza-cut-hit-zone" aria-hidden="true" />}
         {!separatePostLayer && cutToolLayer}
-        <svg className="pizza-paint-trail" viewBox="0 0 100 100" aria-hidden="true">
+        <svg className="pizza-paint-trail" viewBox="0 0 100 100" {...ovalSvgProps} aria-hidden="true">
           <path ref={pathRef} className="pizza-paint-trail__stroke" style={trailStrokeStyle} />
         </svg>
       </div>
