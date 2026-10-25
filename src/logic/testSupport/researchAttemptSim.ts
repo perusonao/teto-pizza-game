@@ -47,7 +47,14 @@ import { hint5SheetView, researchEntryViews, researchableEntryIds } from "../../
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { notebookView } from "../discovery/trialNotebook";
-import { placeFinishPieces, postBakeIdsOf } from "./lateFinishSim";
+import { isDoughAffordanceOpen } from "../techniques/doughSwitch";
+import { answerVariantOf, placeFinishPieces } from "./lateFinishSim";
+
+/** How a player varies the SAME ingredients once the exact set has failed: the dough chosen in the DOUGH step and the ingredients placed after the bake in FINISH. */
+interface MakeVariant {
+  dough?: "material-multigrain-long-ferment";
+  post: readonly string[];
+}
 import { trayPanForIds } from "./requiredSauces";
 
 /** NONE buys nothing; RUNG1..RUNG3 buy the first n ladder rungs (SAUCE, CHEESE, KEY_TOPPING) of every target before its
@@ -267,9 +274,11 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
     return c ? c.earnedPitz + c.discoveryBonusPitz + (state.lastEfficiencyCredit?.bonusPitz ?? 0) : 0;
   };
 
-  function finishBake(ids: readonly string[], singles: ReadonlySet<string> = new Set()) {
-    const post = postBakeIdsOf(ids); // E5: the late recipe's post-bake part is placed in FINISH
-    s = { ...s, pizza: { ...pizzaOf(ids.filter((id) => !post.includes(id)), singles), ...trayPanForIds(ids) } };
+  function finishBake(ids: readonly string[], singles: ReadonlySet<string> = new Set(), variant?: MakeVariant) {
+    // E5: the late recipe's post-bake part is placed in FINISH (the answer of the first recipe with this ingredient set). Pinsa (#577): a `variant` is how a player varies the
+    // SAME set -- the dough chip and which ingredient goes on after the bake -- once the plain set has failed.
+    const { post, dough } = variant ? { post: [...variant.post], dough: variant.dough } : answerVariantOf(ids);
+    s = { ...s, pizza: { ...pizzaOf(ids.filter((id) => !post.includes(id)), singles), ...trayPanForIds(ids), ...(dough ? { dough } : {}) } };
     s = act(s, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: BAKE_VALUE });
     s = placeFinishPieces(s, post, (id) => (singles.has(id) ? 1 : piecesOf(id)));
     for (let i = 0; i < 6 && s.phase !== "RESULT"; i += 1) s = act(s, { type: "CONFIRM_MAKING_STEP" });
@@ -475,6 +484,11 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
     let discoveredNow: string[] = [];
     let hintsDone = false;
     let finalFailed = false;
+    // Pinsa (#577): a target that fixes a dough kind shares its ingredients with another recipe, so the plain exact set does not find it. The player then varies HOW it is made, in the
+    // order the two Dex riddles point to: the other dough alone (only when the chip is offered: the dough technique's own derived affordance), the other dough with one ingredient
+    // after the bake, then the standard dough with one ingredient after the bake. Each is a real attempt through the reducer.
+    const targetDough = (getRecipe(target as RecipeId) as { doughKind?: string } | undefined)?.doughKind === "material-multigrain-long-ferment" ? ("material-multigrain-long-ferment" as const) : undefined;
+    let variantQueue: MakeVariant[] | null = null;
 
     for (let attemptGuard = 0; attemptGuard < 120; attemptGuard += 1) {
       startValid(target);
@@ -485,6 +499,15 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
         salt: stageGuard,
         toppingCap: Math.max(1, 3 - noInfo),
       });
+      let variant: MakeVariant | undefined;
+      if (finalFailed && targetDough && plan.final) {
+        if (variantQueue === null) {
+          const withDough = isDoughAffordanceOpen(s.dex) ? [{ dough: targetDough, post: [] }, ...plan.ids.map((id) => ({ dough: targetDough, post: [id] }))] : [];
+          variantQueue = [...withDough, ...plan.ids.map((id) => ({ post: [id] }))];
+        }
+        variant = variantQueue.shift();
+        if (!variant) throw new Error(`Dex ${dexIds.length}: ${target} not found by varying the dough / the moment of ${plan.ids.join("+")}`);
+      }
       const singles = new Set(options.explorePieces === "ONE" ? plan.unknownIds.filter((id) => cat(id) === "topping") : []);
       ensureStock(plan.ids, singles);
       // A refill may have been paid by Margherita replays (which end this round): start the research round again.
@@ -492,7 +515,7 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
       const factsBefore = [...(s.discoveryHintFacts[target] ?? [])];
       const knownBefore = knowledgeOf(target, negative).positive;
       const dexBefore = discoveredRecipeIds(s.dex);
-      finishBake(plan.ids, singles);
+      finishBake(plan.ids, singles, variant);
       acc.attempts += 1;
       totalAttempts += 1;
       checkInvariants(target, plan.ids, factsBefore, knownBefore);
@@ -505,8 +528,8 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
       }
       finalFailed = plan.final;
       const rows = s.lastResearchRows?.rows ?? [];
-      if (rows.length === 0) noInfo += 1;
-      else acc.attemptsWithRows += 1;
+      if (rows.length === 0 && !variant) noInfo += 1; // (a variant attempt of the same set returns no rows by construction: it is the player's next idea, not a lack of information)
+      else if (rows.length > 0) acc.attemptsWithRows += 1;
       for (const r of rows) if (r.verdict === "NEGATIVE") negative.add(r.ingredientId);
       if (noInfo > 8) throw new Error(`Dex ${dexIds.length}: ${target} stuck (no information) after ${acc.attempts} attempts`);
     }

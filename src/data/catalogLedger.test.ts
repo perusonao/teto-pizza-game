@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CATALOG_COUNTS } from "../logic/catalog/testSupport/catalogDerived";
 import { ingredientAttributeFamily } from "./ingredientTaxonomy";
 import { INGREDIENTS } from "./ingredients";
+import { pinsaEnabled } from "./pinsaGate";
 
 /**
  * THE one explicit catalog ledger. Every other test derives its totals from RECIPES / INGREDIENTS / DISCOVERY_LADDER
@@ -10,15 +11,17 @@ import { INGREDIENTS } from "./ingredients";
  */
 describe("catalog ledger (the single hand-maintained total)", () => {
   it("recipes / credited / ingredients / toppings / ladder steps / chapter sizes / Lunch Rush pool", () => {
+    // Pinsa Romana (#577 P3-b), only while its gate is open: + pinsa-romana (non-credit, no new material, chapter 4 with its key step arugula = 33).
+    const pinsa = pinsaEnabled();
     expect(CATALOG_COUNTS).toEqual({
       // E5 (late catalog ON): + ikura-salmon-pizza (credited, chapter 4), + salmon-roe (a seafood topping), + its late ladder step 57.
       // Square Dough E-2 (#521): + grandma-pizza (non-credit, chapter 2: key step 14, no new material).
-      recipes: 65,
+      recipes: pinsa ? 66 : 65,
       credited: 60,
       ingredients: 70,
       toppings: 54,
       ladderSteps: 57,
-      chapterSizes: [6, 12, 18, 29],
+      chapterSizes: [6, 12, 18, pinsa ? 30 : 29],
       lunchRushPool: 25,
     });
   });

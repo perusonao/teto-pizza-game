@@ -14,6 +14,7 @@ vi.mock("./discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: true }));
 
 const { RECIPES } = await import("../data/recipes");
 const { getIngredient } = await import("../data/ingredients");
+const { pinsaEnabled } = await import("../data/pinsaGate");
 const { RESEARCH_IDENTIFY_ENABLED } = await import("./discovery/researchIdentifyFlag");
 const { chooseAttempt, simulateResearchAttempts, RESEARCH_HINT_PROFILES } = await import("./testSupport/researchAttemptSim");
 const { simulateHint5Economy } = await import("./testSupport/hint5EconomySim");
@@ -66,6 +67,8 @@ describe("attempt-aware walk (real reducer)", () => {
         const tag = `${profile} q${qualityTotal} ${explorePieces}`;
         expect(r.completed, tag).toBe(true);
         expect(r.stages.at(-1)!.discovery, tag).toBe(RECIPES.length);
+        // Pinsa Romana (#577 P3-b), gate open: it shares jamon's ingredients, so the walk finds it only by varying the dough and the moment (the player model in the sim), and finds it.
+        if (pinsaEnabled()) expect(r.stages.some((st) => st.discovered.includes("pinsa-romana")), tag).toBe(true);
         expect(r.violations, tag).toEqual([]);
         expect(r.minPitz, tag).toBeGreaterThanOrEqual(0);
         expect(r.reservedStops, tag).toBe(0);

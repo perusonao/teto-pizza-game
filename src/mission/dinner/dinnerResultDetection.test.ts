@@ -29,6 +29,7 @@ import {
   type DinnerAttemptResult,
 } from "./dinnerResultDetection";
 import { ordinaryRecipes } from "../../logic/catalog/testSupport/lateIds";
+import { targetIdentityKey } from "../../logic/catalog/testSupport/identityKeys";
 
 /**
  * Dinner Mission DM-3R-1: result detection. Test numbers follow the DM-3R-1 task list; the Result
@@ -154,7 +155,7 @@ function deepFreeze<T>(value: T): T {
 
 describe("identity: the Free Cooking matcher, reused (§3 / §4)", () => {
   it("32: every one of the 32 runtime recipes has a unique signature and its Reference identifies itself", () => {
-    const keys = RECIPE_DISCOVERY_CATALOG.map((t) => JSON.stringify([[...t.items].sort(), [...(t.sauceBase ?? [])].sort()]));
+    const keys = RECIPE_DISCOVERY_CATALOG.map((t) => targetIdentityKey(t)); // Pinsa (#577): the identity dimensions (dough, late) are part of the identity the matcher judges
     expect(new Set(keys).size).toBe(RECIPES.length); // 0 identical signatures
     // E5: Dinner has no FINISH (D2-0), so the late recipe (post-bake) is never a Dinner identity; pinned in finishD2Inert.test.ts.
     for (const recipe of ordinaryRecipes(RECIPES)) {

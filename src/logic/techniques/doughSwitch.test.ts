@@ -9,6 +9,7 @@ import { doughChipOtherLabel, isDoughAffordanceOpen, isDoughSwitchVisible } from
 import { isTrayAffordanceOpen } from "./panSwitch";
 import { techniqueAffordanceStep } from "./registration";
 import { productionTechniqueContext, techniqueRoundEligibility, type TechniqueRuntimeContext } from "./runtime";
+import { DOUGH_PINSA_ROMANA_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 
 /** Dough Kind P2 (#577): when the DOUGH step may offer the dough-kind chips. Synthetic Pinsa target only -- Production has none (P3 on HOLD). */
 const dexOf = (n: number): DexState =>
@@ -29,7 +30,11 @@ const STEP = techniqueAffordanceStep(DOUGH_TECHNIQUE_ID, CONTEXT.catalog, CONTEX
 
 describe("isDoughAffordanceOpen", () => {
   it("is closed for every Dex in Production: no catalog target requires the dough technique (INV-TQ-4)", () => {
-    for (let n = 0; n <= RECIPES.length; n++) expect(isDoughAffordanceOpen(dexOf(n)), `credited ${n}`).toBe(false);
+    // (with the Pinsa gate open, `TETO_PINSA_ON=1`, it opens exactly at the step DERIVED from the recipe's materials, never an authored number)
+    const { catalog, materialStep } = productionTechniqueContext();
+    const step = techniqueAffordanceStep("dough-pinsa-romana", catalog, materialStep);
+    expect(step === null).toBe(DOUGH_PINSA_ROMANA_RECIPE_IDS.length === 0);
+    for (let n = 0; n <= RECIPES.length; n++) expect(isDoughAffordanceOpen(dexOf(n)), `credited ${n}`).toBe(step !== null && n >= step);
   });
 
   it("with a Pinsa target it opens at the derived step and stays open", () => {

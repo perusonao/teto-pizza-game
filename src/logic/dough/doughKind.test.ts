@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../../data/recipes";
 import { DEFAULT_DOUGH_KIND, DOUGH_KINDS, isDoughKind, resolveDoughKind } from "./doughKind";
+import { pinsaEnabled } from "../../data/pinsaGate";
 
 describe("DoughKind (Dough Kind P1, #577)", () => {
   it("uses the 172-recipe vocabulary and keeps 'standard'", () => {
@@ -20,8 +21,8 @@ describe("DoughKind (Dough Kind P1, #577)", () => {
     expect(resolveDoughKind({ doughKind: "material-multigrain-long-ferment" })).toBe("material-multigrain-long-ferment");
   });
 
-  it("is inert in Production: no RECIPES entry sets doughKind", () => {
-    expect(RECIPES.filter((r) => "doughKind" in r)).toEqual([]);
-    for (const r of RECIPES) expect(resolveDoughKind(r)).toBe("standard");
+  it("is inert in Production: no RECIPES entry sets doughKind (the one exception, pinsa-romana, exists only while PINSA_PRODUCTION is open)", () => {
+    expect(RECIPES.filter((r) => "doughKind" in r).map((r) => r.id)).toEqual(pinsaEnabled() ? ["pinsa-romana"] : []);
+    for (const r of RECIPES) expect(resolveDoughKind(r)).toBe(r.id === "pinsa-romana" ? "material-multigrain-long-ferment" : "standard");
   });
 });

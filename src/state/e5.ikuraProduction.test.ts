@@ -8,6 +8,7 @@ import { DOUGH_CENTER } from "../logic/pizzaCoordinates";
 import { discoveredRecipeIds, EMPTY_DEX } from "./dex";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "./gameReducer";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
+import { pinsaEnabled } from "../data/pinsaGate";
 
 /**
  * E5 (Owner decision: FINISH first, ikura only): the REAL Production gates -- nothing is mocked here -- take the first late recipe through the real
@@ -62,7 +63,8 @@ describe("E5: the Production switches", () => {
   });
 
   it("the catalog ends with ikura-salmon-pizza, salmon-roe and the late ladder step (ordinary length + 1)", () => {
-    expect(RECIPES.at(-1)!.id).toBe(IKURA);
+    // (with the Pinsa gate open, pinsa-romana follows ikura as the last recipe: it adds no material and no ladder step)
+    expect(RECIPES.at(pinsaEnabled() ? -2 : -1)!.id).toBe(IKURA);
     expect(INGREDIENTS.at(-1)!.id).toBe("salmon-roe");
     const steps = DISCOVERY_LADDER.steps;
     expect(steps.at(-1)).toMatchObject({ step: steps.length, ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });

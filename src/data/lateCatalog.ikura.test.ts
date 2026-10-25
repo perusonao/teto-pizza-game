@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { TECHNIQUES } from "./techniques";
 import { LATE_RECIPES, lateCatalogEnabled } from "./lateCatalog";
+import { pinsaEnabled } from "./pinsaGate";
 
 /**
  * FIN-E4b-ikura (Issue #621): the real late content (`ikura-salmon-pizza` + `salmon-roe`) with the build-time switch mocked ON,
@@ -68,11 +69,11 @@ describe("ON: the ordinary catalog followed by the ikura content", () => {
   it("recipe, ingredient, order, taxonomy row and size class join; every ordinary entry is unchanged", async () => {
     const off = await load(false);
     const on = await load(true);
-    expect(on.recipes.RECIPES.map((r) => r.id)).toEqual([...off.recipes.RECIPES.map((r) => r.id), IKURA]);
+    expect(on.recipes.RECIPES.map((r) => r.id)).toEqual([...off.recipes.RECIPES.map((r) => r.id), IKURA, ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
     expect(JSON.stringify(on.recipes.RECIPES.slice(0, off.recipes.RECIPES.length))).toBe(JSON.stringify(off.recipes.RECIPES));
     expect(on.ingredients.INGREDIENTS.at(-1)?.id).toBe("salmon-roe");
     expect(on.ingredients.STARTER_INGREDIENT_IDS).toEqual(off.ingredients.STARTER_INGREDIENT_IDS);
-    expect(on.orders.ORDERS.at(-1)?.recipeId).toBe(IKURA);
+    expect(on.orders.ORDERS.at(pinsaEnabled() ? -2 : -1)?.recipeId).toBe(IKURA); // (pinsa-romana follows it while its own gate is open)
     expect(on.taxonomy.ingredientAttributeFamily("salmon-roe")).toBe("seafood");
     expect(on.sizes.TOPPING_SIZE_CLASS_BY_ID["salmon-roe"]).toBe("xs");
   });
@@ -177,6 +178,7 @@ describe("ON: identification (the roe and the shiso must be placed after the bak
         // every required sauce (a two-sauce recipe needs both), and the tray for a square-pan recipe (Square Dough E-2)
         sauceIds: reference.sauce ? recipe.requiredIngredients.map((q) => q.ingredientId).filter((id) => on.ingredients.getIngredient(id)?.category === "sauce") : [],
         ...("panShape" in recipe && recipe.panShape === "square" ? { pan: "tray" as const } : {}),
+        ...("doughKind" in recipe ? { dough: recipe.doughKind } : {}), // Pinsa (#577): a recipe that fixes its dough is only itself on that dough
         toppings: reference.pieceGroups.flatMap((g, gi) =>
           g.positions.map((p, i) => ({ id: `${gi}-${i}`, ingredientId: g.ingredientId, ...p, ...(late.has(g.ingredientId) ? { stage: "post" as const } : {}) })),
         ),

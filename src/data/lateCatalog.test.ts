@@ -8,6 +8,7 @@ import { appendLadderSteps, validateLadderProgression } from "../logic/discovery
 import { productionCatalogView, validateCatalogTables, validateFinishCatalog } from "../logic/catalog/testSupport/recipeBatchValidator";
 import type { RecipeId } from "./recipes";
 import { lateCatalogEnabled, LATE_DISCOVERY_TARGET_IDS, LATE_INGREDIENTS, LATE_LADDER_STEPS, LATE_ORDERS, LATE_RECIPES, LATE_TAXONOMY_ROWS, LATE_TOPPING_SIZE_CLASS, mergeLate, validateLateCatalog, type LateCatalogInput } from "./lateCatalog";
+import { pinsaEnabled } from "./pinsaGate";
 
 /**
  * FIN-E4 foundation (Owner D-3 = 案 1): the late catalog's single merge point. The real late arrays are EMPTY (the data is a later PR),
@@ -55,9 +56,9 @@ const BASE = { recipeIds: ["margherita"], ingredientIds: ["tomato-sauce", "mozza
 describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
   it("holds exactly ikura-salmon-pizza and salmon-roe, and the production switch is ON (E5; the OFF build is covered by the loaders below)", () => {
     expect(lateCatalogEnabled()).toBe(true);
-    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza"]);
+    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // Pinsa Romana (#577 P3-b) joins only while its own gate is open
     expect(LATE_INGREDIENTS.map((i) => i.id)).toEqual(["salmon-roe"]);
-    expect(Object.keys(LATE_DISCOVERY_TARGET_IDS)).toEqual(["ikura-salmon-pizza"]);
+    expect(Object.keys(LATE_DISCOVERY_TARGET_IDS)).toEqual(["ikura-salmon-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
     expect(LATE_DISCOVERY_TARGET_IDS["ikura-salmon-pizza"]).toBe("ikura-salmon-pizza-pizzadb-p1");
   });
   it("only the roe and the shiso are post-bake; salmon and cream cheese are the provisional pre-bake default; counts and window as authored", () => {
@@ -73,7 +74,7 @@ describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
   });
   it("the late ingredient is ladder-gated (never a Starter) and its order, taxonomy row and size class ride the same switch", () => {
     expect(LATE_INGREDIENTS[0].unlockCondition).toBeDefined();
-    expect(LATE_ORDERS.map((o) => o.recipeId)).toEqual(["ikura-salmon-pizza"]);
+    expect(LATE_ORDERS.map((o) => o.recipeId)).toEqual(["ikura-salmon-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
     expect(LATE_TAXONOMY_ROWS).toEqual([["salmon-roe", "seafood"]]);
     expect(LATE_TOPPING_SIZE_CLASS).toEqual({ "salmon-roe": "xs" });
   });

@@ -57,9 +57,29 @@ function handRollback(): Plugin {
   };
 }
 
+/**
+ * Pinsa Romana (#577 P3-b): the publish rehearsal. `TETO_PINSA_ON=1 npx vitest run` compiles the REAL `pinsaGate.ts` with its literal set to `true` (nothing else
+ * changes) and runs the whole suite against the real catalog, so every Pinsa-dependent expectation is checked in the state that would ship when the Owner opens the
+ * gate. Off by default: the shipped literal stays `false`, and a `?raw` import (source-reading gates) still sees the shipped text. Fail closed like `handActivation`.
+ */
+const PINSA_GATE = "/src/data/pinsaGate.ts";
+const PINSA_FLAG = /^export const PINSA_PRODUCTION = (?:false|true);$/m;
+function pinsaActivation(): Plugin {
+  return {
+    name: "pinsa-gate-activation",
+    enforce: "pre",
+    transform(code, id) {
+      if (id.includes("?") || !id.replace(/\\/g, "/").endsWith(PINSA_GATE)) return null;
+      const hits = code.match(new RegExp(PINSA_FLAG.source, "gm"))?.length ?? 0;
+      if (hits !== 1) throw new Error(`[pinsa-gate-activation] ${PINSA_FLAG} matched ${hits}x in pinsaGate.ts (fail closed)`);
+      return code.replace(PINSA_FLAG, "export const PINSA_PRODUCTION = true;");
+    },
+  };
+}
+
 export default defineConfig({
   // #377: the test-only targetless-start hook (tools/testHooksPlugin.ts); Vitest only, never `vite build`.
-  plugins: [testHooksPlugin()],
+  plugins: [testHooksPlugin(), ...(process.env.TETO_PINSA_ON === "1" ? [pinsaActivation()] : [])],
   test: {
     // jsdom (added for Issue #24's HOME/GAME component tests) is a superset of what the
     // existing pure-logic/data `.test.ts` suite needs -- none of it depends on `window`

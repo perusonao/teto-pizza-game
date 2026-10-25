@@ -20,6 +20,7 @@ import { recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapter
 import { resolveShopEntitlement } from "./materialEntitlement";
 import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "./recipeDiscoveryState";
 import { createDefaultSave } from "./persistence";
+import { recipeIdentityKey } from "../logic/catalog/testSupport/identityKeys";
 
 /**
  * Expansion Slice 3: pesto-trapanese + almond (appended ladder step 29, T3). Focused authority pins; the real
@@ -67,7 +68,7 @@ describe("Expansion Slice 3 authoring: production data", () => {
   });
 
   it("matcher: the exact composition identifies only pesto-trapanese; no other recipe's identity changed", () => {
-    const keys = RECIPES.map((r) => JSON.stringify([...r.requiredIngredients].map((q) => [q.ingredientId, q.minCount]).sort()));
+    const keys = RECIPES.map((r) => recipeIdentityKey(r)); // Pinsa (#577): the dough kind and the post-bake ingredients are part of a recipe's identity
     expect(new Set(keys).size).toBe(RECIPES.length);
     const m = matchDiscovery(signatureOfPizza(pizzaOf(recipe.requiredIngredients.map((q) => q.ingredientId))), RECIPE_DISCOVERY_CATALOG);
     expect(m.kind).toBe("UNIQUE_MATCH");

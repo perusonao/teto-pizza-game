@@ -2,6 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
+import { pinsaEnabled } from "../../data/pinsaGate";
 import { RECIPES } from "../../data/recipes";
 import { TechniqueReveal } from "../../components/TechniqueReveal";
 import type { DexEntry, DexState } from "../../state/dex";
@@ -31,7 +32,7 @@ const jamonSet = (dough?: PizzaState["dough"]): PizzaState => ({
 
 afterEach(cleanup);
 
-describe("unpublished Pinsa does not leak (production catalog)", () => {
+describe.skipIf(pinsaEnabled())("unpublished Pinsa does not leak (production catalog)", () => {
   it("no recipe id / name / description carries the Pinsa words, and no catalog target has a non-standard dough", () => {
     for (const r of RECIPES) expect(`${r.id}${r.nameJa}${r.description}`, r.id).not.toMatch(WORDS);
     for (const t of RECIPE_DISCOVERY_CATALOG) expect(t.identityDimensions.dough, t.targetId).toBe("standard");
@@ -63,7 +64,26 @@ describe("unpublished Pinsa does not leak (production catalog)", () => {
     const { container } = render(<TechniqueReveal techniqueIds={result.newlyDiscovered} />);
     expect(container.innerHTML).not.toMatch(WORDS);
   });
+});
 
+// The gate-open counterpart (`TETO_PINSA_ON=1`): the recipe is published, but the dough TECHNIQUE still surfaces only as a riddle, never by name, and a dough cook alone is no discovery.
+describe.runIf(pinsaEnabled())("published Pinsa (gate open): the dough technique is still never named before it is discovered", () => {
+  it("the Dex 調理法 section shows the dough technique as a riddle only (no name, no id, no Pinsa word), at every progress", () => {
+    for (let n = 0; n <= RECIPES.length; n++) {
+      const views = techniqueDexViews([], dexOf(n));
+      const text = views.map((v) => (v.state === "RIDDLE" ? v.riddleJa : v.nameJa)).join("");
+      expect(text, `credited ${n}`).not.toMatch(WORDS);
+      expect(views.filter((v) => v.id === "dough-pinsa-romana").every((v) => v.state === "RIDDLE")).toBe(true);
+    }
+  });
+
+  it("a Pinsa-dough cook of the jamon ingredients with nothing after the bake is not a discovery (the moment is part of the pizza)", () => {
+    expect(evaluateDiscovery(signatureOfPizza(jamonSet(PINSA)), RECIPE_DISCOVERY_CATALOG, []).kind).toBe("ORIGINAL");
+    expect(evaluateDiscovery(signatureOfPizza(jamonSet()), RECIPE_DISCOVERY_CATALOG, []).kind).toBe("NEW_DISCOVERY");
+  });
+});
+
+describe("source scan", () => {
   it("no player-facing string literal in the app mentions Pinsa, other than the technique registry, its detection pairing and the late catalog's (gated) recipe data", () => {
     // Pinsa P3-b-1 (#577): the recipe's display name / description live in ONE data file, behind PINSA_PRODUCTION (src/data/pinsaGate.ts; reachability is pinned by
     // src/data/pinsaGate.test.ts). The ASCII id also appears in the type-keyed tables that must carry a row for every RecipeId (never rendered, and hidden while the gate is closed).
