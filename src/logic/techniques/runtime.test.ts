@@ -12,7 +12,7 @@ import {
 } from "./runtime";
 import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 import { lateCatalogEnabled } from "../../data/lateCatalog";
-import { DOUGH_PINSA_ROMANA_RECIPE_IDS, PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
+import { DOUGH_PINSA_ROMANA_RECIPE_IDS, LATE_ADDITION_RECIPE_IDS, PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 
 /**
  * Cooking Techniques 1.0 TQ-1C (Issue #287): the pure per-round technique step
@@ -107,7 +107,7 @@ describe("resolveRoundTechniques", () => {
     const production = productionTechniqueContext();
     expect(production.catalog).toBe(RECIPE_DISCOVERY_CATALOG);
     // (the technique-free recipes: neither NO_SAUCE nor the tray recipe grandma-pizza of Square Dough E-2, which has its own tray test)
-    const others = RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId) && !PAN_TRAY_RECIPE_IDS.includes(t.recipeId) && !DOUGH_PINSA_ROMANA_RECIPE_IDS.includes(t.recipeId)).map((t) => t.recipeId);
+    const others = RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId) && !PAN_TRAY_RECIPE_IDS.includes(t.recipeId) && !DOUGH_PINSA_ROMANA_RECIPE_IDS.includes(t.recipeId) && !LATE_ADDITION_RECIPE_IDS.includes(t.recipeId)).map((t) => t.recipeId);
     const withoutAussie = dex(others);
     const withAussie = dex([...others, "aussie"]);
     for (const eligibility of ["FREE_COOK", "FREE_GUIDED"] as const) {
@@ -139,7 +139,7 @@ describe("T19: initialTechniqueLedger (INV-TQ-1 at load)", () => {
   });
 
   it("is a no-op for every production save without aussie; a save with aussie is backfilled (INV-TQ-1)", () => {
-    const others = dex(RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId) && !PAN_TRAY_RECIPE_IDS.includes(t.recipeId) && !DOUGH_PINSA_ROMANA_RECIPE_IDS.includes(t.recipeId)).map((t) => t.recipeId));
+    const others = dex(RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId) && !PAN_TRAY_RECIPE_IDS.includes(t.recipeId) && !DOUGH_PINSA_ROMANA_RECIPE_IDS.includes(t.recipeId) && !LATE_ADDITION_RECIPE_IDS.includes(t.recipeId)).map((t) => t.recipeId));
     expect(initialTechniqueLedger([], others)).toEqual([]);
     expect(initialTechniqueLedger(["no-sauce"], others)).toEqual(["no-sauce"]);
     const everything = dex(RECIPE_DISCOVERY_CATALOG.map((t) => t.recipeId));

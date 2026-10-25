@@ -49,10 +49,10 @@ describe.skipIf(REHEARSING_ON)("OFF: Pinsa exists in no runtime catalog", () => 
       expect(JSON.stringify(value), name).not.toMatch(WORDS);
     }
   });
-  it("the late catalog (ON in Production since E5) still holds exactly ikura: it is not the late switch that publishes Pinsa", () => {
-    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza"]);
-    expect(RECIPES.at(-1)!.id).toBe("ikura-salmon-pizza");
-    expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "ikura-salmon-pizza" });
+  it("the late catalog (ON in Production since E5) still holds exactly ikura and yuzu-shrimp-pizza (New Sauces Phase B U1): it is not the late switch that publishes Pinsa", () => {
+    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza"]);
+    expect(RECIPES.at(-1)!.id).toBe("yuzu-shrimp-pizza");
+    expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "yuzu-shrimp-pizza" });
   });
   it("every lookup by id comes back empty", () => {
     expect(getRecipe(PINSA as never)).toBeUndefined();
@@ -69,7 +69,7 @@ describe.skipIf(REHEARSING_ON)("OFF: Pinsa exists in no runtime catalog", () => 
     expect(isGatedOffRecipeId(PINSA)).toBe(true);
     expect(isInactiveLateRecipeId(PINSA)).toBe(true);
     expect(isGatedOffRecipeId("ikura-salmon-pizza")).toBe(false); // the gate is Pinsa-only: ikura (E5) is unchanged
-    expect(ALL_LATE_RECIPE_IDS).toEqual(["ikura-salmon-pizza", PINSA]);
+    expect(ALL_LATE_RECIPE_IDS).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", PINSA]);
     expect(getReferencePizza(PINSA)).toBeNull();
     expect(listReferencePizzas().some((r) => (r.recipeId as string) === PINSA)).toBe(false);
     expect(JSON.stringify(listReferencePizzas())).not.toMatch(WORDS);

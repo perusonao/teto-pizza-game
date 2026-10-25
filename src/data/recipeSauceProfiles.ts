@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang";
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho";
   interaction: SauceInteractionKind;
 }
 
@@ -317,6 +317,12 @@ export const RECIPE_SAUCE_PROFILES = {
   },
   // FIN-E4b-ikura (#621, late catalog): NO_SAUCE.
   "ikura-salmon-pizza": null,
+  // New Sauces Phase B U1 (late catalog): yuzu-kosho painted before the bake (PROVISIONAL, not confirmed by the original).
+  "yuzu-shrimp-pizza": {
+    recipeId: "yuzu-shrimp-pizza",
+    ingredientId: "yuzu-kosho",
+    interaction: "PAINT",
+  },
   // Pinsa Romana (#577 P3-b-1, late catalog; exists only while PINSA_PRODUCTION): same sauce as jamon-serrano-pizza.
   "pinsa-romana": {
     recipeId: "pinsa-romana",

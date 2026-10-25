@@ -96,6 +96,26 @@ const ALL_LATE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  // New Sauces Phase B U1 (Issue #578, Owner 2026-10-25): `yuzu-shrimp-pizza`. SOURCE (PIZZA DB `yuzu-shrimp-pizza`, individual page https://pizzadb.jp/pizzas/yuzu-shrimp/, Owner-relayed, NOT independently
+  // re-fetched from this environment): thin dough; shrimp (shell and vein removed), yuzu-kosho (used in small amounts), mozzarella, shiso; sauce style "Other". The original recommends adding the shiso as a
+  // finishing touch, so the shiso is POST_BAKE. NOT CONFIRMED against the original (Owner OD-U1): how the yuzu-kosho is applied and when; when the shrimp is placed and whether it is pre-cooked. PROVISIONAL
+  // GAME-DESIGN SPEC (Owner-approved, not source): yuzu-kosho painted in the SAUCE step (the existing PAINT), shrimp and mozzarella placed BEFORE the bake with no pre-cooking step (the shell / vein removal is not modelled).
+  // GAMEPLAY CALIBRATION (not source): yuzu-kosho 1 (PAINT) / mozzarella 2 / shrimp 3 / shiso 1 (POST_BAKE), bake 58-78 (= the generic Free Cooking window, so the median-derived FREE_COOK_BAKE_TARGET stays 58-78).
+  // Late catalog (`yuzu-kosho` is a late-only material): ladder-credited (its own late step), no star gate, no CUT, `lunchRush: false`, permanently key-free. The description names no moment (Anti-Oracle: shown before discovery).
+  {
+    id: "yuzu-shrimp-pizza",
+    nameJa: "柚子えびピザ",
+    description: "えびとモッツァレラに、柚子胡椒と大葉をあわせた、さわやかな和風の一枚。",
+    requiredIngredients: [
+      { ingredientId: "yuzu-kosho", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "shrimp", minCount: 3 },
+      { ingredientId: "shiso", minCount: 1, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
   // Pinsa Romana (#577 P3-b-1, Owner L1 / D4 / R2). Gated by ./pinsaGate.ts (`PINSA_PRODUCTION`): absent at runtime while it is false.
   // SOURCE AUTHORITY (Owner-relayed, not independently verified; PK-0 items 2/4/5 stay open until the Production gate): tomato sauce, mozzarella baked, prosciutto before or after,
   // arugula best added last. The prosciutto is placed BEFORE the bake (L1: a game-design choice, consistent with the source) and only the arugula is POST_BAKE.
@@ -146,6 +166,12 @@ const ALL_LATE_ORDERS = [
     lineJa: "いくらとサーモンのピザ、ぷちぷちで豪華そう！食べてみたいな！",
   },
   {
+    id: "order-yuzu-shrimp-pizza",
+    recipeId: "yuzu-shrimp-pizza",
+    requestedBy: "mito",
+    lineJa: "柚子えびピザ、さわやかそう！食べてみたいな！",
+  },
+  {
     id: "order-pinsa-romana",
     recipeId: "pinsa-romana",
     requestedBy: "mito",
@@ -170,6 +196,20 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /**
+   * New Sauces Phase B U1 (Issue #578): `yuzu-kosho`, a late-only finite ladder material (T4 by its late step, no star gate). A spread sauce painted in the SAUCE step (the existing PAINT);
+   * sauces carry no topping family. `color` `#b5c56a` (a yellow-green) is PROVISIONAL until the Owner HV on a real device (a red yuzu-kosho would be near tomato-sauce and is not used).
+   * `emoji` is only the tray / shop chip fallback. Its PIZZA DB use (painted before the bake) is a provisional game-design assumption, not confirmed by the original.
+   */
+  {
+    id: "yuzu-kosho",
+    category: "sauce",
+    nameJa: "柚子胡椒",
+    color: "#b5c56a",
+    emoji: "\u{1F343}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 /** Family rows of the late ingredients (OD-B8-2: `salmon-roe` is `seafood`, L1 only). Joined by ./ingredientTaxonomy.ts only when enabled, so an OFF build has no orphan row. */
@@ -181,6 +221,7 @@ export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs" } as const;
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
   "ikura-salmon-pizza": "ikura-salmon-pizza-pizzadb-p1",
+  "yuzu-shrimp-pizza": "yuzu-shrimp-pizza",
   ...(pinsaEnabled() ? { "pinsa-romana": "pinsa-romana-pizzadb-p9" } : {}),
 };
 
@@ -189,15 +230,19 @@ export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
  * and the OFF ladder is a strict prefix of the ON ladder. The step carries NO number (it is derived), and no star gate (OD-B8-1).
  * `ikura-salmon-pizza` also needs step 54's `shiso`, which is an ordinary step and therefore always earlier.
  */
-export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [{ ingredientIds: ["salmon-roe"], keyRecipeId: "ikura-salmon-pizza" }];
+export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
+  { ingredientIds: ["salmon-roe"], keyRecipeId: "ikura-salmon-pizza" },
+  // New Sauces Phase B U1 (Issue #578): after the roe step, so its number is derived (ordinary length + 2) and moves with every ordinary batch; key recipe `yuzu-shrimp-pizza` (it also needs mozzarella, shrimp and shiso from earlier ordinary steps).
+  { ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" },
+];
 
 /**
  * Compatibility floor (Issue #578 U0, Owner OD-U0-7 = M3 / 7b / 7c): a late material's Shop entitlement never needs a LARGER credited-discovery count than the one it had
  * when the late catalog first shipped. Its ladder step number is derived (ordinary length + 1) and moves +1 per ordinary batch; the floor is a FIXED constant, so a
  * save that reached the E5-era step but had not launched since (its ledger has no entry yet) still gets the material. A floor only ever grants earlier; the ledger never re-locks.
- * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
+ * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
  */
-export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57 };
+export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58 };
 
 /** True for a recipe whose own gate is closed (Pinsa while `PINSA_PRODUCTION` is false): the id is in type-keyed tables but the recipe does not exist in this build. */
 export function isGatedOffRecipeId(id: string): boolean {

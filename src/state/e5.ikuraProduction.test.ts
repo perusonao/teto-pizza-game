@@ -62,12 +62,13 @@ describe("E5: the Production switches", () => {
     expect(freeCookFinishEnabled()).toBe(true);
   });
 
-  it("the catalog ends with ikura-salmon-pizza, salmon-roe and the late ladder step (ordinary length + 1)", () => {
-    // (with the Pinsa gate open, pinsa-romana follows ikura as the last recipe: it adds no material and no ladder step)
-    expect(RECIPES.at(pinsaEnabled() ? -2 : -1)!.id).toBe(IKURA);
-    expect(INGREDIENTS.at(-1)!.id).toBe("salmon-roe");
+  it("the catalog ends with the late content: ikura-salmon-pizza + salmon-roe + its late ladder step (ordinary length + 1), then yuzu-shrimp-pizza + yuzu-kosho + its late step (New Sauces Phase B U1)", () => {
+    // (with the Pinsa gate open, pinsa-romana follows them as the last recipe: it adds no material and no ladder step)
+    expect(RECIPES.slice(-(pinsaEnabled() ? 3 : 2)).map((r) => r.id)).toEqual([IKURA, "yuzu-shrimp-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
+    expect(INGREDIENTS.slice(-2).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho"]);
     const steps = DISCOVERY_LADDER.steps;
-    expect(steps.at(-1)).toMatchObject({ step: steps.length, ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });
+    expect(steps.at(-2)).toMatchObject({ step: steps.length - 1, ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });
+    expect(steps.at(-1)).toMatchObject({ step: steps.length, ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" });
   });
 });
 

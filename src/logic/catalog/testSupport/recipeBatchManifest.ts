@@ -4,6 +4,7 @@
  * declarations (`ladderCredit` / `lunchRush` / `cut` / `hint`) of each recipe; the validator then checks them
  * against the data. Nothing here is authority for the recipes themselves (RECIPES / the ladder stay the SSOT).
  */
+import { pinsaEnabled } from "../../../data/pinsaGate";
 import type { RecipeBatchManifest } from "./recipeBatchValidator";
 
 /** New Sauces Phase B-1 (#578; 62 -> 63 recipes; doubanjiang + green-onion are the two materials of ONE ordinary step, green-onion the last = sichuan-eggplant-pizza's Research cohort key; the second new sauce): the manifest the validator
@@ -31,7 +32,21 @@ export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH
 export const PINSA_ROMANA_BATCH: RecipeBatchManifest = {
   batchId: "pinsa-romana",
   status: "landed",
-  afterRecipeId: "ikura-salmon-pizza",
+  afterRecipeId: "yuzu-shrimp-pizza", // (New Sauces Phase B U1: yuzu-shrimp-pizza is appended after ikura, before Pinsa, so Pinsa stays the last late recipe)
   recipes: [{ recipeId: "pinsa-romana", keyIngredientId: "arugula", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
   acceptedLetterShifts: { "jamon-serrano-pizza": "-->B" },
+};
+
+/**
+ * New Sauces Phase B U1 (#578, late catalog): the manifest of `yuzu-shrimp-pizza`, evaluated by `lateCatalog.yuzu.test.ts` over the full catalog (the late recipes included). Deliberately NOT in
+ * `RECIPE_BATCHES`: that list is evaluated over the ordinary catalog. The recipe is credited, so its own late ladder step (after the roe step) unlocks `yuzu-kosho`, its cohort key; a single-member
+ * cohort, so no existing recipe changes its Research letter. It is followed by Pinsa only while the Pinsa gate is open. The original PIZZA DB page was not confirmed on the yuzu-kosho PAINT before the
+ * bake, the shrimp before the bake or its (absent) pre-cooking: provisional game-design assumptions (Owner 2026-10-25).
+ */
+export const YUZU_SHRIMP_BATCH: RecipeBatchManifest = {
+  batchId: "new-sauces-u1-yuzu-shrimp",
+  status: "landed",
+  afterRecipeId: "ikura-salmon-pizza",
+  recipes: [{ recipeId: "yuzu-shrimp-pizza", keyIngredientId: "yuzu-kosho", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
+  followedBy: pinsaEnabled() ? ["pinsa-romana"] : [],
 };
