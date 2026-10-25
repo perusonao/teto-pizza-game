@@ -2,6 +2,8 @@ import type { CSSProperties } from "react";
 import type { ReferencePizza } from "../data/referencePizza";
 import { buildIdealSauceFixture } from "../data/referencePizza";
 import { getIngredient } from "../data/ingredients";
+import { getRecipe } from "../data/recipes";
+import { doughOutlineOf } from "../logic/dough/doughOutline";
 import { createIdealDoughShape } from "../logic/doughShape";
 import { SauceHeatmapCanvas } from "./SauceHeatmapCanvas";
 import { buildPieceCountLabels, renderPizzaVisualPieces } from "./PizzaVisualPieces";
@@ -70,6 +72,8 @@ export function ReferencePreview({
   const referenceSauce = reference.sauce ? sauceTargetForPan(pan, reference.sauce) : null;
   const sauceIngredient = referenceSauce ? getIngredient(referenceSauce.ingredientId) : undefined;
   const pieceCaption = buildPieceCountLabels(reference.pieceGroups).join("と");
+  // Pinsa Romana (#577): the recipe's own dough outline (a square tray stays square).
+  const oval = pan !== "square" && doughOutlineOf(null, getRecipe(reference.recipeId)) === "oval";
 
   return (
     <>
@@ -107,7 +111,7 @@ export function ReferencePreview({
               </button>
             </div>
 
-            <div className={`reference-mini-pizza${pan === "square" ? " reference-mini-pizza--square" : ""}`} aria-hidden="true">
+            <div className={`reference-mini-pizza${pan === "square" ? " reference-mini-pizza--square" : ""}${oval ? " reference-mini-pizza--oval" : ""}`} aria-hidden="true">
               {/* Human Feel Fix 2 (Target Area Guide, brief section 2): the same
                   SAUCE_TARGET_RADIUS boundary PizzaStage's own guide ring uses, so the
                   Reference popover never shows a different "leave the ear" area than the

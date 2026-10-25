@@ -191,6 +191,14 @@ export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
  */
 export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [{ ingredientIds: ["salmon-roe"], keyRecipeId: "ikura-salmon-pizza" }];
 
+/**
+ * Compatibility floor (Issue #578 U0, Owner OD-U0-7 = M3 / 7b / 7c): a late material's Shop entitlement never needs a LARGER credited-discovery count than the one it had
+ * when the late catalog first shipped. Its ladder step number is derived (ordinary length + 1) and moves +1 per ordinary batch; the floor is a FIXED constant, so a
+ * save that reached the E5-era step but had not launched since (its ledger has no entry yet) still gets the material. A floor only ever grants earlier; the ledger never re-locks.
+ * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
+ */
+export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57 };
+
 /** True for a recipe whose own gate is closed (Pinsa while `PINSA_PRODUCTION` is false): the id is in type-keyed tables but the recipe does not exist in this build. */
 export function isGatedOffRecipeId(id: string): boolean {
   return PINSA_GATED_IDS.has(id) && !pinsaEnabled();

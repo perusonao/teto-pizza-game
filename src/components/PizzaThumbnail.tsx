@@ -5,6 +5,7 @@ import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { stablePieceRotation } from "../logic/pieceDrag";
 import { getReferenceSlots } from "../logic/pizzaReferenceLayout";
 import { IngredientGlyph } from "./IngredientGlyph";
+import { doughOutlineOf } from "../logic/dough/doughOutline";
 
 interface PizzaThumbnailProps {
   recipe: Recipe;
@@ -42,7 +43,7 @@ export function PizzaThumbnail({ recipe }: PizzaThumbnailProps) {
   const positions = getReferenceSlots(pieces.length);
 
   return (
-    <div className="pizza-thumbnail" aria-hidden="true">
+    <div className={`pizza-thumbnail${doughOutlineOf(null, recipe) === "oval" ? " pizza-thumbnail--oval" : ""}`} aria-hidden="true">
       <div
         className="pizza-thumbnail__base"
         style={{ backgroundColor: sauceIngredient?.color ?? "#f0d9a0" }}
