@@ -17,6 +17,9 @@ import { isLateRecipeId as recipeIsLate } from "../logic/catalog/testSupport/lat
  * foundation branch. It is a PREFIX digest on purpose: the catalogs are append-only (existing recipes, ingredients and ladder steps never
  * change or reorder), so a later ordinary batch appends beyond `count` and leaves this file alone, while ANY edit, reorder or removal of an
  * existing entry fails here. The tail is covered by the "no late content leaks" test below.
+ *
+ * The `ingredients` digest was regenerated once, on purpose: arugula gained `pieceVisual: "arugula-leaves"` (Owner-approved drawing change, replaces the 🥗
+ * emoji; no id, order, placement or unlock change). Same bytes otherwise.
  */
 const canon = (value: unknown): string =>
   JSON.stringify(value, (_key, v) =>
