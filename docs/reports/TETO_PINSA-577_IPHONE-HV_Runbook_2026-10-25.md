@@ -1,5 +1,7 @@
 # Pinsa Romana — iPhone Safari 実機 HV の準備（検証環境・最短手順・原典の記録）
 
+> **【2026-10-25 追記】** Pinsa の本番 ON 用 PR（`PINSA_PRODUCTION = true`）が出たため、`pinsa-literal.patch.txt` は、その PR を含む `main` には当たらない（リテラルが既に `true`）。本書の手順は、公開前の HV（ゲートが `false` の `main` d3da198 に対するもの）の記録として残す。公開後の再検証は、通常の `main` を `VITE_PREVIEW_MODE=1` でビルドするだけでよい。
+
 Status: **準備のみ。接続・公開・実機の確認は Owner の操作。** 本番の `PINSA_PRODUCTION = false`、Production・共有 Preview・Firebase・E5・Grandma Pizza は変更していない。本番 ON 用の PR は作っていない。**実機の結果（PASS / FAIL）は Owner の言葉でのみ記録する。**
 基準 `main` = `d3da198`（#657 merge 後）。検証キット: `docs/reports/screenshots/pinsa-hv/kit/`（リハーサルの画像は同ディレクトリ）。
 
