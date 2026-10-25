@@ -34,6 +34,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "sausage-slices": "0 0 64 64",
   "hot-dog-slices": "0 0 64 64",
   "shiso-leaf": "0 0 64 64",
+  "arugula-leaves": "0 0 64 64",
   "whitebait-school": "0 0 64 64",
   "green-onion-slices": "0 0 64 64",
   "salmon-roe-grains": "0 0 64 64",
@@ -58,6 +59,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "sausage-slices" && <SausageSlices />}
       {visual === "hot-dog-slices" && <HotDogSlices />}
       {visual === "shiso-leaf" && <ShisoLeaf />}
+      {visual === "arugula-leaves" && <ArugulaLeaves />}
       {visual === "whitebait-school" && <WhitebaitSchool />}
       {visual === "green-onion-slices" && <GreenOnionSlices />}
       {visual === "salmon-roe-grains" && <SalmonRoeGrains />}
@@ -378,6 +380,68 @@ function GreenOnionSlices() {
           <circle r={ring.r} fill="#7fae4a" stroke="#3a6b2b" strokeWidth="2.4" />
           <circle r={ring.r - 4.4} fill="#e3efbd" stroke="#5f9440" strokeWidth="1.6" />
           <circle r={ring.r - 8.6} fill="#f4f8dc" />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+/* ---------- arugula: a sprig of three long, lobed leaves with a midrib and side veins ---------- */
+
+/** One leaf pointing up from (0,0): `lobes` rounded lobes per side (the two sides are offset, like a real rocket leaf), a pointed tip. */
+function arugulaLeafGeometry(length: number, halfWidth: number, lobes: number) {
+  const steps = 56;
+  const half = (side: 1 | -1) => {
+    const pts: [number, number][] = [];
+    for (let i = 0; i <= steps; i += 1) {
+      const t = i / steps;
+      const envelope = Math.pow(Math.sin(Math.PI * Math.pow(t, 0.72)), 0.85);
+      const phase = side === 1 ? 0.35 : 1.35;
+      const lobe = 0.4 + 0.6 * Math.pow(Math.abs(Math.sin(lobes * Math.PI * t + phase)), 0.5);
+      pts.push([side * halfWidth * envelope * lobe, -length * t]);
+    }
+    return pts;
+  };
+  const right = half(1);
+  const left = half(-1);
+  const toPath = (pts: [number, number][]) => pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`).join(" ");
+  const outline = `${toPath(right)} ${left
+    .slice()
+    .reverse()
+    .map(([x, y]) => `L${x.toFixed(2)} ${y.toFixed(2)}`)
+    .join(" ")} Z`;
+  const lightHalf = `${toPath(right)} L0 ${(-length).toFixed(2)} L0 0 Z`;
+  // side veins: from the midrib to each lobe's widest point, alternating sides
+  const veins: string[] = [];
+  for (let k = 0; k < lobes; k += 1) {
+    const tc = (k + 0.5) / lobes;
+    const side = k % 2 === 0 ? 1 : -1;
+    const pts = side === 1 ? right : left;
+    const [x, y] = pts[Math.round(tc * steps)];
+    veins.push(`M0 ${(y * 0.72).toFixed(2)} L${(x * 0.78).toFixed(2)} ${(y * 0.98).toFixed(2)}`);
+  }
+  return { outline, lightHalf, veins: veins.join(" "), tip: -length };
+}
+
+const ARUGULA_LEAVES: readonly { rotate: number; length: number; halfWidth: number; lobes: number; fill: string; light: string }[] = [
+  { rotate: -38, length: 38, halfWidth: 6.4, lobes: 4, fill: "#4f9a3f", light: "#74bd5a" },
+  { rotate: 34, length: 35, halfWidth: 6.2, lobes: 4, fill: "#5aa646", light: "#82c866" },
+  { rotate: -3, length: 47, halfWidth: 7.2, lobes: 5, fill: "#448c37", light: "#69b250" },
+];
+
+const ARUGULA_GEOMETRY = ARUGULA_LEAVES.map((l) => arugulaLeafGeometry(l.length, l.halfWidth, l.lobes));
+
+function ArugulaLeaves() {
+  return (
+    <g>
+      <ellipse cx="32" cy="60" rx="14" ry="2.4" fill="#000" opacity=".15" />
+      {ARUGULA_LEAVES.map((leaf, i) => (
+        <g key={leaf.rotate} transform={`translate(32 58) rotate(${leaf.rotate})`}>
+          <path d="M0 1 L0 -3" stroke="#245f2c" strokeWidth="2" strokeLinecap="round" fill="none" />
+          <path d={ARUGULA_GEOMETRY[i].outline} fill={leaf.fill} stroke="#2a6a28" strokeWidth="1.3" strokeLinejoin="round" />
+          <path d={ARUGULA_GEOMETRY[i].lightHalf} fill={leaf.light} />
+          <path d={`M0 0 L0 ${(ARUGULA_GEOMETRY[i].tip * 0.9).toFixed(2)}`} stroke="#23561f" strokeWidth="1.1" strokeLinecap="round" fill="none" opacity=".8" />
+          <path d={ARUGULA_GEOMETRY[i].veins} stroke="#23561f" strokeWidth=".8" strokeLinecap="round" fill="none" opacity=".6" />
         </g>
       ))}
     </g>

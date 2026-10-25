@@ -29,6 +29,7 @@ export type DedicatedIngredientVisual =
   | "sausage-slices"
   | "hot-dog-slices"
   | "shiso-leaf"
+  | "arugula-leaves"
   | "whitebait-school"
   | "salmon-roe-grains"
   | "green-onion-slices";
@@ -700,13 +701,14 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
-  /** Expansion Batch 2: finite ladder material, step 35 (T4). Family `vegetable`. 🥗 (not the vegetable class symbol 🥬) is distinct from every herb glyph. */
+  /** Expansion Batch 2: finite ladder material, step 35 (T4). Family `vegetable`. Drawn by the dedicated `arugula-leaves` visual (a sprig of lobed leaves, Owner-approved on iPhone); `emoji` (🥗, not the vegetable class symbol 🥬, so it stays distinct from every herb glyph) is only the required text fallback. */
   {
     id: "arugula",
     category: "topping",
     nameJa: "ルッコラ",
     color: "#4f8a3a",
     emoji: "\u{1F957}",
+    pieceVisual: "arugula-leaves",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
