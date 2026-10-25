@@ -49,10 +49,10 @@ export function describeHeldRound(reason: HeldPendingRoundReason): RoundNoticeCo
     oversize: "記録が大きすぎて処理できません。データは消さずにそのまま残してあります。",
   };
   const recovery: Record<HeldPendingRoundReason, string> = {
-    "unknown-version": "復旧: このデータを書いた新しい版（ブックマークや更新後のURL）でゲームを開くと、自動で完了します。",
-    unresolvable: "復旧: 対応する版（この記録を作ったときと同じ版）でゲームを開くと、自動で完了します。",
-    corrupt: "復旧: 自動では直せません。ほかの遊びには影響しません。データを消す前に開発者へご連絡ください（設定のリセットは進行がすべて消えます）。",
-    oversize: "復旧: 自動では直せません。ほかの遊びには影響しません。データを消す前に開発者へご連絡ください（設定のリセットは進行がすべて消えます）。",
+    "unknown-version": "復旧: このデータを書いた新しい版（ブックマークや更新後のURL）でゲームを開くと、自動で完了します。完了させない場合は、下のボタンで破棄できます。",
+    unresolvable: "復旧: 対応する版（この記録を作ったときと同じ版）でゲームを開くと、自動で完了します。完了させない場合は、下のボタンで破棄できます。",
+    corrupt: "復旧: 自動では直せません。ほかの遊びには影響しません。下のボタンで、ゲームデータ全体の控えを保存したうえでこの記録だけを破棄できます（設定のリセットは進行がすべて消えます）。",
+    oversize: "復旧: 自動では直せません。ほかの遊びには影響しません。下のボタンで、ゲームデータ全体の控えを保存したうえでこの記録だけを破棄できます（設定のリセットは進行がすべて消えます）。",
   };
   return {
     title,
@@ -105,5 +105,76 @@ export function describeRoundSaveFailure(
         ? "ページを再読み込みしてください。この画面での内容は保存されません。"
         : "もう一度お試しください。ホームに戻れば、材料は使われていません。",
     ],
+  };
+}
+
+/** P1-1 (Issue #664): the confirmation for getting rid of a kept journal. Shown on HOME only. */
+export interface HeldDiscardDialogCopy {
+  title: string;
+  /** What is about to happen and what is lost. */
+  lines: string[];
+  /** Extra warning for a journal a matching build could still complete (`unknown-version` / `unresolvable`). */
+  strongWarning: string[] | null;
+  /** Each must be ticked before the button works. */
+  checks: { id: "irreversible" | "completable" | "replace-latest"; label: string }[];
+  confirmLabel: string;
+}
+
+export function describeHeldDiscardDialog(reason: HeldPendingRoundReason, replacesLatest: boolean): HeldDiscardDialogCopy {
+  const completable = reason === "unknown-version" || reason === "unresolvable";
+  const checks: HeldDiscardDialogCopy["checks"] = [
+    { id: "irreversible", label: "このピザは図鑑に登録されず、使った材料も戻らないことを理解しました" },
+  ];
+  if (completable) {
+    checks.push({ id: "completable", label: "対応する版で開けば完了できた可能性があることを理解しました" });
+  }
+  if (replacesLatest) {
+    checks.push({ id: "replace-latest", label: "以前の退避（最新の1件）が今回の退避で置き換わることを理解しました" });
+  }
+  return {
+    title: "この調理の記録を破棄しますか？",
+    lines: [
+      "ゲームデータ全体の控えを端末に保存し、その控えを確認できてから、この調理の記録だけを取り除きます。",
+      "図鑑・Pitz・所持材料などのほかのデータは変わりません。",
+      "控えが保存できなかったときは、何も破棄しません。",
+      "この画面から控えを元に戻すことはできません。",
+    ],
+    strongWarning: completable
+      ? [
+          reason === "unknown-version"
+            ? "この記録は新しいバージョンのゲームが書いたものです。そのバージョンで開けば、自動で完了します。"
+            : "この記録は、この版にはない材料やレシピを使っています。対応する版で開けば、自動で完了します。",
+          "破棄すると、そのピザの登録（発見・ベスト・Pitz）は行われません。",
+        ]
+      : null,
+    checks,
+    confirmLabel: "控えを保存して破棄する",
+  };
+}
+
+const DISCARD_FAILURE: Record<string, string> = {
+  "no-storage": "保存先に書き込めません。何も破棄していません。",
+  "storage-error": "保存先を読み取れません。何も破棄していません。",
+  "load-failed": "起動時に保存データを読み込めなかったため、破棄できません。ページを再読み込みしてください。",
+  "stale-save": "別の画面で保存データが更新されました。何も破棄していません。ページを再読み込みしてください。",
+  "stale-during-discard": "操作中に保存データが更新されました。記録は破棄していません。ページを再読み込みしてください。",
+  "not-readable": "保存データを読み取れないため、破棄できません。何も破棄していません。",
+  "not-held": "破棄の対象になる記録がありません。何も破棄していません。",
+  "too-large": "保存データが大きすぎて控えを作れません。何も破棄していません。",
+  changed: "記録の内容が変わりました。何も破棄していません。もう一度、内容を確認してください。",
+  "replace-not-confirmed": "以前の退避を置き換える確認がありません。何も破棄していません。",
+  "backup-failed": "控えを保存できませんでした（保存領域がいっぱいの可能性があります）。何も破棄していません。",
+  "write-failed": "記録を取り除けませんでした。ゲームデータは変わっていません。控えは残してあります。",
+  "verify-failed": "取り除いた結果を確認できませんでした。ページを再読み込みして、状態を確かめてください。控えは残してあります。",
+};
+
+export function describeHeldDiscardFailure(reason: string): RoundNoticeCopy {
+  return { title: "記録を破棄できませんでした", lines: [DISCARD_FAILURE[reason] ?? "記録を破棄できませんでした。何も破棄していません。"] };
+}
+
+export function describeHeldDiscardDone(): RoundNoticeCopy {
+  return {
+    title: "調理の記録を破棄しました",
+    lines: ["ゲームデータ全体の控えは端末に保存してあります。ほかのデータは変わっていません。", "仕上げ工程のあるピザも、ふつうに焼けるようになります。"],
   };
 }

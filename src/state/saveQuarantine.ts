@@ -19,8 +19,8 @@ import type { StorageLike } from "./persistence";
 export type QuarantineSlot = "first" | "latest";
 export const QUARANTINE_SLOTS: readonly QuarantineSlot[] = ["first", "latest"];
 
-/** Which unreadable save the text was: damaged, or written by a newer build. */
-export type QuarantineKind = "corrupt" | "unknown-schema";
+/** Which unreadable save the text was: damaged, or written by a newer build; `held-journal` = a whole save held before its unactionable `pendingRound` was removed (P1-1, ./heldJournalDiscard.ts; kept under its own key pair). */
+export type QuarantineKind = "corrupt" | "unknown-schema" | "held-journal";
 
 export const QUARANTINE_KEY_SUFFIX = ".quarantine-v1";
 
@@ -55,7 +55,7 @@ function isEntry(value: unknown, slot: QuarantineSlot, saveKey: string): value i
     e.slot === slot &&
     typeof e.createdAt === "string" &&
     e.sourceKey === saveKey &&
-    (e.kind === "corrupt" || e.kind === "unknown-schema") &&
+    (e.kind === "corrupt" || e.kind === "unknown-schema" || e.kind === "held-journal") &&
     typeof e.raw === "string" &&
     e.rawLength === e.raw.length &&
     typeof e.acknowledged === "boolean"

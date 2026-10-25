@@ -8197,3 +8197,9 @@ p.hint-sheet__step {
   margin: -0.125em;
   vertical-align: -0.2em;
 }
+
+/* P1-1 (#664): the held-journal discard dialog can carry up to three checks; keep it inside short viewports. */
+[data-held-discard-dialog] .settings-reset-confirm__panel {
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+}

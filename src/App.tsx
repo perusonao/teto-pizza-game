@@ -45,8 +45,18 @@ import {
 } from "./state/roundCommit";
 import { buildStartup } from "./state/startup";
 import type { PendingRound } from "./state/pendingRound";
-import { describeHeldRound, describeRoundSaveFailure, describeSettledRound, type RoundNoticeCopy } from "./state/roundNoticeCopy";
-import { HeldRoundNotice, RoundSaveFailureNotice, SettledRoundNotice } from "./components/RoundSaveNotices";
+import {
+  describeHeldDiscardDialog,
+  describeHeldDiscardDone,
+  describeHeldDiscardFailure,
+  describeHeldRound,
+  describeRoundSaveFailure,
+  describeSettledRound,
+  type HeldDiscardDialogCopy,
+  type RoundNoticeCopy,
+} from "./state/roundNoticeCopy";
+import { discardHeldJournal, inspectHeldJournal, type HeldJournalInspection } from "./state/heldJournalDiscard";
+import { HeldJournalDiscardDialog, HeldRoundNotice, RoundSaveFailureNotice, SettledRoundNotice } from "./components/RoundSaveNotices";
 import { homeDiscoveryRoute, isHintSheetVisible } from "./state/discoveryHint";
 import {
   loadMissionBest,
@@ -203,7 +213,15 @@ function App() {
   const [state, dispatch] = useReducer(gameReducer, startup.state);
   // R8 (#617): the round journal's notices. `settledRound` = a round completed for the player, held until they confirm it.
   const [settledRound, setSettledRound] = useState<PendingRound | null>(startup.settled);
-  const heldRoundReason = startup.held;
+  // P1-1 (#664): the kept journal's reason; becomes null only when the player discards it (./state/heldJournalDiscard.ts).
+  const [heldRoundReason, setHeldRoundReason] = useState(startup.held);
+  const [heldDiscard, setHeldDiscard] = useState<{
+    inspection: HeldJournalInspection;
+    copy: HeldDiscardDialogCopy;
+    busy: boolean;
+    failure: RoundNoticeCopy | null;
+  } | null>(null);
+  const [heldDiscardDone, setHeldDiscardDone] = useState(false);
   // R8: why the last round commit did not go through (the game did not move on); shown on GAME and HOME until dismissed or retried.
   const [roundSaveFailure, setRoundSaveFailure] = useState<RoundNoticeCopy | null>(null);
   // R8: the state a bake was last committed for, so a double tap on 焼き上げ commits (and dispatches) once.
@@ -660,6 +678,41 @@ function App() {
       ),
     );
     return false;
+  }
+
+  function handleOpenHeldDiscard() {
+    // Only on HOME with no round in progress; the dialog is built from a fresh read of the save, never from startup memory.
+    if (screen !== "HOME" || state.pendingRound) return;
+    const inspected = inspectHeldJournal(getDefaultStorage());
+    if (!inspected.ok) {
+      setRoundSaveFailure(describeHeldDiscardFailure(inspected.reason));
+      return;
+    }
+    setHeldDiscard({
+      inspection: inspected.inspection,
+      copy: describeHeldDiscardDialog(inspected.inspection.reason, inspected.inspection.replacesLatest),
+      busy: false,
+      failure: null,
+    });
+  }
+
+  function handleConfirmHeldDiscard() {
+    if (!heldDiscard || heldDiscard.busy) return;
+    setHeldDiscard({ ...heldDiscard, busy: true, failure: null });
+    const result = discardHeldJournal(getDefaultStorage(), {
+      expected: { reason: heldDiscard.inspection.reason, journalJson: heldDiscard.inspection.journalJson },
+      confirmReplaceLatest: heldDiscard.inspection.replacesLatest,
+    });
+    if (!result.ok) {
+      setHeldDiscard({ ...heldDiscard, busy: false, failure: describeHeldDiscardFailure(result.reason) });
+      refreshSaveHealth();
+      return;
+    }
+    setHeldDiscard(null);
+    setHeldRoundReason(null);
+    setHeldDiscardDone(true);
+    setRoundSaveFailure(null);
+    refreshSaveHealth();
   }
 
   function handleAcknowledgeSettledRound() {
@@ -1263,7 +1316,19 @@ function App() {
           onAcknowledgeSaveNotice={handleAcknowledgeSaveNotice}
           roundNotices={
             <>
-              {heldRoundReason && <HeldRoundNotice copy={describeHeldRound(heldRoundReason)} />}
+              {heldRoundReason && <HeldRoundNotice copy={describeHeldRound(heldRoundReason)} onDiscard={handleOpenHeldDiscard} />}
+              {heldDiscardDone && !heldRoundReason && (
+                <SettledRoundNotice copy={describeHeldDiscardDone()} onAcknowledge={() => setHeldDiscardDone(false)} />
+              )}
+              {heldDiscard && (
+                <HeldJournalDiscardDialog
+                  copy={heldDiscard.copy}
+                  busy={heldDiscard.busy}
+                  failure={heldDiscard.failure}
+                  onCancel={() => setHeldDiscard(null)}
+                  onConfirm={handleConfirmHeldDiscard}
+                />
+              )}
               {settledRound?.settled && (
                 <SettledRoundNotice copy={describeSettledRound(settledRound.settled)} onAcknowledge={handleAcknowledgeSettledRound} />
               )}
