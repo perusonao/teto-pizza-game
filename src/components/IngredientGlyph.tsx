@@ -38,6 +38,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "whitebait-school": "0 0 64 64",
   "green-onion-slices": "0 0 64 64",
   "salmon-roe-grains": "0 0 64 64",
+  "shrimp-curl": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -63,6 +64,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "whitebait-school" && <WhitebaitSchool />}
       {visual === "green-onion-slices" && <GreenOnionSlices />}
       {visual === "salmon-roe-grains" && <SalmonRoeGrains />}
+      {visual === "shrimp-curl" && <ShrimpCurl />}
     </svg>
   );
 }
@@ -348,6 +350,22 @@ const SALMON_ROE_GRAINS: readonly { x: number; y: number }[] = [
   { x: 32, y: 47 },
   { x: 48, y: 46 },
 ];
+
+/* ---------- shrimp: a peeled shrimp (Style Lock v2 §1d: the adopted shelled curl, redrawn with pale-pink flesh and an orange outline; no eyes / feelers / legs) ---------- */
+const SHRIMP_CURL_BODY = "M42 14C58 18 60 44 38 48 26 50 14 44 14 34";
+
+function ShrimpCurl() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
+      <path d="M15 36 L4 33 C4 38 6 43 10 46 L16 41 Z" fill="#f9b98f" stroke="#e8793f" strokeWidth="2" strokeLinejoin="round" />
+      <path d={SHRIMP_CURL_BODY} stroke="#e8793f" strokeWidth="15" strokeLinecap="round" fill="none" />
+      <path d={SHRIMP_CURL_BODY} stroke="#fdd9d0" strokeWidth="10.6" strokeLinecap="round" fill="none" />
+      <path d={SHRIMP_CURL_BODY} stroke="#f2a99b" strokeWidth="10.6" fill="none" strokeDasharray="1.6 5.6" />
+      <path d="M43 11C56 14 58 31 52 38" stroke="#fffaf6" strokeWidth="2.6" strokeLinecap="round" fill="none" opacity=".85" />
+    </g>
+  );
+}
 
 function SalmonRoeGrains() {
   return (

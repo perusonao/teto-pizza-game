@@ -64,7 +64,7 @@ Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.
 | `anchovy` | アンチョビ | seafood | A | `anchovy.svg` | 細い S 字の茶色いフィレ 2 本 |
 | `sardine` | イワシ | seafood | **B** | `sardine.svg` | 青背の銀魚 1 匹 |
 | `tuna` | ツナ | seafood | A | `tuna.svg` | 赤身ブロック（白い筋目） |
-| `shrimp` | エビ | seafood | A | `shrimp.svg` | 橙の丸まった海老（節・尾・目） |
+| `shrimp` | エビ | seafood | A → **§1d で変更（むきエビ）** | `shrimp.svg`（参照のみ。実装は `shrimp-curl` = むきエビ版） | 橙の丸まった海老（節・尾・目）→ 淡ピンクの身・橙の輪郭の細身 C 字（§1d） |
 | `salmon` | サーモン | seafood | A | `salmon.svg` | 橙 + 白い脂の縞 + 銀の皮 |
 | `salt-cod` | 塩ダラ | seafood | **B** | `salt-cod.svg` | 白い切り身 + 粗塩の結晶 |
 
@@ -101,6 +101,20 @@ Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.
 3. （参考・比較シートで指摘済み）anchovy ↔ bacon のグレースケール近似、pepperoni ↔ salami の色頼りの差。
 
 HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner の明示承認を要する。
+
+## 1d. 2026-10-25 Owner 決定 — `shrimp` を「むきエビ」に変更（`shrimp-curl`）
+
+| 項目 | 内容 |
+|---|---|
+| 理由 | OS 絵文字・§1b 採用案（A）はどちらも**殻付きの赤橙の海老**に見える。レシピ側の意図は「殻と背わたを取ったえび」（`yuzu-shrimp-pizza`、`lateCatalog.ts`）で、PIZZA DB の説明とも合わない。Owner が比較試作で案1（細身 C 字）を採用 |
+| 採用 | 比較試作 `shrimp-p1`（細身 C 字・淡ピンクの身・橙の輪郭）。案2（太め・節線）は不採用（28px でチーズ寄りに見え、20px で細部が潰れる） |
+| `pieceVisual` | `"shrimp-curl"`（64×64） |
+| Lock（§1b A 案）との**差分** | ① 色: 殻の橙〜赤（`#f8905e` / `#d9532c`、輪郭 `#8a2f1c`）→ 淡ピンク `#fdd9d0` ＋ 節 `#f2a99b`、輪郭は橙 `#e8793f` ② **削除**: 目（円）・触角・足 ③ 尾: 足つきの尾 → 小さな扇（`#f9b98f`）④ 白いハイライトを追加 ⑤ 構図（C 字の曲線 `M42 14C58 18 60 44 38 48 26 50 14 44 14 34`・64×64・床影）は維持 |
+| 原典との関係 | 原典（PIZZA DB）の説明は「殻・背わたを取ったエビ」。むきエビ表現は原典に近づく方向。ただしアイコン指定は原典にないため提案の範囲（Owner 承認済み） |
+| サイズ補正 | `.ingredient-glyph--shrimp-curl` を 1.2em / margin -0.1em（shiso 等と同じグループ）。クラスは `m` のまま |
+| 影響レシピ | `pesto-gamberi`、`yuzu-shrimp-pizza`（描画のみ。判定・スコア・材料ID・レシピ・セーブ形式は不変） |
+| 視認性 | 28px: 橙の輪郭でチーズ（クリーム〜白の楕円）と区別できる。20px: C 字の形が残る。焼成後（生地・チーズが黄色寄り）は淡色のコントラストがやや下がるが輪郭で判別可。**実機 HV で確認** |
+| §2 の規約 | `id` / gradient / `<defs>` なし、`aria-hidden`、描画は `pieceVisual` のみを読む。いずれも維持 |
 
 ## 2. 共通仕様（確定方針の再掲）
 
