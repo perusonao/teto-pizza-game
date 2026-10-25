@@ -1,5 +1,6 @@
 import { DISCOVERY_LADDER, type DiscoveryLadder } from "../data/discoveryLadder";
 import { INGREDIENTS, getIngredient } from "../data/ingredients";
+import { LATE_ENTITLEMENT_FLOORS } from "../data/lateCatalog";
 import { countsTowardLadder as recipeCountsTowardLadder } from "../data/recipes";
 import { discoveredRecipeCount, materialIdsOfSteps, resolveMaterialUnlocks } from "../logic/discoveryLadder";
 import { totalStars } from "../logic/mastery";
@@ -52,9 +53,10 @@ export function resolveShopEntitlement(
   ladder: DiscoveryLadder = DISCOVERY_LADDER,
   countsTowardLadder: (recipeId: string) => boolean = recipeCountsTowardLadder,
 ): ShopEntitlementResult {
-  const { unlockedMaterialIds, newlyUnlockedMaterialIds } = resolveMaterialUnlocks({
+  const discoveredCount = discoveredRecipeCount(dex, countsTowardLadder);
+  const resolved = resolveMaterialUnlocks({
     ladder,
-    discoveredCount: discoveredRecipeCount(dex, countsTowardLadder),
+    discoveredCount,
     // Batch 6 starGate: derived from the Dex BEST stars every call (no new save field, nothing
     // spent), so an existing save is evaluated retroactively and the union below never re-locks.
     totalStars: totalStars(dex),
@@ -63,6 +65,12 @@ export function resolveShopEntitlement(
       ...ownedIngredientIds.filter(isFiniteMaterial),
     ],
   });
+  // Compatibility floor for late materials (see LATE_ENTITLEMENT_FLOORS): only ids the given ladder actually sells, so an OFF / custom ladder is untouched.
+  const floored = Object.entries(LATE_ENTITLEMENT_FLOORS)
+    .filter(([id, floor]) => discoveredCount >= floor && ladder.steps.some((s) => s.ingredientIds.includes(id)) && !resolved.unlockedMaterialIds.includes(id))
+    .map(([id]) => id);
+  const unlockedMaterialIds = [...resolved.unlockedMaterialIds, ...floored];
+  const newlyUnlockedMaterialIds = [...resolved.newlyUnlockedMaterialIds, ...floored];
   const unchanged =
     unlockedMaterialIds.length === unlockedForShopIngredientIds.length &&
     unlockedMaterialIds.every((id, i) => id === unlockedForShopIngredientIds[i]);
