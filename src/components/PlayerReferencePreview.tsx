@@ -3,6 +3,7 @@ import { buildIdealSauceFixture } from "../data/referencePizza";
 import { getIngredient } from "../data/ingredients";
 import { getRecipe } from "../data/recipes";
 import { createIdealDoughShape } from "../logic/doughShape";
+import { doughOutlineOf } from "../logic/dough/doughOutline";
 import { buildIdealSquareSauceFixture } from "../logic/pan/squareReference";
 import { activePanShape } from "../preview/panShapePreview";
 import "./square/squarePanStage.css";
@@ -54,6 +55,8 @@ export function PlayerReferencePreview({
   const recipeName = recipe?.nameJa ?? "";
   // Square Dough E-1: a square-pan recipe's sample is drawn on the square pan; every other recipe is the round sample, unchanged.
   const pan = activePanShape(recipe);
+  // Pinsa Romana (#577): the recipe's own dough outline (a square tray stays square).
+  const oval = pan !== "square" && doughOutlineOf(null, recipe) === "oval";
   const sauceIngredient = reference.sauceIngredientId ? getIngredient(reference.sauceIngredientId) : null;
 
   const pieceCaption = buildPieceCountLabels(reference.pieceGroups).join("、");
@@ -94,7 +97,7 @@ export function PlayerReferencePreview({
               </button>
             </div>
 
-            <div className={`player-reference-mini-pizza${pan === "square" ? " player-reference-mini-pizza--square" : ""}`} aria-hidden="true">
+            <div className={`player-reference-mini-pizza${pan === "square" ? " player-reference-mini-pizza--square" : ""}${oval ? " player-reference-mini-pizza--oval" : ""}`} aria-hidden="true">
               {sauceIngredient && (
                 <SauceHeatmapCanvas
                   deposits={pan === "square" ? IDEAL_SQUARE_SAUCE_FIXTURE : IDEAL_SAUCE_FIXTURE}

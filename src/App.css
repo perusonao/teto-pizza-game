@@ -8149,3 +8149,36 @@ p.hint-sheet__step {
   line-height: 1.4;
   opacity: 0.75;
 }
+
+/* ---------- #577: the oval dough ----------
+   The source dish is an oval. The game keeps ONE circular dough-percent space for every rule (sauce, placement, scoring, the Reference); the oval is that space
+   drawn in a box that is wider than it is tall (src/logic/dough/doughOutline.ts). `.pizza-dough` keeps its width (every size modifier -- roomy / compact / result / the
+   cooking caps -- still sets it) and takes its height from the ratio, so a circle of radius 48% of the box is an ellipse with semi-axes 48% of the width and of the
+   height. The pointer math reads the box's own width and height per axis, so a finger on the drawn rim is on the logical rim. The selector is deliberately more
+   specific than the sizing rules above (they set `height` per modifier); round and square pizzas never carry the class. The ratio is pinned equal to
+   OVAL_DOUGH_ASPECT by doughOutline.test.ts. */
+.pizza-stage .pizza-dough.pizza-dough--oval,
+.game-screen--cooking .pizza-stage .pizza-dough.pizza-dough--oval {
+  height: auto;
+  aspect-ratio: 3 / 2;
+}
+
+/* The paint trail is clipped to the hit-test region: the circle(48%) of the square box is the ellipse of the oval one (an `ellipse` takes the box's own axes). */
+.pizza-dough--oval .pizza-paint-trail {
+  clip-path: ellipse(48% 48% at 50% 50%);
+}
+
+/* The same oval, scaled down, for the small pizzas that stand for an oval-dough recipe (Pizza Select card, 見本 thumbnail and popovers): each context keeps its own width and the height
+   follows the 3:2 ratio. The contextual size rules (.pizza-select-card, .mini-reference__thumb, ...) set both dimensions with up to three classes, so the modifier is repeated to out-rank them. */
+.pizza-thumbnail.pizza-thumbnail--oval.pizza-thumbnail--oval,
+.reference-thumbnail.reference-thumbnail--oval.reference-thumbnail--oval {
+  height: auto;
+  aspect-ratio: 3 / 2;
+  align-self: center;
+  margin-block: auto;
+}
+
+.reference-mini-pizza--oval,
+.player-reference-mini-pizza--oval {
+  height: calc(140px * 2 / 3);
+}

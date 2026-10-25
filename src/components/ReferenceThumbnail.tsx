@@ -7,6 +7,8 @@ import { renderPizzaVisualPieces, type PizzaVisualPieceGroup } from "./PizzaVisu
 interface ReferenceThumbnailProps {
   sauceIngredientId: string | null;
   pieceGroups: readonly PizzaVisualPieceGroup[];
+  /** Pinsa Romana (#577): draw the mini reference as the oval dough. */
+  oval?: boolean;
 }
 
 const IDEAL_DOUGH_SHAPE = createIdealDoughShape();
@@ -38,11 +40,11 @@ const IDEAL_SAUCE_FIXTURE = buildIdealSauceFixture();
  * `renderPizzaVisualPieces` helper the modal popovers use, not a locally hand-rolled emoji/cheese
  * ternary (the emoji branch used to bypass `IngredientPieceVisual` entirely here).
  */
-export function ReferenceThumbnail({ sauceIngredientId, pieceGroups }: ReferenceThumbnailProps) {
+export function ReferenceThumbnail({ sauceIngredientId, pieceGroups, oval = false }: ReferenceThumbnailProps) {
   const sauceIngredient = sauceIngredientId ? getIngredient(sauceIngredientId) : null;
 
   return (
-    <div className="reference-thumbnail" aria-hidden="true">
+    <div className={`reference-thumbnail${oval ? " reference-thumbnail--oval" : ""}`} aria-hidden="true">
       {sauceIngredient && (
         <SauceHeatmapCanvas
           deposits={IDEAL_SAUCE_FIXTURE}
