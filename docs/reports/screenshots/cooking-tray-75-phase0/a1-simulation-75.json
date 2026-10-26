@@ -1,0 +1,301 @@
+{
+ "items": 56,
+ "current": {
+  "pages": 10,
+  "meanFlips": 4.18,
+  "maxFlips": 9,
+  "distinctFamiliesPerPageMean": 3.5,
+  "distinctFamiliesPerPage": [
+   3,
+   4,
+   4,
+   4,
+   4,
+   4,
+   2,
+   4,
+   4,
+   2
+  ],
+  "meanPagesTouchedPerFamily": 5,
+  "familySpan": {
+   "肉系": {
+    "first": 1,
+    "last": 8,
+    "pagesTouched": 8,
+    "items": 10
+   },
+   "魚介系": {
+    "first": 1,
+    "last": 8,
+    "pagesTouched": 6,
+    "items": 9
+   },
+   "野菜・きのこ系": {
+    "first": 0,
+    "last": 8,
+    "pagesTouched": 9,
+    "items": 21
+   },
+   "果物系": {
+    "first": 3,
+    "last": 9,
+    "pagesTouched": 3,
+    "items": 3
+   },
+   "ハーブ・香味系": {
+    "first": 0,
+    "last": 8,
+    "pagesTouched": 5,
+    "items": 8
+   },
+   "スパイス・薬味系": {
+    "first": 2,
+    "last": 9,
+    "pagesTouched": 2,
+    "items": 2
+   },
+   "ちょっと変わった材料": {
+    "first": 0,
+    "last": 4,
+    "pagesTouched": 2,
+    "items": 3
+   }
+  },
+  "flipsToSeeWholeFamilyMean": 7.71,
+  "flipsToFirstSightingMean": 1
+ },
+ "a1": {
+  "pages": 10,
+  "meanFlips": 4.18,
+  "maxFlips": 9,
+  "distinctFamiliesPerPageMean": 1.6,
+  "distinctFamiliesPerPage": [
+   1,
+   2,
+   1,
+   2,
+   1,
+   1,
+   2,
+   2,
+   3,
+   1
+  ],
+  "meanPagesTouchedPerFamily": 2.29,
+  "familySpan": {
+   "肉系": {
+    "first": 0,
+    "last": 1,
+    "pagesTouched": 2,
+    "items": 10
+   },
+   "魚介系": {
+    "first": 1,
+    "last": 3,
+    "pagesTouched": 3,
+    "items": 9
+   },
+   "野菜・きのこ系": {
+    "first": 3,
+    "last": 6,
+    "pagesTouched": 4,
+    "items": 21
+   },
+   "果物系": {
+    "first": 6,
+    "last": 7,
+    "pagesTouched": 2,
+    "items": 3
+   },
+   "ハーブ・香味系": {
+    "first": 7,
+    "last": 8,
+    "pagesTouched": 2,
+    "items": 8
+   },
+   "スパイス・薬味系": {
+    "first": 8,
+    "last": 8,
+    "pagesTouched": 1,
+    "items": 2
+   },
+   "ちょっと変わった材料": {
+    "first": 8,
+    "last": 9,
+    "pagesTouched": 2,
+    "items": 3
+   }
+  },
+  "flipsToSeeWholeFamilyMean": 6,
+  "flipsToFirstSightingMean": 4.71
+ },
+ "growthItemsChangingPage": {
+  "肉系": {
+   "current": 0,
+   "a1": 8,
+   "currentSlots": 0,
+   "a1Slots": 46
+  },
+  "魚介系": {
+   "current": 0,
+   "a1": 6,
+   "currentSlots": 0,
+   "a1Slots": 37
+  },
+  "野菜・きのこ系": {
+   "current": 0,
+   "a1": 3,
+   "currentSlots": 0,
+   "a1Slots": 16
+  },
+  "果物系": {
+   "current": 0,
+   "a1": 2,
+   "currentSlots": 0,
+   "a1Slots": 13
+  },
+  "ハーブ・香味系": {
+   "current": 0,
+   "a1": 1,
+   "currentSlots": 0,
+   "a1Slots": 5
+  },
+  "スパイス・薬味系": {
+   "current": 0,
+   "a1": 1,
+   "currentSlots": 0,
+   "a1Slots": 3
+  },
+  "ちょっと変わった材料": {
+   "current": 0,
+   "a1": 0,
+   "currentSlots": 0,
+   "a1Slots": 0
+  }
+ },
+ "growthMeanItemsChangingPage": {
+  "current": 0,
+  "a1": 3
+ },
+ "growthMeanItemsChangingSlot": {
+  "current": 0,
+  "a1": 17.14
+ },
+ "a1Order": [
+  "ソーセージ",
+  "ペパロニ",
+  "ベーコン",
+  "ハム",
+  "チキン",
+  "生ハム",
+  "サラミ",
+  "豚肉",
+  "ホットドッグ",
+  "ラム",
+  "アンチョビ",
+  "ツナ",
+  "あさり",
+  "エビ",
+  "サーモン",
+  "塩ダラ",
+  "イワシ",
+  "しらす",
+  "いくら",
+  "チェリートマト",
+  "マッシュルーム",
+  "たまねぎ",
+  "ブラックオリーブ",
+  "コーン",
+  "ナス",
+  "トマト",
+  "じゃがいも",
+  "パプリカ",
+  "ズッキーニ",
+  "ピーマン",
+  "ルッコラ",
+  "ベイクドビーンズ",
+  "パルミット",
+  "ザワークラウト",
+  "フリアリエッリ",
+  "ハラペーニョ",
+  "アボカド",
+  "アーティチョーク",
+  "ほうれん草",
+  "さつまいも",
+  "パイナップル",
+  "レモン",
+  "ザクロ",
+  "バジル",
+  "にんにく",
+  "オレガノ",
+  "ローズマリー",
+  "パセリ",
+  "ミント",
+  "大葉",
+  "青ねぎ",
+  "ケッパー",
+  "白ごま",
+  "たまご",
+  "アーモンド",
+  "松の実"
+ ],
+ "currentOrder": [
+  "バジル",
+  "にんにく",
+  "オレガノ",
+  "チェリートマト",
+  "たまご",
+  "マッシュルーム",
+  "たまねぎ",
+  "ソーセージ",
+  "ペパロニ",
+  "アンチョビ",
+  "ツナ",
+  "ローズマリー",
+  "ベーコン",
+  "ハム",
+  "ブラックオリーブ",
+  "ケッパー",
+  "あさり",
+  "コーン",
+  "ナス",
+  "トマト",
+  "パイナップル",
+  "じゃがいも",
+  "チキン",
+  "エビ",
+  "パセリ",
+  "パプリカ",
+  "ズッキーニ",
+  "アーモンド",
+  "松の実",
+  "生ハム",
+  "ピーマン",
+  "サラミ",
+  "ルッコラ",
+  "レモン",
+  "サーモン",
+  "塩ダラ",
+  "ベイクドビーンズ",
+  "パルミット",
+  "ザワークラウト",
+  "豚肉",
+  "フリアリエッリ",
+  "ハラペーニョ",
+  "イワシ",
+  "ホットドッグ",
+  "アボカド",
+  "アーティチョーク",
+  "ほうれん草",
+  "ミント",
+  "ラム",
+  "さつまいも",
+  "大葉",
+  "しらす",
+  "青ねぎ",
+  "いくら",
+  "白ごま",
+  "ザクロ"
+ ]
+}
