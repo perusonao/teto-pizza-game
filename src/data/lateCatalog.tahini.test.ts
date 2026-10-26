@@ -23,7 +23,7 @@ import { toppingSizeClass } from "./toppingSizeClass";
 
 /**
  * New Sauces Phase B U3 (Issue #578, Owner 2026-10-26): `eggplant-tahini-pizza` + `tahini` + `pomegranate`, a LATE-catalog recipe (the pomegranate scattered after the bake in FINISH, the parsley placed before it) with two
- * late-only materials. The tahini PAINT-before-bake, the eggplant without pre-cooking, the parsley before the bake, the pomegranate AFTER the bake, every count and the tahini colour `#a58a63` are GAMEPLAY ASSUMPTIONS /
+ * late-only materials. The tahini PAINT-before-bake, the eggplant without pre-cooking, the parsley before the bake, the pomegranate AFTER the bake, every count are GAMEPLAY ASSUMPTIONS /
  * PROVISIONAL (the original page was not confirmed), pinned here only as the shipped data. The late step number is always derived from the ladder; the entitlement floor is a FIXED constant.
  */
 const TAHINI_PIZZA = "eggplant-tahini-pizza" as RecipeId;
@@ -88,9 +88,9 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     expect(getRecipe(TAHINI_PIZZA)!.description).not.toMatch(/焼成|焼き上|焼いた|あと|仕上げ|後乗せ|振り/);
   });
 
-  it("tahini: a late-only finite sauce (spread, ladder-gated, no topping family), provisional colour #a58a63", () => {
+  it("tahini: a late-only finite sauce (spread, ladder-gated, no topping family), Owner-approved colour #7b6a58", () => {
     const ingredient = getIngredient(SAUCE)!;
-    expect(ingredient).toMatchObject({ category: "sauce", placement: "spread", color: "#a58a63", nameJa: "タヒニ" });
+    expect(ingredient).toMatchObject({ category: "sauce", placement: "spread", color: "#7b6a58", nameJa: "タヒニ" });
     expect(ingredient.unlockCondition).toBeDefined();
     expect(ingredientAttributeFamily(SAUCE)).toBeNull();
   });

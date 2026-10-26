@@ -9,8 +9,8 @@ import { CATALOG_COUNTS, materialsUpTo } from "../src/logic/catalog/testSupport/
 
 /**
  * New Sauces Phase B U3 representative E2E (Issue #578; the late catalog: tahini + pomegranate -> eggplant-tahini-pizza). The tahini PAINT before the bake, the eggplant (no pre-cooking) and the parsley placed before
- * the bake, the pomegranate scattered AFTER the bake and every count are GAMEPLAY ASSUMPTIONS (the original page was not confirmed). The tahini colour `#a58a63` is PROVISIONAL until the Owner HV on a real device,
- * so the painted dough is captured. The late materials played end to end: Shop NEW (T4, 120 Pitz) and purchase of both, the single Research Entry (the label names only the cohort key; no identity leak), the SAUCE
+ * the bake, the pomegranate scattered AFTER the bake and every count are GAMEPLAY ASSUMPTIONS (the original page was not confirmed). The tahini colour `#7b6a58` is the Owner-approved colour (PR #673 HV),
+ * the painted dough is captured. The late materials played end to end: Shop NEW (T4, 120 Pitz) and purchase of both, the single Research Entry (the label names only the cohort key; no identity leak), the SAUCE
  * step painted with the existing PAINT gesture, eggplant 3 + parsley 1 (no CHEESE step: the recipe has no cheese), the bake, the pomegranate x2 placed in FINISH (its own aril art), NEW DISCOVERY and the Dex.
  * The save does not list the new step's materials: the ladder (the late step) grants them on load.
  *

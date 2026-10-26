@@ -10,7 +10,7 @@ Authority: Owner 承認（2026-10-26）「U3 暫定仕様」＋ `docs/design/TET
 | レシピ | `eggplant-tahini-pizza`（ナスとタヒニのピザ）、late catalog、全体 69 番目（Pinsa の前、Pinsa ON 時）、第 4 章の 33 件目 |
 | 構成（**GAMEPLAY ASSUMPTION**、原典未確認） | タヒニ 1（焼成前 **PAINT**）/ ナス 3（焼成前・事前加熱なし）/ パセリ 1（焼成前）/ ザクロ 2（**焼成後 FINISH、POST_BAKE**）。チーズなし |
 | 焼成窓・CUT | 58–78 / CUT なし。Lunch Rush・Dinner 対象外（`lunchRush:false`） |
-| 新素材 | `tahini`（タヒニ）: late 専用ソース（spread）、色 `#a58a63`（**暫定**、実機 HV で最終確認）、emoji 🥣（トレイ／ショップ用の代替のみ）。`pomegranate`（ザクロ）: late 専用トッピング（scatter）、色 `#c4163f`、family `fruit`、size class `xs`、専用描画 `pomegranate-aril`（**候補 A′**、`docs/design/references/ingredient-icons-2.0/pomegranate.svg`）、emoji 🟥（表示されない代替のみ、G18 重複なし） |
+| 新素材 | `tahini`（タヒニ）: late 専用ソース（spread）、色 `#7b6a58`（**Owner 承認 2026-10-26**、実機 HV 後に PR #673 で `#a58a63` から変更。§6b）、emoji 🥣（トレイ／ショップ用の代替のみ）。`pomegranate`（ザクロ）: late 専用トッピング（scatter）、色 `#c4163f`、family `fruit`、size class `xs`、専用描画 `pomegranate-aril`（**候補 A′**、`docs/design/references/ingredient-icons-2.0/pomegranate.svg`）、emoji 🟥（表示されない代替のみ、G18 重複なし） |
 | ladder | late step（dengaku の次）に 2 材料（tahini → pomegranate）。番号は**導出**（現在 60）、星ゲートなし、T4、credited、key-free。Research コホートの鍵は `pomegranate`（単独メンバー、既存レシピの文字は動かない） |
 | 価格・補充 | T4 規則。タヒニ 初回 120 Pitz = 10 回分、補充 60。ザクロ 初回 120 Pitz = 10 ピザ分（k=2）、補充 60 |
 | 互換下限 | `LATE_ENTITLEMENT_FLOORS` に `tahini: 60` / `pomegranate: 60` を追加。57 / 58 / 59 / 59 は**不変** |
@@ -74,11 +74,25 @@ Authority: Owner 承認（2026-10-26）「U3 暫定仕様」＋ `docs/design/TET
 | lint | `oxlint` エラーなし（既存 warning 2 件のみ） |
 | E2E（Chromium 全体、iphone-390x844） | **534 passed / 96 skipped / 0 failed / 0 flaky**。新規 `e2e/new-sauces-u3.spec.ts`（390×844 / 360×800 各 2 本）通過。末尾の `console.error` 空判定は sandbox の外部アセット 404 で**散発的に**失敗しうる（`new-sauces-u1` / `u2` は無変更の main でも同様。通過した回の方が多い） |
 
+### 6b. タヒニ色の変更（Owner HV 後、承認 2026-10-26）
+
+実機 HV で「タヒニの塗りと生地の境界が分かりにくい」との所見。ゲーム内のソースは半透明で重なるため、設計時の予測（ΔE 約 29）より低く、`#a58a63` の塗りは素の生地との差が約 17〜18 だった。同一操作（半径 25%・16 タップ、390×844、Chromium）で `ingredient.color` のみを差し替えて実画面で測定（CIE76、塗り vs 同画面の素の生地）:
+
+| | 未焼成 | 焼成後 | 味噌だれとの差（未焼成 / 焼成後） |
+|---|---|---|---|
+| 旧 `#a58a63` | 17.2 | 18.4 | 14.3 / 15.8 |
+| 案 1 `#8a7152` | 23.1 | 24.1 | 13.0 / 15.1 |
+| **案 2 `#7b6a58`（採用）** | **26.5** | **29.3** | 16.7 / 20.1 |
+| 案 3 `#6b5d4a` | 29.2 | 31.4 | 17.4 / 20.4 |
+| 参考: 味噌だれ / オリーブ油 | 27.9 / 30.4 | 26.4 / 25.4 | — |
+
+案 2 は素の生地との差が味噌だれ・オリーブ油と同等で、味噌だれとは灰みの色相で区別できる。案 3 は焼成後に濁る、案 1 は味噌だれに寄る。**変更は `lateCatalog.ts` の色定数 1 つ**（とコメント、固定値テスト、スクリーンショット）のみ。ザクロ（`xs`）・パセリ・発見条件・採点・塗布量のしきい値・floors は不変。
+
 ## 7. Human Verification（`TETO_HUMAN-VERIFICATION-POLICY.md`）
 
-- スクリーンショット（committed）: `docs/reports/screenshots/new-sauces-u3/`（390×844、Shop NEW / Research エントリ / トレイ（ソース 2 ページ目にタヒニ）/ タヒニ塗布後 / 具材後 / FINISH / FINISH ザクロ / NEW RECIPE / 図鑑）＋比較図 `u3-comparison.png`（ザクロ A′ を 18 / 24 / 32 / 64px でいくら・しそ・ねぎと並置、タヒニ `#a58a63` を既存ソース色と並置。生地色は説明用の概算値で実測ではない）。新規レシピ・新材料のため before は無い。
+- スクリーンショット（committed）: `docs/reports/screenshots/new-sauces-u3/`（390×844、Shop NEW / Research エントリ / トレイ（ソース 2 ページ目にタヒニ）/ タヒニ塗布後 / 具材後 / FINISH / FINISH ザクロ / NEW RECIPE / 図鑑）＋比較図 `u3-comparison.png`（ザクロ A′ を 18 / 24 / 32 / 64px でいくら・しそ・ねぎと並置、タヒニ `#7b6a58` を既存ソース色と並置。生地色は説明用の概算値で実測ではない）＋色比較 `u3-tahini-color-compare.png`（現行 `#a58a63` / 案 1〜3 / オリーブ油 / 味噌だれを、同一操作で未焼成・焼成後に並置）。新規レシピ・新材料のため before は無い。
 - 動画（**repository に commit しない**。Owner へ直接提出）: `u3-hv-390x844.webm`（390×844）。
-- **実機（iPhone Safari）で確認してほしいこと**: ①タヒニ `#a58a63` が生地・味噌だれ・オリーブ油と見分けられるか（Owner 方針: 最終確認は実機）、②**FINISH のザクロ 2 個**（`xs`）が焼き上がりの生地の上で読めるか、③パセリ（焼成前）の見え方、④トレイが長くなった（75 種）際の操作性、⑤チーズなしレシピで CHEESE タブをスキップする流れ。
+- **実機（iPhone Safari）で確認してほしいこと**: ①タヒニ `#7b6a58` が生地・味噌だれ・オリーブ油と見分けられるか、②**FINISH のザクロ 2 個**（`xs`）が焼き上がりの生地の上で読めるか、③パセリ（焼成前）の見え方、④トレイが長くなった（75 種）際の操作性、⑤チーズなしレシピで CHEESE タブをスキップする流れ。
 - **Owner の実機 HV は未実施。**
 
 ## 8. リスクと注意

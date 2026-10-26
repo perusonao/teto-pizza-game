@@ -296,14 +296,14 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
   },
   /**
    * New Sauces Phase B U3 (Issue #578): `tahini`, a late-only finite ladder material (T4 by its late step, no star gate; the step's first material). A spread sauce painted in the SAUCE step (the existing PAINT); sauces carry no topping family.
-   * `color` `#a58a63` (a muted grey-brown) is PROVISIONAL until the Owner HV on a real device: the first guess `#dcc7a1` was too close to the dough (and to olive-oil), see TETO_NEW-SAUCES-U3_FINAL-DESIGN-GATE_2026-10-26.md §6.
+   * `color` `#7b6a58` (a muted grey-taupe) is the Owner-approved colour (2026-10-26, PR #673 HV): the first guess `#dcc7a1` was too close to the dough (and to olive-oil), and `#a58a63` rendered only dE ~17 from the bare dough once the sauce is drawn translucent; `#7b6a58` renders dE ~27-29 (the level of the miso-sauce / olive-oil) while staying distinct in hue from the miso-sauce. See TETO_NEW-SAUCES-U3_FINAL-DESIGN-GATE_2026-10-26.md §6 and the Result report.
    * `emoji` is only the tray / shop chip fallback (G18 keeps it unique). Its PIZZA DB use (painted before the bake) is a GAMEPLAY ASSUMPTION, not confirmed by the original.
    */
   {
     id: "tahini",
     category: "sauce",
     nameJa: "タヒニ",
-    color: "#a58a63",
+    color: "#7b6a58",
     emoji: "\u{1F963}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
