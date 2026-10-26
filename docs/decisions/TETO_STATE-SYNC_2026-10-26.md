@@ -1,7 +1,7 @@
 # 状態同期 — 本番スイッチ・#561・#621・月見の保留・古い記述との関係（docs-only）
 
 Status: **記録のみ。** `src/**`・`e2e/**`・CSS・テスト・データ・workflow・本番スイッチは変更していない。merge・共有 Preview・Production・Firebase の操作は行っていない。
-基準 `main` = **`f661767d634ac53d71a1a1b0f1aa8954b76eaddf`**（#669、2026-10-26 11:13 JST）。同 SHA の Deploy to GitHub Pages（run #456）は success。記録日 2026-10-26。
+基準 `main` = **`f661767d634ac53d71a1a1b0f1aa8954b76eaddf`**（#669、2026-10-26 11:13 JST）。**その後 main は `72044530d9c1f1b7f953d763f2e2d470c641a1ef`（#666）に進んだ。更新は §8。**同 SHA の Deploy to GitHub Pages（run #456）は success。記録日 2026-10-26。
 本書は**新規ファイル 1 件のみ**。`docs/PROJECT_HANDOFF.md`、#650 の 4 ファイル、`TETO_EXPANSION-BATCH-9_OWNER-DECISIONS.md` ほか既存の文書は変更しない（§5 は、それらの古い記述との**関係を本書側に書く**）。
 
 **書き方の規則.** 「確定」は Owner が伝達した判断、またはコード・GitHub の事実だけ。Owner の判断を代行しない。実機の結果は Owner の言葉でのみ記録し、セッションは PASS を代行しない。
@@ -67,7 +67,7 @@ Status: **記録のみ。** `src/**`・`e2e/**`・CSS・テスト・データ・
 | O-11（Free/Research の中断通知に「未完成」行がない） | 暫定許容。文言の追補は未決 |
 | Q-5（後乗せリング上限の正式値） | 未決。R-A は Reference・採点側の基準（O-13）。「Pinsa P3 の前」だった実測の記録は見つかっていない |
 | 実機 HV（LAN 方式） | Owner の PC 待ち |
-| #666（保持された pendingRound の退避・破棄） | 未 merge。Owner の実機 HV 待ち。FINISH 本番 ON 下での journal 占有への備え |
+| #666（保持された pendingRound の退避・破棄） | **merge 済み**（main `72044530`、2026-10-26 07:40:50Z、Owner が squash merge）。**Owner 例外承認（この HEAD `8fa7898` に限る）: 実機 HV と動画提出は waived（実機 PASS ではない）、Codex は running のまま独立レビューを代替採用（Codex PASS ではない）。** 詳細は §8 |
 
 ## 4. 月見ピザ（tsukimi-pizza）の DH4 保留
 
@@ -109,3 +109,13 @@ Status: **記録のみ。** `src/**`・`e2e/**`・CSS・テスト・データ・
 ## 7. 触れていないもの
 
 `PROJECT_HANDOFF.md`、#650 の 4 ファイル、Batch-9 決定記録、`src/**`、`e2e/**`、CSS、テスト、golden、workflow、本番スイッチ、共有 Preview、Production、Firebase、保存データ、#666 とその HV、Issue/PR へのコメント投稿・クローズ。CI の再実行、Codex の再依頼、Monitor の作成はしていない。
+
+## 8. 更新: #666 の merge と main の WebKit E2E（`72044530`、2026-10-26）
+
+- **merge.** #666 は Owner が squash merge（`72044530`、07:40:50Z）。直前（07:40:36Z）に Owner アカウントで例外承認のコメントが記録されている。例外は **HEAD `8fa7898b` に限る**。実機 HV は waived で「実機 PASS」とは記録しない。Codex は running のまま未完了で「Codex PASS」とは記録しない。受容された残存リスク: 実 iOS Safari 固有の UX、`localStorage` の挙動、実際の複数タブ競合、アクセシビリティ。
+- **Production Deploy.** `72044530` の Deploy to GitHub Pages（run #457）は **success**。
+- **main の WebKit E2E（run #1212）は failure.** `webkit-390x844` の shard 2/3 と 3/3 が各 1 件失敗し、WebKit Gate が failure。360×800 の 3 シャード、layout-chromium、Layout Contract Gate は success。
+  - shard 2: `lunch-rush-r8-restore.spec.ts:147`（G-6）— `page.evaluate`（localStorage の読み取り）がテストの 30 秒を超過。
+  - shard 3: `sauce-edge-475.spec.ts:124` — `canvas.pizza-sauce-heatmap` の待機中に「Target page, context or browser has been closed」（テストの時間切れ）。
+  - 直前の main（`f661767`、run #1211）は全シャード success。`72044530` の tree は、隔離コピーで検証した「#666 + `f661767`」の merge tree と同一。同 tree の Chromium（390×844 / 360×800）では、新規 E2E 12/12、関連回帰 32/32、上記 2 本を含む再実行も通過（`sauce-edge-475:124` は 21.5 秒で、30 秒の上限に近い）。WebKit はこの環境で実行できず未確認。
+  - 評価: 失敗は 2 件とも時間切れで、#666 が触れない領域（ソースのヒートマップ、Lunch Rush の保存読み取り）。WebKit の間欠失敗（#394 ほか）と同じ型だが、**フレークと断定はしていない**。再実行・revert は Owner 判断。

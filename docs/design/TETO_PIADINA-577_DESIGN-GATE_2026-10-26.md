@@ -115,10 +115,10 @@ Status: **設計と調査のみ。実装コードは変更していない。** `
 |---|---|
 | 技法の台帳（`discoveredTechniqueIds`） | **前方互換**。この版が知らない整形式の id は `writeSave` が保持し、上限（64）の中で温存する（`persistence.ts` の 195〜203 行・749 行付近）。新技法 id を旧ビルドが消すことはない |
 | 図鑑（Dex） | レシピ id のみ。生地は保存しない。新レシピの id は旧ビルドの保存で未知のレシピとして扱われる（#668 の R4/R5 の範囲。生地のサブフィールドは足さない前提） |
-| `PizzaState.dough` の保存（`pendingRound`） | **旧ビルドで「処理不能」になる**。`pendingRound.ts:233` が `dough` を `isDoughKind` で検証し、未知値は `unresolvable`。新ビルドで Piadina の生地を選んだ中断ラウンドが保存され、その後旧ビルドへ戻すと、旧ビルドは pendingRound を保持して journal の枠を埋める（FINISH 本番 ON 下ではフリー/リサーチの焼成と CUT/FINISH 付きのガイド付き調理が止まる）。#666 の退避機能が緩和策だが、**この Gate は #666 に依存させない**。条件は「中断ラウンド + 旧ビルドへのロールバック」で、頻度は低い |
+| `PizzaState.dough` の保存（`pendingRound`） | **旧ビルドで「処理不能」になる**。`pendingRound.ts:233` が `dough` を `isDoughKind` で検証し、未知値は `unresolvable`。新ビルドで Piadina の生地を選んだ中断ラウンドが保存され、その後旧ビルドへ戻すと、旧ビルドは pendingRound を保持して journal の枠を埋める（FINISH 本番 ON 下ではフリー/リサーチの焼成と CUT/FINISH 付きのガイド付き調理が止まる）。#666（保持された pendingRound の退避・破棄）が main に入った（`72044530`）ため緩和策は利用できる。ただし退避は利用者の明示操作で、**この Gate は #666 に依存させない**。条件は「中断ラウンド + 旧ビルドへのロールバック」で、頻度は低い |
 | ラダー・entitlement | 新材料なしのため `LATE_ENTITLEMENT_FLOORS` は不要 |
 
-保存互換の対応案（Owner 判断）: (a) リスクを受容、(b) 3 値目の公開を #666 の merge 後にする、(c) `pendingRound` の `dough` 検証を、未知値は `standard` として扱いつつラウンドは保持する形へ変える（ただし `pendingRound.ts` は保存の安全性に関わる HOT ファイルで、別 Issue 相当の変更）。
+保存互換の対応案（Owner 判断）: (a) リスクを受容、(b) 3 値目の公開を #666 の merge 後にする（#666 は `72044530` で merge 済みのため、実質的に満たされた）、(c) `pendingRound` の `dough` 検証を、未知値は `standard` として扱いつつラウンドは保持する形へ変える（ただし `pendingRound.ts` は保存の安全性に関わる HOT ファイルで、別 Issue 相当の変更）。
 
 ## 7. 工程: 焼成前トッピングのみ / FINISH の比較（G7: HOLD）
 
@@ -160,7 +160,7 @@ pizzadb.jp は本環境から到達不可。U1・U2 と同様、**Owner が承�
 | D-P1 | 生地チップの設計（§5 の A / B / C） | 実装前に Owner が選ぶ |
 | D-P2 | 技法は 1 生地 1 技法でよいか（設計書 Q3 の Piadina 分） | 1 技法 1 生地の延長が最小 |
 | D-P3 | 案 P か案 F か（§7） | 原典 P-2 の結果次第 |
-| D-P4 | 保存互換の扱い（§6 の a / b / c） | 3 値目の公開を #666 の merge 後にする案 (b) は、依存が増えるがリスクが最小 |
+| D-P4 | 保存互換の扱い（§6 の a / b / c） | 案 (b) の前提（#666 の merge）は満たされた。受容 (a) との差は、旧ビルドへ戻す場合の備えの有無 |
 | D-P5 | 識別のみで見た目・採点は変えない | 賛成。Pinsa の運用を踏襲 |
 | D-P6 | 公開ゲート（`PIADINA_PRODUCTION` の 1 リテラル）を設けるか | Pinsa は専用ゲートで段階公開した。同じ方式が安全 |
 | D-P7 | 説明文（技法名・なぞかけ・説明）の文言 | 技法の riddle は時機・食材を含めない（Anti-Oracle） |
