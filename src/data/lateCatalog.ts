@@ -138,6 +138,28 @@ const ALL_LATE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  // New Sauces Phase B U3 (Issue #578, Owner 2026-10-26): `eggplant-tahini-pizza` (ナスとタヒニのピザ). SOURCE (PIZZA DB comparison table p5, Owner-relayed 2026-09-22, NOT independently re-fetched from this environment:
+  // pizzadb.jp is unreachable here): thin dough; eggplant, tahini (sauce family "Other"), pomegranate, parsley; no cheese is listed. EVERYTHING ELSE IS UNCONFIRMED against the original (T-1..T-7): whether the tahini is
+  // painted or drizzled, whether the eggplant is pre-cooked, when the pomegranate and the parsley are added, the counts and the bake window. The individual page was not read.
+  // GAMEPLAY ASSUMPTION (Owner-approved game design 2026-10-26, NOT source): tahini painted in the SAUCE step (the existing PAINT; a drizzle after the bake is not supported -- #579); eggplant and parsley placed BEFORE the bake
+  // with no pre-cooking step (grilling / frying the eggplant is not modelled); the pomegranate is sprinkled AFTER the bake in FINISH (POST_BAKE; a fresh garnish). No cheese (the CHEESE step is skipped).
+  // GAMEPLAY CALIBRATION (not source): tahini 1 (PAINT) / eggplant 3 / parsley 1 / pomegranate 2 (POST_BAKE), bake 58-78 (= the generic Free Cooking window, so the median-derived FREE_COOK_BAKE_TARGET stays 58-78); 6 pieces <= the 8-slot ring, 2 post-bake.
+  // Late catalog (`tahini` and `pomegranate` are late-only materials): ladder-credited (its own late step, after the dengaku step), no star gate, no CUT, `lunchRush: false` (Lunch Rush and Dinner exclude FINISH), permanently key-free.
+  // The description names no moment (Anti-Oracle: it is shown before the recipe is discovered). Listed before Pinsa so that Pinsa stays the tail while its gate is open.
+  {
+    id: "eggplant-tahini-pizza",
+    nameJa: "ナスとタヒニのピザ",
+    description: "ナスにタヒニとパセリ、ザクロをあわせた、中東風の一枚。",
+    requiredIngredients: [
+      { ingredientId: "tahini", minCount: 1 },
+      { ingredientId: "eggplant", minCount: 3 },
+      { ingredientId: "parsley", minCount: 1 },
+      { ingredientId: "pomegranate", minCount: 2, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
   // Pinsa Romana (#577 P3-b-1, Owner L1 / D4 / R2). Gated by ./pinsaGate.ts (`PINSA_PRODUCTION`): absent at runtime while it is false.
   // SOURCE AUTHORITY (Owner-relayed, not independently verified; PK-0 items 2/4/5 stay open until the Production gate): tomato sauce, mozzarella baked, prosciutto before or after,
   // arugula best added last. The prosciutto is placed BEFORE the bake (L1: a game-design choice, consistent with the source) and only the arugula is POST_BAKE.
@@ -198,6 +220,12 @@ const ALL_LATE_ORDERS = [
     recipeId: "eggplant-dengaku-pizza",
     requestedBy: "mito",
     lineJa: "ナス田楽ピザ、甘辛そう！食べてみたいな！",
+  },
+  {
+    id: "order-eggplant-tahini-pizza",
+    recipeId: "eggplant-tahini-pizza",
+    requestedBy: "mito",
+    lineJa: "ナスとタヒニのピザ、中東風でおいしそう！食べてみたいな！",
   },
   {
     id: "order-pinsa-romana",
@@ -266,19 +294,49 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /**
+   * New Sauces Phase B U3 (Issue #578): `tahini`, a late-only finite ladder material (T4 by its late step, no star gate; the step's first material). A spread sauce painted in the SAUCE step (the existing PAINT); sauces carry no topping family.
+   * `color` `#a58a63` (a muted grey-brown) is PROVISIONAL until the Owner HV on a real device: the first guess `#dcc7a1` was too close to the dough (and to olive-oil), see TETO_NEW-SAUCES-U3_FINAL-DESIGN-GATE_2026-10-26.md §6.
+   * `emoji` is only the tray / shop chip fallback (G18 keeps it unique). Its PIZZA DB use (painted before the bake) is a GAMEPLAY ASSUMPTION, not confirmed by the original.
+   */
+  {
+    id: "tahini",
+    category: "sauce",
+    nameJa: "タヒニ",
+    color: "#a58a63",
+    emoji: "\u{1F963}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * New Sauces Phase B U3 (Issue #578): `pomegranate`, a late-only finite ladder material (the same late step as `tahini`; the step's last material = the Research cohort key). Family `fruit` (L1 only, Owner 2026-10-25), size class `xs`,
+   * drawn by the dedicated `pomegranate-aril` visual (a small heap of ruby arils, candidate A'); `emoji` is only the required, never-displayed text fallback (G18 keeps it unique). `color` `#c4163f` is PROVISIONAL.
+   * Placed AFTER the bake (POST_BAKE) is a GAMEPLAY ASSUMPTION, not confirmed.
+   */
+  {
+    id: "pomegranate",
+    category: "topping",
+    nameJa: "ザクロ",
+    color: "#c4163f",
+    emoji: "\u{1F7E5}",
+    pieceVisual: "pomegranate-aril",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 /** Family rows of the late ingredients (OD-B8-2: `salmon-roe` is `seafood`, L1 only). Joined by ./ingredientTaxonomy.ts only when enabled, so an OFF build has no orphan row. */
-export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"]] as const;
+export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"]] as const;
 
 /** Topping size class of the late ingredients (`salmon-roe` is extra small, like the other fine garnishes). Joined by ./toppingSizeClass.ts only when enabled. */
-export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs" } as const;
+export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs" } as const;
 
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
   "ikura-salmon-pizza": "ikura-salmon-pizza-pizzadb-p1",
   "yuzu-shrimp-pizza": "yuzu-shrimp-pizza",
   "eggplant-dengaku-pizza": "eggplant-dengaku-pizza-pizzadb-p6",
+  "eggplant-tahini-pizza": "eggplant-tahini-pizza-pizzadb-p5",
   ...(pinsaEnabled() ? { "pinsa-romana": "pinsa-romana-pizzadb-p9" } : {}),
 };
 
@@ -293,15 +351,17 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
   { ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" },
   // New Sauces Phase B U2 (Issue #578): after the yuzu step (ordinary length + 3), key recipe `eggplant-dengaku-pizza` (it also needs eggplant and mozzarella from earlier steps / the starters). Cohort key: white-sesame (the last material of the step). The number is DERIVED, never authored.
   { ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" },
+  // New Sauces Phase B U3 (Issue #578): after the dengaku step (ordinary length + 4), key recipe `eggplant-tahini-pizza` (it also needs eggplant and parsley from earlier ordinary steps). Cohort key: pomegranate (the last material of the step). The number is DERIVED, never authored.
+  { ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" },
 ];
 
 /**
  * Compatibility floor (Issue #578 U0, Owner OD-U0-7 = M3 / 7b / 7c): a late material's Shop entitlement never needs a LARGER credited-discovery count than the one it had
  * when the late catalog first shipped. Its ladder step number is derived (ordinary length + 1) and moves +1 per ordinary batch; the floor is a FIXED constant, so a
  * save that reached the E5-era step but had not launched since (its ledger has no entry yet) still gets the material. A floor only ever grants earlier; the ledger never re-locks.
- * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
+ * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
  */
-export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59 };
+export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60 };
 
 /** True for a recipe whose own gate is closed (Pinsa while `PINSA_PRODUCTION` is false): the id is in type-keyed tables but the recipe does not exist in this build. */
 export function isGatedOffRecipeId(id: string): boolean {
