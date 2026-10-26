@@ -76,6 +76,14 @@ const collect = async (page: Page) =>
       pageButtons: names(document.body),
       scrollHeight: document.documentElement.scrollHeight,
       innerHeight,
+      geometry: (() => {
+        const actions = document.querySelector(".result-panel__actions") as HTMLElement | null;
+        const children = panel ? [...panel.children].filter((c) => !(c as HTMLElement).classList.contains("result-panel__actions")) as HTMLElement[] : [];
+        const lastContent = children.length ? Math.max(...children.map((c) => c.getBoundingClientRect().bottom)) : null;
+        const a = actions?.getBoundingClientRect();
+        const p2 = panel?.getBoundingClientRect();
+        return { vh: innerHeight, panelTop: p2?.top ?? null, lastContentBottom: lastContent, actionsTop: a?.top ?? null, actionsBottom: a?.bottom ?? null, gapContentToActions: a && lastContent ? Math.round((a.top - lastContent) * 10) / 10 : null, hasInnerScroll: panel ? panel.scrollHeight > panel.clientHeight + 1 : null };
+      })(),
     };
   });
 

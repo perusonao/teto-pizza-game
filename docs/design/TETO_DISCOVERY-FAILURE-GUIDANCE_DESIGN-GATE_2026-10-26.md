@@ -5,6 +5,28 @@ Status: **監査と設計のみ。** `src/**`・`e2e/**`・CSS・テスト・gol
 **「推奨」は助言であり Owner Decision ではない。未回答を承認済みとみなさない。**
 守る契約: `docs/decisions/TETO_ANTI-ORACLE-CONTRACT_2.1.md`（INV-D1〜D7、OD-RB-1〜19）。count / distance / similarity / Near・Far の禁止、× の永続化禁止、ORIGINAL 3 outcome の byte 同一、INV-D7（直接の「なし」を出さない）、INV-D5（実行の失敗を ○× に混ぜない）は**全て維持**する。
 
+## Owner 方針（2026-10-26 反映）
+
+Owner は本 Gate を受けて次を決めた（Issue #676 に記録）。**実装は含まない。** 以降の §3〜§5 の候補分析は判断材料として残し、採否は §5 の表に反映した。
+
+| 候補 | 採否 | 備考 |
+|---|---|---|
+| **C1** FAILED 画面に「💡 ヒントを見る」 | **採用** | 受け入れ条件は §7 |
+| **C3** 標的なし ORIGINAL の注記を次の行動を指す固定文に | **採用** | 文言は §6.3（C2 を見送るので、試作ノートに触れない案 b を作業案とする。Owner 確認が残る） |
+| C2 標的なし ORIGINAL にノート直接導線 | 見送り | |
+| C4 FAILED の汎用焼き助言 | 見送り | OD-D3-23 を再検討しない |
+| C5 標的なし → 図鑑の橋渡し | 見送り | OD-RB-1 更新を維持 |
+| C6 連続 ORIGINAL の声かけ | 見送り | |
+
+追加の指示: **標的なし Free Cook のヒント内容を先に設計する**（§6）。Anti-Oracle、Contract 2.1、INV-D7 は維持。390×844 / 360×800 と privacy テストの受け入れ条件を確定する（§7）。
+
+### 訂正（本調査で見つけた誤り）
+
+初版の §0〜§1 は、標的なし Free Cook を**テスト用フック**（`startTargetlessFreeCook`）で開始し、Research Entry が 1 件ある保存で撮った。本番の HOME「レシピ発見」は cookable な Research Entry が 1 件以上あるとそれを研究として開始する（OD-RB-1 更新）ので、**本番の標的なしは Research Entry が 0 件の段階（新規・初期）に限られる**。したがって:
+
+- RESULT 画面の**構成**（見出し・ボタン・○× の有無）は同じ `ResultPanel` なので有効。
+- 初版で示した「標的なしのヒントシートに Hint 5.0 の梯子（ヒント1: ソース 10 Pitz）が出る」は**本番で標的なしから見える内容ではない**（フック環境の再現）。本番で到達できる状態は §6.1 で撮り直した。
+
 ## 0. 方法と限界
 
 - 実画面: Chromium（Playwright、事前インストール版）、390×844 / 360×800。`tools/discovery-failure-guidance-audit/capture.spec.ts` が 4 画面（Research ORIGINAL / Research FAILED / 標的なし Free ORIGINAL / 標的なし Free FAILED）を実際に操作して RESULT まで進め、表示文言・ボタン・出口（ヒントシート、試作ノート）を `docs/reports/screenshots/discovery-failure-guidance/*.json` と PNG に記録した。観測のみで製品への assertion はない。
@@ -107,20 +129,92 @@ RESULT 画面（390×844。360×800 も同じ構成。縦スクロールなし�
 3. C4 は OD-D3-23 の再確認後、C5・C6 は Owner の方針が変わる場合のみ。
 4. 実装は 1 PR（C1〜C3）にまとめても、C1 と C3 を別 PR にしてもよい。いずれも `ResultPanel.tsx`・`researchUxCopy.ts`・`originalResultCopy.ts` を触る（`App.css` は FAILED の行間調整が要る場合のみ。HOT）。
 
-## 5. Owner 決定事項
+## 5. Owner 決定事項（2026-10-26 更新）
 
-| ID | 決定 | 選択肢 |
+| ID | 決定 | 状態 |
 |---|---|---|
-| OD-DF-1 | FAILED 画面（Research / 標的なし）に「💡 ヒントを見る」を出すか（C1） | 出す（推奨）/ 出さない（FAILED は「作り直す」に集中させる） |
-| OD-DF-2 | 標的なし ORIGINAL にノートへの直接導線を出すか（C2） | 出す / 出さない（ヒントシート経由のまま） |
-| OD-DF-3 | 標的なし ORIGINAL の注記（C3） | 現行維持 / 候補 a / 候補 b / 現行 + 新文の 2 行 |
-| OD-DF-4 | FAILED の汎用焼き助言（C4）を検討するか | 検討しない（推奨）/ OD-D3-23 を再確認してから |
-| OD-DF-5 | 標的なし → 図鑑の橋渡し（C5）を許すか | 許さない（推奨。OD-RB-1 更新を維持）/ 許す |
-| OD-DF-6 | 連続 ORIGINAL の声かけ（C6）をやるか。やる場合のしきい値 | やらない（推奨）/ やる（セッション限定、N = Owner 指定） |
-| OD-DF-7 | `HINT_EXISTENCE_TEXT`「今の材料で、まだ見つけていないピザが作れそう！」の扱い | 現状維持 / 別 Issue で再監査（所持材料から導出される既存文言で、本 Issue では変更しない。Contract 2.1 以前からの仕様のため注記のみ） |
-| OD-DF-8 | HV の範囲 | 実装 PR で 390×844 動画 + 4 画面の前後スクリーンショット（ポリシーどおり） |
+| OD-DF-1 | C1 FAILED に「💡 ヒントを見る」 | **採用** |
+| OD-DF-2 | C2 標的なし ORIGINAL にノート導線 | **見送り** |
+| OD-DF-3 | C3 標的なし ORIGINAL の注記 | **採用。文言は案 b を作業案とする（§6.3）。残る確認: 案 b で確定か、現行文との 2 行併記か** |
+| OD-DF-4 | C4 焼き助言 | **見送り** |
+| OD-DF-5 | C5 図鑑への橋渡し | **見送り** |
+| OD-DF-6 | C6 連続 ORIGINAL の声かけ | **見送り** |
+| OD-DF-7 | `HINT_EXISTENCE_TEXT`「今の材料で、まだ見つけていないピザが作れそう！」の扱い | **未回答（残る）。本 Issue では変更しない** |
+| OD-DF-8 | HV の範囲 | 実装 PR で 390×844 動画 + 4 画面の前後スクリーンショット（ポリシーどおり）。§7.4 |
 
-## 6. 実装時の影響（参考。本 Gate では触れない）
+## 6. 標的なし Free Cook のヒント内容（先に設計）
+
+### 6.1 C1 が開くシートは何か（コードで確認）
+
+FAILED / ORIGINAL の「💡 ヒントを見る」は、シートを直接開くのではなく **`handleRetryWithHint`（`App.tsx`）= `RETRY_SAME_RECIPE` + `SHOW_HINT`**（新しい Free Cook ラウンドを始め、PREPARE でヒントシートを開く）。シートの対象は「今日の対象」（`hintTarget`: プールの状態で決まる）で、**直前の試作の結果（ORIGINAL / FAILED の種別、使った材料）を読まない**。Research の場合は研究対象が `carryOf` で引き継がれる。つまり C1 は、FAILED でも ORIGINAL と**同じ入力から同じシート**を出す。`SHOW_HINT` は PREPARE の Free Cook でしか効かない（`gameReducer.ts`）ため、RESULT で直接シートを開く経路は無い。
+
+### 6.2 本番で到達できる標的なしの状態と、シートの内容（実画面で撮り直し、390×844）
+
+`docs/reports/screenshots/discovery-failure-guidance/prodstates-390x844.json`（HOME「レシピ発見」→ ヒント。テストフックなし）と `hintstates-*.json`。
+
+| 状態（本番での入り方） | シートの内容（固定文。対象・件数・材料名を含まない） | 取得 |
+|---|---|---|
+| 新規保存（図鑑 0/68、Dex 0 の onboarding） | 「今の材料で、まだ見つけていないピザが作れそう！」/「次のヒントを見る」/「✨ はじめてのピザはヒント無料！」/「自分で見つけたいときは、閉じてね。」 | 実画面 |
+| 図鑑にマルゲリータだけ、ショップに新材料あり（SHOP_NEW） | 「🏪 ショップに入荷した材料で、新しいピザが作れそう！」/「ホームのショップで、新しい材料をチェックしてみよう。」 | 実画面 |
+| 材料の在庫なし（REFILL） | 「📦 材料が足りないみたい。」/「ホームのショップで、持っている材料を補充しよう。」 | コードの文言（`HintSheet.tsx` `EMPTY_COPY`）。実画面は SHOP_NEW が先に出て再現できず |
+| 発見できるピザが複数あり、研究対象なし（OPEN_POOL） | 「🎨 まだ発見できるピザがあるよ！」/「いろいろな材料の組み合わせで、レシピ発見を試してみよう。」+「📓 これまでの試作は、上の「試作ノートを見る」で見返せるよ。」 | コードの文言。実画面は未取得（Research Entry が 2 件以上ある保存では CHOOSE_RESEARCH が出るため） |
+| 図鑑コンプリート（COMPLETE） | 「🏆 図鑑コンプリート！」/「ぜんぶのピザを見つけたよ。好きなピザを作ろう！」 | 実画面 |
+| （参考）Research Entry 2 件以上 | 「🔎 研究するピザを選ぼう」/ 図鑑から選ぶ案内 /「🔎 研究するピザを選ぶ」 | 実画面（標的なしからは通常来ない） |
+
+どの状態も、ヘッダーに「📓 試作ノートを見る」「閉じる」がある。
+
+### 6.3 設計判断（作業案。Owner 確認が残るもの）
+
+1. **シートの内容は変えない。** C1 は入口を足すだけで、上表の固定文をそのまま使う。新しい文言は C3 の 1 文だけ。
+2. **C1 の位置と動作:** FAILED カードに既存の `hintRow(null, true)`（`.result-near-miss`、ボタン文言「💡 ヒントを見る」）を ORIGINAL と同じ位置関係で置く。クリックは既存の `onShowHint`（= `handleRetryWithHint`）で、**新しい action・reducer 変更なし**。FAILED には「もう一度試す」もあり、ヒント付きの再開が 2 つ並ぶことになるが、ORIGINAL でも同じ構成なので揃える。
+3. **C3 の文言（作業案 b）:** 「ヒントを見ながら、次に試す材料を考えてみよう。」
+   - C2 を見送るので、RESULT から試作ノートへの直接導線は無い。案 a（「ヒントや試作ノートを見て…」）は、画面に無い導線を指すため採らない。
+   - 標的なしでは ○× が出ないため、「判定がわかる」と読める語を避けた（「見ながら考える」は手がかりにする表現）。
+   - 現行の注記「図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。」は**置き換える**（1 行のまま。高さを増やさない）。2 行併記は縦に伸びるため採らない。**Owner が「現行文を残す」「2 行併記」を選ぶ場合は §7.1 の余白で再確認する。**
+   - Research の注記（`resultNote`）は変更しない。
+4. **対象範囲:** C3 は標的なし ORIGINAL（ORDINARY / AMBIGUOUS / INCOMPLETE_MATCH を含む）のみ。FAILED、ALREADY_DISCOVERED、NEW_DISCOVERY、Dinner / Lunch Rush は不変。
+
+## 7. 受け入れ条件（確定）
+
+### 7.1 レイアウト（390×844 と 360×800、Chromium。WebKit は CI）
+
+現行の余白（実測、RESULT のコンテンツ末尾からボタン列の上端まで、`capture.spec.ts`）:
+
+| 画面 | 390×844 | 360×800 |
+|---|---|---|
+| Research ORIGINAL | 138px | 94px |
+| Research FAILED（最も詰まる） | **117.8px** | **73.8px** |
+| 標的なし ORIGINAL | 278px | 234px |
+| 標的なし FAILED | 295px | 251px |
+
+追加する行（ヒントボタン 36px + 行間）は約 48px 以下。基準:
+
+- **AC-L1** どの画面も、ページの縦スクロールが増えない（`scrollHeight == innerHeight`）、横オーバーフローなし。
+- **AC-L2** 追加後も、**Research FAILED 360×800 で、コンテンツ末尾とボタン列の間が 16px 以上**残る（現行 73.8px − 約 48px ≒ 25px の見込み。割る場合は設計の見直し）。
+- **AC-L3** 新しい行のボタンは高さ 36px 以上（ORIGINAL と同一クラス `.result-near-miss__cta`）で、ボタン列と重ならず、タップ領域が隣のボタンと重ならない。
+- **AC-L4** C3 の文言は 1 行（390）〜 2 行（360）に収まり、既存の注記と同じ高さ予算を超えない。
+
+### 7.2 privacy テスト（Anti-Oracle / Contract 2.1 / INV-D7）
+
+既存の検証が**無変更で通る**こと: `researchResultRows.test.ts`、`gameReducer.techniques.privacy.test.ts`、`gameReducer.failedResearch.test.ts`、`ResultPanel.researchFailed.test.tsx`、`ResultPanel.research.test.tsx`、`originalResultCopy.test.ts`、e2e `discovery3-oracle-neutralization` / `research-failed-trial` / `discovery-near-miss-result`。加えて新規に:
+
+- **AC-P1（C1 の入力非依存）** FAILED から「ヒント」を開いた直後の状態（`hintSession` / `hintSheetView` / 開いたシートの DOM）が、**同じ保存・同じ対象で ORIGINAL から開いた場合と同一**であること（reducer テスト + e2e）。
+- **AC-P2（FAILED カードの不漏えい）** 新しい行を含む FAILED カードの text / DOM / aria に、レシピ名・id、使っていない材料名、件数、% が出ない（`research-failed-trial` の走査を、行の追加後も維持）。`data-kind|outcome|candidate|target|recipe` 属性が無い。
+- **AC-P3（C3 の固定性）** C3 の文字列は定数 1 つで、ORDINARY / AMBIGUOUS / INCOMPLETE_MATCH の標的なし ORIGINAL で **DOM が byte 同一**（`originalResultCopy.test.ts` の既存比較に含める）。文字列に数字・材料名・ファミリー名を含まず、禁止語 `あと|おしい|近い|遠い|惜|合って|できて|ほぼ|\d+(種|個|件|%)` を含まない（テストで固定）。
+- **AC-P4（INV-D7）** 新しい文言・DOM に「…なし」「…不要」等の直接の「なし」表現がない。FAILED に ○× が出ない標的なしで、○× の欠如を説明する文を足さない。
+- **AC-P5（見送り候補の非実装）** 標的なし ORIGINAL に「📓 試作ノート」ボタンが**無い**、FAILED に焼き助言文が**無い**、標的なし RESULT に図鑑への橋渡しボタンが**無い**ことを、否定テストで固定する（C2・C4・C5 の再導入を検知）。
+- **AC-P6（不変）** Research ORIGINAL、ALREADY_DISCOVERED、NEW_DISCOVERY、Dinner / Lunch Rush の RESULT の DOM が byte 同一（本番 DOM golden の再基準化を要しない範囲。要する場合は理由を実装 PR に明記）。
+
+### 7.3 動作
+
+- **AC-B1** FAILED の「ヒントを見る」は `handleRetryWithHint` と同一の動作（新ラウンド + シート）。Research FAILED では研究対象が維持され、シートに研究文脈が出る。標的なしでは §6.2 の状態に応じた固定文が出る。
+- **AC-B2** 在庫・Pitz・保存・Dex・Notebook・採点に変更がない（新しい dispatch・保存項目なし）。ヒントの購入は従来どおりシート内の操作でのみ発生する。
+
+### 7.4 Human Verification（`TETO_HUMAN-VERIFICATION-POLICY.md`）
+
+実装 PR で 390×844 の動画（直接提出、repo に含めない）と、前後スクリーンショット（`docs/reports/screenshots/<task>/`、390×844 と 360×800 の 4 画面: Research FAILED、標的なし FAILED、標的なし ORIGINAL、Research ORIGINAL（不変の確認））。動画の流れ: FAILED → 「ヒントを見る」→ シートが開く → 閉じる → もう一度試す。
+
+## 8. 実装時の影響（参考。本 Gate では触れない）
 
 - 変更予定: `src/components/ResultPanel.tsx`、`src/components/researchUxCopy.ts`、`src/state/originalResultCopy.ts`（C3 の場合）、`src/screens/GameScreen.tsx`（HOT、C2 の配線）、テスト（上の G8）。
 - #673（`IngredientGlyph.tsx`・`lateCatalog.ts`・`ingredients.ts`・goldens）、#674（`persistence.ts`）とはファイルが重ならない。`deductionGuard.gate.test.ts` 系の件数 pin は本件で動かない。

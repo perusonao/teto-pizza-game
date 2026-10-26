@@ -32,7 +32,16 @@
       "レシピを選んで作る"
     ],
     "scrollHeight": 844,
-    "innerHeight": 844
+    "innerHeight": 844,
+    "geometry": {
+      "vh": 844,
+      "panelTop": 260,
+      "lastContentBottom": 444,
+      "actionsTop": 722,
+      "actionsBottom": 844,
+      "gapContentToActions": 278,
+      "hasInnerScroll": false
+    }
   },
   "exits": {
     "hintSheet": {
