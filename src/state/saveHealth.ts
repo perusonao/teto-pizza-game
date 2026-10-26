@@ -13,6 +13,8 @@
  *                      written; the save itself is untouched. A reload recovers.
  * - `stale-save`       (PR-3) the stored save changed behind this page (another tab saved), so this page stops writing
  *                      rather than overwrite it. A reload loads the newer save.
+ * - `save-too-large`  (#668) the save would exceed the size limit and the only way to fit is to drop a Dex entry this build cannot
+ *                      read, so nothing is written (the save is untouched).
  * - `backup-kept`      informational: a quarantined copy exists that the player has not acknowledged yet.
  *
  * Pure over a storage and the last write block; reads only, never writes.
@@ -30,6 +32,7 @@ export type SaveNotice =
   | { kind: "storage-unavailable" }
   | { kind: "load-failed" }
   | { kind: "stale-save" }
+  | { kind: "save-too-large" }
   | { kind: "backup-kept"; entryKind: QuarantineKind };
 
 export interface SaveHealth {
@@ -65,6 +68,7 @@ export function inspectSaveHealth(storage: StorageLike | null, lastBlock: SaveWr
     return { notice: { kind: "load-failed" }, quarantineCount };
   }
   if (lastBlock === "stale-save") return { notice: { kind: "stale-save" }, quarantineCount };
+  if (lastBlock === "save-too-large") return { notice: { kind: "save-too-large" }, quarantineCount };
   const stored = classifyStoredSave(raw);
   if (stored.kind === "unknown-schema") {
     return { notice: { kind: "future-version", schemaVersion: stored.schemaVersion }, quarantineCount };
