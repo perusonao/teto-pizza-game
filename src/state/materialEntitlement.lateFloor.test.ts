@@ -134,7 +134,7 @@ describe("late material compatibility floor: miso-sauce + white-sesame (New Sauc
   it("the dengaku step derives number 59 today (ordinary 56 + roe, yuzu, dengaku); the floors are the FIXED 59 for both materials and the earlier floors are unchanged", () => {
     const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
     expect([stepOf(ROE), stepOf(YUZU_KOSHO), stepOf(MISO_SAUCE), stepOf(WHITE_SESAME)]).toEqual([57, 58, 59, 59]);
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ [ROE]: 57, [YUZU_KOSHO]: 58, [MISO_SAUCE]: 59, [WHITE_SESAME]: 59 });
+    expect(LATE_ENTITLEMENT_FLOORS).toMatchObject({ [ROE]: 57, [YUZU_KOSHO]: 58, [MISO_SAUCE]: 59, [WHITE_SESAME]: 59 }); // (New Sauces Phase B U3: tahini / pomegranate are fixed at 60 on top of these)
   });
 
   it.each([0, 1, 2, 3])("a never-launched save at the step they shipped at gets all four late materials with %i ordinary steps added later", (k) => {

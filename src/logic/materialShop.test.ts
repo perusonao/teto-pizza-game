@@ -116,6 +116,10 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ...(lateCatalogEnabled()
     ? ([["miso-sauce", 59, "T4", 1, 10, 120, 60], ["white-sesame", 59, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
+  // New Sauces Phase B U3 (#578): the late step 60 sells the tahini (a sauce: k=1) and the pomegranate (a finite topping: k=2, like the roe); T4 pack 120 / refill 60
+  ...(lateCatalogEnabled()
+    ? ([["tahini", 60, "T4", 1, 10, 120, 60], ["pomegranate", 60, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
+    : []),
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -273,7 +277,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(29)).toEqual({ discoveriesNeeded: 1, step: 30 });
     expect(nextMaterialHint(30)).toEqual({ discoveriesNeeded: 1, step: 31 });
     expect(nextMaterialHint(31)).toEqual({ discoveriesNeeded: 1, step: 32 });
-    const last = 56 + (lateCatalogEnabled() ? 3 : 0); // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step
+    const last = 56 + (lateCatalogEnabled() ? 4 : 0); // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step
     for (let n = 32; n < last; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
     expect(nextMaterialHint(last)).toBeNull();
     expect(nextMaterialHint(last)).toBeNull();

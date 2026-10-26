@@ -70,21 +70,21 @@ describe("ON: the ordinary catalog followed by the ikura content", () => {
     const off = await load(false);
     const on = await load(true);
     // (New Sauces Phase B U1: yuzu-shrimp-pizza follows ikura, before pinsa-romana, so Pinsa stays the last late recipe; asserted on its own in lateCatalog.yuzu.test.ts)
-    expect(on.recipes.RECIPES.map((r) => r.id)).toEqual([...off.recipes.RECIPES.map((r) => r.id), IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
+    expect(on.recipes.RECIPES.map((r) => r.id)).toEqual([...off.recipes.RECIPES.map((r) => r.id), IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
     expect(JSON.stringify(on.recipes.RECIPES.slice(0, off.recipes.RECIPES.length))).toBe(JSON.stringify(off.recipes.RECIPES));
-    expect(on.ingredients.INGREDIENTS.slice(off.ingredients.INGREDIENTS.length).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame"]); // the late ingredients, in authored order
+    expect(on.ingredients.INGREDIENTS.slice(off.ingredients.INGREDIENTS.length).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate"]); // the late ingredients, in authored order
     expect(on.ingredients.STARTER_INGREDIENT_IDS).toEqual(off.ingredients.STARTER_INGREDIENT_IDS);
-    expect(on.orders.ORDERS.slice(off.orders.ORDERS.length).map((o) => o.recipeId)).toEqual([IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // (pinsa-romana follows them while its own gate is open)
+    expect(on.orders.ORDERS.slice(off.orders.ORDERS.length).map((o) => o.recipeId)).toEqual([IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // (pinsa-romana follows them while its own gate is open)
     expect(on.taxonomy.ingredientAttributeFamily("salmon-roe")).toBe("seafood");
     expect(on.sizes.TOPPING_SIZE_CLASS_BY_ID["salmon-roe"]).toBe("xs");
   });
 
-  it("the late steps are appended after every ordinary step (ikura's first, then yuzu's, then dengaku's), with no star gate; the OFF ladder is an exact prefix", async () => {
+  it("the late steps are appended after every ordinary step (ikura's first, then yuzu's, then dengaku's, then tahini's), with no star gate; the OFF ladder is an exact prefix", async () => {
     const off = await load(false);
     const on = await load(true);
     const offSteps = off.ladder.DISCOVERY_LADDER.steps;
     const onSteps = on.ladder.DISCOVERY_LADDER.steps;
-    expect(onSteps).toHaveLength(offSteps.length + 3); // New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step
+    expect(onSteps).toHaveLength(offSteps.length + 4); // New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step
     expect(JSON.stringify(onSteps.slice(0, offSteps.length))).toBe(JSON.stringify(offSteps));
     const late = onSteps[offSteps.length];
     expect(late).toMatchObject({ ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });
@@ -93,6 +93,8 @@ describe("ON: the ordinary catalog followed by the ikura content", () => {
     expect(onSteps[offSteps.length + 1].starGates).toBeUndefined();
     expect(onSteps[offSteps.length + 2]).toMatchObject({ ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" });
     expect(onSteps[offSteps.length + 2].starGates).toBeUndefined();
+    expect(onSteps[offSteps.length + 3]).toMatchObject({ ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" });
+    expect(onSteps[offSteps.length + 3].starGates).toBeUndefined();
     expect(on.ladderLogic.validateAppendOnlyExtension(off.ladder.DISCOVERY_LADDER, on.ladder.DISCOVERY_LADDER)).toEqual([]);
     expect(on.ladderLogic.validateDiscoveryLadder(on.ladder.DISCOVERY_LADDER)).toEqual([]);
     // shiso (the other material) is an ordinary step, earlier than the late one: the recipe is makeable once the late step is reached.
