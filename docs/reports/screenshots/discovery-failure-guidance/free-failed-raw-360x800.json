@@ -1,0 +1,34 @@
+{
+  "scenario": "free-failed-raw",
+  "viewport": {
+    "width": 360,
+    "height": 800
+  },
+  "prepare": {
+    "orderCard": []
+  },
+  "result": {
+    "className": "result-panel result-panel--failed",
+    "text": [
+      "失敗",
+      "生焼けで提供できません",
+      "💧 焼き加減: 生焼け",
+      "今回の獲得 +0 Pitz",
+      "今回は料理として成立しなかったため、提供できませんでした。",
+      "もう一度試す",
+      "レシピを選んで作る"
+    ],
+    "panelButtons": [
+      "もう一度試す",
+      "レシピを選んで作る"
+    ],
+    "pageButtons": [
+      "🏠 ホーム",
+      "もう一度試す",
+      "レシピを選んで作る"
+    ],
+    "scrollHeight": 800,
+    "innerHeight": 800
+  },
+  "exits": {}
+}
