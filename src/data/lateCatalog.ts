@@ -116,6 +116,28 @@ const ALL_LATE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  // New Sauces Phase B U2 (Issue #578, Owner 2026-10-25): `eggplant-dengaku-pizza` (ナス田楽ピザ). SOURCE (PIZZA DB comparison table p6, Owner-relayed 2026-09-22, NOT independently re-fetched from this
+  // environment: pizzadb.jp is unreachable here): thin dough; eggplant, miso-dare (a sweet-salty miso sauce; sauce family 甘辛だれ), mozzarella, white sesame. NOT CONFIRMED against the original (the
+  // individual page was not read): how and when the miso-dare is used, whether the eggplant is pre-cooked, when the white sesame is added, the counts and the bake window.
+  // GAMEPLAY ASSUMPTION (Owner-approved game design, not source): miso-sauce painted in the SAUCE step (the existing PAINT); mozzarella in the CHEESE step and eggplant in the TOPPING step, both BEFORE the bake with no
+  // pre-cooking step (grilling / frying the eggplant is not modelled); the white sesame is sprinkled AFTER the bake in FINISH (POST_BAKE; the finishing garnish of a dengaku).
+  // GAMEPLAY CALIBRATION (not source): miso-sauce 1 (PAINT) / mozzarella 2 / eggplant 3 / white-sesame 1 (POST_BAKE), bake 58-78 (= the generic Free Cooking window, so the median-derived FREE_COOK_BAKE_TARGET stays 58-78).
+  // Late catalog (`miso-sauce` and `white-sesame` are late-only materials): ladder-credited (its own late step), no star gate, no CUT, `lunchRush: false`, permanently key-free. The description names no moment (Anti-Oracle:
+  // it is shown before the recipe is discovered).
+  {
+    id: "eggplant-dengaku-pizza",
+    nameJa: "ナス田楽ピザ",
+    description: "ナスとモッツァレラに、甘辛い味噌だれと白ごまをあわせた、和風の一枚。",
+    requiredIngredients: [
+      { ingredientId: "miso-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "eggplant", minCount: 3 },
+      { ingredientId: "white-sesame", minCount: 1, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
   // Pinsa Romana (#577 P3-b-1, Owner L1 / D4 / R2). Gated by ./pinsaGate.ts (`PINSA_PRODUCTION`): absent at runtime while it is false.
   // SOURCE AUTHORITY (Owner-relayed, not independently verified; PK-0 items 2/4/5 stay open until the Production gate): tomato sauce, mozzarella baked, prosciutto before or after,
   // arugula best added last. The prosciutto is placed BEFORE the bake (L1: a game-design choice, consistent with the source) and only the arugula is POST_BAKE.
@@ -172,6 +194,12 @@ const ALL_LATE_ORDERS = [
     lineJa: "柚子えびピザ、さわやかそう！食べてみたいな！",
   },
   {
+    id: "order-eggplant-dengaku-pizza",
+    recipeId: "eggplant-dengaku-pizza",
+    requestedBy: "mito",
+    lineJa: "ナス田楽ピザ、甘辛そう！食べてみたいな！",
+  },
+  {
     id: "order-pinsa-romana",
     recipeId: "pinsa-romana",
     requestedBy: "mito",
@@ -210,18 +238,47 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
   },
+  /**
+   * New Sauces Phase B U2 (Issue #578): `miso-sauce`, a late-only finite ladder material (T4 by its late step, no star gate). A spread sauce painted in the SAUCE step (the existing PAINT); sauces carry no topping family.
+   * `color` `#9a5b2e` (a mid miso brown) is PROVISIONAL until the Owner HV on a real device. `emoji` is only the tray / shop chip fallback (G18 keeps it unique). Its PIZZA DB use (painted before the bake) is a GAMEPLAY ASSUMPTION, not confirmed.
+   */
+  {
+    id: "miso-sauce",
+    category: "sauce",
+    nameJa: "味噌だれ",
+    color: "#9a5b2e",
+    emoji: "\u{1F36F}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * New Sauces Phase B U2 (Issue #578): `white-sesame`, a late-only finite ladder material (the same late step as `miso-sauce`; the step's last material = the Research cohort key). Family `spice` (L1 only, Owner 2026-10-25: the
+   * "spice / condiment" family), size class `xs`, drawn by the dedicated `sesame-seeds` visual (a few small grains); `emoji` is only the required, never-displayed text fallback (G18 keeps it unique). `color` `#f4efe0` is PROVISIONAL.
+   * Placed AFTER the bake (POST_BAKE) is a GAMEPLAY ASSUMPTION, not confirmed.
+   */
+  {
+    id: "white-sesame",
+    category: "topping",
+    nameJa: "白ごま",
+    color: "#f4efe0",
+    emoji: "\u{1F35A}",
+    pieceVisual: "sesame-seeds",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 /** Family rows of the late ingredients (OD-B8-2: `salmon-roe` is `seafood`, L1 only). Joined by ./ingredientTaxonomy.ts only when enabled, so an OFF build has no orphan row. */
-export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"]] as const;
+export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"]] as const;
 
 /** Topping size class of the late ingredients (`salmon-roe` is extra small, like the other fine garnishes). Joined by ./toppingSizeClass.ts only when enabled. */
-export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs" } as const;
+export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs" } as const;
 
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
   "ikura-salmon-pizza": "ikura-salmon-pizza-pizzadb-p1",
   "yuzu-shrimp-pizza": "yuzu-shrimp-pizza",
+  "eggplant-dengaku-pizza": "eggplant-dengaku-pizza-pizzadb-p6",
   ...(pinsaEnabled() ? { "pinsa-romana": "pinsa-romana-pizzadb-p9" } : {}),
 };
 
@@ -234,15 +291,17 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
   { ingredientIds: ["salmon-roe"], keyRecipeId: "ikura-salmon-pizza" },
   // New Sauces Phase B U1 (Issue #578): after the roe step, so its number is derived (ordinary length + 2) and moves with every ordinary batch; key recipe `yuzu-shrimp-pizza` (it also needs mozzarella, shrimp and shiso from earlier ordinary steps).
   { ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" },
+  // New Sauces Phase B U2 (Issue #578): after the yuzu step (ordinary length + 3), key recipe `eggplant-dengaku-pizza` (it also needs eggplant and mozzarella from earlier steps / the starters). Cohort key: white-sesame (the last material of the step). The number is DERIVED, never authored.
+  { ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" },
 ];
 
 /**
  * Compatibility floor (Issue #578 U0, Owner OD-U0-7 = M3 / 7b / 7c): a late material's Shop entitlement never needs a LARGER credited-discovery count than the one it had
  * when the late catalog first shipped. Its ladder step number is derived (ordinary length + 1) and moves +1 per ordinary batch; the floor is a FIXED constant, so a
  * save that reached the E5-era step but had not launched since (its ledger has no entry yet) still gets the material. A floor only ever grants earlier; the ledger never re-locks.
- * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
+ * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
  */
-export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58 };
+export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59 };
 
 /** True for a recipe whose own gate is closed (Pinsa while `PINSA_PRODUCTION` is false): the id is in type-keyed tables but the recipe does not exist in this build. */
 export function isGatedOffRecipeId(id: string): boolean {

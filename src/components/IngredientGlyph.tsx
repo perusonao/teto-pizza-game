@@ -39,6 +39,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "green-onion-slices": "0 0 64 64",
   "salmon-roe-grains": "0 0 64 64",
   "shrimp-curl": "0 0 64 64",
+  "sesame-seeds": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -65,6 +66,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "green-onion-slices" && <GreenOnionSlices />}
       {visual === "salmon-roe-grains" && <SalmonRoeGrains />}
       {visual === "shrimp-curl" && <ShrimpCurl />}
+      {visual === "sesame-seeds" && <SesameSeeds />}
     </svg>
   );
 }
@@ -376,6 +378,29 @@ function SalmonRoeGrains() {
           <circle cx={grain.x} cy={grain.y} r="9" fill="#f2842b" stroke="#a63f12" strokeWidth="2.4" />
           <circle cx={grain.x} cy={grain.y} r="5.6" fill="#f9aa5c" />
           <circle cx={grain.x - 3} cy={grain.y - 3} r="2" fill="#fff" opacity=".85" />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+/* ---------- white sesame (New Sauces Phase B U2): a few pale grains (pointed ovals) with a tan outline, scattered (large enough to read on the baked crust at the extra-small piece scale). Drawn as grains, not a leaf or a ring, so it reads differently from the shiso / green-onion / roe art. ---------- */
+const SESAME_SEEDS: readonly { x: number; y: number; rot: number }[] = [
+  { x: 19, y: 21, rot: -30 },
+  { x: 43, y: 19, rot: 25 },
+  { x: 31, y: 36, rot: 50 },
+  { x: 17, y: 49, rot: 10 },
+  { x: 46, y: 47, rot: -45 },
+];
+
+function SesameSeeds() {
+  return (
+    <g>
+      <ellipse cx="32" cy="58" rx="22" ry="3" fill="#000" opacity=".15" />
+      {SESAME_SEEDS.map((seed) => (
+        <g key={`${seed.x}-${seed.y}`} transform={`translate(${seed.x} ${seed.y}) rotate(${seed.rot})`}>
+          <path d="M-9.5 0 Q0 -7.6 9.5 0 Q0 7.6 -9.5 0 Z" fill="#f4efe0" stroke="#8a6a38" strokeWidth="2.4" strokeLinejoin="round" />
+          <path d="M-4.6 -0.6 Q0 -3.4 4.6 -0.6" fill="none" stroke="#fffdf4" strokeWidth="1.6" strokeLinecap="round" opacity=".9" />
         </g>
       ))}
     </g>

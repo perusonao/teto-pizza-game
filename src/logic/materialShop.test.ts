@@ -112,6 +112,10 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ...(lateCatalogEnabled() ? [["salmon-roe", 57, "T4", 2, 20, 120, 60] as [string, number, string, number, number, number, number]] : []),
   // New Sauces Phase B U1 (#578, late catalog on): the next late step ("ordinary length + 2"); yuzu-kosho is the late recipe's finite sauce, k = 1 (one painted use), T4 like the steps before it.
   ...(lateCatalogEnabled() ? [["yuzu-kosho", 58, "T4", 1, 10, 120, 60] as [string, number, string, number, number, number, number]] : []),
+  // New Sauces Phase B U2 (#578): the late step 59 sells the miso-sauce (a sauce: k=1) and the white-sesame (a fine garnish: k=1, like the shiso); T4 pack 120 / refill 60
+  ...(lateCatalogEnabled()
+    ? ([["miso-sauce", 59, "T4", 1, 10, 120, 60], ["white-sesame", 59, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
+    : []),
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -269,7 +273,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(29)).toEqual({ discoveriesNeeded: 1, step: 30 });
     expect(nextMaterialHint(30)).toEqual({ discoveriesNeeded: 1, step: 31 });
     expect(nextMaterialHint(31)).toEqual({ discoveriesNeeded: 1, step: 32 });
-    const last = 56 + (lateCatalogEnabled() ? 2 : 0); // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step
+    const last = 56 + (lateCatalogEnabled() ? 3 : 0); // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step
     for (let n = 32; n < last; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
     expect(nextMaterialHint(last)).toBeNull();
     expect(nextMaterialHint(last)).toBeNull();

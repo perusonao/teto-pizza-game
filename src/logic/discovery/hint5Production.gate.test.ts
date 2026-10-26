@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { HINT_CLASS_DISPLAY } from "../../data/hintClassDisplay";
@@ -144,16 +144,40 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
 
   it("P1 / P2: a family with a single catalog member is still shown as its classification (narrowing to one candidate = PASS)", () => {
     const singletons = INGREDIENTS.filter((i) => i.category === "topping" && INGREDIENTS.filter((j) => ingredientAttributeFamily(j.id) === ingredientAttributeFamily(i.id)).length === 1).map((i) => i.id);
-    expect(singletons.sort()).toEqual(["capers"]); // Expansion Batch 2: lemon joins pineapple in the fruit family
+    // New Sauces Phase B U2 (#578, Owner 2026-10-25): white-sesame joins capers in the spice family, so the real catalog has NO single-member family any more (it was `["capers"]`). The check is NOT removed: every singleton the
+    // real catalog has (today none) keeps its classification here, and the same property is held on a SYNTHETIC catalog that restores the old shape (spice = capers alone) in the next test.
+    expect(singletons.sort()).toEqual([]);
+    for (const id of singletons) expect(subToppingClass(id), id).toBe(ingredientAttributeFamily(id));
     for (const [recipeId, sub] of [["breakfast-pizza", "egg"], ["pizza-portuguesa", "egg"]] as const) {
       const final = purchaseStates(recipeId, 5).pop()!.view;
       const entry = final.board.find((e) => e.kind === "SUB_CLASS" && "classView" in e && e.classView.family === ingredientAttributeFamily(sub));
       expect(entry, recipeId).toBeDefined();
       expect(stringValues(entry).join("|")).not.toContain(getIngredient(sub)!.nameJa);
     }
-    // capers (the spice singleton) is a puttanesca sub-topping; its classification exists even while
+    // capers (a spice) is a puttanesca sub-topping; its classification exists even while
     // puttanesca waits on P4.
     expect(subToppingClass("capers")).toBe("spice");
+    expect(subToppingClass("white-sesame")).toBe("spice");
+  });
+
+  it("P1 / P2 on a SYNTHETIC catalog: a family with exactly one catalog member (spice = capers alone, as before New Sauces U2) is still classified, and its sub-topping is shown as that class", async () => {
+    vi.resetModules();
+    vi.doMock("../../data/ingredientTaxonomy", async (importOriginal) => {
+      const real = await importOriginal<typeof import("../../data/ingredientTaxonomy")>();
+      return { ...real, ingredientAttributeFamily: (id: unknown) => (id === "white-sesame" ? "herb" : real.ingredientAttributeFamily(id)) };
+    });
+    try {
+      const synth = await import("../../data/ingredientTaxonomy");
+      const { subToppingClass: synthClass } = await import("./hint5Ladder");
+      const toppings = INGREDIENTS.filter((i) => i.category === "topping");
+      const singletons = toppings.filter((i) => toppings.filter((j) => synth.ingredientAttributeFamily(j.id) === synth.ingredientAttributeFamily(i.id)).length === 1).map((i) => i.id);
+      expect(singletons.sort()).toEqual(["capers"]); // the synthetic shape: the old real catalog's only singleton
+      for (const id of singletons) expect(synthClass(id), id).toBe("spice");
+      expect(synthClass("white-sesame")).toBe("herb"); // the synthetic reassignment is what makes capers alone
+    } finally {
+      vi.doUnmock("../../data/ingredientTaxonomy");
+      vi.resetModules();
+    }
   });
 });
 

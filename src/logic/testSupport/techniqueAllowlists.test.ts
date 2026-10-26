@@ -21,14 +21,14 @@ describe("PAN_TRAY_RECIPE_IDS (E-0, OD-544-1/2)", () => {
   });
 });
 
-describe("LATE_ADDITION_RECIPE_IDS (New Sauces Phase B U1)", () => {
-  it("lists real, unique late recipe ids with a POST_BAKE requirement, limited to yuzu-shrimp-pizza (ikura is NO_SAUCE and Pinsa is in the dough list: neither is repeated here)", () => {
+describe("LATE_ADDITION_RECIPE_IDS (New Sauces Phase B U1 / U2)", () => {
+  it("lists real, unique late recipe ids with a POST_BAKE requirement, limited to yuzu-shrimp-pizza and eggplant-dengaku-pizza (ikura is NO_SAUCE and Pinsa is in the dough list: neither is repeated here)", () => {
     expect(new Set(LATE_ADDITION_RECIPE_IDS).size).toBe(LATE_ADDITION_RECIPE_IDS.length);
     for (const id of LATE_ADDITION_RECIPE_IDS) {
       const recipe = RECIPES.find((r) => r.id === id);
       expect(recipe, id).toBeDefined();
       expect(recipe!.requiredIngredients.some((q) => "applicationPhase" in q && q.applicationPhase === "POST_BAKE"), id).toBe(true);
-      expect(id).toBe("yuzu-shrimp-pizza");
+      expect(["yuzu-shrimp-pizza", "eggplant-dengaku-pizza"]).toContain(id);
     }
   });
   it("is read from this one file by the DH4 and Hint 5.0 gates (neither declares its own copy)", () => {

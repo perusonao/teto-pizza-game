@@ -17,12 +17,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // E5 (late catalog ON): + ikura-salmon-pizza (credited, chapter 4), + salmon-roe (a seafood topping), + its late ladder step 57.
       // Square Dough E-2 (#521): + grandma-pizza (non-credit, chapter 2: key step 14, no new material).
       // New Sauces Phase B U1 (#578): + yuzu-shrimp-pizza (late catalog, credited, chapter 4), + yuzu-kosho (a late sauce), + its late ladder step 58.
-      recipes: pinsa ? 67 : 66,
-      credited: 61,
-      ingredients: 71,
-      toppings: 54,
-      ladderSteps: 58,
-      chapterSizes: [6, 12, 18, pinsa ? 31 : 30],
+      // New Sauces Phase B U2 (#578): + eggplant-dengaku-pizza (late catalog, credited, chapter 4), + miso-sauce (a late sauce) + white-sesame (a late topping, spice), + their shared late ladder step 59.
+      recipes: pinsa ? 68 : 67,
+      credited: 62,
+      ingredients: 73,
+      toppings: 55,
+      ladderSteps: 59,
+      chapterSizes: [6, 12, 18, pinsa ? 32 : 31],
       lunchRushPool: 25,
     });
   });
@@ -33,6 +34,6 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id)! : i.category;
       byShelf[shelf] = (byShelf[shelf] ?? 0) + 1;
     }
-    expect(byShelf).toEqual({ sauce: 6, cheese: 11, meat: 10, seafood: 9, vegetable: 21, fruit: 2, herb: 8, spice: 1, other: 3 });
+    expect(byShelf).toEqual({ sauce: 7, cheese: 11, meat: 10, seafood: 9, vegetable: 21, fruit: 2, herb: 8, spice: 2, other: 3 });
   });
 });

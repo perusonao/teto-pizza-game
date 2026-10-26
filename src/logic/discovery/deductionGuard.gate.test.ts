@@ -129,7 +129,11 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     // The 156 -> 123 move was decomposed by measuring the same test on the same tree with the materials added separately (the hardened guard leaked 0 in all of them; only this legacy DH4-2A count moves):
     //   neither material 156 | green-onion only 120 (-36: the synthetic families are cut from TOPPINGS by array index, so one more topping re-shapes them) | doubanjiang only 164 (+8: `zeroTopping` iterates every sauce, +3 recipes)
     //   | both 128 (= 156 - 36 + 8, additive) | both + the sichuan-eggplant-pizza recipe 123 (-5: the public catalog the hypotheses are drawn from gains one recipe).
-    expect(dh42aLeaks).toBe(123);
+    // Re-measured again at New Sauces Phase B U2 (73 ingredients: miso-sauce (a sauce) and white-sesame (a spice topping) join, plus the eggplant-dengaku-pizza recipe). The hardened `toEqual([])` above held for every state in every configuration.
+    // The 123 -> 165 move was decomposed on the same tree (the hardened guard leaked 0 in all of them; only this legacy DH4-2A count moves):
+    //   neither 123 | miso-sauce only 131 (+8: `zeroTopping` iterates every sauce) | white-sesame (spice) only 180 (+57: the synthetic families are cut from TOPPINGS by array index, so one more topping re-shapes them)
+    //   | both 188 (= 123 + 8 + 57, additive) | both + the eggplant-dengaku-pizza recipe 165 (-23: the public catalog the hypotheses are drawn from gains one recipe). Family alternatives measured on the same tree, both materials + recipe: herb 156, vegetable 156.
+    expect(dh42aLeaks).toBe(165);
   }, 120_000);
 });
 

@@ -127,6 +127,7 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "ikura-salmon-pizza": { keyFree: true },
   // New Sauces Phase B U1 (late catalog): permanently key-free, like ikura-salmon-pizza.
   "yuzu-shrimp-pizza": { keyFree: true },
+  "eggplant-dengaku-pizza": { keyFree: true },
   // Pinsa Romana (#577 P3-b-1, late catalog): permanently key-free, like jamon-serrano-pizza.
   "pinsa-romana": { keyFree: true },
 };
