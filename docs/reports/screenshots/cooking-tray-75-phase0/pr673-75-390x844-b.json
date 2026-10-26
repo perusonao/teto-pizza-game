@@ -1,0 +1,98 @@
+{
+  "label": "pr673-75",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "hitPagerPrev": {
+    "visible": {
+      "w": 36,
+      "h": 28
+    },
+    "extra": {
+      "up": 9,
+      "down": 7,
+      "left": 4,
+      "right": 4
+    },
+    "hit": {
+      "w": 44,
+      "h": 44
+    }
+  },
+  "hitPagerNext": {
+    "visible": {
+      "w": 36,
+      "h": 28
+    },
+    "extra": {
+      "up": 9,
+      "down": 7,
+      "left": 4,
+      "right": 4
+    },
+    "hit": {
+      "w": 44,
+      "h": 44
+    }
+  },
+  "hitFamilyChip": {
+    "visible": {
+      "w": 48,
+      "h": 44
+    },
+    "extra": {
+      "up": 0,
+      "down": 0,
+      "left": 0,
+      "right": 0
+    },
+    "hit": {
+      "w": 48,
+      "h": 44
+    }
+  },
+  "hitIngredientChip": {
+    "visible": {
+      "w": 118,
+      "h": 64
+    },
+    "extra": {
+      "up": 0,
+      "down": 0,
+      "left": 0,
+      "right": 0
+    },
+    "hit": {
+      "w": 118,
+      "h": 64
+    }
+  },
+  "placement": {
+    "pagerBefore": {
+      "cur": 3,
+      "total": 10,
+      "visible": true
+    },
+    "pagerAfter": {
+      "cur": 3,
+      "total": 10,
+      "visible": true
+    },
+    "picked": "ハム",
+    "pressedAfter": [
+      "ハム"
+    ]
+  },
+  "placementInFamily": {
+    "family": "野菜・きのこ系",
+    "pagerAfter": {
+      "cur": 2,
+      "total": 4,
+      "visible": true
+    },
+    "firstOnP2": "トマト",
+    "nowFirst": "トマト"
+  },
+  "bakeBar": null
+}
