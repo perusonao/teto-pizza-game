@@ -1,6 +1,6 @@
 # DH4 `preExistingPublic` の pin を「標本」から「全探索」へ — 設計案（docs-only、#679 の調査から）
 
-Status: **調査と設計案のみ。実装しない**（`src/**`・テスト・golden は無変更）。基準 `main` `08cd46d5`（#677 merge 後）。#679（BBQ）の `deductionProduction.gate.test.ts` の変更が発端。**privacy の assertion は緩めない**（本案も緩めない）。
+Status: **設計案 + 実装（テストの追加のみ。本番コード・既存の assertion・既存の pin は無変更）**。実装は Owner 判断（2026-10-27）。基準 `main` `08cd46d5`（#677 merge 後）。#679（BBQ）の `deductionProduction.gate.test.ts` の変更が発端。**privacy の assertion は緩めない**（本案も緩めない）。
 Authority: Owner 判断（2026-10-27）「`preExistingPublic` の全探索ベースの検証への変更案を docs-only で調査」。
 
 ## 1. 問題
@@ -51,9 +51,9 @@ H = { id ∈ prefix : id ∉ known, id ≠ key, rank(id) ≥ floor, step(id) ≤
 - 単調性の議論は `hypotheticalReserves` の現在の定義（上の式）を前提とする。定義が変わったら全探索の前提を見直す（テスト内で「prefix が大きいと H が縮まない」を、標本で検査する補助テストを置くと、前提の崩れを検出できる）。
 - `discoveredCount` の値は 5 と 24 を使った。`makeablePrefix` / Rule W の rank が `discoveredCount` に依存する場合は、依存する閾値の境界（ladder の主要 step）も含める必要がある（実装時に `deductionGuard` の依存を再確認）。
 - 到達可能性（ladder で実際に起きる順序か）は別の問い。標本の該当状態はすべて ladder では到達できない順序だった（#679 の調査）。全探索の最小接頭辞は「T1a の信頼できない順序も含む最悪ケース」で、**本番で起きるとは主張しない**。
-- 実装は別の PR（Owner の承認後）。本書は設計案のみ。
+- 実装（テストの追加のみ）は本書と同じ PR に含めた（Owner 判断 2026-10-27: 独立 PR として実装、#679 のブランチは変更しない）。
 
 ## 6. Owner 判断
 
-1. 上の案（全探索で pin を定義し、標本は部分集合の検査に降格）で進めるか。
-2. 実装を #679 に含めるか、独立 PR にするか（推奨: **独立 PR**。#679 は BBQ のデータ PR で、gate の仕組みの変更を混ぜない。#679 は現行の標本ベースの pin に `pesto-caprese` を足した版で merge でき、後続の PR が pin の定義を置き換える）。
+1. （実装済み）全探索で集合を定義する検査を**追加**（既存の標本ベースの検査は降格せず維持）。
+2. （決定済み）独立 PR として実装。**既存の固定リストとランダム掃引は変更していない**（標本の厳密一致 `["melanzane-pizza", "parmigiana-pizza"]` はそのまま。#679 が `pesto-caprese` を足す行とは別の場所に、決定的な検査を追加しただけ）。#679 が先に merge されても、本 PR の追加テストは無変更で通る（全探索の期待は 3 件で、#679 の標本の結果はその部分集合）。
