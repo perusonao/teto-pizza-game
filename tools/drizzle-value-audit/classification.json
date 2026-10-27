@@ -1,0 +1,1226 @@
+{
+ "counts": {
+  "L0|BLOCKED_PRODUCT_DECISION": 8,
+  "L0|READY": 2,
+  "L1|BLOCKED_PRODUCT_DECISION": 3,
+  "L1|READY": 1,
+  "L1|READY_WITH_REVIEW": 1,
+  "L2|BLOCKED_PRODUCT_DECISION": 8,
+  "L2b|BLOCKED_PRODUCT_DECISION": 13,
+  "L2b|READY": 4,
+  "L2b|READY_WITH_REVIEW": 4
+ },
+ "rows": [
+  {
+   "evidenceId": "bbq-chicken-pizzadb",
+   "nameJa": "BBQチキンピザ",
+   "status": "READY",
+   "class": "L0",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "cilantro"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [],
+   "solidsPostBake": [
+    "cilantro"
+   ],
+   "otherCapabilities": [],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "bbq-sauce",
+    "chicken",
+    "cilantro",
+    "mozzarella",
+    "onion"
+   ]
+  },
+  {
+   "evidenceId": "sfincione-pizzadb",
+   "nameJa": "スフィンチョーネ",
+   "status": "READY_WITH_REVIEW",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "anchovy",
+    "olive-oil",
+    "onion",
+    "oregano"
+   ]
+  },
+  {
+   "evidenceId": "taco-pizza-pizzadb",
+   "nameJa": "タコピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L0",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "lettuce",
+      "tortilla-chips"
+     ],
+     "strength": "repo_inference"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [],
+   "solidsPostBake": [
+    "lettuce",
+    "tortilla-chips"
+   ],
+   "otherCapabilities": [],
+   "otherBlockers": [],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "cheddar",
+    "fresh-tomato",
+    "ground-beef",
+    "lettuce",
+    "salsa",
+    "tortilla-chips"
+   ]
+  },
+  {
+   "evidenceId": "buffalo-chicken-pizzadb",
+   "nameJa": "バッファローチキンピザ（PIZZA DB版）",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L1",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "buffalo-sauce"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "liquidsPostBake": [
+    "buffalo-sauce"
+   ],
+   "liquidsListed": [],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE:COMP:buffalo-chicken-piz"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "blue-cheese-dressing",
+    "buffalo-sauce",
+    "chicken",
+    "mozzarella"
+   ]
+  },
+  {
+   "evidenceId": "margherita-pizzadb-row",
+   "nameJa": "マルゲリータ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "basil",
+    "mozzarella",
+    "olive-oil"
+   ]
+  },
+  {
+   "evidenceId": "bianca-pizzadb-row",
+   "nameJa": "ピッツァビアンカ",
+   "status": "READY_WITH_REVIEW",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "mozzarella",
+    "olive-oil",
+    "ricotta",
+    "rosemary"
+   ]
+  },
+  {
+   "evidenceId": "pizza-de-cancha",
+   "nameJa": "ピッツァ・デ・カンチャ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "DOUGH_VARIANT",
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [
+    "UNRESOLVED_INGREDIENT:唐辛子"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "garlic",
+    "olive-oil",
+    "oregano"
+   ]
+  },
+  {
+   "evidenceId": "smore-dessert-pizza-pizzadb-p4",
+   "nameJa": "スモアデザートピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L0",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "graham-cracker"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [],
+   "solidsPostBake": [
+    "graham-cracker"
+   ],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:デザートソース"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "chocolate",
+    "graham-cracker",
+    "marshmallow"
+   ]
+  },
+  {
+   "evidenceId": "mentaiko-cream-pizza-pizzadb-p4",
+   "nameJa": "たらこクリームピザ",
+   "status": "READY",
+   "class": "L0",
+   "postBake": [
+    {
+     "mode": "mid_bake",
+     "ingredients": [
+      "cod-roe"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [],
+   "solidsPostBake": [
+    "cod-roe"
+   ],
+   "otherCapabilities": [],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "cod-roe",
+    "fresh-cream-sauce",
+    "mozzarella",
+    "nori",
+    "shiso"
+   ]
+  },
+  {
+   "evidenceId": "eel-pizza-pizzadb-p1",
+   "nameJa": "うなぎピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L0",
+   "postBake": [
+    {
+     "mode": "unresolved:mid_bake|post_bake",
+     "ingredients": [
+      "eel"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [],
+   "solidsPostBake": [
+    "eel"
+   ],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:甘辛だれ"
+   ],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "eel",
+    "green-onion",
+    "mozzarella",
+    "sansho-pepper"
+   ]
+  },
+  {
+   "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
+   "nameJa": "お好み焼き風ピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "mayo"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [
+    "UNRESOLVED_INGREDIENT:青のり"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "bonito-flakes",
+    "cabbage",
+    "mayo",
+    "okonomiyaki-sauce",
+    "pork"
+   ]
+  },
+  {
+   "evidenceId": "potato-mayo-pizza-pizzadb-p3",
+   "nameJa": "じゃがマヨピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "mayo"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:ホワイトソース"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "bacon",
+    "corn",
+    "mayo",
+    "mozzarella",
+    "potato"
+   ]
+  },
+  {
+   "evidenceId": "detroit-style-pizza-pizzadb-p5",
+   "nameJa": "デトロイトスタイルピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L1",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "tomato-sauce"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "liquidsPostBake": [
+    "tomato-sauce"
+   ],
+   "liquidsListed": [],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "otherBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE:COMP:detroit-style-pizza"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "brick-cheese",
+    "pepperoni"
+   ]
+  },
+  {
+   "evidenceId": "nashville-hot-chicken-pizza-pizzadb-p6",
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "honey"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:ホットソース"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "chicken",
+    "honey",
+    "mozzarella",
+    "pickles"
+   ]
+  },
+  {
+   "evidenceId": "nutella-dessert-pizza-pizzadb-p6",
+   "nameJa": "ヌテラデザートピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L0",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "powdered-sugar"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [],
+   "solidsPostBake": [
+    "powdered-sugar"
+   ],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE:COMP:nutella-dessert-piz",
+    "UNRESOLVED_INGREDIENT:ナッツ"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "banana",
+    "nutella-spread",
+    "powdered-sugar"
+   ]
+  },
+  {
+   "evidenceId": "pizza-alla-crudaiola-pizzadb-p8",
+   "nameJa": "ピッツァ・アッラ・クルダイオーラ",
+   "status": "READY",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "arugula",
+    "burrata",
+    "fresh-tomato",
+    "mozzarella",
+    "olive-oil"
+   ]
+  },
+  {
+   "evidenceId": "pizza-asparagi-limone-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "asparagus",
+    "lemon",
+    "mozzarella",
+    "olive-oil",
+    "parmigiano"
+   ]
+  },
+  {
+   "evidenceId": "pizza-carciofi-salad-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・カルチョーフィ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "artichoke",
+    "celery",
+    "lemon",
+    "mozzarella",
+    "olive-oil",
+    "parmigiano"
+   ]
+  },
+  {
+   "evidenceId": "pizza-finocchi-salad-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "black-olive",
+    "fennel",
+    "mint",
+    "mozzarella",
+    "olive-oil",
+    "orange"
+   ]
+  },
+  {
+   "evidenceId": "pizza-cavolo-carote-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "carrot",
+    "lemon",
+    "mozzarella",
+    "olive-oil",
+    "red-cabbage",
+    "sunflower-seeds"
+   ]
+  },
+  {
+   "evidenceId": "pizza-zucchine-menta-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・ズッキーネ・クルーデ・エ・メンタ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "lemon",
+    "mint",
+    "mozzarella",
+    "olive-oil",
+    "ricotta",
+    "zucchini"
+   ]
+  },
+  {
+   "evidenceId": "pizza-cicoria-limone-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・チコリア・エ・リモーネ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "otherBlockers": [
+    "UNRESOLVED_INGREDIENT:唐辛子"
+   ],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "chicory",
+    "garlic",
+    "lemon",
+    "olive-oil",
+    "pecorino"
+   ]
+  },
+  {
+   "evidenceId": "pizza-puntarelle-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・プンタレッレ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "anchovy",
+    "lemon",
+    "mozzarella",
+    "olive-oil",
+    "puntarelle"
+   ]
+  },
+  {
+   "evidenceId": "pizza-radicchio-noci-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "repo_inference"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "balsamic-vinegar",
+    "mozzarella",
+    "olive-oil",
+    "radicchio",
+    "walnut"
+   ]
+  },
+  {
+   "evidenceId": "feteer-meshaltet-pizzadb-p10",
+   "nameJa": "フェテイールメシャルテル",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "honey"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER",
+    "LAMINATE"
+   ],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:デザートソース",
+    "SCOPE_QUESTION",
+    "UNRESOLVED_INGREDIENT:ひき肉"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "condensed-milk",
+    "honey",
+    "melted-butter"
+   ]
+  },
+  {
+   "evidenceId": "focaccia-genovese-pizzadb-p10",
+   "nameJa": "フォカッチャジェノヴェーゼ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "otherBlockers": [
+    "SCOPE_QUESTION"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "olive-oil",
+    "rock-salt",
+    "rosemary"
+   ]
+  },
+  {
+   "evidenceId": "burrata-pizza-pizzadb-p10",
+   "nameJa": "ブラータピザ",
+   "status": "READY",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "basil",
+    "burrata",
+    "olive-oil"
+   ]
+  },
+  {
+   "evidenceId": "pescatore-pizzadb-p11",
+   "nameJa": "ペスカトーレ",
+   "status": "READY_WITH_REVIEW",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "clam",
+    "garlic",
+    "mozzarella",
+    "mussel",
+    "olive-oil",
+    "parsley",
+    "shrimp"
+   ]
+  },
+  {
+   "evidenceId": "pesto-noci-pizzadb-p12",
+   "nameJa": "ペストノーチピザ",
+   "status": "READY",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "honey"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "gorgonzola",
+    "honey",
+    "walnut"
+   ]
+  },
+  {
+   "evidenceId": "pesto-burrata-pizzadb-p12",
+   "nameJa": "ペストブラータピザ",
+   "status": "READY",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "burrata",
+    "fresh-tomato",
+    "olive-oil"
+   ]
+  },
+  {
+   "evidenceId": "venezuelan-reina-pepiada-pizzadb-p12",
+   "nameJa": "ベネズエラレイナペピアーダピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "mayo"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:ホワイトソース"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "avocado",
+    "chicken",
+    "cilantro",
+    "mayo",
+    "mozzarella"
+   ]
+  },
+  {
+   "evidenceId": "boscaiola-pizzadb-p12",
+   "nameJa": "ボスカイオーラ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE:COMP:boscaiola-pizzadb-p"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "mozzarella",
+    "olive-oil",
+    "porcini",
+    "sausage"
+   ]
+  },
+  {
+   "evidenceId": "hot-honey-pepperoni-pizzadb-p12",
+   "nameJa": "ホットハニーペパロニピザ",
+   "status": "READY_WITH_REVIEW",
+   "class": "L1",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "honey"
+     ],
+     "strength": "repo_inference"
+    }
+   ],
+   "liquidsPostBake": [
+    "honey"
+   ],
+   "liquidsListed": [
+    "honey"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "honey",
+    "mozzarella",
+    "pepperoni"
+   ]
+  },
+  {
+   "evidenceId": "natto-pizza",
+   "nameJa": "納豆ピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L0",
+   "postBake": [
+    {
+     "mode": "mid_bake",
+     "ingredients": [
+      "natto"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [],
+   "solidsPostBake": [
+    "natto"
+   ],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:その他"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "green-onion",
+    "mozzarella",
+    "natto",
+    "nori",
+    "okra"
+   ]
+  },
+  {
+   "evidenceId": "mentaiko-mochi-pizza",
+   "nameJa": "明太子もちピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "mayo"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:ホワイトソース"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "mayo",
+    "mentaiko",
+    "mochi",
+    "nori",
+    "shiso"
+   ]
+  },
+  {
+   "evidenceId": "manakish",
+   "nameJa": "マナキーシュ",
+   "status": "READY_WITH_REVIEW",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "halloumi",
+    "olive-oil",
+    "zaatar"
+   ]
+  },
+  {
+   "evidenceId": "wasabi-beef-pizza",
+   "nameJa": "わさび牛ピザ",
+   "status": "READY",
+   "class": "L1",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "wasabi"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "liquidsPostBake": [
+    "wasabi"
+   ],
+   "liquidsListed": [],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "beef",
+    "mozzarella",
+    "onion",
+    "soy-sauce",
+    "wasabi"
+   ]
+  },
+  {
+   "evidenceId": "pizza-de-lomo-saltado",
+   "nameJa": "ロモ・サルタード・ピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L0",
+   "postBake": [
+    {
+     "mode": "mid_bake",
+     "ingredients": [
+      "french-fries"
+     ],
+     "strength": "source_profile_text"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [],
+   "solidsPostBake": [
+    "french-fries"
+   ],
+   "otherCapabilities": [
+    "PREP_STEP"
+   ],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:その他"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "beef",
+    "french-fries",
+    "fresh-tomato",
+    "mozzarella",
+    "onion"
+   ]
+  },
+  {
+   "evidenceId": "lahmacun",
+   "nameJa": "ラフマジュン",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L0",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [],
+     "strength": "source_profile_text_context_only"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "DOUGH_VARIANT",
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [
+    "MECHANIC_INTERPRETATION",
+    "UNRESOLVED_INGREDIENT:ひき肉",
+    "UNRESOLVED_INGREDIENT:唐辛子"
+   ],
+   "timingInterpretationOpen": true,
+   "ingredients": [
+    "bell-pepper",
+    "fresh-tomato",
+    "parsley"
+   ]
+  },
+  {
+   "evidenceId": "marinara-pizza-pizzadb-p13",
+   "nameJa": "マリナーラ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "olive-oil"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "otherBlockers": [
+    "COMPOSITION_CONFLICT_SHIPPED"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "garlic",
+    "olive-oil",
+    "oregano"
+   ]
+  },
+  {
+   "evidenceId": "mexican-elote-pizza-pizzadb-p13",
+   "nameJa": "メキシカンエロテピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "mayo"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:ホワイトソース"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "chili-powder",
+    "corn",
+    "cotija",
+    "lime",
+    "mayo"
+   ]
+  },
+  {
+   "evidenceId": "nduja-pizza-pizzadb-p14",
+   "nameJa": "ンドゥイヤピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L2b",
+   "postBake": [],
+   "liquidsPostBake": [],
+   "liquidsListed": [
+    "honey"
+   ],
+   "solidsPostBake": [],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:ホットソース"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "honey",
+    "mozzarella",
+    "sausage"
+   ]
+  },
+  {
+   "evidenceId": "black-truffle-pizza-pizzadb-p14",
+   "nameJa": "黒トリュフピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L0",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "truffle"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "liquidsPostBake": [],
+   "liquidsListed": [],
+   "solidsPostBake": [
+    "truffle"
+   ],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE:COMP:black-truffle-pizza"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "mozzarella",
+    "parmigiano",
+    "truffle"
+   ]
+  },
+  {
+   "evidenceId": "teriyaki-chicken-pizza-pizzadb-p14",
+   "nameJa": "照り焼きチキンピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "class": "L1",
+   "postBake": [
+    {
+     "mode": "post_bake",
+     "ingredients": [
+      "mayo",
+      "nori"
+     ],
+     "strength": "catalog_design_tag"
+    }
+   ],
+   "liquidsPostBake": [
+    "mayo"
+   ],
+   "liquidsListed": [
+    "mayo"
+   ],
+   "solidsPostBake": [
+    "nori"
+   ],
+   "otherCapabilities": [],
+   "otherBlockers": [
+    "BASE_SAUCE_UNSPECIFIED:甘辛だれ",
+    "COMPOSITION_CONFLICT_CANDIDATE:COMP:teriyaki-chicken-pi"
+   ],
+   "timingInterpretationOpen": false,
+   "ingredients": [
+    "chicken",
+    "mayo",
+    "nori",
+    "onion"
+   ]
+  }
+ ]
+}
