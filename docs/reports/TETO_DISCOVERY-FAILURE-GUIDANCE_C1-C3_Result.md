@@ -37,7 +37,7 @@ base `main` `9761d03`（#673 merge 後）。Owner 実装 GO（2026-10-27）。�
 | `tsc -b` | 通過 |
 | `npm run build` | 通過（chunk size 警告は既存） |
 | `oxlint` | エラーなし（既存の警告 3 件のみ） |
-| **Vitest 全体** | **532 files passed / 1 skipped、9,832 tests passed / 13 skipped / 4 todo、0 failed**（本 PR の新規: 部品 12 + reducer 6 = 18 件を含む）。本番 DOM golden の再基準化は不要（既存 golden が無変更で通る） |
+| **Vitest 全体** | **532 files passed / 1 skipped、9,832 tests passed / 13 skipped / 4 todo、0 failed**（本 PR の新規: 部品 14 + reducer 6 = 20 件を含む）。本番 DOM golden の再基準化は不要（既存 golden が無変更で通る） |
 | **新規 e2e**（`e2e/failed-hint-676.spec.ts`、Chromium 390×844 / 360×800） | **6/6 passed**（標的なし FAILED、Research FAILED、標的なし ORIGINAL × 2 viewport） |
 | 回帰 e2e（Chromium 390×844 / 360×800、関連 16 spec: research-failed-trial、discovery-near-miss-result、discovery3-oracle-neutralization、free-cooking-phase3-2、completion-gate-partial-quantity、cut-skip-failed-bake、result-1screen-2.0、discovery-research-result / -rows、research-ux-phase1、discovery-recipe-discovery-s0、discovery-hint-sheet、finish-flow-find、lunch-rush-result-ranking-phase4、lunch-rush-material-shortage、home-research-entry-parity） | **109 passed / 17 skipped（既存の viewport 限定 skip）/ 0 failed** |
 | **WebKit 390×844 / 360×800** | **ローカルでは WebKit を取得できないため未実行。CI（E2E WebKit）の結果を正とする。** 本 PR の CI 結果はこの Result 作成時点で未確認 |
