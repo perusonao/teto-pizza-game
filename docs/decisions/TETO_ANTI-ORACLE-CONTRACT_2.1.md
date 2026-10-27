@@ -220,6 +220,8 @@ correct count / distance / similarity / 欠落リスト / 残数 / 候補数 / N
 
 > **2026-10-18 注記（OD-544-8）:** 複数ソース前提での再計算は **E（#521）の Final Gate 前に必須**。**未実施**であり、下の数値表は引き続き旧前提のまま。
 
+> **2026-10-27 注記（OD-544-8、Expansion Batch 10 PR-1 の Final Gate 前の再計算）:** 複数ソース前提（現行 engine）での再計算を、**実 reducer を通すテスト用 walk**（`src/logic/testSupport/researchAttemptSim.ts`、Gate C と同じ harness、Hint 5.0 flag ON）で実施した。結果と方法・限界は `docs/reports/TETO_EXPANSION-BATCH-10_PR1_Result.md` §5。**下の旧表（27 recipe、解析的な blind scan 期待値）とは測定方法が違うため、数値は直接比較できない**（旧表は置き換えず、当時の値のまま残す）。現行 Production（Pinsa ゲート ON・late catalog ON のテスト構成、74 recipe）の walk 値: 全 recipe 合計 **約 840 attempt**（73 stage、平均 **11.5**、tray 順 6 通りで 832〜842）、ordinary 68 recipe のみで合計 **約 738**（平均 10.9）、今回の 5 recipe は各 20〜21（合計 104）。全 attempt で Contract の不変条件違反 0。
+
 > **2026-10-17 注記:** 見出しの前提は当時の audit 条件であり、現行 engine（複数ソース、§3 改訂）の記述ではない。下の数値は**再計算していない**（§13.1 のフォローアップ）。
 
 > 現在の Production（TQ-1D 後、main から機械的に再計算）: **32 recipe / 34 ingredient（topping 27）/ ladder 28 step / credited 30 recipe（`ladderCredit:false` は `brazilian-calabresa` と `aussie`）/ chapter 6 / 11 / 15**。下の表は 27 recipe 当時の audit 値のままで、現在値ではない。

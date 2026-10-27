@@ -1283,6 +1283,88 @@ const BASE_RECIPES = [
     ladderCredit: false,
     lunchRush: false,
   },
+  {
+    id: "curry-pizza-japan",
+    nameJa: "カレーピザ",
+    description: "カレーケチャップを塗った生地に、チキンとたまねぎ、モッツァレラをのせた、日本風のカレーピザ。",
+    // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md; Owner 2026-10-27). SOURCE AUTHORITY: the 172 matrix row only (PIZZA DB original page NOT confirmed); the ingredient set and the base sauce come from the matrix.
+    // GAMEPLAY CALIBRATION (not source): the counts below make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled. Ladder-credited (own step); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "curry-ketchup", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "chicken", minCount: 3 },
+      { ingredientId: "onion", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "rendang-pizza",
+    nameJa: "ルンダンピザ",
+    description: "カレーケチャップを塗った生地に、牛肉とたまねぎ、モッツァレラをのせた、スパイシーな一枚。",
+    // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md; Owner 2026-10-27). SOURCE AUTHORITY: the 172 matrix row only (PIZZA DB original page NOT confirmed); the ingredient set and the base sauce come from the matrix (curry-ketchup is a GAMEPLAY ASSUMPTION for the unspecified curry base, D-B3).
+    // GAMEPLAY CALIBRATION (not source): the counts below make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled. Ladder-credited (own step); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "curry-ketchup", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "beef", minCount: 3 },
+      { ingredientId: "onion", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "tandoori-paneer-pizza",
+    nameJa: "タンドリーパニールピザ",
+    description: "カレーケチャップを塗った生地に、パニールとピーマン、たまねぎ、モッツァレラをのせた、インド風の一枚。",
+    // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md; Owner 2026-10-27). SOURCE AUTHORITY: the 172 matrix row only (PIZZA DB original page NOT confirmed); the ingredient set and the base sauce come from the matrix (curry-ketchup is a GAMEPLAY ASSUMPTION for the unspecified curry base, D-B3).
+    // GAMEPLAY CALIBRATION (not source): the counts below make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled. Ladder-credited (own step); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "curry-ketchup", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "paneer", minCount: 2 },
+      { ingredientId: "green-pepper", minCount: 2 },
+      { ingredientId: "onion", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "currywurst",
+    nameJa: "カリーヴルストピザ",
+    description: "カレーケチャップに、ヴルステルとパプリカパウダー、モッツァレラをのせた、ドイツ風の屋台の味。",
+    // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md; Owner 2026-10-27). SOURCE AUTHORITY: the 172 matrix row only (PIZZA DB original page NOT confirmed); the ingredient set and the base sauce come from the matrix.
+    // GAMEPLAY CALIBRATION (not source): the counts below make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled. Ladder-credited (own step); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "curry-ketchup", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "wurstel", minCount: 4 },
+      { ingredientId: "paprika-powder", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "cuban-pizza",
+    nameJa: "キューバンピザ",
+    description: "マスタードを塗った生地に、豚肉とハム、ピクルス、スイスチーズをのせた、キューバサンド風の一枚。",
+    // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md; Owner 2026-10-27). SOURCE AUTHORITY: the 172 matrix row only (PIZZA DB original page NOT confirmed); the ingredient set and the base sauce come from the matrix.
+    // GAMEPLAY CALIBRATION (not source): the counts below make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled. Ladder-credited (own step); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mustard", minCount: 1 },
+      { ingredientId: "swiss-cheese", minCount: 2 },
+      { ingredientId: "pork", minCount: 3 },
+      { ingredientId: "ham", minCount: 2 },
+      { ingredientId: "pickles", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /**

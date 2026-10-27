@@ -35,6 +35,7 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   mint: "xs",
   shiso: "xs",
   "green-onion": "xs",
+  "paprika-powder": "xs",
   // small
   "black-olive": "s",
   "cherry-tomato": "s",
@@ -69,6 +70,9 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   pineapple: "m",
   gorgonzola: "m",
   lamb: "m",
+  beef: "m",
+  wurstel: "m",
+  pickles: "s",
   whitebait: "s",
   "sweet-potato": "m",
   // large
@@ -79,6 +83,8 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   "cream-cheese": "l",
   catupiry: "l",
   "goat-cheese": "l",
+  paneer: "l",
+  "swiss-cheese": "l",
   egg: "l",
   bacon: "l",
   "hot-dog": "l",

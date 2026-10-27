@@ -137,7 +137,10 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     // The 165 -> 132 move was decomposed on the same tree (the hardened guard leaked 0 and every privacy assertion in this file passed in all of them; only this legacy DH4-2A count moves):
     //   neither 165 | tahini only 173 (+8: `zeroTopping` iterates every sauce) | pomegranate only 119 (-46: the synthetic families are cut from TOPPINGS by array index, so one more topping re-shapes them)
     //   | both 127 (= 165 + 8 - 46, additive) | both + the eggplant-tahini-pizza recipe 132 (+5: the public catalog the hypotheses are drawn from gains one recipe).
-    expect(dh42aLeaks).toBe(132);
+    // Re-measured again at Expansion Batch 10 PR-1 (83 ingredients: curry-ketchup / mustard (sauces), paneer / swiss-cheese (cheeses), beef / wurstel / paprika-powder / pickles (toppings) join, plus five recipes). The hardened `toEqual([])` above held for every state in every configuration
+    // (this test, and every privacy assertion in this file, passed unchanged). Only this LEGACY DH4-2A count moves, 132 -> 173; it is a function of the same two effects decomposed at U1-U3 (`zeroTopping` iterates every sauce; the synthetic families are cut from TOPPINGS by array index, so every added topping re-shapes them)
+    // and of the public catalog the hypotheses are drawn from gaining recipes. The per-material split was NOT measured separately for this batch (the eight materials and five recipes are interdependent: the catalog validators reject a recipe without its materials).
+    expect(dh42aLeaks).toBe(173);
   }, 120_000);
 });
 

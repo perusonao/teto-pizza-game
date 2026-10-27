@@ -23,9 +23,11 @@ const staleSave = (count: number) => {
     ledger: raw.unlockedForShopIngredientIds.filter((i) => !LATE_MATERIALS.includes(i)),
   };
 };
-/** The production ladder with `k` more ordinary steps before the late one (the shape a later ordinary batch gives it). */
+/** The ordinary ladder length when the late materials shipped (E5 / New Sauces U1-U3): the floors below were fixed against it. Expansion Batch 10 PR-1 later appended steps 57-61, which is the shape `withOrdinary` models. */
+const SHIPPED_ORDINARY_STEPS = 56;
+/** The ordinary ladder as it was when the late materials shipped (the first 56 ordinary steps), with `k` more ordinary steps before the late one (the shape a later ordinary batch gives it). */
 const withOrdinary = (k: number) => {
-  const ordinary = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
+  const ordinary = ordinaryLadderSteps(DISCOVERY_LADDER.steps).slice(0, SHIPPED_ORDINARY_STEPS);
   const extra = Array.from({ length: k }, (_, i) => ({ ingredientIds: [`future-material-${i}`], keyRecipeId: `future-recipe-${i}` }));
   return appendLadderSteps({ ...DISCOVERY_LADDER, steps: ordinary }, [...extra, ...LATE_LADDER_STEPS]);
 };
@@ -131,9 +133,10 @@ describe("late material compatibility floor: yuzu-kosho (New Sauces Phase B U1)"
 
 
 describe("late material compatibility floor: miso-sauce + white-sesame (New Sauces Phase B U2)", () => {
-  it("the dengaku step derives number 59 today (ordinary 56 + roe, yuzu, dengaku); the floors are the FIXED 59 for both materials and the earlier floors are unchanged", () => {
+  it("the dengaku step derives ordinary + 3 today (the ordinary steps + roe, yuzu, dengaku; 56 + 3 = 59 when they shipped); the floors are the FIXED 59 for both materials and the earlier floors are unchanged", () => {
     const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
-    expect([stepOf(ROE), stepOf(YUZU_KOSHO), stepOf(MISO_SAUCE), stepOf(WHITE_SESAME)]).toEqual([57, 58, 59, 59]);
+    const ordinary = ordinaryLadderSteps(DISCOVERY_LADDER.steps).length;
+    expect([stepOf(ROE), stepOf(YUZU_KOSHO), stepOf(MISO_SAUCE), stepOf(WHITE_SESAME)]).toEqual([ordinary + 1, ordinary + 2, ordinary + 3, ordinary + 3]);
     expect(LATE_ENTITLEMENT_FLOORS).toMatchObject({ [ROE]: 57, [YUZU_KOSHO]: 58, [MISO_SAUCE]: 59, [WHITE_SESAME]: 59 }); // (New Sauces Phase B U3: tahini / pomegranate are fixed at 60 on top of these)
   });
 
@@ -174,5 +177,38 @@ describe("late material compatibility floor: miso-sauce + white-sesame (New Sauc
     const second = resolveShopEntitlement(s.dex, s.owned, first.unlockedForShopIngredientIds, withOrdinary(1));
     expect(second.newlyUnlockedMaterialIds).toEqual([]);
     expect(second.unlockedForShopIngredientIds).toBe(first.unlockedForShopIngredientIds);
+  });
+});
+
+/**
+ * Expansion Batch 10 PR-1 appended ordinary steps 57-61, so the production ladder derives the roe at step 62 (yuzu 63, dengaku 64, tahini 65). The floors are FIXED at their
+ * shipped values, so a stale save that predates the late catalog keeps every late material while the new ordinary steps add to what it can discover.
+ */
+describe("late material compatibility floor against the production ladder (Expansion Batch 10 PR-1: +5 ordinary steps)", () => {
+  const ordinary = () => ordinaryLadderSteps(DISCOVERY_LADDER.steps).length;
+  const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
+
+  it("the late steps now derive from the longer ordinary ladder, and the floors stay at their shipped numbers", () => {
+    expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 5);
+    expect(stepOf(ROE)).toBe(62);
+    expect(stepOf("tahini")).toBe(65);
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60 });
+  });
+
+  it.each([
+    [57, [ROE]],
+    [58, [ROE, YUZU_KOSHO]],
+    [59, [ROE, YUZU_KOSHO, MISO_SAUCE, WHITE_SESAME]],
+  ])("a never-launched save at count %i keeps its late materials on the production ladder, and never loses a ledger entry", (count, expected) => {
+    const s = staleSave(count);
+    const r = resolveShopEntitlement(s.dex, s.owned, s.ledger, DISCOVERY_LADDER);
+    for (const id of expected) expect(r.unlockedForShopIngredientIds).toContain(id);
+    expect(r.unlockedForShopIngredientIds.slice(0, s.ledger.length)).toEqual(s.ledger); // existing ledger order untouched
+  });
+
+  it("a save below every floor is granted no late material early", () => {
+    const s = staleSave(56);
+    const r = resolveShopEntitlement(s.dex, s.owned, s.ledger, DISCOVERY_LADDER);
+    for (const id of LATE_MATERIALS) expect(r.unlockedForShopIngredientIds).not.toContain(id);
   });
 });

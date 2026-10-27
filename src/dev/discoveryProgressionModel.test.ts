@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { pinsaEnabled } from "../data/pinsaGate";
+import { LATE_ENTITLEMENT_FLOORS, lateCatalogEnabled } from "../data/lateCatalog";
 
 // Passthrough spies: the real production functions still run; the spies only prove the Inspector calls them.
 vi.mock("../state/recipeDiscoveryState", async (importOriginal) => {
@@ -61,7 +62,13 @@ describe("production authority reuse (no second DISCOVERABLE logic)", () => {
     DISCOVERY_LADDER.steps.forEach((l) => {
       const s = step(l.step);
       expect(s.unlocked.map((i) => i.id)).toEqual([...l.ingredientIds]);
-      expect(s.afterOwned.length - s.beforeOwned.length).toBe(l.ingredientIds.length);
+      // Expansion Batch 10 PR-1: the ordinary steps 57-61 are appended, so the late steps derive 5 later, but the FIXED late floors (LATE_ENTITLEMENT_FLOORS, shipped values 57-60) still grant each late material at its old
+      // count: at a floor step the shop gains the floor-granted late material(s) as well (and the late step itself, when it comes, adds nothing new for them).
+      const beforeIds = new Set(s.beforeOwned.map((i) => i.id));
+      const added = s.afterOwned.map((i) => i.id).filter((id) => !beforeIds.has(id));
+      const floorGrants = lateCatalogEnabled() ? Object.entries(LATE_ENTITLEMENT_FLOORS).filter(([, f]) => f === l.step).map(([id]) => id) : [];
+      for (const id of added) expect([...l.ingredientIds, ...floorGrants], `step ${l.step}: ${id}`).toContain(id);
+      for (const id of l.ingredientIds) expect(s.afterOwned.map((i) => i.id)).toContain(id);
       expect(s.afterOwned.map((i) => i.id)).toEqual(expect.arrayContaining([...l.ingredientIds]));
     });
   });
@@ -112,7 +119,8 @@ describe("multi-recipe unlock", () => {
   it("is exactly the steps whose newly-DISCOVERABLE count is 2+ (here: step 12, and Wave 2's step 28 = pesto-vegetariana + ratatouille-pizza, the intended Branching Discovery)", () => {
     expect(model.multiRecipeStepNumbers).toEqual(model.steps.filter((s) => s.newlyDiscoverable.length >= 2).map((s) => s.step)); // Batch 8a: + step 20 (chilean-napolitana beside pesto-caprese), step 44 (frango-catupiry beside catupiry-corn); step 28 gains chorizo
     // Square Dough E-2: step 14 (garlic) makes grandma-pizza discoverable beside marinara. Pinsa Romana (#577 P3-b), only while its gate is open: step 33 (arugula) opens jamon and pinsa-romana together
-    const multi = pinsaEnabled() ? [12, 14, 20, 28, 33, 44] : [12, 14, 20, 28, 44];
+    // Expansion Batch 10 PR-1: steps 57-60 are also multi-recipe steps while the late catalog is on: the FIXED late floors (57-60) open the late recipe (ikura / yuzu / dengaku / tahini) at the same count as the new ordinary step.
+    const multi = [...(pinsaEnabled() ? [12, 14, 20, 28, 33, 44] : [12, 14, 20, 28, 44]), ...(lateCatalogEnabled() ? [57, 58, 59, 60] : [])];
     expect(model.multiRecipeStepNumbers).toEqual(multi);
     expect(model.steps.filter((s) => stepMatchesFilter(s, "multi")).map((s) => s.step)).toEqual(multi);
   });
