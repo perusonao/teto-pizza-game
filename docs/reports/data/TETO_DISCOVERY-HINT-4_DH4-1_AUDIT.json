@@ -55,7 +55,7 @@
    "category": 1
   },
   "catalogComparisonCandidates": {
-   "category": 11
+   "category": 13
   },
   "bits": {
    "material": 1,
@@ -95,7 +95,7 @@
   "catalogComparisonCandidates": {
    "family": 3,
    "group": 3,
-   "category": 56
+   "category": 60
   },
   "bits": {
    "material": 1,
@@ -129,7 +129,7 @@
    "category": 1
   },
   "catalogComparisonCandidates": {
-   "category": 11
+   "category": 13
   },
   "bits": {
    "material": 2,
@@ -168,8 +168,8 @@
   },
   "catalogComparisonCandidates": {
    "family": 9,
-   "group": 11,
-   "category": 56
+   "group": 12,
+   "category": 60
   },
   "bits": {
    "material": 2,
@@ -210,8 +210,8 @@
   },
   "catalogComparisonCandidates": {
    "family": 9,
-   "group": 11,
-   "category": 56
+   "group": 12,
+   "category": 60
   },
   "bits": {
    "material": 2,
@@ -245,7 +245,7 @@
    "category": 2
   },
   "catalogComparisonCandidates": {
-   "category": 11
+   "category": 13
   },
   "bits": {
    "material": 2.81,
@@ -279,7 +279,7 @@
    "category": 2
   },
   "catalogComparisonCandidates": {
-   "category": 11
+   "category": 13
   },
   "bits": {
    "material": 3,
@@ -321,9 +321,9 @@
    "category": 5
   },
   "catalogComparisonCandidates": {
-   "family": 7,
-   "group": 16,
-   "category": 54
+   "family": 9,
+   "group": 18,
+   "category": 58
   },
   "bits": {
    "material": 2.58,
@@ -361,9 +361,9 @@
    "category": 8
   },
   "catalogComparisonCandidates": {
-   "family": 10,
-   "group": 19,
-   "category": 56
+   "family": 12,
+   "group": 21,
+   "category": 60
   },
   "bits": {
    "material": 3.17,
@@ -401,9 +401,9 @@
    "category": 9
   },
   "catalogComparisonCandidates": {
-   "family": 10,
-   "group": 19,
-   "category": 56
+   "family": 12,
+   "group": 21,
+   "category": 60
   },
   "bits": {
    "material": 3.32,
@@ -445,9 +445,9 @@
    "category": 9
   },
   "catalogComparisonCandidates": {
-   "family": 20,
-   "group": 23,
-   "category": 54
+   "family": 21,
+   "group": 24,
+   "category": 58
   },
   "bits": {
    "material": 3.32,
@@ -489,9 +489,9 @@
    "category": 10
   },
   "catalogComparisonCandidates": {
-   "family": 20,
-   "group": 23,
-   "category": 54
+   "family": 21,
+   "group": 24,
+   "category": 58
   },
   "bits": {
    "material": 3.46,
@@ -527,8 +527,8 @@
   },
   "catalogComparisonCandidates": {
    "family": 9,
-   "group": 11,
-   "category": 56
+   "group": 12,
+   "category": 60
   },
   "bits": {
    "material": 3.91,
@@ -564,8 +564,8 @@
   },
   "catalogComparisonCandidates": {
    "family": 8,
-   "group": 10,
-   "category": 56
+   "group": 11,
+   "category": 60
   },
   "bits": {
    "material": 4,
@@ -604,8 +604,8 @@
   },
   "catalogComparisonCandidates": {
    "family": 9,
-   "group": 11,
-   "category": 56
+   "group": 12,
+   "category": 60
   },
   "bits": {
    "material": 4,
@@ -643,9 +643,9 @@
    "category": 15
   },
   "catalogComparisonCandidates": {
-   "family": 21,
-   "group": 24,
-   "category": 56
+   "family": 22,
+   "group": 25,
+   "category": 60
   },
   "bits": {
    "material": 4.09,
@@ -682,9 +682,9 @@
    "category": 14
   },
   "catalogComparisonCandidates": {
-   "family": 20,
-   "group": 23,
-   "category": 55
+   "family": 21,
+   "group": 24,
+   "category": 59
   },
   "bits": {
    "material": 4.17,
@@ -718,7 +718,7 @@
    "category": 2
   },
   "catalogComparisonCandidates": {
-   "category": 11
+   "category": 13
   },
   "bits": {
    "material": 4.32,
@@ -757,8 +757,8 @@
   },
   "catalogComparisonCandidates": {
    "family": 9,
-   "group": 11,
-   "category": 56
+   "group": 12,
+   "category": 60
   },
   "bits": {
    "material": 4.32,
@@ -797,8 +797,8 @@
   },
   "catalogComparisonCandidates": {
    "family": 9,
-   "group": 11,
-   "category": 56
+   "group": 12,
+   "category": 60
   },
   "bits": {
    "material": 4.39,
@@ -836,9 +836,9 @@
    "category": 19
   },
   "catalogComparisonCandidates": {
-   "family": 10,
-   "group": 19,
-   "category": 56
+   "family": 12,
+   "group": 21,
+   "category": 60
   },
   "bits": {
    "material": 4.46,
@@ -868,7 +868,7 @@
    "category": 3
   },
   "catalogComparisonCandidates": {
-   "category": 9
+   "category": 11
   },
   "bits": {
    "material": 4.64,
@@ -908,8 +908,8 @@
   },
   "catalogComparisonCandidates": {
    "family": 9,
-   "group": 10,
-   "category": 54
+   "group": 11,
+   "category": 58
   },
   "bits": {
    "material": 4.52,
@@ -946,7 +946,7 @@
    "category": 1
   },
   "catalogComparisonCandidates": {
-   "category": 8
+   "category": 10
   },
   "bits": {
    "material": 4.64,

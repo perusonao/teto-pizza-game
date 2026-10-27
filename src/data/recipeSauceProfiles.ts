@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "bbq-sauce";
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce";
   interaction: SauceInteractionKind;
 }
 
@@ -307,6 +307,32 @@ export const RECIPE_SAUCE_PROFILES = {
   "sichuan-eggplant-pizza": {
     recipeId: "sichuan-eggplant-pizza",
     ingredientId: "doubanjiang",
+    interaction: "PAINT",
+  },
+  // Expansion Batch 10 PR-1: the existing PAINT gesture, no new interaction. rendang / tandoori-paneer use curry-ketchup as a GAMEPLAY ASSUMPTION (D-B3).
+  "curry-pizza-japan": {
+    recipeId: "curry-pizza-japan",
+    ingredientId: "curry-ketchup",
+    interaction: "PAINT",
+  },
+  "rendang-pizza": {
+    recipeId: "rendang-pizza",
+    ingredientId: "curry-ketchup",
+    interaction: "PAINT",
+  },
+  currywurst: {
+    recipeId: "currywurst",
+    ingredientId: "curry-ketchup",
+    interaction: "PAINT",
+  },
+  "tandoori-paneer-pizza": {
+    recipeId: "tandoori-paneer-pizza",
+    ingredientId: "curry-ketchup",
+    interaction: "PAINT",
+  },
+  "cuban-pizza": {
+    recipeId: "cuban-pizza",
+    ingredientId: "mustard",
     interaction: "PAINT",
   },
   // Multi-Sauce S3 / Square Dough E-2: the PRIMARY sauce only (tomato-sauce, the Reference target). The secondary olive-oil has no profile entry and is scored by presence (Design Lock §5.3).

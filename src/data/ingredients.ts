@@ -1007,6 +1007,86 @@ const BASE_INGREDIENTS: Ingredient[] = [
     unlockCondition: { minTotalStars: 0 },
     bakeRoastResistant: true,
   },
+  /** Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md): finite ladder material, step 57 (T4, no star gate), the sole material of curry-pizza-japan's step. A NEW spread sauce painted in the SAUCE step (the existing PAINT gesture). Colour #d9892b is Owner-approved but PROVISIONAL (confirmed on a real device in HV). The base of all four curry recipes (curry-pizza-japan listed in the matrix; rendang / tandoori-paneer are a GAMEPLAY ASSUMPTION, D-B3). */
+  {
+    id: "curry-ketchup",
+    category: "sauce",
+    nameJa: "カレーケチャップ",
+    color: "#d9892b",
+    emoji: "\u{1F35B}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 58 (T4), the sole material of rendang-pizza's step (introduces beef on the ordinary side). Family `meat`. Provisional glyph / name. */
+  {
+    id: "beef",
+    category: "topping",
+    nameJa: "牛肉",
+    color: "#8c3a2e",
+    emoji: "\u{1F404}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 59 (T4), first of currywurst's two materials. Family `spice`. Provisional glyph / name. */
+  {
+    id: "paprika-powder",
+    category: "topping",
+    nameJa: "パプリカパウダー",
+    color: "#c2411f",
+    emoji: "\u{1F7E7}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 59 (T4), the last material of currywurst's step (= its Research cohort key). Family `meat`. Provisional glyph / name. */
+  {
+    id: "wurstel",
+    category: "topping",
+    nameJa: "ヴルステル",
+    color: "#b8553f",
+    emoji: "\u{1F32F}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 60 (T4), the sole material of tandoori-paneer-pizza's step. Cheese category (shared cheese convention, no family). Provisional name. */
+  {
+    id: "paneer",
+    category: "cheese",
+    nameJa: "パニール",
+    color: "#f6f1de",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 61 (T4), first of cuban-pizza's three materials. A NEW spread sauce (Owner: `sauce`, PAINT). Colour is PROVISIONAL (a yellow-brown close to curry-ketchup, dE ~27; compared in HV). */
+  {
+    id: "mustard",
+    category: "sauce",
+    nameJa: "マスタード",
+    color: "#d4b020",
+    emoji: "\u{1F7E1}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 61 (T4). Family `vegetable` (Owner). Provisional glyph (a melon-green stand-in; HV confirms). */
+  {
+    id: "pickles",
+    category: "topping",
+    nameJa: "ピクルス",
+    color: "#7a8f2a",
+    emoji: "\u{1F348}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 61 (T4), the last material of cuban-pizza's step (= its Research cohort key). Cheese category (shared cheese convention, no family). Provisional name. */
+  {
+    id: "swiss-cheese",
+    category: "cheese",
+    nameJa: "スイスチーズ",
+    color: "#f1dfa0",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 /**

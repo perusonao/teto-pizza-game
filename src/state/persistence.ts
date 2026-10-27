@@ -24,7 +24,7 @@ import {
   type StoredPendingRound,
 } from "./pendingRound";
 import { classifyStoredSave } from "./saveRootClassification";
-import { quarantineRaw } from "./saveQuarantine";
+import { MAX_QUARANTINE_RAW_LENGTH, quarantineRaw } from "./saveQuarantine";
 import { beginSaveSession, checkSaveSession, noteSaveReset, noteSaveWritten } from "./saveSession";
 import {
   emptyResearchExclusions,
@@ -629,7 +629,8 @@ function toIntermediateV2(raw: Record<string, unknown>): Record<string, unknown>
  */
 interface ForwardCompatExtras {
   topLevel: Record<string, unknown>;
-  dex: DexEntry[];
+  /** #668: the stored Dex entries as written (one per id), valid for this build or not. See `mergeDexForWrite`. */
+  dex: StoredDexEntry[];
   ownedIngredientIds: string[];
   /** T1a: the stored owned list in its order, known and forward-compatible unknown ids together. */
   ownedOrder: string[];
@@ -700,17 +701,9 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
     topLevel[key] = value;
   }
 
-  const dex: DexEntry[] = [];
-  const seenDexIds = new Set<string>();
+  const dex = extractStoredDexEntries(r.dex);
   const isUnknownRecipeId = (value: unknown): value is string =>
     isForwardCompatUnknownId(value, KNOWN_RECIPE_IDS);
-  for (const item of r.dex) {
-    // Same field validation a known entry gets -- only the recipe-id gate differs.
-    const entry = sanitizeDexEntry(item, isUnknownRecipeId);
-    if (!entry || seenDexIds.has(entry.recipeId)) continue;
-    seenDexIds.add(entry.recipeId);
-    dex.push(entry);
-  }
 
   const inventory: Record<string, number> = {};
   if (typeof r.inventory === "object" && r.inventory !== null && !Array.isArray(r.inventory)) {
@@ -757,6 +750,139 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
 }
 
 /**
+ * #668 (R4/R5): Dex entries are kept as stored, per id, so a build that cannot interpret one still never erases it.
+ * - `valid`: passes this build's field checks (known recipe, or a well-formed unknown id). Its unknown sub-fields ride along.
+ * - `foreign`: a well-formed id whose entry this build rejects (out-of-range BEST, wrong types, ...) -- most likely a newer
+ *   build's wider range. Kept verbatim; this build's result for that recipe never overwrites it.
+ * One entry per id: the first one this build accepts (exactly what `loadSave` reads), else the first one listed. An id outside
+ * `SAVE_ID_PATTERN` or an entry that is not a plain object cannot be carried and is dropped as before.
+ */
+interface StoredDexEntry {
+  id: string;
+  raw: Record<string, unknown>;
+  valid: boolean;
+}
+
+const DEX_CORE_KEYS: ReadonlySet<string> = new Set(["recipeId", "discovered", "bestScore", "bestStars", "timesMade"]);
+
+/** Unknown sub-field limits (#668 Owner design). Over a limit only the unknown keys are dropped, never the core five. */
+export const MAX_DEX_UNKNOWN_KEYS_PER_ENTRY = 16;
+export const MAX_DEX_UNKNOWN_CHARS_PER_ENTRY = 512;
+export const MAX_DEX_UNKNOWN_CHARS_TOTAL = 32 * 1024;
+export const MAX_DEX_ENTRIES_WITH_UNKNOWN_KEYS = 256;
+/**
+ * The largest save text a write may produce: `MAX_QUARANTINE_RAW_LENGTH` (a save above that can no longer be backed up) less a
+ * 64Ki margin. Derived from the measured sizes: all 67 recipes' Dex ~ 6.5K, + 32Ki unknown Dex data, + `PENDING_ROUND_MAX_BYTES`
+ * (64Ki) is ~ 100Ki, so 192Ki is never reached by a save that stays inside its own limits.
+ */
+export const MAX_SAVE_WRITE_LENGTH = MAX_QUARANTINE_RAW_LENGTH - 64 * 1024;
+
+function extractStoredDexEntries(rawDex: readonly unknown[]): StoredDexEntry[] {
+  const isAccepted = (value: unknown): value is string =>
+    isKnownRecipeId(value) || isForwardCompatUnknownId(value, KNOWN_RECIPE_IDS);
+  const out: StoredDexEntry[] = [];
+  const indexById = new Map<string, number>();
+  for (const item of rawDex) {
+    if (typeof item !== "object" || item === null || Array.isArray(item)) continue;
+    const raw = item as Record<string, unknown>;
+    const id = raw.recipeId;
+    if (typeof id !== "string" || !SAVE_ID_PATTERN.test(id)) continue;
+    const valid = sanitizeDexEntry(raw, isAccepted) !== null;
+    const at = indexById.get(id);
+    if (at === undefined) {
+      indexById.set(id, out.length);
+      out.push({ id, raw, valid });
+    } else if (valid && !out[at].valid) {
+      out[at] = { id, raw, valid };
+    }
+  }
+  return out;
+}
+
+interface DexMergeBudget {
+  /** Stored entries whose unknown keys were considered so far. */
+  entries: number;
+  chars: number;
+  dropped: boolean;
+}
+
+/** The unknown sub-fields of one stored entry that fit the limits, in stored key order (a prefix: stops at the first that does not fit). */
+function takeUnknownDexKeys(raw: Record<string, unknown>, budget: DexMergeBudget): Record<string, unknown> {
+  const kept: Record<string, unknown> = {};
+  const keys = Object.keys(raw).filter((k) => !DEX_CORE_KEYS.has(k) && k !== "__proto__");
+  if (keys.length === 0) return kept;
+  budget.entries += 1;
+  if (budget.entries > MAX_DEX_ENTRIES_WITH_UNKNOWN_KEYS) {
+    budget.dropped = true;
+    return kept;
+  }
+  let count = 0;
+  let chars = 0;
+  for (const key of keys) {
+    const trial = JSON.stringify({ ...kept, [key]: raw[key] });
+    if (
+      count + 1 > MAX_DEX_UNKNOWN_KEYS_PER_ENTRY ||
+      trial.length > MAX_DEX_UNKNOWN_CHARS_PER_ENTRY ||
+      budget.chars + trial.length > MAX_DEX_UNKNOWN_CHARS_TOTAL
+    ) {
+      budget.dropped = true;
+      break;
+    }
+    kept[key] = raw[key];
+    count += 1;
+    chars = trial.length;
+  }
+  budget.chars += chars;
+  return kept;
+}
+
+/**
+ * #668: the Dex to write. `next` (this build's state) is authoritative for what it holds, except where storage holds an entry this
+ * build rejects:
+ *   1. in `next`, stored entry valid  -> `{ ...stored unknown keys, ...next }` (`next` wins every known field);
+ *   2. in `next`, stored entry foreign -> the stored entry, verbatim (this build's result for it is not written);
+ *   3. stored but not in `next`        -> appended after, in stored order (known or not, valid or not).
+ * `keepUnknownKeys: false` is the size fallback: no unknown sub-fields at all. The Dex `loadSave` reads is not affected.
+ */
+function mergeDexForWrite(
+  next: readonly DexEntry[],
+  stored: readonly StoredDexEntry[],
+  keepUnknownKeys: boolean,
+): { dex: unknown[]; unknownKeysDropped: boolean; keepsForeign: boolean } {
+  const budget: DexMergeBudget = { entries: 0, chars: 0, dropped: false };
+  const byId = new Map(stored.map((e) => [e.id, e] as const));
+  const nextIds = new Set(next.map((e) => e.recipeId));
+  const unknownOf = (e: StoredDexEntry) => (keepUnknownKeys ? takeUnknownDexKeys(e.raw, budget) : {});
+  let keepsForeign = false;
+  const dex: unknown[] = [];
+  for (const entry of next) {
+    const s = byId.get(entry.recipeId);
+    if (!s) dex.push(entry);
+    else if (s.valid) dex.push({ ...unknownOf(s), ...entry });
+    else {
+      keepsForeign = true;
+      dex.push(s.raw);
+    }
+  }
+  for (const s of stored) {
+    if (nextIds.has(s.id)) continue;
+    if (!s.valid) {
+      keepsForeign = true;
+      dex.push(s.raw);
+    } else {
+      const { recipeId, discovered, bestScore, bestStars, timesMade } = s.raw as Record<string, unknown>;
+      dex.push({ ...unknownOf(s), recipeId, discovered, bestScore, bestStars, timesMade });
+    }
+  }
+  if (!keepUnknownKeys) {
+    // Nothing was kept on purpose: report only if there was something to drop.
+    const hadUnknown = stored.some((e) => e.valid && Object.keys(e.raw).some((k) => !DEX_CORE_KEYS.has(k) && k !== "__proto__"));
+    budget.dropped = hadUnknown;
+  }
+  return { dex, unknownKeysDropped: budget.dropped, keepsForeign };
+}
+
+/**
  * T1a (append-order invariant): the owned list to write. The stored order is kept as it is -- ids
  * this build does not know stay in their acquisition position instead of moving behind later
  * purchases -- then the ids `next` adds are appended in `next`'s order. A known id `next` no longer
@@ -783,6 +909,8 @@ function mergeOwnedOrder(storedOrder: readonly string[], nextKnown: readonly str
  *   reload recovers.
  * - `stale-save` (PR-3, #282): the stored text is not the one this page loaded or last wrote (another tab saved). Not
  *   replaced; a reload loads the newer save. See `./saveSession.ts`.
+ * - `save-too-large` (#668): the text to write is above `MAX_SAVE_WRITE_LENGTH` even without the Dex's unknown sub-fields, and
+ *   the stored Dex holds an entry this build cannot interpret that would have to be dropped to fit. Nothing is written.
  */
 export type SaveWriteBlock =
   | "unknown-schema"
@@ -790,7 +918,8 @@ export type SaveWriteBlock =
   | "quarantine-too-large"
   | "storage-error"
   | "load-failed"
-  | "stale-save";
+  | "stale-save"
+  | "save-too-large";
 
 /** `raw` is the text the guard read (null = no save), or, after a quarantine, the damaged text now safely held. */
 type WriteGuard = { writable: true; raw: string | null } | { writable: false; blocked: SaveWriteBlock };
@@ -822,7 +951,13 @@ function writeSave(
   storage: StorageLike,
   next: PersistentSaveV2,
   options: { requireDinnerRecords?: boolean; pendingRound?: PendingRound | null; verify?: boolean } = {},
-): { refusedDinnerMissionIds: string[]; blocked?: SaveWriteBlock; journalOccupied?: boolean; verifyFailure?: "dropped" | "mismatch" } {
+): {
+  refusedDinnerMissionIds: string[];
+  blocked?: SaveWriteBlock;
+  journalOccupied?: boolean;
+  verifyFailure?: "dropped" | "mismatch";
+  dexUnknownKeysDropped?: boolean;
+} {
   // Save Compatibility Phase B PR-1 (#560): every write in this module passes this gate FIRST. A stored save this build
   // cannot interpret is never replaced: a newer build's save is left untouched, a damaged one is copied into the
   // quarantine (and the copy verified) before the replacement is written.
@@ -871,7 +1006,7 @@ function writeSave(
     }
     return { ...value, [PENDING_ROUND_KEY]: options.pendingRound };
   };
-  const finishWrite = (serialized: string) => {
+  const finishWrite = (serialized: string, extra: { dexUnknownKeysDropped?: boolean } = {}) => {
     storage.setItem(SAVE_STORAGE_KEY, serialized);
     if (options.verify) {
       // Read-back: a storage that accepts `setItem` and then does not hold the text is a failed save, not a successful one.
@@ -881,20 +1016,19 @@ function writeSave(
       }
     }
     noteSaveWritten(storage, serialized);
-    return { refusedDinnerMissionIds: [] };
+    return { refusedDinnerMissionIds: [], ...extra };
   };
   if (!extras) {
     return finishWrite(JSON.stringify(withJournal(withDinner(nextFields))));
   }
-  const nextDexIds = new Set(next.dex.map((e) => e.recipeId));
   const appendNew = (base: readonly string[], more: readonly string[]) => [
     ...base,
     ...more.filter((id) => !base.includes(id)),
   ];
-  const merged = {
+  const assemble = (dex: unknown[]) => ({
     ...extras.topLevel,
     ...nextFields,
-    dex: [...next.dex, ...extras.dex.filter((e) => !nextDexIds.has(e.recipeId))],
+    dex,
     ownedIngredientIds: mergeOwnedOrder(extras.ownedOrder, next.ownedIngredientIds),
     inventory: { ...extras.inventory, ...next.inventory },
     starterGrantClaimedRecipeIds: appendNew(
@@ -911,8 +1045,20 @@ function writeSave(
       0,
       MAX_TECHNIQUE_LEDGER_SIZE,
     ),
-  };
-  return finishWrite(JSON.stringify(withJournal(withDinner(merged))));
+  });
+  // #668: the Dex keeps what storage holds (see `mergeDexForWrite`). The whole text is checked against
+  // `MAX_SAVE_WRITE_LENGTH` before it is written: over it, the unknown Dex sub-fields go first (reported to the caller); if it
+  // still does not fit and the Dex carries an entry this build cannot interpret, nothing is written -- that entry is never dropped.
+  let dexMerge = mergeDexForWrite(next.dex, extras.dex, true);
+  let serialized = JSON.stringify(withJournal(withDinner(assemble(dexMerge.dex))));
+  if (serialized.length > MAX_SAVE_WRITE_LENGTH) {
+    dexMerge = mergeDexForWrite(next.dex, extras.dex, false);
+    serialized = JSON.stringify(withJournal(withDinner(assemble(dexMerge.dex))));
+    if (serialized.length > MAX_SAVE_WRITE_LENGTH && dexMerge.keepsForeign) {
+      return { refusedDinnerMissionIds: [], blocked: "save-too-large" };
+    }
+  }
+  return finishWrite(serialized, dexMerge.unknownKeysDropped ? { dexUnknownKeysDropped: true } : {});
 }
 
 /** R8: may the journal slot change from `stored` to `next`? A new/updated journal needs an empty slot or its own round; removal needs a readable round. */
@@ -1083,7 +1229,8 @@ export function persistDex(
     if (dexEquals(dex, current.dex)) return {};
     const next: PersistentSaveV2 = { ...current, dex: [...dex] };
     const written = writeSave(storage, next);
-    return written.blocked ? { blocked: written.blocked } : {};
+    if (written.blocked) return { blocked: written.blocked };
+    return written.dexUnknownKeysDropped ? { dexUnknownKeysDropped: true } : {};
   } catch {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected.
     return {};
@@ -1093,6 +1240,8 @@ export function persistDex(
 /** What a persist call reports besides throwing nothing: why the write was refused (#560), if it was. */
 export interface PersistWriteResult {
   blocked?: SaveWriteBlock;
+  /** #668: the write succeeded but some unknown Dex sub-fields were over a limit and were not kept. */
+  dexUnknownKeysDropped?: boolean;
 }
 
 /** True when both id lists contain exactly the same set of ids, ignoring order/duplicates.
@@ -1176,6 +1325,8 @@ export interface PersistProgressResult {
   blocked?: SaveWriteBlock;
   /** R8: the journal slot is held by another round or by a journal this build cannot act on, so nothing was written. */
   journalOccupied?: boolean;
+  /** #668: written, but some unknown Dex sub-fields were over a limit and were not kept (the core Dex is complete). */
+  dexUnknownKeysDropped?: boolean;
 }
 
 /** Per-id `max` of two purchase ledgers, sanitized. A level can only go up. */
@@ -1224,6 +1375,7 @@ export function persistProgress(
     refusedDinnerMissionIds: result.refusedDinnerMissionIds,
     ...(result.blocked ? { blocked: result.blocked } : {}),
     ...(result.journalOccupied ? { journalOccupied: true } : {}),
+    ...(result.dexUnknownKeysDropped ? { dexUnknownKeysDropped: true } : {}),
   };
 }
 
@@ -1231,7 +1383,7 @@ export function persistProgress(
 export type CommitFailure = "quota" | "unavailable" | "dropped" | "mismatch" | "oversize" | "occupied";
 
 export type CommitResult =
-  | { status: "ok" }
+  | { status: "ok"; dexUnknownKeysDropped?: true }
   | { status: "blocked"; block: SaveWriteBlock }
   | { status: "failed"; failure: CommitFailure };
 
@@ -1263,7 +1415,7 @@ export function commitProgress(
   if (result.blocked) return { status: "blocked", block: result.blocked };
   if (result.failure) return { status: "failed", failure: result.failure };
   if (result.journalOccupied) return { status: "failed", failure: "occupied" };
-  return { status: "ok" };
+  return result.dexUnknownKeysDropped ? { status: "ok", dexUnknownKeysDropped: true } : { status: "ok" };
 }
 
 function persistProgressImpl(
@@ -1276,6 +1428,7 @@ function persistProgressImpl(
   let refusedDinnerMissionIds: string[] = [];
   let blocked: SaveWriteBlock | undefined;
   let journalOccupied = false;
+  let dexUnknownKeysDropped = false;
   let failure: CommitFailure | undefined;
   if (!storage) return { refusedDinnerMissionIds };
   try {
@@ -1381,6 +1534,7 @@ function persistProgressImpl(
     }
     blocked = written.blocked;
     journalOccupied = written.journalOccupied === true;
+    dexUnknownKeysDropped = written.dexUnknownKeysDropped === true;
     failure = written.verifyFailure;
   } catch (error) {
     // Storage full, disabled, or otherwise unavailable -- gameplay continues unaffected. (A strict commit reports it.)
@@ -1390,6 +1544,7 @@ function persistProgressImpl(
     refusedDinnerMissionIds,
     ...(blocked ? { blocked } : {}),
     ...(journalOccupied ? { journalOccupied: true } : {}),
+    ...(dexUnknownKeysDropped ? { dexUnknownKeysDropped: true } : {}),
     ...(failure ? { failure } : {}),
   };
 }

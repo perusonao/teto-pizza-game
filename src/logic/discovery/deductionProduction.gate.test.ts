@@ -239,8 +239,7 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
     expect(checked).toBeGreaterThan(1000);
     expect(failClosed).toBeGreaterThan(0);
     // Measured snapshot of the Hint 3.0 public model (every state's guard assertions above held): Expansion Batch 2 added pesto-caprese (a new material shrank one of its candidate sets to a single candidate); Expansion Batch 3's six new materials widen that candidate set again, so it leaves the list (existence / no-clause stays asserted for every member).
-    // BBQ Chicken (#611): pesto-caprese rejoins the set. CAUSE (measured before/after on main vs this branch): the public hint of every deterministic state (ladder + all-owned) is IDENTICAL; the only difference is ONE seeded random-order sample (the shuffle changes because INGREDIENTS grew by 2) whose 12-ingredient state leaves a single hypothetical reserve ("basil"), the same Hint 3.0 Rule W condition as melanzane / parmigiana. The guard answered it fail-closed (level "existence", no clause) and every assertion in the loop held -- no privacy assertion was weakened.
-    expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza", "pesto-caprese"]);
+    expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza"]);
   }, SWEEP_TIMEOUT_MS);
 
   it("an independent attacker (no access to the guard's hypothesis set) names the reserve in 0 states", () => {
@@ -341,6 +340,86 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
         if (poor.outcome === "REJECTED" && poor.reason === "NOT_A_TARGET") continue;
         expect(poor).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
       }
+    }
+  }, SWEEP_TIMEOUT_MS);
+});
+
+/**
+ * DH4 `preExistingPublic`, the DETERMINISTIC counterpart of the seeded sweep above (design: docs/design/TETO_DH4-PREEXISTING-PUBLIC_PIN-DESIGN_2026-10-27.md).
+ *
+ * The seeded sweep finds the recipes whose hypothetical reserve set H is already a single candidate (Hint 3.0 Rule W + a fully known 材料 part), but WHICH of them
+ * land in its 40 random orders moves with the number of ingredients (the shuffle changes), so it is a sample, not a definition. H is
+ *   { id in prefix : id not in known, id != key, rank(id) >= floor, keyStep(id) <= keyStep }
+ * where `known` / `floor` / `keyStep` are fixed by the recipe and only `prefix` (the owned order up to the point the recipe is makeable) depends on the order; H grows with the
+ * prefix, so its minimum is reached by the smallest prefix: the starters, then the recipe's own non-starter ingredients in some order. That set of prefixes is small and is
+ * enumerated EXHAUSTIVELY here (every permutation, both Dex depths), with no randomness. Nothing above is weakened: the seeded sweep and its exact set stay as they are.
+ */
+function permutations<T>(items: T[]): T[][] {
+  if (items.length <= 1) return [items];
+  return items.flatMap((x, i) => permutations([...items.slice(0, i), ...items.slice(i + 1)]).map((p) => [x, ...p]));
+}
+const MAX_PERMUTED = 7; // 7! = 5040 orders per recipe and Dex depth: the enumeration is exhaustive only while every recipe stays within it (asserted below)
+const DEX_DEPTHS = [5, 24];
+
+interface MinimalPrefixResult {
+  minH: number;
+  states: GateState[];
+}
+function minimalPrefixResults(): Map<string, MinimalPrefixResult> {
+  const starters = [...STARTER_INGREDIENT_IDS];
+  const out = new Map<string, MinimalPrefixResult>();
+  for (const recipe of RECIPES) {
+    if (recipe.id === "margherita") continue;
+    const need = [...new Set(recipe.requiredIngredients.map((q) => q.ingredientId))].filter((id) => !starters.includes(id));
+    expect(need.length, `${recipe.id}: more than ${MAX_PERMUTED} non-starter ingredients, so the enumeration below is no longer exhaustive`).toBeLessThanOrEqual(MAX_PERMUTED);
+    let best: MinimalPrefixResult | null = null;
+    for (const order of permutations(need)) {
+      for (const discoveredCount of DEX_DEPTHS) {
+        const state: GateState = { recipeId: recipe.id, owned: [...starters, ...order], discoveredCount };
+        const parts = targetReserveParts(state.recipeId, ctxOf(state));
+        if (!parts || !reserveInHypotheses(parts)) continue;
+        const size = hypotheticalReserves(parts).length;
+        if (best === null || size < best.minH) best = { minH: size, states: [state] };
+        else if (size === best.minH) best.states.push(state);
+      }
+    }
+    if (best) out.set(recipe.id, best);
+  }
+  return out;
+}
+
+describe("DH4-PROD gate: exhaustive minimal-prefix states (deterministic, independent of the seeded shuffle)", () => {
+  const results = minimalPrefixResults();
+  /** The recipes whose reserve is already a single public candidate in their smallest possible prefix. A change here is a structural change (a recipe's ingredients or Rule W). */
+  const SINGLE_CANDIDATE_RECIPES = ["melanzane-pizza", "parmigiana-pizza", "pesto-caprese"];
+
+  it("the recipes whose H can be a single candidate are exactly the fixed list (not a function of the seeded orders)", () => {
+    const single = [...results.entries()].filter(([, r]) => r.minH < MIN_ATTRIBUTE_CANDIDATES).map(([id]) => id).sort();
+    expect(single).toEqual(SINGLE_CANDIDATE_RECIPES);
+  });
+
+  it("every state in the minimal-H class is answered fail-closed (existence, no topping clause), and the others keep the k >= 2 inversion bound", () => {
+    for (const [recipeId, result] of results) {
+      for (const s of result.states) {
+        const parts = targetReserveParts(s.recipeId, ctxOf(s))!;
+        if (result.minH < MIN_ATTRIBUTE_CANDIDATES) {
+          expect(guardedAnswerForParts(parts)!.level, `${recipeId} @${s.owned.length}`).toBe("existence");
+          expect(toppingClauseAllowedForParts(parts), `${recipeId} @${s.owned.length}`).toBe(false);
+        } else {
+          expect(inversionCandidates(parts, observeGuardedWithClause).length, `${recipeId} @${s.owned.length}`).toBeGreaterThanOrEqual(MIN_ATTRIBUTE_CANDIDATES);
+        }
+      }
+    }
+  }, SWEEP_TIMEOUT_MS);
+
+  it("every seeded-sweep state's H is at least its recipe's exhaustive minimum, and a sampled single-candidate recipe is always in the fixed list (the sample is a subset)", () => {
+    for (const s of GATE_STATES) {
+      const parts = targetReserveParts(s.recipeId, ctxOf(s));
+      if (!parts || !reserveInHypotheses(parts)) continue;
+      const size = hypotheticalReserves(parts).length;
+      const min = results.get(s.recipeId)!.minH;
+      expect(size, `${s.recipeId} @${s.owned.length}`).toBeGreaterThanOrEqual(min);
+      if (size < MIN_ATTRIBUTE_CANDIDATES) expect(SINGLE_CANDIDATE_RECIPES, `${s.recipeId} @${s.owned.length}`).toContain(s.recipeId);
     }
   }, SWEEP_TIMEOUT_MS);
 });

@@ -59,11 +59,11 @@ describe("Batch 8a: the existing 57 recipes keep their progression declarations"
   it("credit / Lunch Rush opt-out / ladder keys of the earlier recipes are unchanged (credited 56 -- Issue #561 promoted frango-catupiry --, non-credit only calabresa, aussie, chilean, chorizo)", () => {
     // E5: the late recipe (credited, appended after every ordinary one) is excluded; its progression is pinned in lateCatalog.ikura.test.ts.
     expect(ordinaryRecipes(RECIPES).filter((r) => !countsTowardLadder(r.id)).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", ...BATCH.filter((id) => id !== "frango-catupiry"), "grandma-pizza"]); // (Square Dough E-2 appends the non-credit grandma-pizza)
-    expect(ordinaryRecipes(RECIPES).filter((r) => countsTowardLadder(r.id))).toHaveLength(59); // (grandma-pizza is non-credit) 56 after Batch 8a; Batch 8b's shirasu-pizza, New Sauces Phase A's flammkuchen and Phase B-1's sichuan-eggplant-pizza are credited (+1 each)
+    expect(ordinaryRecipes(RECIPES).filter((r) => countsTowardLadder(r.id))).toHaveLength(64); // (grandma-pizza is non-credit; Expansion Batch 10 PR-1 adds five credited recipes) 56 after Batch 8a; Batch 8b's shirasu-pizza, New Sauces Phase A's flammkuchen and Phase B-1's sichuan-eggplant-pizza are credited (+1 each)
     expect(ordinaryRecipes(RECIPES).filter((r) => participatesInLunchRush(r.id))).toHaveLength(25);
-    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps)).toHaveLength(56); // Batch 8a appended none (53); Batch 8b appended step 54; New Sauces Phase A appended step 55; Phase B-1 appended step 56
+    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps)).toHaveLength(61); // Batch 8a appended none (53); Batch 8b appended step 54; New Sauces Phase A appended step 55; Phase B-1 appended step 56; Expansion Batch 10 PR-1 appended steps 57-61
     expect(DISCOVERY_LADDER.steps.slice(0, 53).some((s) => (BATCH as readonly string[]).includes(s.keyRecipeId))).toBe(false);
-    expect(ordinaryRecipes(RECIPES)).toHaveLength(64); // 60 after Batch 8a; + Square Dough E-2's grandma-pizza; + Batch 8b's shirasu-pizza + New Sauces Phase A's flammkuchen + Phase B-1's sichuan-eggplant-pizza
+    expect(ordinaryRecipes(RECIPES)).toHaveLength(69); // 60 after Batch 8a; + Expansion Batch 10 PR-1 (five); + Square Dough E-2's grandma-pizza; + Batch 8b's shirasu-pizza + New Sauces Phase A's flammkuchen + Phase B-1's sichuan-eggplant-pizza
   });
 });
 

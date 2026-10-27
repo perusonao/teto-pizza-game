@@ -19,6 +19,8 @@ function signatureKey(t: { items: readonly string[]; identityDimensions: unknown
   return JSON.stringify([[...t.items].sort(), t.identityDimensions]);
 }
 
+const BATCH10_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["curry-pizza-japan", "rendang-pizza", "tandoori-paneer-pizza"];
+
 describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("has exactly one target per production recipe, in RECIPES order", () => {
     expect(RECIPE_DISCOVERY_CATALOG.map((t) => t.recipeId)).toEqual(RECIPES.map((r) => r.id));
@@ -29,6 +31,9 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
     const phase2 = new Map(phase2Targets("SHIPPED_KEEP").map((t) => [t.targetId, t]));
     for (const t of RECIPE_DISCOVERY_CATALOG) {
       if (t.recipeId === "brazilian-calabresa") continue; // PR-4b-B: production-only (no Phase-2 row)
+      // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md): the Phase-2 design matrix classifies these three rows BLOCKED_EVIDENCE (the curry base sauce is unresolved / unspecified there);
+      // the Owner's approval (curry-ketchup as the base, D-B3) supersedes it, so they have no SHIPPED_KEEP target. expansionBatch10.pr1.test.ts pins their exact ingredient sets.
+      if (BATCH10_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (isLateRecipeId(t.recipeId)) continue; // E5: the late target has no Phase-2 row; lateCatalog.ikura.test.ts pins it
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);
       expect(expected, t.recipeId).toBeDefined();

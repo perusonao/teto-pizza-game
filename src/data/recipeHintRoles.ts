@@ -121,6 +121,12 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   flammkuchen: { keyFree: true },
   // New Sauces Phase B-1 (#578): permanently key-free.
   "sichuan-eggplant-pizza": { keyFree: true },
+  // Expansion Batch 10 PR-1: permanently key-free.
+  "curry-pizza-japan": { keyFree: true },
+  "rendang-pizza": { keyFree: true },
+  currywurst: { keyFree: true },
+  "tandoori-paneer-pizza": { keyFree: true },
+  "cuban-pizza": { keyFree: true },
   // Multi-Sauce S3 / Square Dough E-2: permanently key-free.
   "grandma-pizza": { keyFree: true },
   // FIN-E4b-ikura (#621, late catalog): permanently key-free.

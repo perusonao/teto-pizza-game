@@ -2164,6 +2164,14 @@
   margin: 0;
 }
 
+/* Issue #676 (C1): the FAILED card of a Free Cook round carries the hint row above, 46px more than before. On WebKit 360x800 the
+   Research FAILED card (the tightest: the 3-button action bar is 168px) left 14px above the bar, under the 16px AC-L2 floor
+   (Chromium: 27.8px). The card's own flex gap is 10px; this tightens it to 6px for that card only (-4px per gap, 4 gaps in the
+   Research card). Only a Free Cook FAILED card with a hint handler has the modifier; every other result card keeps its 10px. */
+.result-panel--failed-hint {
+  gap: 6px;
+}
+
 .result-near-miss__text {
   margin: 0;
   flex: 1 1 180px;

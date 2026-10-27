@@ -166,7 +166,7 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
   });
 
   it("the compatibility floors are FIXED at 60 for both materials (never later than the step the ladder derives); the earlier floors are unchanged", () => {
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, [SAUCE]: 60, [POM]: 60, "bbq-sauce": 61, cilantro: 61 });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, [SAUCE]: 60, [POM]: 60, "bbq-sauce": 66, cilantro: 66 });
     for (const id of [SAUCE, POM]) expect(LATE_ENTITLEMENT_FLOORS[id]).toBeLessThanOrEqual(stepOf(id).step);
   });
 });

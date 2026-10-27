@@ -106,7 +106,7 @@ test.describe("New Sauces Phase B U1 (representative: the late step; yuzu-kosho 
     await completeDoughStep(page);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await expect(page.getByRole("tab", { name: "ソース", selected: true })).toBeVisible();
-    await page.locator(".ingredient-chip").filter({ hasText: /柚子胡椒/ }).first().click();
+    await (await chipOnTrayOrPin(page, /柚子胡椒/)).click(); // (the tray is paged: once Expansion Batch 10 PR-1 added sauces the newest can sit on a later page)
     await capture(page, "new-sauces-u1-tray-sauce", project);
     await paintSauceRing(page, 25, 16);
     await hold(page, 2200);

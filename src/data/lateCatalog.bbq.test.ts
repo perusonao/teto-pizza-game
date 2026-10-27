@@ -118,10 +118,10 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     }
   });
 
-  it("catalog counts after this recipe: 70 recipes (69 with the Pinsa gate off), 77 ingredients, 61 ladder steps (5 late)", () => {
-    expect(RECIPES.length).toBe(pinsaEnabled() ? 70 : 69); // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
-    expect(INGREDIENTS.length).toBe(77);
-    expect(DISCOVERY_LADDER.steps.length).toBe(61);
+  it("catalog counts after this recipe: 75 recipes (74 with the Pinsa gate off), 85 ingredients, 66 ladder steps (5 late)", () => {
+    expect(RECIPES.length).toBe(pinsaEnabled() ? 75 : 74); // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
+    expect(INGREDIENTS.length).toBe(85);
+    expect(DISCOVERY_LADDER.steps.length).toBe(66);
     expect(LATE_LADDER_STEPS.length).toBe(5);
   });
 
@@ -183,8 +183,8 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(validateBatchManifest(BBQ_CHICKEN_BATCH, productionCatalogView())).toEqual([]);
   });
 
-  it("the compatibility floors are FIXED at 61 for both materials (never later than the step the ladder derives); the earlier floors are unchanged", () => {
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, [SAUCE]: 61, [CIL]: 61 });
+  it("the compatibility floors are FIXED at 66 for both materials (never later than the step the ladder derives); the earlier floors are unchanged", () => {
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, [SAUCE]: 66, [CIL]: 66 });
     for (const id of [SAUCE, CIL]) expect(LATE_ENTITLEMENT_FLOORS[id]).toBeLessThanOrEqual(stepOf(id).step);
   });
 });

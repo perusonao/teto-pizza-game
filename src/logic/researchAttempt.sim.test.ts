@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 
 /**
  * Contract 2.1 Production Activation Gate C: the attempt-aware walk (test-only; see ./testSupport/researchAttemptSim.ts).
@@ -58,31 +58,39 @@ describe("attempt-aware walk (real reducer)", () => {
     expect(RESEARCH_IDENTIFY_ENABLED).toBe(true);
   });
 
-  it("every profile x quality reaches Dex 28 with the Contract invariants intact on every attempt", async () => {
-    const runs = [];
-    for (const explorePieces of ["FULL", "ONE"] as const) for (const qualityTotal of QUALITIES) {
-      for (const profile of RESEARCH_HINT_PROFILES) {
-        const r = simulateResearchAttempts({ profile, qualityTotal, explorePieces });
-        runs.push({ ...r, finalState: undefined });
-        const tag = `${profile} q${qualityTotal} ${explorePieces}`;
-        expect(r.completed, tag).toBe(true);
-        expect(r.stages.at(-1)!.discovery, tag).toBe(RECIPES.length);
-        // Pinsa Romana (#577 P3-b), gate open: it shares jamon's ingredients, so the walk finds it only by varying the dough and the moment (the player model in the sim), and finds it.
-        if (pinsaEnabled()) expect(r.stages.some((st) => st.discovered.includes("pinsa-romana")), tag).toBe(true);
-        expect(r.violations, tag).toEqual([]);
-        expect(r.minPitz, tag).toBeGreaterThanOrEqual(0);
-        expect(r.reservedStops, tag).toBe(0);
-        for (const st of r.stages) expect(st.attempts, `${tag} ${st.discovered}`).toBeGreaterThanOrEqual(1);
-        // Dex 0 is the free Margherita onboarding: never a hint, never a research attempt.
-        expect(r.stages[0]).toMatchObject({ onboarding: true, attempts: 1, hintSpend: 0 });
+  // Each walk costs about as much as the catalog is long, so the ~120 walks of one `it` outgrew its 600 s budget when Expansion Batch 10 PR-1 added five recipes (the same
+  // class of fix as #682: split the walks over several `it`s, every assertion kept, no timeout raised). `ALL_RUNS` collects every run for the optional JSON output.
+  const ALL_RUNS: { runs: unknown[]; baseline: unknown[]; sweep: unknown[] } = { runs: [], baseline: [], sweep: [] };
+
+  for (const explorePieces of ["FULL", "ONE"] as const) {
+    it(`every profile x quality reaches Dex 28 with the Contract invariants intact on every attempt (${explorePieces})`, () => {
+      for (const qualityTotal of QUALITIES) {
+        for (const profile of RESEARCH_HINT_PROFILES) {
+          const r = simulateResearchAttempts({ profile, qualityTotal, explorePieces });
+          ALL_RUNS.runs.push({ ...r, finalState: undefined });
+          const tag = `${profile} q${qualityTotal} ${explorePieces}`;
+          expect(r.completed, tag).toBe(true);
+          expect(r.stages.at(-1)!.discovery, tag).toBe(RECIPES.length);
+          // Pinsa Romana (#577 P3-b), gate open: it shares jamon's ingredients, so the walk finds it only by varying the dough and the moment (the player model in the sim), and finds it.
+          if (pinsaEnabled()) expect(r.stages.some((st) => st.discovered.includes("pinsa-romana")), tag).toBe(true);
+          expect(r.violations, tag).toEqual([]);
+          expect(r.minPitz, tag).toBeGreaterThanOrEqual(0);
+          expect(r.reservedStops, tag).toBe(0);
+          for (const st of r.stages) expect(st.attempts, `${tag} ${st.discovered}`).toBeGreaterThanOrEqual(1);
+          // Dex 0 is the free Margherita onboarding: never a hint, never a research attempt.
+          expect(r.stages[0]).toMatchObject({ onboarding: true, attempts: 1, hintSpend: 0 });
+        }
       }
-    }
+    }, 600_000);
+  }
+
+  it("analysis-only lower bound (a free STRUCTURE total) completes, and a full walk persists only existing fields (schema v2)", () => {
     // Analysis-only lower bound: a free STRUCTURE total (stop as soon as every member is found).
     for (const explorePieces of ["FULL", "ONE"] as const) {
       const r = simulateResearchAttempts({ profile: "NONE", qualityTotal: 65, explorePieces, freeTotal: true });
       expect(r.completed).toBe(true);
       expect(r.violations).toEqual([]);
-      runs.push({ ...r, finalState: undefined });
+      ALL_RUNS.runs.push({ ...r, finalState: undefined });
     }
     // Save / schema: the final state of a full walk persists only existing fields.
     const final = simulateResearchAttempts({ profile: "FIXED4", qualityTotal: 65 }).finalState;
@@ -105,31 +113,37 @@ describe("attempt-aware walk (real reducer)", () => {
     const raw = storage.getItem(SAVE_STORAGE_KEY) ?? "";
     expect(loadSave(storage).schemaVersion).toBe(2);
     for (const word of ["lastResearchRows", "RESEARCH_ROWS", "toppingOverCap", "researchTest", "lastIngredientTest", "researchTargetValidAtStart"]) expect(raw).not.toContain(word);
+  }, 600_000);
 
+  it("economy comparison: the Hint 5.0 Activation Gate's own direct-bake walk, same qualities", () => {
     // Economy comparison: the Hint 5.0 Activation Gate's own direct-bake walk (no exploration), same qualities.
-    const baseline = QUALITIES.flatMap((q) => (["NONE", "FIXED4", "FULL"] as const).map((profile) => {
+    ALL_RUNS.baseline.push(...QUALITIES.flatMap((q) => (["NONE", "FIXED4", "FULL"] as const).map((profile) => {
       const b = simulateHint5Economy({ profile, qualityTotal: q });
       return { profile, qualityTotal: q, minPitz: b.minPitz, grindBakes: b.grindBakes, totalHintSpend: b.totalHintSpend, totalRefillSpend: b.totalRefillSpend, totalUnlockSpend: b.totalUnlockSpend, endingPitz: b.endingPitz };
-    }));
+    })));
 
-    // ★3-FULL: the Hint 5.0 Activation Gate reported (and the Owner accepted) one final-stage Margherita replay in the
-    // direct-bake walk. This walk's own number is a MEASUREMENT (Gate C report), not an assertion.
+  }, 600_000);
 
-    const sweep = [];
-    for (const explorePieces of ["FULL", "ONE"] as const) for (const profile of ["NONE", "FIXED4", "FULL"] as const) {
+  // ★3-FULL: the Hint 5.0 Activation Gate reported (and the Owner accepted) one final-stage Margherita replay in the
+  // direct-bake walk. This walk's own number is a MEASUREMENT (Gate C report), not an assertion.
+
+  for (const explorePieces of ["FULL", "ONE"] as const) for (const profile of ["NONE", "FIXED4", "FULL"] as const) {
+    it(`tray-order sensitivity sweep (${profile}, ${explorePieces}): completed, no violations, min Pitz >= 0`, () => {
       for (let seed = 1; seed <= SEEDS; seed += 1) {
         const r = simulateResearchAttempts({ profile, qualityTotal: 65, orderSeed: seed, explorePieces });
         expect(r.completed, `${profile} seed ${seed}`).toBe(true);
         expect(r.violations, `${profile} seed ${seed}`).toEqual([]);
         expect(r.minPitz, `${profile} seed ${seed}`).toBeGreaterThanOrEqual(0);
-        sweep.push({ ...r, finalState: undefined });
+        ALL_RUNS.sweep.push({ ...r, finalState: undefined });
       }
-    }
+    }, 600_000);
+  }
 
+  afterAll(async () => {
     const out = (import.meta.env as Record<string, string | undefined>).RESEARCH_ATTEMPT_SIM_OUT;
     if (out) {
       const fs = (await import(/* @vite-ignore */ "node:" + "fs")) as { writeFileSync(path: string, data: string): void };
-      fs.writeFileSync(out, JSON.stringify({ runs, baseline, sweep }, null, 1));
+      fs.writeFileSync(out, JSON.stringify(ALL_RUNS, null, 1));
     }
-  }, 600_000);
+  });
 });

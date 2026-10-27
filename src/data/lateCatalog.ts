@@ -414,7 +414,7 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
   { ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" },
   // New Sauces Phase B U3 (Issue #578): after the dengaku step (ordinary length + 4), key recipe `eggplant-tahini-pizza` (it also needs eggplant and parsley from earlier ordinary steps). Cohort key: pomegranate (the last material of the step). The number is DERIVED, never authored.
   { ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" },
-  // BBQ Chicken (Issue #611): after the tahini step (ordinary length + 5), key recipe `bbq-chicken-pizza` (it also needs mozzarella, onion and chicken from earlier steps / the starters). Cohort key: cilantro (the last material of the step). The number is derived (currently 61), never embedded.
+  // BBQ Chicken (Issue #611): after the tahini step (ordinary length + 5), key recipe `bbq-chicken-pizza` (it also needs mozzarella, onion and chicken from earlier steps / the starters). Cohort key: cilantro (the last material of the step). The number is derived (currently 66), never embedded.
   { ingredientIds: ["bbq-sauce", "cilantro"], keyRecipeId: "bbq-chicken-pizza" },
 ];
 
@@ -422,9 +422,9 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
  * Compatibility floor (Issue #578 U0, Owner OD-U0-7 = M3 / 7b / 7c): a late material's Shop entitlement never needs a LARGER credited-discovery count than the one it had
  * when the late catalog first shipped. Its ladder step number is derived (ordinary length + 1) and moves +1 per ordinary batch; the floor is a FIXED constant, so a
  * save that reached the E5-era step but had not launched since (its ledger has no entry yet) still gets the material. A floor only ever grants earlier; the ledger never re-locks.
- * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
+ * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). `bbq-sauce` / `cilantro`: 66 = the 61 ordinary steps + 5 when they shipped (BBQ Chicken #611, after Expansion Batch 10 PR-1). RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
  */
-export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60, "bbq-sauce": 61, "cilantro": 61 };
+export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60, "bbq-sauce": 66, "cilantro": 66 };
 
 /** True for a recipe whose own gate is closed (Pinsa while `PINSA_PRODUCTION` is false): the id is in type-keyed tables but the recipe does not exist in this build. */
 export function isGatedOffRecipeId(id: string): boolean {
