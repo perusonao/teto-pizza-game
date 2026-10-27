@@ -70,8 +70,8 @@ describe.runIf(pinsaEnabled())("Production switches (gate open)", () => {
     expect(LATE_CATALOG_PRODUCTION).toBe(true);
     expect(FREE_COOK_FINISH_PRODUCTION).toBe(true);
     // New Sauces Phase B U1 (#578): yuzu-shrimp-pizza (late, credited) sits between ikura and Pinsa, so Pinsa stays the tail; the last ladder step is yuzu's late step (still no Pinsa step).
-    expect(RECIPES.slice(-5).map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", PINSA]); // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza follow yuzu, still before Pinsa)
-    expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "eggplant-tahini-pizza" }); // no Pinsa step
+    expect(RECIPES.slice(-8).map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bulgogi-pizza", "wasabi-beef-pizza", "mentaiko-cream-pizza", PINSA]); // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza follow yuzu, still before Pinsa)
+    expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "mentaiko-cream-pizza" }); // no Pinsa step (PR-2 late4 ends the ladder)
     expect(countsTowardLadder(PINSA)).toBe(false);
     const grandma = RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === "grandma-pizza")!;
     expect(grandma.identityDimensions).toMatchObject({ pan: "tray" });

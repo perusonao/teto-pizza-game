@@ -826,7 +826,10 @@
 .ingredient-glyph--green-onion-slices,
 .ingredient-glyph--shrimp-curl,
 .ingredient-glyph--sesame-seeds,
-.ingredient-glyph--pomegranate-aril {
+.ingredient-glyph--pomegranate-aril,
+.ingredient-glyph--wasabi-dab,
+.ingredient-glyph--cod-roe-mass,
+.ingredient-glyph--nori-strips {
   width: 1.2em;
   height: 1.2em;
   margin: -0.1em;

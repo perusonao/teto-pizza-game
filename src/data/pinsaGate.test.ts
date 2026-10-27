@@ -47,12 +47,12 @@ describe.runIf(ROLLED_BACK)("OFF (rollback): Pinsa exists in no runtime catalog"
       expect(JSON.stringify(value), name).not.toMatch(WORDS);
     }
   });
-  it("the late catalog (ON in Production since E5) still holds exactly ikura, yuzu-shrimp-pizza, eggplant-dengaku-pizza and eggplant-tahini-pizza (New Sauces Phase B U1 / U2 / U3): it is not the late switch that publishes Pinsa", () => {
+  it("the late catalog (ON in Production since E5) still holds exactly ikura, yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza and the PR-2 late4 trio (New Sauces Phase B U1 / U2 / U3): it is not the late switch that publishes Pinsa", () => {
     // Every late recipe shipped after this gate was written is listed here on purpose (an exact list, as before): the rollback must show that the late
     // switch adds exactly these and never Pinsa. The next late recipe (BBQ chicken, #679) must add its id to this list and to ALL_LATE_RECIPE_IDS below.
-    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza"]);
-    expect(RECIPES.at(-1)!.id).toBe("eggplant-tahini-pizza");
-    expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "eggplant-tahini-pizza" });
+    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bulgogi-pizza", "wasabi-beef-pizza", "mentaiko-cream-pizza"]);
+    expect(RECIPES.at(-1)!.id).toBe("mentaiko-cream-pizza");
+    expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "mentaiko-cream-pizza" });
   });
   it("every lookup by id comes back empty", () => {
     expect(getRecipe(PINSA as never)).toBeUndefined();
@@ -69,7 +69,7 @@ describe.runIf(ROLLED_BACK)("OFF (rollback): Pinsa exists in no runtime catalog"
     expect(isGatedOffRecipeId(PINSA)).toBe(true);
     expect(isInactiveLateRecipeId(PINSA)).toBe(true);
     expect(isGatedOffRecipeId("ikura-salmon-pizza")).toBe(false); // the gate is Pinsa-only: ikura (E5) is unchanged
-    expect(ALL_LATE_RECIPE_IDS).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", PINSA]);
+    expect(ALL_LATE_RECIPE_IDS).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bulgogi-pizza", "wasabi-beef-pizza", "mentaiko-cream-pizza", PINSA]);
     expect(getReferencePizza(PINSA)).toBeNull();
     expect(listReferencePizzas().some((r) => (r.recipeId as string) === PINSA)).toBe(false);
     expect(JSON.stringify(listReferencePizzas())).not.toMatch(WORDS);

@@ -28,7 +28,7 @@ describe("LATE_ADDITION_RECIPE_IDS (New Sauces Phase B U1 / U2 / U3)", () => {
       const recipe = RECIPES.find((r) => r.id === id);
       expect(recipe, id).toBeDefined();
       expect(recipe!.requiredIngredients.some((q) => "applicationPhase" in q && q.applicationPhase === "POST_BAKE"), id).toBe(true);
-      expect(["yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza"]).toContain(id);
+      expect(["yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bulgogi-pizza", "wasabi-beef-pizza", "mentaiko-cream-pizza"]).toContain(id);
     }
   });
   it("is read from this one file by the DH4 and Hint 5.0 gates (neither declares its own copy)", () => {

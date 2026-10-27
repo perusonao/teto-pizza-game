@@ -62,15 +62,18 @@ describe("E5: the Production switches", () => {
     expect(freeCookFinishEnabled()).toBe(true);
   });
 
-  it("the catalog ends with the late content: ikura-salmon-pizza + salmon-roe + its late ladder step (ordinary length + 1), then yuzu-shrimp-pizza + yuzu-kosho + its late step (New Sauces Phase B U1), then eggplant-dengaku-pizza + miso-sauce + white-sesame + their shared late step (U2), then eggplant-tahini-pizza + tahini + pomegranate + their shared late step (U3)", () => {
+  it("the catalog ends with the late content: ikura-salmon-pizza + salmon-roe + its late ladder step (ordinary length + 1), then yuzu-shrimp-pizza + yuzu-kosho + its late step (New Sauces Phase B U1), then eggplant-dengaku-pizza + miso-sauce + white-sesame + their shared late step (U2), then eggplant-tahini-pizza + tahini + pomegranate + their shared late step (U3), then bulgogi / wasabi-beef / mentaiko-cream + soy-sauce, wasabi, cod-roe, fresh-cream-sauce, nori + their three late steps (PR-2 late4)", () => {
     // (with the Pinsa gate open, pinsa-romana follows them as the last recipe: it adds no material and no ladder step)
-    expect(RECIPES.slice(-(pinsaEnabled() ? 5 : 4)).map((r) => r.id)).toEqual([IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
-    expect(INGREDIENTS.slice(-6).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate"]);
+    expect(RECIPES.slice(-(pinsaEnabled() ? 8 : 7)).map((r) => r.id)).toEqual([IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bulgogi-pizza", "wasabi-beef-pizza", "mentaiko-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
+    expect(INGREDIENTS.slice(-11).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate", "soy-sauce", "wasabi", "cod-roe", "fresh-cream-sauce", "nori"]);
     const steps = DISCOVERY_LADDER.steps;
-    expect(steps.at(-4)).toMatchObject({ step: steps.length - 3, ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });
-    expect(steps.at(-3)).toMatchObject({ step: steps.length - 2, ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" });
-    expect(steps.at(-2)).toMatchObject({ step: steps.length - 1, ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" });
-    expect(steps.at(-1)).toMatchObject({ step: steps.length, ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" });
+    expect(steps.at(-7)).toMatchObject({ step: steps.length - 6, ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });
+    expect(steps.at(-6)).toMatchObject({ step: steps.length - 5, ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" });
+    expect(steps.at(-5)).toMatchObject({ step: steps.length - 4, ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" });
+    expect(steps.at(-4)).toMatchObject({ step: steps.length - 3, ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" });
+    expect(steps.at(-3)).toMatchObject({ step: steps.length - 2, ingredientIds: ["soy-sauce"], keyRecipeId: "bulgogi-pizza" });
+    expect(steps.at(-2)).toMatchObject({ step: steps.length - 1, ingredientIds: ["wasabi"], keyRecipeId: "wasabi-beef-pizza" });
+    expect(steps.at(-1)).toMatchObject({ step: steps.length, ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: "mentaiko-cream-pizza" });
   });
 });
 

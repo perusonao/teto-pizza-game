@@ -23,5 +23,5 @@ export const DOUGH_PINSA_ROMANA_RECIPE_IDS: readonly string[] = pinsaEnabled() ?
  * until it is added here together with the DH4 / Hint 5.0 privacy re-run (both gates read this file). The privacy assertions themselves are untouched.
  * `yuzu-shrimp-pizza` exists only while the late catalog is on (Production since E5); with it off, no recipe is late and the set is empty.
  */
-export const LATE_ADDITION_RECIPE_IDS: readonly string[] = lateCatalogEnabled() ? ["yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza"] : [];
+export const LATE_ADDITION_RECIPE_IDS: readonly string[] = lateCatalogEnabled() ? ["yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bulgogi-pizza", "wasabi-beef-pizza", "mentaiko-cream-pizza"] : [];
 

@@ -20,12 +20,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // New Sauces Phase B U2 (#578): + eggplant-dengaku-pizza (late catalog, credited, chapter 4), + miso-sauce (a late sauce) + white-sesame (a late topping, spice), + their shared late ladder step 59.
       // New Sauces Phase B U3 (#578): + eggplant-tahini-pizza (late catalog, credited, chapter 4), + tahini (a late sauce) + pomegranate (a late topping, fruit), + their shared late ladder step 60.
       // Expansion Batch 10 PR-1: + curry-pizza-japan, rendang-pizza, currywurst, tandoori-paneer-pizza, cuban-pizza (credited, chapter 4); + 8 materials (curry-ketchup / mustard sauces, paneer / swiss-cheese cheeses, beef / wurstel / paprika-powder / pickles toppings); + ordinary steps 57-61 (the late steps shift +5).
-      recipes: pinsa ? 74 : 73,
-      credited: 68,
-      ingredients: 83,
-      toppings: 60,
-      ladderSteps: 65,
-      chapterSizes: [6, 12, 18, pinsa ? 38 : 37],
+      // PR-2 late4 (#578 / #611): + bulgogi-pizza, wasabi-beef-pizza, mentaiko-cream-pizza (late catalog, credited, chapter 4); + 5 materials (soy-sauce / fresh-cream-sauce sauces, wasabi spice / cod-roe seafood / nori vegetable toppings); + late ladder steps 66-68 (derived). yakiniku is HOLD.
+      recipes: pinsa ? 77 : 76,
+      credited: 71,
+      ingredients: 88,
+      toppings: 63,
+      ladderSteps: 68,
+      chapterSizes: [6, 12, 18, pinsa ? 41 : 40],
       lunchRushPool: 25,
     });
   });
@@ -36,6 +37,6 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id)! : i.category;
       byShelf[shelf] = (byShelf[shelf] ?? 0) + 1;
     }
-    expect(byShelf).toEqual({ sauce: 10, cheese: 13, meat: 12, seafood: 9, vegetable: 22, fruit: 3, herb: 8, spice: 3, other: 3 });
+    expect(byShelf).toEqual({ sauce: 12, cheese: 13, meat: 12, seafood: 10, vegetable: 23, fruit: 3, herb: 8, spice: 4, other: 3 });
   });
 });

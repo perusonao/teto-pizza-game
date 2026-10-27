@@ -230,7 +230,7 @@ describe("technique surface (late-addition)", () => {
   it("a target that declares a non-empty late value is the only one that requires the technique", () => {
     expect([LATE_PARSLEY, LATE_CHICKEN, PLAIN_TWIN].filter((t) => requiredTechniquesOf(t).includes("late-addition")).map((t) => t.targetId)).toEqual(["syn:late-parsley", "syn:late-chicken"]);
     // E5: the one production target that requires it is the late recipe, and only while the late catalog is on.
-    expect(RECIPE_DISCOVERY_CATALOG.filter((t) => requiredTechniquesOf(t).includes("late-addition")).map((t) => t.recipeId)).toEqual(lateCatalogEnabled() ? ["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])] : []); // Pinsa Romana (#577 P3-b): the dough recipe also records 後乗せ (its arugula)
+    expect(RECIPE_DISCOVERY_CATALOG.filter((t) => requiredTechniquesOf(t).includes("late-addition")).map((t) => t.recipeId)).toEqual(lateCatalogEnabled() ? ["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bulgogi-pizza", "wasabi-beef-pizza", "mentaiko-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])] : []); // Pinsa Romana (#577 P3-b): the dough recipe also records 後乗せ (its arugula)
   });
 
   it("a pizza uses the technique iff it has a post piece; every existing recipe's own pizza uses none", () => {

@@ -192,7 +192,7 @@ describe("late material compatibility floor against the production ladder (Expan
     expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 5);
     expect(stepOf(ROE)).toBe(62);
     expect(stepOf("tahini")).toBe(65);
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60 });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "soy-sauce": 66, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 }); // (PR-2 late4 adds its own rows; the earlier rows are unchanged)
   });
 
   it.each([

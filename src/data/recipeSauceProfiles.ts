@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard";
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "soy-sauce" | "fresh-cream-sauce";
   interaction: SauceInteractionKind;
 }
 
@@ -351,6 +351,10 @@ export const RECIPE_SAUCE_PROFILES = {
   },
   // New Sauces Phase B U2 (late catalog): miso-sauce painted before the bake (GAMEPLAY ASSUMPTION, not confirmed by the original).
   "eggplant-tahini-pizza": { recipeId: "eggplant-tahini-pizza", ingredientId: "tahini", interaction: "PAINT" },
+  // PR-2 late4 (late catalog): the sauces are painted before the bake (GAMEPLAY ASSUMPTION, not confirmed by the original; bulgogi's soy-sauce is an Owner-pending provisional pick).
+  "bulgogi-pizza": { recipeId: "bulgogi-pizza", ingredientId: "soy-sauce", interaction: "PAINT" },
+  "wasabi-beef-pizza": { recipeId: "wasabi-beef-pizza", ingredientId: "soy-sauce", interaction: "PAINT" },
+  "mentaiko-cream-pizza": { recipeId: "mentaiko-cream-pizza", ingredientId: "fresh-cream-sauce", interaction: "PAINT" },
   "eggplant-dengaku-pizza": {
     recipeId: "eggplant-dengaku-pizza",
     ingredientId: "miso-sauce",

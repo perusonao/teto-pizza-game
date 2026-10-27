@@ -41,6 +41,9 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "shrimp-curl": "0 0 64 64",
   "sesame-seeds": "0 0 64 64",
   "pomegranate-aril": "0 0 64 64",
+  "wasabi-dab": "0 0 64 64",
+  "cod-roe-mass": "0 0 64 64",
+  "nori-strips": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -69,6 +72,9 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "shrimp-curl" && <ShrimpCurl />}
       {visual === "sesame-seeds" && <SesameSeeds />}
       {visual === "pomegranate-aril" && <PomegranateAril />}
+      {visual === "wasabi-dab" && <WasabiDab />}
+      {visual === "cod-roe-mass" && <CodRoeMass />}
+      {visual === "nori-strips" && <NoriStrips />}
     </svg>
   );
 }
@@ -515,6 +521,47 @@ function ArugulaLeaves() {
           <path d={ARUGULA_GEOMETRY[i].veins} stroke="#23561f" strokeWidth=".8" strokeLinecap="round" fill="none" opacity=".6" />
         </g>
       ))}
+    </g>
+  );
+}
+
+/* ---------- PR-2 late4 (Issue #578 / #611): beef, wasabi, cod roe and nori. PROVISIONAL art (Style Lock v2 line weight 2.2, a ground shadow, no ids / gradients, deterministic); the Owner HV on a real device decides. ---------- */
+function WasabiDab() {
+  return (
+    <g>
+      <ellipse cx="32" cy="56" rx="17" ry="3" fill="#000" opacity=".15" />
+      <path d="M12 52 Q10 30 24 22 Q32 14 41 22 Q54 30 52 52 Q32 58 12 52 Z" fill="#a8d070" stroke="#4d7a2a" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M26 30 Q32 24 38 30 Q34 34 30 33 Z" fill="#cdea9c" stroke="#7fae4a" strokeWidth="1.4" strokeLinejoin="round" opacity=".9" />
+    </g>
+  );
+}
+
+function CodRoeMass() {
+  return (
+    <g>
+      <ellipse cx="32" cy="58" rx="19" ry="3" fill="#000" opacity=".15" />
+      <g stroke="#a8503c" strokeWidth="1.4" fill="#e8836b">
+        {COD_ROE_GRAINS.map(([cx, cy]) => (
+          <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="3.4" />
+        ))}
+      </g>
+    </g>
+  );
+}
+const COD_ROE_GRAINS: readonly (readonly [number, number])[] = [
+  [20, 46], [27, 48], [34, 49], [41, 47], [47, 44], [23, 39], [30, 41], [37, 41], [43, 37], [28, 33], [35, 33], [32, 26], [40, 29], [16, 41],
+];
+
+function NoriStrips() {
+  return (
+    <g>
+      <ellipse cx="32" cy="58" rx="19" ry="3" fill="#000" opacity=".15" />
+      <g stroke="#0c1a12" strokeWidth="2.2" strokeLinejoin="round" fill="#1f3a2a">
+        <path d="M10 42 L40 30 L43 36 L13 48 Z" />
+        <path d="M20 30 L50 22 L52 28 L22 36 Z" />
+        <path d="M24 52 L52 44 L54 49 L26 57 Z" />
+        <path d="M14 22 L34 16 L36 21 L16 27 Z" />
+      </g>
     </g>
   );
 }

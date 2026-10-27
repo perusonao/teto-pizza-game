@@ -164,7 +164,7 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
     vi.resetModules();
     vi.doMock("../../data/ingredientTaxonomy", async (importOriginal) => {
       const real = await importOriginal<typeof import("../../data/ingredientTaxonomy")>();
-      return { ...real, ingredientAttributeFamily: (id: unknown) => (id === "white-sesame" || id === "paprika-powder" ? "herb" : real.ingredientAttributeFamily(id)) };
+      return { ...real, ingredientAttributeFamily: (id: unknown) => (id === "white-sesame" || id === "paprika-powder" || id === "wasabi" ? "herb" : real.ingredientAttributeFamily(id)) };
     });
     try {
       const synth = await import("../../data/ingredientTaxonomy");
