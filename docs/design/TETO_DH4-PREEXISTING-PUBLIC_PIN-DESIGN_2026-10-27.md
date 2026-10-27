@@ -30,7 +30,7 @@ H = { id ∈ prefix : id ∉ known, id ≠ key, rank(id) ≥ floor, step(id) ≤
 
 各 recipe について「スターター → その recipe の非スターター材料のすべての並べ替え」× `discoveredCount ∈ {5, 24}` で `targetReserveParts` → `reserveInHypotheses` → `hypotheticalReserves` を計算し、最小の `|H|` が `MIN_ATTRIBUTE_CANDIDATES` 未満になる recipe を列挙した。
 
-| | 食材 | レシピ | `|H| < MIN` になる recipe（最小の接頭辞） |
+| | 食材 | レシピ | H の大きさが MIN 未満になる recipe（最小の接頭辞） |
 |---|---|---|---|
 | main（#677 merge 前の #673 時点と同じカタログ） | 75 | 69 | `melanzane-pizza`（H = [basil]）、`parmigiana-pizza`（[basil]）、`pesto-caprese`（[basil]） |
 | #679（BBQ 後） | 77 | 70 | **同じ 3 件**（H = [basil]） |
