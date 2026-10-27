@@ -5,6 +5,7 @@ import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from
 import { chipOnTrayOrPin } from "./support/handPick";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { expectResearchLead } from "./support/hintNote";
+import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { CATALOG_COUNTS, materialsUpTo } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
@@ -19,7 +20,7 @@ import { CATALOG_COUNTS, materialsUpTo } from "../src/logic/catalog/testSupport/
 const SAVE_KEY = "teto-pizza-save-v1";
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const ID = "eggplant-tahini-pizza";
-const LAST_STEP = CATALOG_COUNTS.ladderSteps; // the tahini / pomegranate late step is the last one; derived, never authored
+const LAST_STEP = DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes("tahini"))!.step; // the tahini / pomegranate late step (the BBQ Chicken late step follows it); derived, never authored
 const ALL_IDS = RECIPES.map((r) => r.id as string);
 const SPOTS: [number, number][] = [[50, 24], [73, 36], [76, 63], [58, 79], [38, 79], [22, 63]]; // eggplant 3, parsley 1, pomegranate 2 (the reference slots)
 

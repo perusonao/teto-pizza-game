@@ -239,7 +239,8 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
     expect(checked).toBeGreaterThan(1000);
     expect(failClosed).toBeGreaterThan(0);
     // Measured snapshot of the Hint 3.0 public model (every state's guard assertions above held): Expansion Batch 2 added pesto-caprese (a new material shrank one of its candidate sets to a single candidate); Expansion Batch 3's six new materials widen that candidate set again, so it leaves the list (existence / no-clause stays asserted for every member).
-    expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza"]);
+    // BBQ Chicken (#611): pesto-caprese rejoins the set (MEASURED, not mechanism-analysed here): the new late recipe/materials change its Hint 3.0 hypothetical reserve to a single candidate. The guard assertions in the loop above held for it unchanged (level "existence", no clause) -- no privacy assertion was weakened.
+    expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza", "pesto-caprese"]);
   }, SWEEP_TIMEOUT_MS);
 
   it("an independent attacker (no access to the guard's hypothesis set) names the reserve in 0 states", () => {

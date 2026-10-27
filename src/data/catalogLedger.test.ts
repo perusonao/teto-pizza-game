@@ -19,12 +19,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // New Sauces Phase B U1 (#578): + yuzu-shrimp-pizza (late catalog, credited, chapter 4), + yuzu-kosho (a late sauce), + its late ladder step 58.
       // New Sauces Phase B U2 (#578): + eggplant-dengaku-pizza (late catalog, credited, chapter 4), + miso-sauce (a late sauce) + white-sesame (a late topping, spice), + their shared late ladder step 59.
       // New Sauces Phase B U3 (#578): + eggplant-tahini-pizza (late catalog, credited, chapter 4), + tahini (a late sauce) + pomegranate (a late topping, fruit), + their shared late ladder step 60.
-      recipes: pinsa ? 69 : 68,
-      credited: 63,
-      ingredients: 75,
-      toppings: 56,
-      ladderSteps: 60,
-      chapterSizes: [6, 12, 18, pinsa ? 33 : 32],
+      // BBQ Chicken (#611): + bbq-chicken-pizza (late catalog, credited, chapter 4), + bbq-sauce (a late sauce) + cilantro (a late topping, herb), + their shared late ladder step 61.
+      recipes: pinsa ? 70 : 69,
+      credited: 64,
+      ingredients: 77,
+      toppings: 57,
+      ladderSteps: 61,
+      chapterSizes: [6, 12, 18, pinsa ? 34 : 33],
       lunchRushPool: 25,
     });
   });
@@ -35,6 +36,6 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id)! : i.category;
       byShelf[shelf] = (byShelf[shelf] ?? 0) + 1;
     }
-    expect(byShelf).toEqual({ sauce: 8, cheese: 11, meat: 10, seafood: 9, vegetable: 21, fruit: 3, herb: 8, spice: 2, other: 3 });
+    expect(byShelf).toEqual({ sauce: 9, cheese: 11, meat: 10, seafood: 9, vegetable: 21, fruit: 3, herb: 9, spice: 2, other: 3 });
   });
 });

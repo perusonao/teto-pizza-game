@@ -32,7 +32,7 @@ export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH
 export const PINSA_ROMANA_BATCH: RecipeBatchManifest = {
   batchId: "pinsa-romana",
   status: "landed",
-  afterRecipeId: "eggplant-tahini-pizza", // (New Sauces Phase B U1 / U2 / U3: yuzu-shrimp-pizza, eggplant-dengaku-pizza and eggplant-tahini-pizza are appended after ikura, before Pinsa, so Pinsa stays the last late recipe)
+  afterRecipeId: "bbq-chicken-pizza", // (New Sauces Phase B U1 / U2 / U3 and BBQ Chicken: yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza and bbq-chicken-pizza are appended after ikura, before Pinsa, so Pinsa stays the last late recipe)
   recipes: [{ recipeId: "pinsa-romana", keyIngredientId: "arugula", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
   acceptedLetterShifts: { "jamon-serrano-pizza": "-->B" },
 };
@@ -48,7 +48,7 @@ export const YUZU_SHRIMP_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "ikura-salmon-pizza",
   recipes: [{ recipeId: "yuzu-shrimp-pizza", keyIngredientId: "yuzu-kosho", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["eggplant-dengaku-pizza", "eggplant-tahini-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza are appended after yuzu-shrimp-pizza)
+  followedBy: ["eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza are appended after yuzu-shrimp-pizza)
 };
 
 /**
@@ -62,7 +62,7 @@ export const EGGPLANT_DENGAKU_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "yuzu-shrimp-pizza",
   recipes: [{ recipeId: "eggplant-dengaku-pizza", keyIngredientId: "white-sesame", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["eggplant-tahini-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U3: eggplant-tahini-pizza is appended after eggplant-dengaku-pizza)
+  followedBy: ["eggplant-tahini-pizza", "bbq-chicken-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U3 / BBQ Chicken: eggplant-tahini-pizza and bbq-chicken-pizza are appended after eggplant-dengaku-pizza)
 };
 
 /**
@@ -76,5 +76,19 @@ export const EGGPLANT_TAHINI_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "eggplant-dengaku-pizza",
   recipes: [{ recipeId: "eggplant-tahini-pizza", keyIngredientId: "pomegranate", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
+  followedBy: ["bbq-chicken-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (BBQ Chicken is appended after eggplant-tahini-pizza)
+};
+
+/**
+ * BBQ Chicken (#611, late catalog): the manifest of `bbq-chicken-pizza`, evaluated by `lateCatalog.bbq.test.ts` over the full catalog (the late recipes included). Like the other late batches it is deliberately NOT in `RECIPE_BATCHES`.
+ * The recipe is credited, so its own late ladder step (after the tahini step) unlocks `bbq-sauce` and `cilantro`; its Research cohort key is `cilantro` (the last material of the step), a single-member cohort, so no existing recipe
+ * changes its Research letter. It is followed by Pinsa only while the Pinsa gate is open. The original PIZZA DB page was not confirmed: the bbq-sauce PAINT before the bake, the chicken and onion before the bake (no pre-cooking)
+ * and the cilantro AFTER the bake are GAMEPLAY ASSUMPTIONS (Owner 2026-10-27).
+ */
+export const BBQ_CHICKEN_BATCH: RecipeBatchManifest = {
+  batchId: "bbq-chicken",
+  status: "landed",
+  afterRecipeId: "eggplant-tahini-pizza",
+  recipes: [{ recipeId: "bbq-chicken-pizza", keyIngredientId: "cilantro", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
   followedBy: pinsaEnabled() ? ["pinsa-romana"] : [],
 };

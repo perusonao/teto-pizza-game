@@ -143,9 +143,9 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(stepOf(POM)).toBe(mine);
     expect(mine.starGates).toBeUndefined();
     expect(mine.step).toBe(stepOf("miso-sauce").step + 1);
-    expect(steps.at(-1)).toBe(mine);
-    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length); // ordinary length + the four late steps
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", TAHINI_PIZZA]);
+    expect(steps.at(-2)).toBe(mine); // (BBQ Chicken: the bbq late step follows it)
+    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 1); // ordinary length + the four late steps up to and including this one (the bbq step follows)
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", TAHINI_PIZZA, "bbq-chicken-pizza"]);
   });
 
   it("Shop: both materials are T4 (the sauce pack 120 / refill 60), from the tahini late step", () => {
@@ -166,7 +166,7 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
   });
 
   it("the compatibility floors are FIXED at 60 for both materials (never later than the step the ladder derives); the earlier floors are unchanged", () => {
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, [SAUCE]: 60, [POM]: 60 });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, [SAUCE]: 60, [POM]: 60, "bbq-sauce": 61, cilantro: 61 });
     for (const id of [SAUCE, POM]) expect(LATE_ENTITLEMENT_FLOORS[id]).toBeLessThanOrEqual(stepOf(id).step);
   });
 });
