@@ -7,6 +7,39 @@ Status: **計画と調査のみ。runtime は実装していない**（`src/**`�
 **「提案」は Owner の決定ではない。各レシピの原典（pizzadb.jp）は未確認で、本セッションは到達していない。matrix の記述を原典の事実として断定しない。すべて GAMEPLAY ASSUMPTION として扱う。「推定」は測定値ではない。**
 **方法の限界:** 本セッションはリポジトリの依存関係（`node_modules`）を入れておらず、テスト・gate・`check.ts` 型の機械検査は**実行していない**。分析はコードの静読、matrix JSON と `recipes.ts` / `lateCatalog.ts` を読む Python の集合計算、GitHub の PR 統計による。実装前 Gate で機械検査を行う。
 
+## 第 3 版の更新（2026-10-27）— Owner 判断（E-1〜E-7）の反映と、実装前の最終調査の結果
+
+詳細は `TETO_B10_PRE-IMPLEMENTATION-AUDIT_2026-10-27.md`。**本文（§0〜§12）は第 2 版の記録として残し、下の表が優先する。**
+
+| 第 2 版の記述 | 第 3 版（現行） |
+|---|---|
+| 通常 6 + late 4（goulash が条件付きの 6 件目） | **通常 5 + late 4 の 9 件を暫定採用**。**goulash・suya は HOLD**（ladder の O6 と goulash の step `[sour-cream]` は削除）。**10 件目は保留** |
+| 公開ゲートなし（E-7 の助言） | **公開ゲート省略は未承認。** PR-1 は G-0（HV 後 merge）、PR-2 は G-0 か G-1（Pinsa 型の専用リテラル）を Owner が選ぶ。通常レシピ用のゲートは新しい基盤が要る（監査 §5.5） |
+| cuban の 360 Pitz は D-E1 | **暫定承認（E-2）。** 構成に残す |
+| #544 の再監査は前提条件 P0（未実施） | **identifier 互換性の再監査は実施済み**（ladder 順で新しい文字つき cohort 0・既存の文字の変化 0・同一 save 内のドリフト 0。取得順への依存は増加: 最大 cohort 12 → 18、監査 §2.2）。**§15 の再計算（OD-544-8）は未実施のまま**で、Owner 判断 D-R1 |
+| D-B3 は検証の対象 | **検証を承認（E-1）。仕様は未確定。** 結果は「検証に通る見込み（条件付き）」（監査 §3）。D-B1 / D-B4 / D-B5 の検証は未承認のまま |
+| sour-cream・nori・pickles・mustard の family は未決 | **監査済み（E-4）**: mustard = sauce、pickles = vegetable、nori = vegetable（第一候補）か spice、sour-cream は topping にしない（goulash の再開まで不要）。いずれも `other` に入らない（監査 §4） |
+| soy-sauce を「甘辛だれ」の共通下地に（D-B1） | **注意: matrix の「甘辛だれ」候補に soy-sauce は含まれない**（miso・okonomiyaki・sweet-bean・teriyaki・yakiniku）。bulgogi が yakiniku-sauce を使うと yakiniku と材料集合が同一になり衝突するため、soy-sauce は衝突を避けられるが matrix の候補外。**PR-2 の検証項目（R-7）** |
+
+### 第 3 版の構成（9 件）
+
+| PR | レシピ | step | 材料 | 解禁コスト |
+|---|---|---|---|---|
+| PR-1（通常） | curry-pizza-japan | `[curry-ketchup]` | 1 | 120 |
+| | rendang-pizza（beef の導入役） | `[beef]` | 1 | 120 |
+| | currywurst | `[paprika-powder, wurstel]` | 2 | 240 |
+| | tandoori-paneer-pizza | `[paneer]` | 1 | 120 |
+| | cuban-pizza | `[mustard, pickles, swiss-cheese]` | 3 | **360（暫定承認）** |
+| PR-2（late） | bulgogi-pizza | late `[soy-sauce]` | 1 | 120 |
+| | yakiniku-pizza | late `[yakiniku-sauce]` | 1 | 120 |
+| | wasabi-beef-pizza | late `[wasabi]` | 1 | 120 |
+| | mentaiko-cream-pizza | late `[cod-roe, nori]` | 2 | 240 |
+
+新材料は 14 種（sour-cream の分が減り、`fresh-cream-sauce` を含む場合。D-B5 で 13）。credited は PR-1 が 5、PR-2 が 4。**PR-1 の着手可否は監査 §6**（設計は着手可能、実装は #683 の merge・Owner の指示・R-1〜R-5・D-R1 を待つ）。
+
+### 第 3 版で絞った未決定事項（監査 §7）
+R-1（curry-ketchup の `nameJa` と暫定色）、R-2（mustard = sauce、pickles = vegetable）、R-3（nori の family、PR-2）、R-4（PR-1 の構成）、R-5（§15 の再計算、D-R1）、R-6（公開ゲート、D-G1）、R-7（PR-2 の D-B1 / D-B4 / D-B5 の検証の承認）。sour-cream のカテゴリ（R-8）は goulash の再開まで保留。
+
 ## 0. Owner 判断（2026-10-27 第 2 弾）の反映
 
 | 判断 | 反映 |
