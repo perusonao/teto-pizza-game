@@ -2,7 +2,6 @@ import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
-import { ordinaryLadderSteps } from "../src/logic/catalog/testSupport/lateIds";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
@@ -21,7 +20,7 @@ const SAVE_KEY = "teto-pizza-save-v1";
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const ID = "sichuan-eggplant-pizza";
 // E5: the late recipe (ikura) and its step sit AFTER every ordinary one, so "the newest step / the tail" is meant among the ordinary ones.
-const LAST_STEP = ordinaryLadderSteps(DISCOVERY_LADDER.steps).length; // the newest ordinary step (doubanjiang + green-onion) while this recipe is the tail of the ordinary ladder
+const LAST_STEP = DISCOVERY_LADDER.steps.findIndex((s) => s.keyRecipeId === ID) + 1; // this recipe's own step (doubanjiang + green-onion), derived from the ladder (Expansion Batch 10 PR-1 appends five ordinary steps after it)
 const ALL_IDS = RECIPES.map((r) => r.id as string); // (the late recipe is discovered too: this save has played everything but sichuan)
 const SPOTS: [number, number][] = [[50, 24], [73, 36], [76, 63], [58, 79], [38, 79], [22, 63], [25, 36], [50, 52]];
 

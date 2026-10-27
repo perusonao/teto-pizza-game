@@ -56,7 +56,12 @@ describe("lunchRush: false foundation", () => {
       "flammkuchen",
       "sichuan-eggplant-pizza",
       "grandma-pizza",
-    ]); // opt-out total = 39
+      "curry-pizza-japan",
+      "rendang-pizza",
+      "tandoori-paneer-pizza",
+      "currywurst",
+      "cuban-pizza",
+    ]); // opt-out total = 44 (Expansion Batch 10 PR-1 adds five)
     const original = (RECIPES as readonly Recipe[]).filter((r) => r.lunchRush !== false);
     expect(original).toHaveLength(25);
     expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);

@@ -238,7 +238,10 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
         ...phase2Targets("SHIPPED_KEEP").map((t) => t.targetId),
         ...RECIPE_DISCOVERY_CATALOG.map((t) => t.targetId),
       ]);
-      for (const id of blockedIds) expect(targetIds.has(id)).toBe(false);
+      // Expansion Batch 10 PR-1: three of these Phase-2 BLOCKED_EVIDENCE rows (unresolved / unspecified curry base) are shipped by Owner approval (curry-ketchup as the base, D-B3;
+      // docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md). The design matrix itself is unchanged (still 85 non-target rows); only the runtime catalog now carries them.
+      const ownerApproved = new Set(["curry-pizza-japan-pizzadb-p2", "rendang-pizza-pizzadb-p14", "tandoori-paneer-pizza-pizzadb-p5"]);
+      for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(
         expect.arrayContaining([expect.stringContaining("fugazza"), expect.stringContaining("fugazzetta")]),

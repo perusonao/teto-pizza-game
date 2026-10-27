@@ -111,6 +111,12 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   flammkuchen: "flammkuchen-pizzadb",
   // New Sauces Phase B-1 (#578): PIZZA DB evidence id from the 172 matrix.
   "sichuan-eggplant-pizza": "sichuan-eggplant-pizza",
+  // Expansion Batch 10 PR-1: PIZZA DB evidence ids from the 172 matrix.
+  "curry-pizza-japan": "curry-pizza-japan-pizzadb-p2",
+  "rendang-pizza": "rendang-pizza-pizzadb-p14",
+  currywurst: "currywurst-pizzadb",
+  "tandoori-paneer-pizza": "tandoori-paneer-pizza-pizzadb-p5",
+  "cuban-pizza": "cuban-pizza-pizzadb-p2",
   // Multi-Sauce S3 / Square Dough E-2 (#521): PIZZA DB evidence id from the 172 matrix.
   "grandma-pizza": "grandma-pizza-pizzadb",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).

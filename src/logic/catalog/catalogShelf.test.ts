@@ -58,7 +58,7 @@ describe("LC-R1: CatalogIngredient.shelf is copied from ingredientShelf (31 prod
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id) : i.category;
       byShelf[shelf!] = (byShelf[shelf!] ?? 0) + 1;
     }
-    expect(byCategory).toEqual({ sauce: 8, cheese: INGREDIENTS.filter((i) => i.category === "cheese").length, topping: CATALOG_COUNTS.toppings });
+    expect(byCategory).toEqual({ sauce: 10, cheese: INGREDIENTS.filter((i) => i.category === "cheese").length, topping: CATALOG_COUNTS.toppings });
     const seen: Record<string, number> = {};
     for (const i of catalog) seen[i.shelf!] = (seen[i.shelf!] ?? 0) + 1;
     expect(seen).toEqual(byShelf);

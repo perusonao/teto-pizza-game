@@ -139,7 +139,7 @@ describe("sichuan-eggplant-pizza (the key recipe)", () => {
     const step = DISCOVERY_LADDER.steps[stepIndex];
     expect(step).toEqual({ step: stepIndex + 1, kind: "MATERIAL", ingredientIds: ["doubanjiang", "green-onion"], keyRecipeId: ID });
     expect(step.starGates).toBeUndefined();
-    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps).at(-1)).toBe(step); // E5: the late step (ikura), if on, sits after the last ordinary one
+    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps)[stepIndex]).toBe(step); // E5: the late steps, if on, sit after the last ordinary one (Expansion Batch 10 PR-1 appends five ordinary steps after this one)
     expect(DISCOVERY_LADDER.steps[stepIndex - 1].keyRecipeId).toBe("flammkuchen");
   });
 });
@@ -155,8 +155,8 @@ describe("chapter 4 for a save that had discovered every earlier chapter-4 recip
 
   it("sichuan-eggplant-pizza joins chapter 4 (its key step is T4); the chapter grows by appending", () => {
     expect(recipeChapter(recipe)).toBe(4);
-    expect(ordinaryRecipes(chapter4().recipes).at(-1)!.id).toBe(ID); // E5: the late recipe, if on, is listed after the last ordinary one
-    expect(ordinaryRecipes(chapter4().recipes).filter((r) => r.id !== ID).at(-1)!.id).toBe("flammkuchen");
+    const ids = ordinaryRecipes(chapter4().recipes).map((r) => r.id); // E5: the late recipe, if on, is listed after the last ordinary one
+    expect(ids[ids.indexOf(ID) - 1]).toBe("flammkuchen"); // (Expansion Batch 10 PR-1 appends five recipes after this one)
   });
 
   it("keeps every earlier discovery: the Dex is not rewritten, only the derived progress is one short", () => {

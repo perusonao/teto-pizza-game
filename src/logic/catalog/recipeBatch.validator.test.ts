@@ -19,11 +19,11 @@ describe("production catalog", () => {
     expect(validateCatalogTables(view)).toEqual([]);
   });
 
-  it("New Sauces Phase B-1 (sichuan-eggplant-pizza) is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
+  it("Expansion Batch 10 PR-1 (five ordinary recipes) is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
     expect(RECIPE_BATCHES).toContain(NEXT_RECIPE_BATCH);
     expect(NEXT_RECIPE_BATCH.status).toBe("landed");
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["sichuan-eggplant-pizza"]);
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["green-onion"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["curry-pizza-japan", "rendang-pizza", "tandoori-paneer-pizza", "currywurst", "cuban-pizza"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["curry-ketchup", "beef", "paneer", "wurstel", "swiss-cheese"]);
     expect(NEXT_RECIPE_BATCH.acceptedLetterShifts).toBeUndefined(); // a single-member cohort: no existing recipe changes its letter
     expect(validateBatchManifest(NEXT_RECIPE_BATCH, ordinaryCatalogView())).toEqual([]); // E5: a batch is an ordinary-catalog event
   });
