@@ -39,6 +39,7 @@ const saveJson = (discovered: readonly string[], owned: readonly string[]) =>
 
 if (process.env.HV_VIDEO) test.use({ video: { mode: "on", size: { width: 390, height: 844 } } });
 
+const isRootFaviconProbe = (url: string) => new URL(url).pathname === "/favicon.ico";
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
 const hold = (page: Page, ms = 1400) => page.waitForTimeout(process.env.HV_VIDEO ? ms : 0);
 async function capture(page: Page, name: string, project: string) {
@@ -57,8 +58,8 @@ test.describe("BBQ Chicken (representative: the late step; bbq-sauce + cilantro 
 
   test("Shop NEW sauce + cilantro -> purchase -> Research (no leak) -> paint the bbq-sauce, mozzarella, onion, chicken -> bake -> cilantro in FINISH -> NEW DISCOVERY -> Dex", async ({ page }, testInfo) => {
     const errors: string[] = [];
-    // The browser's own /favicon.ico probe (the page declares its icons elsewhere) is a dev-server 404 unrelated to the game; every other error still fails the test.
-    page.on("console", (m) => m.type() === "error" && !m.location().url.endsWith("/favicon.ico") && errors.push(m.text()));
+    // Only the browser's own probe of the server root `/favicon.ico` is ignored: the page declares its icons in index.html (the repo ships no favicon.ico), so that 404 is no game asset. An app-scoped URL or any other error still fails the test.
+    page.on("console", (m) => m.type() === "error" && !isRootFaviconProbe(m.location().url) && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
     const discovered = ALL_IDS.filter((id) => id !== ID);

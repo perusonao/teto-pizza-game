@@ -45,7 +45,7 @@ Authority: Owner 承認（2026-10-27）Final Design Gate ＋ `docs/design/TETO_B
 ## 5. DH4 / privacy（gate は緩和していない）
 
 - privacy 系 assertion は 1 行も変更していない。`deductionGuard.gate` の件数 pin は今回不変。
-- `deductionProduction.gate` の「既存公開モデルで 1 候補になる」集合に `pesto-caprese` が戻った（測定値。ループ内の guard assertion はそのまま通過＝level `existence`・clause なし）。機構の詳細解析は未実施で、テスト内コメントにもそう記録。
+- `deductionProduction.gate` の「既存公開モデルで 1 候補になる」集合に `pesto-caprese` が戻った。**変更前後（main と本ブランチ）の比較で、決定的な状態（ladder 全状態＋全所持）の公開ヒントは完全に同一**。差は、シード付きランダム順 1 サンプル（INGREDIENTS が 2 増えて shuffle が変わる）の 12 材料状態で仮説集合が 1 件（basil）になる点のみで、melanzane / parmigiana と同じ Hint 3.0 Rule W の既存条件。guard は fail-closed（level `existence`・clause なし）で応答し、ループ内の assertion はすべて通過。Anti-Oracle への影響なし。
 - DH4 監査 JSON は候補件数の導出差のみ（category 55→56、family/group +1 など。cilantro が topping 母集団に増えたため）。
 - 許可リスト `LATE_ADDITION_RECIPE_IDS` に `bbq-chicken-pizza` を追加。
 
@@ -75,7 +75,7 @@ U1〜U3 の e2e は、自分の late step を導出する形に更新（U3 の�
 ## 8. E2E
 
 - 新規 `e2e/new-bbq.spec.ts`（390×844 / 360×800 各 2 本）通過。Shop NEW → 購入 → Research（ID 漏れなし）→ ソース塗り → チーズ → 具材 → 焼成 → FINISH でパクチー 2 → NEW DISCOVERY → Dex。
-- `console.error` 判定から、ブラウザ自身の `/favicon.ico` 404（dev server、ゲームと無関係）だけを除外した。他のエラーは従来どおり失敗扱い。
+- `console.error` 判定から、ブラウザ自身が行うサーバ root の `/favicon.ico` 探索の 404（pathname が厳密に `/favicon.ico`。index.html が別のアイコンを宣言しており、repo に favicon.ico は無い）だけを除外した。アプリ配下の URL や他のエラーは従来どおり失敗扱い。
 - 全体回帰（Chromium、iphone-390x844、`--workers=4`）: **525 passed / 96 skipped / 11 failed**。11 件は負荷（4 並列）または sandbox の `/favicon.ico` 404 による `console.error` 判定で、BBQ とは無関係:
   - 8 件は `--workers=2` で再実行して通過（`discovery-dex-hint`、`lunch-rush-r8-restore` ×2、`research-failed-trial`、`sauce-edge-475`、`sauce-layers-b2`、`square-dough-visual`、`expansion-grandma`）。
   - `dough-size-status-474` は 30 秒 timeout 付近（直列で通過、29.4s）。
@@ -94,12 +94,11 @@ U1〜U3 の e2e は、自分の late step を導出する形に更新（U3 の�
 1. **merge = 即公開**。HV 前の merge は禁止。
 2. **原典未確認**: パクチーの時期などが後から確認された場合、構成の再分類（通常 ladder への移行は floors の再検討を伴う）が必要。
 3. HOT ファイル: `lateCatalog.ts` / `referencePizza.ts` / `recipeSauceProfiles.ts` / `hint5.ladders55.json` は **Draft PR #540 も触る**。後から merge する側が追従する。`recipes.ts` は未変更。
-4. #578 の U3 claim が残存（期限 11/02）。本作業は #611 に別 claim を投稿して区別する。
+4. #578 の U3 claim は元セッション本人が release 済み（2026-10-27 00:43Z）。本作業は #611 に別 claim を投稿して区別した。
 
 ## 11. Owner 判断事項
 
 1. 表示名: 「パクチー」（現状）か「香菜」か。食材名「バーベキューソース」（ASCII 検査のため変更）で良いか、あるいは検査側の例外化か。
 2. 実機 HV（ソース色・パクチーの視認性・FINISH の操作）と最終承認。HV 後に merge。
 3. 暫定値（個数・焼成窓・色・size class・パクチー焼成後）の確定、または原典確認後の再設計。
-4. 注文文（`lineJa`）の文言確認。
-5. #578 U3 claim の解放（Owner 承認が必要）。
+5. 注文文（`lineJa`）の実際の文言: 「BBQチキンピザ、甘辛くてパーティみたい！食べてみたいな！」（依頼者 mito）。この文言でよいか。
