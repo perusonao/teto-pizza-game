@@ -4069,6 +4069,16 @@ export const EGGPLANT_DENGAKU_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+export const EGGPLANT_TAHINI_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "eggplant-tahini-pizza",
+  sauce: computeMechanicalSauceReference("eggplant-tahini-pizza"),
+  pieceGroups: [
+    { ingredientId: "eggplant", positions: [{ x: 50, y: 24 }, { x: 73, y: 36 }, { x: 76, y: 63 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "parsley", positions: [{ x: 58, y: 79 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "LIGHT_LEAF" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "pomegranate", positions: [{ x: 38, y: 79 }, { x: 22, y: 63 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+  ],
+};
+
 /**
  * Batch 7a: Reference Truth for `new-zealand-lamb-pizza` (NO_SAUCE: `sauce: null`, the `aussie` shape). Pieces (mozzarella 2 / rosemary 1 / lamb 3 / sweet-potato 2 = 8) take
  * the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
@@ -4246,6 +4256,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [GRANDMA_PIZZA_REFERENCE.recipeId, GRANDMA_PIZZA_REFERENCE],
   [IKURA_SALMON_PIZZA_REFERENCE.recipeId, IKURA_SALMON_PIZZA_REFERENCE],
   [YUZU_SHRIMP_PIZZA_REFERENCE.recipeId, YUZU_SHRIMP_PIZZA_REFERENCE],
+  [EGGPLANT_TAHINI_PIZZA_REFERENCE.recipeId, EGGPLANT_TAHINI_PIZZA_REFERENCE],
   [EGGPLANT_DENGAKU_PIZZA_REFERENCE.recipeId, EGGPLANT_DENGAKU_PIZZA_REFERENCE],
   [PINSA_ROMANA_REFERENCE.recipeId, PINSA_ROMANA_REFERENCE],
 ]);

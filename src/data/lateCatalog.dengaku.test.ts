@@ -144,9 +144,9 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(stepOf(SESAME)).toBe(mine);
     expect(mine.starGates).toBeUndefined();
     expect(mine.step).toBe(stepOf("yuzu-kosho").step + 1);
-    expect(steps.at(-1)).toBe(mine);
-    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length); // ordinary length + the three late steps
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", DENGAKU]);
+    expect(steps.at(-2)).toBe(mine); // (New Sauces Phase B U3: the tahini late step follows it)
+    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + 3); // ordinary length + the three late steps up to and including this one
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", DENGAKU, "eggplant-tahini-pizza"]);
   });
 
   it("Shop: both materials are T4 (the sauce pack 120 / refill 60), from the dengaku late step", () => {
@@ -169,7 +169,7 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
   });
 
   it("the compatibility floors are FIXED at 59 for both materials (never later than the step the ladder derives); salmon-roe stays 57 and yuzu-kosho 58", () => {
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, [SAUCE]: 59, [SESAME]: 59 });
+    expect(LATE_ENTITLEMENT_FLOORS).toMatchObject({ "salmon-roe": 57, "yuzu-kosho": 58, [SAUCE]: 59, [SESAME]: 59 }); // (New Sauces Phase B U3: tahini / pomegranate are fixed at 60, asserted in lateCatalog.tahini.test.ts)
     for (const id of [SAUCE, SESAME]) expect(LATE_ENTITLEMENT_FLOORS[id]).toBeLessThanOrEqual(stepOf(id).step);
   });
 });
