@@ -87,3 +87,34 @@ Video Verification: PASS（ファイルあり・size > 0・最後まで再生可
 4. ladder の順序（規則が導く順に合わせた。B10 計画の提案順を望む場合は規則の例外化が必要）。
 5. §15 の再計算の方式（上記の限界）。
 6. merge と共有 Preview の更新（未実施）。PR-2（late 4 件）は #679 と本 PR の merge 後、公開ゲート（D-G1）の選択を含め別途。
+
+## 9. Final Gate（2026-10-27、HEAD `84ce914`）
+| 項目 | 状態 |
+|---|---|
+| HEAD / mergeable | `84ce91460fbb6446c14a19fcb6e1e2c383771ab6`、`mergeable_state: clean`、base `main` = `f243c52`（#683 の merge commit、base の動きなし） |
+| CI | **11/11 success**（build、classify、layout-chromium、Layout Contract Gate、WebKit 390×844 / 360×800 各 shard 1〜3、WebKit Gate）。再実行なし |
+| Codex | `84ce914` に対し **「Didn't find any major issues」**（receipt `codex-review-receipt:v1`、summary `status: completed` / `has_unresolved_findings: false`）。review thread **0 件**（未解決なし） |
+| 他の open PR との重複 | #679（BBQ）・#684 とは別ブランチのまま。触れていない |
+| Preview | 共有 Preview（`teto-pizza-game-preview`）を **Owner の承認を得て** `84ce914` / PR #686 で更新（§10）。直前の Preview は PR #618（`a6c1463226254e6a769842ce3fa678465f7c93a7`、2026-10-24 build）で、復元は同 SHA を指定して再デプロイする |
+| merge | **未実施。Owner の最終承認と実機 HV の結果待ち**（HV の PASS/FAIL は Owner の言葉で記録する） |
+
+推奨モデル: 実装・テスト・Final Gate の確認は **Claude Sonnet**（本 PR はこれで足りた）。Opus が要るのは、Phase-2 matrix の例外（BLOCKED_EVIDENCE の 3 件）や ladder 規則の変更のような仕様衝突を**再判断する場合**に限る。
+
+## 10. Preview と iPhone での確認手順
+Preview URL: **https://perusonao.github.io/teto-pizza-game-preview/**（画面隅の PREVIEW バッジに `#686` と短縮 SHA `84ce914` が出ていれば対象のビルド）。Production（`/teto-pizza-game/`）・main・Firebase には影響しない（別リポジトリ、別 save キー `teto-pizza-preview-save-v1`、Firebase 設定なしのビルド）。**Preview の save は使い捨て**（全 Preview ビルドで同じキーを共有するため、他 PR のビルドの save を読みうる）。
+
+**最短の確認手順（5 レシピ）** — Preview の save は新規なので、ladder 57〜61 まで進める必要があります。Preview 限定の **State Editor**（URL の末尾に `?dev=state`、または設定画面のリンク）を使います: プリセット「**All Ingredients**」（全材料 OWNED、在庫 10）を適用 → ゲームに戻る。これで 5 レシピすべてが材料そろいの状態になります（cuban だけなら「**Last Step Ready**」: 最後の ladder step に到達し、その step の材料がショップで NEW・未購入）。通常プレイで進める場合は、図鑑を 56 件相当まで進めると step 57 が解禁されます。確認:
+1. **step 57 カレーケチャップ → カレーピザ**: ショップで NEW「カレーケチャップ」（初回 120）を購入 → 図鑑の「？？？ピザ（カレーケチャップ）」→ ソース: カレーケチャップを塗る → チーズ: モッツァレラ 2 → 具材: チキン 3・たまねぎ 3 → 焼く → NEW DISCOVERY「カレーピザ」。
+2. **step 58 牛肉 → ルンダンピザ**: 牛肉を購入 → ソース: カレーケチャップ → モッツァレラ 2・牛肉 3・たまねぎ 3。
+3. **step 59 パニール → タンドリーパニールピザ**: カレーケチャップ → モッツァレラ 2・パニール 2・ピーマン 2・たまねぎ 2。
+4. **step 60 パプリカパウダー + ヴルステル → カリーヴルストピザ**: カレーケチャップ → モッツァレラ 2・ヴルステル 4・パプリカパウダー 2。
+5. **step 61 マスタード + ピクルス + スイスチーズ → キューバンピザ**: マスタード → スイスチーズ 2 → 豚肉 3・ハム 2・ピクルス 1。ソースのトレイは 2 ページ目にマスタードがある。
+（All Ingredients で始めると Shop の NEW 表示は出ません。Shop の NEW・購入は「Last Step Ready」で cuban の 3 材料を確認できます。）各レシピで見るのは: 図鑑のラベルが解禁材料名のみ（レシピ名が出ない）、新ソースが塗れる、NEW DISCOVERY、図鑑の総数（74）。
+
+## 11. 未確定の見た目・材料（Owner 判断が要るもの）
+1. **色**: カレーケチャップ `#d9892b`（承認済み、実機で確定）とマスタード `#d4b020`（暫定）は同じ黄褐色系（ΔE≈27）。塗布後・焼成後（特にこんがり色の生地の上: ΔE≈17.5）の見分けを実機で確認してほしい。
+2. **字形**: 新 8 材料はすべて emoji fallback（専用 SVG なし）。ピクルス 🍈（メロン）・パプリカ 🟧・ヴルステル 🌯・マスタード 🟡 は意味が合わない暫定の字形。実機での見え方と、専用 SVG にするかの判断。
+3. **名称**: 牛肉・ヴルステル・パプリカパウダー・パニール・マスタード・ピクルス・スイスチーズ（`カレーケチャップ` 以外は暫定）。
+4. **family**: beef / wurstel = meat、paprika-powder = spice（監査の参考案を暫定採用。Owner の承認項目外）。
+5. **レシピの仮定**: `rendang` / `tandoori-paneer` の基底が curry-ketchup（D-B3）、個数・焼成窓 58–78、吹き出し文言。原典未確認。
+6. **トレイの操作性**: sauce が 10 種になり、トレイが 2 ページに分かれる（新しいソースが 2 ページ目）。実機での探しやすさ。
