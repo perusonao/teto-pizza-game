@@ -75,21 +75,38 @@ describe("25/25 reachability on the production ladder", () => {
     expect(playForward(discovered, ledger, (o) => o[0])).toBe(TOTAL);
   });
 
-  it("2000 random playthroughs (random old-ladder progress, then the switch, random choices) all reach every recipe (28)", () => {
-    let stuck = 0;
-    for (let seed = 0; seed < 2000; seed += 1) {
-      const rand = seeded(seed);
-      const discovered: string[] = [];
-      let ledger: string[] = [];
-      const k = Math.floor(rand() * 16);
-      for (let i = 0; i < k; i += 1) {
-        ledger = [...resolveShopEntitlement(dexOf(discovered), [...STARTER_INGREDIENT_IDS], ledger, SHIPPED_15_DISCOVERY_LADDER).unlockedForShopIngredientIds];
-        const options = makeable(PRE_W1, ledger).filter((r) => !discovered.includes(r.id));
-        if (options.length === 0) break;
-        discovered.push(options[Math.floor(rand() * options.length)].id);
-      }
-      if (playForward(discovered, ledger, (o) => o[Math.floor(rand() * o.length)]) !== TOTAL) stuck += 1;
+  // The 2000 random playthroughs are split into SEED_CHUNKS `it`s of SEED_CHUNK_SIZE consecutive seeds (Issue #681). They used to be ONE `it`:
+  // measured ~5.2 s on an unloaded machine (resolveShopEntitlement ~68 %, makeable ~22 %), i.e. ON the vitest default 5000 ms timeout, so it
+  // timed out on loaded CI runners (PR #677 / #679 `build`) and its cost grows with the catalog (each playthrough re-resolves the ledger once
+  // per discovery). Each chunk is now ~1/20 of that. The coverage is UNCHANGED: the same seeds 0..1999, the same PRNG per seed, the same
+  // `stuck === 0` check; no timeout was raised and nothing was skipped.
+  const SEEDS = 2000;
+  const SEED_CHUNK_SIZE = 100;
+  const SEED_CHUNKS = Array.from({ length: SEEDS / SEED_CHUNK_SIZE }, (_, c) => [c * SEED_CHUNK_SIZE, (c + 1) * SEED_CHUNK_SIZE] as const);
+
+  /** One random playthrough (random old-ladder progress, then the switch, random choices): true when it got stuck before every recipe. */
+  function playSeed(seed: number): boolean {
+    const rand = seeded(seed);
+    const discovered: string[] = [];
+    let ledger: string[] = [];
+    const k = Math.floor(rand() * 16);
+    for (let i = 0; i < k; i += 1) {
+      ledger = [...resolveShopEntitlement(dexOf(discovered), [...STARTER_INGREDIENT_IDS], ledger, SHIPPED_15_DISCOVERY_LADDER).unlockedForShopIngredientIds];
+      const options = makeable(PRE_W1, ledger).filter((r) => !discovered.includes(r.id));
+      if (options.length === 0) break;
+      discovered.push(options[Math.floor(rand() * options.length)].id);
     }
+    return playForward(discovered, ledger, (o) => o[Math.floor(rand() * o.length)]) !== TOTAL;
+  }
+
+  it("the chunks below cover exactly the seeds 0..1999, each once (the split removes no playthrough)", () => {
+    expect(SEEDS).toBe(2000);
+    expect(SEED_CHUNKS.flatMap(([from, to]) => Array.from({ length: to - from }, (_, i) => from + i))).toEqual(Array.from({ length: SEEDS }, (_, seed) => seed));
+  });
+
+  it.each(SEED_CHUNKS)("random playthroughs, seeds %i..%i (exclusive): random old-ladder progress, then the switch, random choices, all reach every recipe", (from, to) => {
+    let stuck = 0;
+    for (let seed = from; seed < to; seed += 1) if (playSeed(seed)) stuck += 1;
     expect(stuck).toBe(0);
   });
 });
