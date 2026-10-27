@@ -15100,5 +15100,256 @@
     }
    }
   ]
+ },
+ {
+  "id": "bbq-chicken-pizza",
+  "keyFree": true,
+  "total": 5,
+  "rungs": [
+   [
+    1,
+    "SAUCE",
+    null,
+    "bbq-sauce"
+   ],
+   [
+    2,
+    "CHEESE",
+    null,
+    "mozzarella"
+   ],
+   [
+    3,
+    "STRUCTURE",
+    null
+   ],
+   [
+    4,
+    "SUB_CLASS",
+    1,
+    "onion"
+   ],
+   [
+    5,
+    "SUB_CLASS",
+    2,
+    "chicken"
+   ],
+   [
+    6,
+    "SUB_CLASS",
+    3,
+    "cilantro"
+   ]
+  ],
+  "empty": [],
+  "reserved": [],
+  "states": [
+   {
+    "n": 0,
+    "next": {
+     "rungIndex": 1,
+     "kind": "SAUCE",
+     "labelJa": "ヒント1: ソース",
+     "price": 10
+    },
+    "board": [],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "ing:bbq-sauce",
+      "h5:sauce"
+     ],
+     "charge": 10
+    }
+   },
+   {
+    "n": 1,
+    "next": {
+     "rungIndex": 2,
+     "kind": "CHEESE",
+     "labelJa": "ヒント2: チーズ",
+     "price": 10
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "ing:mozzarella",
+      "h5:cheese"
+     ],
+     "charge": 10
+    }
+   },
+   {
+    "n": 2,
+    "next": {
+     "rungIndex": 3,
+     "kind": "STRUCTURE",
+     "labelJa": "ヒント3: 構成（材料の数）",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "meta:ingredient-total",
+      "h5:structure"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 3,
+    "next": {
+     "rungIndex": 4,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント4: サブトッピング①の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "STRUCTURE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:onion"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 4,
+    "next": {
+     "rungIndex": 5,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント5: サブトッピング②の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:chicken"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 5,
+    "next": {
+     "rungIndex": 6,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント6: サブトッピング③の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 5,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:cilantro"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 6,
+    "next": null,
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 5,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 6,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "LADDER_COMPLETE",
+     "addFactIds": [],
+     "charge": 0
+    }
+   }
+  ]
  }
 ]

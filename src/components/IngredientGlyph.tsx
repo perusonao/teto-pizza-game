@@ -41,6 +41,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "shrimp-curl": "0 0 64 64",
   "sesame-seeds": "0 0 64 64",
   "pomegranate-aril": "0 0 64 64",
+  "cilantro-leaf": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -69,6 +70,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "shrimp-curl" && <ShrimpCurl />}
       {visual === "sesame-seeds" && <SesameSeeds />}
       {visual === "pomegranate-aril" && <PomegranateAril />}
+      {visual === "cilantro-leaf" && <CilantroLeaf />}
     </svg>
   );
 }
@@ -515,6 +517,43 @@ function ArugulaLeaves() {
           <path d={ARUGULA_GEOMETRY[i].veins} stroke="#23561f" strokeWidth=".8" strokeLinecap="round" fill="none" opacity=".6" />
         </g>
       ))}
+    </g>
+  );
+}
+
+/* ---------- cilantro (BBQ Chicken, Owner Final Design Gate 2026-10-27, candidate A): a sprig of three rounded, scalloped fan leaves on thin stems, in a fresh yellow-green with a deep-green outline (the Style Lock v2 line weight), so it reads on the
+   dark BBQ sauce and is a different shape from the single serrated shiso leaf, the arugula lobes and the clover-like parsley / mint emoji. Reference art: docs/design/references/ingredient-icons-2.0/cilantro.svg. No ids / gradients: any number can share a page. ---------- */
+const CILANTRO_LEAF = "M0 0 L-9 -9 Q-13 -14 -9 -18 Q-8 -23 -3 -21 Q0 -26 3 -21 Q8 -23 9 -18 Q13 -14 9 -9 Z";
+const CILANTRO_LEAVES: readonly string[] = [
+  "translate(23 41) rotate(-42) scale(.95)",
+  "translate(41 41) rotate(42) scale(.95)",
+  "translate(32 44) scale(1.15)",
+];
+
+function CilantroLeaf() {
+  return (
+    <g>
+      <ellipse cx="32" cy="60" rx="17" ry="2.6" fill="#000" opacity=".15" />
+      <g stroke="#245f2c" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none">
+        <path d="M32 58 L32 44" />
+        <path d="M32 50 L23 41" />
+        <path d="M32 50 L41 41" />
+      </g>
+      <g stroke="#245f2c" strokeWidth="2.2" strokeLinejoin="round" fill="#9ad45f">
+        {CILANTRO_LEAVES.map((transform) => (
+          <path key={transform} d={CILANTRO_LEAF} transform={transform} />
+        ))}
+      </g>
+      <g stroke="#2f7a2f" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity=".8">
+        <path d="M32 44 L32 22 M32 36 L27 29 M32 36 L37 29" />
+        <path d="M23 41 L11 28 M20 36 L15 36 M18 33 L18 28" />
+        <path d="M41 41 L53 28 M44 36 L49 36 M46 33 L46 28" />
+      </g>
+      <g fill="#b6e07a" opacity=".6">
+        <ellipse cx="29" cy="25" rx="2.2" ry="1.4" transform="rotate(-30 29 25)" />
+        <ellipse cx="14" cy="32" rx="1.8" ry="1.2" transform="rotate(-45 14 32)" />
+        <ellipse cx="50" cy="32" rx="1.8" ry="1.2" transform="rotate(45 50 32)" />
+      </g>
     </g>
   );
 }

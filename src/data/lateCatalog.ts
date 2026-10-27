@@ -160,6 +160,30 @@ const ALL_LATE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  // BBQ Chicken (Issue #611, Owner Final Design Gate 2026-10-27): `bbq-chicken-pizza` (BBQチキンピザ). SOURCE: the 172-recipe matrix row `bbq-chicken-pizzadb` lists bbq-sauce, chicken, cilantro, mozzarella and onion
+  // (`phase0b_sample_canonical`: a comparison-table sample; the individual PIZZA DB page was NOT read -- pizzadb.jp is unreachable from this environment). EVERYTHING ELSE IS UNCONFIRMED against the original (Q1..Q5).
+  // GAMEPLAY ASSUMPTION (Owner-approved game design, provisional, NOT a fact about the original): the cilantro is sprinkled AFTER the bake in FINISH (POST_BAKE). The only support is the matrix's `catalog_design_tag`
+  // (a design tag of this game's own catalog, not a statement of the source); it is recorded as a game-design choice and must not be quoted as "the original adds it after baking". bbq-sauce is painted in the SAUCE step
+  // (the existing PAINT); chicken and onion are placed BEFORE the bake with no pre-cooking step (not modelled); mozzarella is the ordinary CHEESE.
+  // GAMEPLAY CALIBRATION (provisional, not source): bbq-sauce 1 (PAINT) / mozzarella 2 / onion 1 / chicken 3 / cilantro 2 (POST_BAKE) = 8 non-sauce pieces (6 before the bake, 2 in FINISH), bake 58-78 (= the generic Free Cooking window).
+  // The 8 pieces take the RT-01 reference layout consecutively in `requiredIngredients` order (see referencePizza.ts); no piece-count limit is defined or implied here.
+  // Late catalog (`bbq-sauce` and `cilantro` are late-only materials): ladder-credited (its own late step, after the tahini step), no star gate, no CUT, `lunchRush: false` (Lunch Rush and Dinner exclude FINISH), permanently key-free.
+  // The description names no moment (Anti-Oracle: it is shown before the recipe is discovered). Listed before Pinsa so that Pinsa stays the tail while its gate is open.
+  {
+    id: "bbq-chicken-pizza",
+    nameJa: "BBQチキンピザ",
+    description: "甘辛いソースのチキンに、香菜をそえた一枚。",
+    requiredIngredients: [
+      { ingredientId: "bbq-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "onion", minCount: 1 },
+      { ingredientId: "chicken", minCount: 3 },
+      { ingredientId: "cilantro", minCount: 2, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
   // Pinsa Romana (#577 P3-b-1, Owner L1 / D4 / R2). Gated by ./pinsaGate.ts (`PINSA_PRODUCTION`): absent at runtime while it is false.
   // SOURCE AUTHORITY (Owner-relayed, not independently verified; PK-0 items 2/4/5 stay open until the Production gate): tomato sauce, mozzarella baked, prosciutto before or after,
   // arugula best added last. The prosciutto is placed BEFORE the bake (L1: a game-design choice, consistent with the source) and only the arugula is POST_BAKE.
@@ -226,6 +250,12 @@ const ALL_LATE_ORDERS = [
     recipeId: "eggplant-tahini-pizza",
     requestedBy: "mito",
     lineJa: "ナスとタヒニのピザ、中東風でおいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-bbq-chicken-pizza",
+    recipeId: "bbq-chicken-pizza",
+    requestedBy: "mito",
+    lineJa: "BBQチキンピザ、甘辛くてパーティみたい！食べてみたいな！",
   },
   {
     id: "order-pinsa-romana",
@@ -323,13 +353,43 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
+  /**
+   * BBQ Chicken (Issue #611): `bbq-sauce`, a late-only finite ladder material (the BBQ step's first material). A spread sauce painted in the SAUCE step (the existing PAINT); sauces carry no topping family.
+   * `color` `#7a2f1c` (a deep red-brown) is PROVISIONAL (Owner 2026-10-27; confirmed or changed at the iPhone HV): it must stay distinguishable from tomato-sauce, doubanjiang and the bare dough once drawn translucent.
+   * `emoji` 🔥 is the tray / shop chip face (G18 keeps it unique). Its PIZZA DB use (painted before the bake) is a GAMEPLAY ASSUMPTION, not confirmed by the original.
+   */
+  {
+    id: "bbq-sauce",
+    category: "sauce",
+    nameJa: "バーベキューソース",
+    color: "#7a2f1c",
+    emoji: "\u{1F525}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * BBQ Chicken (Issue #611): `cilantro`, a late-only finite ladder material (the same late step as `bbq-sauce`; the step's last material = the Research cohort key). Family `herb` (L1 only), size class `xs`, drawn by the
+   * dedicated `cilantro-leaf` visual (Owner Final Design Gate 2026-10-27, candidate A: a sprig of three rounded fan leaves); `emoji` is only the required, never-displayed text fallback (G18 keeps it unique).
+   * Placed AFTER the bake (POST_BAKE) is a GAMEPLAY ASSUMPTION (provisional game design), not confirmed by the original.
+   */
+  {
+    id: "cilantro",
+    category: "topping",
+    nameJa: "パクチー",
+    color: "#6cae3e",
+    emoji: "\u{1F33C}",
+    pieceVisual: "cilantro-leaf",
+    placement: "scatter",
+    bakeRoastResistant: true,
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 /** Family rows of the late ingredients (OD-B8-2: `salmon-roe` is `seafood`, L1 only). Joined by ./ingredientTaxonomy.ts only when enabled, so an OFF build has no orphan row. */
-export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"]] as const;
+export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["cilantro", "herb"]] as const;
 
 /** Topping size class of the late ingredients (`salmon-roe` is extra small, like the other fine garnishes). Joined by ./toppingSizeClass.ts only when enabled. */
-export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs" } as const;
+export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "cilantro": "xs" } as const;
 
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
@@ -337,6 +397,7 @@ export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
   "yuzu-shrimp-pizza": "yuzu-shrimp-pizza",
   "eggplant-dengaku-pizza": "eggplant-dengaku-pizza-pizzadb-p6",
   "eggplant-tahini-pizza": "eggplant-tahini-pizza-pizzadb-p5",
+  "bbq-chicken-pizza": "bbq-chicken-pizzadb",
   ...(pinsaEnabled() ? { "pinsa-romana": "pinsa-romana-pizzadb-p9" } : {}),
 };
 
@@ -353,15 +414,17 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
   { ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" },
   // New Sauces Phase B U3 (Issue #578): after the dengaku step (ordinary length + 4), key recipe `eggplant-tahini-pizza` (it also needs eggplant and parsley from earlier ordinary steps). Cohort key: pomegranate (the last material of the step). The number is DERIVED, never authored.
   { ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" },
+  // BBQ Chicken (Issue #611): after the tahini step (ordinary length + 5), key recipe `bbq-chicken-pizza` (it also needs mozzarella, onion and chicken from earlier steps / the starters). Cohort key: cilantro (the last material of the step). The number is derived (currently 66), never embedded.
+  { ingredientIds: ["bbq-sauce", "cilantro"], keyRecipeId: "bbq-chicken-pizza" },
 ];
 
 /**
  * Compatibility floor (Issue #578 U0, Owner OD-U0-7 = M3 / 7b / 7c): a late material's Shop entitlement never needs a LARGER credited-discovery count than the one it had
  * when the late catalog first shipped. Its ladder step number is derived (ordinary length + 1) and moves +1 per ordinary batch; the floor is a FIXED constant, so a
  * save that reached the E5-era step but had not launched since (its ledger has no entry yet) still gets the material. A floor only ever grants earlier; the ledger never re-locks.
- * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
+ * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). `bbq-sauce` / `cilantro`: 66 = the 61 ordinary steps + 5 when they shipped (BBQ Chicken #611, after Expansion Batch 10 PR-1). RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
  */
-export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60 };
+export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60, "bbq-sauce": 66, "cilantro": 66 };
 
 /** True for a recipe whose own gate is closed (Pinsa while `PINSA_PRODUCTION` is false): the id is in type-keyed tables but the recipe does not exist in this build. */
 export function isGatedOffRecipeId(id: string): boolean {
