@@ -1,8 +1,17 @@
 # Cooking Tray 75 — A1「すべて」ファミリー順 実装前 Gate（Issue #675、docs-only）
 
-Status: **Gate 文書。実装案は提出しない（§4）。** `src/**`・CSS・テスト・golden は無変更。merge・deploy・CI 再実行・Monitor 作成なし。
+Status: **Gate 不通過。A1 は見送り（Owner 判断 2026-10-27、§0）。実装案は提出しない（§4）。** `src/**`・CSS・テスト・golden は無変更。merge・deploy・CI 再実行・Monitor 作成なし。
 基準: `main` `28f04f4`（食材 73）と PR #673 head `cce9f40`（食材 75。読み取り専用）。入力データ: `docs/reports/screenshots/cooking-tray-75-phase0/pr673-75-390x844.json`（両 viewport で同一）。計算: `tools/cooking-tray-75-phase0/a1_order_simulation.py`、出力 `…/a1-simulation-75.json`。
 親報告: `docs/reports/TETO_COOKING-TRAY-75_PHASE0_Audit.md`。
+
+## 0. Owner 判断（2026-10-27）— A1 は見送り
+
+Owner は Gate の結果（§4）を受けて、**A1（「すべて」のファミリー順）を Gate 不通過として見送る**と決めた。これに伴い:
+
+- #675 の Phase 0 は**完了**として記録する（`TETO_COOKING-TRAY-75_PHASE0_Audit.md`）。
+- 実機の確認は #554 のチェックリスト（`docs/reports/TETO_COOKING-TRAY-HV-CHECKLIST_554_2026-10-27.md`）で行う。
+- **実機で具体的な問題が見つかるまで runtime は変更しない。** 本 Gate の再開条件は §5 のうち、実機の記録（#554）で「すべて」の探しにくさが NG として記録された場合に限る（§5-1 の課題ベースの実測は #554 チェックリストの項目 F に含めた）。
+- 見送り後も、本 Gate の計算（`tools/cooking-tray-75-phase0/a1_order_simulation.py`）と結果は、将来の再検討の資料として残す。
 
 ## 1. Owner 方針（2026-10-26）
 
