@@ -65,16 +65,16 @@ function reachableLedgers(recipeId: string): string[][] {
   return states;
 }
 
-describe("section 4.1: M-1..M-3 agree with every reachable state of the real old ladder (42 key-free recipes)", () => {
-  it("the population is the 42 key-free recipes: sauce + cheese 17 (Square Dough E-2: + grandma-pizza; New Sauces Phase B U1: + yuzu-shrimp-pizza; U2: + eggplant-dengaku-pizza), cheese only 18 (E5: + ikura-salmon-pizza), sauce only 7", () => {
+describe("section 4.1: M-1..M-3 agree with every reachable state of the real old ladder (43 key-free recipes)", () => {
+  it("the population is the 43 key-free recipes: sauce + cheese 17 (Square Dough E-2: + grandma-pizza; New Sauces Phase B U1: + yuzu-shrimp-pizza; U2: + eggplant-dengaku-pizza), cheese only 18 (E5: + ikura-salmon-pizza), sauce only 8 (New Sauces Phase B U3: + eggplant-tahini-pizza)", () => {
     const extra = pinsaEnabled() ? 1 : 0; // Pinsa Romana (#577 P3-b): a sauce + cheese key-free recipe, like jamon, while its gate is open
-    expect(KEY_FREE_RECIPES).toHaveLength(42 + extra);
+    expect(KEY_FREE_RECIPES).toHaveLength(43 + extra);
     const klass = (r: Recipe) => `${hasCategory(r, "sauce") ? "sauce" : ""}+${hasCategory(r, "cheese") ? "cheese" : ""}`;
     const count = (k: string) => KEY_FREE_RECIPES.filter((r) => klass(r) === k).length;
     expect({ both: count("sauce+cheese"), cheeseOnly: count("+cheese"), sauceOnly: count("sauce+"), neither: count("+") }).toEqual({
       both: 17 + extra,
       cheeseOnly: 18,
-      sauceOnly: 7,
+      sauceOnly: 8,
       neither: 0,
     });
   });

@@ -1,5 +1,6 @@
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
+import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { RECIPES } from "../src/data/recipes";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
@@ -19,7 +20,7 @@ import { CATALOG_COUNTS, materialsUpTo } from "../src/logic/catalog/testSupport/
 const SAVE_KEY = "teto-pizza-save-v1";
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const ID = "eggplant-dengaku-pizza";
-const LAST_STEP = CATALOG_COUNTS.ladderSteps; // the miso-sauce / white-sesame late step is the last one; derived, never authored
+const LAST_STEP = DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes("miso-sauce"))!.step; // the miso-sauce / white-sesame late step (U3's follows it); derived, never authored
 const ALL_IDS = RECIPES.map((r) => r.id as string);
 const SPOTS: [number, number][] = [[50, 24], [73, 36], [76, 63], [58, 79], [38, 79], [22, 63]]; // mozzarella 2, eggplant 3, white sesame 1 (the reference slots)
 

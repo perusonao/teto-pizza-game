@@ -133,7 +133,11 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     // The 123 -> 165 move was decomposed on the same tree (the hardened guard leaked 0 in all of them; only this legacy DH4-2A count moves):
     //   neither 123 | miso-sauce only 131 (+8: `zeroTopping` iterates every sauce) | white-sesame (spice) only 180 (+57: the synthetic families are cut from TOPPINGS by array index, so one more topping re-shapes them)
     //   | both 188 (= 123 + 8 + 57, additive) | both + the eggplant-dengaku-pizza recipe 165 (-23: the public catalog the hypotheses are drawn from gains one recipe). Family alternatives measured on the same tree, both materials + recipe: herb 156, vegetable 156.
-    expect(dh42aLeaks).toBe(165);
+    // Re-measured again at New Sauces Phase B U3 (75 ingredients: tahini (a sauce) and pomegranate (a fruit topping) join, plus the eggplant-tahini-pizza recipe). The hardened `toEqual([])` above held for every state in every configuration.
+    // The 165 -> 132 move was decomposed on the same tree (the hardened guard leaked 0 and every privacy assertion in this file passed in all of them; only this legacy DH4-2A count moves):
+    //   neither 165 | tahini only 173 (+8: `zeroTopping` iterates every sauce) | pomegranate only 119 (-46: the synthetic families are cut from TOPPINGS by array index, so one more topping re-shapes them)
+    //   | both 127 (= 165 + 8 - 46, additive) | both + the eggplant-tahini-pizza recipe 132 (+5: the public catalog the hypotheses are drawn from gains one recipe).
+    expect(dh42aLeaks).toBe(132);
   }, 120_000);
 });
 
