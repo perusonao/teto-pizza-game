@@ -5,6 +5,19 @@ Status: **Final Design Gate の提出。runtime は実装していない**（`sr
 姉妹資料: バッチ計画 `TETO_NEXT-BATCH-10_EXPANSION-PLAN_2026-10-27.md`、ブッラータ `TETO_BURRATA_FINISH-CHEESE_DESIGN-ISSUE_2026-10-27.md`、先行 audit `TETO_NEXT-CONTENT_FRESH-AUDIT_WASABI-HONEY-BURRATA_2026-10-27.md`。
 **「推奨」「判定」は助言であり Owner Decision ではない。未回答を承認済みとみなさない。**
 
+## 更新（2026-10-27 第 2 版）— Owner 判断（第 2 弾）の反映
+
+| 項目 | 反映 |
+|---|---|
+| 表示名 | **「わさびビーフピザ」を採用**（D-W1 解決。`id` は `wasabi-beef-pizza` のまま） |
+| beef・soy-sauce の再利用優先 | **採用。** beef は通常 ladder の 1 材料 step（`[beef]`、key = `rendang-pizza`、カレー→curry-ketchup の検証が前提）で出す。soy-sauce は bulgogi の late step（`[soy-sauce]`）で出し、wasabi-beef の late step は `[wasabi]` のみ（1 材料）。bulgogi を外す場合は `[soy-sauce, wasabi]`（2 材料）。詳細は `TETO_NEXT-BATCH-10_EXPANSION-PLAN_2026-10-27.md` §4・§5 |
+| SVG 候補 A | **暫定採用**（beef-A・wasabi-A）。最終は実機 HV（D-W4 は暫定で解決） |
+| soy-sauce の色 | 暫定 `#3a2418` を**実機 HV で確定**（D-W6 解決） |
+| 初回 360 Pitz | **未承認 → 再評価済み。** バッチ構成では wasabi-beef が beef（120）・soy-sauce（120）・wasabi（120）の 3 step に分散し、1 step あたり 120 Pitz。合計は 360 Pitz のまま。**単独（S）で出すと 360 Pitz の 1 step** になり、未承認の負担がそのまま残る（D-W7 は「S では未承認、B で再評価」） |
+| 単独実装（S） | 引き続き**非推奨**（beef が late 専用になり再利用を失う） |
+| わさびビーフの位置 | バッチ内の **late 3 番目（L3）**。クリティカルパス D-B3 → O1 → O2（beef）→ L1（soy-sauce）→ L3。#679 の merge 後 |
+| 残る D-W | D-W2（個数・size class）、D-W5（説明文）。D-W3 は R2 採用で解決、D-W8 はバッチ計画の E-1〜E-7 に置き換え |
+
 ## 0. Owner 決定（2026-10-27）と本資料での扱い
 
 | # | 決定 | 本資料の扱い |
@@ -48,7 +61,7 @@ Status: **Final Design Gate の提出。runtime は実装していない**（`sr
 | 生地 | 標準（薄め生地は未モデル化） | matrix は薄め。late の既存レシピ（U2・U3）と同じ扱い。**GAMEPLAY ASSUMPTION** |
 | 報酬・経済 | `baseRewardPitz: 100`、T4（パック 120 / 補充 60 Pitz、素材個別価格なし）、星ゲートなし | #611 のコメントで確定した規則 |
 | ラウンド | `lunchRush: false`、CUT なし、key-free Hint、`ladderCredit: true` | late catalog の既存 5 件と同じ |
-| late step | **単独で出す場合（S）:** `{ ingredientIds: ["beef", "soy-sauce", "wasabi"], keyRecipeId: "wasabi-beef-pizza" }`（**3 材料の step は初**。既存の late step は 1〜2 材料）。**バッチで出す場合（B、推奨）:** beef は**通常 ladder の step**（key は beef を使う通常レシピ。姉妹資料 §2.1 では goulash-pizza。**READY の通常 beef レシピは無く、基底ソースの Owner 決定 D-B2 待ち**）に置き、late step は `["wasabi"]`（soy-sauce を bulgogi の late step に置く場合）または `["soy-sauce", "wasabi"]`（置かない場合）で `keyRecipeId: "wasabi-beef-pizza"`。**番号は導出**（絶対番号に固定しない）。cohort の鍵 = step の最後の材料 = `wasabi` | #621 の規則。**S と B の違いが beef の再利用可否を決める（下の注）** |
+| late step | **単独で出す場合（S）:** `{ ingredientIds: ["beef", "soy-sauce", "wasabi"], keyRecipeId: "wasabi-beef-pizza" }`（**3 材料の step は初**。既存の late step は 1〜2 材料）。**バッチで出す場合（B、推奨）:** beef は**通常 ladder の step**（key は beef を使う通常レシピ。第 2 版の姉妹資料 §4 では **rendang-pizza**（カレー→curry-ketchup の検証が前提。READY の通常 beef レシピは無い））に置き、late step は `["wasabi"]`（soy-sauce を bulgogi の late step に置く場合）または `["soy-sauce", "wasabi"]`（置かない場合）で `keyRecipeId: "wasabi-beef-pizza"`。**番号は導出**（絶対番号に固定しない）。cohort の鍵 = step の最後の材料 = `wasabi` | #621 の規則。**S と B の違いが beef の再利用可否を決める（下の注）** |
 
 **注（本セッションが `validateLateCatalog` を読んで確認）:** late recipe は `POST_BAKE` を必ず 1 つ持ち、`ladderCredit: false` の late recipe は late 専用の材料を使えない（`lateCatalog.ts` の検査）。さらに late 専用の材料は通常カタログには存在しない（OFF のカタログから消える）ため、**通常レシピは late 専用の材料を使えない**（通常レシピ側の検査は本セッションでは確認していない。設計上の推論）。したがって **beef を wasabi-beef の late step に入れて単独で出すと、beef は late 専用の材料になり、beef を使う他の 8 行（yakiniku・bulgogi・nigerian-suya・rendang・goulash ほか）は、通常レシピとして beef を使えなくなる**（使えるのは自前の `POST_BAKE` と step を持つ late recipe だけ）。後から beef を通常 ladder へ移すと、追記専用の ladder と既存セーブの解禁（LATE_ENTITLEMENT_FLOORS）に関わる。**beef を通常 step で先に（または同時に）出す B の形が、beef の再利用を保つ唯一の素直な経路**。
 | 互換下限 | `LATE_ENTITLEMENT_FLOORS` に 3 材料の行（「出荷時に導出される番号」。#679 が先に merge されれば BBQ = 61、わさびビーフ = 62。バッチで通常 step が増えるとその分ずれる） | 既存規則（`lateCatalog.ts` の RULE コメント） |
