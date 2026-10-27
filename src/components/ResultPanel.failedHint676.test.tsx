@@ -199,3 +199,13 @@ describe("AC-L2 fix: the tighter card gap is scoped to the Free Cook FAILED card
     expect(document.querySelector(".result-panel--failed")).not.toHaveClass("result-panel--failed-hint");
   });
 });
+
+describe("ported from #678: the failure reason adds nothing to the hint row", () => {
+  it("UNDERBAKED / OVERBAKED / empty cards differ only in the reason sentence (and the bake badge): the hint row is the same markup", () => {
+    const strip = (html: string) => html.replace(/<p class="result-panel__failed-reason"[^>]*>.*?<\/p>/, "").replace(/<p class="bake-badge[^"]*"[^>]*>.*?<\/p>/, "");
+    const a = strip(card({ completion: FAILED, discovery: null, bakeState: "raw" }).html);
+    const b = strip(card({ completion: { ...FAILED, reason: "OVERBAKED", failures: [{ reason: "OVERBAKED" }] }, discovery: null, bakeState: "raw" }).html);
+    expect(b).toBe(a);
+    expect(document.querySelectorAll(".result-near-miss")).toHaveLength(1);
+  });
+});

@@ -48,8 +48,8 @@ base `main` `9761d03`（#673 merge 後）。Owner 実装 GO（2026-10-27）。�
 ### 追補（Owner 判断 2026-10-27）: 重複 PR #678 からの移植と、AC-L2 の WebKit 不足の修正
 
 - **WebKit 360×800 の Research FAILED で、本 PR 自身の e2e（AC-L2: 余白 16px 以上）が 14px で失敗**（Chromium は 27.8px）。**閾値は緩和しない。** 余白を増やすため、Free Cook の FAILED カード（hint 行を持つもの）にだけ修飾クラス `result-panel--failed-hint` を付け、そのカードの flex gap を 10px → 6px にした（`App.css` に 1 ルール、隙間 1 つにつき −4px、Research カードは 4 つで +16px）。Guided / Lunch Rush / Dinner の FAILED カード（`freeCook` が false か `onShowHint` なし）は修飾クラスなしで不変。Chromium の実測（同じ e2e の gap）: Research FAILED 360×800 は 27.8 → **43.8px**、390×844 は 71.8 → 87.8px、標的なし FAILED は 249 → 261（390）、205 → 217（360）。WebKit は 14 → 約 30px の見込み（**CI の WebKit で確認する**）。
-- **#678 から移植:** ① 非 Free Cook の ORIGINAL カードは従来の注記のまま（新文は Free Cook のみ。`freeCook ? TARGETLESS_ORIGINAL_NOTE : 旧文`）。② PASS カード（NEW_DISCOVERY）に hint 行と新文が出ない否定テスト。③ 修飾クラスが Free Cook + 手順あり の FAILED カードにだけ付くテスト。新規の部品テストは 3 件追加（部品 17 + reducer 6 = 23 件）。
-- 検証（追補後）: フル Vitest 9,835 passed / 0 failed、`tsc -b`・build 通過、Chromium e2e（`failed-hint-676`）6/6。
+- **#678 から移植:** ① 非 Free Cook の ORIGINAL カードは従来の注記のまま（新文は Free Cook のみ。`freeCook ? TARGETLESS_ORIGINAL_NOTE : 旧文`）。② PASS カード（NEW_DISCOVERY）に hint 行と新文が出ない否定テスト。③ 修飾クラスが Free Cook + 手順あり の FAILED カードにだけ付くテスト。新規の部品テストは 4 件追加（部品 18 + reducer 6 = 24 件。④ #678 の「失敗理由で hint 行が変わらない」テストも移植）。
+- 検証（追補後）: フル Vitest 9,836 passed / 0 failed、`tsc -b`・build 通過、Chromium e2e（`failed-hint-676`）6/6。
 
 ## Human Verification（`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`）
 
