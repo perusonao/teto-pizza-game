@@ -5,6 +5,8 @@
 HV 動画は audit-only のため対象外（`CLAUDE.md` / `PROJECT_HANDOFF.md` の「Audit-only tasks are exempt」）。
 本書の「推奨」は助言であり Owner Decision ではない。未決は §11 に列挙し、推測で確定していない。
 
+> **訂正（2026-10-27、実装前検証）:** 本書の §9/§10 の Phase 1A「散らす」推奨は**撤回**した。#476（Owner 決定 D3: SCATTER 新方式は実装しない）と #579（DRIZZLE 価値監査: 保留推奨）を見落としていたこと、xs 食材の要求ピース数が 1〜3 個でタップと差が出ないこと、Reference が固定座標＋半径で線状ピース案が成立しないことが理由。訂正の全文と現在の推奨は `TETO_COOKING-PROCESS-EXPANSION_Phase1-PreImplementation-Verification.md` §0.1 を参照。
+
 ---
 
 ## 0. 結論（先に）
