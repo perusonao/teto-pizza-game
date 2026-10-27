@@ -122,9 +122,9 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(mine).toMatchObject({ ingredientIds: [SAUCE], keyRecipeId: YUZU });
     expect(mine.starGates).toBeUndefined();
     expect(mine.step).toBe(stepOf("salmon-roe").step + 1);
-    expect(steps.at(-2)).toBe(mine); // (New Sauces Phase B U2: the dengaku late step follows it)
+    expect(steps.at(-3)).toBe(mine); // (New Sauces Phase B U2 / U3: the dengaku and tahini late steps follow it)
     expect(mine.step).toBe(ordinaryLadderSteps(steps).length + 2); // ordinary length + the two late steps up to and including this one
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", YUZU, "eggplant-dengaku-pizza"]);
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", YUZU, "eggplant-dengaku-pizza", "eggplant-tahini-pizza"]);
   });
 
   it("Shop: T4 (pack 120 / refill 60), from its own late step", () => {

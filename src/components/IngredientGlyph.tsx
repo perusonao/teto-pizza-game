@@ -40,6 +40,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "salmon-roe-grains": "0 0 64 64",
   "shrimp-curl": "0 0 64 64",
   "sesame-seeds": "0 0 64 64",
+  "pomegranate-aril": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -67,6 +68,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "salmon-roe-grains" && <SalmonRoeGrains />}
       {visual === "shrimp-curl" && <ShrimpCurl />}
       {visual === "sesame-seeds" && <SesameSeeds />}
+      {visual === "pomegranate-aril" && <PomegranateAril />}
     </svg>
   );
 }
@@ -401,6 +403,32 @@ function SesameSeeds() {
         <g key={`${seed.x}-${seed.y}`} transform={`translate(${seed.x} ${seed.y}) rotate(${seed.rot})`}>
           <path d="M-9.5 0 Q0 -7.6 9.5 0 Q0 7.6 -9.5 0 Z" fill="#f4efe0" stroke="#8a6a38" strokeWidth="2.4" strokeLinejoin="round" />
           <path d="M-4.6 -0.6 Q0 -3.4 4.6 -0.6" fill="none" stroke="#fffdf4" strokeWidth="1.6" strokeLinecap="round" opacity=".9" />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+/* ---------- pomegranate (New Sauces U3, candidate A'): six teardrop arils in a ruby red with a deep-wine outline, one shade facet and a glossy highlight each (reference art: docs/design/references/ingredient-icons-2.0/pomegranate.svg). Drawn as glossy drops, not round beads, so it reads differently from the salmon-roe grains and the tomato slice. ---------- */
+const POMEGRANATE_ARILS: readonly { x: number; y: number; rot: number }[] = [
+  { x: 32, y: 17, rot: -6 },
+  { x: 18, y: 28, rot: -28 },
+  { x: 46, y: 28, rot: 24 },
+  { x: 11, y: 44, rot: -14 },
+  { x: 28, y: 42, rot: 10 },
+  { x: 44, y: 45, rot: 30 },
+];
+
+function PomegranateAril() {
+  return (
+    <g>
+      <ellipse cx="32" cy="58" rx="24" ry="3.1" fill="#000" opacity=".15" />
+      {POMEGRANATE_ARILS.map((aril) => (
+        <g key={`${aril.x}-${aril.y}`} transform={`translate(${aril.x} ${aril.y}) rotate(${aril.rot}) scale(0.95)`}>
+          <path d="M0 -12.5 C2.5 -8 8 -3.5 7.6 2.5 C7.2 8.5 3.6 10.5 0 10.5 C-3.6 10.5 -7.2 8.5 -7.6 2.5 C-8 -3.5 -2.5 -8 0 -12.5 Z" fill="#c4163f" stroke="#650d27" strokeWidth="2.4" strokeLinejoin="round" />
+          <path d="M0 -8 C2 -4 4.5 -1.5 4.6 2.5 L0 6 Z" fill="#a50f33" />
+          <path d="M-3.2 -1 C-3.4 -4 -1.6 -6.2 0 -8 C-0.6 -4.5 -0.8 -2 -1.6 1.2 C-2.4 1.6 -3 0.8 -3.2 -1 Z" fill="#ef5b79" />
+          <circle cx="-2.8" cy="-0.5" r="1.5" fill="#fff" opacity=".9" />
         </g>
       ))}
     </g>
