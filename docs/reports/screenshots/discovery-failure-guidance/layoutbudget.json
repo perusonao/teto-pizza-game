@@ -1,0 +1,182 @@
+{
+  "C1_research_failed_390x844": {
+    "before": {
+      "vh": 844,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 117.8,
+      "hintButton": {
+        "h": 36,
+        "w": 104,
+        "top": 742,
+        "bottom": 778,
+        "overlapsActions": true
+      },
+      "noteLines": null,
+      "noteHeight": null
+    },
+    "after": {
+      "vh": 844,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 71.8,
+      "hintButton": {
+        "h": 36,
+        "w": 113,
+        "top": 477,
+        "bottom": 513,
+        "overlapsActions": false
+      },
+      "noteLines": null,
+      "noteHeight": null
+    }
+  },
+  "C1_free_failed_390x844": {
+    "before": {
+      "vh": 844,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 295,
+      "hintButton": null,
+      "noteLines": null,
+      "noteHeight": null
+    },
+    "after": {
+      "vh": 844,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 249,
+      "hintButton": {
+        "h": 36,
+        "w": 113,
+        "top": 346,
+        "bottom": 382,
+        "overlapsActions": false
+      },
+      "noteLines": null,
+      "noteHeight": null
+    }
+  },
+  "C3_free_original_390x844": {
+    "before": {
+      "vh": 844,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 278,
+      "hintButton": {
+        "h": 36,
+        "w": 113,
+        "top": 368,
+        "bottom": 404,
+        "overlapsActions": false
+      },
+      "noteLines": null,
+      "noteHeight": 30
+    },
+    "after": {
+      "vh": 844,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 293,
+      "hintButton": {
+        "h": 36,
+        "w": 113,
+        "top": 368,
+        "bottom": 404,
+        "overlapsActions": false
+      },
+      "noteLines": null,
+      "noteHeight": 15
+    }
+  },
+  "C1_research_failed_360x800": {
+    "before": {
+      "vh": 800,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 73.8,
+      "hintButton": {
+        "h": 36,
+        "w": 104,
+        "top": 698,
+        "bottom": 734,
+        "overlapsActions": true
+      },
+      "noteLines": null,
+      "noteHeight": null
+    },
+    "after": {
+      "vh": 800,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 27.8,
+      "hintButton": {
+        "h": 36,
+        "w": 113,
+        "top": 477,
+        "bottom": 513,
+        "overlapsActions": false
+      },
+      "noteLines": null,
+      "noteHeight": null
+    }
+  },
+  "C1_free_failed_360x800": {
+    "before": {
+      "vh": 800,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 251,
+      "hintButton": null,
+      "noteLines": null,
+      "noteHeight": null
+    },
+    "after": {
+      "vh": 800,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 205,
+      "hintButton": {
+        "h": 36,
+        "w": 113,
+        "top": 346,
+        "bottom": 382,
+        "overlapsActions": false
+      },
+      "noteLines": null,
+      "noteHeight": null
+    }
+  },
+  "C3_free_original_360x800": {
+    "before": {
+      "vh": 800,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 234,
+      "hintButton": {
+        "h": 36,
+        "w": 113,
+        "top": 368,
+        "bottom": 404,
+        "overlapsActions": false
+      },
+      "noteLines": null,
+      "noteHeight": 30
+    },
+    "after": {
+      "vh": 800,
+      "pageScroll": 0,
+      "hOverflow": 0,
+      "gapContentToActions": 249,
+      "hintButton": {
+        "h": 36,
+        "w": 113,
+        "top": 368,
+        "bottom": 404,
+        "overlapsActions": false
+      },
+      "noteLines": null,
+      "noteHeight": 15
+    }
+  }
+}

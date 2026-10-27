@@ -4,7 +4,7 @@ import { defineConfig, devices } from "@playwright/test";
  *  npx playwright test -c tools/discovery-failure-guidance-audit/playwright.config.ts */
 export default defineConfig({
   testDir: ".",
-  testMatch: /(capture|hintstates|prodstates)\.spec\.ts$/,
+  testMatch: /(capture|hintstates|prodstates|retrypath|layoutbudget)\.spec\.ts$/,
   fullyParallel: false,
   workers: 1,
   retries: 0,
