@@ -24,7 +24,7 @@ Owner 方針（7 点）: SCATTER 新方式は実装しない（#476 D3 維持）
 | ID | 調査 | 結果 | 要点（根拠は各節） |
 |---|---|---|---|
 | **T0** | Duplicate / claim、Owner 回答 | **PASS** | D-9 = beef、D-10 = 任意、D-11 = SCATTER 保留維持は Owner 方針で確定。D-12（claim）は実装承認まで投稿しない。open PR に下ごしらえ・炒めを扱うものは無い。新規 #689 はテストのみ（§7） |
-| **T1** | 「炒め済み」の置き場 | **PASS** | `GameState` 上の**省略可能な transient フィールド**で成立。スパイクで Guided・Free の全フィールドが**バイト同一**（§2）。全テスト結果は §2.4 |
+| **T1** | 「炒め済み」の置き場 | **PASS** | `GameState` 上の**省略可能な transient フィールド**で成立。スパイクで Guided・Free の全フィールドが**バイト同一**（§2）。全テスト結果は §2.5 |
 | **T2** | 描画 | **FAIL（beef 現状）／PASS（SVG があれば）** | 分岐点は `toppingPieceStyle(ingredient)` 1 箇所で、**未炒めは現状と同一の描画**。ただし **🐄 にフィルターは効かない**（§3） |
 | **T3** | 入力の成立性 | **PASS** | ステージ領域にオーバーレイを重ねても**レイアウト不変**（両 viewport 実測）。ステージ上下に空き帯 66〜80px（§4） |
 | **T4** | テンポ | **条件付き PASS** | 設計予算で 1 回 +4〜6 秒。**実測値は無い**。HV で ≤ 8 秒・面倒でないことを判定（§5） |
@@ -75,13 +75,16 @@ ORDER ─BEGIN_PREPARE→ PREPARE[DOUGH→SAUCE→CHEESE→TOPPING] ─START_BAK
 | Guided・Free の全フィールドが、炒めあり／なしで同一（`toStrictEqual`、ステップを START_BAKE → CONFIRM_BAKE まで） | PASS |
 | TOPPING 以外・beef 以外・Lunch Rush・Dinner で状態が**同一参照のまま**（拒否） | PASS |
 | `RESET_PIZZA` でプロパティ自体が消える。`PLAY_AGAIN` / `RETRY_SAME_RECIPE` で持ち越さない | PASS |
-| 既存テスト全体への影響 | §2.5 |
+| 既存テスト全体への影響 | 既存テストの失敗 0 件（環境起因の 1 件を除く、§2.5） |
 
 **副産物の知見:** reducer は**モジュールレベルの連番**（`topping-N` の id、`placement.token`）を使うため、同一プロセスで 2 回走らせた状態の比較は**これらを正規化する必要がある**。実装時の parity テストはこの正規化を入れる。
 
-### 2.5 全テストスイート（スパイク適用後）
+### 2.5 全テストスイート（スパイク適用後、スクラッチコピー）
 
-結果はこの節に追記する（実行中に作業プロセスが再起動したため再実行した。完了通知後に確定）。**未確認の間は PASS と書かない。**
+`vitest run` 全体: **537 ファイル成功・1 ファイル失敗・1 スキップ／10019 テスト成功・1 失敗・13 スキップ・2 todo**（約 677 秒）。スパイク自身の 3 テストを含む。
+
+- 失敗した 1 件は `src/preview/lcHandPreview.gate.test.ts`（「no committed .env file…」）。`git ls-files` を実行するテストで、**スクラッチコピーが git リポジトリでない**（`git archive` の展開物）ために `fatal: not a git repository` で落ちた。**スパイクの変更とは無関係な環境起因**。本物のリポジトリでの再実行は行っていない。
+- スパイクの変更で落ちた既存テストは **0 件**（`GameState` の deep-equal・Dinner のアクション分類・golden を含む）。
 
 ---
 
