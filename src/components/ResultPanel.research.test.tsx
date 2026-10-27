@@ -59,13 +59,14 @@ describe("Research ORIGINAL copy", () => {
     expect(screen.getByText(/研究中 ？？？ピザ ①/)).toBeInTheDocument();
   });
 
-  it("Research RESULT note is the target-independent notebook sentence; targetless FREE keeps the Dex-match sentence", () => {
+  it("Research RESULT note is the target-independent notebook sentence; targetless FREE shows the fixed hint-sheet sentence (#676 C3)", () => {
     original(ORDINARY);
     expect(screen.getByText("試作結果とノートを見て、次に試す材料を考えてみよう。")).toBeInTheDocument();
     expect(screen.queryByText(/図鑑のピザと同じ組み合わせ/)).toBeNull();
     cleanup();
     original(ORDINARY, { researchLabelJa: null });
-    expect(screen.getByText("図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。")).toBeInTheDocument();
+    expect(screen.getByText("ヒントを見ながら、次に試す材料を考えてみよう。")).toBeInTheDocument();
+    expect(screen.queryByText(/図鑑のピザと同じ組み合わせ/)).toBeNull();
     expect(screen.queryByText(/試作結果とノートを見て/)).toBeNull();
   });
 

@@ -60,3 +60,11 @@ export const ORIGINAL_LEAD_COPY: Readonly<Record<OriginalResultKind, string>> = 
   // lead, identical to an ordinary ORIGINAL; execution advice is recipe-independent (./executionAdvice.ts).
   INCOMPLETE_MATCH: NEUTRAL_LEAD,
 };
+
+/**
+ * Issue #676 C3 (Owner 2026-10-27): the one fixed note under a Free Cook ORIGINAL that has no Research Target. It only points at
+ * the hint sheet the card already offers ("\u{1F4A1} ヒントを見る") -- it says nothing about this pizza (no right/wrong, no near/far, no
+ * count, no "none"), so the three ORIGINAL kinds render it byte-identically. Replaces the old note that nudged the player to copy
+ * a recipe combination. Research keeps `RESEARCH_UX_COPY.resultNote`; a non-Free-Cook card keeps its legacy note.
+ */
+export const NO_TARGET_ORIGINAL_NOTE_JA = "ヒントを見ながら、次に試す材料を考えてみよう。";

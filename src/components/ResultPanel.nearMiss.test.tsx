@@ -85,14 +85,25 @@ describe("ORIGINAL result", () => {
 });
 
 describe("other results", () => {
-  it("FAILED: no near-miss, no hint row", () => {
-    render(
-      <ResultPanel
-        {...props({ completion: { status: "FAILED", reason: "UNDERBAKED", failures: [{ reason: "UNDERBAKED" }] }, nearMiss: line("ADD_ONE") })}
-      />,
-    );
-    expect(row()).toBeNull();
+  it("FAILED (Free Cook): no near-miss line, only the hint CTA (#676 C1) that is the same retry-with-hint handler", () => {
+    const p = props({ completion: { status: "FAILED", reason: "UNDERBAKED", failures: [{ reason: "UNDERBAKED" }] }, nearMiss: line("ADD_ONE") });
+    render(<ResultPanel {...p} />);
     expect(screen.queryByText(NEAR_MISS_COPY.ADD_ONE)).not.toBeInTheDocument();
+    expect(document.querySelector(".result-near-miss__text")).toBeNull();
+    const cta = document.querySelector(".result-near-miss .result-near-miss__cta") as HTMLButtonElement;
+    expect(cta).not.toBeNull();
+    expect(cta.textContent).toContain("ヒントを見る");
+    fireEvent.click(cta);
+    expect(p.onShowHint).toHaveBeenCalledTimes(1);
+  });
+
+  it("FAILED without Free Cook, or without a hint handler: no hint row (Guided / Lunch Rush / Dinner are unchanged)", () => {
+    const failed = { status: "FAILED", reason: "UNDERBAKED", failures: [{ reason: "UNDERBAKED" }] };
+    render(<ResultPanel {...props({ completion: failed, freeCook: false })} />);
+    expect(row()).toBeNull();
+    cleanup();
+    render(<ResultPanel {...props({ completion: failed, onShowHint: undefined })} />);
+    expect(row()).toBeNull();
   });
 
   it("ALREADY_DISCOVERED with a d=1 line: one extra row after the known-pizza line; hierarchy intact", () => {
