@@ -1,0 +1,215 @@
+{
+ "ingredientsPresent": {
+  "chicken": true,
+  "onion": true,
+  "mozzarella": true,
+  "bbq-sauce": false,
+  "cilantro": false
+ },
+ "unlockStep": {
+  "chicken": 25,
+  "onion": 12,
+  "mozzarella": null
+ },
+ "ladderSteps": 60,
+ "lateSteps": [
+  {
+   "ids": [
+    "salmon-roe"
+   ],
+   "key": "ikura-salmon-pizza"
+  },
+  {
+   "ids": [
+    "yuzu-kosho"
+   ],
+   "key": "yuzu-shrimp-pizza"
+  },
+  {
+   "ids": [
+    "miso-sauce",
+    "white-sesame"
+   ],
+   "key": "eggplant-dengaku-pizza"
+  },
+  {
+   "ids": [
+    "tahini",
+    "pomegranate"
+   ],
+   "key": "eggplant-tahini-pizza"
+  }
+ ],
+ "lateFloors": {
+  "salmon-roe": 57,
+  "yuzu-kosho": 58,
+  "miso-sauce": 59,
+  "white-sesame": 59,
+  "tahini": 60,
+  "pomegranate": 60
+ },
+ "counts": {
+  "recipes": 69,
+  "ingredients": 75
+ },
+ "sharedSubsets": [],
+ "recipesWithChicken": [
+  "pesto-pollo:3",
+  "frango-catupiry:3"
+ ],
+ "herbFamilySizeClass": [
+  "basil:xl:emoji",
+  "garlic:s:emoji",
+  "oregano:xs:emoji",
+  "rosemary:xs:emoji",
+  "parsley:xs:emoji",
+  "mint:xs:emoji",
+  "shiso:xs:shiso-leaf",
+  "green-onion:xs:green-onion-slices"
+ ],
+ "ring": {
+  "equalsFixedRing8": true,
+  "slots8": [
+   {
+    "x": 50,
+    "y": 24
+   },
+   {
+    "x": 73,
+    "y": 36
+   },
+   {
+    "x": 76,
+    "y": 63
+   },
+   {
+    "x": 58,
+    "y": 79
+   },
+   {
+    "x": 38,
+    "y": 79
+   },
+   {
+    "x": 22,
+    "y": 63
+   },
+   {
+    "x": 25,
+    "y": 36
+   },
+   {
+    "x": 50,
+    "y": 52
+   }
+  ],
+  "minGap8": 20
+ },
+ "ring7": {
+  "minGap7": 20
+ },
+ "ring9": {
+  "count": 9,
+  "minGap9": 21.4,
+  "note": "n >= 9 is generated (RT-01 multi-ring)"
+ },
+ "bbqAssignment": [
+  {
+   "ingredient": "mozzarella",
+   "slot": 1,
+   "at": {
+    "x": 50,
+    "y": 24
+   }
+  },
+  {
+   "ingredient": "mozzarella",
+   "slot": 2,
+   "at": {
+    "x": 73,
+    "y": 36
+   }
+  },
+  {
+   "ingredient": "onion",
+   "slot": 3,
+   "at": {
+    "x": 76,
+    "y": 63
+   }
+  },
+  {
+   "ingredient": "chicken",
+   "slot": 4,
+   "at": {
+    "x": 58,
+    "y": 79
+   }
+  },
+  {
+   "ingredient": "chicken",
+   "slot": 5,
+   "at": {
+    "x": 38,
+    "y": 79
+   }
+  },
+  {
+   "ingredient": "chicken",
+   "slot": 6,
+   "at": {
+    "x": 22,
+    "y": 63
+   }
+  },
+  {
+   "ingredient": "cilantro",
+   "slot": 7,
+   "at": {
+    "x": 25,
+    "y": 36
+   }
+  },
+  {
+   "ingredient": "cilantro",
+   "slot": 8,
+   "at": {
+    "x": 50,
+    "y": 52
+   }
+  }
+ ],
+ "cilantroNearest": [
+  27.2,
+  28
+ ],
+ "leafEmojiUse": {
+  "🌿": [
+   "pesto",
+   "basil"
+  ],
+  "🍃": [
+   "oregano",
+   "spinach",
+   "yuzu-kosho"
+  ],
+  "☘️": [
+   "parsley"
+  ],
+  "🍀": [
+   "mint"
+  ],
+  "🌱": [
+   "rosemary",
+   "artichoke"
+  ],
+  "🌾": [
+   "green-onion"
+  ],
+  "🥗": [
+   "arugula"
+  ],
+  "🥬": [],
+  "🪴": []
+ }
+}
