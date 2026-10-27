@@ -67,6 +67,7 @@ const BLOCK_REASON: Record<SaveWriteBlock, string> = {
   "storage-error": "保存先を読み取れません。",
   "load-failed": "起動時に保存データを読み込めませんでした。",
   "stale-save": "別の画面で保存データが更新されました。",
+  "save-too-large": "保存データが大きくなりすぎたため、読み込めない記録を守るために保存を止めています。",
 };
 
 const FAILURE_REASON: Record<CommitFailure, string> = {
