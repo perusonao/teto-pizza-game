@@ -5,6 +5,14 @@ Status: **調査と整理のみ。** `src/**`・`e2e/**`・CSS・テスト・デ
 **「推奨」は助言であり Owner Decision ではない。未回答を承認済みとみなさない。**
 読んだもの: #611（本文 + コメント）、#579、#577 / `TETO_PIADINA-577_DESIGN-GATE_2026-10-26.md`、`TETO_EXPANSION-BATCH-9_OWNER-DECISIONS.md`、`TETO_STATE-SYNC_2026-10-26.md`、`TETO_NEW-SAUCES-U3_FINAL-DESIGN-GATE_2026-10-26.md`、#604 / #608 の claim コメント、172 品 matrix（`TETO_RECIPE_172_MECHANIC-MATRIX.md` と JSON `TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json`）、`src/data/lateCatalog.ts`。
 
+## Owner 方針（2026-10-27 反映）
+
+- **BBQチキンの暫定仕様での開発を条件付き承認。** cilantro の焼成後追加はゲーム用の暫定仕様で、原典の事実としては記録しない。D-1 / D-4 / D-6 の具体差分は `TETO_BBQ-CHICKEN_CONDITIONAL-APPROVAL_2026-10-27.md` に提示。リングに 8 個の新上限は設けない。未決仕様がある状態では runtime を実装しない。
+- **DRIZZLE（#579）の docs-only 価値監査を開始**（第 1 回の結果: `TETO_DRIZZLE-579_VALUE-AUDIT_2026-10-27.md`。**評価: 現時点では価値を確認できず、保留を推奨**）。
+- **ピアディーナ・月見は HOLD 継続。**
+- **#604 はクローズしない。#608 は HV 証跡確認後に判断。失効 claim の整理**: `TETO_ISSUE-HYGIENE_604-608-CLAIMS_2026-10-27.md`。
+- 依存関係は #673 merge 済み main（`9761d03`）で再確認済み（BBQ 資料 §3）。#673 は merge 済みなので、本表の「#673 の merge 後」は充足。
+
 ## Owner 方針（2026-10-26 反映）
 
 Owner は本表を受けて次を決めた（Issue #611 に記録）。**実装の開始ではない。**
