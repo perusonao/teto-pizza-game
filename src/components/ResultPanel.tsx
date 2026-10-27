@@ -11,7 +11,7 @@ import { STEP_LABEL } from "../data/makingStepLabels";
 import type { DiscoveryOutcome } from "../logic/discovery/matcher";
 import { getIngredient } from "../data/ingredients";
 import { IngredientGlyph } from "./IngredientGlyph";
-import { duplicateTrialNoticeJa, ORIGINAL_LEAD_COPY, originalResultKind } from "../state/originalResultCopy";
+import { duplicateTrialNoticeJa, ORIGINAL_LEAD_COPY, originalResultKind, TARGETLESS_ORIGINAL_NOTE } from "../state/originalResultCopy";
 import type { ResultNearMissLine } from "../state/resultNearMiss";
 import type { PostDiscoveryPrimary } from "../logic/discovery/postDiscoveryPrimary";
 import type { ResearchResultCategory, ResearchResultRow } from "../logic/discovery/researchResultRows";
@@ -323,6 +323,10 @@ export function ResultPanel({
             </p>
           )}
         </div>
+        {/* Issue #676 (C1): the same 「💡 ヒントを見る」 row an ORIGINAL card has (same condition: a Free Cook round with a hint
+            handler, so Guided / Lunch Rush / Dinner never show it). It runs the existing retry-with-hint, and the sheet it opens
+            does not read how the last round ended (a FAILED and an ORIGINAL round open the same sheet). */}
+        {freeCook && hintRow(null, true)}
 
         <div className="pitz-credit-summary pitz-credit-summary--failed">
           <p className="pitz-credit-summary__headline">
@@ -433,7 +437,7 @@ export function ResultPanel({
         {freeCook && hintRow(null, true)}
         {freeCook && trialNoticeText && <p className="original-pizza__trial-notice">{trialNoticeText}</p>}
         <p className="original-pizza__note">
-          {research ? RESEARCH_UX_COPY.resultNote : "図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。"}
+          {research ? RESEARCH_UX_COPY.resultNote : TARGETLESS_ORIGINAL_NOTE}
         </p>
         {research ? (
           <div className="action-row action-row--column result-panel__actions">
