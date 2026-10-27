@@ -19,6 +19,7 @@ import { findOrderForRecipe } from "./orders";
 import { RECIPE_HINT_ROLES } from "./recipeHintRoles";
 import { getRecipeSauceProfile } from "./recipeSauceProfiles";
 import { getRecipe, RECIPES, type RecipeId } from "./recipes";
+import { pinsaEnabled } from "./pinsaGate";
 import { getReferencePizza } from "./referencePizza";
 import { toppingSizeClass } from "./toppingSizeClass";
 
@@ -117,8 +118,8 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     }
   });
 
-  it("catalog counts after this recipe: 70 recipes, 77 ingredients, 61 ladder steps (5 late)", () => {
-    expect(RECIPES.length).toBe(70);
+  it("catalog counts after this recipe: 70 recipes (69 with the Pinsa gate off), 77 ingredients, 61 ladder steps (5 late)", () => {
+    expect(RECIPES.length).toBe(pinsaEnabled() ? 70 : 69); // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
     expect(INGREDIENTS.length).toBe(77);
     expect(DISCOVERY_LADDER.steps.length).toBe(61);
     expect(LATE_LADDER_STEPS.length).toBe(5);
