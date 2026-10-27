@@ -168,3 +168,34 @@ describe("C3: the targetless ORIGINAL note", () => {
     expect(screen.queryByText(TARGETLESS_ORIGINAL_NOTE)).toBeNull();
   });
 });
+
+describe("ported from the duplicate #678: other screens stay as they were (AC-P6)", () => {
+  it("a non-Free-Cook ORIGINAL card keeps its legacy Dex-match note (the new sentence is Free Cook only)", () => {
+    targetlessOriginal(ORDINARY, { freeCook: false, onShowHint: undefined });
+    expect(document.querySelector(".original-pizza__note")).toHaveTextContent("図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。");
+    expect(document.body.textContent).not.toContain(TARGETLESS_ORIGINAL_NOTE);
+  });
+
+  it("a PASS card (NEW_DISCOVERY) has no hint row from this change, and no new-note line", () => {
+    card({
+      completion: { status: "PASS" },
+      score: { matchScore: 90, ingredientScore: 90, placementScore: 80, bakeScore: 90, total: 72, stars: 4 },
+      bakeState: "perfect",
+      discovery: { kind: "NEW_DISCOVERY", recipeId: "margherita", targetId: "shipped:margherita" } as unknown as DiscoveryOutcome,
+      justDiscovered: true,
+    });
+    expect(screen.queryByRole("button", { name: HINT })).toBeNull();
+    expect(screen.queryByText(TARGETLESS_ORIGINAL_NOTE)).toBeNull();
+  });
+});
+
+describe("AC-L2 fix: the tighter card gap is scoped to the Free Cook FAILED card that has the hint row", () => {
+  it("carries the modifier with a hint handler in Free Cook, and not for Guided / Lunch Rush / Dinner (no handler or no Free Cook)", () => {
+    card();
+    expect(document.querySelector(".result-panel--failed")).toHaveClass("result-panel--failed-hint");
+    card({ freeCook: false });
+    expect(document.querySelector(".result-panel--failed")).not.toHaveClass("result-panel--failed-hint");
+    card({ onShowHint: undefined });
+    expect(document.querySelector(".result-panel--failed")).not.toHaveClass("result-panel--failed-hint");
+  });
+});

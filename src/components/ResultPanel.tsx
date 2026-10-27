@@ -297,7 +297,7 @@ export function ResultPanel({
     const failedResearch = freeCook && researchLabelJa !== null && researchRows !== null;
     const failedTrialNoticeText = failedResearch ? duplicateTrialNoticeJa(trialNoticeNumber) : null;
     return (
-      <div className="result-panel result-panel--failed">
+      <div className={`result-panel result-panel--failed${freeCook && onShowHint ? " result-panel--failed-hint" : ""}`}>
         <p className="result-panel__heading result-panel__heading--failed">失敗</p>
         {failedResearch && (
           <p className="result-panel__research-context" data-research-context="">
@@ -437,7 +437,11 @@ export function ResultPanel({
         {freeCook && hintRow(null, true)}
         {freeCook && trialNoticeText && <p className="original-pizza__trial-notice">{trialNoticeText}</p>}
         <p className="original-pizza__note">
-          {research ? RESEARCH_UX_COPY.resultNote : TARGETLESS_ORIGINAL_NOTE}
+          {research
+            ? RESEARCH_UX_COPY.resultNote
+            : freeCook
+              ? TARGETLESS_ORIGINAL_NOTE
+              : "図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。"}
         </p>
         {research ? (
           <div className="action-row action-row--column result-panel__actions">

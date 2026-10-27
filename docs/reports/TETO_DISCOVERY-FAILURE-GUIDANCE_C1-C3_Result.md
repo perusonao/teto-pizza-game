@@ -3,14 +3,14 @@
 base `main` `9761d03`（#673 merge 後）。Owner 実装 GO（2026-10-27）。設計: `TETO_DISCOVERY-FAILURE-GUIDANCE_DESIGN-GATE_2026-10-26.md`、実装前 Gate: `TETO_DISCOVERY-FAILURE-GUIDANCE_C1-C3_PRE-IMPLEMENTATION-GATE_2026-10-27.md`（ブランチ `claude/teto-pizza-improvements-research-mxq1wu-b`、main には未 merge）。
 **merge・deploy は Owner の追加承認まで行わない。**
 
-## 変更（製品コードは 2 ファイル・約 14 行）
+## 変更（製品コード 2 ファイル + 限定的な CSS 1 ルール）
 
 | ファイル | 内容 |
 |---|---|
 | `src/state/originalResultCopy.ts` | 定数 `TARGETLESS_ORIGINAL_NOTE` =「ヒントを見ながら、次に試す材料を考えてみよう。」（C3、Owner 確定） |
 | `src/components/ResultPanel.tsx` | ① 標的なし ORIGINAL の注記を上の定数に置き換え（直書きの旧文を削除）。② **bake-FAILED カードに既存の `hintRow(null, true)` を追加**（C1）。条件は ORIGINAL と同じ `freeCook` かつ `onShowHint` あり。位置は `.result-panel__headline` の直後・Pitz 概要の前 |
 
-**変更していない:** `GameScreen.tsx`、`App.tsx`、CSS、reducer、保存、採点、経済、`handleRetryWithHint`（既存のまま再利用。`onShowHint` は既に `freeCook` のときだけ渡される）。新しい action・文言（C3 の 1 文以外）・CSS はない。見送りの C2・C4・C5・C6 は実装していない。
+**変更していない:** `GameScreen.tsx`、`App.tsx`、reducer、保存、採点、経済、`handleRetryWithHint`（既存のまま再利用。`onShowHint` は既に `freeCook` のときだけ渡される）。新しい action・文言（C3 の 1 文以外）・CSS はない。見送りの C2・C4・C5・C6 は実装していない。
 
 ## Contract 2.1 / INV-D7 / AC-P1〜P6
 
@@ -45,6 +45,12 @@ base `main` `9761d03`（#673 merge 後）。Owner 実装 GO（2026-10-27）。�
 
 ローカルの注意: Playwright の同梱 Chromium とバージョンが異なるため、事前インストール版 `/opt/pw-browsers/chromium` を指定する一時的な設定ファイルで実行した（コミットしていない）。
 
+### 追補（Owner 判断 2026-10-27）: 重複 PR #678 からの移植と、AC-L2 の WebKit 不足の修正
+
+- **WebKit 360×800 の Research FAILED で、本 PR 自身の e2e（AC-L2: 余白 16px 以上）が 14px で失敗**（Chromium は 27.8px）。**閾値は緩和しない。** 余白を増やすため、Free Cook の FAILED カード（hint 行を持つもの）にだけ修飾クラス `result-panel--failed-hint` を付け、そのカードの flex gap を 10px → 6px にした（`App.css` に 1 ルール、隙間 1 つにつき −4px、Research カードは 4 つで +16px）。Guided / Lunch Rush / Dinner の FAILED カード（`freeCook` が false か `onShowHint` なし）は修飾クラスなしで不変。Chromium の実測（同じ e2e の gap）: Research FAILED 360×800 は 27.8 → **43.8px**、390×844 は 71.8 → 87.8px、標的なし FAILED は 249 → 261（390）、205 → 217（360）。WebKit は 14 → 約 30px の見込み（**CI の WebKit で確認する**）。
+- **#678 から移植:** ① 非 Free Cook の ORIGINAL カードは従来の注記のまま（新文は Free Cook のみ。`freeCook ? TARGETLESS_ORIGINAL_NOTE : 旧文`）。② PASS カード（NEW_DISCOVERY）に hint 行と新文が出ない否定テスト。③ 修飾クラスが Free Cook + 手順あり の FAILED カードにだけ付くテスト。新規の部品テストは 3 件追加（部品 17 + reducer 6 = 23 件）。
+- 検証（追補後）: フル Vitest 9,835 passed / 0 failed、`tsc -b`・build 通過、Chromium e2e（`failed-hint-676`）6/6。
+
 ## Human Verification（`docs/decisions/TETO_HUMAN-VERIFICATION-POLICY.md`）
 
 - 前後スクリーンショット（committed）: `docs/reports/screenshots/failed-hint-676/`。`before-*` は main `9761d03` の同じ画面（Research FAILED、標的なし FAILED、標的なし ORIGINAL × 390 / 360。調査時の撮影）、`*-c1-*` / `*-c3-*` は本 PR（FAILED カード、FAILED から開いたシート、標的なし ORIGINAL）。
@@ -58,7 +64,7 @@ base `main` `9761d03`（#673 merge 後）。Owner 実装 GO（2026-10-27）。�
 
 ## 残りのリスク・Owner 判断
 
-- WebKit（CI）と実機 iPhone の見え方は未確認（ヒントボタンの高さは既存クラスのまま 36px。ORIGINAL と同一で、CSS は変更していない）。
+- WebKit（CI）と実機 iPhone の見え方は未確認（ヒントボタンの高さは既存クラスのまま 36px。ORIGINAL と同一）。
 - C1 のボタンは「もう一度 + ヒント」を起動するため、FAILED の「もう一度試す」と並ぶ（ORIGINAL と同じ構成）。
 - 新規保存でシートに既存の Margherita 導入ヒント（「ソースは…」「材料は全部で…」）が出るのは既存仕様（C1 が新しく出す情報ではない）。
 - **Final Gate: merge は Owner の承認後。**
