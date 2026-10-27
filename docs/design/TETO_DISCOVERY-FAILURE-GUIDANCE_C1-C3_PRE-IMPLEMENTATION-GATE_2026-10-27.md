@@ -103,20 +103,22 @@ Status: **実装前 Gate の提出。runtime は実装しない。** `src/**`・
 5. **Research で研究対象が開始時に無効だった場合**の FAILED → ヒントの挙動（シートは CHOOSE_RESEARCH 等になる可能性。本 Gate では未確認）。
 6. **ヒントの購入操作**（シート内の「たずねる」）を FAILED 経由で行ったときの会計（既存仕様で変わらない見込みだが未確認）。
 
-## 6. 既存 PR との HOT ファイル競合（確認）
+## 6. 既存 PR との HOT ファイル競合（確認。2026-10-27 に訂正）
 
-実装予定のファイル: `ResultPanel.tsx`、`originalResultCopy.ts`、関連テスト（`GameScreen.tsx`・`App.tsx`・`App.css` は不要の見込み）。open PR の変更ファイル（merge-base からの差分）で重なるもの:
+**訂正:** 初版の本節は、shallow clone で `git merge-base` が空を返したまま差分を取っており、**#468・#478・#540 が `ResultPanel.tsx` などを触るという記述は誤りだった**。履歴を取得し直して（`git fetch --unshallow`）、各 PR 自身のコミットだけの差分で確認し直した。
+
+実装予定のファイル: `ResultPanel.tsx`、`originalResultCopy.ts`、関連テスト（`GameScreen.tsx`・`App.tsx`・`App.css` は不要の見込み）。open PR の**自身の変更**のうち、関係するファイル（`ResultPanel*`・`researchUxCopy`・`originalResultCopy`・`GameScreen.tsx`・`App.tsx`・`App.css`・`persistence.ts` ほか）:
 
 | PR | 状態 | 重なるファイル |
 |---|---|---|
-| #468（モッツァレラ溶解 Pilot） | open（2026-10-12 以降更新なし） | `ResultPanel.tsx`、`researchUxCopy.ts`、`ResultPanel.researchFailed.test.tsx`、`ResultPanel.test.tsx`、`originalResultCopy.test.ts` ほか |
-| #478（トレイドラッグ統一） | Draft | `ResultPanel.tsx`、`ResultPanel.test.tsx`、`originalResultCopy.test.ts` ほか |
-| #540（グランマ） | Draft・HOLD | `ResultPanel.tsx`、`originalResultCopy.test.ts` ほか |
-| #581（四角天板 UX） | open（HOLD 扱い） | `originalResultCopy.test.ts`（`App.tsx`・`GameScreen.tsx`・`App.css` は本件では触れない） |
-| #674（Dex 生エントリ） | open | 重ならない（`persistence.ts` のみ） |
+| #478（トレイドラッグ統一） | Draft | `GameScreen.tsx` のみ（**本件では触れない予定のファイル**） |
+| #468（モッツァレラ溶解 Pilot） | open（2026-10-12 以降更新なし） | `App.css` のみ（本件は CSS を変更しない見込み） |
+| #540（グランマ） | Draft・HOLD | `recipes.ts`・`recipeSauceProfiles.ts`・`referencePizza.ts`・`hint5.ladders55.json`（本件とは重ならない。BBQ のデータ PR とは重なる） |
+| #581（四角天板 UX） | open（HOLD 扱い） | 上記パターンに該当なし |
+| #674（Dex 生エントリ） | open | `persistence.ts` のみ |
 | #673 | merged | — |
 
-方針: Draft / HOLD の PR は先に merge される予定がなく、実装側が最新 main を前提に進め、重なった場合は古い側が追従する（SESSION-OPERATIONS §1）。#468 は Draft でなく古い open PR で、`ResultPanel.tsx` を触る。**実装の着手前に #468 の扱い（merge 予定・失効・クローズ）を Owner に確認する**（本 Gate の質問）。
+**結論: C1 / C3 の実装予定ファイルを触る open PR は無い。** HOT ファイルの `GameScreen.tsx` は #478（Draft）が触るが、本件は触れない。`App.css` は #468 が触るが、本件は CSS を変更しない（変更が要る場合のみ競合確認）。
 
 ## 7. 判定
 
@@ -125,5 +127,4 @@ Status: **実装前 Gate の提出。runtime は実装しない。** `src/**`・
 ## 8. Owner への質問（残る判断）
 
 1. 実装を開始してよいか（本 Gate を承認するか）。
-2. #468 の扱い（`ResultPanel.tsx` が重なる古い open PR）。
-3. HV の動画・スクリーンショットの範囲（設計 Gate §7.4 のとおりでよいか）。
+2. HV の動画・スクリーンショットの範囲（設計 Gate §7.4 のとおりでよいか）。
