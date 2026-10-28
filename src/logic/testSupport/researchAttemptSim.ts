@@ -417,7 +417,8 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
     if (JSON.stringify(s.discoveryHintFacts).includes("×")) violations.push(`${tag}: × in the save ledger`);
   }
 
-  for (let stageGuard = 0; stageGuard < 80; stageGuard += 1) {
+  // One stage per recipe (plus the Margherita onboarding and the final completion check); the bound follows the catalog, so a batch never exhausts it (it was a fixed 80, which the 80th recipe reached).
+  for (let stageGuard = 0; stageGuard < RECIPES.length + 20; stageGuard += 1) {
   // Batch 6 PR-2: replay for the star gates once their step is reached (a real player must; see starGateReplay.ts).
   s = replayForGateStars(s);
     const dexIds = discoveredRecipeIds(s.dex);

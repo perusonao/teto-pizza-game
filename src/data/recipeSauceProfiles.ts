@@ -335,6 +335,19 @@ export const RECIPE_SAUCE_PROFILES = {
     ingredientId: "mustard",
     interaction: "PAINT",
   },
+  // B11 S1 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): boscaiola's olive-oil reuses vongole's own PAINT_TEMPORARY sauce-slot mapping (not a general rule); pescatore uses tomato-sauce only (the olive-oil of the source ingredient set is omitted by Owner decision, a single sauce);
+  // porcini-pizza is NO_SAUCE (the existing `null` mapping, like aussie).
+  boscaiola: {
+    recipeId: "boscaiola",
+    ingredientId: "olive-oil",
+    interaction: "PAINT_TEMPORARY",
+  },
+  "porcini-pizza": null,
+  pescatore: {
+    recipeId: "pescatore",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
   // Multi-Sauce S3 / Square Dough E-2: the PRIMARY sauce only (tomato-sauce, the Reference target). The secondary olive-oil has no profile entry and is scored by presence (Design Lock §5.3).
   "grandma-pizza": {
     recipeId: "grandma-pizza",

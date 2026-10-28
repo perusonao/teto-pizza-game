@@ -127,6 +127,10 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   currywurst: { keyFree: true },
   "tandoori-paneer-pizza": { keyFree: true },
   "cuban-pizza": { keyFree: true },
+  // B11 S1: permanently key-free.
+  boscaiola: { keyFree: true },
+  "porcini-pizza": { keyFree: true },
+  pescatore: { keyFree: true },
   // Multi-Sauce S3 / Square Dough E-2: permanently key-free.
   "grandma-pizza": { keyFree: true },
   // FIN-E4b-ikura (#621, late catalog): permanently key-free.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../../data/recipes";
-import { NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
+import { B11_S1_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
 import {
   ordinaryCatalogView,
   productionCatalogView,
@@ -27,11 +27,26 @@ describe("production catalog", () => {
     expect(NEXT_RECIPE_BATCH.acceptedLetterShifts).toBeUndefined(); // a single-member cohort: no existing recipe changes its letter
     expect(validateBatchManifest(NEXT_RECIPE_BATCH, ordinaryCatalogView())).toEqual([]); // E5: a batch is an ordinary-catalog event
   });
+
+  it("B11 S1 (boscaiola / porcini-pizza / pescatore) is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations; no pre-existing recipe changes its Research letter", () => {
+    expect(RECIPE_BATCHES).toContain(B11_S1_BATCH);
+    expect(B11_S1_BATCH.status).toBe("landed");
+    expect(B11_S1_BATCH.recipes.map((r) => r.recipeId)).toEqual(["boscaiola", "porcini-pizza", "pescatore"]);
+    expect(B11_S1_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["porcini", "porcini", "mussel"]);
+    expect(B11_S1_BATCH.acceptedLetterShifts).toBeUndefined();
+    expect(validateBatchManifest(B11_S1_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
 });
 
 /** The validator must actually fire: each check against a synthetic break (so it is never a tautology). */
 describe("validator catches", () => {
   const withRecipes = (recipes: CatalogView["recipes"]): CatalogView => ({ ...view, recipes });
+
+  it("a shared key material is flagged between two credited recipes, and allowed only for a non-credit sibling (B11 S1: porcini-pizza rides boscaiola's step)", () => {
+    const credited = { ...B11_S1_BATCH, recipes: B11_S1_BATCH.recipes.map((r) => (r.recipeId === "porcini-pizza" ? { ...r, ladderCredit: true } : r)) };
+    expect(validateBatchManifest(credited, ordinaryCatalogView())).toContain("MANIFEST_KEY_INGREDIENT_DUPLICATE: porcini");
+    expect(validateBatchManifest(B11_S1_BATCH, ordinaryCatalogView()).filter((p) => p.startsWith("MANIFEST_KEY_INGREDIENT_DUPLICATE"))).toEqual([]);
+  });
   const last = RECIPES[RECIPES.length - 1];
   /** Batch 8a (the previous batch, landed: #557) as a fixture for the non-credit / creditedWithoutStep / letter-shift checks the Phase A manifest does not exercise. */
   const view8a: CatalogView = { ...view, recipes: RECIPES.slice(0, RECIPES.findIndex((r) => r.id === "frango-catupiry") + 1), ladder: { ...view.ladder, steps: view.ladder.steps.slice(0, 53) } };

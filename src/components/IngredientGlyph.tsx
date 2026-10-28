@@ -49,6 +49,8 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "wasabi-dab": "0 0 64 64",
   "cod-roe-mass": "0 0 64 64",
   "nori-strips": "0 0 64 64",
+  "porcini-slice": "0 0 64 64",
+  "mussel-shell": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -85,6 +87,8 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "wasabi-dab" && <WasabiDab />}
       {visual === "cod-roe-mass" && <CodRoeMass />}
       {visual === "nori-strips" && <NoriStrips />}
+      {visual === "porcini-slice" && <PorciniSlice />}
+      {visual === "mussel-shell" && <MusselShell />}
     </svg>
   );
 }
@@ -731,6 +735,43 @@ function NoriStrips() {
         <path d="M16 40l20-8" />
         <path d="M27 28l20-5" />
         <path d="M30 51l20-5" />
+      </g>
+    </g>
+  );
+}
+
+/* ---------- porcini (B11 S1, PROVISIONAL SPEC / adoption): a lengthwise slice, a brown dome cap over a thick, pale, bulging stem, with a second smaller slice behind. Drawn as a cap-and-stem silhouette on purpose, so it reads differently from the plain mushroom (round white cap) and from the dark round sausage slices. ---------- */
+function PorciniSlice() {
+  return (
+    <g>
+      <ellipse cx="32" cy="58" rx="23" ry="3.2" fill="#000" opacity=".15" />
+      <g transform="translate(40 8) scale(.55)">
+        <path d="M20 40 C16 54 18 66 24 76 L40 76 C46 66 48 54 44 40 Z" fill="#f0e2c6" stroke="#6a4322" strokeWidth="4" strokeLinejoin="round" />
+        <path d="M2 40 C2 14 16 2 32 2 C48 2 62 14 62 40 C62 44 58 46 54 46 L10 46 C6 46 2 44 2 40 Z" fill="#8a5a30" stroke="#4a2c12" strokeWidth="4" strokeLinejoin="round" />
+      </g>
+      <path d="M21 33 C17 46 18 53 21 59 L38 59 C41 53 42 46 38 33 Z" fill="#f3e6cb" stroke="#6a4322" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M26 38 C25 46 26 52 27 56" stroke="#d6c29a" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M5 33 C5 17 15 8 29.5 8 C44 8 54 17 54 33 C54 36 51 38 48 38 L11 38 C8 38 5 36 5 33 Z" fill="#9a6838" stroke="#4a2c12" strokeWidth="2.6" strokeLinejoin="round" />
+      <path d="M9 34.5 L50 34.5" stroke="#d9c28a" strokeWidth="3" strokeLinecap="round" />
+      <path d="M11 24 C13 17 19 13 26 12" stroke="#c9945c" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <circle cx="40" cy="20" r="2" fill="#b07a46" />
+      <circle cx="46" cy="27" r="1.6" fill="#b07a46" />
+    </g>
+  );
+}
+
+/* ---------- mussel (B11 S1, PROVISIONAL SPEC / adoption): an elongated, dark blue-black shell opened to show a pale nacre rim and an orange body. The long pointed teardrop and the dark colour keep it apart from the round, pale clam valve. ---------- */
+function MusselShell() {
+  return (
+    <g>
+      <ellipse cx="32" cy="58" rx="24" ry="3.2" fill="#000" opacity=".15" />
+      <g transform="rotate(-24 32 34)">
+        <path d="M6 36 C6 20 22 10 40 12 C54 14 60 26 58 38 C56 50 40 56 24 54 C14 52 6 46 6 36 Z" fill="#2f3a52" stroke="#10172a" strokeWidth="2.6" strokeLinejoin="round" />
+        <path d="M12 36 C12 25 24 18 38 19 C49 20 53 28 52 37 C51 46 40 50 27 49 C19 48 12 43 12 36 Z" fill="#c9d3e3" stroke="#8b99b4" strokeWidth="1.6" strokeLinejoin="round" />
+        <path d="M17 36 C17 29 26 24 37 25 C45 26 47 31 46 37 C45 43 37 45 28 44 C21 43 17 40 17 36 Z" fill="#f29a4a" stroke="#c4631c" strokeWidth="1.6" strokeLinejoin="round" />
+        <path d="M24 33 C28 30 34 29 40 30" stroke="#ffd2a1" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <path d="M10 28 C16 20 26 15 38 15" stroke="#5b6b8f" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+        <path d="M8 38 C12 48 22 53 34 53" stroke="#5b6b8f" strokeWidth="1.6" strokeLinecap="round" fill="none" />
       </g>
     </g>
   );

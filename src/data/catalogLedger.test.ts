@@ -22,12 +22,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // BBQ Chicken (#611): + bbq-chicken-pizza (late catalog, credited, chapter 4), + bbq-sauce (a late sauce) + cilantro (a late topping, herb), + their shared late ladder step 66 (after Batch 10's ordinary steps 57-61 and the late steps 62-65).
       // Expansion Batch 10 PR-1: + curry-pizza-japan, rendang-pizza, currywurst, tandoori-paneer-pizza, cuban-pizza (credited, chapter 4); + 8 materials (curry-ketchup / mustard sauces, paneer / swiss-cheese cheeses, beef / wurstel / paprika-powder / pickles toppings); + ordinary steps 57-61 (the late steps shift +5).
       // PR-2 late4 (#578 / #611): + wasabi-beef-pizza and tarako-cream-pizza (late catalog, credited, chapter 4), + soy-sauce and fresh-cream-sauce (late sauces) + wasabi / cod-roe / nori (late toppings), + their late ladder steps 67 and 68.
-      recipes: pinsa ? 77 : 76,
-      credited: 71,
-      ingredients: 90,
-      toppings: 64,
-      ladderSteps: 68,
-      chapterSizes: [6, 12, 18, pinsa ? 41 : 40],
+      // B11 S1 (PROVISIONAL SPEC, original NOT confirmed): + boscaiola (credited, the key of ordinary step 62), + porcini-pizza (non-credit, NO_SAUCE, the same step), + pescatore (credited, the key of ordinary step 63), chapter 4; + porcini (vegetable) and mussel (seafood) toppings; + ordinary steps 62-63 (the late steps shift +2: 64-70).
+      recipes: pinsa ? 80 : 79,
+      credited: 73,
+      ingredients: 92,
+      toppings: 66,
+      ladderSteps: 70,
+      chapterSizes: [6, 12, 18, pinsa ? 44 : 43],
       lunchRushPool: 25,
     });
   });
@@ -38,6 +39,6 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id)! : i.category;
       byShelf[shelf] = (byShelf[shelf] ?? 0) + 1;
     }
-    expect(byShelf).toEqual({ sauce: 13, cheese: 13, meat: 12, seafood: 10, vegetable: 23, fruit: 3, herb: 9, spice: 4, other: 3 });
+    expect(byShelf).toEqual({ sauce: 13, cheese: 13, meat: 12, seafood: 11, vegetable: 24, fruit: 3, herb: 9, spice: 4, other: 3 });
   });
 });

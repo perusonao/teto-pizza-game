@@ -61,7 +61,10 @@ describe("lunchRush: false foundation", () => {
       "tandoori-paneer-pizza",
       "currywurst",
       "cuban-pizza",
-    ]); // opt-out total = 44 (Expansion Batch 10 PR-1 adds five)
+      "boscaiola",
+      "porcini-pizza",
+      "pescatore",
+    ]); // opt-out total = 47 (Expansion Batch 10 PR-1 adds five; B11 S1 adds three)
     const original = (RECIPES as readonly Recipe[]).filter((r) => r.lunchRush !== false);
     expect(original).toHaveLength(25);
     expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);

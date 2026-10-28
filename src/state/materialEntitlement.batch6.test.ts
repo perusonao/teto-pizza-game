@@ -32,7 +32,7 @@ describe("Batch 6 PR-2 production star gates", () => {
     const [s50, s51] = [DISCOVERY_LADDER.steps[49], DISCOVERY_LADDER.steps[50]];
     expect(s50).toEqual({ step: 50, kind: "MATERIAL", ingredientIds: ["avocado", "goat-cheese"], starGates: { "goat-cheese": GATE_GOAT_CHEESE }, keyRecipeId: "california-style-pizza" });
     expect(s51).toEqual({ step: 51, kind: "MATERIAL", ingredientIds: ["artichoke", "spinach"], starGates: { spinach: GATE_SPINACH }, keyRecipeId: "spinach-artichoke-pizza" });
-    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps)).toHaveLength(61); // + Batch 7a's steps 52-53, Batch 8b's step 54, New Sauces Phase A's step 55, Phase B-1's step 56 and Expansion Batch 10 PR-1's steps 57-61 (no star gate)
+    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps)).toHaveLength(63); // + B11 S1's steps 62-63 (porcini, mussel), Batch 7a's steps 52-53, Batch 8b's step 54, New Sauces Phase A's step 55, Phase B-1's step 56 and Expansion Batch 10 PR-1's steps 57-61 (no star gate)
   });
 
   it("keeps the frozen steps 1..49 byte-identical in meaning (append-only extension)", () => {
