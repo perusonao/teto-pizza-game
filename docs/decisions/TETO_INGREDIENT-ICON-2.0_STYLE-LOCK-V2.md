@@ -129,6 +129,7 @@ HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner
 | 不変 | 食材 ID・`nameJa`・`emoji`（テキストフォールバック）・`color`・`placement`・family・サイズクラス・在庫・採点・DH4・レシピ・ladder・セーブ形式（描画のみ。`lateCatalog.offSurface.json` の再生成も不要） |
 | HV の範囲 | 390×844 の焼成後の比較画像（Owner、2026-10-28）= PASS。360×800 は既存の撮影結果（`docs/reports/screenshots/ingredient-visual-v1/`、3 状態）を維持。**Safari 実機での動作確認は未実施** |
 | §2 の規約 | `id` / gradient / `<defs>` なし、`aria-hidden`、描画は `pieceVisual` のみを読む。いずれも維持 |
+| 既知の懸念（記録） | **360×800 のパプリカパウダー**は、トマトソース上の盤面で赤どうしになり小さく見えて目立ちにくい（トレイでは識別できる）。Owner 判断（2026-10-28）で描画変更は行わず、懸念として記録のみ（画像 HV は PASS、Safari 実機は未実施） |
 
 ## 2. 共通仕様（確定方針の再掲）
 
