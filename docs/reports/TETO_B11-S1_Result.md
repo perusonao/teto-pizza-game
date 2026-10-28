@@ -70,7 +70,7 @@ Status: **実装完了・自動ゲート GREEN。Owner の実機 HV と最終承
 | Vitest 全体（Pinsa ON） | **10,482 件中 10,467 passed / 0 failed**（13 skipped） |
 | Vitest 全体（`TETO_PINSA_OFF=1`） | **10,473 件中 10,459 passed / 0 failed**（12 skipped） |
 | E2E `e2e/b11-s1.spec.ts`（Chromium、390×844 と 360×800 × 3 レシピ） | **6/6 passed**（Shop NEW → 購入 → Research ラベル（漏えいなし）→ 調理 → NEW DISCOVERY → Dex、横スクロールなし、console error 0） |
-| WebKit E2E | **未実施**（CI の WebKit シャードに委ねる。本環境では未検証） |
+| WebKit E2E | 本環境では未実施。**CI の WebKit シャード 6 本（390 / 360 × 3）と WebKit Gate は success**（HEAD `459d80db`）、Codex は同 HEAD で指摘なし |
 | Safari / iPhone 実機 | **未実施**（Owner の HV） |
 
 - E2E は環境の Playwright が要求するブラウザ版と入っているものが違うため、リポジトリに含めないローカル設定（`playwright.local.config.ts`、`.git/info/exclude`）で `/opt/pw-browsers/chromium-1243` を指定して実行した。リポジトリの設定は変更していない。
@@ -82,11 +82,53 @@ Status: **実装完了・自動ゲート GREEN。Owner の実機 HV と最終承
 - 新食材は main に存在しないので **before は無い**（新規）。既存の mushroom / clam / shrimp / sausage が動いていないことは、`IngredientGlyph.test` と比較シート `b11-svg-comparison-sheet.png`（dough / tomato / baked 3 背景 × 24px / 48px、porcini↔mushroom・mussel↔clam↔shrimp・sausage の並べ）で確認できる。
 - `b11-{porcini,mussel}-new-*`（Shop NEW）、`b11-<recipe>-research-entry-*`、`-tray-sauce` / `-tray-topping` / `-sauce-painted` / `-no-sauce-step` / `-topped` / `-new-recipe`。
 
-**Human Verification Videos**: 本セッションでは **動画（390×844 MP4）を作成していない**（`HV_VIDEO=1` で撮れる状態）。Policy §4〜§10 の動画 + `Video Verification` は未提出。
+**Human Verification Videos**（対象 HEAD `459d80db9a5f048424ce66dd345919b54078e58d`。動画はリポジトリに含めず、Owner へ直接提出）
 
 | Video | Viewport | Duration | Size | Verification |
 |---|---|---:|---:|---|
-| （未作成） | 390×844 | — | — | — |
+| `b11-s1-hv-boscaiola-390x844.mp4` | 390×844 | 31.8 s | 616,697 B | PASS |
+| `b11-s1-hv-porcini-pizza-390x844.mp4` | 390×844 | 28.0 s | 598,709 B | PASS |
+| `b11-s1-hv-pescatore-390x844.mp4` | 390×844 | 32.5 s | 652,577 B | PASS |
+
+Download: セッション内直接提出（`SendUserFile`）。codec H.264（yuv420p、25 fps、音声なし）、`e2e/b11-s1.spec.ts` を `HV_VIDEO=1`（各状態 1〜3 秒保持）で録画し、ffmpeg で WebM から MP4 に変換。
+内容: HOME → Shop の NEW 行 → 購入 → 図鑑の研究ラベル → 調理（SAUCE（porcini-pizza はソースなしで次へ）→ CHEESE → TOPPING）→ 焼成 → RESULT（NEW PIZZA）。
+
+Video Verification: PASS（ファイルが存在し size > 0、`ffmpeg -f null` で最後まで復号できる、390×844 の全画面が映る、対象操作が映る、等間隔 8 フレームで全工程を確認）
+
+### 7.1 HV の確認結果（セッションの目視判定。`PASS` / `FAIL` の語は Owner のもの）
+
+対象: 39 枚の既存画像（390×844 と 360×800）、動画 3 本、拡大比較（`b11-hv-zoom-*.png` 2 倍、`b11-hv-bake-result-stills-390.png`、`b11-svg-comparison-sheet.png`）。
+
+| 項目 | 判定（セッション） | 所見 |
+|---|---|---|
+| 表示不良（はみ出し・重なり・切れ） | 見つからず | Shop NEW 行、トレイ（ページング・family 行）、調理中、RESULT、図鑑の研究ラベルで、390×844 / 360×800 とも横はみ出し・文字切れなし（E2E の `noOverflow` も通過） |
+| **porcini-pizza: NO_SAUCE 上のポルチーニ** | 識別できる | 淡い生地の上でも、濃い茶の傘と太い軸の輪郭が読める（390 / 360 とも）。焼成後の金色の生地の上でも読める。**注意: 同じ盤面の garlic と parsley は淡色で目立たない**（既存の食材で、今回の変更ではない） |
+| **pescatore: トマトソース上のムール貝** | 識別できる | 黒藍の殻と橙の身が赤い盤面で最も目立つ。clam（淡い茶の丸い殻）・shrimp（淡いピンクのカール）と並んでも取り違えにくい。**360×800 では小さいが、輪郭と橙の身は読める**。焼成後の赤の上でも読める |
+| porcini と mushroom / sausage | 取り違えにくい | 縦断面の傘と太い軸の形で別物（比較シート 3 背景 × 24 / 48px） |
+| boscaiola | 問題なし | porcini と sausage が同じ盤面で区別できる。olive-oil の PAINT_TEMPORARY は既存の見え方（黄緑の艶） |
+| サイズ補正 1.3em | 問題なし | トレイ chip でも盤面でも既存の食材と釣り合う（過大・過小なし） |
+
+**セッションの結論: 画像・動画の範囲では、表示上の問題は見つからなかった。修正は行っていない（修正前後の比較画像は無い）。** これは Owner の `PASS` ではない。判定は Owner の実機 HV による。
+
+### 7.2 iPhone Safari 実機チェックリスト（Owner 用）
+
+事前: Preview は Owner が承認した方法で（共有 Preview・Production は更新しない）。保存は Preview 専用キーなので捨ててよい。
+
+1. **Shop**: porcini（野菜・きのこ系、30 ピザ分）と mussel（魚介系、10 ピザ分）の NEW 行。初回 120 Pitz。仕入れるが押せ、文字が切れない。
+2. **図鑑の研究ラベル**: 「？？？ピザ A（ポルチーニ）」「？？？ピザ B（ポルチーニ）」「？？？ピザ（ムール貝）」。レシピ名・個数が出ていない。
+3. **porcini-pizza（最重要）**: ソース工程で何も塗らず「次へ」→ チーズ → 具材。**淡い生地の上でポルチーニが見えるか**（傘と軸）。焼成後にも見えるか。
+4. **pescatore（最重要）**: トマトソース → エビ・あさり・ムール貝・にんにく・パセリ。**ムール貝（黒藍＋橙）が赤い盤面で読めるか**、あさり・エビと取り違えないか。焼成後も。
+5. **boscaiola**: オリーブオイル → ポルチーニ + ソーセージ。2 つの具材が区別できるか。
+6. **トレイ**: 具材 chip の porcini / mussel の絵が潰れない（2 行トレイ、family 絞り込み「野菜・きのこ系」「魚介系」、ページ送り）。
+7. **焼成 → RESULT**: 取り出す → NEW PIZZA、完成した絵（盤面）に porcini / mussel が残る。
+8. **図鑑**: 3 レシピのカードの食材チップ。mushroom / clam / shrimp を使う既存レシピの見え方が変わっていない。
+9. **画面**: 横スクロールなし、下部のボタンが画面内、390 幅と 360 幅（可能なら両方）。
+10. **既存の保存を持つ端末**: 既に late 素材を持つ保存で、ショップの内容が後退しない。
+
+## 7.3 HV の残課題
+
+- 動画は Chromium の録画（WebKit ではない）。**WebKit の CI シャードは全て success** だが、Safari 実機の見え方・操作感は未確認。
+- 既存の mushroom / clam を使う既存レシピの回帰は、動画ではなく比較シートとユニットテストで確認した（既存レシピ専用の動画は無い）。
 
 Owner に見てほしい点（Prep §4 の項目）:
 1. **porcini-pizza（NO_SAUCE）の淡色盤面で porcini が沈まないか**（390 では傘の茶色と軸が読めた。360×800 の実機で最初に確認）。
@@ -104,7 +146,7 @@ Owner に見てほしい点（Prep §4 の項目）:
 
 ## 9. 残る事項・リスク
 
-- WebKit CI と Safari / iPhone 実機は未検証。動画は未作成。
+- Safari / iPhone 実機は未検証（§7.2 のチェックリスト）。動画（390×844 × 3）は §7 のとおり作成・提出済み。
 - 設計 SSOT（Phase-2 matrix）と pescatore の構成が意図的にずれている（§3）。将来 olive-oil の 2 ソース構成にする場合は MULTI_SPREAD_LAYER の実装と例外の撤去が要る。
 - `researchAttemptSim` の stage guard は修正済みだが、同種の「カタログ成長で境界・timeout を超える」箇所は他にもありうる（今回の全体実行では他に無かった）。
 - `gameReducer.deductionHint.test` は未改変 main でも本環境で timeout する既存の問題だった（分割で解消）。CI の実時間との差は未確認。
