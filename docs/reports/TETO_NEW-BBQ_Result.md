@@ -7,13 +7,13 @@ Authority: Owner 承認（2026-10-27）Final Design Gate ＋ `docs/design/TETO_B
 
 | 項目 | 値 |
 |---|---|
-| レシピ | `bbq-chicken-pizza`（BBQチキンピザ）、late catalog、credited、全体 70 番目（Pinsa ON 時。Pinsa の前）、第 4 章 |
+| レシピ | `bbq-chicken-pizza`（BBQチキンピザ）、late catalog、credited、全体 74 番目（Pinsa ON 時。Pinsa の前。main `47268e3` 統合後）、第 4 章 |
 | 説明文 | 「甘辛いソースのチキンに、香菜をそえた一枚。」（時機を名指ししない） |
 | 構成（**GAMEPLAY ASSUMPTION**、原典未確認） | BBQソース 1（焼成前 **PAINT**）/ モッツァレラ 2 / たまねぎ 1 / チキン 3 / パクチー 2（**焼成後 FINISH**）＝ソース以外 **8 ピース**（焼成前 6 ＋ FINISH 2） |
 | 焼成窓・CUT | 58–78（Free Cooking の汎用窓と同じ）/ CUT なし / `lunchRush:false` |
-| 新素材 | `bbq-sauce`（表示名「バーベキューソース」、spread、暫定色 `#7a2f1c`、emoji 🔥）、`cilantro`（表示名「パクチー」、scatter、family `herb`、size class `xs`、専用 SVG＝候補 A、プレースホルダ emoji 🌼、`bakeRoastResistant`） |
+| 新素材 | `bbq-sauce`（表示名「バーベキューソース」、spread、暫定色 `#5c3018`（実機HVで `#7a2f1c` から変更。下の追記）、emoji 🔥）、`cilantro`（表示名「パクチー」、scatter、family `herb`、size class `xs`、専用 SVG＝候補 A、プレースホルダ emoji 🌼、`bakeRoastResistant`） |
 | ladder | late step（tahini の次）に 2 材料（bbq-sauce → cilantro）。番号は**導出**、星ゲートなし、T4、key-free。Research コホートの鍵は cilantro |
-| 互換下限 | `LATE_ENTITLEMENT_FLOORS` に `bbq-sauce: 61` / `cilantro: 61` を追加。既存 57/58/59/59/60/60 は**不変** |
+| 互換下限 | `LATE_ENTITLEMENT_FLOORS` に `bbq-sauce: 66` / `cilantro: 66` を追加（Owner 承認 2026-10-27: 出荷時点で ladder が導く番号 = 通常 61 + late 5。#686 の統合前は 61 だった）。既存 57/58/59/59/60/60 は**不変** |
 | Reference | 8 ピースの固定 8 点リング（`getReferenceSlots(8)` と完全一致、8 番目＝生地中央 (50,52)）。パクチーは `LIGHT_LEAF`、他は `HEAVY_SQUASH`、許容 8/22。**新しいピース数上限は設けていない** |
 | 触れていないもの | 採点・経済・保存形式（schema v2）・エンジン（reducer / FINISH / ladder 純粋層）・DH4 gate の privacy assertion・Pinsa・`recipes.ts` |
 
@@ -27,16 +27,16 @@ Authority: Owner 承認（2026-10-27）Final Design Gate ＋ `docs/design/TETO_B
 
 | 項目 | 想定 | 実測（`catalogLedger.test.ts` で固定） |
 |---|---|---|
-| レシピ | 70 | **70**（credited 64） |
-| 食材 | 77 | **77**（toppings 57） |
-| ladder | 61 | **61**（late step 5 本、導出）|
-| 第 4 章 | — | 34 件（Pinsa ON） |
+| レシピ | 75 | **75**（Pinsa OFF 74、credited 69。統合前は 70 / 64） |
+| 食材 | 85 | **85**（toppings 61。統合前は 77 / 57） |
+| ladder | 66 | **66**（late step 5 本、導出。統合前は 61） |
+| 第 4 章 | — | 39 件（Pinsa ON、OFF 38。統合前は 34） |
 
 ## 4. 既存セーブ・Dex・Research・ladder への影響
 
 | 観点 | 結果 |
 |---|---|
-| 既存セーブ | 台帳は縮まない。floors は 57/58/59/59/60/60/61/61。`lateCatalog.bbq.test.ts` で exact 固定。新 step の素材はセーブに載せず、ladder が読込時に付与（e2e で確認） |
+| 既存セーブ | 台帳は縮まない。floors は 57/58/59/59/60/60/66/66。`lateCatalog.bbq.test.ts` で exact 固定。新 step の素材はセーブに載せず、ladder が読込時に付与（e2e で確認） |
 | Dex / 保存 | schema v2 のまま。Dex 項目・未知 ID は保持 |
 | Research | BBQ のコホートは単独（文字なし）。既存レシピの文字は動かない |
 | ヒント | 永久 key-free。Hint 5.0 golden は**追記のみ**（`hint5.ladders55.json` +251 / −0、`hint5.alphaFamilyOnly.json` +1 キー） |
@@ -53,8 +53,8 @@ Authority: Owner 承認（2026-10-27）Final Design Gate ＋ `docs/design/TETO_B
 
 | 原因 | 更新 |
 |---|---|
-| レシピ／食材／ladder 数 | `catalogLedger`（70/64/77/57/61、第 4 章 34、sauce 9、herb 9）、`catalogShelf` / `largeCatalogFixtures`（sauce 9） |
-| late 末尾の増加 | `lateCatalog.{test,ikura,yuzu,dengaku,tahini}`、`e5.ikuraProduction`、`pinsa.production`、`recipeChapters`（第 4 章の late 数）、`lateAxis`、`materialShop`（offers に bbq-sauce / cilantro、最終 step 61） |
+| レシピ／食材／ladder 数 | `catalogLedger`（75/69/85/61/66、第 4 章 39、sauce 11、herb 9）、`catalogShelf` / `largeCatalogFixtures`（sauce 11） |
+| late 末尾の増加 | `lateCatalog.{test,ikura,yuzu,dengaku,tahini}`、`e5.ikuraProduction`、`pinsa.production`、`recipeChapters`（第 4 章の late 数）、`lateAxis`、`materialShop`（offers に bbq-sauce / cilantro、最終 step 66） |
 | 新 sauce／herb／sauce profile | `referencePizza.test`（sauce 集合に bbq-sauce）、`IngredientGlyph.test`（cilantro 専用 visual） |
 | key-free 母集団 | `hint5Ladder.baseCompat`（44 レシピ、sauce+cheese 18） |
 | golden | `hint5.ladders55`（追記のみ）、`hint5.alphaFamilyOnly`（+1 キー）、DH4 監査 JSON |
@@ -86,7 +86,7 @@ U1〜U3 の e2e は、自分の late step を導出する形に更新（U3 の�
 
 - スクリーンショット（committed）: `docs/reports/screenshots/new-bbq/`（SVG と完成ピザの比較画像を含む）。
 - 動画（**commit しない**。Owner へ直接提出）。
-- **実機（iPhone Safari）で確認してほしいこと**: ①バーベキューソース `#7a2f1c` が生地・トマトソース・豆板醤と見分けられるか、②**FINISH のパクチー 2 個**（`xs`）の視認性、③パクチー SVG（候補 A）が焼いたピザ上で読めるか。
+- **実機（iPhone Safari）で確認してほしいこと**: ①バーベキューソース（当初 `#7a2f1c`、現在 `#5c3018`）が生地・トマトソース・豆板醤と見分けられるか、②**FINISH のパクチー 2 個**（`xs`）の視認性、③パクチー SVG（候補 A）が焼いたピザ上で読めるか。
 - **Owner の実機 HV は未実施。**
 
 ## 10. リスクと注意
@@ -102,3 +102,23 @@ U1〜U3 の e2e は、自分の late step を導出する形に更新（U3 の�
 2. 実機 HV（ソース色・パクチーの視認性・FINISH の操作）と最終承認。HV 後に merge。
 3. 暫定値（個数・焼成窓・色・size class・パクチー焼成後）の確定、または原典確認後の再設計。
 4. 注文文（`lineJa`）の実際の文言: 「BBQチキンピザ、甘辛くてパーティみたい！食べてみたいな！」（依頼者 mito）。この文言でよいか。
+
+## 追記: main `47268e3` 統合後（2026-10-28、HEAD は PR の最新 SHA）
+- #686（Batch 10: 通常 step 57-61）が先に入ったため、本 PR の late step は **66**、floors は **66/66**（Owner 承認）。件数は recipes 75（Pinsa OFF 74）/ ingredients 85 / ladder 66 / credited 69。上の本文の統合前の値（61 / 70 / 77）は、この追記の値に置き換わっている。
+- 統合で追随したテスト: `pinsaGate`（#683 の一覧に bbq-chicken-pizza）、`deductionGuard.gate`（旧 DH4-2A の leak 数 173 → 212、hardened は 0 のまま）、`deductionProduction.gate`（main の版。`preExistingPublic` に pesto-caprese は不要）、floors の 3 テスト。
+- 検証（`7646ca7`）: tsc 成功 / oxlint エラー 0 / フル Vitest ON 538 files・10,051 passed / OFF 538 files・10,043 passed、失敗 0。
+- 上の「フル Vitest 9,846 passed」「Chromium 525 passed / 11 failed」は統合前（`933e518` 以前）の記録。
+
+## 追記: BBQ ソースの色変更（2026-10-28、iPhone 実機HV後の Owner 判断）
+- `bbq-sauce` の色を `#7a2f1c` → **`#5c3018`** に変更した（`lateCatalog.ts` の1行。豆板醤 `#8a2b1c` と塗った状態で近く、取り違えが懸念されたため）。パクチーの SVG は変更していない。
+- 実測（同じ塗り方・同じ焼き時間、390×844、塗りの平均色どうしの CIE76 ΔE）:
+
+| 組み合わせ | 変更前（焼成前 / 焼成後） | 変更後（焼成前 / 焼成後） |
+|---|---|---|
+| BBQ ↔ 豆板醤 | 5.6 / 6.3 | **14.0 / 15.7** |
+| BBQ ↔ トマト | 18.8 / 20.6 | 27.1 / 29.9 |
+| BBQ ↔ 素の生地 | 36.0 / 33.6 | 35.2 / 33.0 |
+
+- 影響したテストは `lateCatalog.bbq.test.ts`（色の期待）のみ。golden・他のテストに色の依存はなかった（フル Vitest ON で確認、下記）。
+- 検証: tsc 成功 / フル Vitest（Pinsa ON）537 files・10,050 passed・失敗 1（`gameReducer.deductionHint.test.ts` が 5,000ms 制限ぎりぎり: 色変更を退避した `8bffd55` でも同じ 5,090ms で失敗。色とは無関係の時間依存。skip・制限延長なし）。
+- iPhone 実機の視認性HV（比較シート）の結果は、Owner の判定を受けて追記する。

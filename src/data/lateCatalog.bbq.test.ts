@@ -96,9 +96,9 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     expect(description).not.toMatch(/焼成|焼き上|焼いた|あと|仕上げ|後乗せ|振り/);
   });
 
-  it("bbq-sauce: a late-only finite sauce (spread, ladder-gated, no topping family), provisional colour #7a2f1c", () => {
+  it("bbq-sauce: a late-only finite sauce (spread, ladder-gated, no topping family), provisional colour #5c3018 (was #7a2f1c; changed at the iPhone HV for the doubanjiang contrast)", () => {
     const ingredient = getIngredient(SAUCE)!;
-    expect(ingredient).toMatchObject({ category: "sauce", placement: "spread", color: "#7a2f1c", nameJa: "バーベキューソース" });
+    expect(ingredient).toMatchObject({ category: "sauce", placement: "spread", color: "#5c3018", nameJa: "バーベキューソース" });
     expect(ingredient.unlockCondition).toBeDefined();
     expect(ingredientAttributeFamily(SAUCE)).toBeNull();
   });

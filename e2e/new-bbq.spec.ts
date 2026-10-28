@@ -10,7 +10,7 @@ import { CATALOG_COUNTS, materialsUpTo } from "../src/logic/catalog/testSupport/
 
 /**
  * BBQ Chicken representative E2E (Issue #611; the late catalog: bbq-sauce + cilantro -> bbq-chicken-pizza). The BBQ sauce PAINT before the bake, the mozzarella / onion / chicken placed before the bake, the cilantro
- * scattered AFTER the bake (FINISH) and every count are GAMEPLAY ASSUMPTIONS (provisional game spec; the original page was not confirmed). The sauce colour `#7a2f1c` is PROVISIONAL (confirmed at the iPhone HV),
+ * scattered AFTER the bake (FINISH) and every count are GAMEPLAY ASSUMPTIONS (provisional game spec; the original page was not confirmed). The sauce colour `#5c3018` is PROVISIONAL (was `#7a2f1c`; changed at the iPhone HV for the doubanjiang contrast),
  * the painted dough is captured. The late materials played end to end: Shop NEW (T4, 120 Pitz) and purchase of both, the single Research Entry (the label names only the cohort key; no identity leak), the SAUCE
  * step painted with the existing PAINT gesture, mozzarella 2 (CHEESE), onion 1 + chicken 3 (TOPPING), the bake, the cilantro x2 placed in FINISH (its own leaf art), NEW DISCOVERY and the Dex.
  * The save does not list the new step's materials: the ladder (the late step) grants them on load.
