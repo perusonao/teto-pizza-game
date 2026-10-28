@@ -109,6 +109,8 @@ import { doughSwitchOffered, pizzaWithDough, startingPizzaFor } from "./doughSel
 import type { DoughKind } from "../logic/dough/doughKind";
 import { findOpenSpotOnPan } from "../logic/pan/panPlacement";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
+import { canPrepIngredient } from "../data/prepIngredients";
+import { prepExperienceEnabled } from "../data/prepExperienceGate";
 import {
   isOnboardingHintSession,
   purchaseSelectableHintFact,
@@ -332,6 +334,10 @@ export interface GameState {
   justGotNewBest: boolean;
   hint: DialogueLine | null;
   placement: PlacementFeedback | null;
+  /** Cooking Prep Phase 1 (PR-A): ingredient ids the player has prepped (炒めた) this round. Transient and ingredient-level: absent = none.
+   *  Display-only -- scoring, identification, inventory, completion, the Dex and every save read `pizza` / `recipe` only, never this.
+   *  Never persisted; RESET_PIZZA removes the property itself. See ../data/prepIngredients.ts, ../data/prepExperienceGate.ts. */
+  preparedIngredientIds?: readonly string[];
   /** Issue #38 E-P1/E-P2: canonical transient RESULT/DISCOVERED display snapshot for the
    *  per-pizza Pitz credit `REGISTER_TO_DEX` just applied (../logic/pitzReward.ts) -- the display
    *  layer reads these five numbers rather than recomputing any of them (same discipline
@@ -474,6 +480,9 @@ export type GameAction =
   // Cooking Steps 2.0 Phase 1 (Issue #449 / #270): takes back the piece placed last in the current CHEESE / TOPPING
   // step. No payload; see ./undoPlacement.ts for the rule (PREPARE only, never Lunch Rush, never a confirmed step).
   | { type: "UNDO_LAST_PLACEMENT" }
+  // Cooking Prep Phase 1 (PR-A): marks one prep-able ingredient (beef) as prepped for this round. TOPPING step of a GUIDED / FREE_COOK round only,
+  // behind PREP_EXPERIENCE_PRODUCTION / the Preview opt-in. Optional: nothing requires it and nothing can fail.
+  | { type: "PREP_INGREDIENT"; ingredientId: string }
   // Issue #33 D1: commits one complete DOUGH radial-stretch gesture's final shape as a
   // single atomic replacement of `pizza.doughShape` -- mirrors COMMIT_SAUCE_DISPENSE's own
   // "PizzaStage buffers locally, dispatches once at a successful pointerup" contract
@@ -1149,6 +1158,20 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    case "PREP_INGREDIENT": {
+      // Every refusal returns the SAME state reference. The reducer is the backstop (the UI will only offer the prep when this would pass):
+      // flag OFF, Lunch Rush / Dinner (ranking fairness; Dinner has no fixed recipe until START_BAKE), any step but TOPPING, a non-target
+      // ingredient (or one without its dedicated visual), an ingredient the player does not own, or one already prepped.
+      // Nothing is consumed and nothing but `preparedIngredientIds` changes, so pizza / score / completion / inventory are untouched.
+      if (!prepExperienceEnabled()) return state;
+      if (state.phase !== "PREPARE" || state.makingStep !== "TOPPING") return state;
+      if (state.roundKind !== "GUIDED" && state.roundKind !== "FREE_COOK") return state;
+      if (!canPrepIngredient(action.ingredientId)) return state;
+      if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      if (state.preparedIngredientIds?.includes(action.ingredientId)) return state;
+      return { ...state, preparedIngredientIds: [...(state.preparedIngredientIds ?? []), action.ingredientId] };
+    }
+
     case "UNDO_LAST_PLACEMENT": {
       // The reducer is the real backstop (the button's disabled state is only a hint): the rule lives in one
       // pure function shared with the UI. Nothing here touches inventory (consumed once at CONFIRM_BAKE),
@@ -1189,8 +1212,10 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
               const cookingProfile = roundCookingProfile(state.roundKind, state.recipe, effectivePanShape(state.recipe, pizza));
               return { cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
             })();
+      // Cooking Prep Phase 1: a discarded pizza takes its prep with it -- the property is removed, never set to `undefined`.
+      const { preparedIngredientIds: _discardedPrep, ...stateWithoutPrep } = state;
       return {
-        ...state,
+        ...stateWithoutPrep,
         ...panReset,
         pizza,
         makingStep: "DOUGH",
