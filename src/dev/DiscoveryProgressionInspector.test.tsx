@@ -18,6 +18,17 @@ afterEach(() => {
 });
 
 describe("Discovery Progression Inspector screen", () => {
+  it("shows the OPEN_POOL POSSIBLE and multi-recipe step lists as ranges, so the summary height does not grow with every appended step", () => {
+    render(<DiscoveryProgressionInspector />);
+    expect(screen.getByTestId("dpi-open-pool-possible")).toHaveTextContent(`13〜${DISCOVERY_LADDER.steps.length}`);
+    expect(screen.getByTestId("dpi-open-pool-possible").textContent).not.toContain(",");
+    const multi = screen.getByTestId("dpi-multi-count").closest("p")!.textContent!;
+    const listed = (multi.match(/（([^）]*)）/)?.[1] ?? "").split(", ").filter((x) => /^\d+$/.test(x)).map(Number);
+    for (let i = 2; i < listed.length; i += 1) {
+      expect(listed[i] - listed[i - 2] === 2 && listed[i - 1] - listed[i - 2] === 1, `steps ${listed[i - 2]}, ${listed[i - 1]}, ${listed[i]} must be collapsed to a range`).toBe(false);
+    }
+  });
+
   it("lists every step with Step / Unlock / Newly Discoverable / Pool / Result from production data", () => {
     render(<DiscoveryProgressionInspector />);
     expect(screen.getByRole("heading", { name: "Discovery Progression Inspector" })).toBeInTheDocument();
