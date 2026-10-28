@@ -58,14 +58,16 @@ describe("attempt-aware walk (real reducer)", () => {
     expect(RESEARCH_IDENTIFY_ENABLED).toBe(true);
   });
 
-  // Each walk costs about as much as the catalog is long, so the ~120 walks of one `it` outgrew its 600 s budget when Expansion Batch 10 PR-1 added five recipes (the same
-  // class of fix as #682: split the walks over several `it`s, every assertion kept, no timeout raised). `ALL_RUNS` collects every run for the optional JSON output.
+  // A walk is the unit of cost: it plays the WHOLE catalog in ladder order, so one walk grows with RECIPES.length, and the number of walks does not. The walks used to be batched (18 per `it`, then 12 seeds per
+  // `it`), so every recipe batch pushed an `it` over its 600 s budget (Expansion Batch 10 PR-1; the same class of fix as #682) and someone had to re-split by hand. Now EVERY walk is its own `it`, generated from the
+  // same loops (explorePieces x quality x profile, and profile x explorePieces x seed): the longest `it` is one walk, whatever the catalog size, and no timeout is raised. Every assertion and every walk (options, seeds)
+  // is unchanged, and `ALL_RUNS` is filled in the same order. `ALL_RUNS` collects every run for the optional JSON output.
   const ALL_RUNS: { runs: unknown[]; baseline: unknown[]; sweep: unknown[] } = { runs: [], baseline: [], sweep: [] };
 
   for (const explorePieces of ["FULL", "ONE"] as const) {
-    it(`every profile x quality reaches Dex 28 with the Contract invariants intact on every attempt (${explorePieces})`, () => {
-      for (const qualityTotal of QUALITIES) {
-        for (const profile of RESEARCH_HINT_PROFILES) {
+    for (const qualityTotal of QUALITIES) {
+      for (const profile of RESEARCH_HINT_PROFILES) {
+        it(`reaches the full Dex with the Contract invariants intact on every attempt (${profile} q${qualityTotal} ${explorePieces})`, () => {
           const r = simulateResearchAttempts({ profile, qualityTotal, explorePieces });
           ALL_RUNS.runs.push({ ...r, finalState: undefined });
           const tag = `${profile} q${qualityTotal} ${explorePieces}`;
@@ -79,19 +81,22 @@ describe("attempt-aware walk (real reducer)", () => {
           for (const st of r.stages) expect(st.attempts, `${tag} ${st.discovered}`).toBeGreaterThanOrEqual(1);
           // Dex 0 is the free Margherita onboarding: never a hint, never a research attempt.
           expect(r.stages[0]).toMatchObject({ onboarding: true, attempts: 1, hintSpend: 0 });
-        }
+        }, 600_000);
       }
-    }, 600_000);
+    }
   }
 
-  it("analysis-only lower bound (a free STRUCTURE total) completes, and a full walk persists only existing fields (schema v2)", () => {
-    // Analysis-only lower bound: a free STRUCTURE total (stop as soon as every member is found).
-    for (const explorePieces of ["FULL", "ONE"] as const) {
+  // Analysis-only lower bound: a free STRUCTURE total (stop as soon as every member is found).
+  for (const explorePieces of ["FULL", "ONE"] as const) {
+    it(`analysis-only lower bound (a free STRUCTURE total) completes (${explorePieces})`, () => {
       const r = simulateResearchAttempts({ profile: "NONE", qualityTotal: 65, explorePieces, freeTotal: true });
       expect(r.completed).toBe(true);
       expect(r.violations).toEqual([]);
       ALL_RUNS.runs.push({ ...r, finalState: undefined });
-    }
+    }, 600_000);
+  }
+
+  it("a full walk persists only existing fields (schema v2)", () => {
     // Save / schema: the final state of a full walk persists only existing fields.
     const final = simulateResearchAttempts({ profile: "FIXED4", qualityTotal: 65 }).finalState;
     const m = new Map<string, string>();
@@ -128,15 +133,15 @@ describe("attempt-aware walk (real reducer)", () => {
   // direct-bake walk. This walk's own number is a MEASUREMENT (Gate C report), not an assertion.
 
   for (const explorePieces of ["FULL", "ONE"] as const) for (const profile of ["NONE", "FIXED4", "FULL"] as const) {
-    it(`tray-order sensitivity sweep (${profile}, ${explorePieces}): completed, no violations, min Pitz >= 0`, () => {
-      for (let seed = 1; seed <= SEEDS; seed += 1) {
+    for (let seed = 1; seed <= SEEDS; seed += 1) {
+      it(`tray-order sensitivity sweep (${profile}, ${explorePieces}, seed ${seed}): completed, no violations, min Pitz >= 0`, () => {
         const r = simulateResearchAttempts({ profile, qualityTotal: 65, orderSeed: seed, explorePieces });
         expect(r.completed, `${profile} seed ${seed}`).toBe(true);
         expect(r.violations, `${profile} seed ${seed}`).toEqual([]);
         expect(r.minPitz, `${profile} seed ${seed}`).toBeGreaterThanOrEqual(0);
         ALL_RUNS.sweep.push({ ...r, finalState: undefined });
-      }
-    }, 600_000);
+      }, 600_000);
+    }
   }
 
   afterAll(async () => {
