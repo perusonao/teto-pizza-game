@@ -225,7 +225,11 @@ export function validateBatchManifest(manifest: RecipeBatchManifest, view: Catal
   const ids = manifest.recipes.map((r) => r.recipeId);
   const keyIds = manifest.recipes.map((r) => r.keyIngredientId);
   for (const id of new Set(dupes(ids))) problems.push(`MANIFEST_RECIPE_DUPLICATE: ${id}`);
-  for (const id of new Set(dupes(keyIds))) problems.push(`MANIFEST_KEY_INGREDIENT_DUPLICATE: ${id}`);
+  // Two batch recipes may share a key material only when every one but the first declares `ladderCredit: false`: a non-credit recipe (B11 S1's porcini-pizza) has no step of its own and rides its credited sibling's step.
+  for (const id of new Set(dupes(keyIds))) {
+    const sharers = manifest.recipes.filter((r) => r.keyIngredientId === id);
+    if (sharers.filter((r) => r.ladderCredit !== false).length > 1) problems.push(`MANIFEST_KEY_INGREDIENT_DUPLICATE: ${id}`);
+  }
 
   const recipeIds = view.recipes.map((r) => r.id as string);
   const base = recipeIds.indexOf(manifest.afterRecipeId) + 1;

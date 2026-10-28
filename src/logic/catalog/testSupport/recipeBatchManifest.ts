@@ -21,9 +21,25 @@ export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
     { recipeId: "currywurst", keyIngredientId: "wurstel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "cuban-pizza", keyIngredientId: "swiss-cheese", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
+  followedBy: ["boscaiola", "porcini-pizza", "pescatore"], // (B11 S1 is appended after cuban-pizza)
 };
 
-export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH];
+/**
+ * B11 S1 (PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): boscaiola (credited, the key of ordinary step 62), porcini-pizza (`ladderCredit: false`, NO_SAUCE, the same step: REC-04 ties break by recipe id so boscaiola stays the key) and
+ * pescatore (credited, the key of ordinary step 63, tomato-sauce only: the Owner-approved omission of the matrix's olive-oil, option A). Cohort keys: porcini (a two-member cohort, so porcini-pizza and boscaiola gain letters; no PRE-EXISTING recipe changes its letter) and mussel (single).
+ */
+export const B11_S1_BATCH: RecipeBatchManifest = {
+  batchId: "b11-s1",
+  status: "landed",
+  afterRecipeId: "cuban-pizza",
+  recipes: [
+    { recipeId: "boscaiola", keyIngredientId: "porcini", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "porcini-pizza", keyIngredientId: "porcini", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "pescatore", keyIngredientId: "mussel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+  ],
+};
+
+export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH];
 
 /**
  * Pinsa Romana (#577 P3-b-3, Owner Q7): the manifest the validator checks in a build where the Pinsa gate (src/data/pinsaGate.ts) is OPEN. Deliberately NOT in

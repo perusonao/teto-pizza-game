@@ -10,7 +10,7 @@ import { RECIPES } from "../data/recipes";
 import { DiscoveryProgressionInspector } from "./DiscoveryProgressionInspector";
 
 /** Expansion Batch 10 PR-1: with the late catalog on, the FIXED late floors open a late recipe at each of the ordinary steps 57-60, so those are multi-recipe steps too. */
-const LATE_FLOOR_MULTI = lateCatalogEnabled() ? 4 : 0;
+const LATE_FLOOR_MULTI = (lateCatalogEnabled() ? 4 : 0) + 1; // (+ 1: B11 S1's step 62, porcini, opens boscaiola and the non-credit porcini-pizza together)
 
 afterEach(() => {
   cleanup();

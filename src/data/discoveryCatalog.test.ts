@@ -20,6 +20,9 @@ function signatureKey(t: { items: readonly string[]; identityDimensions: unknown
 }
 
 const BATCH10_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["curry-pizza-japan", "rendang-pizza", "tandoori-paneer-pizza"];
+// B11 S1 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the Phase-2 matrix classifies these two rows BLOCKED_PRODUCT_DECISION (COMPOSITION_CONFLICT_CANDIDATE), so they have no SHIPPED_KEEP target; the Owner approval of B11 S1 ships them.
+// expansionBatch11.s1.test.ts pins their exact ingredient sets.
+const B11_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["boscaiola", "porcini-pizza"];
 
 describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("has exactly one target per production recipe, in RECIPES order", () => {
@@ -34,16 +37,28 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md): the Phase-2 design matrix classifies these three rows BLOCKED_EVIDENCE (the curry base sauce is unresolved / unspecified there);
       // the Owner's approval (curry-ketchup as the base, D-B3) supersedes it, so they have no SHIPPED_KEEP target. expansionBatch10.pr1.test.ts pins their exact ingredient sets.
       if (BATCH10_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (B11_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (isLateRecipeId(t.recipeId)) continue; // E5: the late target has no Phase-2 row; lateCatalog.ikura.test.ts pins it
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);
       expect(expected, t.recipeId).toBeDefined();
-      expect(t.items).toEqual([...expected!.items].sort());
       // Square Dough E-2: the Phase-2 row of grandma-pizza lists MULTI_SPREAD_LAYER and `spreadLayers: [olive-oil, tomato-sauce]`, but no capability of that name is runtime-supported (a target that requires one is unmatchable)
       // and the runtime does not observe `spreadLayers` (null, like every other target); the two-sauce engine (B1 / B2) needs neither, and the two sauces are already in \`items\` / \`sauceBase\`. Its identity instead declares
       // \`pan: "tray"\` (Owner decision 2026-10-17/18, F1: the pan axis is OBSERVED). Everything else about the target stays checked.
       const grandma = t.recipeId === "grandma-pizza";
-      expect(t.capabilities).toEqual(grandma ? [] : expected!.capabilities);
-      expect(t.identityDimensions).toEqual(grandma ? { ...expected!.identityDimensions, spreadLayers: null, pan: "tray" } : expected!.identityDimensions);
+      // B11 S1, the ONLY Owner-approved deviation from a SHIPPED_KEEP target (Owner decision 2026-10-28, option A; GAMEPLAY ASSUMPTION, original NOT confirmed): pescatore omits the matrix's olive-oil (a single tomato-sauce, no MULTI_SPREAD_LAYER).
+      // Exactly three differences are allowed and each is asserted below: items without olive-oil, no capability, `spreadLayers: null`. Every other item / dimension is still compared with the matrix, which is unchanged.
+      const pescatore = t.recipeId === "pescatore";
+      const expectedItems = pescatore ? expected!.items.filter((i) => i !== "olive-oil") : expected!.items;
+      if (pescatore) {
+        expect(expected!.items).toContain("olive-oil");
+        expect(expected!.capabilities).toEqual(["MULTI_SPREAD_LAYER"]);
+        expect(expected!.identityDimensions.spreadLayers).toEqual(["tomato-sauce", "olive-oil"]);
+      }
+      expect(t.items).toEqual([...expectedItems].sort());
+      expect(t.capabilities).toEqual(grandma || pescatore ? [] : expected!.capabilities);
+      expect(t.identityDimensions).toEqual(
+        grandma ? { ...expected!.identityDimensions, spreadLayers: null, pan: "tray" } : pescatore ? { ...expected!.identityDimensions, spreadLayers: null } : expected!.identityDimensions,
+      );
       expect(t.eligibility).toEqual({ status: "ELIGIBLE" });
     }
   });

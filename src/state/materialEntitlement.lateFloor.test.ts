@@ -184,14 +184,14 @@ describe("late material compatibility floor: miso-sauce + white-sesame (New Sauc
  * Expansion Batch 10 PR-1 appended ordinary steps 57-61, so the production ladder derives the roe at step 62 (yuzu 63, dengaku 64, tahini 65). The floors are FIXED at their
  * shipped values, so a stale save that predates the late catalog keeps every late material while the new ordinary steps add to what it can discover.
  */
-describe("late material compatibility floor against the production ladder (Expansion Batch 10 PR-1: +5 ordinary steps)", () => {
+describe("late material compatibility floor against the production ladder (Expansion Batch 10 PR-1: +5 ordinary steps; B11 S1: +2 more)", () => {
   const ordinary = () => ordinaryLadderSteps(DISCOVERY_LADDER.steps).length;
   const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
 
   it("the late steps now derive from the longer ordinary ladder, and the floors stay at their shipped numbers", () => {
-    expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 5);
-    expect(stepOf(ROE)).toBe(62);
-    expect(stepOf("tahini")).toBe(65);
+    expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 7); // B10 PR-1 appended 57-61, B11 S1 appended 62-63
+    expect(stepOf(ROE)).toBe(64);
+    expect(stepOf("tahini")).toBe(67);
     expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 }); // PR-2 late4: 67 / 68; BBQ Chicken (#611) shipped after Batch 10: 61 ordinary + 5 late = 66
   });
 
@@ -210,5 +210,32 @@ describe("late material compatibility floor against the production ladder (Expan
     const s = staleSave(56);
     const r = resolveShopEntitlement(s.dex, s.owned, s.ledger, DISCOVERY_LADDER);
     for (const id of LATE_MATERIALS) expect(r.unlockedForShopIngredientIds).not.toContain(id);
+  });
+});
+
+/**
+ * B11 S1 (PROVISIONAL SPEC) appended ordinary steps 62-63, so the BBQ / wasabi / tarako late materials now derive at 68 / 69 / 70 while their FIXED floors stay 66 / 67 / 68: a save that reached those counts before B11 S1
+ * (and has not launched since) still gets them, and a save one discovery below the floor does not. The floors are not changed by B11 S1.
+ */
+describe("late floors after B11 S1 (BBQ 66, wasabi 67, tarako 68 against the derived 68 / 69 / 70)", () => {
+  const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((st) => st.ingredientIds.includes(id))!.step;
+
+  it("derived numbers moved +2 and the floors did not", () => {
+    expect([stepOf("bbq-sauce"), stepOf("wasabi"), stepOf("nori")]).toEqual([68, 69, 70]);
+    expect([LATE_ENTITLEMENT_FLOORS["bbq-sauce"], LATE_ENTITLEMENT_FLOORS.wasabi, LATE_ENTITLEMENT_FLOORS.nori]).toEqual([66, 67, 68]);
+  });
+
+  it.each([
+    [66, ["bbq-sauce", "cilantro"], ["wasabi", "soy-sauce", "nori"]],
+    [67, ["bbq-sauce", "cilantro", "wasabi", "soy-sauce"], ["nori", "cod-roe", "fresh-cream-sauce"]],
+    [68, ["bbq-sauce", "cilantro", "wasabi", "soy-sauce", "nori", "cod-roe", "fresh-cream-sauce"], []],
+  ])("a never-launched save at count %i keeps the late materials its floor grants, and none above it", (count, granted, notGranted) => {
+    const raw = ladderSave(count);
+    const everyLate = LATE_LADDER_STEPS.flatMap((st) => st.ingredientIds); // a save from before ANY late material was in its ledger
+    const s = { dex: dexOf(raw.dex.map((e) => e.recipeId)), owned: raw.ownedIngredientIds.filter((i) => !everyLate.includes(i)), ledger: raw.unlockedForShopIngredientIds.filter((i) => !everyLate.includes(i)) };
+    const r = resolveShopEntitlement(s.dex, s.owned, s.ledger, DISCOVERY_LADDER);
+    for (const id of granted) expect(r.unlockedForShopIngredientIds, id).toContain(id);
+    for (const id of notGranted) expect(r.unlockedForShopIngredientIds, id).not.toContain(id);
+    expect(r.unlockedForShopIngredientIds.slice(0, s.ledger.length)).toEqual(s.ledger);
   });
 });

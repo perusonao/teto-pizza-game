@@ -84,7 +84,8 @@ const SHRIMP_DEDICATED: Record<string, DedicatedIngredientVisual> = { shrimp: "s
 const V1_DEDICATED: Record<string, DedicatedIngredientVisual> = { pickles: "pickle-slices", wurstel: "wurstel-links", "paprika-powder": "paprika-powder-pile", beef: "beef-slices" }; // (beef: PR-2 late4, an ordinary Batch 10 row drawn from PR-2 on)
 // E5: with the late catalog on (Production) the late salmon-roe is a production row too (its art is pinned in the FIN-E4b-ikura block below).
 const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains", "white-sesame": "sesame-seeds", pomegranate: "pomegranate-aril", cilantro: "cilantro-leaf", wasabi: "wasabi-dab", "cod-roe": "cod-roe-mass", nori: "nori-strips" } : {};
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...LATE_DEDICATED };
+const B11_DEDICATED: Record<string, DedicatedIngredientVisual> = { porcini: "porcini-slice", mussel: "mussel-shell" }; // B11 S1 (provisional adoption; the final adoption is the 390x844 / 360x800 HV)
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -893,5 +894,52 @@ describe("Phase B U2: white-sesame dedicated art (late-catalog row)", () => {
       const own = getIngredient(id)!.emoji;
       expect(INGREDIENTS.filter((i) => i.emoji === own).map((i) => i.id)).toEqual([id]);
     }
+  });
+});
+
+/**
+ * B11 S1 (PROVISIONAL SPEC / adoption, original NOT confirmed): `porcini` and `mussel` are ordinary rows drawn by their own dedicated art, never by their emoji (the emoji is only the required text fallback, kept unique by G18).
+ * Neighbouring art (the plain `mushroom` emoji row, the sausage slices, the `clam-valve` and the shrimp curl) is not touched.
+ */
+describe("B11 S1: porcini / mussel dedicated art (production rows)", () => {
+  const ROWS = [
+    { id: "porcini", nameJa: "ポルチーニ", visual: "porcini-slice", family: "vegetable" },
+    { id: "mussel", nameJa: "ムール貝", visual: "mussel-shell", family: "seafood" },
+  ] as const;
+
+  it.each(ROWS)("$id declares $visual and keeps its identity", ({ id, nameJa, visual }) => {
+    expect(getIngredient(id)).toMatchObject({ id, nameJa, category: "topping", placement: "scatter", pieceVisual: visual });
+  });
+
+  it.each(ROWS)("$id draws an SVG on the glyph and on the placed piece, and never prints its emoji", ({ id, visual }) => {
+    const ingredient = getIngredient(id)!;
+    for (const node of [<IngredientGlyph key="g" ingredient={ingredient} />, <IngredientPieceVisual key="p" ingredient={ingredient} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(svg!.getAttribute("focusable")).toBe("false");
+      expect(container.textContent).toBe("");
+      expect(container.textContent).not.toContain(ingredient.emoji);
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      expect(container.innerHTML).not.toContain("<defs");
+      unmount();
+    }
+  });
+
+  it("their text fallbacks are shared with no other ingredient (G18)", () => {
+    for (const { id } of ROWS) {
+      const own = getIngredient(id)!.emoji;
+      expect(INGREDIENTS.filter((i) => i.emoji === own).map((i) => i.id)).toEqual([id]);
+    }
+  });
+
+  it("the two visuals are distinct from each other and from the neighbouring art (mushroom emoji, sausage, clam, shrimp)", () => {
+    const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+    const all = ["porcini", "mussel", "mushroom", "sausage", "clam", "shrimp"].map(html);
+    expect(new Set(all).size).toBe(all.length);
+    expect(getIngredient("mushroom")!.pieceVisual).toBeUndefined(); // the plain mushroom stays on its emoji
   });
 });
