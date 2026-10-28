@@ -4374,6 +4374,74 @@ export const EGGPLANT_TAHINI_PIZZA_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * BBQ Chicken (Issue #611, late catalog): Reference Truth for `bbq-chicken-pizza` (the bbq-sauce PAINT sauce is not a piece). Pieces (mozzarella 2 / onion 1 / chicken 3 / cilantro 2 = 8 non-sauce, the last 2 POST_BAKE) take the
+ * RT-01 reference layout consecutively in `requiredIngredients` order (post-bake pieces use the same slots, like `ikura-salmon-pizza`): slots 1-8 of `getReferenceSlots(8)`, the last being the dough centre. Slot assignment is
+ * GAMEPLAY / REFERENCE CALIBRATION, not source authority; no piece-count limit is defined by this recipe (RT-01 generates a multi-ring layout above 8).
+ */
+export const BBQ_CHICKEN_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "bbq-chicken-pizza",
+  sauce: computeMechanicalSauceReference("bbq-chicken-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "onion",
+      positions: [
+        { x: 76, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "chicken",
+      positions: [
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "cilantro",
+      positions: [
+        { x: 25, y: 36 },
+        { x: 50, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
  * Batch 7a: Reference Truth for `new-zealand-lamb-pizza` (NO_SAUCE: `sauce: null`, the `aussie` shape). Pieces (mozzarella 2 / rosemary 1 / lamb 3 / sweet-potato 2 = 8) take
  * the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
  * not source authority.
@@ -4556,6 +4624,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [IKURA_SALMON_PIZZA_REFERENCE.recipeId, IKURA_SALMON_PIZZA_REFERENCE],
   [YUZU_SHRIMP_PIZZA_REFERENCE.recipeId, YUZU_SHRIMP_PIZZA_REFERENCE],
   [EGGPLANT_TAHINI_PIZZA_REFERENCE.recipeId, EGGPLANT_TAHINI_PIZZA_REFERENCE],
+  [BBQ_CHICKEN_PIZZA_REFERENCE.recipeId, BBQ_CHICKEN_PIZZA_REFERENCE],
   [EGGPLANT_DENGAKU_PIZZA_REFERENCE.recipeId, EGGPLANT_DENGAKU_PIZZA_REFERENCE],
   [PINSA_ROMANA_REFERENCE.recipeId, PINSA_ROMANA_REFERENCE],
 ]);

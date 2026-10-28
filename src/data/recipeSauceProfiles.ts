@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard";
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce";
   interaction: SauceInteractionKind;
 }
 
@@ -351,6 +351,8 @@ export const RECIPE_SAUCE_PROFILES = {
   },
   // New Sauces Phase B U2 (late catalog): miso-sauce painted before the bake (GAMEPLAY ASSUMPTION, not confirmed by the original).
   "eggplant-tahini-pizza": { recipeId: "eggplant-tahini-pizza", ingredientId: "tahini", interaction: "PAINT" },
+  // BBQ Chicken (late catalog): bbq-sauce painted before the bake (GAMEPLAY ASSUMPTION, not confirmed by the original).
+  "bbq-chicken-pizza": { recipeId: "bbq-chicken-pizza", ingredientId: "bbq-sauce", interaction: "PAINT" },
   "eggplant-dengaku-pizza": {
     recipeId: "eggplant-dengaku-pizza",
     ingredientId: "miso-sauce",
