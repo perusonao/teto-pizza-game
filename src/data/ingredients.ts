@@ -28,6 +28,9 @@ export type DedicatedIngredientVisual =
   | "feta-cubes"
   | "sausage-slices"
   | "hot-dog-slices"
+  | "pickle-slices"
+  | "wurstel-links"
+  | "paprika-powder-pile"
   | "shiso-leaf"
   | "arugula-leaves"
   | "whitebait-school"
@@ -1027,23 +1030,25 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
-  /** Batch 10 PR-1: finite ladder material, step 59 (T4), first of currywurst's two materials. Family `spice`. Provisional glyph / name. */
+  /** Batch 10 PR-1: finite ladder material, step 59 (T4), first of currywurst's two materials. Family `spice`. Provisional name. Drawn by the dedicated `paprika-powder-pile` visual (a small red powder mound, Ingredient Visual V1, provisional adoption; the final adoption is the 390x844 / 360x800 HV); `emoji` is only the required, never-displayed text fallback. */
   {
     id: "paprika-powder",
     category: "topping",
     nameJa: "パプリカパウダー",
     color: "#c2411f",
     emoji: "\u{1F7E7}",
+    pieceVisual: "paprika-powder-pile",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
-  /** Batch 10 PR-1: finite ladder material, step 59 (T4), the last material of currywurst's step (= its Research cohort key). Family `meat`. Provisional glyph / name. */
+  /** Batch 10 PR-1: finite ladder material, step 59 (T4), the last material of currywurst's step (= its Research cohort key). Family `meat`. Provisional name. Drawn by the dedicated `wurstel-links` visual (two scored, pale-orange sausages, Ingredient Visual V1, provisional adoption; the final adoption is the HV); `emoji` is only the required, never-displayed text fallback. */
   {
     id: "wurstel",
     category: "topping",
     nameJa: "ヴルステル",
     color: "#b8553f",
     emoji: "\u{1F32F}",
+    pieceVisual: "wurstel-links",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
@@ -1067,13 +1072,14 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
   },
-  /** Batch 10 PR-1: finite ladder material, step 61 (T4). Family `vegetable` (Owner). Provisional glyph (a melon-green stand-in; HV confirms). */
+  /** Batch 10 PR-1: finite ladder material, step 61 (T4). Family `vegetable` (Owner). Drawn by the dedicated `pickle-slices` visual (a wavy-cut round slice and a whole gherkin, Ingredient Visual V1, provisional adoption; the final adoption is the HV); `emoji` is only the required, never-displayed text fallback. */
   {
     id: "pickles",
     category: "topping",
     nameJa: "ピクルス",
     color: "#7a8f2a",
     emoji: "\u{1F348}",
+    pieceVisual: "pickle-slices",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
