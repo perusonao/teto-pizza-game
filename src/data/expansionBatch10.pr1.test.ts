@@ -50,8 +50,8 @@ describe("new sauces (Owner-approved)", () => {
     expect(ingredientAttributeFamily("wurstel")).toBe("meat");
     expect(ingredientAttributeFamily("paprika-powder")).toBe("spice");
   });
-  it("nori is NOT part of PR-1 (PR-2)", () => {
-    expect(getIngredient("nori")).toBeUndefined();
+  it("nori is NOT part of PR-1 (it arrives with PR-2 late4 as a late-only material)", () => {
+    expect(getIngredient("nori")?.pieceVisual).toBe("nori-strips");
   });
   it("curry-ketchup stays clearly apart from the other sauce colours (dE76 > 20 against every existing sauce)", () => {
     const lab = (hex: string) => {

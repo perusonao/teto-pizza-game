@@ -184,6 +184,42 @@ const ALL_LATE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  // PR-2 late4 (Issue #578 / #611, Owner 2026-10-28: bulgogi and yakiniku are HOLD): `wasabi-beef-pizza` and `tarako-cream-pizza`. SOURCE (PIZZA DB comparison table rows, Owner-relayed, NOT independently re-fetched: pizzadb.jp is unreachable here;
+  // design record docs/design/TETO_PR2-LATE4_DESIGN-GATE_2026-10-27.md): wasabi-beef = beef / mozzarella / onion / soy-sauce / wasabi, the wasabi added after the bake (the row's source_profile_text); tarako-cream (名称「たらこクリームピザ」, evidence id
+  // `mentaiko-cream-pizza-pizzadb-p4`) = cod-roe / fresh-cream-sauce / mozzarella / nori / shiso, the cod-roe added in the last minutes of the bake (mid_bake).
+  // PROVISIONAL GAME-DESIGN SPEC (Owner decisions 2026-10-28; NOT source): the mid_bake cod-roe is approximated as POST_BAKE (FINISH has no mid-bake add); nori and shiso are also POST_BAKE; `fresh-cream-sauce` is a new sauce; the beef is placed BEFORE the bake with no stir-fry step.
+  // GAMEPLAY CALIBRATION (not source): wasabi-beef soy-sauce 1 (PAINT) / mozzarella 2 / onion 1 / beef 3 / wasabi 1 (POST_BAKE); tarako-cream fresh-cream-sauce 1 (PAINT) / mozzarella 2 / cod-roe 2 + nori 1 + shiso 1 (all POST_BAKE); bake 58-78 (= the generic Free Cooking window).
+  // Late catalog, ladder-credited (own late step), no star gate, no CUT, `lunchRush: false`, key-free. The descriptions name no moment (Anti-Oracle). Listed before Pinsa so that Pinsa stays the tail while its gate is open.
+  {
+    id: "wasabi-beef-pizza",
+    nameJa: "わさび牛ピザ",
+    description: "牛肉とモッツァレラに、醤油だれとわさびをあわせた、ぴりっとする和風の一枚。",
+    requiredIngredients: [
+      { ingredientId: "soy-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "onion", minCount: 1 },
+      { ingredientId: "beef", minCount: 3 },
+      { ingredientId: "wasabi", minCount: 1, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "tarako-cream-pizza",
+    nameJa: "たらこクリームピザ",
+    description: "たらこをのせたクリームソースのピザに、のりと大葉をあわせた、和風の一枚。",
+    requiredIngredients: [
+      { ingredientId: "fresh-cream-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "cod-roe", minCount: 2, applicationPhase: "POST_BAKE" },
+      { ingredientId: "nori", minCount: 1, applicationPhase: "POST_BAKE" },
+      { ingredientId: "shiso", minCount: 1, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
   // Pinsa Romana (#577 P3-b-1, Owner L1 / D4 / R2). Gated by ./pinsaGate.ts (`PINSA_PRODUCTION`): absent at runtime while it is false.
   // SOURCE AUTHORITY (Owner-relayed, not independently verified; PK-0 items 2/4/5 stay open until the Production gate): tomato sauce, mozzarella baked, prosciutto before or after,
   // arugula best added last. The prosciutto is placed BEFORE the bake (L1: a game-design choice, consistent with the source) and only the arugula is POST_BAKE.
@@ -256,6 +292,18 @@ const ALL_LATE_ORDERS = [
     recipeId: "bbq-chicken-pizza",
     requestedBy: "mito",
     lineJa: "BBQチキンピザ、甘辛くてパーティみたい！食べてみたいな！",
+  },
+  {
+    id: "order-wasabi-beef-pizza",
+    recipeId: "wasabi-beef-pizza",
+    requestedBy: "mito",
+    lineJa: "わさび牛ピザ、ぴりっとしておいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-tarako-cream-pizza",
+    recipeId: "tarako-cream-pizza",
+    requestedBy: "mito",
+    lineJa: "たらこクリームピザ、まろやかでおいしそう！食べてみたいな！",
   },
   {
     id: "order-pinsa-romana",
@@ -383,13 +431,80 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
     bakeRoastResistant: true,
     unlockCondition: { minTotalStars: 0 },
   },
+  /**
+   * PR-2 late4: `soy-sauce`, a late-only sauce material (the wasabi-beef step's first material). A spread sauce painted in the SAUCE step (the existing PAINT); sauces carry no topping family. `color` `#2a1a12` (a dark soy brown) is
+   * PROVISIONAL until the Owner HV (design gate: nearest existing sauce dE 35.2; the held yakiniku-sauce would be 16.7 away). `emoji` is only the tray / shop chip fallback (G18 keeps it unique).
+   */
+  {
+    id: "soy-sauce",
+    category: "sauce",
+    nameJa: "醤油ソース",
+    color: "#2a1a12",
+    emoji: "\u{1FAD7}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * PR-2 late4: `wasabi`, a late-only finite ladder material (the wasabi-beef step's last material = its Research cohort key). Family `spice` (L1 only), size class `xs`, drawn by the dedicated `wasabi-dab` visual (a small pale-green mound);
+   * `emoji` is only the required, never-displayed text fallback. `color` `#a8d070` is PROVISIONAL. Placed AFTER the bake (POST_BAKE) is a GAMEPLAY ASSUMPTION (the row's source_profile_text; not independently re-fetched).
+   */
+  {
+    id: "wasabi",
+    category: "topping",
+    nameJa: "わさび",
+    color: "#a8d070",
+    emoji: "\u{1FADB}",
+    pieceVisual: "wasabi-dab",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * PR-2 late4: `cod-roe` (たらこ), a late-only finite ladder material (the tarako-cream step's first material). Family `seafood` (like `salmon-roe`, L1 only), size class `xs`, drawn by the dedicated `cod-roe-mass` visual (a coral-pink heap of fine grains);
+   * `emoji` is only the required, never-displayed text fallback. `color` `#e8836b` is PROVISIONAL. Placed AFTER the bake is an APPROXIMATION of the row's mid_bake (FINISH has no mid-bake add), not source.
+   */
+  {
+    id: "cod-roe",
+    category: "topping",
+    nameJa: "たらこ",
+    color: "#e8836b",
+    emoji: "\u{1F980}",
+    pieceVisual: "cod-roe-mass",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * PR-2 late4: `fresh-cream-sauce`, a late-only sauce material (the tarako-cream step). A spread sauce painted in the SAUCE step (the existing PAINT); no topping family. `color` `#efb9b4` (a rose cream) is PROVISIONAL (Owner HV 2026-10-28: the first `#f2cfc0` read too close to the dough once painted, dE ~14; this one is dE ~27 from the bare dough and >= 25 from every other sauce). `emoji` is only the tray / shop chip fallback (G18).
+   */
+  {
+    id: "fresh-cream-sauce",
+    category: "sauce",
+    nameJa: "クリームソース",
+    color: "#efb9b4",
+    emoji: "\u{1F9C8}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * PR-2 late4: `nori` (the tarako-cream step's last material = its Research cohort key). Family `vegetable` (L1 only; PROVISIONAL, Owner 2026-10-28: `other` is unreachable and `seafood` / `herb` would mislabel it), size class `xs`, drawn by the dedicated `nori-strips` visual (a few dark-green strips);
+   * `emoji` is only the required, never-displayed text fallback. `color` `#1f3a2a` is PROVISIONAL. Placed AFTER the bake (POST_BAKE) is a GAMEPLAY ASSUMPTION.
+   */
+  {
+    id: "nori",
+    category: "topping",
+    nameJa: "のり",
+    color: "#1f3a2a",
+    emoji: "\u{1F7EB}",
+    pieceVisual: "nori-strips",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
 ];
 
 /** Family rows of the late ingredients (OD-B8-2: `salmon-roe` is `seafood`, L1 only). Joined by ./ingredientTaxonomy.ts only when enabled, so an OFF build has no orphan row. */
-export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["cilantro", "herb"]] as const;
+export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["cilantro", "herb"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"]] as const;
 
 /** Topping size class of the late ingredients (`salmon-roe` is extra small, like the other fine garnishes). Joined by ./toppingSizeClass.ts only when enabled. */
-export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "cilantro": "xs" } as const;
+export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "cilantro": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs" } as const;
 
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
@@ -398,6 +513,8 @@ export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
   "eggplant-dengaku-pizza": "eggplant-dengaku-pizza-pizzadb-p6",
   "eggplant-tahini-pizza": "eggplant-tahini-pizza-pizzadb-p5",
   "bbq-chicken-pizza": "bbq-chicken-pizzadb",
+  "wasabi-beef-pizza": "wasabi-beef-pizza",
+  "tarako-cream-pizza": "mentaiko-cream-pizza-pizzadb-p4",
   ...(pinsaEnabled() ? { "pinsa-romana": "pinsa-romana-pizzadb-p9" } : {}),
 };
 
@@ -416,15 +533,19 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
   { ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" },
   // BBQ Chicken (Issue #611): after the tahini step (ordinary length + 5), key recipe `bbq-chicken-pizza` (it also needs mozzarella, onion and chicken from earlier steps / the starters). Cohort key: cilantro (the last material of the step). The number is derived (currently 66), never embedded.
   { ingredientIds: ["bbq-sauce", "cilantro"], keyRecipeId: "bbq-chicken-pizza" },
+  // PR-2 late4 (Issue #578 / #611): after the BBQ step (ordinary length + 6); key recipes `wasabi-beef-pizza` (cohort key wasabi, the step's last material; it also needs beef from ordinary step 58) and `tarako-cream-pizza` (cohort key nori; it also needs shiso from ordinary step 54).
+  // Numbers are DERIVED, never authored. bulgogi-pizza and yakiniku-pizza are HOLD (Owner 2026-10-28), so soy-sauce lives in the wasabi-beef step.
+  { ingredientIds: ["soy-sauce", "wasabi"], keyRecipeId: "wasabi-beef-pizza" },
+  { ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: "tarako-cream-pizza" },
 ];
 
 /**
  * Compatibility floor (Issue #578 U0, Owner OD-U0-7 = M3 / 7b / 7c): a late material's Shop entitlement never needs a LARGER credited-discovery count than the one it had
  * when the late catalog first shipped. Its ladder step number is derived (ordinary length + 1) and moves +1 per ordinary batch; the floor is a FIXED constant, so a
  * save that reached the E5-era step but had not launched since (its ledger has no entry yet) still gets the material. A floor only ever grants earlier; the ledger never re-locks.
- * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). `bbq-sauce` / `cilantro`: 66 = the 61 ordinary steps + 5 when they shipped (BBQ Chicken #611, after Expansion Batch 10 PR-1). RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
+ * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). `bbq-sauce` / `cilantro`: 66 = the 61 ordinary steps + 5 when they shipped (BBQ Chicken #611, after Expansion Batch 10 PR-1). `soy-sauce` / `wasabi`: 67 and `cod-roe` / `fresh-cream-sauce` / `nori`: 68 = the 61 ordinary steps + the 5 earlier late steps + 1..2 when PR-2 late4 shipped. RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
  */
-export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60, "bbq-sauce": 66, "cilantro": 66 };
+export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60, "bbq-sauce": 66, "cilantro": 66, "soy-sauce": 67, "wasabi": 67, "cod-roe": 68, "fresh-cream-sauce": 68, "nori": 68 };
 
 /** True for a recipe whose own gate is closed (Pinsa while `PINSA_PRODUCTION` is false): the id is in type-keyed tables but the recipe does not exist in this build. */
 export function isGatedOffRecipeId(id: string): boolean {

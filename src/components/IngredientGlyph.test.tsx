@@ -81,9 +81,9 @@ const ARUGULA_DEDICATED: Record<string, DedicatedIngredientVisual> = { arugula: 
 /** Peeled shrimp (Owner-approved 2026-10-25, Style Lock v2 §1d): dedicated art instead of the shelled 🦐. */
 const SHRIMP_DEDICATED: Record<string, DedicatedIngredientVisual> = { shrimp: "shrimp-curl" };
 /** Ingredient Visual V1 (provisional adoption, Owner 2026-10-27; the final adoption is the 390x844 / 360x800 HV): dedicated art for pickles / wurstel / paprika-powder instead of 🍈 / 🌯 / 🟧. */
-const V1_DEDICATED: Record<string, DedicatedIngredientVisual> = { pickles: "pickle-slices", wurstel: "wurstel-links", "paprika-powder": "paprika-powder-pile" };
+const V1_DEDICATED: Record<string, DedicatedIngredientVisual> = { pickles: "pickle-slices", wurstel: "wurstel-links", "paprika-powder": "paprika-powder-pile", beef: "beef-slices" }; // (beef: PR-2 late4, an ordinary Batch 10 row drawn from PR-2 on)
 // E5: with the late catalog on (Production) the late salmon-roe is a production row too (its art is pinned in the FIN-E4b-ikura block below).
-const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains", "white-sesame": "sesame-seeds", pomegranate: "pomegranate-aril", cilantro: "cilantro-leaf" } : {};
+const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains", "white-sesame": "sesame-seeds", pomegranate: "pomegranate-aril", cilantro: "cilantro-leaf", wasabi: "wasabi-dab", "cod-roe": "cod-roe-mass", nori: "nori-strips" } : {};
 const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
@@ -755,6 +755,54 @@ describe("Ingredient Visual V1: pickles / wurstel / paprika-powder dedicated art
     const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
     const all = [html("pickles"), html("wurstel"), html("paprika-powder"), html("hot-dog"), html("sausage")];
     expect(new Set(all).size).toBe(all.length);
+  });
+});
+
+/**
+ * PR-2 late4 (provisional adoption): `beef` (an ordinary row) and the late-only `wasabi` / `cod-roe` / `nori` are drawn by their own dedicated art, never by their emoji.
+ * The emoji stays the required text fallback and must never reach the DOM. The V1 art is not touched.
+ */
+describe("PR-2 late4: beef / wasabi / cod-roe / nori dedicated art", () => {
+  const ROWS = [
+    { id: "beef", visual: "beef-slices" },
+    { id: "wasabi", visual: "wasabi-dab" },
+    { id: "cod-roe", visual: "cod-roe-mass" },
+    { id: "nori", visual: "nori-strips" },
+  ] as const;
+  const row = (id: string) => (id === "beef" ? getIngredient(id) : LATE_INGREDIENTS.find((i) => i.id === id))!;
+
+  it.each(ROWS)("$id declares $visual", ({ id, visual }) => {
+    expect(row(id).pieceVisual).toBe(visual);
+  });
+
+  it.each(ROWS)("$id draws an SVG on the glyph and on the placed piece, and never prints its emoji", ({ id, visual }) => {
+    const ingredient = row(id);
+    for (const node of [<IngredientGlyph key="g" ingredient={ingredient} />, <IngredientPieceVisual key="p" ingredient={ingredient} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(container.textContent).toBe("");
+      expect(container.textContent).not.toContain(ingredient.emoji);
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      unmount();
+    }
+  });
+
+  it("the four visuals are distinct from each other and from the neighbouring meat and garnish art", () => {
+    const html = (i: { id: string }) => renderToStaticMarkup(<IngredientGlyph ingredient={(getIngredient(i.id) ?? LATE_INGREDIENTS.find((x) => x.id === i.id))!} />);
+    const ids = ["beef", "wasabi", "cod-roe", "nori", "sausage", "hot-dog", "wurstel", "salmon-roe", "cilantro"].filter((id) => getIngredient(id) ?? LATE_INGREDIENTS.find((x) => x.id === id));
+    const all = ids.map((id) => html({ id }));
+    expect(new Set(all).size).toBe(all.length);
+  });
+
+  it("their text fallbacks are shared with no other production ingredient (G18)", () => {
+    for (const { id } of ROWS) {
+      const mine = row(id);
+      expect(INGREDIENTS.filter((i) => i.emoji === mine.emoji && i.id !== mine.id).map((i) => i.id)).toEqual([]);
+    }
   });
 });
 

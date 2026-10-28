@@ -118,11 +118,11 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     }
   });
 
-  it("catalog counts after this recipe: 75 recipes (74 with the Pinsa gate off), 85 ingredients, 66 ladder steps (5 late)", () => {
-    expect(RECIPES.length).toBe(pinsaEnabled() ? 75 : 74); // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
-    expect(INGREDIENTS.length).toBe(85);
-    expect(DISCOVERY_LADDER.steps.length).toBe(66);
-    expect(LATE_LADDER_STEPS.length).toBe(5);
+  it("catalog counts after PR-2 late4 (which follows this recipe): 77 recipes (76 with the Pinsa gate off), 90 ingredients, 68 ladder steps (7 late)", () => {
+    expect(RECIPES.length).toBe(pinsaEnabled() ? 77 : 76); // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
+    expect(INGREDIENTS.length).toBe(90);
+    expect(DISCOVERY_LADDER.steps.length).toBe(68);
+    expect(LATE_LADDER_STEPS.length).toBe(7);
   });
 
   it("tables: PAINT bbq-sauce, key-free hint, a Reference of 8 pieces on the RT-01 layout in requiredIngredients order (the 2 cilantro last, one on the dough centre), no shared slot, no piece-count limit asserted", () => {
@@ -161,9 +161,9 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(stepOf(CIL)).toBe(mine);
     expect(mine.starGates).toBeUndefined();
     expect(mine.step).toBe(stepOf("tahini").step + 1);
-    expect(steps.at(-1)).toBe(mine);
-    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length); // ordinary length + the five late steps
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", BBQ]);
+    expect(steps.at(-3)).toBe(mine); // (PR-2 late4: the wasabi-beef and tarako-cream late steps follow it)
+    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 2); // ordinary length + the five late steps up to and including this one
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", BBQ, "wasabi-beef-pizza", "tarako-cream-pizza"]);
   });
 
   it("Shop: both materials are T4 (the sauce pack 120 / refill 60), from the BBQ late step", () => {
@@ -184,7 +184,7 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
   });
 
   it("the compatibility floors are FIXED at 66 for both materials (never later than the step the ladder derives); the earlier floors are unchanged", () => {
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, [SAUCE]: 66, [CIL]: 66 });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, [SAUCE]: 66, [CIL]: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 });
     for (const id of [SAUCE, CIL]) expect(LATE_ENTITLEMENT_FLOORS[id]).toBeLessThanOrEqual(stepOf(id).step);
   });
 });

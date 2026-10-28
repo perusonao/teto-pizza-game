@@ -65,14 +65,14 @@ function reachableLedgers(recipeId: string): string[][] {
   return states;
 }
 
-describe("section 4.1: M-1..M-3 agree with every reachable state of the real old ladder (49 key-free recipes)", () => {
-  it("the population is the 49 key-free recipes: sauce + cheese 23 (BBQ Chicken #611: + bbq-chicken-pizza; Expansion Batch 10 PR-1: + five sauce + cheese recipes; Square Dough E-2: + grandma-pizza; New Sauces Phase B U1: + yuzu-shrimp-pizza; U2: + eggplant-dengaku-pizza), cheese only 18 (E5: + ikura-salmon-pizza), sauce only 8 (New Sauces Phase B U3: + eggplant-tahini-pizza)", () => {
+describe("section 4.1: M-1..M-3 agree with every reachable state of the real old ladder (51 key-free recipes)", () => {
+  it("the population is the 51 key-free recipes: sauce + cheese 25 (PR-2 late4: + wasabi-beef-pizza and tarako-cream-pizza; BBQ Chicken #611: + bbq-chicken-pizza; Expansion Batch 10 PR-1: + five sauce + cheese recipes; Square Dough E-2: + grandma-pizza; New Sauces Phase B U1: + yuzu-shrimp-pizza; U2: + eggplant-dengaku-pizza), cheese only 18 (E5: + ikura-salmon-pizza), sauce only 8 (New Sauces Phase B U3: + eggplant-tahini-pizza)", () => {
     const extra = pinsaEnabled() ? 1 : 0; // Pinsa Romana (#577 P3-b): a sauce + cheese key-free recipe, like jamon, while its gate is open
-    expect(KEY_FREE_RECIPES).toHaveLength(49 + extra);
+    expect(KEY_FREE_RECIPES).toHaveLength(51 + extra);
     const klass = (r: Recipe) => `${hasCategory(r, "sauce") ? "sauce" : ""}+${hasCategory(r, "cheese") ? "cheese" : ""}`;
     const count = (k: string) => KEY_FREE_RECIPES.filter((r) => klass(r) === k).length;
     expect({ both: count("sauce+cheese"), cheeseOnly: count("+cheese"), sauceOnly: count("sauce+"), neither: count("+") }).toEqual({
-      both: 23 + extra,
+      both: 25 + extra,
       cheeseOnly: 18,
       sauceOnly: 8,
       neither: 0,
@@ -98,7 +98,7 @@ describe("section 4.1: M-1..M-3 agree with every reachable state of the real old
         }
       }
     }
-    expect(partials).toBe(23 + (pinsaEnabled() ? 1 : 0)); // one partial state per sauce + cheese recipe
+    expect(partials).toBe(25 + (pinsaEnabled() ? 1 : 0)); // one partial state per sauce + cheese recipe
   });
 
   it("single-marker recipes (cheese only, sauce only) can never be PARTIAL", () => {
