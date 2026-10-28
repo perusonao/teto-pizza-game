@@ -22,13 +22,13 @@ describe("PAN_TRAY_RECIPE_IDS (E-0, OD-544-1/2)", () => {
 });
 
 describe("LATE_ADDITION_RECIPE_IDS (New Sauces Phase B U1 / U2 / U3)", () => {
-  it("lists real, unique late recipe ids with a POST_BAKE requirement, limited to yuzu-shrimp-pizza, eggplant-dengaku-pizza eggplant-tahini-pizza and bbq-chicken-pizza (ikura is NO_SAUCE and Pinsa is in the dough list: neither is repeated here)", () => {
+  it("lists real, unique late recipe ids with a POST_BAKE requirement, limited to yuzu-shrimp-pizza, eggplant-dengaku-pizza eggplant-tahini-pizza, bbq-chicken-pizza, wasabi-beef-pizza and tarako-cream-pizza (ikura is NO_SAUCE and Pinsa is in the dough list: neither is repeated here)", () => {
     expect(new Set(LATE_ADDITION_RECIPE_IDS).size).toBe(LATE_ADDITION_RECIPE_IDS.length);
     for (const id of LATE_ADDITION_RECIPE_IDS) {
       const recipe = RECIPES.find((r) => r.id === id);
       expect(recipe, id).toBeDefined();
       expect(recipe!.requiredIngredients.some((q) => "applicationPhase" in q && q.applicationPhase === "POST_BAKE"), id).toBe(true);
-      expect(["yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza"]).toContain(id);
+      expect(["yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza"]).toContain(id);
     }
   });
   it("is read from this one file by the DH4 and Hint 5.0 gates (neither declares its own copy)", () => {

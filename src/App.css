@@ -843,6 +843,16 @@
   margin: -0.1em;
 }
 
+/* PR-2 late4 (beef / wasabi / cod roe / nori): same 64-box margin fix, its own rule so V1 stays untouched. */
+.ingredient-glyph--beef-slices,
+.ingredient-glyph--wasabi-dab,
+.ingredient-glyph--cod-roe-mass,
+.ingredient-glyph--nori-strips {
+  width: 1.2em;
+  height: 1.2em;
+  margin: -0.1em;
+}
+
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */
 /* Generic fallback so a new cheese ingredient is still visible before it gets a
    dedicated .pizza-cheese--<id> rule below. Each dedicated rule sets its own

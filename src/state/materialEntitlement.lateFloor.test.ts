@@ -192,7 +192,7 @@ describe("late material compatibility floor against the production ladder (Expan
     expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 5);
     expect(stepOf(ROE)).toBe(62);
     expect(stepOf("tahini")).toBe(65);
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66 }); // BBQ Chicken (#611) shipped after Batch 10: 61 ordinary + 5 late = 66
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 }); // PR-2 late4: 67 / 68; BBQ Chicken (#611) shipped after Batch 10: 61 ordinary + 5 late = 66
   });
 
   it.each([

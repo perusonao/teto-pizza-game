@@ -133,6 +133,10 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ...(lateCatalogEnabled()
     ? ([["bbq-sauce", 66, "T4", 1, 10, 120, 60], ["cilantro", 66, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
+  // PR-2 late4 (#578 / #611): the late step 67 sells the soy-sauce (a sauce: k=1) and the wasabi (a finite topping: k=1), the late step 68 the cod-roe (k=2), the fresh-cream-sauce (a sauce: k=1) and the nori (k=1); T4 pack 120 / refill 60
+  ...(lateCatalogEnabled()
+    ? ([["soy-sauce", 67, "T4", 1, 10, 120, 60], ["wasabi", 67, "T4", 1, 10, 120, 60], ["cod-roe", 68, "T4", 2, 20, 120, 60], ["fresh-cream-sauce", 68, "T4", 1, 10, 120, 60], ["nori", 68, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
+    : []),
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -290,7 +294,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(29)).toEqual({ discoveriesNeeded: 1, step: 30 });
     expect(nextMaterialHint(30)).toEqual({ discoveriesNeeded: 1, step: 31 });
     expect(nextMaterialHint(31)).toEqual({ discoveriesNeeded: 1, step: 32 });
-    const last = 61 + (lateCatalogEnabled() ? 5 : 0); // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step; BBQ Chicken: + the bbq-sauce / cilantro late step
+    const last = 61 + (lateCatalogEnabled() ? 7 : 0); // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step; BBQ Chicken: + the bbq-sauce / cilantro late step
     for (let n = 32; n < last; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
     expect(nextMaterialHint(last)).toBeNull();
     expect(nextMaterialHint(last)).toBeNull();

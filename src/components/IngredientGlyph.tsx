@@ -45,6 +45,10 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "sesame-seeds": "0 0 64 64",
   "pomegranate-aril": "0 0 64 64",
   "cilantro-leaf": "0 0 64 64",
+  "beef-slices": "0 0 64 64",
+  "wasabi-dab": "0 0 64 64",
+  "cod-roe-mass": "0 0 64 64",
+  "nori-strips": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -77,6 +81,10 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "sesame-seeds" && <SesameSeeds />}
       {visual === "pomegranate-aril" && <PomegranateAril />}
       {visual === "cilantro-leaf" && <CilantroLeaf />}
+      {visual === "beef-slices" && <BeefSlices />}
+      {visual === "wasabi-dab" && <WasabiDab />}
+      {visual === "cod-roe-mass" && <CodRoeMass />}
+      {visual === "nori-strips" && <NoriStrips />}
     </svg>
   );
 }
@@ -656,6 +664,73 @@ function CilantroLeaf() {
         <ellipse cx="29" cy="25" rx="2.2" ry="1.4" transform="rotate(-30 29 25)" />
         <ellipse cx="14" cy="32" rx="1.8" ry="1.2" transform="rotate(-45 14 32)" />
         <ellipse cx="50" cy="32" rx="1.8" ry="1.2" transform="rotate(45 50 32)" />
+      </g>
+    </g>
+  );
+}
+
+/* ---------- PR-2 late4 (Issue #578 / #611): beef, wasabi, cod roe and nori. PROVISIONAL art in the Style Lock v2 vocabulary (2.4 outline, two tones, a ground shadow, no ids / gradients / defs, deterministic); the final adoption is the Owner HV on 390x844 / 360x800.
+   beef-slices: two thin red-brown ribbons with a pale fat streak (a different silhouette from the round dark salami / sausage slices and the pink ham). wasabi-dab: a pale-green mound with a swirl. cod-roe-mass: a coral clump of fine grains. nori-strips: dark green strips. ---------- */
+function BeefSlices() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15" />
+      <path d="M6 28c2-9 13-14 25-10 9 3 16 2 24 6 3 8-4 14-14 12-9-2-16 3-26 2-6-1-10-5-9-10z" fill="#b8473a" stroke="#4a1a14" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M12 27c7-5 16-4 24 0 6 3 11 3 15 3" fill="none" stroke="#f1d3c4" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M12 44c3-6 15-4 25 0 8 3 15 2 21 4-1 7-11 9-21 7-9-2-17 1-24-1-3-2-3-6-1-10z" fill="#8f3a30" stroke="#4a1a14" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M19 47c8-3 17 1 27 3" fill="none" stroke="#e6c3b4" strokeWidth="2.4" strokeLinecap="round" />
+    </g>
+  );
+}
+
+function WasabiDab() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="19" ry="3.3" fill="#000" opacity=".15" />
+      <path d="M12 52C10 32 22 18 32 18s22 14 20 34c-8 5-32 5-40 0z" fill="#a8d070" stroke="#3f6a22" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M25 33c1-5 10-6 13-1 2 4-2 8-7 7" fill="none" stroke="#dff0b8" strokeWidth="2.4" strokeLinecap="round" />
+      <circle cx="40" cy="46" r="1.6" fill="#7fae4a" />
+      <circle cx="22" cy="46" r="1.4" fill="#7fae4a" />
+    </g>
+  );
+}
+
+const COD_ROE_GRAINS: readonly (readonly [number, number])[] = [
+  [20, 46], [27, 49], [34, 49], [41, 46], [24, 39], [31, 41], [38, 39], [44, 41], [28, 32], [35, 31], [31, 24],
+];
+
+function CodRoeMass() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="22" ry="3.3" fill="#000" opacity=".15" />
+      <path d="M10 44c-2-10 6-14 12-13 2-8 14-11 20-5 7 0 13 6 11 14 1 8-10 12-20 11-11 1-22-1-23-7z" fill="#e8836b" stroke="#8f3b2a" strokeWidth="2.4" strokeLinejoin="round" />
+      <g fill="#f6b09b">
+        {COD_ROE_GRAINS.map(([cx, cy]) => (
+          <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2.6" />
+        ))}
+      </g>
+      <g fill="#b9533e">
+        <circle cx="46" cy="49" r="1.5" />
+        <circle cx="16" cy="44" r="1.5" />
+        <circle cx="35" cy="37" r="1.3" />
+      </g>
+    </g>
+  );
+}
+
+function NoriStrips() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="22" ry="3.3" fill="#000" opacity=".15" />
+      <g stroke="#0c1a12" strokeWidth="2.4" strokeLinejoin="round" fill="#1f3a2a">
+        <path d="M8 40l31-12 4 7-31 13z" />
+        <path d="M19 27l31-8 3 7-31 9z" />
+        <path d="M22 51l31-8 3 6-31 8z" />
+      </g>
+      <g stroke="#4f8a62" strokeWidth="1.8" strokeLinecap="round" fill="none">
+        <path d="M16 40l20-8" />
+        <path d="M27 28l20-5" />
+        <path d="M30 51l20-5" />
       </g>
     </g>
   );

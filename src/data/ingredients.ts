@@ -39,7 +39,11 @@ export type DedicatedIngredientVisual =
   | "shrimp-curl"
   | "sesame-seeds"
   | "pomegranate-aril"
-  | "cilantro-leaf";
+  | "cilantro-leaf"
+  | "beef-slices"
+  | "wasabi-dab"
+  | "cod-roe-mass"
+  | "nori-strips";
 
 export interface Ingredient {
   id: string;
@@ -1020,13 +1024,14 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
   },
-  /** Batch 10 PR-1: finite ladder material, step 58 (T4), the sole material of rendang-pizza's step (introduces beef on the ordinary side). Family `meat`. Provisional glyph / name. */
+  /** Batch 10 PR-1: finite ladder material, step 58 (T4), the sole material of rendang-pizza's step (introduces beef on the ordinary side). Family `meat`. Provisional name. Drawn by the dedicated `beef-slices` visual (PR-2 late4, provisional adoption; the final adoption is the 390x844 / 360x800 HV); `emoji` is only the required, never-displayed text fallback. */
   {
     id: "beef",
     category: "topping",
     nameJa: "牛肉",
     color: "#8c3a2e",
     emoji: "\u{1F404}",
+    pieceVisual: "beef-slices",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },

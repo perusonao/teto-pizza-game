@@ -105,7 +105,7 @@ describe("isChapterCleared (K2)", () => {
     // every late recipe in the chapter adds to the displayed total and none is required for the mark (ikura, yuzu-shrimp-pizza and eggplant-dengaku-pizza; with the Pinsa gate open, pinsa-romana too: its key step is arugula's, in chapter 4)
     const lateInChapter = real.recipes.length - ordinary.length;
     expect(real.recipes.some((r) => r.id === "eggplant-tahini-pizza")).toBe(true); // New Sauces Phase B U3: its key step (tahini / pomegranate) is a T4 step, so chapter 4
-    expect(lateInChapter).toBe(pinsaEnabled() ? 6 : 5); // BBQ Chicken (#611): + bbq-chicken-pizza (its key step bbq-sauce / cilantro is a T4 step, so chapter 4)
+    expect(lateInChapter).toBe(pinsaEnabled() ? 8 : 7); // BBQ Chicken (#611): + bbq-chicken-pizza (its key step bbq-sauce / cilantro is a T4 step, so chapter 4); PR-2 late4: + wasabi-beef-pizza and tarako-cream-pizza (T4 steps too)
     expect(chapterProgress(real, discoverAll(ordinary))).toEqual({ discovered: ordinary.length, total: ordinary.length + lateInChapter });
   });
 

@@ -144,9 +144,9 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(stepOf(SESAME)).toBe(mine);
     expect(mine.starGates).toBeUndefined();
     expect(mine.step).toBe(stepOf("yuzu-kosho").step + 1);
-    expect(steps.at(-3)).toBe(mine); // (New Sauces Phase B U3 / BBQ Chicken: the tahini and bbq late steps follow it)
+    expect(steps.at(-5)).toBe(mine); // (New Sauces Phase B U3 / BBQ Chicken: the tahini and bbq late steps follow it)
     expect(mine.step).toBe(ordinaryLadderSteps(steps).length + 3); // ordinary length + the three late steps up to and including this one
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", DENGAKU, "eggplant-tahini-pizza", "bbq-chicken-pizza"]);
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", DENGAKU, "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza"]);
   });
 
   it("Shop: both materials are T4 (the sauce pack 120 / refill 60), from the dengaku late step", () => {
