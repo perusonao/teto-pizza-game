@@ -1,0 +1,46 @@
+--- a/src/state/gameReducer.ts
++++ b/src/state/gameReducer.ts
+@@ -332,6 +332,8 @@
+   justGotNewBest: boolean;
+   hint: DialogueLine | null;
+   placement: PlacementFeedback | null;
++  /** SPIKE (T1): transient ingredient-level prep set. Absent = none. */
++  preparedIngredientIds?: readonly string[];
+   /** Issue #38 E-P1/E-P2: canonical transient RESULT/DISCOVERED display snapshot for the
+    *  per-pizza Pitz credit `REGISTER_TO_DEX` just applied (../logic/pitzReward.ts) -- the display
+    *  layer reads these five numbers rather than recomputing any of them (same discipline
+@@ -474,6 +476,7 @@
+   // Cooking Steps 2.0 Phase 1 (Issue #449 / #270): takes back the piece placed last in the current CHEESE / TOPPING
+   // step. No payload; see ./undoPlacement.ts for the rule (PREPARE only, never Lunch Rush, never a confirmed step).
+   | { type: "UNDO_LAST_PLACEMENT" }
++  | { type: "PREP_INGREDIENT"; ingredientId: string }
+   // Issue #33 D1: commits one complete DOUGH radial-stretch gesture's final shape as a
+   // single atomic replacement of `pizza.doughShape` -- mirrors COMMIT_SAUCE_DISPENSE's own
+   // "PizzaStage buffers locally, dispatches once at a successful pointerup" contract
+@@ -1149,6 +1152,15 @@
+       };
+     }
+ 
++    case "PREP_INGREDIENT": {
++      if (state.phase !== "PREPARE" || state.makingStep !== "TOPPING") return state;
++      if (state.roundKind !== "GUIDED" && state.roundKind !== "FREE_COOK") return state;
++      if (action.ingredientId !== "beef") return state;
++      if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
++      if (state.preparedIngredientIds?.includes(action.ingredientId)) return state;
++      return { ...state, preparedIngredientIds: [...(state.preparedIngredientIds ?? []), action.ingredientId] };
++    }
++
+     case "UNDO_LAST_PLACEMENT": {
+       // The reducer is the real backstop (the button's disabled state is only a hint): the rule lives in one
+       // pure function shared with the UI. Nothing here touches inventory (consumed once at CONFIRM_BAKE),
+@@ -1189,8 +1201,9 @@
+               const cookingProfile = roundCookingProfile(state.roundKind, state.recipe, effectivePanShape(state.recipe, pizza));
+               return { cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
+             })();
++      const { preparedIngredientIds: _dropped, ...stateWithoutPrep } = state;
+       return {
+-        ...state,
++        ...stateWithoutPrep,
+         ...panReset,
+         pizza,
+         makingStep: "DOUGH",
