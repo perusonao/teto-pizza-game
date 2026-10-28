@@ -12,7 +12,7 @@ Status: **実装済み・自動検証済み・Owner 実機 HV 未実施・PR 未
 
 - 図鑑発見ターゲット ID: `tarako-cream-pizza` → `mentaiko-cream-pizza-pizzadb-p4`（維持）。`wasabi-beef-pizza` → `wasabi-beef-pizza`。レシピ id は Owner 指定の `tarako-cream-pizza`（旧ブランチの `mentaiko-cream-pizza` から変更）。
 - floors（固定）: soy-sauce / wasabi 67、cod-roe / fresh-cream-sauce / nori 68。既存 8 件は不変。
-- 新食材 5 件: `soy-sauce`（`#2a1a12`、醤油ソース）/ `fresh-cream-sauce`（`#f2cfc0`、クリームソース、新規採用）/ `wasabi`（spice, xs）/ `cod-roe`（seafood, xs）/ `nori`（vegetable, xs、暫定）。
+- 新食材 5 件: `soy-sauce`（`#2a1a12`、醤油ソース）/ `fresh-cream-sauce`（`#efb9b4`、HV 修正後。初版 `#f2cfc0`、クリームソース、新規採用）/ `wasabi`（spice, xs）/ `cod-roe`（seafood, xs）/ `nori`（vegetable, xs、暫定）。
 - 描画（V1 Style Lock v2 語彙: 2.4 の輪郭・2 トーン・足元の影・id/gradient/defs なし・64×64、1.2em 補正は独立ルール）: `beef-slices`（既存 `beef` に `pieceVisual` 追加）/ `wasabi-dab` / `cod-roe-mass` / `nori-strips`。**V1 の SVG・CSS は無変更。**
 - 同期した表: 注文 2、Reference 2、hint role（key-free）2、sauce profile（PAINT）2、taxonomy 3 行、size class 3、テスト用 manifest（`LATE4_BATCH`）、`LATE_ADDITION_RECIPE_IDS`。
 
@@ -36,7 +36,7 @@ Status: **実装済み・自動検証済み・Owner 実機 HV 未実施・PR 未
 
 ## 視覚確認の所見（視覚修正は 0 回）
 - 醤油ソース `#2a1a12`: 生地と明確に区別できる（濃い茶）。
-- クリームソース `#f2cfc0`: 塗り後は生地よりわずかにピンクがかるだけで差は小さいが、焼成後（仕上げ画面）は識別できる。**実機で要確認。**
+- クリームソース: 初版 `#f2cfc0` は塗布後に生地との差が小さかった（Owner HV A 要改善）。修正版 `#efb9b4` に変更（生地との dE76 約 27、他ソースとの最小 dE76 25 以上）。
 - `beef-slices`: 絵文字（🐄）より一目で牛薄切り肉に読める。ベーコン / ハムとの取り違えは **実機で要確認**。
 - `wasabi-dab` / `cod-roe-mass` / `nori-strips`: xs サイズで盤面上は小さい（特に 360×800 のわさび）が、淡緑の山・珊瑚色の粒・暗緑の細片として識別できる。
 
@@ -50,3 +50,13 @@ Status: **実装済み・自動検証済み・Owner 実機 HV 未実施・PR 未
 
 ## PR 作成可否
 **Owner の実機 HV と最終承認があるまで PR を作成しない。** 自動検証は pass。承認後に PR を作る（merge は別途 Owner 承認）。
+
+## Owner 画像 HV の結果と修正（1 回、2026-10-28）
+HV: A 要改善（クリームソースのみ）/ B PASS / C 条件付き PASS（サイズ改善推奨）/ D PASS / E PASS。
+修正（最小）:
+1. `fresh-cream-sauce` の色 `#f2cfc0` → `#efb9b4`（`lateCatalog.ts`、テストの pin を追従）。縁の陰影は触っていない。
+2. xs 3 食材の盤面表示サイズ: `.ingredient-glyph--wasabi-dab` を 1.75em（margin -0.375em）、`--cod-roe-mass` / `--nori-strips` を 1.4em（margin -0.2em）に。`--beef-slices` は従来の 1.2em の独立ルールに分離（変更なし）。実測: 盤面上のわさびは 約 11px → 約 16px（390×844、360×800 とも）。
+3. 変更していないもの: `beef-slices`・`soy-sauce`・V1 の SVG と CSS、SVG の描画、食材 ID・ladder・floors・保存データ。
+前後比較: `docs/reports/screenshots/pr2-late4/hv-fix-before-after.png`（390×844 / 360×800、BEFORE = 764b80f4）。`after-*.png` は修正版に差し替え済み。旧版の HV 比較シート 3 枚（`hv-comparison-sheet-*`）は修正前の記録として残す。
+検証: `tsc -b` 0、oxlint エラー 0、関連 Vitest 6 files / 338 passed（late4、lateCatalog、IngredientGlyph、DH4 監査、catalogLedger、materialShop）、e2e（390×844 / 360×800）6/6 passed。全件再実行はしていない（変更は色 1 値と CSS のみ）。
+残る懸念: cod-roe / nori は 1.4em で「軽い改善」に留めた。再確認は実機 HV で。

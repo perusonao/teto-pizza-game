@@ -473,14 +473,13 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
     unlockCondition: { minTotalStars: 0 },
   },
   /**
-   * PR-2 late4: `fresh-cream-sauce`, a late-only sauce material (the tarako-cream step). A spread sauce painted in the SAUCE step (the existing PAINT); no topping family. `color` `#f2cfc0` (a pinkish milk white; the pure ivory `#f1e6c8` is only dE 15.0 from
-   * the nearest sauce) is PROVISIONAL until the Owner HV; its difference from the bare dough is NOT yet measured (the tahini precedent: the first colour read too close to the dough). `emoji` is only the tray / shop chip fallback (G18).
+   * PR-2 late4: `fresh-cream-sauce`, a late-only sauce material (the tarako-cream step). A spread sauce painted in the SAUCE step (the existing PAINT); no topping family. `color` `#efb9b4` (a rose cream) is PROVISIONAL (Owner HV 2026-10-28: the first `#f2cfc0` read too close to the dough once painted, dE ~14; this one is dE ~27 from the bare dough and >= 25 from every other sauce). `emoji` is only the tray / shop chip fallback (G18).
    */
   {
     id: "fresh-cream-sauce",
     category: "sauce",
     nameJa: "クリームソース",
-    color: "#f2cfc0",
+    color: "#efb9b4",
     emoji: "\u{1F9C8}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },

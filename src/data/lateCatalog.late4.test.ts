@@ -112,7 +112,7 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
       expect(ingredientAttributeFamily(id)).toBeNull();
     }
     expect(getIngredient("soy-sauce")).toMatchObject({ color: "#2a1a12", nameJa: "醤油ソース" });
-    expect(getIngredient("fresh-cream-sauce")).toMatchObject({ color: "#f2cfc0", nameJa: "クリームソース" });
+    expect(getIngredient("fresh-cream-sauce")).toMatchObject({ color: "#efb9b4", nameJa: "クリームソース" });
     const toppings: Record<string, [string, string, string]> = {
       wasabi: ["spice", "xs", "wasabi-dab"],
       "cod-roe": ["seafood", "xs", "cod-roe-mass"],
