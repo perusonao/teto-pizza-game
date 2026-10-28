@@ -116,6 +116,20 @@ HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner
 | 視認性 | 28px: 橙の輪郭でチーズ（クリーム〜白の楕円）と区別できる。20px: C 字の形が残る。焼成後（生地・チーズが黄色寄り）は淡色のコントラストがやや下がるが輪郭で判別可。**実機 HV で確認** |
 | §2 の規約 | `id` / gradient / `<defs>` なし、`aria-hidden`、描画は `pieceVisual` のみを読む。いずれも維持 |
 
+## 1e. 2026-10-28 Owner 決定 — Batch 10 の 3 食材（`pickles` / `wurstel` / `paprika-powder`）を専用 SVG に（Ingredient Visual V1、PR #690）
+
+| 項目 | 内容 |
+|---|---|
+| 理由 | #686（Batch 10 PR-1）で入った 3 食材は絵文字の暫定表示（🍈 / 🌯 / 🟧）で、メロン・ブリトー・オレンジ色の四角に見えた（Fresh Visual Audit） |
+| 採用 | `pickles` = `pickle-slices`（緑のガーキン + 波刃の輪切り）、`wurstel` = `wurstel-links`（切れ目入りの淡橙のソーセージ 2 本）、`paprika-powder` = `paprika-powder-pile`（赤い粉の小山）。Audit の候補をそのまま採用 |
+| 採用の経緯 | 2026-10-27 Owner が暫定採用 → 2026-10-28 Owner の画像 HV（390×844 の焼成後の比較画像）で **A ピクルス / B ヴルステル / C パプリカパウダー すべて PASS**。サイズ補正 1.2em を維持 |
+| `pieceVisual` | `"pickle-slices"` / `"wurstel-links"` / `"paprika-powder-pile"`（いずれも 64×64）。参照 SVG は `docs/design/references/ingredient-icons-2.0/` の `pickles.svg` / `wurstel.svg` / `paprika-powder.svg` |
+| Lock（§1 / §1b）との関係 | Lock の 26 種の外にある新規 3 種。語彙は既存と同じ（2.4 基調の輪郭、2 トーン、足元の影楕円、`id` / gradient / `<defs>` なし）。Lock の既存 26 種は変更しない |
+| サイズ補正 | `.ingredient-glyph--pickle-slices` / `--wurstel-links` / `--paprika-powder-pile` を 1.2em / margin -0.1em（**独立ルール**。shiso 等のグループには足していない） |
+| 不変 | 食材 ID・`nameJa`・`emoji`（テキストフォールバック）・`color`・`placement`・family・サイズクラス・在庫・採点・DH4・レシピ・ladder・セーブ形式（描画のみ。`lateCatalog.offSurface.json` の再生成も不要） |
+| HV の範囲 | 390×844 の焼成後の比較画像（Owner、2026-10-28）= PASS。360×800 は既存の撮影結果（`docs/reports/screenshots/ingredient-visual-v1/`、3 状態）を維持。**Safari 実機での動作確認は未実施** |
+| §2 の規約 | `id` / gradient / `<defs>` なし、`aria-hidden`、描画は `pieceVisual` のみを読む。いずれも維持 |
+
 ## 2. 共通仕様（確定方針の再掲）
 
 - 新規 SVG は **64×64（`viewBox="0 0 64 64"`）・透明背景**。

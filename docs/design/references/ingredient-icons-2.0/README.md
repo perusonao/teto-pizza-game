@@ -9,4 +9,6 @@ Not here, and not adopted: everything under
 [`../../candidates/ingredient-icons-2.0-remaining/`](../../candidates/ingredient-icons-2.0-remaining/) — in particular its
 `svg-not-adopted/` folder (rejected alternatives) — is comparison history only.
 
+Ingredient Visual V1 (PR #690, Style Lock §1e) added `pickles.svg`, `wurstel.svg` and `paprika-powder.svg` (the art of `pickle-slices` / `wurstel-links` / `paprika-powder-pile`; Owner image HV PASS on 390x844, 2026-10-28).
+
 These files are design references; nothing in `src/` reads them yet.

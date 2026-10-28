@@ -1,6 +1,6 @@
 # Ingredient Visual V1 — Result Report（ピクルス / ヴルステル / パプリカパウダー）
 
-Status: **実装済み・Owner 未承認・実機 HV 未実施。** 基準 main `76745be3`（#679 merge 後）。ブランチ `claude/teto-pizza-pr679-final-gate-0i6r63`（セッション指定ブランチ。PR は未作成）。
+Status: **Owner 画像 HV 合格（2026-10-28）。3 SVG を参照へ昇格し、Style Lock §1e を追記済み。merge は Owner の最終承認待ち。Safari 実機での動作確認は未実施。** 基準 main `76745be3`（#679 merge 後）。ブランチ `claude/teto-pizza-pr679-final-gate-0i6r63`（セッション指定ブランチ。PR は未作成）。
 親資料: `TETO_INGREDIENT-VISUAL_B10-Fresh-Audit.md`、`TETO_INGREDIENT-VISUAL_V1_Prep-Result.md`、`TETO_INGREDIENT-VISUAL_V1_Coordination-Result.md`（ブランチ `claude/teto-pizza-visual-audit-g7wntq`）。
 Owner 判断（2026-10-27）: SVG 3 点は**暫定採用**、最終採用は 390×844 / 360×800 の実画面 HV。牛肉 SVG は PR-2 の担当（本 PR では扱わない）。
 
@@ -32,6 +32,10 @@ Owner 判断（2026-10-27）: SVG 3 点は**暫定採用**、最終採用は 390
 ## HV の判定基準（Prep-Result §5 のとおり）
 1. ピクルスが果物に見えない。2. ヴルステルが別料理に見えない（ホットドッグ・サラミ・ズッキーニと取り違えない）。3. パプリカパウダーが、生地と焼成後の橙の上で 360×800 でも輪郭が残る。**HV 不合格の SVG は採用しない**（Owner 判断）。
 
-## 残り
-- 実機 HV と Owner 承認。合格後に、3 SVG を `docs/design/references/ingredient-icons-2.0/` へ昇格し、Style Lock v2 に §1e を追記する（PR 内、Owner 最終確認）。
+## Owner 画像 HV の結果（2026-10-28、390×844 焼成後の比較画像）
+A ピクルス **PASS** / B ヴルステル **PASS** / C パプリカパウダー **PASS**。現行 SVG を採用、サイズ補正 1.2em を維持、追加の描画修正なし。360×800 は既存の撮影結果を維持。**Safari 実機での動作確認は未実施。**
+昇格: `pickles.svg` / `wurstel.svg` / `paprika-powder.svg` を `docs/design/references/ingredient-icons-2.0/` へ、Style Lock v2 §1e を追記。
+
+## 残り（更新後）
+- Owner の最終承認と merge（それまで merge しない）。Safari 実機での動作確認は未実施。
 - PR 作成と merge は Owner 承認後。PR-2（Line C）は、この PR の merge 後に取り込む（beef の `beef-slices` は PR-2 側）。
