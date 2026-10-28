@@ -355,14 +355,14 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
   },
   /**
    * BBQ Chicken (Issue #611): `bbq-sauce`, a late-only finite ladder material (the BBQ step's first material). A spread sauce painted in the SAUCE step (the existing PAINT); sauces carry no topping family.
-   * `color` `#7a2f1c` (a deep red-brown) is PROVISIONAL (Owner 2026-10-27; confirmed or changed at the iPhone HV): it must stay distinguishable from tomato-sauce, doubanjiang and the bare dough once drawn translucent.
+   * `color` `#5c3018` (a dark brown) is PROVISIONAL (Owner 2026-10-27; changed from `#7a2f1c` at the iPhone HV, 2026-10-28: too close to doubanjiang once painted, rendered dE ~6 -> ~15): it must stay distinguishable from tomato-sauce, doubanjiang and the bare dough once drawn translucent.
    * `emoji` 🔥 is the tray / shop chip face (G18 keeps it unique). Its PIZZA DB use (painted before the bake) is a GAMEPLAY ASSUMPTION, not confirmed by the original.
    */
   {
     id: "bbq-sauce",
     category: "sauce",
     nameJa: "バーベキューソース",
-    color: "#7a2f1c",
+    color: "#5c3018",
     emoji: "\u{1F525}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },

@@ -11,7 +11,7 @@ Authority: Owner 承認（2026-10-27）Final Design Gate ＋ `docs/design/TETO_B
 | 説明文 | 「甘辛いソースのチキンに、香菜をそえた一枚。」（時機を名指ししない） |
 | 構成（**GAMEPLAY ASSUMPTION**、原典未確認） | BBQソース 1（焼成前 **PAINT**）/ モッツァレラ 2 / たまねぎ 1 / チキン 3 / パクチー 2（**焼成後 FINISH**）＝ソース以外 **8 ピース**（焼成前 6 ＋ FINISH 2） |
 | 焼成窓・CUT | 58–78（Free Cooking の汎用窓と同じ）/ CUT なし / `lunchRush:false` |
-| 新素材 | `bbq-sauce`（表示名「バーベキューソース」、spread、暫定色 `#7a2f1c`、emoji 🔥）、`cilantro`（表示名「パクチー」、scatter、family `herb`、size class `xs`、専用 SVG＝候補 A、プレースホルダ emoji 🌼、`bakeRoastResistant`） |
+| 新素材 | `bbq-sauce`（表示名「バーベキューソース」、spread、暫定色 `#5c3018`（実機HVで `#7a2f1c` から変更。下の追記）、emoji 🔥）、`cilantro`（表示名「パクチー」、scatter、family `herb`、size class `xs`、専用 SVG＝候補 A、プレースホルダ emoji 🌼、`bakeRoastResistant`） |
 | ladder | late step（tahini の次）に 2 材料（bbq-sauce → cilantro）。番号は**導出**、星ゲートなし、T4、key-free。Research コホートの鍵は cilantro |
 | 互換下限 | `LATE_ENTITLEMENT_FLOORS` に `bbq-sauce: 66` / `cilantro: 66` を追加（Owner 承認 2026-10-27: 出荷時点で ladder が導く番号 = 通常 61 + late 5。#686 の統合前は 61 だった）。既存 57/58/59/59/60/60 は**不変** |
 | Reference | 8 ピースの固定 8 点リング（`getReferenceSlots(8)` と完全一致、8 番目＝生地中央 (50,52)）。パクチーは `LIGHT_LEAF`、他は `HEAVY_SQUASH`、許容 8/22。**新しいピース数上限は設けていない** |
@@ -86,7 +86,7 @@ U1〜U3 の e2e は、自分の late step を導出する形に更新（U3 の�
 
 - スクリーンショット（committed）: `docs/reports/screenshots/new-bbq/`（SVG と完成ピザの比較画像を含む）。
 - 動画（**commit しない**。Owner へ直接提出）。
-- **実機（iPhone Safari）で確認してほしいこと**: ①バーベキューソース `#7a2f1c` が生地・トマトソース・豆板醤と見分けられるか、②**FINISH のパクチー 2 個**（`xs`）の視認性、③パクチー SVG（候補 A）が焼いたピザ上で読めるか。
+- **実機（iPhone Safari）で確認してほしいこと**: ①バーベキューソース（当初 `#7a2f1c`、現在 `#5c3018`）が生地・トマトソース・豆板醤と見分けられるか、②**FINISH のパクチー 2 個**（`xs`）の視認性、③パクチー SVG（候補 A）が焼いたピザ上で読めるか。
 - **Owner の実機 HV は未実施。**
 
 ## 10. リスクと注意
@@ -108,3 +108,17 @@ U1〜U3 の e2e は、自分の late step を導出する形に更新（U3 の�
 - 統合で追随したテスト: `pinsaGate`（#683 の一覧に bbq-chicken-pizza）、`deductionGuard.gate`（旧 DH4-2A の leak 数 173 → 212、hardened は 0 のまま）、`deductionProduction.gate`（main の版。`preExistingPublic` に pesto-caprese は不要）、floors の 3 テスト。
 - 検証（`7646ca7`）: tsc 成功 / oxlint エラー 0 / フル Vitest ON 538 files・10,051 passed / OFF 538 files・10,043 passed、失敗 0。
 - 上の「フル Vitest 9,846 passed」「Chromium 525 passed / 11 failed」は統合前（`933e518` 以前）の記録。
+
+## 追記: BBQ ソースの色変更（2026-10-28、iPhone 実機HV後の Owner 判断）
+- `bbq-sauce` の色を `#7a2f1c` → **`#5c3018`** に変更した（`lateCatalog.ts` の1行。豆板醤 `#8a2b1c` と塗った状態で近く、取り違えが懸念されたため）。パクチーの SVG は変更していない。
+- 実測（同じ塗り方・同じ焼き時間、390×844、塗りの平均色どうしの CIE76 ΔE）:
+
+| 組み合わせ | 変更前（焼成前 / 焼成後） | 変更後（焼成前 / 焼成後） |
+|---|---|---|
+| BBQ ↔ 豆板醤 | 5.6 / 6.3 | **14.0 / 15.7** |
+| BBQ ↔ トマト | 18.8 / 20.6 | 27.1 / 29.9 |
+| BBQ ↔ 素の生地 | 36.0 / 33.6 | 35.2 / 33.0 |
+
+- 影響したテストは `lateCatalog.bbq.test.ts`（色の期待）のみ。golden・他のテストに色の依存はなかった（フル Vitest ON で確認、下記）。
+- 検証: tsc 成功 / フル Vitest（Pinsa ON）537 files・10,050 passed・失敗 1（`gameReducer.deductionHint.test.ts` が 5,000ms 制限ぎりぎり: 色変更を退避した `8bffd55` でも同じ 5,090ms で失敗。色とは無関係の時間依存。skip・制限延長なし）。
+- iPhone 実機の視認性HV（比較シート）の結果は、Owner の判定を受けて追記する。
