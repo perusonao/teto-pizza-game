@@ -3,7 +3,7 @@
 作成: 2026-10-27 / 基準 `main` = `47268e3`（#684）/ ブランチ `claude/teto-pizza-cooking-audit-frxevk`
 親: `TETO_COOKING-PROCESS-EXPANSION_Phase1-PreImplementation-Verification.md` §4（T0〜T7）、`…_Fresh-Audit.md`
 性質: **技術調査のみ。** 製品コード・Preview・PR・merge・claim 投稿・Monitor は行っていない。リポジトリの追跡ファイルは本書の追加のみ。
-計測・スパイクはリポジトリ外（スクラッチ領域）で実施し、破棄する（コミットしていない。§9）。HV 動画は audit-only のため対象外。
+計測・スパイクはリポジトリ外（スクラッチ領域）で実施した。**Owner 承認（2026-10-28）によりスパイクとプローブは保持する**: `docs/reports/data/TETO_COOKING-PREP_T1-spike.patch`（reducer の差分 46 行）、`…_T1-spike.prepSpike.test.ts.txt`（スパイクのテスト）、`…_T3-probe.cjs.txt` / `…_T3-probe.json`（レイアウト計測）、`docs/reports/screenshots/cooking-prep-investigation/`（計測画像）。いずれも**製品コードではない**（`.txt` はテスト・ビルドの対象外）。HV 動画は audit-only のため対象外。
 Owner 方針（7 点）: SCATTER 新方式は実装しない（#476 D3 維持）／仕上げがけは保留／下ごしらえ（炒め）を優先／試作対象は既存 beef／任意操作が第一候補／識別・採点・保存形式は変更しない／新タブなし。
 
 ---
@@ -66,7 +66,7 @@ ORDER ─BEGIN_PREPARE→ PREPARE[DOUGH→SAUCE→CHEESE→TOPPING] ─START_BAK
 | 在庫 | 下ごしらえは何も消費しない。消費は CONFIRM_BAKE の 1 回のまま | 影響なし |
 | Anti-Oracle | 炒め可否は**食材の id だけ**で決まり、レシピ・ラウンド種別（Guided / Free / Research）で変わらない。Dinner（START_BAKE までレシピ未確定）と Lunch Rush は除外 | 標的は漏れない |
 
-### 2.4 スパイクの結果（スクラッチコピー、破棄済み・未コミット）
+### 2.4 スパイクの結果（スクラッチコピー。差分とテストは docs/reports/data/ に保持）
 
 `git archive HEAD` をスクラッチ領域に展開し、`GameState` に省略可能フィールド、`PREP_INGREDIENT` アクション（beef のみ・TOPPING のみ・Guided / Free のみ・冪等）、`RESET_PIZZA` での除去を**約 15 行**足した。
 
@@ -83,7 +83,7 @@ ORDER ─BEGIN_PREPARE→ PREPARE[DOUGH→SAUCE→CHEESE→TOPPING] ─START_BAK
 
 `vitest run` 全体: **537 ファイル成功・1 ファイル失敗・1 スキップ／10019 テスト成功・1 失敗・13 スキップ・2 todo**（約 677 秒）。スパイク自身の 3 テストを含む。
 
-- 失敗した 1 件は `src/preview/lcHandPreview.gate.test.ts`（「no committed .env file…」）。`git ls-files` を実行するテストで、**スクラッチコピーが git リポジトリでない**（`git archive` の展開物）ために `fatal: not a git repository` で落ちた。**スパイクの変更とは無関係な環境起因**。本物のリポジトリでの再実行は行っていない。
+- 失敗した 1 件は `src/preview/lcHandPreview.gate.test.ts`（「no committed .env file…」）。`git ls-files` を実行するテストで、**スクラッチコピーが git リポジトリでない**（`git archive` の展開物）ために `fatal: not a git repository` で落ちた。**スパイクの変更とは無関係な環境起因**。本物のリポジトリでの再実行は行っていない。**Owner 判断（2026-10-28）: 環境要因として記録し、正式実装時に通常のリポジトリで再確認する。**
 - スパイクの変更で落ちた既存テストは **0 件**（`GameState` の deep-equal・Dinner のアクション分類・golden を含む）。
 
 ---
@@ -259,7 +259,7 @@ Owner 実装承認 ──┴→ S1 → S2 → S3 → S4 → S5(HV)
 
 | 項目 | 内容 |
 |---|---|
-| 実行したこと | `npm ci`（`node_modules` は gitignore）、`vite` 開発サーバー、リポジトリ外の Playwright プローブ（Chromium、390×844・360×800）、スクラッチコピーでのスパイクと vitest。**スクラッチコピー・プローブ・スクリーンショットは破棄対象で、コミットしていない** |
+| 実行したこと | `npm ci`（`node_modules` は gitignore）、`vite` 開発サーバー、リポジトリ外の Playwright プローブ（Chromium、390×844・360×800）、スクラッチコピーでのスパイクと vitest。**スパイク差分・プローブ・スクリーンショットは Owner 承認により docs 配下に保持した（上記）。スクラッチコピー自体はリポジトリに入れていない** |
 | 変更していないこと | 製品コード、Preview、他の docs、PR、claim、Monitor、`.github` |
 | 未実施 | 実機（iPhone / WebKit）の確認、人による所要時間の計測、HV。**テンポは見込みであり実測ではない** |
 | 注意 | プローブのオーバーレイは仮の DOM で、実際の見た目・操作感の代替ではない。タップのリズムの手触りは実機でしか判断できない |
@@ -277,6 +277,6 @@ Owner 実装承認 ──┴→ S1 → S2 → S3 → S4 → S5(HV)
 | 技術の見立て | 状態は省略可能な transient フィールドで足り、保存・採点・識別・在庫・タブに影響しない（スパイクで実証）。入力はステージ上下の空き帯とオーバーレイで、余白 0px の縦予算を変えずに成立（実測） |
 | 任意操作の価値 | SVG があれば中、無ければゼロ。採点に効かず、音・振動も無いため、視覚の質がすべて |
 | PR-2 / #679 / #478 | 衝突はグリフ関連ファイルと `GameScreen.tsx` の数行のみ。PR-2 の beef 前提は #686 で古くなっている |
-| 変更したもの | docs 1 ファイルの追加のみ（本書）。製品コード・Preview・PR・merge・claim・Monitor なし |
+| 変更したもの | docs の追加のみ（本書、保持したスパイク差分・プローブ・スクリーンショット）。製品コード・Preview・PR・merge・claim・Monitor なし |
 | Owner に求める判断 | (1) beef の専用 SVG（`beef-slices`）を誰がいつ作るか（PR-2 と共有、#679 の後）。(2) 実装承認（S-0 → S1〜S5）。(3) 面倒と判定された場合は撤回する運用でよいか |
 | 次の一手 | Owner が (1) を決める → #679 merge 後に S-0 → 承認後に S1 から |
