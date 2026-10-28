@@ -863,6 +863,14 @@
   margin: -0.2em;
 }
 
+/* B11 S1 (porcini / mussel): drawn inside a 64-box with margins, so they read smaller than the emoji they replace; own rule so earlier visuals stay untouched. PROVISIONAL, measured on 390x844 / 360x800 in HV. */
+.ingredient-glyph--porcini-slice,
+.ingredient-glyph--mussel-shell {
+  width: 1.3em;
+  height: 1.3em;
+  margin: -0.15em;
+}
+
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */
 /* Generic fallback so a new cheese ingredient is still visible before it gets a
    dedicated .pizza-cheese--<id> rule below. Each dedicated rule sets its own

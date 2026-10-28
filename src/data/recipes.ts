@@ -1365,6 +1365,58 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "boscaiola",
+    nameJa: "ボスカイオーラ",
+    description: "オリーブオイルを塗った生地に、ポルチーニとソーセージ、モッツァレラをのせた、森のきのこの一枚。",
+    // B11 S1 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; docs/design/TETO_B11-S1_PRE-IMPLEMENTATION-PREP_2026-10-28.md). SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled; names and the SVG shapes are provisional. `lunchRush: false`; no CUT; permanently key-free (Hint).
+    // Ladder-credited: the key recipe of step 62 (porcini). The olive-oil is its own PAINT_TEMPORARY slot mapping (like vongole), the sauce is not a piece.
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "porcini", minCount: 3 },
+      { ingredientId: "sausage", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "porcini-pizza",
+    nameJa: "ポルチーニ茸のピザ",
+    description: "ソースを使わず、ポルチーニとモッツァレラ、にんにく、パセリをのせた、きのこの香りの一枚。",
+    // B11 S1 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; docs/design/TETO_B11-S1_PRE-IMPLEMENTATION-PREP_2026-10-28.md). SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled; names and the SVG shapes are provisional. `lunchRush: false`; no CUT; permanently key-free (Hint).
+    // NO_SAUCE (no sauce step), `ladderCredit: false` (Owner decision 1): it shares step 62 with boscaiola, whose recipe id sorts first, so boscaiola stays the key.
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "porcini", minCount: 3 },
+      { ingredientId: "garlic", minCount: 1 },
+      { ingredientId: "parsley", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
+  {
+    id: "pescatore",
+    nameJa: "ペスカトーレ",
+    description: "トマトソースの生地に、エビとあさり、ムール貝、モッツァレラをのせた、魚介たっぷりの一枚。",
+    // B11 S1 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; docs/design/TETO_B11-S1_PRE-IMPLEMENTATION-PREP_2026-10-28.md). SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled; names and the SVG shapes are provisional. `lunchRush: false`; no CUT; permanently key-free (Hint).
+    // Ladder-credited: the key recipe of step 63 (mussel). Tomato-sauce only: the olive-oil of the source ingredient set is OMITTED (GAMEPLAY ASSUMPTION, Owner decision 2). Seven distinct ingredients: the second Hint price-cap exception (Owner decision 3).
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "shrimp", minCount: 2 },
+      { ingredientId: "clam", minCount: 1 },
+      { ingredientId: "mussel", minCount: 1 },
+      { ingredientId: "garlic", minCount: 1 },
+      { ingredientId: "parsley", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /**

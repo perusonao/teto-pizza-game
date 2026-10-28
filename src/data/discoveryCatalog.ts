@@ -117,6 +117,10 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   currywurst: "currywurst-pizzadb",
   "tandoori-paneer-pizza": "tandoori-paneer-pizza-pizzadb-p5",
   "cuban-pizza": "cuban-pizza-pizzadb-p2",
+  // B11 S1: PIZZA DB evidence ids from the 172 matrix (PROVISIONAL SPEC, original NOT confirmed).
+  boscaiola: "boscaiola-pizzadb-p12",
+  "porcini-pizza": "porcini-pizza-pizzadb-p13",
+  pescatore: "pescatore-pizzadb-p11",
   // Multi-Sauce S3 / Square Dough E-2 (#521): PIZZA DB evidence id from the 172 matrix.
   "grandma-pizza": "grandma-pizza-pizzadb",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).

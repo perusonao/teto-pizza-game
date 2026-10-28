@@ -72,7 +72,9 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   lamb: "m",
   beef: "m",
   wurstel: "m",
+  porcini: "m",
   pickles: "s",
+  mussel: "s",
   whitebait: "s",
   "sweet-potato": "m",
   // large

@@ -43,7 +43,9 @@ export type DedicatedIngredientVisual =
   | "beef-slices"
   | "wasabi-dab"
   | "cod-roe-mass"
-  | "nori-strips";
+  | "nori-strips"
+  | "porcini-slice"
+  | "mussel-shell";
 
 export interface Ingredient {
   id: string;
@@ -1095,6 +1097,34 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "スイスチーズ",
     color: "#f1dfa0",
     emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * B11 S1 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, step 62 (T4, no star gate), the sole material of boscaiola's step (key recipe; porcini-pizza shares it, REC-04 tie-break by recipe id). Family `vegetable` (L1 only).
+   * Drawn by the dedicated `porcini-slice` visual (a lengthwise slice: a brown cap over a thick pale stem; provisional adoption, the final adoption is the 390x844 / 360x800 HV), kept apart from the plain `mushroom`; `emoji` is only the required, never-displayed text fallback (G18 keeps it unique).
+   */
+  {
+    id: "porcini",
+    category: "topping",
+    nameJa: "ポルチーニ",
+    color: "#9a6b3f",
+    emoji: "\u{1FAB5}",
+    pieceVisual: "porcini-slice",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * B11 S1 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, step 63 (T4, no star gate), the sole material of pescatore's step. Family `seafood` (L1 only).
+   * Drawn by the dedicated `mussel-shell` visual (an elongated dark shell with an orange body; provisional adoption, the final adoption is the HV), kept apart from the round pale `clam`; `emoji` is only the required, never-displayed text fallback (G18 keeps it unique).
+   */
+  {
+    id: "mussel",
+    category: "topping",
+    nameJa: "ムール貝",
+    color: "#2f3a52",
+    emoji: "\u{1F41A}",
+    pieceVisual: "mussel-shell",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
