@@ -33,6 +33,9 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "feta-cubes": "0 0 64 64",
   "sausage-slices": "0 0 64 64",
   "hot-dog-slices": "0 0 64 64",
+  "pickle-slices": "0 0 64 64",
+  "wurstel-links": "0 0 64 64",
+  "paprika-powder-pile": "0 0 64 64",
   "shiso-leaf": "0 0 64 64",
   "arugula-leaves": "0 0 64 64",
   "whitebait-school": "0 0 64 64",
@@ -62,6 +65,9 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "feta-cubes" && <FetaCubes />}
       {visual === "sausage-slices" && <SausageSlices />}
       {visual === "hot-dog-slices" && <HotDogSlices />}
+      {visual === "pickle-slices" && <PickleSlices />}
+      {visual === "wurstel-links" && <WurstelLinks />}
+      {visual === "paprika-powder-pile" && <PaprikaPowderPile />}
       {visual === "shiso-leaf" && <ShisoLeaf />}
       {visual === "arugula-leaves" && <ArugulaLeaves />}
       {visual === "whitebait-school" && <WhitebaitSchool />}
@@ -303,6 +309,103 @@ function HotDogSlices() {
         {HOT_DOG_SLICES.map((slice) => (
           <path key={slice.cx} d={`M${slice.hx} ${slice.hy}c1-2 3-3 5-3`} />
         ))}
+      </g>
+    </g>
+  );
+}
+
+/* ---------- pickles (Ingredient Visual V1, provisional adoption; final adoption = the 390x844 / 360x800 HV): a wavy-cut round slice with a pale seed ring, and one whole gherkin ---------- */
+
+const PICKLE_SLICE = "M57.1 23.0L56.6 24.2L55.6 25.2L54.9 26.2L55.0 27.4L55.4 28.8L55.2 30.0L54.2 30.8L52.8 31.2L51.7 31.7L51.2 32.8L50.8 34.2L50.1 35.2L48.8 35.4L47.4 35.0L46.2 34.9L45.2 35.6L44.2 36.6L43.0 37.1L41.8 36.6L40.8 35.6L39.8 34.9L38.6 35.0L37.2 35.4L36.0 35.2L35.2 34.2L34.8 32.8L34.3 31.7L33.2 31.2L31.8 30.8L30.8 30.0L30.6 28.8L31.0 27.4L31.1 26.2L30.4 25.2L29.4 24.2L28.9 23.0L29.4 21.8L30.4 20.8L31.1 19.8L31.0 18.6L30.6 17.2L30.8 15.9L31.8 15.2L33.2 14.8L34.3 14.3L34.8 13.2L35.2 11.8L35.9 10.8L37.2 10.6L38.6 11.0L39.8 11.1L40.8 10.4L41.8 9.4L43.0 8.9L44.2 9.4L45.2 10.4L46.2 11.1L47.4 11.0L48.8 10.6L50.1 10.8L50.8 11.8L51.2 13.2L51.7 14.3L52.8 14.8L54.2 15.2L55.2 15.9L55.4 17.2L55.0 18.6L54.9 19.8L55.6 20.8L56.6 21.8Z";
+const PICKLE_SEEDS = [
+  { x: 49.2, y: 23.0, a: 0 },
+  { x: 46.1, y: 28.4, a: 60 },
+  { x: 39.9, y: 28.4, a: 120 },
+  { x: 36.8, y: 23.0, a: 180 },
+  { x: 39.9, y: 17.6, a: 240 },
+  { x: 46.1, y: 17.6, a: 300 },
+];
+
+function PickleSlices() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
+      <path d={PICKLE_SLICE} fill="#5f7d24" stroke="#33430f" strokeWidth="2.4" strokeLinejoin="round" />
+      <circle cx="43" cy="23" r="9.6" fill="#cfdc86" />
+      <circle cx="43" cy="23" r="3.4" fill="#e9efb4" />
+      {PICKLE_SEEDS.map((seed) => (
+        <ellipse key={seed.a} cx={seed.x} cy={seed.y} rx="1.9" ry="1.1" transform={`rotate(${seed.a} ${seed.x} ${seed.y})`} fill="#f4f2c0" />
+      ))}
+      <g transform="rotate(-24 22 40)">
+        <rect x="4" y="30" width="38" height="19" rx="9.5" fill="#6f9230" stroke="#33430f" strokeWidth="2.4" />
+        <g fill="#4c6a1c">
+          <circle cx="12" cy="36" r="1.5" />
+          <circle cx="19" cy="42" r="1.5" />
+          <circle cx="26" cy="36" r="1.5" />
+          <circle cx="33" cy="42" r="1.5" />
+          <circle cx="36" cy="35" r="1.3" />
+          <circle cx="9" cy="43" r="1.2" />
+        </g>
+        <path d="M10 33.5c8-2 18-2 26 0" stroke="#b9d065" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      </g>
+    </g>
+  );
+}
+
+/* ---------- wurstel (Ingredient Visual V1, provisional adoption): two pale-orange scored sausages (a wurstel, not the round hot-dog slices) ---------- */
+
+function WurstelLinks() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
+      <g transform="rotate(-12 30 21)">
+        <rect x="9" y="13" width="42" height="15" rx="7.5" fill="#e79a68" stroke="#7f3519" strokeWidth="2.4" />
+        <path d="M13 16.5h34" stroke="#fbd6b8" strokeWidth="2.4" strokeLinecap="round" />
+        <g stroke="#b3582f" strokeWidth="1.8" strokeLinecap="round">
+          <path d="M17 19l4 7M24 19l4 7M31 19l4 7M38 19l4 7" />
+        </g>
+        <path d="M12.5 17v8M47.5 17v8" stroke="#a24a26" strokeWidth="2" strokeLinecap="round" />
+      </g>
+      <g transform="rotate(9 34 42)">
+        <rect x="12" y="34" width="42" height="15" rx="7.5" fill="#e79a68" stroke="#7f3519" strokeWidth="2.4" />
+        <path d="M16 37.5h34" stroke="#fbd6b8" strokeWidth="2.4" strokeLinecap="round" />
+        <g stroke="#b3582f" strokeWidth="1.8" strokeLinecap="round">
+          <path d="M20 40l4 7M27 40l4 7M34 40l4 7M41 40l4 7" />
+        </g>
+        <path d="M15.5 38v8M50.5 38v8" stroke="#a24a26" strokeWidth="2" strokeLinecap="round" />
+      </g>
+    </g>
+  );
+}
+
+/* ---------- paprika-powder (Ingredient Visual V1, provisional adoption): a small mound of red powder with a few stray grains ---------- */
+
+function PaprikaPowderPile() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
+      <path d="M7 50C8 42 15 33 25 29c7-3 14 0 19 6 6 5 12 10 13 15-8 5-42 5-50 0z" fill="#c4361a" stroke="#6a1a0a" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M13 47c3-6 9-11 16-12 6-1 11 2 15 7" fill="#df5a30" />
+      <g fill="#8a2210">
+        <circle cx="20" cy="45" r="1.5" />
+        <circle cx="33" cy="41" r="1.4" />
+        <circle cx="42" cy="46" r="1.6" />
+        <circle cx="28" cy="48" r="1.3" />
+        <circle cx="48" cy="49" r="1.2" />
+      </g>
+      <g fill="#f7946a">
+        <circle cx="24" cy="39" r="1.3" />
+        <circle cx="37" cy="37" r="1.2" />
+        <circle cx="17" cy="48" r="1.1" />
+        <circle cx="45" cy="42" r="1.1" />
+      </g>
+      <g fill="#c4361a" stroke="#6a1a0a" strokeWidth="1">
+        <circle cx="12" cy="24" r="1.7" />
+        <circle cx="51" cy="22" r="1.5" />
+        <circle cx="31" cy="16" r="1.6" />
+        <circle cx="20" cy="15" r="1.2" />
+        <circle cx="46" cy="14" r="1.2" />
+        <circle cx="57" cy="32" r="1.4" />
       </g>
     </g>
   );

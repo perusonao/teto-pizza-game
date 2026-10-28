@@ -80,9 +80,11 @@ const PHASE_B1_DEDICATED: Record<string, DedicatedIngredientVisual> = {
 const ARUGULA_DEDICATED: Record<string, DedicatedIngredientVisual> = { arugula: "arugula-leaves" };
 /** Peeled shrimp (Owner-approved 2026-10-25, Style Lock v2 §1d): dedicated art instead of the shelled 🦐. */
 const SHRIMP_DEDICATED: Record<string, DedicatedIngredientVisual> = { shrimp: "shrimp-curl" };
+/** Ingredient Visual V1 (provisional adoption, Owner 2026-10-27; the final adoption is the 390x844 / 360x800 HV): dedicated art for pickles / wurstel / paprika-powder instead of 🍈 / 🌯 / 🟧. */
+const V1_DEDICATED: Record<string, DedicatedIngredientVisual> = { pickles: "pickle-slices", wurstel: "wurstel-links", "paprika-powder": "paprika-powder-pile" };
 // E5: with the late catalog on (Production) the late salmon-roe is a production row too (its art is pinned in the FIN-E4b-ikura block below).
 const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains", "white-sesame": "sesame-seeds", pomegranate: "pomegranate-aril", cilantro: "cilantro-leaf" } : {};
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...LATE_DEDICATED };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -715,6 +717,44 @@ describe("peeled shrimp: shrimp-curl dedicated art (production row)", () => {
     const { container } = render(<span><IngredientGlyph ingredient={shrimp} /></span>);
     expect(container.querySelectorAll("circle")).toHaveLength(0);
     expect(container.innerHTML).not.toContain("#8a2f1c"); // the shelled art's dark-red outline colour
+  });
+});
+
+/**
+ * Ingredient Visual V1 (provisional adoption): `pickles` / `wurstel` / `paprika-powder` are drawn by their own dedicated art, never by 🍈 / 🌯 / 🟧.
+ * Only `pieceVisual` is added: identity, colour, placement, family, size class and stock are unchanged. The emoji stays the required text fallback and must never reach the DOM.
+ */
+describe("Ingredient Visual V1: pickles / wurstel / paprika-powder dedicated art (production rows)", () => {
+  const ROWS = [
+    { id: "pickles", nameJa: "ピクルス", visual: "pickle-slices", emoji: "\u{1F348}", color: "#7a8f2a" },
+    { id: "wurstel", nameJa: "ヴルステル", visual: "wurstel-links", emoji: "\u{1F32F}", color: "#b8553f" },
+    { id: "paprika-powder", nameJa: "パプリカパウダー", visual: "paprika-powder-pile", emoji: "\u{1F7E7}", color: "#c2411f" },
+  ] as const;
+
+  it.each(ROWS)("$id declares $visual and keeps its identity", ({ id, nameJa, visual, emoji, color }) => {
+    expect(getIngredient(id)).toMatchObject({ id, nameJa, category: "topping", placement: "scatter", emoji, color, pieceVisual: visual });
+  });
+
+  it.each(ROWS)("$id draws an SVG on the glyph and on the placed piece, and never prints its emoji", ({ id, visual, emoji }) => {
+    const ingredient = getIngredient(id)!;
+    for (const node of [<IngredientGlyph key="g" ingredient={ingredient} />, <IngredientPieceVisual key="p" ingredient={ingredient} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(container.textContent).toBe("");
+      expect(container.textContent).not.toContain(emoji);
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      unmount();
+    }
+  });
+
+  it("the three visuals are distinct from each other and from the neighbouring sausage art", () => {
+    const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+    const all = [html("pickles"), html("wurstel"), html("paprika-powder"), html("hot-dog"), html("sausage")];
+    expect(new Set(all).size).toBe(all.length);
   });
 });
 

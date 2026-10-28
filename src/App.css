@@ -833,6 +833,16 @@
   margin: -0.1em;
 }
 
+/* Ingredient Visual V1 (pickles / wurstel / paprika-powder): drawn inside a 64-box with margins, so on the dough they read smaller than the emoji they replace (measured on 390x844 / 360x800).
+   Same fix class as the group above, kept as its own rule so later visuals append without touching it. */
+.ingredient-glyph--pickle-slices,
+.ingredient-glyph--wurstel-links,
+.ingredient-glyph--paprika-powder-pile {
+  width: 1.2em;
+  height: 1.2em;
+  margin: -0.1em;
+}
+
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */
 /* Generic fallback so a new cheese ingredient is still visible before it gets a
    dedicated .pizza-cheese--<id> rule below. Each dedicated rule sets its own
