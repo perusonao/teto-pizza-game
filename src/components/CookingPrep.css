@@ -1,0 +1,234 @@
+/* Cooking Prep Phase 1 PR-B (下ごしらえ「炒める」). Its own file: App.css is a hot file. Spec: docs/design/TETO_COOKING-PREP_PHASE1_SPEC_2026-10-28.md.
+   Nothing here applies unless the experience is ON (the class / elements below are only rendered then); with it OFF the DOM is today's. */
+
+/* ---- S3: a prepped beef piece. `fill` / `stroke` set by CSS beat the SVG presentation attributes, so `BeefSlices` (#691, HV-passed) stays byte-identical.
+   The ribbons / streaks are the four <path>s of the glyph, in drawing order: lean 1, fat 1, lean 2, fat 2. ---- */
+.ingredient-piece--prepared .ingredient-glyph--beef-slices path:nth-of-type(1) {
+  fill: var(--beef-lean);
+  stroke: var(--beef-edge);
+}
+.ingredient-piece--prepared .ingredient-glyph--beef-slices path:nth-of-type(2) {
+  stroke: var(--beef-fat);
+}
+.ingredient-piece--prepared .ingredient-glyph--beef-slices path:nth-of-type(3) {
+  fill: var(--beef-lean-2);
+  stroke: var(--beef-edge);
+}
+.ingredient-piece--prepared .ingredient-glyph--beef-slices path:nth-of-type(4) {
+  stroke: var(--beef-fat-2);
+}
+/* The sheen: a thin warm highlight along the upper edge, only as strong as the doneness. */
+.ingredient-piece--prepared .ingredient-glyph--beef-slices {
+  filter: drop-shadow(0 -1px 0 rgba(255, 236, 200, calc(var(--beef-gloss, 0) * 0.65)));
+}
+
+/* ---- S4: the pill, the "done" mark and the pan screen. All of them live INSIDE `.pizza-stage` (position: relative), after `.pizza-dough`. ---- */
+.cooking-prep-pill,
+.cooking-prep-done {
+  position: absolute;
+  left: 50%;
+  bottom: 18px; /* Owner decision (S0b): pill bottom = stage bottom - 18px, so the family-chip row is 16px below on 390x844 and 360x800 */
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  height: 44px;
+  min-width: 120px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 22px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  z-index: 5;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.cooking-prep-pill {
+  border: 2px solid #7a3b12;
+  background: #ffb347;
+  color: #3b1d06;
+  cursor: pointer;
+}
+.cooking-prep-pill:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+.cooking-prep-done {
+  border: 2px solid transparent;
+  background: rgba(122, 66, 38, 0.14);
+  color: #5f331f;
+  pointer-events: none;
+}
+
+.cooking-prep-pan {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 12px;
+  background: rgba(40, 20, 10, 0.82);
+  color: #fff;
+  container-type: size;
+  touch-action: manipulation;
+}
+.cooking-prep-pan__surface {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.cooking-prep-pan__surface:focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: -6px;
+}
+.cooking-prep-pan__title {
+  position: relative;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  pointer-events: none;
+}
+.cooking-prep-pan__pan {
+  position: relative;
+  width: 230px;
+  width: min(64cqw, 62cqh);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #5b5b5b, #2b2b2b 70%);
+  border: 6px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.cooking-prep-pan__beef {
+  display: inline-block;
+  font-size: 64px;
+  line-height: 1;
+}
+.cooking-prep-pan__beef--toss {
+  animation: cooking-prep-toss 0.28s ease-out;
+}
+.cooking-prep-pan__steam {
+  position: absolute;
+  top: -6px;
+  display: flex;
+  gap: 18px;
+  font-size: 22px;
+  opacity: 0.85;
+}
+.cooking-prep-pan__steam span {
+  animation: cooking-prep-steam 0.9s ease-out infinite;
+}
+.cooking-prep-pan__dots {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  pointer-events: none;
+}
+.cooking-prep-pan__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #fde68a;
+  box-sizing: border-box;
+}
+.cooking-prep-pan__dot--on {
+  background: #fde68a;
+}
+.cooking-prep-pan__hint {
+  position: relative;
+  margin: 0;
+  font-size: 14px;
+  pointer-events: none;
+}
+.cooking-prep-pan__sizzle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  font-weight: 900;
+  color: #fde68a;
+  text-shadow: 0 0 12px rgba(255, 190, 80, 0.9);
+  pointer-events: none;
+  animation: cooking-prep-sizzle 0.7s ease-out;
+}
+.cooking-prep-pan__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  z-index: 2;
+}
+.cooking-prep-pan__close:focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: 2px;
+}
+/* After the third toss the stage stays covered for a moment so a late tap cannot reach the dough (AC-16 c). */
+.cooking-prep-guard {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: transparent;
+  touch-action: manipulation;
+}
+.cooking-prep-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes cooking-prep-toss {
+  0% { transform: translateY(0) rotate(0); }
+  45% { transform: translateY(-34px) rotate(14deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+@keyframes cooking-prep-steam {
+  0% { transform: translateY(0); opacity: 0.9; }
+  100% { transform: translateY(-16px); opacity: 0; }
+}
+@keyframes cooking-prep-sizzle {
+  0% { transform: scale(0.6); opacity: 0; }
+  30% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+/* "Reduce motion": no toss, no steam, no pop -- the colour step and the 1/2/3 text remain. */
+@media (prefers-reduced-motion: reduce) {
+  .cooking-prep-pan__beef--toss,
+  .cooking-prep-pan__steam span,
+  .cooking-prep-pan__sizzle {
+    animation: none;
+  }
+}
