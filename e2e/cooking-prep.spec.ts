@@ -332,10 +332,24 @@ test.describe("Cooking Prep: opt-in", () => {
 const take = (page: Page) => page.getByTestId("cooking-prep-take");
 const grade = (page: Page) => pan(page).getAttribute("data-grade");
 
-/** Freezes the faked clock here: from now on time moves only by `page.clock.runFor`. */
+/**
+ * Freezes the faked clock here: from now on time moves only by `page.clock.runFor`.
+ * `page.clock.install()` leaves the clock RUNNING, so the instant read here is already behind by the time `pauseAt` arrives; on a loaded WebKit runner more
+ * than a fixed 50 ms passed ("Cannot fast-forward to the past", run 40853860011). Each attempt therefore reads a fresh instant and aims further ahead
+ * (the same retry as `enterBakePaused` in ./gestures.ts). Only that error is retried; the pause itself is exact once it lands, and every later step is a
+ * forward `runFor`, so the clock moves monotonically for the rest of the test (retry, cancel and discard never rewind it).
+ */
 async function freezeClock(page: Page) {
-  const now = await page.evaluate(() => Date.now());
-  await page.clock.pauseAt(now + 50);
+  for (const buffer of [50, 250, 1000, 3000]) {
+    const now = await page.evaluate(() => Date.now());
+    try {
+      await page.clock.pauseAt(now + buffer);
+      return;
+    } catch (error) {
+      if (!String(error).includes("to the past")) throw error;
+    }
+  }
+  throw new Error("freezeClock: clock.pauseAt kept landing in the past");
 }
 async function openPanByKeyboard(page: Page) {
   await pill(page).focus();
