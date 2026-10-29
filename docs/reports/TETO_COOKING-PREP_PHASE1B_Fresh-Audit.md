@@ -1,4 +1,4 @@
-# Cooking Prep Phase 1B — Fresh Audit と詳細設計（docs-only、実装は未着手）
+# Cooking Prep Phase 1B — Fresh Audit と詳細設計（docs-only、実装は未着手。Owner 決定 2026-10-29 反映済み）
 
 日付: 2026-10-29 / ブランチ: `claude/teto-cooking-prep-1b-p96ftb`（main `3e34656` = #694 から）/ Refs #611
 目的: PR #695 の「3 タップ」を、牛肉の焼き加減を見極めて「取り出す！」を押すタイミングゲームへ改める。
@@ -69,7 +69,7 @@ gradeAt(elapsedMs)    -> PanGrade      // elapsed >= TOTAL は overdone、BEST_S
 ### 4.2 UI（`CookingPrepLayer`）
 
 - パン画面を開いた時刻を `performance.now()` で保持。進行表示は `requestAnimationFrame`（判定は rAF ではなく **押下イベントの `timeStamp`** で行い、描画の遅れが判定に入らない）。タイマーは時間切れ用に `setTimeout(TOTAL)` を 1 本（アンマウントで必ず clear）。
-- 画面構成: 既存のパン画面に ①牛肉（時間で色が連続変化）②進行ゲージ（ベスト帯は **見せない**＝見極めゲームのため。表示するかは Owner 確認 Q3）③大きな「取り出す！」ボタン（高さ ≥ 56px、画面下寄り、親指で届く位置）④× は従来位置（取り出すボタンから ≥ 16px 離す）。
+- 画面構成: 既存のパン画面に ①牛肉（時間で色が連続変化）②進行ゲージ・残り時間・ベスト帯は**表示しない**（Owner 決定 Q3。色と演出で見極める）③大きな「取り出す！」ボタン（高さ ≥ 56px、画面下寄り、親指で届く位置）④× は従来位置（取り出すボタンから ≥ 16px 離す）。
 - 結果: 押下後に入力ロック → 結果ラベル＋ジュッ演出（~700ms、既存 `PREP_DONE_MS`）→ best は自動で閉じ「✓ 炒め済み」。early / overdone は **「もう一度炒める」「これで使う」** を表示（どちらも必須ではなく、× でも閉じられる＝進行不能なし）。「もう一度」は新しい START。
 - `onPrep` の dispatch は「これで使う / best 確定」の 1 回のみ（既存の 1 回保証を維持）。
 - 動きを減らす: 既存 `@media (prefers-reduced-motion: reduce)` に倣い、振る・湯気アニメ・ジュッ拡大を止める。**色変化と数値/ラベル表示は維持**（情報は色と文字で伝わる）。スクリーンリーダー向けは「進行中」「結果: …」のみ読み上げ、毎フレーム読み上げない。
@@ -113,15 +113,22 @@ gradeAt(elapsedMs)    -> PanGrade      // elapsed >= TOTAL は overdone、BEST_S
 - E2E の時間依存（fake clock 前提）。`gameReducer.ts` は HOT file（案 A のみ）。
 - #695 の最新 HEAD の Codex 結果と実機 HV が未了のため、#695 自体が修正を受ける可能性（1B はその後の最新 main で作るので影響は小さい）。
 
-## 8. Owner 判断をお願いしたい事項
+## 8. Owner 決定の記録（2026-10-29、Fresh Audit への回答）
 
-| # | 質問 | 推奨 |
+| # | 決定 | 設計への反映 |
 |---|---|---|
-| **D1** | 進め方 | **A: #695 の merge を待ち、最新 main から独立 PR（推奨）**。待ち時間を使い、新規ファイルのみの純ロジック＋単体テスト（`panDoneness.ts`）を **別の小 PR として今 main に先行 merge 可能**（#695 と無衝突）かどうか。B: #695 の上に積む（`Depends-on: #695`、Session Ops の方針とは逆）。C: #695 に直接追加（指示の「原則追加しない」に反する） |
-| Q1 | 承認済み仕様（3 タップ・時間制限なし）の改訂を承認するか。spec §3 / AC-3 / AC-13 の文言更新を 1B PR に含める | 承認して含める |
-| Q2 | 4.2〜6.0 秒の判定 | 焼きすぎ（overdone） |
-| Q3 | ベスト帯・残り時間をゲージで見せるか | 見せない（色と牛肉の見た目で見極める） |
-| Q4 | 結果の持ち方 | 案 A（transient な `preparedLook`、reducer は小変更） |
-| Q5 | early / overdone の扱い | 「もう一度炒める」＋「これで使う」（best は自動確定） |
+| **D1** | **PR #695 の Squash merge 後、最新 main から独立 PR を作成する。** #695 の最新状態は別セッションが確認する | §5 の「変更（#695 の merge 後）」を確定。**先行の純ロジック小 PR も作らない**（Owner は #695 の merge 待ちとし、runtime 実装・独立 PR 作成は未開始のまま）。案 B（#695 に積む）・案 C（#695 に直接追加）は不採用 |
+| **Q1** | 3 タップ方式からタイミングゲーム方式への**仕様改訂を承認** | 仕様書 §3 / AC-3 / AC-13 の改訂を 1B PR に含める（本 docs-only 変更では仕様書本体は触らない） |
+| **Q2** | **4.2〜6.0 秒は overdone** | §4.1 の解釈を確定: `BEST_START_MS <= t <= BEST_END_MS` が best、`t > BEST_END_MS` は overdone、`t >= PAN_TOTAL_MS` は時間切れ（overdone） |
+| **Q3** | **ベスト帯・残り時間のゲージは表示しない**。牛肉の色・演出で判断させる | §4.2 の進行ゲージを**設けない**（時間切れも数値・バーで示さない）。スクリーンリーダー向けも残り時間や帯は読み上げない |
+| **Q4** | **transient な `preparedLook` の追加を条件付き承認** | 案 A を採用。**条件: 保存・採点・在庫・Dex への影響は禁止。HOT file（`gameReducer.ts`）の変更は必要最小限**（`PREP_INGREDIENT` の任意 `progress` と transient な保持のみ）。保存・journal・`pendingRound` に出ないこと、採点・在庫・Dex・`completion` が不変なことをテストで固定（AC-3 の文言は「`preparedIngredientIds` と `preparedLook` 以外が同一」へ） |
+| **Q5** | early / overdone では**「もう一度炒める」「これで使う」**を提供 | §4.2 の結果表示のとおり（best は自動確定。× でも閉じられ、進行不能なし） |
 
-**Owner 承認までに行わないこと:** merge、本番フラグ ON、共有 Preview の更新、1B の runtime 実装、Monitor 作成。
+**初期仕様と調整:** ベスト帯 2.1〜4.2 秒・最大 6 秒・開始 300ms の入力抑止（`PAN_ARM_MS`）は**初期仕様**とし、**実機 HV で調整可能**にする（定数を `panDoneness.ts` の 1 か所に集約。調整は HV の結果に基づく）。
+
+## 9. 現在の状態と未着手項目
+
+- 完了: Fresh Audit・詳細設計・Owner 決定の反映（docs-only、本ファイルのみ）。
+- **未着手（#695 の Squash merge 後に開始）:** `panDoneness.ts` と単体テスト、`beefDoneness` の 3 点補間、`CookingPrepLayer` の改修、`preparedLook`（reducer・`PizzaStage`・`GameScreen`）、既存テスト / E2E の改修、仕様書の改訂、HV 動画・比較画像、実機 HV、1B の claim 投稿、PR 作成。
+- 開始前の確認事項（merge 後の最初の作業）: 最新 main の取り込み、#695 の merge 内容と本設計の差分（`PREP_TOSSES` 等の定数・テスト）の再確認、Duplicate Gate、#611 への claim。
+- 禁止（継続）: merge、本番フラグ ON、共有 Preview の更新、Monitor 作成、runtime 実装、PR 作成。
