@@ -4,6 +4,8 @@ Status: **調査と計画のみ。Owner 承認前に実装・Issue・PR は作�
 この文書の「推奨」は助言であり、Owner Decision ではない。未決は §13 に列挙し、推測で確定していない。
 HV: docs-only のため不要（`TETO_HUMAN-VERIFICATION-POLICY.md`、audit-only は Preview・動画の対象外）。
 
+**更新履歴:** 初版 `4b92884`（2026-10-29 READ-ONLY 監査）→ **Owner Decision Update（同日）**: Owner 確定 4 件（O-1・O-6・O-5・O-7）を §0.1〜§0.5 に記録し、§3.2・§5・§6〜§8・§12〜§14 を更新した。更新時の Fresh State: `origin/main` = `ffff081c0136df43113a81c170343d24d968ed1f`（初版と同一）、PR #697 HEAD `8ba2b5b901a79255fd396c755c69b1df2ac59f85`（同一・`clean`・未 merge）、対象ブランチ HEAD `4b92884`・作業ツリー clean、Duplicate Gate（open の PR / Issue に同題の拡張計画なし。最近更新された open PR は #697 のみ）。母数（172 = 71 + 4 + 97）と証跡分類は不変。
+
 ## 0. 基準と範囲
 
 | 項目 | 値 |
@@ -16,6 +18,135 @@ HV: docs-only のため不要（`TETO_HUMAN-VERIFICATION-POLICY.md`、audit-only
 | 重複回避 | matrix の行データは複製せず、§4・付録 A に**現行コードとの差分（分類）だけ**を置く |
 
 > **重要な前提（原典の限界）.** matrix の各行は pizzadb.jp の比較表に由来し、原典の個別ページは多くが未確認（PR #612: 45 件は原典未確認）。B10 / B11 のレシピは Owner 承認の「GAMEPLAY ASSUMPTION（暫定仕様）」として出荷されている。本書の候補も同じ扱いで、原典の事実とは断定しない。
+
+## 0.1 Owner Decision Log（2026-10-29 確定・本更新で反映）
+
+初版（コミット `4b92884`）の未決事項のうち 4 件を Owner が確定した。以下は**再承認を求めず反映した記録**で、各決定の範囲を超えて解釈していない。「承認されていないこと」を併記する。
+
+| ID | 決定（Owner 確定） | 承認されていないこと | 反映先 |
+|---|---|---|---|
+| **O-1** | 根拠不足の候補に **GAMEPLAY ASSUMPTION を条件付きで許可**。証跡 BLOCKED を一律に解除する承認ではない | 個別レシピの**実装承認**（keema / bulgogi を含む）。BLOCKED の元分類の変更。この 2 件以外の BLOCKED への拡張 | §0.2、§8 |
+| **O-6** | ブラータは**専用ピース＋色変化**で初回実装。Cheese Pool の汎用化は初回に含めない | 「全ブラータレシピを焼成前配置にする」こと（配置時点はレシピ仕様と整合させる）。描画品質の合格（調査結果待ち） | §0.3、§5.2、§8 |
+| **O-5**（honey） | **焼成後の後乗せを優先**（第一候補）。液体の描画・操作が要るなら #579 との依存を記載 | **#579 の実装開始**。既存ソース塗り操作の無条件な流用 | §0.4、§8 |
+| **O-7**（pizza-salad） | **生野菜は焼成後に配置** | pizza-salad の READY 扱い（実装可能の確定）。後乗せの操作・採点・保存互換の未解決事項の解消 | §0.4、§8 |
+
+> 決定は「方針」であり、**証跡のない候補を出荷済み・実装可能に変えるものではない**。母数（172 = 71 + 4 + 97）と、READY / REVIEW / BLOCKED の元の証跡分類（付録 A）は変更していない。
+
+## 0.2 O-1 の運用規則（条件付き GAMEPLAY ASSUMPTION）
+
+### 0.2.1 適用条件（全て満たした候補だけが「条件付き計画対象」になれる）
+
+1. 原典・matrix で**確認された事実**と、**ゲーム向けの仮定**を表で分けて書く。
+2. 仮定した材料・ソース・チーズ・工程を**候補ごと**に記録する。
+3. 仮定の**根拠**と**ゲーム上の必要性**を書く。
+4. 原典（matrix）との**相違を隠さない**（実装時の暫定表示・文書コメントにも同じ文言を残す。B10 / B11 の運用）。
+5. 既存レシピとの**重複・名称衝突・近接**を確認する（下表）。
+6. 保存データ・既存レシピの意味・Dex・採点を変えない（追記のみ）。
+7. **実装前に、候補ごとの具体構成（個数・配置・窓・報酬）を Owner が確認**する。確認前は実装しない。
+
+### 0.2.2 管理方式
+
+元の証跡分類（READY / REVIEW / BLOCKED、付録 A）は**そのまま保持**し、別の列「条件付き計画対象」で管理する。現時点で「条件付き計画対象」は次の **2 件のみ**（Owner が名指しした範囲）。他の BLOCKED 69 件は対象外のまま。
+
+| id | 元の証跡分類 | 条件付き計画対象 | 実装承認 |
+|---|---|---|---|
+| keema-pizza | BLOCKED（`BASE_SAUCE_UNSPECIFIED` ＋ `UNRESOLVED_INGREDIENT`×2） | **はい** | **未** |
+| bulgogi-pizza | BLOCKED（`BASE_SAUCE_UNSPECIFIED`） | **はい** | **未** |
+
+### 0.2.3 仮定の記録
+
+**keema-pizza**（evidence `keema-pizza-pizzadb-p2`）
+
+| 項目 | 内容 |
+|---|---|
+| 確認された事実（matrix） | 材料: mozzarella、onion、および曖昧語「ひき肉」「青唐辛子」。**ソースは記載なし**（`BASE_SAUCE_UNSPECIFIED`）。コードの現行カタログに ground-beef は無い |
+| 仮定（ゲーム向け） | ① ソース = **curry-ketchup**（既存の B10 ソース）／② 「ひき肉」= **ground-beef**（新規トッピング）／③ 「青唐辛子」は**未決**（省略するか chili を足すか）／④ 個数・配置・窓 58–78・報酬 100 は CALIBRATION |
+| 根拠・必要性 | 既存ソース再利用でソース棚を増やさない／粒状の新しい見た目（ground-beef）を Stage 1 の唯一の新食材に絞れる |
+| 原典との相違 | matrix の材料集合に curry-ketchup・ground-beef は無い（仮定で追加）。「青唐辛子」を省く場合は材料も欠ける。**原典は未確認** |
+| 重複・近接の確認（実行して取得） | 完全一致 / 部分集合 / 上位集合の既存レシピは**なし**。ただし材料が **2 要素差**の既存が 2 件: `curry-pizza-japan`（chicken↔ground-beef）、`rendang-pizza`（beef↔ground-beef）。「少し変えただけ」に見えるリスクが高い → 新しさを 3→2 に下げた（§6.2） |
+| Owner 確認が要る構成 | 材料の最終集合（chili の有無）、個数・配置、説明文、名称 |
+
+**bulgogi-pizza**（evidence `bulgogi-pizza-pizzadb-p11`）
+
+| 項目 | 内容 |
+|---|---|
+| 確認された事実（matrix） | 材料: beef、mozzarella、onion、white-sesame。**ソースは記載なし** |
+| 仮定（ゲーム向け） | ① ソース = **soy-sauce**（既存の late ソース、wasabi-beef-pizza で使用）／② 個数・配置・窓・報酬は CALIBRATION |
+| 根拠・必要性 | 新ソースを足さず、beef・white-sesame の既存食材だけで成立する。**ただし soy-sauce は late catalog のソース**で、通常 ladder に載せる扱い（解禁順序）に未決事項がある |
+| 原典との相違 | matrix にソースの記載が無いため、soy-sauce は完全にゲーム側の仮定。**原典未確認** |
+| 重複・近接の確認 | 完全一致 / 部分集合 / 上位集合なし。**2 要素差**の既存: `wasabi-beef-pizza`（wasabi↔white-sesame）。実質「wasabi-beef からわさびを抜いてごまを足した」構成 |
+| Owner 確認が要る構成 | soy-sauce を通常レシピで使う際の解禁（late floors との整合）、個数・配置、名称 |
+
+### 0.2.4 追加の近接チェック（今回の更新で判明）
+
+- **hot-honey-pepperoni**: 既存 `pepperoni`（tomato-sauce・mozzarella・pepperoni）が**部分集合**（honey を足しただけ）。識別は後乗せ（`late` 軸）で分ける設計になるため、matcher / DH4 での扱いの検証が要る。
+- **sfincione**: 既存 `fugazza`（olive-oil・onion・oregano）が**部分集合**（tomato-sauce・anchovy を足した構成）。初版の「依存ゼロ」を「**依存は matcher / DH4 の上位集合検証のみ**」に訂正する。
+- burrata-pizza / pizza-alla-crudaiola / pizza-salad は完全一致・部分集合・上位集合なし。
+
+## 0.3 O-6: ブラータの描画方式（確定）
+
+**初回実装の設計方針（Owner 決定）:**
+
+- ブラータ専用の描画ピース（`pieceVisual`）を使う。既存の feta（`feta-cubes`）・ricotta（`ricotta-mound`）方式を参考にする。
+- 加熱・調理状態による色や質感の違いを表現する。
+- 他のチーズ（mozzarella Canvas・ricotta・cream-cheese・catupiry・feta 等の白系）と識別できる**輪郭**を持たせる。
+- 完成ピザ上の**小さな表示サイズでも識別**できること。
+- **Cheese Pool（`cheesePool.ts`、mozzarella 専用の描画関数）の汎用化は初回に含めず、別 Gate に分離**する（下記 G-CP）。
+
+**配置時点の整合（Owner 注記）:** 専用ピース方式の採用は「全レシピで焼成前配置」と同義ではない。記録上、burrata の 3 行（burrata-pizza・crudaiola・pesto-burrata）の matrix には**後乗せの記載がなく**（`postBakeFinish` 空、スプレッド層は tomato-sauce ＋ olive-oil のみ）、焼成前配置と矛盾しない。ただしこれは記録上の整合で、**各レシピの配置時点は実装前にレシピ仕様として Owner が確認**する（G-B1）。
+
+**描画品質の実装前条件:** 別セッションの食材描画品質 Fresh Audit の結果を、実装前の確認条件とする（§0.5 の R-1）。
+
+## 0.4 O-5 / O-7: 後乗せ（honey・生野菜）の方針と調査結果
+
+### 0.4.1 既存の FINISH / POST_BAKE 構造（コードで確認）
+
+| 事実 | 根拠 |
+|---|---|
+| FINISH は焼成後（`POST_BAKE` フェーズ）のステップ。本番で有効（`LATE_CATALOG_PRODUCTION`・`FREE_COOK_FINISH_PRODUCTION` とも true） | `gameReducer.ts`、`lateCatalog.ts`、`freeCookFinishGate.ts` |
+| **FINISH で置けるのは `category: "topping"` のみ**。sauce / cheese は拒否される | `gameReducer.ts` の FINISH 分岐（`placingIngredient.category !== "topping"`） |
+| 後乗せ要件はレシピ側の `applicationPhase: "POST_BAKE"`。出荷済み late レシピ 8 件の後乗せ材料は salmon-roe・shiso・cilantro・wasabi・nori など**全て topping** | `lateCatalog.ts` |
+| late レシピは `lunchRush:false`、Dinner は fail-closed で除外、解禁は `LATE_LADDER_STEPS` / `LATE_ENTITLEMENT_FLOORS` の固定表 | `lateCatalog.ts`、B11 Result |
+| 後乗せ piece は Reference 側で `stage:"post"` として扱う（CS-1b `finalizeRound`） | #611 本文 §1 |
+
+### 0.4.2 honey（焼成後の後乗せを第一候補）
+
+- honey は **sauce カテゴリ**のため、**現行の FINISH では置けない**。焼成後に加えるには「FINISH の液体（ソース）対応」＝ **#579**（POST_BAKE のソース後乗せ: FINISH の液体対応と仕上げソース〈DRIZZLE 候補〉）が前提になる。
+- 既存のソース塗り操作（PAINT）を無条件に流用しない。液体を垂らす描画・操作が必要なら #579 の設計に含める。
+- **#579 は open で未設計**。本更新は「honey の方式設計の承認」であり、#579 の実装開始承認ではない。
+- 対象候補: **hot-honey-pepperoni**（honey 1 要素。pepperoni の上位集合 → §0.2.4）。honey を使う他の候補（pesto-noci ほか）も同じ方式に従う。
+- 初版で「焼成前 PAINT なら Stage 2 に前倒し可」とした選択肢は、本決定により**第一候補ではなくなった**（撤回ではなく、Owner が優先順位を確定）。
+
+### 0.4.3 生野菜（lettuce など）の焼成後配置
+
+- lettuce・cucumber（いずれも野菜 = topping）は、**現行の FINISH のカテゴリ制限には抵触しない**（topping）。#579 は不要。cucumber は Owner の明示が「lettuce など」のため、**生野菜として同じ扱いにする仮定**（確認事項）。
+- ただし以下は**未解決で、依存 Gate として残す**（pizza-salad を無条件に READY 扱いしない）:
+
+| Gate | 内容 | 状態 |
+|---|---|---|
+| G-F1 | 焼成前の具材と後乗せ食材の**工程上の区別**（UI ラベル・トレイ・ヒント。DH4 / Hint 5.0 を漏らさない） | 設計未確認。late catalog の既存方式に従う想定だが、生野菜での実績なし |
+| G-F2 | 後乗せ piece の**配置順・個数上限**（リング上限が FINISH piece を数えるか。#611 の D-6 は「要実測」と記載、結果は未確認） | 未確認 |
+| G-F3 | **採点**: Reference の `stage:"post"`、焼成失敗時の FINISH スキップ（OD-CS-7）、星・Pitz への影響 | 既存エンジンの仕様はあるが、生野菜レシピでの検証なし |
+| G-F4 | **保存互換**: FINISH 中の中断・復帰（`pendingRound`、#617 / #664）、late 解禁表（`LATE_ENTITLEMENT_FLOORS`）への追記と、通常 step 追加による導出番号のずれ | 未確認。B11 の late +2 の前例あり |
+| G-F5 | **焼成フィルタの分離**（#518: 後乗せ piece が焼成 `filter` を受けない）— 生野菜の“生の見え方”に直結 | #518 は open のまま。出荷済み late レシピの実績はあるが、生野菜の見え方は未検証 |
+| G-F6 | **iPhone 390×844 / 360×800 の操作領域**: FINISH のトレイ・タップ領域・横スクロールなし・生地上の piece との重なり | HV 項目（実機は Owner 判定） |
+| G-F7 | yogurt-sauce（sauce）の工程: Owner 決定は「野菜」のみ。matrix では tomato-sauce に次ぐ 2 層目のスプレッド = 焼成前の PAINT と整合 | **未決**（O-7b、§13） |
+
+## 0.5 描画品質調査との関係（未完了 Gate・結果は推測しない）
+
+別セッションで食材描画品質の Fresh Audit が進行中。**その結果を本書は参照していない**（未完了のため）。以下を未完了 Gate として記録し、合否を推測しない。
+
+| Gate | 対象 | 状態 |
+|---|---|---|
+| **R-1** | burrata の**完成ピザ上での識別性**（他の白チーズとの輪郭・小サイズ・焼成前後の色変化） | 未完了（調査待ち） |
+| **R-2** | ground-beef の**形状・質感**（beef・sausage との区別、配置後 20px 級） | 未完了 |
+| **R-3** | lettuce（ほか生野菜）の**後乗せ描画**（生地・チーズ上でのコントラスト、焼成フィルタ） | 未完了 |
+| **R-4** | honey の**液体表現**（垂らし・艶・curry-ketchup / mustard との色差） | 未完了 |
+| **R-5** | **チーズ・ソースとのコントラスト**（白系同士、茶系ソース同士） | 未完了 |
+| G-CP | Cheese Pool の汎用化（別 Gate。初回に含めない） | 未着手・未承認 |
+| G-B1 | burrata 各レシピの配置時点を Owner が確認 | 未 |
+
+初版 §4.1 / §5 の ΔE は私の仮色による参考値であり、R-4 / R-5 の代わりにはならない。
 
 ## 1. Fresh State（確認した事実）
 
@@ -110,7 +241,7 @@ HV: docs-only のため不要（`TETO_HUMAN-VERIFICATION-POLICY.md`、audit-only
 | 新要素 | レシピ | 備考 |
 |---|---|---|
 | burrata（チーズ） | burrata-pizza・pizza-alla-crudaiola・pesto-burrata | いずれも READY。`MULTI_SPREAD_LAYER`（出荷済みエンジン） |
-| honey | hot-honey-pepperoni（REVIEW） | matrix は honey を tomato-sauce に次ぐ**2 層目のスプレッド**として記録し、「焼成後の垂らし」(`LATE_ADDITION`) は **repo 内の推論（`repo_inference`、原典未確認）**。焼成前の PAINT で出すなら既存エンジンで足りる。垂らす表現を望むなら #579 を待つ（O-5） |
+| honey | hot-honey-pepperoni（REVIEW） | **【Owner 決定 O-5 により焼成後の後乗せが第一候補。§0.4.2】** 以下は初版の記録: matrix は honey を tomato-sauce に次ぐ**2 層目のスプレッド**として記録し、「焼成後の垂らし」(`LATE_ADDITION`) は **repo 内の推論（`repo_inference`、原典未確認）**。焼成前の PAINT で出すなら既存エンジンで足りる。垂らす表現を望むなら #579 を待つ（O-5） |
 
 ## 4. 食材・ソース・チーズの候補（不足 78 品目 ＋ 曖昧語）
 
@@ -134,7 +265,7 @@ HV: docs-only のため不要（`TETO_HUMAN-VERIFICATION-POLICY.md`、audit-only
 | **burrata**（チーズ） | 3 | 白い丸い塊。mozzarella（Canvas）・ricotta（`ricotta-mound`）・cream-cheese と**白で近い**ため形（丸い球＋裂け目）で分ける必要 | 焼くと中心がとろけて広がる（Canvas プールの別パラメータ案） | なし（scatter 配置） | 中（専用 SVG ＋ 描画パラメータ。モッツァレラ Canvas は mozzarella 専用で、他チーズへの拡張は未着手） | cheese 棚 13→14。既存レシピに無影響 |
 | **牛ひき肉** | 6（曖昧語含む） | 小さな粒の集まり。beef（薄切りリボン）・sausage と区別できる形が必要 | 生→炒め色（Prep の対象にしやすい） | なし（Prep と組むと「炒める」を再利用） | 中（粒状ピース SVG） | meat 棚 12→13 |
 | **lettuce / cucumber** | 3 / 2 | 緑の葉 / 薄切り輪。herb（shiso・arugula・mint）と**緑で近い** | 生のまま（焼かない）— 焼成前に置くとしおれる表現が要る | 後乗せ（FINISH）が前提になる可能性 | 中 | vegetable 棚 24→26 |
-| **honey** | 5 | 琥珀色の液体。curry-ketchup（ΔE 11.9）・mustard（16.0）と近い | 焼成後の艶 | 焼成前 PAINT なら不要。**垂らす（DRIZZLE）**表現は未実装（#579） | 小（色）／大（垂らし操作） | sauce 棚 13→14 |
+| **honey** | 5 | 琥珀色の液体。curry-ketchup（ΔE 11.9）・mustard（16.0）と近い | 焼成後の艶 | **焼成後の垂らし（Owner 決定）= #579 が前提**。FINISH は topping 限定のため現行では置けない | 小（色）／大（垂らし操作） | sauce 棚 13→14 |
 | **walnut** | 4 | 茶色の割れた粒。almond・pine-nuts と同じ `other` 棚（3 品）に入り、**DH4 の「その他は到達不能」(OD-DH4-2-9) に影響**しうる | 焼くと濃くなる | なし | 小 | `other` 家族の扱い（O-9） |
 | **mayo / yogurt-sauce / blue-cheese-dressing** | 6 / 1 / 2 | **白で fromage-blanc-sauce（ΔE 7.1 / 4.2 / 5.1）と区別不能**。色だけでは別ソースに見えない | 焼成後に垂らす（mayo）か、塗り（yogurt） | mayo は DRIZZLE が必要 | 大（質感の差を作る必要） | 既存ソースの識別が悪化 |
 | **yakiniku-sauce / sweet-bean-sauce / okonomiyaki-sauce / gravy** | 各 1 | 茶〜黒褐色。bbq-sauce（ΔE 5.2 / 10.4）・soy-sauce（7.2）・miso に近い | — | なし | 大（暗色の既存 4 種と見分けにくい） | ソース棚が「茶」に偏る |
@@ -149,7 +280,7 @@ HV: docs-only のため不要（`TETO_HUMAN-VERIFICATION-POLICY.md`、audit-only
 - **現在 13 種**（tomato・olive-oil・pesto・fromage-blanc・doubanjiang・curry-ketchup・mustard・yuzu-kosho・miso・tahini・bbq・soy・fresh-cream）。全て PAINT（色駆動）。olive-oil だけ `PAINT_TEMPORARY` 系の特例（焼成で油色が変わる）。
 - **未実装候補（上位）:** yogurt-sauce・yakiniku-sauce・sweet-bean-sauce（READY / REVIEW の各 1 行）、honey・mayo（複数行）、buffalo-sauce・okonomiyaki-sauce・peanut-sauce・gravy-sauce・salsa・kebab-sauce・blue-cheese-dressing（各 1 行、多くが BLOCKED）。
 - **味・色・質感の差:** 現行は「色」しか差がない。**液体（honey・mayo・dressing）は“垂らす”質感が本質**で、PAINT のまま色だけ足すと既存と区別できない。ここが最大の設計上の分岐。
-- **塗る操作の違いを足す必要性:** 焼成前に塗るものは**不要**（PAINT で足りる。B10 / New Sauces U1〜U3 の前例）。**焼成後に垂らす表現（mayo・buffalo・dressing・teriyaki、望むなら honey）は DRIZZLE 相当が必要**で、これは #579 / #604 / #611 の領域（Stage 3）。honey は matrix 上は 2 層目のスプレッドなので、焼成前 PAINT という選択肢が残る。
+- **塗る操作の違いを足す必要性:** 焼成前に塗るものは**不要**（PAINT で足りる。B10 / New Sauces U1〜U3 の前例）。**焼成後に垂らす表現（mayo・buffalo・dressing・teriyaki、望むなら honey）は DRIZZLE 相当が必要**で、これは #579 / #604 / #611 の領域（Stage 3）。honey は matrix 上は 2 層目のスプレッドだが、**Owner 決定（O-5）で焼成後の後乗せが第一候補**になったため、液体の垂らし表現は #579 の設計に含める（§0.4.2）。焼成前 PAINT の選択肢は第一候補ではない。
 - **再利用性:** 1 行にしか出ないソースが大半（yogurt・yakiniku・sweet-bean・peanut…）。**複数行に効くのは mayo（6、全 BLOCKED）と honey（5）だけ**。1 行専用ソースは「ソース 1 種 ＝ レシピ 1 件」の対になり、棚が増えるだけで体験の広がりは小さい。
 - **複雑化の抑制案:** 焼成前 PAINT のソースは**レシピと同時に 1 種ずつ**（B10 の方式）。液体の後乗せは**共通基盤（DRIZZLE）を 1 回作ってから**まとめて入れる。
 
@@ -158,7 +289,7 @@ HV: docs-only のため不要（`TETO_HUMAN-VERIFICATION-POLICY.md`、audit-only
 - **現在 13 種**（mozzarella・gorgonzola・parmigiano・fontina・cashew・grana-padano・cream-cheese・catupiry・feta・ricotta・goat・paneer・swiss）。モッツァレラのみ Canvas の溶けた表現（#486 default-on）。feta・ricotta は専用 `pieceVisual`。他は emoji / CSS で、**加熱前後の差は“色の焼き込み”程度**。
 - **未実装候補:** burrata（3 行、全 READY）、cheddar・brie・brick-cheese・caciocavallo・cheese-curd・cotija・halloumi・pecorino・ricotta-salata（各 1 行）。曖昧語「チーズ」が 3 行（old-forge・turkish pide・北海道チーズ）、プロヴォローネ 1 行。
 - **溶け方・焼き色・配置の差:** burrata は「中心がとろけて外側が残る」、halloumi は「溶けず焼き目がつく」、cheese-curd は「半溶け」、brie は「白カビの皮」。**これらはモッツァレラ Canvas（`cheesePool.ts`）の別パラメータ化が必要**で、既存の Cheese Pool は mozzarella 専用の描画関数。拡張は**独立した設計 Gate**（#421 / #486 の系譜）を要する。
-- **依存:** Cheese Pool の汎用化を**しない**なら、burrata は「白い丸い塊（`pieceVisual`）＋焼成の色変化のみ」で出せる（feta / ricotta と同じ方式）。見た目の魅力は下がるが、既存システムの複雑化は最小。**どちらにするかは Owner 判断**（O-6）。
+- **依存（O-6 確定）:** **専用 `pieceVisual` ＋焼成の色変化（feta / ricotta 方式）を採用**。Cheese Pool の汎用化は初回に含めず別 Gate（G-CP）に分離。見た目の魅力は下がるが既存システムの複雑化は最小。詳細は §0.3。
 
 ## 6. 優先度スコア
 
@@ -179,149 +310,182 @@ HV: docs-only のため不要（`TETO_HUMAN-VERIFICATION-POLICY.md`、audit-only
 
 **代替重みも計算した:** 均等重み（各 1/6）と、実装安全重視（新しさ 15 / 見た目 10 / 再利用 15 / 負荷 30 / 互換 20 / 解禁 10）。順位が大きく動く候補は注記する。**重みの偏りの所見:** 新しさ＋見た目で 45% を占めるため、**構造系（calzone: 8 位、quattro-stagioni）が上位に出やすい**。実装安全重視では bulgogi・sfincione・crudaiola が上がり、calzone は 16 位に下がる。
 
-### 6.2 レシピ（20 候補）
+### 6.2 レシピ（20 候補・更新後）
 
-「Stage」列は既定の割当（hot-honey は O-5 次第で 2、pizza-salad は O-7 次第で 2 または見送り）。「依存」は同点処理用の依存数。
+**評価基準の変更はない（アンカー・重みは §6.1 のまま）。** Owner 決定により**入力の評価値を 4 レシピ・4 食材で見直した**。変更理由と再計算結果を同じ表に示す（機械計算）。
 
-| 順位 | id | 名称 | Stage | 依存 | 新しさ | 見た目 | 再利用 | 負荷小 | 互換 | 解禁 | 加重 | 均等重み順位 | 実装重視順位 |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `pizza-salad` | ピザサラダ | 2 | 2 | 5 | 5 | 3 | 2 | 3 | 3 | **3.75** | 7 | 8 |
-| 2 | `burrata-pizza` | ブラータピザ | 2 | 1 | 3 | 5 | 3 | 3 | 4 | 4 | **3.60** | 1 | 6 |
-| 3 | `piadina-romagnola` | ピアディーナ・ロマニョーラ | 3 | 2 | 4 | 4 | 5 | 2 | 2 | 3 | **3.60** | 10 | 11 |
-| 4 | `pizza-alla-crudaiola` | ピッツァ・アッラ・クルダイオーラ | 2 | 1 | 3 | 4 | 3 | 4 | 4 | 4 | **3.55** | 2 | 3 |
-| 5 | `yakiniku-pizza` | 焼肉ピザ | 3 | 3 | 4 | 4 | 3 | 3 | 3 | 4 | **3.55** | 8 | 7 |
-| 6 | `keema-pizza` | キーマピザ | 1 | 1 | 3 | 3 | 5 | 3 | 4 | 3 | **3.50** | 4 | 5 |
-| 7 | `hot-honey-pepperoni` | ホットハニーペパロニピザ | 3 | 2 | 4 | 4 | 4 | 2 | 3 | 3 | **3.50** | 9 | 10 |
-| 8 | `calzone` | カルツォーネ（ENCLOSE系） | 4 | 4 | 5 | 5 | 4 | 1 | 1 | 2 | **3.50** | 15 | 16 |
-| 9 | `manakish` | マナキーシュ | 3 | 3 | 4 | 4 | 5 | 1 | 2 | 2 | **3.35** | 13 | 15 |
-| 10 | `sfincione` | スフィンチョーネ | 1 | 0 | 3 | 3 | 2 | 5 | 4 | 4 | **3.30** | 3 | 2 |
-| 11 | `pesto-burrata` | ペストブラータピザ | 2 | 1 | 2 | 4 | 3 | 4 | 4 | 4 | **3.30** | 6 | 4 |
-| 12 | `teriyaki-chicken` | 照り焼きチキンピザ | 3 | 3 | 3 | 3 | 5 | 2 | 3 | 3 | **3.25** | 11 | 12 |
-| 13 | `bulgogi-pizza` | プルコギピザ | 1 | 1 | 2 | 3 | 2 | 5 | 5 | 4 | **3.15** | 5 | 1 |
-| 14 | `pesto-noci` | ペストノーチピザ | 2 | 2 | 3 | 3 | 4 | 2 | 3 | 3 | **3.05** | 12 | 13 |
-| 15 | `kimchi-pizza` | キムチピザ | 3 | 3 | 3 | 4 | 3 | 2 | 3 | 3 | **3.05** | 14 | 14 |
-| 16 | `peking-duck-pizza` | 北京ダックピザ | 2 | 3 | 4 | 4 | 2 | 1 | 3 | 3 | **2.95** | 17 | 17 |
-| 17 | `quattro-stagioni` | クアトロスタジオーニ | 4 | 3 | 5 | 5 | 1 | 1 | 1 | 2 | **2.90** | 18 | 20 |
-| 18 | `pizza-fritta` | ピッツァフリッタ | 4 | 4 | 5 | 4 | 2 | 1 | 1 | 2 | **2.90** | 20 | 19 |
-| 19 | `tsukimi-pizza` | 月見ピザ（DH4保留中） | 1 | 2 | 2 | 4 | 1 | 5 | 3 | 2 | **2.75** | 16 | 9 |
-| 20 | `trenton-tomato-pie` | トレントントマトパイ | 4 | 3 | 4 | 3 | 2 | 2 | 1 | 3 | **2.70** | 19 | 18 |
+| 変更 | 理由 |
+|---|---|
+| keema 新しさ 3→2 | §0.2.3: curry-pizza-japan / rendang と 2 要素差（近接の確認で判明） |
+| burrata / burrata-pizza 見た目 5→4・負荷 3→4（burrata は新しさも 4→3） | O-6: Cheese Pool を使わず専用ピース＋色変化。溶ける表現が控えめになる分、見た目と新しさを下げ、汎用化が無い分、負荷を下げた |
+| hot-honey / honey 負荷 2→1・互換 3→2 | O-5: 焼成後 = #579（FINISH の液体対応）が前提。`gameReducer.ts`（HOT）の FINISH カテゴリ規則に触れる |
+| pizza-salad / lettuce / cucumber 解禁 3→2 | O-7: 後乗せ材料は late の固定表（`LATE_ENTITLEMENT_FLOORS`）・導出番号・Dinner / Lunch Rush 除外と結びつく |
 
-### 6.3 食材（17 候補）
+「Stage」列は §8.5 の最終推奨案。「実装可能性」は評価値とは別の注記で、スコアに含めない。
 
-| 順位 | id | 名称 | Stage | 依存 | 新しさ | 見た目 | 再利用 | 負荷小 | 互換 | 解禁 | 加重 | 均等重み順位 | 実装重視順位 |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | `burrata` | ブラータ（チーズ） | 2 | 1 | 4 | 5 | 3 | 3 | 4 | 4 | **3.85** | 1 | 1 |
-| 2 | `ground-beef` | 牛ひき肉 | 1 | 2 | 4 | 3 | 5 | 3 | 3 | 3 | **3.65** | 2 | 2 |
-| 3 | `lettuce` | レタス | 2 | 2 | 4 | 4 | 3 | 3 | 3 | 3 | **3.45** | 4 | 6 |
-| 4 | `dessert-cluster` | デザート系（りんご/シナモン/チョコ等） | 4 | 4 | 5 | 4 | 4 | 1 | 2 | 2 | **3.40** | 13 | 17 |
-| 5 | `cucumber` | きゅうり | 2 | 2 | 3 | 4 | 3 | 4 | 3 | 3 | **3.35** | 5 | 4 |
-| 6 | `chili` | 唐辛子（赤） | 1 | 2 | 2 | 3 | 5 | 4 | 3 | 3 | **3.30** | 3 | 3 |
-| 7 | `honey` | はちみつ（液体） | 3 | 2 | 4 | 3 | 4 | 2 | 3 | 3 | **3.30** | 7 | 13 |
-| 8 | `french-fries` | フライドポテト | 3 | 3 | 3 | 4 | 3 | 3 | 3 | 3 | **3.20** | 8 | 8 |
-| 9 | `walnut` | くるみ | 1 | 1 | 2 | 3 | 4 | 4 | 3 | 3 | **3.10** | 6 | 5 |
-| 10 | `brie` | ブリー | 2 | 2 | 3 | 4 | 2 | 3 | 3 | 3 | **3.00** | 12 | 14 |
-| 11 | `mayo` | マヨネーズ | 2 | 1 | 2 | 2 | 5 | 3 | 3 | 3 | **2.95** | 9 | 9 |
-| 12 | `yogurt-sauce` | ヨーグルトソース | 2 | 1 | 3 | 3 | 2 | 3 | 3 | 3 | **2.80** | 14 | 15 |
-| 13 | `cheddar` | チェダー | 2 | 1 | 2 | 3 | 2 | 4 | 4 | 3 | **2.80** | 10 | 7 |
-| 14 | `squid` | いか | 1 | 2 | 2 | 3 | 2 | 3 | 4 | 4 | **2.75** | 11 | 12 |
-| 15 | `sweet-bean-sauce` | 甜麺醤 | 2 | 2 | 3 | 2 | 2 | 4 | 3 | 3 | **2.75** | 15 | 10 |
-| 16 | `yakiniku-sauce` | 焼肉のたれ | 3 | 2 | 3 | 2 | 2 | 4 | 3 | 3 | **2.75** | 16 | 11 |
-| 17 | `halloumi` | ハルーミ | 3 | 2 | 3 | 3 | 2 | 3 | 3 | 2 | **2.70** | 17 | 16 |
+| 順位 | id | 名称 | Stage(新) | 新しさ | 見た目 | 再利用 | 負荷小 | 互換 | 解禁 | 加重(新) | 旧順位→新 | 旧加重 | 変更した軸 | 均等 | 実装重視 | 実装可能性 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `pizza-salad` | ピザサラダ | 3a | 5 | 5 | 3 | 2 | 3 | 2 | **3.65** | 1→1 | 3.75 | 解禁 3→2 | 8 | 9 | △ 後乗せ依存 Gate（G-F1〜7）、3 新材料、R-3 |
+| 2 | `piadina-romagnola` | ピアディーナ・ロマニョーラ | 4a | 4 | 4 | 5 | 2 | 2 | 3 | **3.60** | 3→2 | 3.60 | — | 9 | 10 | △ Dough Kind 一般化（O-12） |
+| 3 | `burrata-pizza` | ブラータピザ | 2 | 3 | 4 | 3 | 4 | 4 | 4 | **3.55** | 2→3 | 3.60 | 見た目 5→4, 負荷 3→4 | 1 | 3 | ○ R-1・G-B1 の確認後 |
+| 4 | `pizza-alla-crudaiola` | ピッツァ・アッラ・クルダイオーラ | 2 | 3 | 4 | 3 | 4 | 4 | 4 | **3.55** | 4→4 | 3.55 | — | 2 | 4 | ○ burrata-pizza の後 |
+| 5 | `yakiniku-pizza` | 焼肉ピザ | 4a | 4 | 4 | 3 | 3 | 3 | 4 | **3.55** | 5→5 | 3.55 | — | 6 | 7 | △ #697 の Final Gate・実機 HV・merge 後。yakiniku-sauce は暗色で bbq と近い |
+| 6 | `calzone` | カルツォーネ（ENCLOSE系） | 4b | 5 | 5 | 4 | 1 | 1 | 2 | **3.50** | 8→6 | 3.50 | — | 15 | 16 | ✕ 構造変更（ENCLOSE） |
+| 7 | `manakish` | マナキーシュ | 4a | 4 | 4 | 5 | 1 | 2 | 2 | **3.35** | 9→7 | 3.35 | — | 13 | 14 | △ Dough Kind ＋ halloumi・zaatar、原典の不整合 |
+| 8 | `sfincione` | スフィンチョーネ | 1 | 3 | 3 | 2 | 5 | 4 | 4 | **3.30** | 10→8 | 3.30 | — | 3 | 2 | ○ fugazza 上位集合の matcher / DH4 検証 |
+| 9 | `pesto-burrata` | ペストブラータピザ | — | 2 | 4 | 3 | 4 | 4 | 4 | **3.30** | 11→9 | 3.30 | — | 5 | 5 | ○ ただし burrata-pizza との差がソースのみで見送り推奨 |
+| 10 | `keema-pizza` | キーマピザ | 1 | 2 | 3 | 5 | 3 | 4 | 3 | **3.25** | 6→10 | 3.50 | 新しさ 3→2 | 7 | 6 | ○条件付き O-1・構成確認・R-2、rendang / curry と近接 |
+| 11 | `hot-honey-pepperoni` | ホットハニーペパロニピザ | 3b | 4 | 4 | 4 | 1 | 2 | 3 | **3.25** | 7→11 | 3.50 | 負荷 2→1, 互換 3→2 | 12 | 15 | △ #579（FINISH 液体対応）の設計・実装、R-4、pepperoni 上位集合 |
+| 12 | `teriyaki-chicken` | 照り焼きチキンピザ | 3b | 3 | 3 | 5 | 2 | 3 | 3 | **3.25** | 12→12 | 3.25 | — | 10 | 11 | △ #579 ＋ mayo |
+| 13 | `bulgogi-pizza` | プルコギピザ | 1 | 2 | 3 | 2 | 5 | 5 | 4 | **3.15** | 13→13 | 3.15 | — | 4 | 1 | ○条件付き O-1・soy-sauce の解禁整合。wasabi-beef と近接 |
+| 14 | `pesto-noci` | ペストノーチピザ | 3b | 3 | 3 | 4 | 2 | 3 | 3 | **3.05** | 14→14 | 3.05 | — | 11 | 12 | △ honey ＋ walnut（O-9） |
+| 15 | `kimchi-pizza` | キムチピザ | 4a | 3 | 4 | 3 | 2 | 3 | 3 | **3.05** | 15→15 | 3.05 | — | 14 | 13 | △ Prep 拡張 |
+| 16 | `peking-duck-pizza` | 北京ダックピザ | — | 4 | 4 | 2 | 1 | 3 | 3 | **2.95** | 16→16 | 2.95 | — | 17 | 17 | ○ 3 新材料で見送り |
+| 17 | `quattro-stagioni` | クアトロスタジオーニ | 4b | 5 | 5 | 1 | 1 | 1 | 2 | **2.90** | 17→17 | 2.90 | — | 18 | 20 | ✕ 構造変更（ZONED） |
+| 18 | `pizza-fritta` | ピッツァフリッタ | 4b | 5 | 4 | 2 | 1 | 1 | 2 | **2.90** | 18→18 | 2.90 | — | 20 | 19 | ✕ 構造変更（FRY） |
+| 19 | `tsukimi-pizza` | 月見ピザ（DH4保留中） | 保留 | 2 | 4 | 1 | 5 | 3 | 2 | **2.75** | 19→19 | 2.75 | — | 16 | 8 | ✕ DH4 保留（変更なし） |
+| 20 | `trenton-tomato-pie` | トレントントマトパイ | 4b | 4 | 3 | 2 | 2 | 1 | 3 | **2.70** | 20→20 | 2.70 | — | 19 | 18 | ✕ 構造変更（STEP_ORDER） |
 
-> **読み方の注意.** 加重スコアは「何を先にやるか」の材料であって、そのまま実装順ではない。たとえば `pizza-salad` は 1 位だが、3 つの新材料（cucumber・lettuce・yogurt-sauce）が同時に要り、**matrix にはレタス・きゅうりの投入時機の記載がなく**（tomato-sauce ＋ yogurt-sauce の 2 層とだけ記録）、生で使う食材を焼成前に置くか後に置くかは**私の推論で未確定**（O-7）。均等重みでは 7 位、実装安全重視では 8 位。逆に burrata は全ての重みで 1〜6 位に残り、**重みに対して頑健**。
+### 6.3 食材（17 候補・更新後）
 
-## 7. 推奨 TOP10
+| 順位 | id | 名称 | Stage(新) | 新しさ | 見た目 | 再利用 | 負荷小 | 互換 | 解禁 | 加重(新) | 旧順位→新 | 旧加重 | 変更した軸 | 均等 | 実装重視 | 実装可能性 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | `ground-beef` | 牛ひき肉 | 1 | 4 | 3 | 5 | 3 | 3 | 3 | **3.65** | 2→1 | 3.65 | — | 2 | 2 | ○ R-2、O-4（曖昧語の正規化） |
+| 2 | `burrata` | ブラータ（チーズ） | 2 | 3 | 4 | 3 | 4 | 4 | 4 | **3.55** | 1→2 | 3.85 | 新しさ 4→3, 見た目 5→4, 負荷 3→4 | 1 | 1 | ○ R-1・G-B1 |
+| 3 | `dessert-cluster` | デザート系（りんご/シナモン/チョコ等） | 4c | 5 | 4 | 4 | 1 | 2 | 2 | **3.40** | 4→3 | 3.40 | — | 12 | 16 | ✕ 新 family ＋ 後乗せ |
+| 4 | `lettuce` | レタス | 3a | 4 | 4 | 3 | 3 | 3 | 2 | **3.35** | 3→4 | 3.45 | 解禁 3→2 | 5 | 7 | △ 後乗せ依存 Gate・R-3 |
+| 5 | `chili` | 唐辛子（赤） | 1〜 | 2 | 3 | 5 | 4 | 3 | 3 | **3.30** | 6→5 | 3.30 | — | 3 | 3 | △ 曖昧語の解決（O-4） |
+| 6 | `cucumber` | きゅうり | 3a | 3 | 4 | 3 | 4 | 3 | 2 | **3.25** | 5→6 | 3.35 | 解禁 3→2 | 6 | 5 | △ 同上（焼成後の仮定） |
+| 7 | `french-fries` | フライドポテト | 4a | 3 | 4 | 3 | 3 | 3 | 3 | **3.20** | 8→7 | 3.20 | — | 7 | 8 | △ 未計画 |
+| 8 | `walnut` | くるみ | — | 2 | 3 | 4 | 4 | 3 | 3 | **3.10** | 9→8 | 3.10 | — | 4 | 4 | △ O-9（other 棚） |
+| 9 | `honey` | はちみつ（液体） | 3b | 4 | 3 | 4 | 1 | 2 | 3 | **3.05** | 7→9 | 3.30 | 負荷 2→1, 互換 3→2 | 15 | 17 | △ #579・R-4 |
+| 10 | `brie` | ブリー | — | 3 | 4 | 2 | 3 | 3 | 3 | **3.00** | 10→10 | 3.00 | — | 11 | 13 | ○ |
+| 11 | `mayo` | マヨネーズ | 3b | 2 | 2 | 5 | 3 | 3 | 3 | **2.95** | 11→11 | 2.95 | — | 8 | 9 | △ 後乗せソース（#579） |
+| 12 | `yogurt-sauce` | ヨーグルトソース | 3a | 3 | 3 | 2 | 3 | 3 | 3 | **2.80** | 12→12 | 2.80 | — | 13 | 14 | △ O-7b（工程未決） |
+| 13 | `cheddar` | チェダー | — | 2 | 3 | 2 | 4 | 4 | 3 | **2.80** | 13→13 | 2.80 | — | 9 | 6 | ○ |
+| 14 | `squid` | いか | — | 2 | 3 | 2 | 3 | 4 | 4 | **2.75** | 14→14 | 2.75 | — | 10 | 12 | ○ |
+| 15 | `sweet-bean-sauce` | 甜麺醤 | — | 3 | 2 | 2 | 4 | 3 | 3 | **2.75** | 15→15 | 2.75 | — | 14 | 10 | ○ |
+| 16 | `yakiniku-sauce` | 焼肉のたれ | 4a | 3 | 2 | 2 | 4 | 3 | 3 | **2.75** | 16→16 | 2.75 | — | 16 | 11 | △ 暗色ソース同士の識別 R-5 |
+| 17 | `halloumi` | ハルーミ | 4a | 3 | 3 | 2 | 3 | 3 | 2 | **2.70** | 17→17 | 2.70 | — | 17 | 15 | △ |
 
-### 7.1 レシピ TOP10（加重スコア順。§6.2 の上位 10 件）
+**重みの偏りの所見（更新後）:** 見た目・新しさで 45% のため構造系（calzone: 6 位）が上位に出る点は初版と同じ。実装安全重視では bulgogi・sfincione・burrata 系が上がり、calzone は 16 位。**後乗せ系（pizza-salad・hot-honey・honey）は均等重み・実装重視でさらに下がる**ため、加重 1 位の pizza-salad は Gate 解消前に先行させない。
 
-| 順位 | レシピ | 加重 | 主分類 / 証跡 | 一言の根拠 | 先に必要なもの |
+> **読み方の注意.** 加重スコアは「何を先にやるか」の材料であって、そのまま実装順ではない。更新後も `pizza-salad` は 1 位（3.65）だが、**3 新材料・後乗せ Gate（G-F1〜7）・R-3 が未解決で、READY（証跡）であっても実装可能の確定ではない**。均等重みでは 8 位、実装安全重視では 9 位。burrata 系は全ての重みで 1〜6 位に残り、重みに対して頑健。
+
+## 7. 推奨 TOP10（Owner 決定後の再評価）
+
+### 7.1 レシピ TOP10（加重スコア順 ＋ 実装可能性）
+
+実装可能性: ○=計画上は着手可（Owner の実装承認・描画 Gate 待ち）／○条件付き=O-1 の条件下／△=依存 Gate あり／✕=構造変更。
+
+| 順位 | レシピ | 加重 | 元の証跡 | 実装可能性 | 初版からの変化 |
 |---|---|---|---|---|---|
-| 1 | pizza-salad | 3.75 | ③⑤ / READY | 生野菜＋ヨーグルトのまったく別の“見た目”。ただし 3 新材料で、投入時機は未確定 | yogurt-sauce・cucumber・lettuce、投入時機の Owner 判断（O-7） |
-| 2 | **burrata-pizza** | 3.60 | ③ / READY | 白い球が主役の完成形。**新要素 1 つ・全重みで頑健** | burrata |
-| 3 | piadina-romagnola | 3.60 | ④ / READY | ノンソースの薄い平焼き。Dough Kind の 2 つ目で**20 行が前進** | `DoughKind` の一般化（型は 2 値の閉じた union）、Anti-Oracle の再計算 |
-| 4 | **pizza-alla-crudaiola** | 3.55 | ③ / READY | 生トマト＋ルッコラ＋burrata。burrata の 2 例目で具材の見せ場が違う | burrata（#2 の後） |
-| 5 | yakiniku-pizza | 3.55 | ④ / READY | 牛を炒める Prep の最初の受益者 | yakiniku-sauce（暗色で bbq と近い）、#697 の完了 |
-| 6 | **keema-pizza** | 3.50 | ① / BLOCKED | ひき肉という新しい“粒”の見た目。**既存ソース（curry-ketchup）で出せる** | ground-beef、Owner のソース仮定（O-1）、曖昧語の解決（O-4） |
-| 7 | hot-honey-pepperoni | 3.50 | ③ / REVIEW | 艶のある甘辛。honey は 5 行に効く | honey。**焼成前 PAINT なら Stage 2 に前倒し可**、垂らす表現なら #579 待ち（O-5） |
-| 8 | calzone（ENCLOSE 系） | 3.50 | ⑥ / BLOCKED | 包む体験は最大の新しさ。**だが構造変更（負荷 1・互換 1）** | ENCLOSE の設計 Gate。**実装安全重視では 16 位** |
-| 9 | manakish | 3.35 | ④ / REVIEW | 平焼き第 2 弾。piadina と同じ基盤 | Dough Kind 一般化＋ halloumi・zaatar、原典の不整合（`SOURCE_INCONSISTENCY`） |
-| 10 | sfincione | 3.30 | ① / REVIEW | **依存ゼロ**。tomato＋olive-oil の 2 層（出荷済みエンジン） | なし（同点の pesto-burrata より依存が少ないので上位） |
+| 1 | pizza-salad | 3.65 | READY | △ 後乗せ Gate（G-F1〜7）・3 新材料・R-3。**READY のままだが実装可能の確定ではない** | 3.75→3.65。1 位は維持だが先行させない |
+| 2 | piadina-romagnola | 3.60 | READY | △ Dough Kind 一般化（O-12） | 3→2 位 |
+| 3 | burrata-pizza | 3.55 | READY | ○（R-1・G-B1） | 2→3 位（Cheese Pool 不使用で見た目 5→4） |
+| 4 | pizza-alla-crudaiola | 3.55 | READY | ○（burrata-pizza の後） | 同点。依存数・Stage が同じなので burrata-pizza の後 |
+| 5 | yakiniku-pizza | 3.55 | READY | △ #697 の Final Gate・実機 HV・merge 後 | 同 |
+| 6 | calzone（ENCLOSE 系） | 3.50 | BLOCKED | ✕ | 8→6 位（他が下がったため） |
+| 7 | manakish | 3.35 | REVIEW | △ Dough Kind ＋ 2 新食材 | 9→7 位 |
+| 8 | sfincione | 3.30 | REVIEW | ○（fugazza 上位集合の検証） | 10→8 位 |
+| 9 | pesto-burrata | 3.30 | READY | ○ 見送り推奨（差がソースのみ） | 11→9 位 |
+| 10 | keema-pizza | 3.25 | BLOCKED（条件付き計画対象） | ○条件付き（O-1・構成確認・R-2） | 6→10 位（新しさ 3→2） |
 
-「実行順」の推奨は §8 の Stage 計画に従う（スコア順ではなく依存順）。**ここで飛ばしている候補:** tsukimi（DH4 保留）、bulgogi（13 位。ただし実装安全重視では 1 位。Stage 1 の候補として §8）。
+圏外に下がったもの: **hot-honey-pepperoni 3.25（11 位）**＝#579 依存で負荷 1。bulgogi-pizza は 3.15（13 位、変更なし）。
 
-### 7.2 食材 TOP10（加重スコア順）
+**実装可能性で見た着手順の所見:** 加重上位 5 件のうち、Gate が少なく着手に近いのは burrata 系だけ。pizza-salad・piadina・yakiniku は上位でも依存 Gate が先。実装順はスコア順ではなく §8 の Stage に従う。
 
-| 順位 | 食材 | 加重 | 区分 | 根拠 |
-|---|---|---|---|---|
-| 1 | **burrata** | 3.85 | チーズ | 3 レシピ・全 READY・全重みで 1 位。白い球で完成時の存在感が大きい |
-| 2 | **牛ひき肉** | 3.65 | 肉 | 6 行に効き（曖昧語含む）、Prep（炒める）と相性が良い。`beef` とは粒状で区別 |
-| 3 | lettuce | 3.45 | 野菜 | サラダ系の核。生のまま使う前提 |
-| 4 | デザート系（apple・cinnamon・chocolate ほか） | 3.40 | 新 family | 4 行（apple-cinnamon・nutella・smore・fruit）。**単一食材ではなく群**。新しい棚が必要で負荷 1（Stage 4） |
-| 5 | cucumber | 3.35 | 野菜 | pizza-salad と peking-duck |
-| 6 | 唐辛子（赤） | 3.30 | 野菜 / 香辛 | 7 行に効くが**曖昧語で `chili-oil` 候補と割れている**（O-4） |
-| 7 | honey | 3.30 | ソース（液体） | 5 行に効く。垂らす操作が前提 |
-| 8 | french-fries | 3.20 | 野菜 | poutine・lomo-saltado |
-| 9 | walnut | 3.10 | other | 4 行。`other` 棚への影響（O-9） |
-| 10 | brie | 3.00 | チーズ | 1 行（speck-e-brie、BLOCKED） |
+### 7.2 食材 TOP10（加重スコア順 ＋ 実装可能性）
 
-**「新規食材を増やす」だけで終わらせないための所見:** 既存 92 のうち 50 が 1 レシピ専用。新食材は**最低 2 レシピで使える**ものを優先（burrata・ground-beef・lettuce・honey・walnut）。1 行専用のソース（yakiniku・sweet-bean・okonomiyaki…）は、そのレシピを出す時に同時に足す。
+| 順位 | 食材 | 加重 | 区分 | 実装可能性 | 初版からの変化 |
+|---|---|---|---|---|---|
+| 1 | ground-beef | 3.65 | 肉 | ○ R-2・O-4（「ひき肉」の正規化） | 2→1 位 |
+| 2 | burrata | 3.55 | チーズ | ○ R-1・G-B1。**専用ピース方式で確定** | 3.85→3.55（1→2 位）。全重みで引き続き 1〜2 位 |
+| 3 | デザート系 | 3.40 | 新 family | ✕ 新 family ＋ 後乗せ。群であり単一食材ではない | 4→3 位 |
+| 4 | lettuce | 3.35 | 野菜 | △ 後乗せ Gate・R-3 | 3→4 位 |
+| 5 | 唐辛子（赤） | 3.30 | 野菜 / 香辛 | △ 曖昧語の解決（O-4） | 6→5 位 |
+| 6 | cucumber | 3.25 | 野菜 | △ 焼成後の仮定・同上 | 5→6 位 |
+| 7 | french-fries | 3.20 | 野菜 | △ 未計画 | 8→7 位 |
+| 8 | walnut | 3.10 | other | △ O-9 | 9→8 位 |
+| 9 | honey | 3.05 | ソース（液体） | △ #579・R-4 | 7→9 位（3.30→3.05） |
+| 10 | brie | 3.00 | チーズ | ○（単独行・BLOCKED のため後回し） | 同 |
 
-## 8. 段階的拡張計画
+## 8. 段階的拡張計画（Owner 決定後に更新）
 
-**原則:** 各 Stage は**独立して遊べる**。Stage をまたぐ依存は「前の Stage が出ていなくても壊れない」形で切る。新規レシピは credited（新材料を持ち、ladder に 1 step 追加）か non-credit（既存材料のみで step を増やさない）かを明示する。**星ゲートは追加しない**（slack=1、§1.3）。新規は全て `lunchRush:false`、CUT なし、窓 58–78、報酬 100（B10 / B11 の運用）を初期案とする。
+**原則（変更なし）:** 各 Stage は独立して遊べる。新規は `lunchRush:false`、CUT なし、窓 58–78、報酬 100（B10 / B11 の運用）を初期案とし、**星ゲートは追加しない**（slack=1）。**個別レシピの実装承認は Owner の別途承認**（本書は計画）。
 
-### Stage 1 — 既存システムで追加できるもの（目安: レシピ 2〜3、新食材 1）
+### 8.1 Stage 構成の比較
+
+| | 初版（4b92884） | Owner 初期案 | **本更新の最終推奨** |
+|---|---|---|---|
+| Stage 1 | sfincione、keema・bulgogi（仮定承認前提）、ground-beef | sfincione、keema（条件付き）、bulgogi（条件付き）、ground-beef | **Owner 初期案どおり**。ただし 1a/1b に分割（下記） |
+| Stage 2 | burrata 系 ＋ 条件付き pizza-salad・hot-honey | burrata、burrata-pizza、crudaiola | **burrata 系のみ**（pizza-salad・hot-honey を外す） |
+| Stage 3 | 新調理法連動（Prep・後乗せソース・Dough Kind） | 後乗せ（honey、hot-honey、pizza-salad、生野菜） | **後乗せ専用**。3a=生野菜（topping）、3b=honey（#579 依存） |
+| Stage 4 | 構造系 | 新調理法連動、ZONED、STEP_ORDER、ENCLOSE、デザート | **4a 新調理法連動（Prep・Dough Kind・別セッション調理法）／4b 構造系／4c デザート系** |
+
+**差と理由:**
+1. 初版は honey / pizza-salad を「焼成前の PAINT でも出せる」前提で Stage 2 に条件付きで置いたが、Owner 決定（焼成後）で**後乗せ系は独立した Gate 群（G-F1〜7、#579）を持つ**ことが確定した。Stage 2 に混ぜると burrata 系（Gate が少ない）の完成を遅らせるため分離する。
+2. 後乗せを 3a / 3b に割るのは、**生野菜は現行 FINISH のカテゴリ制限（topping）内で #579 不要**、**honey は #579（FINISH の液体対応）が前提**という既存構造の違いによる。3a→3b の順。
+3. 新調理法連動（Prep・Dough Kind・別セッション調理法）は、#697 の Final Gate・実機 HV・merge ＋別セッションの設計確定まで内容を確定できないため Stage 4a に置く（Owner 初期案と同じ）。
+4. Stage 1 の分割: **1a = sfincione**（新食材なし・描画 Gate なし・non-credit）、**1b = ground-beef ＋ keema ＋（任意で）bulgogi**（R-2 と Owner の構成確認が先）。bulgogi は wasabi-beef と近接し新しさが低いため**最後・任意**。
+
+### Stage 1 — 低依存レシピ
 
 | 項目 | 内容 |
 |---|---|
-| レシピ | **sfincione**（REVIEW、依存なし）。以降は **Owner の仮定承認が前提**: **bulgogi-pizza**（beef・onion・white-sesame・mozzarella。ソースは soy-sauce を仮定）、**keema-pizza**（ground-beef・onion・mozzarella。ソースは curry-ketchup を仮定、青唐辛子は省くか chili を足すか要判断） |
-| 食材 | ground-beef（トッピング、meat。粒状の専用 `pieceVisual` ＋ emoji の G18 一意性）。ソース・チーズは追加なし |
-| 必要な工程 | なし（`MULTI_SPREAD_LAYER` は出荷済み）。ground-beef の「炒め」は Prep 側の別件で、**この Stage では未対応でよい**（`PREP_TARGET_INGREDIENT_IDS` は beef のみ。prep は識別に使わない仕様） |
-| 依存 Issue / PR | #611（umbrella・B11 の運用）、#561（星ゲート余裕=1）、#623 / #438（アイコン 2.0）。**#697 とは独立**（`src/data/**` を触らない） |
-| 想定変更ファイル | `src/data/recipes.ts`・`ingredients.ts`・`recipeSauceProfiles.ts`・`discoveryLadder.ts`（step 追記）・`referencePizza.ts`・`ingredientTaxonomy.ts`（family）・専用 SVG、`catalogLedger.test.ts` と pin 群、golden（`hint5.ladders55.json`＝挿入のみ、`hint5.alphaFamilyOnly.json`＝既存値が動く、DH4 audit JSON は再生成物） |
-| テスト計画 | B11 S1 と同じ: `tsc -b`・oxlint・build・全 Vitest（**Pinsa ON / OFF の両方**）・`e2e/b12-s1.spec.ts`（390×844 と 360×800）・Research cohort 文字ドリフト 0（全 prefix ＋ランダム購入順 40 通り）・旧ビルドで新 save を開いて再保存しても新食材 / Dex が落ちない（#674 の前例）・late 床（`LATE_ENTITLEMENT_FLOORS`）が後退しない |
-| iPhone Safari HV | ground-beef がトレイで beef・sausage と見分けられるか／配置後 20px 級で粒に見えるか／Shop の NEW 表示 → 購入 → Research ラベルに漏えいなし → 調理 → NEW DISCOVERY → Dex／横スクロールなし |
-| リスク | 仮定ソースが原典と違う（暫定表示が必要）。bulgogi / keema は既存の beef・curry 系と**材料が近く“少し変えただけ”に見える**（新しさ軸が 2〜3 点の理由） |
-| 完了条件 | 全ゲート GREEN、Owner の実機 HV 判定、`catalogLedger` 更新（recipes 83 / ingredients 93 / ladder 71 前後）。**本番反映は B10 / B11 同様、公開承認とは別** |
+| レシピ | **1a:** sfincione（REVIEW）。**1b:** keema-pizza（条件付き計画対象）、bulgogi-pizza（条件付き計画対象・任意）。いずれも**個別の実装承認は未** |
+| 食材 | ground-beef（トッピング、meat）。ソース・チーズの追加なし。bulgogi は soy-sauce を通常レシピで使う |
+| 必要な工程 | なし（`MULTI_SPREAD_LAYER` は出荷済み）。ground-beef の「炒め」は Prep の別件で、**この Stage では対象外**（Prep は識別に使わない仕様） |
+| 依存 Issue / PR | #611（運用）、#561（slack=1）、#623 / #438（アイコン）。**#697 には依存しない**。Gate: O-1 の適用条件（§0.2）、**R-2**（ground-beef の形状・質感）、O-4（「ひき肉」「青唐辛子」）、sfincione の matcher / DH4 検証（fugazza の上位集合）、bulgogi の soy-sauce 解禁整合 |
+| 想定変更ファイル | `src/data/recipes.ts`・`ingredients.ts`・`recipeSauceProfiles.ts`・`discoveryLadder.ts`・`referencePizza.ts`・`ingredientTaxonomy.ts`・専用 SVG、`catalogLedger.test.ts` と pin 群、golden（`hint5.ladders55.json` 挿入のみ・`hint5.alphaFamilyOnly.json` 既存値が動く・DH4 audit 再生成） |
+| テスト計画 | B11 S1 と同じ（tsc・oxlint・build・全 Vitest を Pinsa ON/OFF、E2E 390×844 / 360×800、Research cohort 文字ドリフト 0、旧ビルドで新 save を再保存しても落ちない）＋ **上位集合 / 近接の識別テスト**（sfincione↔fugazza、keema↔rendang / curry、bulgogi↔wasabi-beef） |
+| iPhone Safari HV | ground-beef がトレイで beef・sausage と区別できるか／配置後 20px 級で粒に見えるか／Shop NEW → 購入 → Research ラベル漏えいなし → 調理 → NEW DISCOVERY → Dex／横スクロールなし |
+| リスク | 仮定ソースが原典と違う（暫定表示必須）／keema・bulgogi が既存 beef・curry 系と“少し変えただけ”に見える／R-2 が不合格なら ground-beef を見直し |
+| 完了条件 | 全ゲート GREEN、構成案の Owner 確認、Owner の実機 HV 判定、`catalogLedger` 更新（全て実装した場合 recipes 83 / ingredients 93 / ladder 71 前後）。**本番反映は別承認** |
 
-### Stage 2 — 新しいソース・チーズ（目安: レシピ 2〜4、新食材 1〜4）
+### Stage 2 — ブラータ系
 
 | 項目 | 内容 |
 |---|---|
-| レシピ | **burrata-pizza**、**pizza-alla-crudaiola**（pesto-burrata は burrata-pizza との差がソースのみで“少し変えただけ”のため見送り推奨。2 つとも tomato＋olive-oil の 2 層で、grandma / sfincione と同じ出荷済みエンジン）。条件付き: **pizza-salad**（O-7）、**hot-honey-pepperoni**（O-5 で PAINT 可の場合。tomato＋honey の 2 層） |
-| 食材 | **burrata**（チーズ）。条件付き: yogurt-sauce・cucumber・lettuce（pizza-salad）、honey（hot-honey） |
-| ソース / チーズの描画 | burrata は 2 案: **(a) 専用 `pieceVisual` ＋色変化のみ**（feta / ricotta 方式、複雑化なし）／**(b) Cheese Pool の別パラメータ化**（魅力は上がるが `cheesePool.ts` の汎用化が要り別 Gate）。**初回は (a) を推奨**し、(b) は Owner が望む場合に別 Issue |
-| 必要な工程 | なし（焼成前に配置） |
-| 依存 | #486（Canvas mozzarella、出荷済み）、#421 系 |
-| 想定変更ファイル | Stage 1 と同じ ＋ チーズ専用 SVG。`cheesePool.ts` は (a) なら変更なし |
-| テスト計画 | Stage 1 ＋ burrata の白が mozzarella Canvas・ricotta・cream-cheese と 20px / グレースケールで識別できること（アイコン比較シートの方式） |
-| iPhone HV | トレイで burrata が 4 種の白チーズと見分けられるか／焼成前後で変化が分かるか／完成写真で主役になっているか |
-| リスク | 白チーズが 5 種になり識別が悪化（ΔE 実測が必要）。pizza-salad は生野菜の扱いが未確定 |
-| 完了条件 | Stage 1 と同じ ＋ 白チーズ識別の HV PASS |
+| レシピ | burrata-pizza、pizza-alla-crudaiola（pesto-burrata は差がソースのみのため見送り推奨を維持） |
+| 食材 / チーズ | **burrata**（専用ピース＋色変化。O-6 確定）。ソース追加なし |
+| 描画方針 | 専用 `pieceVisual`（feta-cubes / ricotta-mound 方式）。他の白チーズと区別できる輪郭、加熱状態の色・質感の変化、小サイズでの識別。**Cheese Pool 汎用化は含めない（G-CP）** |
+| 必要な工程 | なし。配置時点は各レシピの仕様と整合（G-B1）。matrix 記録上は焼成前で矛盾なし |
+| 依存 | **R-1（描画品質調査の結果）**、R-5（白系チーズとのコントラスト）、G-B1、Owner の実装承認。#486 / #421 は出荷済み・変更なし |
+| 想定変更ファイル | Stage 1 と同系 ＋ burrata 専用 SVG・焼成色の定義。`cheesePool.ts` は**変更なし** |
+| テスト計画 | Stage 1 ＋ burrata の 20px / グレースケール識別（既存のアイコン比較方式）／焼成前後の色変化の単体テスト |
+| iPhone HV | トレイで 4 種の白チーズ（mozzarella・ricotta・cream-cheese・catupiry）と区別できるか／焼成前後の変化／完成写真で主役になっているか |
+| リスク | 白チーズが 5 種になり識別が悪化（R-1 / R-5）／Cheese Pool を使わないため溶ける魅力は控えめ |
+| 完了条件 | Stage 1 と同じ ＋ R-1 / R-5 の合格 ＋ 白チーズ識別の HV PASS |
 
-### Stage 3 — 新調理法と連動するもの（**別セッションの設計完了後**）
+### Stage 3 — 後乗せ工程（3a → 3b）
 
-| 連動先 | 候補 | 状態 |
+| 項目 | 3a 生野菜 | 3b honey |
 |---|---|---|
-| 「炒める」(Cooking Prep Phase 1、#695 / **#697**) | yakiniku-pizza（＋yakiniku-sauce）、ground-beef の炒め対応、kimchi-pizza | #697 は未 merge・実機 HV 未完了・本番 OFF。**待つ** |
-| 後乗せソース（DRIZZLE、#579 / #604 / #611） | teriyaki-chicken（mayo）、buffalo-chicken（buffalo-sauce・blue-cheese-dressing）。honey 系（hot-honey・pesto-noci）は垂らす表現を望む場合のみ | 未設計。FINISH は topping 限定 |
-| Dough Kind 第 2 種（#577） | piadina-romagnola、manakish（その後 NY・fathead・cauliflower 等の同材料別生地） | `DoughKind` は 2 値の閉じた union。一般化の設計が要る |
-| **別セッションの新調理法**（ソーセージ・ポルチーニの焼く／エビの茹でる／玉ねぎのあめ色炒め／共通基盤） | **172 の未出荷候補で、これらに依存する行は 0** | 下記 §9 |
+| レシピ | pizza-salad | hot-honey-pepperoni（pesto-noci ほかは後続） |
+| 食材 | lettuce、cucumber（焼成後の仮定）、yogurt-sauce（工程は O-7b で未決） | honey（液体、焼成後） |
+| 必要な工程 | 既存 FINISH（topping 限定）で足りる想定。**未確認の Gate: G-F1〜G-F7** | **#579: FINISH の液体（ソース）対応と仕上げソース〈DRIZZLE 候補〉**。FINISH のカテゴリ規則（`gameReducer.ts`、HOT）の拡張が要る可能性 |
+| 依存 Issue / PR | #604 / #611（後乗せ）、#518（焼成フィルタ分離）、#617 / #664（中断復帰）、R-3、R-5 | **#579（open・未設計。実装開始は未承認）**、R-4 |
+| 想定変更ファイル | `src/data/lateCatalog.ts`（`LATE_RECIPES` / `LATE_INGREDIENTS` / `LATE_LADDER_STEPS` / `LATE_ENTITLEMENT_FLOORS` / `LATE_TAXONOMY_ROWS`）、専用 SVG、golden、`catalogLedger.test.ts` | 左 ＋ `src/state/finishEngine.ts`、`gameReducer.ts`（HOT）、`PizzaStage.tsx` の描画 |
+| テスト計画 | late の ON/OFF 両方（`lateCatalog.offGolden`）、Research 非漏洩、DH4 privacy sweep、焼成失敗時の FINISH スキップ、中断復帰 | 左 ＋ 液体 piece の Reference / 採点 / 保存 |
+| iPhone HV | **390×844 / 360×800 の FINISH 操作領域**（トレイ・タップ領域・横スクロールなし・生地上の重なり）、生野菜が焼成済み生地上で読めるか | 垂らし操作の可否、艶の視認性 |
+| リスク | 3 新材料の同時導入、late 固定表の更新で導出番号がずれる、pepperoni の上位集合（hot-honey） | #579 の設計が未了、HOT ファイル衝突（#697 は `gameReducer.ts` に約 10 行追加しており、先に merge する側が優先） |
+| 完了条件 | G-F1〜7 の解消、R-3 / R-5 合格、Owner の実機 HV | #579 の設計承認 → 実装 → 左の条件 ＋ R-4 合格 |
 
-Stage 3 の完了条件・テスト・HV は、連動先の設計が確定するまで**確定できない**（推測で埋めない）。確定時に各連動先ごとの小 Stage（3a 炒める、3b 後乗せソース、3c 生地）に分ける。
+### Stage 4 — 新調理法連動・高度な構造
 
-### Stage 4 — 複雑な調理工程・高難度
-
-| 構造 | 該当行 | 備考 |
+| 区分 | 内容 | 状態 |
 |---|---|---|
-| `ZONED_PLACEMENT` | quattro-stagioni（READY・既存食材のみ） | 4 分割の配置。Reference・採点・識別が円 8 スロット前提で影響大 |
-| `STEP_ORDER` | trenton-tomato-pie、chicago-deep-dish | チーズ先・ソース後の逆順。`layerOrder` 識別軸が FIXED_BY_FLOW |
-| `ENCLOSE` | calzone・fugazzeta-rellena・scacciata・pizza-a-caballo・chicago-stuffed（5） | 包む体験。最大の新しさだが構造変更 |
-| `PAN_BAKE` / `DOUGH_SHAPE_TARGET` | greek・siciliana・detroit・old-forge・montreal・new-england-bar・al-taglio・turkish-pide | Square Dough（#532〜#538）基盤の延長 |
-| `FRY_COOK` / `LAMINATE` | pizza-fritta / feteer-meshaltet | 各 1 行 |
-| デザート群 | apple-cinnamon・nutella・smore・fruit | 新 family と後乗せ（mid_bake 含む）が絡む |
+| **4a 新調理法連動** | 「炒める」(#695 / **#697**): yakiniku-pizza（＋yakiniku-sauce）、ground-beef の炒め対応、kimchi-pizza／Dough Kind 第 2 種(#577): piadina、manakish／**別セッションの調理法**（ソーセージ・ポルチーニの焼く、エビの茹でる、玉ねぎのあめ色炒め、共通基盤） | #697 は Final Gate・実機 HV・merge 後に**再確認**。別セッションは設計未確定のため内容を確定しない（§9） |
+| **4b 構造系** | ZONED（quattro-stagioni）、STEP_ORDER（trenton / chicago-deep-dish）、ENCLOSE（calzone ほか 5 行）、PAN_BAKE / DOUGH_SHAPE_TARGET、FRY / LAMINATE | 各構造は個別の設計 Gate が先（O-11） |
+| **4c デザート系** | apple-cinnamon・nutella・smore・fruit | 新 family ＋ 後乗せ（mid_bake を含む） |
 
-各構造は**個別の設計 Gate が先**。Stage 4 は「何件出すか」ではなく「どの構造を作る価値があるか」の Owner 判断（O-11）が先で、現時点で計画の粒度に落とさない。
+### 8.5 最終推奨案（依存関係・実装安全性を踏まえて）
+
+**Stage 1a（sfincione）→ Stage 2（burrata 系）→ Stage 1b（ground-beef・keema）→ Stage 3a（生野菜）→ Stage 3b（honey、#579 の後）→ Stage 4。**
+
+- Stage 番号は“テーマ”で、着手順は Gate の少ない順。1a と 2 は描画 Gate（R-1）以外に未解決事項が少なく、先に出せる。1b は R-2（ground-beef）が前提。3a は G-F が多く、3b は #579 が前提。
+- ただし着手順は**調査結果（R-1〜R-5）次第で入れ替わる**。描画調査が未完了のため、本書は順序を確定しない。
 
 ## 9. 新調理法との依存関係
 
@@ -344,10 +508,10 @@ Stage 3 の完了条件・テスト・HV は、連動先の設計が確定する
 
 | 観点 | 結果 |
 |---|---|
-| 現在の状態 | HEAD `8ba2b5b9…`（既知と一致）、`clean`、50 ファイル。**本書は #697 のブランチにも他セッションのブランチにも触れていない** |
+| 現在の状態 | HEAD `8ba2b5b9…`（初版・本更新の両時点で一致）、`clean`、50 ファイル。**本書は #697 のブランチにも他セッションのブランチにも触れていない** |
 | ファイル重複 | 本書の変更は新規 1 ファイル `docs/design/TETO_RECIPE-INGREDIENT-EXPANSION_FRESH-PLAN_2026-10-29.md` のみ。#697 の docs は `docs/reports/TETO_COOKING-PREP_PHASE1B_*` と仕様書の改訂で**重ならない** |
 | 将来の重複（Stage 1〜2） | 想定変更ファイルは `src/data/**` と専用 SVG が中心。#697 の変更は `src/logic/prep/**`・`CookingPrep*`・`PizzaStage.tsx`・`GameScreen.tsx`・`App.tsx`・`gameReducer.ts`。**`src/data/**` は重ならない**。HOT の `gameReducer.ts` / `GameScreen.tsx` は Stage 1〜2 で触らない |
-| 将来の重複（Stage 3） | ground-beef を Prep 対象にする変更は `src/data/prepIngredients.ts`（PR-A の claim 範囲）と `PREP_TARGET_INGREDIENT_IDS`。**#697 の merge と実機 HV の後**に行う |
+| 将来の重複（Stage 3b / 4a） | 3b は #697 が最小変更した `gameReducer.ts`（HOT）の FINISH 規則に触れる可能性があり、**先に merge する側が優先**。4a: ground-beef を Prep 対象にする変更は `src/data/prepIngredients.ts`（PR-A の claim 範囲）と `PREP_TARGET_INGREDIENT_IDS`。**#697 の merge と実機 HV の後**に行う |
 | 古い open PR | #478（`GameScreen.tsx`）・#468（`PizzaStage.tsx`）は既に main と競合。#697 本文の記載どおり。拡張 PR は触らない |
 | 結論 | **干渉なし**（現時点・計画上）。実装着手時に最新の open PR / claim を再確認する |
 
@@ -369,45 +533,49 @@ Stage 3 の完了条件・テスト・HV は、連動先の設計が確定する
 
 - **tsukimi-pizza**: 唯一の「① かつ READY」だが、DH4 の `その他` 到達不能制約で**実装保留**（OD-B9-8 / OD-B9-12。gate 緩和と egg の family 変更は禁止）。本書は解除を推奨しない。Stage 1 の数を押し上げる誘惑があるが、**Owner の保留判断を維持**。
 - **pescatore**: matrix は tomato＋olive-oil、出荷は olive-oil 省略（B11 の Owner 承認例外）。matrix と出荷のずれは「② 出荷との衝突」と同種の扱い。
-- **FINISH / 後乗せ**: 出荷済み 8 late レシピは topping 後乗せのみ。ソース・チーズの後乗せ（#579）は未着手。
+- **FINISH / 後乗せ**: 出荷済み 8 late レシピは topping 後乗せのみ。ソース・チーズの後乗せ（#579）は未着手。Owner 決定（O-5 / O-7）で honey・生野菜が後乗せ対象になったため、Gate は §0.4.3 に集約。
+- **上位集合の近接**: hot-honey-pepperoni ⊃ pepperoni、sfincione ⊃ fugazza（§0.2.4）。出荷済みレシピの識別を変えないことをテストで固定する。
 
-## 13. Owner 判断が必要な事項
+## 13. Owner 判断が必要な事項（Owner Decision Update 後）
 
-| # | 判断 | 推奨 / 影響 |
+### 13.1 確定済み（再承認不要・§0.1）
+
+O-1（GAMEPLAY ASSUMPTION の条件付き許可）、O-6（burrata は専用ピース＋色変化、Cheese Pool 汎用化は別 Gate）、O-5（honey は焼成後の後乗せ優先）、O-7（生野菜は焼成後）。
+
+### 13.2 未決（整理後）
+
+| # | 判断 | 備考 |
 |---|---|---|
-| **O-1** | 証跡 BLOCKED（特に `BASE_SAUCE_UNSPECIFIED` 31 行）に対し、B10 / B11 と同様の「GAMEPLAY ASSUMPTION」例外を許すか。許す場合のソース仮定（bulgogi=soy-sauce、keema=curry-ketchup）を承認するか | 許さないと Stage 1 は sfincione（1 件）のみ |
-| O-2 | Stage 1 の範囲（sfincione のみ／＋bulgogi・keema／＋ground-beef） | 推奨: sfincione ＋ keema ＋ ground-beef（新しい見た目を 1 つ持つ）。bulgogi は“変種”感が強く後回し可 |
-| O-3 | 新規レシピの公開方式（通常 ladder 追記／non-credit） | B10 / B11 の方式を踏襲 |
-| O-4 | 曖昧語の正規化: 「ひき肉」→ground-beef、「唐辛子」→chili（`chili-oil` と割れている）、「チーズ」→mozzarella か | keema / lahmacun / old-forge 等に効く |
-| O-5 | honey は焼成前の PAINT（matrix の 2 層目スプレッド）で出してよいか／垂らす操作（#579）を待つか | 「仕上げの垂らし」は repo 推論で原典未確認。PAINT でよければ hot-honey は Stage 2。待つなら Stage 3 |
-| O-6 | burrata の描画: (a) 専用 `pieceVisual`＋色変化のみ／(b) Cheese Pool の汎用化 | 推奨 (a)。(b) は別 Issue |
-| O-7 | pizza-salad の生野菜（レタス・きゅうり）の投入時機（matrix に記載なし、焼成前か後かは未確定）と、3 新材料の同時導入を許すか | 未決なら Stage 2 から外す |
-| O-8 | 新食材の family: ground-beef=meat、lettuce / cucumber=vegetable、burrata=cheese、yogurt-sauce=sauce（L1 のみの暫定） | B10 / B11 と同様に暫定承認 |
-| O-9 | walnut を `other`（egg・almond・pine-nuts）に入れるか、nut 系の新 family にするか。DH4 の OD-DH4-2-9 との整合 | 新 family は影響大。当面 walnut は見送り推奨 |
-| O-10 | 新規の Lunch Rush 参加（既定 false のまま維持するか） | 維持推奨 |
-| O-11 | Stage 4 のどの構造を作る価値があるか（ZONED・ENCLOSE・STEP_ORDER・デザート） | 現時点では計画しない |
-| O-12 | Dough Kind を 2 値から一般化してよいか（piadina / manakish の前提） | Stage 3c の入口 |
-| O-13 | Stage 開始の GitHub 運用: 各 Stage の Issue 化と claim（下記案） | 承認前は何も作らない |
+| **O-1a** | keema / bulgogi の**具体構成**（最終材料集合、個数・配置、窓・報酬、名称・説明文）の確認 | 実装前の必須確認（§0.2.1 の 7）。実装承認とは別 |
+| **O-1b** | keema の「青唐辛子」を省くか、chili を足すか | 足す場合は新食材が 2 つに増える |
+| **O-1c** | bulgogi で soy-sauce（late ソース）を通常レシピで使う際の解禁整合 | `LATE_ENTITLEMENT_FLOORS` との関係 |
+| O-2 | Stage 1 の範囲（1a のみ／＋1b／bulgogi を含めるか） | 推奨: 1a → 1b（keema まで）、bulgogi は任意 |
+| O-3 | 新規レシピの公開方式（通常 ladder 追記／non-credit） | B10 / B11 方式を踏襲 |
+| O-4 | 曖昧語の正規化: 「ひき肉」→ground-beef、「唐辛子」→chili（`chili-oil` と割れている）、「チーズ」→mozzarella か | keema / lahmacun ほかに効く |
+| O-5a | honey の後乗せ方式の**詳細**（垂らす操作・描画）は #579 の設計で決める。#579 の設計・実装の開始承認 | 本更新は方式の承認のみ |
+| **O-7a** | cucumber も生野菜として焼成後にするか（lettuce 以外の扱い） | 仮定のまま計画 |
+| **O-7b** | yogurt-sauce の工程（焼成前 PAINT か、後乗せか） | matrix は 2 層目のスプレッド |
+| O-7c | pizza-salad の 3 新材料の同時導入の可否 | 分割導入も可（lettuce → cucumber → yogurt） |
+| O-8 | 新食材の family 暫定: ground-beef=meat、lettuce / cucumber=vegetable、burrata=cheese、yogurt-sauce=sauce | B10 / B11 と同様 |
+| O-9 | walnut を `other` に入れるか、新 family にするか（DH4 の OD-DH4-2-9） | 見送り推奨のまま |
+| O-10 | 新規の Lunch Rush 参加（既定 false の維持） | 維持推奨 |
+| O-11 | Stage 4b / 4c のどの構造を作る価値があるか | 現時点では計画しない |
+| O-12 | Dough Kind を 2 値から一般化してよいか | Stage 4a の入口 |
+| O-13 | 各 Stage の Issue 化と claim | 承認前は何も作らない |
+| **O-14** | 描画品質調査（R-1〜R-5）の結果を受けた Stage 順の最終確定 | 調査完了後に再評価 |
+| **O-15** | tsukimi の保留は維持（変更なし）／sfincione・hot-honey の上位集合検証（§0.2.4）の扱い | 検証は実装時のテストで固定 |
 
-### Issue 案（**作成していない**。Owner 承認後に起票）
+### Issue 案（**作成していない**。Owner 承認後に起票。更新後）
 
-**案 A: `Expansion Batch 12 S1: sfincione + ground-beef 系（既存システムのみ、本番 OFF 相当の暫定仕様）`**
-- 目的: 新調理法に依存しない最小の 1 バッチで、新しい見た目（粒状の ground-beef）と tomato＋olive-oil 2 層の sfincione を追加する。
-- 受け入れ条件: §8 Stage 1 の「完了条件」「テスト計画」を満たす／全ゲート GREEN（Pinsa ON/OFF）／`catalogLedger` 更新／星ゲート追加なし／`lunchRush:false`／保存形式不変／Owner の実機 HV 判定。
-- 依存: #611（umbrella）、#561（slack=1）、Owner 決定 O-1・O-2・O-4・O-8。#697 には依存しない。
-
-**案 B: `Expansion Batch 12 S2: burrata（新チーズ）+ burrata-pizza / pizza-alla-crudaiola`**
-- 目的: 新しいチーズ 1 種で 2 レシピを足す。見た目の魅力を優先。
-- 受け入れ条件: §8 Stage 2。白チーズ 5 種の識別 HV、O-6 の方式、pizza-salad は含めない。
-- 依存: Owner 決定 O-6・O-8。
-
-**案 C（Stage 3 の入口）: `Expansion 3: 新調理法との連動計画（Prep 炒める・後乗せソース・Dough Kind）`**
-- 目的: 連動先の設計完了後に Stage 3 を小 Stage に分割する計画 Issue。実装なし。
-- 依存: #697 の merge と実機 HV、別セッションの調理法設計、#579 / #577。
+- **案 A: `Expansion Batch 12 S1a/S1b`** — 1a: sfincione。1b: ground-beef ＋ keema（＋任意 bulgogi）。受け入れ条件は §8 Stage 1。依存: #611、#561、O-1a〜c、O-4、R-2。**#697 には依存しない**。
+- **案 B: `Expansion Batch 12 S2: burrata（専用ピース）+ burrata-pizza / crudaiola`** — 受け入れ条件は §8 Stage 2。依存: R-1、R-5、G-B1、Cheese Pool 汎用化は含めない。
+- **案 C: `Expansion S3: 後乗せ（生野菜 → honey）`** — 3a は G-F1〜7 の解消が受け入れ条件、3b は #579 の設計承認後。実装なし（計画 Issue）。
+- **案 D: `Expansion S4a: 新調理法との連動計画`** — #697 の Final Gate・実機 HV・merge 後、別セッションの設計確定後に起票。
 
 ## 14. 検証した内容と限界
 
 - **集計の再計算:** `RECIPES` / `INGREDIENTS` を実行して取得（80 / 92）。matrix JSON を現行 id・材料集合と突き合わせ、71 / 4 / 97 に分けた（§2 の検算が一致）。分類・証跡状態・不足食材は同じスクリプトで機械的に出力し、付録 A に全 97 行を載せた。**スクリプトはリポジトリに入れていない**（docs-only）。再現は matrix JSON ＋ `src/data` の実行で可能。
+- **更新時の再計算:** §6.2 / §6.3 の加重・順位は、見直した評価値（§6.2 の変更表）から同じ方法で再計算し、旧順位・旧加重と並べて示した。近接・上位集合の確認は、現行 `RECIPES` の材料集合との差（対称差）を実行して取得した（keema / bulgogi / burrata 系 / hot-honey / pizza-salad / sfincione）。描画品質調査（R-1〜R-5）は**未完了のため参照していない**。
 - **スコア:** 加重和は表の整数から機械計算（手計算ではない）。アンカーは §6.1 に固定。評価値は私の判断で、Owner の見立てと違えば表の整数を差し替えて再計算できる。
 - **限界:** (1) matrix の材料集合は“ソース family 由来”を含まない場合があり（例: tomato-sauce 省略）、材料の差分判定は id レベル。(2) ⑤（描画先行）はヒューリスティック。(3) 色差は仮色の CIE76 ΔE で、実描画（焼成後・縮小時）の見え方は未測定。(4) 原典は未確認。(5) コードは実行・テストしていない（実装なし）。(6) 過去の監査値（55/61・122・19・約 21）は定義不明で再現できなかった。
 
