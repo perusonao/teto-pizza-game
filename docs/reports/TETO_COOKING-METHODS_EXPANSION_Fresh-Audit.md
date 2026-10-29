@@ -1,9 +1,36 @@
 # 調理工程・調理法 拡張 Fresh Audit（Phase 1B 以降、docs-only）
 
 作成: 2026-10-29 / 基準 `main` = `3e346569607f68719a33cc222b766f82e9d468cd`（#694）/ ブランチ `claude/teto-cooking-methods-audit-d59u1i`
+改訂: 2026-10-29（Owner 判断 O-1・O-2・O-3・O-5 と追加方針 4 点を §0 へ反映。初版 commit `4b27d9f`）。再確認: `main` は `3e34656` のまま、#695 は open（HEAD `5beb87b`・mergeable clean）、Phase 1B 設計書は branch `claude/teto-cooking-prep-1b-p96ftb`（`d5f7754`）のまま未 merge。
 性質: **調査・設計のみ。** `src/**`・CSS・テスト・データ・Preview・フラグ・セーブは変更していない。PR 作成・merge・Issue 作成/更新・claim 投稿・Monitor 作成は行っていない。
 HV 動画は docs-only のため対象外（`CLAUDE.md` / `TETO_HUMAN-VERIFICATION-POLICY.md` §2「docs-only は原則不要」）。
 本書の「推奨」は助言であり Owner Decision ではない。**評価（面白さ・テンポ・手応え）はすべて設計上の仮説で、実機計測・実プレイはしていない。** 数値（秒・px）は設計値で、iPhone 実機 HV で確定する。
+
+---
+
+## 0. Owner 決定の反映（2026-10-29、Result Report への回答）
+
+### 0.1 決定
+
+| ID | 決定 | 本書での扱い |
+|---|---|---|
+| **O-1** | **Stage 1 は「ソーセージ／ポルチーニを焼く」と「えびを茹でる」を採用** | §7.1・§8.1・§8.2 を確定。以降、前者を **Stage 1-A**、後者を **Stage 1-B** と呼ぶ（Cooking Prep の「Phase 1B」＝タイミング式の焼き加減とは別物。混同しないこと） |
+| **O-2** | 野菜の専用 SVG を Style Lock v2 へ追補する**方向を承認**。**実装は別タスク** | 玉ねぎ・きのこ・ナスの調理法（§8.3・Stage 2）の前提が「方向承認済み・SVG 未設計・未実装」に変わった。**本書の範囲では SVG 設計・追補を行わない**。玉ねぎの調理法は SVG が main に入るまで着手しない |
+| **O-3** | **Prep 回数は 1 ラウンド最大 2 回を暫定上限**。実機 HV で負担が大きければ再検討 | 食材単位・各 1 回・合計 2 回まで。rendang（beef＋onion）・wasabi-beef（beef＋onion）は上限ちょうど。3 種目以降のピルは出さない（§9.1 の実装条件）。**暫定**であり HV の判定項目に含める |
+| **O-5** | **Stage 1 では `preparedLook` のスカラー制約を維持**。個体別状態は将来の検討事項 | ナス（面ごと）・貝（個体ごと）は Stage 2 以降へ据え置き。Stage 1 の 2 方式は**結果を 0..1 のスカラー 1 個に畳む**設計（§6.2、§9.1） |
+
+### 0.2 追加方針（Stage 1 の設計制約として採用）
+
+| # | 方針 | 設計への落とし込み |
+|---|---|---|
+| 1 | **各調理はスキップ可能** | 常に任意。ピルを押さない／幕の × で閉じる／「これで使う」でそのまま配置できる。未実施で何も失わず、進行不能の状態を作らない（Phase 1 仕様 AC-13 と 1B Q5 を踏襲） |
+| 2 | **採点・在庫・Dex・保存に影響させない** | 結果は transient（`preparedIngredientIds`／`preparedLook`）のみ。Stage 3 の議論（§7.3）は今回の範囲外 |
+| 3 | **えびのスワイプは iPhone Safari の画面端ジェスチャーと競合させない** | 設計値（実機 HV で確定）: 引き上げの**開始位置は幕の中央領域**（左右端から 24px 以上、下端から 48px 以上離す）、移動は幕の内側で完結し終点も端に寄せない。左右端の横スワイプ（戻る）・下端の上スワイプ（ホームバー）の領域では**スワイプとして扱わない**。**代替としてボタン操作（「引き上げる」タップ）を必ず併設**し、スワイプに依存しない。`touch-action: none` は幕の内側のみ |
+| 4 | **調理時間は短く、操作説明は簡潔に** | 1 回あたり**通常 8 秒以内**（Phase 1 の P-10 目安を踏襲）。ソーセージ焼きは総時間の上限を 1B の 6 秒より長くしない設計値とし、2 段（裏返し→取り出し）でも合計で収める。説明は幕の中の**1 行**（例:「焼き色を見て裏返そう」「いい色で引き上げよう」）。長文・チュートリアルを作らない。数値・ゲージ・残り時間は出さない（1B Q3） |
+
+### 0.3 今回の決定が未決のまま残す事項
+
+§10 の表で状態を明示した。**未決は O-4・O-6・O-7・O-8・O-9・O-10・O-11 の 7 件**（O-1・O-2・O-3・O-5 の 4 件が決定）。
 
 ---
 
@@ -18,6 +45,7 @@ HV 動画は docs-only のため対象外（`CLAUDE.md` / `TETO_HUMAN-VERIFICATI
    - ③ **玉ねぎ ×「炒める（飴色）」** — 長押しで加熱し、離して止める。到達 17 レシピと最大だが **SVG 未設計のため条件付き**（Owner 判断 O-2）。
 5. **ロードマップ:** Stage 1 = ①②（既存 SVG・Phase 1B の基盤を再利用、保存・採点無影響）／Stage 2 = ③ほか新操作（回転・個別取り出し・円なぞり）とレシピ固有体験／Stage 3 = 調理結果の評価反映（**セーブ・採点・Anti-Oracle 互換性に重大リスク。§7.3 に明記**）。
 6. **依存:** Stage 1 は **PR #695 の merge → Phase 1B の merge** が前提（Owner D1: #695 を Squash merge 後に最新 main から独立 PR）。それまで runtime 実装・独立 PR は成立しない。
+7. **Owner 判断（2026-10-29）:** O-1（Stage 1 = ソーセージ／ポルチーニ焼き＋えび茹で）・O-2（野菜 SVG 追補の方向承認、実装は別タスク）・O-3（Prep は 1 ラウンド最大 2 回、暫定）・O-5（スカラー制約維持）を反映。未決は 7 件（§10）。実装開始条件は §9.1。
 
 ---
 
@@ -100,9 +128,9 @@ HV 動画は docs-only のため対象外（`CLAUDE.md` / `TETO_HUMAN-VERIFICATI
 
 | # | 食材 | 調理法 | 操作案 A / B | 推奨 | ゲーム性（判断・手応え・上達） | 視覚演出（前→後） | 既存依存 | 実装難度 | リスク | 優先度 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | sausage（8）, wurstel（1）, hot-dog（1）; 後続 bacon | **焼く（裏返し）** | A: 2 段タイミング（片面の焼き色を見て「裏返す」→もう片面→「取り出す」）／B: 転がしスワイプ（左右に転がして均一に焼く。棒状の wurstel 向き） | **A**（B は wurstel 限定で Stage 2） | 判断=裏返す時機＋取り出す時機の 2 回／手応え=ジュッ演出＋色の進み／上達=「焼き色の進み方」を覚える | 薄い桃→焼き目の茶→焦げ。裏返しで色が入れ替わる | 1B のタイミング核＋`CookingPrepLayer`＋SVG 変数化（sausage-slices） | **Medium** | 2 段判定の結果を 1B の単一スカラー `preparedLook` に畳む設計（§6.2）。SVG の CSS 変数化 | **P1** |
+| 1 | sausage（8）, wurstel（1）, hot-dog（1）; 後続 bacon | **焼く（裏返し）** | A: 2 段タイミング（片面の焼き色を見て「裏返す」→もう片面→「取り出す」）／B: 転がしスワイプ（左右に転がして均一に焼く。棒状の wurstel 向き） | **A**（B は wurstel 限定で Stage 2） | 判断=裏返す時機＋取り出す時機の 2 回／手応え=ジュッ演出＋色の進み／上達=「焼き色の進み方」を覚える | 薄い桃→焼き目の茶→焦げ。裏返しで色が入れ替わる | 1B のタイミング核＋`CookingPrepLayer`＋色上書き CSS（sausage-slices） | **Medium** | 2 段判定の結果を 1B の単一スカラー `preparedLook` に畳む設計（§6.2）。SVG の色上書き（#695 方式） | **P1** |
 | 2 | porcini（2）; mushroom（4・SVG 無し） | **ソテー（触らず焼く→1 回だけ裏返す）** | A: 放置して焼き面を見極め 1 回だけ裏返す（「触らない勇気」）／B: フライパンを揺する連続タップのリズム | **A**（#1 と同エンジン） | 判断=いつ手を出すか。連打が逆効果で「連打ゲーム」を避けられる／上達=待つ判断 | 白→金色→茶。水分が飛ぶ表現は色のみ | #1 と共通。porcini-slice SVG あり。mushroom は SVG 設計が先 | Medium（porcini）／High（mushroom, SVG 待ち） | porcini は後半食材で到達が狭い（2 レシピ） | **P1**（porcini）／P2（mushroom） |
-| 3 | shrimp（3） | **茹でる（引き上げ）** | A: 上へスワイプで湯から引き上げる（取り出し＝確定）／B: 「取り出す！」タップ（1B と同型） | **A** | 判断=色の変化（灰青→桃橙）と身のカール具合を見て引き上げる／手応え=スワイプの物理感／上達=茹ですぎ（硬く縮む）を避ける | 灰青で半透明→桃橙で丸まる→白っぽく縮む。`shrimp-curl` の変数化 | 1B の判定核を流用。**コミット入力だけ別**（スワイプ）。pot の絵は幕内 | **Low〜Medium** | 画面下端のスワイプ（ホームバー）と競合しない開始位置にする（§7.9） | **P1** |
+| 3 | shrimp（3） | **茹でる（引き上げ）** | A: 上へスワイプで湯から引き上げる（取り出し＝確定）／B: 「取り出す！」タップ（1B と同型） | **A** | 判断=色の変化（灰青→桃橙）と身のカール具合を見て引き上げる／手応え=スワイプの物理感／上達=茹ですぎ（硬く縮む）を避ける | 灰青で半透明→桃橙で丸まる→白っぽく縮む。`shrimp-curl` の色上書き | 1B の判定核を流用。**コミット入力だけ別**（スワイプ）。pot の絵は幕内 | **Low〜Medium** | 画面下端のスワイプ（ホームバー）と競合しない開始位置にする（§7.9） | **P1** |
 | 4 | onion（**17**）, green-onion | **炒める（飴色）** | A: 長押しで加熱、離して止める（飴色で離す）／B: 火加減スライダ（弱↔強）＋取り出し | **A**（B は Stage 3 の難度上げ） | 判断=離す時機。強火の選択肢が無い代わりに「待つ」操作／手応え=押している間だけ変化／上達=飴色の濃さ | 白→半透明→飴色→焦げ茶 | 1B の判定核（長押しの経過時間を `elapsedMs` として流用）。**玉ねぎの SVG が無い** | Medium＋**SVG 前提（High）** | **到達最大＝出現頻度最大**。rendang・wasabi-beef は beef と二重に出る（§10 O-3）。野菜の SVG は Style Lock に設計無し | **P1\*（SVG 承認が前提）→ 実質 Stage 2** |
 | 5 | eggplant（9）; 後続 zucchini・bell-pepper | **焼く（直火で皮を焦がす）** | A: タップで 90° ずつ回して 4 面を均一に焦がす／B: 長押しで一面ずつ焦がす | **A** | 判断=どの面が足りないかを見て回す（**空間的な判断が生まれる**）／上達=ムラ無く焼く | 紫の光沢→黒い焦げ目＋湯気。ババガヌーシュの核 | 1B の判定核＋面ごとの状態（スカラーに収まらない） | **High** | 面ごとの状態は `preparedLook` の単一スカラー制約（Q4）を超える → Owner 判断 O-5。SVG なし | **P2** |
 | 6 | clam（3）, mussel（1） | **蒸し開け（開いた殻だけ取り出す）** | A: 開いた貝を 1 個ずつタップして取り出す（個体差で開く時刻がずれる）／B: 一括「取り出す！」 | **A** | 判断=複数対象のどれが開いたかを見る（**多対象の見極め**）／上達=開き始めの兆しを読む | 閉じた殻→開いた殻（離散）。連続色ではなく状態の切替で伝わる | 1B の判定核を対象ごとに複数並列。**SVG に「開」の状態が必要** | Medium〜High | 個体ごとの結果をどう 1 つの `preparedLook` にまとめるか（O-5）。未取り出しの扱い（進行不能を作らない） | **P2** |
@@ -166,7 +194,7 @@ HV 動画は docs-only のため対象外（`CLAUDE.md` / `TETO_HUMAN-VERIFICATI
 
 ### 6.1 結論（短く）
 
-**最初の数件は reducer に新アクション・新フィールドを足さずに実装できる。** 変更は (a) 調理法の登録表（データ）、(b) 純粋なタイミング判定の設定違い、(c) 幕（`CookingPrepLayer`）の表示バリエーション、(d) SVG の CSS 変数化、の 4 つ。HOT file の `gameReducer.ts` に触るのは、1B が既に承認した `PREP_INGREDIENT` の任意 `progress` のみ。
+**最初の数件は reducer に新アクション・新フィールドを足さずに実装できる。** 変更は (a) 調理法の登録表（データ）、(b) 純粋なタイミング判定の設定違い、(c) 幕（`CookingPrepLayer`）の表示バリエーション、(d) 食材 SVG の色上書き（#695 の方式: SVG・`IngredientGlyph.tsx` は無変更のまま、`CookingPrep.css` が `BeefSlices` の `path` を CSS で上書き）、の 4 つ。HOT file の `gameReducer.ts` に触るのは、1B が既に承認した `PREP_INGREDIENT` の任意 `progress` のみ。
 
 ### 6.2 監査項目ごとの結果
 
@@ -188,7 +216,7 @@ HV 動画は docs-only のため対象外（`CLAUDE.md` / `TETO_HUMAN-VERIFICATI
 
 1. **調理法レジストリ**（新規・非 HOT）: `ingredientId → { method, bands, look }`。現行 `PREP_TARGET_INGREDIENT_IDS`（`prepIngredients.ts`）の配列を置き換える。`canPrepIngredient(id): boolean` のシグネチャは維持し、PR-A のテスト・reducer 呼び出しを壊さない。
 2. **純粋なタイミング核の一般化**: 1B の `panDoneness.ts`（`PAN_TOTAL_MS` / `BEST_START_MS` / `BEST_END_MS` / `PAN_ARM_MS`、`gradeAt(elapsedMs)`）を、調理法ごとの設定（総時間・ベスト帯・段数）を受け取る形にする。**定数は 1 か所に集約**（HV で調整）。
-3. **見た目の写像**（調理法ごと）: `progress → CSS 変数`（`beefDoneness.ts` と同型）。SVG は変数未指定で現行の見た目（`doneness = 0`）を保つ契約。
+3. **見た目の写像**（調理法ごと）: `progress → 色`（`beefDoneness.ts` と同型の純関数）。#695 は SVG とその描画コンポーネントを変えず、`CookingPrep.css` が対象 SVG の `path` の fill／stroke を上書きする。未炒めは上書きが無く現行の見た目（`doneness = 0`）のまま。**上書きは SVG 内部の要素順に依存するため、対象 SVG の構造変更時にテストで検出できるようにする**（M2 で固定）。
 4. **幕のバリエーション**: `CookingPrepLayer` に調理法別の中身（鍋・湯・まな板）を差し替える。ピル・×・入力ロック・blur 破棄・`key` による再マウント破棄は共通。
 
 ---
@@ -204,7 +232,7 @@ HV 動画は docs-only のため対象外（`CLAUDE.md` / `TETO_HUMAN-VERIFICATI
 | 内容 | ① sausage／porcini の「焼く（裏返し）」② shrimp の「茹でる（引き上げ）」 |
 | 前提 | **#695 merge → Phase 1B merge**。1B の `preparedLook`・タイミング核・幕が main にあること |
 | 再利用 | `CookingPrepLayer`、`PREP_INGREDIENT`（+`progress`）、`prepExperienceGate`、`beefDoneness` 型の写像、ピル配置、入力ロック、Preview HV 入口 |
-| 新規 | 調理法レジストリ、タイミング核の設定化、sausage-slices／porcini-slice／shrimp-curl の変数化、幕の中身 2 種、E2E 2 spec |
+| 新規 | 調理法レジストリ、タイミング核の設定化、sausage-slices／porcini-slice／shrimp-curl の色上書き（CSS）、幕の中身 2 種、E2E 2 spec |
 | 影響しないもの | 保存・採点・識別・在庫・Dex・Hint・Lunch Rush・Dinner |
 | 到達 | sausage 8＋porcini 2＋shrimp 3 レシピ（Lunch Rush 対象は従来どおり除外） |
 | 検証 | Preview/DEV 限定。iPhone 実機 HV で「やりたくなるか／8 秒以内か／結果が見た目で分かるか」 |
@@ -253,8 +281,8 @@ Stage 3 は上記 R-1〜R-7 のうち**1 つでも未解決なら着手しない
 |---|---|
 | なぜ面白くなるか | 判断が **2 回**（いつ裏返すか／いつ取り出すか）あり、1B の「取り出す！」1 回より一段深い。片面の焼き色という**見て分かる手がかり**から時機を学べる。ポルチーニは「触らずに待つ」ため連打にならない |
 | なぜ適しているか | 肉・きのこを「焼き目をつける」のは最も自然な調理。sausage-slices・porcini-slice は専用 SVG が main にあり、焼き色の変化が見える。到達が **sausage 8＋porcini 2 の計 10 レシピ**で、玉ねぎほど頻出しない |
-| 既存の再利用度 | **高**。幕・`PREP_INGREDIENT`（+`progress`）・フラグ・ピル・入力ロック・タイミング核をそのまま使う。新規は「2 段判定→単一スカラー」の写像と SVG 変数化 |
-| 必要なファイル | 新規: `src/data/prepMethods.ts`（レジストリ）、`src/logic/prep/searDoneness.ts`(+test)。変更: `src/data/prepIngredients.ts`（配列→レジストリ参照）、`src/components/IngredientGlyph.tsx`（sausage-slices／porcini-slice の変数化。**#695 が触るファイル**）、`src/components/CookingPrepLayer.tsx`(+css)、`e2e/cooking-prep-sear.spec.ts`。**reducer 変更なし** |
+| 既存の再利用度 | **高**。幕・`PREP_INGREDIENT`（+`progress`）・フラグ・ピル・入力ロック・タイミング核をそのまま使う。新規は「2 段判定→単一スカラー」の写像と色上書き CSS |
+| 必要なファイル | 新規: `src/data/prepMethods.ts`（レジストリ）、`src/logic/prep/searDoneness.ts`(+test)。変更: `src/data/prepIngredients.ts`（配列→レジストリ参照）、`src/components/CookingPrep.css`（sausage-slices／porcini-slice の色上書きを追加。**`IngredientGlyph.tsx` は #695 方式なら無変更**）、`src/components/CookingPrepLayer.tsx`、`e2e/cooking-prep-sear.spec.ts`。**reducer 変更なし** |
 | PR 分割 | §9 の M1〜M3 |
 | Owner が実機で確認すること | (1) 裏返す時機が焼き色から分かるか (2) 2 回の判断が「楽しい」か「面倒」か (3) 8 秒以内か (4) 焼き色の差が 20px 級で見分けられるか（ペパロニ・ベーコン・ビーフと混同しないか）(5) 失敗（焦がす）が「進行不能」に見えないか |
 
@@ -265,7 +293,7 @@ Stage 3 は上記 R-1〜R-7 のうち**1 つでも未解決なら着手しない
 | なぜ面白くなるか | **入力が他と違う**（上へスワイプ＝湯から引き上げる）。1B・①がタップ系なので、操作の語彙が増える。灰青→桃橙→縮んで白っぽい、という色とカールの変化は結果が最も直感的 |
 | なぜ適しているか | えびの茹で加減は「色が変わった瞬間」が明確。`shrimp-curl` が main にある。到達 3 レシピ（pesto-gamberi・pescatore・yuzu-shrimp）で出現頻度が低く、テンポ負担が小さい |
 | 既存の再利用度 | **高〜中**。判定核・幕・フラグを再利用。新規はスワイプ検出（コミット入力）と湯の絵 |
-| 必要なファイル | 新規: `src/logic/prep/boilDoneness.ts`(+test)、スワイプ検出（pure）。変更: レジストリ、`IngredientGlyph.tsx`（shrimp-curl の変数化）、`CookingPrepLayer.tsx`(+css)、`e2e/cooking-prep-boil.spec.ts`。**reducer 変更なし** |
+| 必要なファイル | 新規: `src/logic/prep/boilDoneness.ts`(+test)、スワイプ検出（pure）。変更: レジストリ、`CookingPrep.css`（shrimp-curl の色上書き）、`CookingPrepLayer.tsx`、`e2e/cooking-prep-boil.spec.ts`。**reducer 変更なし** |
 | PR 分割 | §9 の M1・M2・M4 |
 | Owner が実機で確認すること | (1) 上スワイプが片手の親指で自然か (2) 画面下端／ホームバー付近で Safari の挙動と競合しないか (3) 色とカールの変化で引き上げ時機が分かるか (4) 代替（タップ）が必要か |
 
@@ -276,9 +304,9 @@ Stage 3 は上記 R-1〜R-7 のうち**1 つでも未解決なら着手しない
 | なぜ面白くなるか | 長押しで加熱し離して止める。**「待つ」「見極める」**の操作で、beef の取り出しタップ・①②と操作感が異なる。飴色という**ゆっくり進む色変化**は玉ねぎの特徴そのもの |
 | なぜ適しているか | 玉ねぎ（17 レシピ）はゲーム内で最も使われる具材のひとつで、炒めた玉ねぎは多くの料理の核。波及効果が最大 |
 | 既存の再利用度 | 中。タイミング核は流用（長押しの経過時間を入力）。**ただし玉ねぎは専用 SVG が無く、Style Lock v2 にも設計が無い** |
-| 必要なファイル | 新規: 玉ねぎ SVG（Style Lock 追補＋`DedicatedIngredientVisual` への追加）、`src/logic/prep/caramelDoneness.ts`。変更: レジストリ、`IngredientGlyph.tsx`、幕、E2E |
+| 必要なファイル | 新規: 玉ねぎ SVG（Style Lock 追補＋`DedicatedIngredientVisual` への追加）、`src/logic/prep/caramelDoneness.ts`。変更: レジストリ、`CookingPrep.css`（SVG 追加後の色上書き）、幕、E2E |
 | PR 分割 | **SVG 設計は別トラック**（Owner 承認→ Ingredient Icon 2.0 の流儀）。M5 は SVG merge 後 |
-| 条件 | O-2（野菜 SVG の追補を Owner が承認）、O-3（beef＋onion が同じレシピで二重に出る問題の上限ルール） |
+| 条件 | O-2（方向は**承認済み**、SVG 設計・実装は別タスクで**未着手**＝玉ねぎの調理法は SVG が main に入るまで着手しない）、O-3（**決定済み・暫定**: 1 ラウンド最大 2 回。beef＋onion はちょうど上限） |
 | Owner が実機で確認すること | (1) 長押しが「じっくり」の手応えになるか (2) 出現頻度が高くて面倒に感じないか (3) 飴色が絵で判別できるか (4) rendang などで 2 回出ても許容か |
 
 ### 8.4 推奨しなかった理由（要点）
@@ -296,30 +324,64 @@ Stage 3 は上記 R-1〜R-7 のうち**1 つでも未解決なら着手しない
 | PR | 内容 | 主な変更 | HOT／競合 | HV |
 |---|---|---|---|---|
 | **M1** | 調理法レジストリとタイミング核の一般化（内部ロジックのみ、挙動不変） | `src/data/prepMethods.ts`、`prepIngredients.ts`、`panDoneness.ts` の設定化、テスト | 無し（非 HOT）。beef の挙動は不変（golden／parity 不変） | 不要（内部 refactor） |
-| **M2** | SVG の変数化（sausage-slices・porcini-slice・shrimp-curl）。変数未指定で現行と同一 | `IngredientGlyph.tsx`、`searDoneness`／`boilDoneness` の写像、テスト | `IngredientGlyph.tsx`（#695 が触る）→ #695 merge 後 | 見た目が変わらないことを確認（before／after スクショ） |
+| **M2** | 色上書き（sausage-slices・porcini-slice・shrimp-curl）。未炒めは現行と同一 | `CookingPrep.css`、`searDoneness`／`boilDoneness` の写像、SVG 構造の固定テスト | `CookingPrep.css`（#695 が新規追加）→ #695 merge 後 | 見た目が変わらないことを確認（before／after スクショ） |
 | **M3** | 焼く（裏返し）UI（Preview/DEV 限定、本番 OFF） | 幕の中身、`searDoneness`、E2E | `CookingPrepLayer`（1B 後の main） | **必須**（390×844 動画＋スクショ。iPhone 実機は Owner） |
 | **M4** | 茹でる（引き上げ）UI（Preview/DEV 限定、本番 OFF） | 幕の中身、スワイプ検出、E2E | 同上 | **必須** |
 | M5（条件付き） | 玉ねぎの飴色（SVG 承認後） | SVG は別 PR | Style Lock 追補が前提 | **必須** |
 
 各 PR のチェック: 全 Vitest／typecheck／lint／build、WebKit gate（src 変更あり）、フラグ OFF で DOM／状態が現行と同一（Phase 1 AC-1）、保存データの前後同一（localStorage スナップショット比較）。**本番フラグ ON は別の Owner 明示承認**（HV PASS・CI・merge では ON にならない）。
 
+### 9.1 Stage 1-A／1-B の依存関係と実装開始条件（2026-10-29 追記）
+
+**対応づけ:** Stage 1-A（ソーセージ／ポルチーニ焼き）＝ M1 ＋ M2（sausage-slices・porcini-slice）＋ M3。Stage 1-B（えび茹で）＝ M2（shrimp-curl）＋ M4。M1 は 1-A・1-B 共通の土台で、先に入れる。
+
+| 順 | 依存 | 状態（2026-10-29 時点） |
+|---|---|---|
+| 1 | **PR #695（Cooking Prep Phase 1 PR-B）の Squash merge**（Owner の明示承認後） | **open・未 merge**（HEAD `5beb87b`、mergeable clean）。実機 HV は Owner 判定待ち |
+| 2 | **Phase 1B（タイミング式の焼き加減）の独立 PR の merge**（Owner D1: #695 merge 後に最新 main から作成） | **設計承認済み・実装未着手**。設計書は main に無い（branch `claude/teto-cooking-prep-1b-p96ftb`）。claim 未投稿 |
+| 3 | M1（レジストリ・タイミング核の設定化） | 1・2 の後。1B の `panDoneness.ts` と `PREP_INGREDIENT` の任意 `progress`／`preparedLook` が前提 |
+| 4 | Stage 1-A: M2（sausage／porcini）→ M3 | 3 の後。1-A と 1-B は M1 以降は独立に進められる（`CookingPrepLayer`・`CookingPrep.css` を共有するため merge 順は直列推奨） |
+| 5 | Stage 1-B: M2（shrimp）→ M4 | 3 の後 |
+
+**実装開始条件（すべて満たしたときのみ着手。Stage 1 の実装は #695 と Phase 1B の merge 完了後）:**
+
+1. #695 が main に merge 済みで、本番フラグ `PREP_EXPERIENCE_PRODUCTION` が `false` のまま。
+2. Phase 1B が main に merge 済み（`panDoneness.ts`・`preparedLook`・結果表示が main にある）。
+3. **未決 O-4（結果表示）と O-9（フラグ構成）の Owner 回答**（§10）。
+4. 最新 main から新規ブランチを作成し、重複 PR／Issue／claim を再確認（`TETO_SESSION-OPERATIONS_1.0.md` §1）。#611 に claim を投稿（#695・1B の claim 範囲と重ならないこと）。
+5. 食材ごとのレシピ数・Lunch Rush 対象数（本書は簡易抽出）を実装 PR の冒頭で再計測。
+6. 1B の HV 結果で定数（ベスト帯・ARM 時間）が変わっていれば、本書の設計値（§0.2 方針 3・4）を追随させる。
+
+**実装時の守るべき制約（Owner 決定の転記）:**
+
+- O-3: Prep は 1 ラウンド最大 2 回（食材単位・各 1 回）。3 種目以降はピルを出さない。reducer の拒否条件（`preparedIngredientIds` の件数）とピル表示条件（`prepOffer`）の両方に入れ、片方だけにしない。
+- O-5: `preparedLook` は食材 id→スカラー 0..1。2 段判定（裏返し）は**結果を 1 個の値に畳む**。
+- 方針 1・2: スキップ可能。採点・在庫・Dex・保存・識別・Hint に一切影響させない（Phase 1 AC-1〜AC-7、AC-19 の行列を各 PR で再実行）。
+- 方針 3: えびの引き上げは画面端を避け、ボタン代替を併設。**iPhone 実機 HV で Safari の戻る／ホームバーとの競合が無いこと**を判定項目にする。
+- 方針 4: 通常 8 秒以内、説明は 1 行。HV でテンポ負担（O-3 の再検討材料を含む）を Owner が判定。
+- 本番フラグ ON・共有 Preview 更新は Owner の別承認。各 PR は Preview/DEV 限定で検証。
+
 ---
 
-## 10. Owner 判断が必要な事項
+## 10. Owner 判断が必要な事項（状態つき）
 
-| ID | 判断 | 推奨（助言） | 影響 |
-|---|---|---|---|
-| **O-1** | Stage 1 の対象を ①ソーセージ／ポルチーニ焼き ②えび茹で とするか | 承認 | 着手範囲 |
-| **O-2** | **野菜（玉ねぎ・きのこ・ナス・じゃがいも等）の専用 SVG を Style Lock v2 へ追補するか**（現状は設計が存在しない） | 玉ねぎから先に追補 | 玉ねぎ・きのこ・ナスの調理法が全てこれに依存 |
-| **O-3** | **1 ラウンドあたりの Prep 回数／種類の上限。** rendang（beef 3＋onion 3）・wasabi-beef（beef 3＋onion 1）は beef と onion の 2 回が出る。旧 audit のテンポ規則（提案）は「1 レシピ最大 1 種」。meat-lovers は sausage＋bacon も該当 | 食材単位で任意・1 回ずつ、**合計は 2 回まで**。要 HV | テンポ、玉ねぎの導入可否 |
-| **O-4** | 裏返し・焼きすぎの結果表示は 1B の Q5（「もう一度」「これで使う」、進行不能なし）を踏襲してよいか | 踏襲 | UI 文言、失敗の見え方 |
-| **O-5** | **`preparedLook` の「スカラー 1 個」制約（1B の Q4 条件）を緩めるか**（ナス＝面ごと、貝＝個体ごとの状態） | Stage 1 では緩めない。Stage 2 で別 Gate | ナス・貝の可否、reducer 変更の範囲 |
-| **O-6** | 調理結果を**採点／識別に入れる可能性を認めるか**（Stage 3。D-4／D-5 の再議論） | まず見た目のみで HV。Stage 3 は別 Gate | §7.3 の R-1〜R-7 |
-| **O-7** | Prep の対象工程を TOPPING 以外（FINISH のわさび、SAUCE 前のソース作り）へ広げるか | Stage 1 では広げない | reducer のガード（HOT）変更 |
-| **O-8** | #476 D3（SCATTER 新方式を保留）の扱い。すりおろし・刻むの再開条件 | 保留維持（#478 A の実機 HV 後に再議論） | チーズすりおろし |
-| **O-9** | フラグ構成: 単一 `PREP_EXPERIENCE_PRODUCTION`＋対象食材リストで段階公開か、調理法ごとに独立フラグか | 単一フラグ＋リスト | 公開・ロールバックの粒度 |
-| **O-10** | **音・触覚が使えない前提の演出方針。** 本ゲームには音も振動も無く、iOS Safari は Vibration API 非対応（一般知識、実機未確認）。手応えは視覚の速さと量だけに依存する | 現状維持（視覚のみ）。音の導入は別 Gate | 全調理法の手応え評価 |
-| **O-11** | 揚げる・パスタ等、**新食材を伴う提案**の採否（本書は提案対象外とした） | 当面見送り | 食材追加の依存関係（§4.4） |
+凡例: **決定済み**（2026-10-29）／**未決**（今回の回答に含まれない。推奨は助言で、決定ではない）。
+
+| ID | 判断 | 状態 | 内容（決定 or 推奨） | 影響 |
+|---|---|---|---|---|
+| **O-1** | Stage 1 の対象 | **決定済み** | ソーセージ／ポルチーニの焼く（裏返し）＝Stage 1-A、えびの茹でる（引き上げ）＝Stage 1-B を採用 | 着手範囲 |
+| **O-2** | 野菜の専用 SVG の Style Lock v2 追補 | **決定済み（方向承認。実装は別タスク）** | 玉ねぎから先に追補する案は推奨のまま未確定（優先順は別タスクで決める） | 玉ねぎ・きのこ・ナスの調理法が依存 |
+| **O-3** | Prep 回数／種類の上限 | **決定済み（暫定）** | 1 ラウンド最大 2 回。実機 HV で負担が大きければ再検討 | テンポ、玉ねぎ導入 |
+| **O-4** | 裏返し・焼きすぎの結果表示を 1B の Q5（「もう一度」「これで使う」、進行不能なし）と同じにするか | **未決** | 推奨: 踏襲。方針 1（スキップ可能）とは矛盾しない。文言・ボタン構成の確定は Stage 1-A 着手前に必要 | UI 文言、失敗の見え方 |
+| **O-5** | `preparedLook` のスカラー制約 | **決定済み（Stage 1 は維持）** | 個体別・面別状態は将来検討。緩める場合は別 Gate | ナス・貝の可否 |
+| **O-6** | 調理結果を採点／識別に入れる可能性（Stage 3） | **未決** | 推奨: Stage 1・2 の HV 後に別 Gate。方針 2 により Stage 1 では扱わない | §7.3 の R-1〜R-7 |
+| **O-7** | Prep の対象工程を TOPPING 以外へ広げるか | **未決** | 推奨: Stage 1 では広げない（Stage 1-A／1-B は TOPPING のみで成立） | reducer ガード（HOT）変更 |
+| **O-8** | #476 D3（SCATTER 新方式を保留）の扱い | **未決** | 推奨: 保留維持。Stage 1 には無関係 | チーズすりおろし |
+| **O-9** | フラグ構成（単一フラグ＋対象リスト／調理法ごと独立） | **未決** | 推奨: 単一 `PREP_EXPERIENCE_PRODUCTION`＋対象食材リスト。**Stage 1-A 着手前に必要**（M1 の設計に影響） | 公開・ロールバックの粒度 |
+| **O-10** | 音・触覚なし前提の演出方針 | **未決** | 推奨: 視覚のみを維持。音の導入は別 Gate | 手応え全般 |
+| **O-11** | 新食材を伴う提案（揚げる・パスタ等）の採否 | **未決** | 推奨: 当面見送り。Stage 1・2 に無関係 | 食材追加の依存関係（§4.4） |
+
+**Stage 1 の着手に必要な未決:** O-4（結果表示）と O-9（フラグ構成）。他の未決（O-6〜O-8・O-10・O-11）は Stage 1 をブロックしない。
 
 ---
 
@@ -329,7 +391,7 @@ Stage 3 は上記 R-1〜R-7 のうち**1 つでも未解決なら着手しない
 |---|---|---|
 | 1 | **評価がすべて設計仮説**（実プレイ・実機計測なし） | 面白さ・テンポ・iPhone の操作感は HV で初めて分かる。本書のスコアは優先度付けの根拠であって合否ではない |
 | 2 | **#695 と 1B が未 merge** | #695 自体が Codex／実機 HV で修正を受ける可能性。1B の定数（ベスト帯 2.1〜4.2 秒・ARM 300ms）は HV で調整予定。Stage 1 の設計はこれらに追随する |
-| 3 | **SVG 依存** | 食材の 25/92 のみ専用 SVG。変数化は `IngredientGlyph.tsx`（#695 と共有）に触る。Style Lock v2 の野菜追補は Owner 設計が前提で、リードタイムが長い |
+| 3 | **SVG 依存** | 食材の 25/92 のみ専用 SVG。色上書きは #695 が新規追加する `CookingPrep.css` を共有する（`IngredientGlyph.tsx` は触らない方式）。Style Lock v2 の野菜追補は Owner 設計が前提で、リードタイムが長い |
 | 4 | **テンポの積み上がり** | 任意でも、玉ねぎ（17 レシピ）や複数 Prep のレシピで合計時間が伸びる。「面倒で触らなくなる」＝機能の空洞化 |
 | 5 | **採点に効かない調理の空洞化** | 見た目のみだと「やっても意味がない」に感じる恐れ。1B／#695 の HV 結果が先に出る |
 | 6 | **HOT file 競合** | `PizzaStage.tsx`（#468 draft）、`GameScreen.tsx`（#478 draft）、`App.css`（#581 ほか）。新規 CSS ファイルに分離して回避する方針（#695 と同じ） |
@@ -369,7 +431,7 @@ Stage 3 は上記 R-1〜R-7 のうち**1 つでも未解決なら着手しない
 
 ### 12.2 #695 の変更ファイル（HEAD `5beb87b`、読み取りのみ）
 
-`src/components/CookingPrepLayer.tsx`／`CookingPrep.css`／`PizzaStage.tsx`／`IngredientGlyph.tsx`、`src/screens/GameScreen.tsx`、`src/App.tsx`、`src/logic/prep/{prepOffer,beefDoneness}.ts`、`src/preview/CookPrepHvStarter.tsx`、`e2e/cooking-prep.spec.ts`、`docs/reports/TETO_COOKING-PREP_PR-B_Result.md` ほか計 43 ファイル。`beefDoneness.ts` の生→炒め済み 2 点間補間（`BEEF_RAW_COLORS`／`BEEF_COOKED_COLORS`、`PREP_HEAT_OFFSET = 0`）が、本書の「SVG の CSS 変数写像」の先行例。
+`src/components/CookingPrepLayer.tsx`／`CookingPrep.css`／`PizzaStage.tsx`（**`IngredientGlyph.tsx`・`BeefSlices` は無変更**。PR 本文で確認）、`src/screens/GameScreen.tsx`、`src/App.tsx`、`src/logic/prep/{prepOffer,beefDoneness}.ts`、`src/preview/CookPrepHvStarter.tsx`、`e2e/cooking-prep.spec.ts`、`docs/reports/TETO_COOKING-PREP_PR-B_Result.md` ほか計 43 ファイル。`beefDoneness.ts` の生→炒め済み 2 点間補間（`BEEF_RAW_COLORS`／`BEEF_COOKED_COLORS`、`PREP_HEAT_OFFSET = 0`）が、本書の「doneness → 色の写像」の先行例。**訂正:** 初版は #695 が `IngredientGlyph.tsx` を変更し CSS 変数化すると記述したが誤り。#695 は CSS の `path` 上書き方式（Phase 1 仕様 §4.4 の CSS 変数案とは異なる。仕様との差分は §12.4 #8）。
 
 ### 12.3 ドキュメント
 
@@ -399,3 +461,5 @@ Stage 3 は上記 R-1〜R-7 のうち**1 つでも未解決なら着手しない
 | 5 | 1B の Q4 は「`preparedLook` を最小限」と条件付き承認。ナス・貝は面／個体ごとの状態を要する | 緩和は Owner 判断（O-5）。本書は緩めずに設計 |
 | 6 | 旧 audit が P-SPRK／P-ARNG／P-MIX／P-DRIZ を扱ったのに対し、本書は「茹でる・揚げる・漬け込む・すりおろす・水切り・切る」を初めて評価。混ぜる（ソース）は採点（52%）と衝突として Stage 3 扱い | 矛盾する結論は無い。旧 audit の「混ぜる=Phase 3 以降」と整合 |
 | 7 | Phase 1 仕様 §7 の「ladder step 58（rendang）で beef 導入」等の前提は現行 70 step と数値が異なる | 本書は現行コードの数（80／92／70）を使用。仕様側の更新は本書の範囲外 |
+| 8 | Phase 1 仕様 §4.4 は SVG の色を **CSS 変数 3 つ**（`--beef-lean` 等）で渡す契約と記述。#695 の実装は **SVG・`IngredientGlyph.tsx` 無変更で、`CookingPrep.css` が `BeefSlices` の `path` を上書き**する方式 | 仕様と実装の差分として報告のみ（本書は #695 の実装方式を先行例として採用。初版の記述誤りは §12.2 で訂正）。仕様側の更新は #695／1B の範囲 |
+| 9 | Owner O-3（Prep は 1 ラウンド最大 2 回）は Phase 1 仕様（beef のみ・上限の規定なし）と旧 audit のテンポ規則提案（1 レシピ最大 1 種）の間の新しい上限 | 旧提案は決定ではなかったため矛盾ではない。O-3 を現行の上限として扱う |
