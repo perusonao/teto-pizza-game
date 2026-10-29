@@ -591,18 +591,20 @@ Owner の実装承認 ──→ S1 純粋層 → S2 reducer →│→ S3 描画 
 
 ### 18.2 実装開始条件の現状（§15.3・§16.4・§17.4 の更新版）
 
-確認時点: 2026-10-28。
+確認時点: 2026-10-28（第 6 回で訂正。第 5 回時点の「#691 open」「条件 2 未」「O-2 未承認」は古くなったため置き換えた）。
 
 | # | 条件 | 状況 | 満たしたか |
 |---|---|---|---|
 | 1 | PR #679 の Final Gate 完了（merge） | **merge 済み**（main `76745be`） | **済** |
-| 2 | Line C の `beef-slices` 統合 | **#691（open・mergeable clean）が追加。** CI 全件 success（WebKit 390/360 を含む、head `7ed8964`）。Codex は別 head で指摘なし、head `7ed8964` は実行中。Owner 画像 HV は PASS、Safari 実機は未検証。merge は Owner の最終承認待ち（merge = 即公開） | **未**（#691 merge 待ち） |
-| 3 | 共有ファイルの claim 確認 | #611 のコメント 10 件を確認し、本機能と衝突する有効な claim は無かった（#691 自身の claim は #578 側にある可能性があり未確認）。**実装直前に §15.4 の手順で再確認。claim は未投稿** | **未**（実装直前に実施） |
+| 2 | Line C の `beef-slices` 統合 | **#691 が merge 済み**（main `c907314`）。`beef` は `pieceVisual: "beef-slices"` を持つ。ただし `BeefSlices` の色は固定値のまま（変数化は PR-B / S3、O-3） | **済** |
+| 3 | 共有ファイルの claim 確認 | #611 を再確認し、有効な競合 claim なし。B11 S1（#693）の claim は `src/data/*.test.ts`・`src/state/*.test.ts` 等の glob を持つが、PR-A はテストを `src/logic/prep/`・`src/preview/` に置き、`gameReducer.ts`（HOT）は B11 の claim 外。PR-A の claim は実装着手時に #611 へ投稿した | **済** |
 | 4 | P 項目の Owner 承認 | P-1〜P-10 すべて決定（§10.1、§16、§17） | **済** |
-| 5 | 設計書が main にある | 本 PR で取り込む（O-1） | 本 PR の merge で**済** |
-| 6 | 実装開始の承認（O-2） | **未承認** | **未** |
+| 5 | 設計書が main にある | #692 で取り込み済み | **済** |
+| 6 | 実装開始の承認（O-2） | **PR-A（S1 + S2）のみ承認**（2026-10-28）。PR-B（S3〜S5、UI・CSS・描画）は**未承認** | **PR-A のみ済** |
 
-**1〜3 と 5 が揃った時点で、Owner に実装開始の承認（O-2）を改めて求める。** それまで製品コード・新しい実装 PR・Monitor・共有 Preview の更新は行わない。重なる PR は #691（`ingredients.ts` / `IngredientGlyph.tsx` / `App.css`）で、本機能が触る `gameReducer.ts` / `PizzaStage.tsx` / `GameScreen.tsx` とは重ならない（#691 の変更ファイル一覧で確認）。#478（`GameScreen.tsx`、draft）と #468（`PizzaStage.tsx` / `bakeVisual.ts`）は設計書記載のままで、差分は再確認していない（実装直前に確認）。
+PR-A の Owner 判断（2026-10-28）: フラグ OFF のとき `PREP_INGREDIENT` は reducer が拒否する／フラグと Preview opt-in の基盤は PR-A に含める（本番は既定 OFF）／判定モジュールは `src/data/`、テストは B11 S1 の claim と重ならない場所／所持判定は `ownedIngredientIds`、在庫は消費しない／PR-A は内部ロジックのみ。Preview の opt-in クエリ名は `?cookPrep=on`（§18.1 O-7 の「最終確認」。`prep` は短く他の語と衝突しやすく、本番バンドルの不在検査（gate test）が成り立たないため、固有の名前にした）。
+
+PR-B の開始には、Owner の別途承認が必要。重なる PR は #693（B11 S1: データ層・`IngredientGlyph.tsx`・`App.css`）で、PR-B が触る `IngredientGlyph.tsx`（`BeefSlices`）・`GameScreen.tsx`・`PizzaStage.tsx` とは PR-B 着手時に再確認する。#478（`GameScreen.tsx`、draft）と #468（`PizzaStage.tsx` / `bakeVisual.ts`）も同様。
 
 ### 18.3 #691 の `BeefSlices` の現状と、変数化の規則（O-3・O-4）
 
@@ -640,7 +642,7 @@ Owner の実装承認 ──→ S1 純粋層 → S2 reducer →│→ S3 描画 
 | フラグの型 | `src/data/freeCookFinishGate.ts` と `src/preview/freeFinishPreview.ts`（+ `freeFinishPreview.gate.test.ts`） |
 | スパイク | `docs/reports/data/TETO_COOKING-PREP_T1-spike.patch` は取り込み時点の main `a4e608a` に `git apply --check` で当たることを確認済み |
 
-**S2 の確認事項（実装メモ。仕様変更ではない）:** フラグ OFF のとき `PREP_INGREDIENT` を reducer も拒否するか（AC-1 を DOM だけでなく状態でも保つため）。PR-A は UI の無い休眠状態で merge されうるので、実装時に決めて Result に記す。
+**S2 の確認事項（実装メモ）:** フラグ OFF のとき `PREP_INGREDIENT` を reducer も拒否するか → **拒否する（Owner 決定 2026-10-28）。** AC-1 を DOM だけでなく状態でも保つ。
 
 ### 18.5 AC-16(a) の「間隔」の定義（明確化。数値は変更しない）
 
