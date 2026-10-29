@@ -520,6 +520,11 @@ export function GameScreen({
   // profile carries FINISH. No shipped profile does, so Production is unchanged (finishD2Inert.test.ts pins it).
   const postBakeStep = selectPostBakeStep(state.phase, state.makingStep, finishStepAvailable(state, state.cookingProfile.steps));
   const postBakeStepRendered = postBakeStep !== null;
+  // Whether the stage may take input at all. Cooking Prep keeps TWO separate questions apart: the pan screen is OFFERED while this is true
+  // (`CookingPrepLayer`'s `active`), and the dough stops taking pointer AND keyboard input while the pan screen / its short guard is up
+  // (`interactive` = this && !prepBusy). Tying the layer to `interactive` itself would discard the pan screen the moment it opened.
+  const stageInputActive =
+    (state.phase === "PREPARE" || postBakeStepRendered) && !isReferencePopoverOpen && !cookingInputPaused && !state.dinner?.abandonRequested;
   const isCutStep = postBakeStep === "CUT";
   const isFinishStep = postBakeStep === "FINISH";
   // FINISH FIN-B: FINISH carries the tray, so its stage is the compact one (PREPARE's), not CUT's roomy one.
@@ -885,12 +890,7 @@ export function GameScreen({
       <PizzaStage
         pizza={state.pizza}
         recipe={stageRecipe}
-        interactive={
-          (state.phase === "PREPARE" || postBakeStepRendered) &&
-          !isReferencePopoverOpen &&
-          !cookingInputPaused &&
-          !state.dinner?.abandonRequested
-        }
+        interactive={stageInputActive && !prepBusy}
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
         placement={state.placement}
@@ -923,12 +923,7 @@ export function GameScreen({
               phase={state.phase}
               makingStep={state.makingStep}
               roundKind={state.roundKind}
-              active={
-                (state.phase === "PREPARE" || postBakeStepRendered) &&
-                !isReferencePopoverOpen &&
-                !cookingInputPaused &&
-                !state.dinner?.abandonRequested
-              }
+              active={stageInputActive}
               selectedIngredientId={selectedIngredientId}
               ownedIngredientIds={state.ownedIngredientIds}
               preparedIngredientIds={state.preparedIngredientIds}

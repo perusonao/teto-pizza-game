@@ -84,3 +84,14 @@ Status: **実装済み・自動検証済み（Vitest 全件 / Chromium E2E / tsc
 5. 入力ガード 300ms と、ピルの「押して離す」規則は初期設計値（AC-16、HV で調整可）。
 6. 既知の間欠 WebKit 失敗（#680: `lunch-rush-r8-restore` G-6、390×844 shard 2/3）が CI で再発する可能性がある。本 PR の変更とは無関係（Lunch Rush には `PREP_INGREDIENT` が無い）。再発した場合は #680 のとおり扱い、再実行は Owner 承認の 1 回まで。
 7. 本番有効化（`PREP_EXPERIENCE_PRODUCTION = true`）は別の Owner 明示承認。merge も Owner の明示承認後（Squash merge）。
+
+## Codex P2 への対応（#695 `GameScreen.tsx:938`、HEAD `b66f673f` → 修正コミット）
+- **指摘:** パン画面（と 300ms ガード）はポインターしか遮断せず、パン画面のタップ面から Shift+Tab で背後の `.pizza-dough` にフォーカスでき、Enter / Space で牛肉が配置された（`prepBusy` は dock しか無効化せず、`PizzaStage` の `interactive` は true のままだった）。
+- **修正（`GameScreen.tsx` のみ）:** 入力の可否と表示条件を分離した。
+  - `stageInputActive`（従来の `interactive` の式）= `CookingPrepLayer` の `active`（ピル / パン画面を**出す**条件。ここは変えない）。
+  - `PizzaStage` の `interactive` = `stageInputActive && !prepBusy`（パン画面とガードの間は生地がポインターもキーボードも受けない）。`interactive` が false の間、生地は `tabindex=-1`・`pizza-dough--interactive` なし・`handleKeyDown` は何もしない。
+  - `CookingPrepLayer` は `prepBusy` を見ないので、入力を止めてもパン画面は破棄されない。フラグ OFF では `prepBusy` が常に false で、DOM は現行と同一。
+- **回帰テスト:**
+  - `src/screens/GameScreen.CookingPrep.test.tsx`（実 GameScreen + 実 reducer、ゲート ON）5 件: ベースライン（何も開いていなければ Enter で配置）／パン画面中は Shift+Tab を 4 回繰り返しても生地に届かず、強制フォーカス後の Enter / Space・ポインターでも配置 0・パン画面は残る・dock は inert／× 後は生地のキー入力・dock が復帰／3 タップ後の「ジュッ！」中とガード中（300ms）は生地が `tabindex=-1` でキー・ポインターとも配置 0、ガード終了後に Enter で配置できる／フラグ OFF では現行どおり。**修正前のコードに戻すと 2 件が落ちることを確認済み**（戻した）。
+  - `e2e/cooking-prep.spec.ts` に 1 件追加（Chromium 2 画面、CI で WebKit も実行）: パン画面中の Shift+Tab（1 回で ホーム ボタンへ。2 回目はページ外に出て、ウィンドウ離脱でパン画面が破棄される設計）・強制フォーカス後の Enter / Space で配置 0・パン画面が残る → × 後に生地が `tabindex=0` に戻り Enter で配置できる。
+- **検証:** `tsc -b` エラー 0、`oxlint` 追加ファイルに警告 0、`npm run build` 成功。Vitest（`src/screens` `src/components` `src/logic/prep` `src/preview`）**140 files / 2,238 tests pass**。Playwright `cooking-prep.spec.ts` Chromium 2 画面 **20 / 20 pass**。全 Vitest・WebKit は CI。

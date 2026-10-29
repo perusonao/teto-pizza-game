@@ -254,6 +254,33 @@ test.describe("Cooking Prep: opt-in", () => {
     await expect(pan(page)).toHaveCount(0);
   });
 
+  test("keyboard: with the pan screen up, Shift+Tab / Enter / Space cannot reach the dough behind it; after × everything works again (Codex P2)", async ({ page }) => {
+    await toTopping(page, "?cookPrep=on");
+    await select(page, "牛肉");
+    await pill(page).focus();
+    await page.keyboard.press("Enter");
+    await expect(pan(page)).toBeVisible();
+    await expect(page.locator(".pizza-dough")).toHaveAttribute("tabindex", "-1");
+    // One step back from the pan surface lands on the header's ホーム button (before the fix it landed on the dough). A second step would leave the page,
+    // and leaving the window discards the pan screen by design (AC-10); the Vitest harness repeats Shift+Tab without that limit.
+    for (let i = 0; i < 1; i += 1) {
+      await page.keyboard.press("Shift+Tab");
+      expect(await page.evaluate(() => document.activeElement?.classList.contains("pizza-dough") ?? false), `Shift+Tab #${i + 1}`).toBe(false);
+    }
+    await expect(pan(page)).toBeVisible();
+    await page.locator(".pizza-dough").evaluate((el) => (el as HTMLElement).focus()); // even a forced focus
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Space");
+    expect(await beefPieces(page)).toBe(0);
+    await expect(pan(page)).toBeVisible(); // switching the input off did not discard the pan screen
+    await page.getByTestId("cooking-prep-cancel").click();
+    await expect(pan(page)).toHaveCount(0);
+    await expect(page.locator(".pizza-dough")).toHaveAttribute("tabindex", "0");
+    await page.locator(".pizza-dough").focus();
+    await page.keyboard.press("Enter");
+    expect(await beefPieces(page)).toBe(1);
+  });
+
   test("skipping is fine: pieces are placed raw and nothing is asked", async ({ page }) => {
     await toTopping(page, "?cookPrep=on");
     await select(page, "牛肉");
