@@ -9,7 +9,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fail=0
 
 echo "== 1. suites"
-if node --test "$here/ops.test.mjs" "$here/regress.test.mjs" "$here/safety.test.mjs"; then echo "suites pass"; else echo "suites FAILED"; exit 1; fi
+if node --test "$here/ops.test.mjs" "$here/regress.test.mjs" "$here/safety.test.mjs" "$here/claims-pagination.test.mjs"; then echo "suites pass"; else echo "suites FAILED"; exit 1; fi
 
 echo "== 2. mutation check (each broken copy must be caught)"
 work="$(mktemp -d)"
@@ -20,7 +20,7 @@ mutate() { # name file sed-expression
   rm -rf "$work/m" && mkdir -p "$work/m/scripts" "$work/m/.github" && cp -r "$here" "$work/m/scripts/ops" && cp -r "$here/../../.github/workflows" "$work/m/.github/workflows"
   sed -i -E "$expr" "$work/m/scripts/ops/$file"
   if cmp -s "$here/$file" "$work/m/scripts/ops/$file"; then echo "FAIL  $name: mutation did not change the file"; fail=1; return; fi
-  if node --test "$work/m/scripts/ops/ops.test.mjs" "$work/m/scripts/ops/regress.test.mjs" "$work/m/scripts/ops/safety.test.mjs" > "$work/out.txt" 2>&1; then
+  if node --test "$work/m/scripts/ops/ops.test.mjs" "$work/m/scripts/ops/regress.test.mjs" "$work/m/scripts/ops/safety.test.mjs" "$work/m/scripts/ops/claims-pagination.test.mjs" > "$work/out.txt" 2>&1; then
     echo "FAIL  $name: mutant survived"; fail=1
   else
     echo "ok    $name"
@@ -62,5 +62,12 @@ mutate "N1 older superseded statuses all count"    collect-facts.mjs 's/if \(!la
 mutate "N2 summary errors measured from commit date" lib/gate-state.mjs 's/hasError\(Number\.isNaN\(summaryAt\) \? headAt : summaryAt\)/hasError(headAt)/'
 mutate "N5 same-instant errors are ignored"         lib/gate-state.mjs 's/ms\(o\.at\) >= cutoff/ms(o.at) > cutoff/'
 mutate "N4 unclosed fences stay live"               lib/hold.mjs 's/return closed\.replace\(.*$/return closed;/'
+
+# Claim-comment pagination (the 500-comment cap that made every claim read as "none"): each fix must be caught by claims-pagination.test.mjs.
+mutate "C1 claim comments capped at 5 pages again"   collect-facts.mjs 's/CLAIM_COMMENT_MAX_PAGES = 50;/CLAIM_COMMENT_MAX_PAGES = 5;/'
+mutate "C2 comments read before a failure are dropped" collect-facts.mjs 's/repoComments = Array\.isArray\(e\?\.partial\) \? e\.partial : \[\];/repoComments = [];/'
+mutate "C3 claims gap does not reach the PR rows"     collect-facts.mjs 's/if \(claimsGap\) for \(const f of prFacts\) f\.gaps = \[\.\.\.\(f\.gaps \?\? \[\]\), claimsGap\];/void 0;/'
+mutate "C4 restAll does not hand back the partial read" collect-facts.mjs 's/if \(e && typeof e === "object"\) e\.partial = all;/void 0;/'
+mutate "C5 a failed claims read is not a gap"          collect-facts.mjs 's/    repoGaps\.push\(claimsGap\);/    void 0;/'
 if [ "$fail" -ne 0 ]; then echo "mutation check FAILED"; exit 1; fi
 echo "mutation check passed"

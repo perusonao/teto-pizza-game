@@ -12,6 +12,12 @@ import { isHold } from "./lib/hold.mjs";
 
 export class TruncatedError extends Error {}
 
+/**
+ * Safety cap (pages of 100) for the repo-wide comment list the claims are read from: 5,000 comments in the 14-day look-back.
+ * It was 5 pages (500 comments), which a busy fortnight exceeds (749 on 2026-10-29), so every claim silently read as "none".
+ */
+export const CLAIM_COMMENT_MAX_PAGES = 50;
+
 export function createApi({ token, fetchImpl = fetch, apiUrl = "https://api.github.com" }) {
   const headers = {
     Accept: "application/vnd.github+json",
@@ -25,17 +31,27 @@ export function createApi({ token, fetchImpl = fetch, apiUrl = "https://api.gith
     if (!res.ok) throw new Error(`GET ${path.split("?")[0]} -> ${res.status}`);
     return res.json();
   }
-  /** Reads every page; throws TruncatedError instead of returning a list that may be cut off. */
+  /**
+   * Reads every page; throws instead of returning a list that may be cut off. `maxPages` is the loop's safety cap (never unbounded).
+   * Whatever was read before a failure (a page that errored, an API limit, the cap) is attached to the thrown error as `.partial`,
+   * so a caller can keep the evidence it has and still report the gap.
+   */
   async function restAll(path, key, maxPages = 10) {
     const sep = path.includes("?") ? "&" : "?";
     const all = [];
-    for (let page = 1; page <= maxPages; page++) {
-      const body = await rest(`${path}${sep}per_page=100&page=${page}`);
-      const items = key ? body[key] : body;
-      all.push(...items);
-      if (items.length < 100) return all;
+    try {
+      for (let page = 1; page <= maxPages; page++) {
+        const body = await rest(`${path}${sep}per_page=100&page=${page}`);
+        const items = key ? body[key] : body;
+        if (!Array.isArray(items)) throw new Error(`GET ${path.split("?")[0]} returned a non-list page ${page}`);
+        all.push(...items);
+        if (items.length < 100) return all;
+      }
+      throw new TruncatedError(`${path.split("?")[0]} has more than ${maxPages * 100} items`);
+    } catch (e) {
+      if (e && typeof e === "object") e.partial = all;
+      throw e;
     }
-    throw new TruncatedError(`${path.split("?")[0]} has more than ${maxPages * 100} items`);
   }
   async function graphql(query, variables) {
     if (!/^\s*query\b/.test(query)) throw new Error("only GraphQL queries are allowed");
@@ -211,10 +227,14 @@ export async function collectRepoFacts(api, repo, { only = null, now = Date.now(
   const repoGaps = [];
   const since = new Date(now - sinceDays * 86400 * 1000).toISOString();
   let repoComments = [];
+  let claimsGap = null;
   try {
-    repoComments = await api.restAll(`/repos/${repo}/issues/comments?since=${encodeURIComponent(since)}&sort=created&direction=desc`, null, 5);
+    repoComments = await api.restAll(`/repos/${repo}/issues/comments?since=${encodeURIComponent(since)}&sort=created&direction=desc`, null, CLAIM_COMMENT_MAX_PAGES);
   } catch (e) {
-    repoGaps.push(`claims: recent comments could not be read completely (${e.message}); older claims may be missing`);
+    // Newest first: whatever was read before the failure is the most recent part, so keep it, but never call the result complete.
+    repoComments = Array.isArray(e?.partial) ? e.partial : [];
+    claimsGap = `claims: recent comments could not be read completely (${e.message}); ${repoComments.length} newest comment(s) were read, older claims and Depends-on lines may be missing`;
+    repoGaps.push(claimsGap);
   }
 
   const prFiles = [];
@@ -246,5 +266,7 @@ export async function collectRepoFacts(api, repo, { only = null, now = Date.now(
       prFacts.push(failedPrFacts(n, e));
     }
   }
+  // An incomplete claim list can hide a Depends-on line, so no PR is READY on it: the gap reaches every PR row, not only the report footer.
+  if (claimsGap) for (const f of prFacts) f.gaps = [...(f.gaps ?? []), claimsGap];
   return { prFacts, prFiles, claims, repoGaps };
 }
