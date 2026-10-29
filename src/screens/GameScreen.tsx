@@ -173,7 +173,7 @@ interface GameScreenProps {
   /** Cooking Steps 2.0 Phase 1 (Issue #449): "1つ戻す" -- dispatches UNDO_LAST_PLACEMENT. */
   onUndoPlacement: () => void;
   /** Cooking Prep Phase 1 PR-B: dispatches PREP_INGREDIENT (the optional 炒める prep). Absent = the prep UI is never offered. */
-  onPrepIngredient?: (ingredientId: string) => void;
+  onPrepIngredient?: (ingredientId: string, progress: number) => void;
   onConfirmMakingStep: () => void;
   onStartBake: () => void;
   onShowHint: () => void;
@@ -917,6 +917,7 @@ export function GameScreen({
         compact={state.phase === "PREPARE" || isFinishStep}
         resultCompact={isFreeResultScreen || isDinnerResult}
         preparedIngredientIds={state.preparedIngredientIds}
+        preparedLook={state.preparedLook}
         overlay={
           onPrepIngredient ? (
             <CookingPrepLayer

@@ -14,7 +14,7 @@ function withBeefAndMozzarella(): GameState {
   s = gameReducer(s, { type: "PLACE_TOPPING", ingredientId: "beef", x: 50, y: 30 });
   return s;
 }
-function stage(state: GameState, extra: { preparedIngredientIds?: readonly string[]; overlay?: React.ReactNode } = {}) {
+function stage(state: GameState, extra: { preparedIngredientIds?: readonly string[]; preparedLook?: Record<string, number>; overlay?: React.ReactNode } = {}) {
   return (
     <PizzaStage
       pizza={state.pizza}
@@ -75,6 +75,25 @@ describe("PizzaStage prepped pieces", () => {
       expect(piece.style.getPropertyValue("--beef-gloss")).toBe("1");
     }
     expect(container.querySelectorAll(".pizza-topping--mozzarella .ingredient-piece--prepared")).toHaveLength(0);
+  });
+
+  it("Phase 1B: a recorded look picks the colour of the placed beef (early / best / burnt differ); no look = the cooked look", () => {
+    const lean = (look?: Record<string, number>) => {
+      const { container, unmount } = render(stage(state, { preparedIngredientIds: ["beef"], preparedLook: look }));
+      const piece = container.querySelector(".pizza-topping--beef .ingredient-piece-visual__emoji") as HTMLElement;
+      const value = piece.style.getPropertyValue("--beef-lean");
+      unmount();
+      return value;
+    };
+    const early = lean({ beef: 0.1 });
+    const best = lean({ beef: 0.525 }); // the middle of best (2100..4200 of 6000)
+    const burnt = lean({ beef: 1 });
+    expect(new Set([early, best, burnt]).size).toBe(3);
+    expect(best).toBe(BEEF_COOKED_COLORS.lean);
+    expect(lean(undefined)).toBe(BEEF_COOKED_COLORS.lean);
+    // a look without the ingredient being prepped changes nothing (the ids decide)
+    const { container } = render(stage(state, { preparedLook: { beef: 1 } }));
+    expect(container.querySelectorAll(".ingredient-piece--prepared")).toHaveLength(0);
   });
 
   it("the SVG markup of the beef glyph is untouched by the prep (colour comes from CSS only)", () => {

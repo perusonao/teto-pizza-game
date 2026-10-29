@@ -6,12 +6,9 @@
 import { canPrepIngredient } from "../../data/prepIngredients";
 import type { RoundKind } from "../../state/roundKind";
 
-export const PREP_TOSSES = 3;
-/** Taps closer together than this count once (iOS double-tap detection, double counting). */
-export const PREP_TOSS_DEBOUNCE_MS = 120;
-/** The "ジュッ！" moment before the pan screen closes by itself. */
+/** Phase 1B: the "ちょうどいい！" moment before a best result closes the pan screen by itself (the timing rule is ./panDoneness.ts). */
 export const PREP_DONE_MS = 700;
-/** After the third toss the stage / dock ignore input for this long (AC-16 c; an initial design value, tuned in the iPhone HV). */
+/** After the player keeps the result the stage / dock ignore input for this long (AC-16 c; an initial design value, tuned in the iPhone HV). */
 export const PREP_GUARD_MS = 300;
 
 export interface PrepOfferInput {
