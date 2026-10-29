@@ -39,6 +39,7 @@ export function renderMarkdown({ results, overlaps, claims, repo, generatedAt, r
   L.push("");
   L.push("## Claims");
   L.push(`active ${claims.active.length} · expired ${claims.expired.length} · released ${claims.released.length} · invalid ${claims.invalid.length}`);
+  if (repoGaps.some((g) => g.startsWith("claims:"))) L.push("**INCOMPLETE:** the claim comments were not read completely, so these counts are a lower bound and 'active 0' does NOT mean 'no claims' (see Data gaps).");
   for (const c of claims.active) L.push(`- ${safe(c.session, 80)} → Issue #${Number(c.issue)}${c.pr ? ` / PR #${Number(c.pr)}` : ""}: ${c.files.map((f) => code(f)).join(", ")} (until ${new Date(c.expiresAt).toISOString()})`);
   for (const i of claims.invalid) L.push(`- invalid claim ignored: ${safe(i.error, 200)}${i.url ? ` (${safe(i.url, 200)})` : ""}`);
   if (repoGaps.length) {
