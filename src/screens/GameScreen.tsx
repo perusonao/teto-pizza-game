@@ -96,6 +96,7 @@ import type { HintCategory } from "../logic/discovery/selectableHint";
 import { canUndoPlacement } from "../state/undoPlacement";
 import { canPlacePostBakeIngredient } from "../state/inventory";
 import { isLunchRushRound } from "../state/roundKind";
+import { CookingPrepLayer } from "../components/CookingPrepLayer";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -171,6 +172,8 @@ interface GameScreenProps {
   onResetPizza: () => void;
   /** Cooking Steps 2.0 Phase 1 (Issue #449): "1つ戻す" -- dispatches UNDO_LAST_PLACEMENT. */
   onUndoPlacement: () => void;
+  /** Cooking Prep Phase 1 PR-B: dispatches PREP_INGREDIENT (the optional 炒める prep). Absent = the prep UI is never offered. */
+  onPrepIngredient?: (ingredientId: string) => void;
   onConfirmMakingStep: () => void;
   onStartBake: () => void;
   onShowHint: () => void;
@@ -284,6 +287,7 @@ export function GameScreen({
   onBeginPrepare,
   onResetPizza,
   onUndoPlacement,
+  onPrepIngredient,
   onConfirmMakingStep,
   onStartBake,
   onShowHint,
@@ -485,6 +489,8 @@ export function GameScreen({
 
   const prepareNotebookVisible = prepareNotebookOpen && state.phase === "PREPARE" && researchResult !== null;
   const cookingInputPaused = isGlobalOverlayOpen || prepareNotebookVisible;
+  // Cooking Prep Phase 1 PR-B: true while the pan screen (and the short input guard after it) is up -- the dock is inert meanwhile (AC-9).
+  const [prepBusy, setPrepBusy] = useState(false);
   // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
   // re-open by itself later (adjusted during render, React's "derive from previous state" pattern).
   if (prepareNotebookOpen && !prepareNotebookVisible) setPrepareNotebookOpen(false);
@@ -910,6 +916,29 @@ export function GameScreen({
         roomy={roomyStage}
         compact={state.phase === "PREPARE" || isFinishStep}
         resultCompact={isFreeResultScreen || isDinnerResult}
+        preparedIngredientIds={state.preparedIngredientIds}
+        overlay={
+          onPrepIngredient ? (
+            <CookingPrepLayer
+              phase={state.phase}
+              makingStep={state.makingStep}
+              roundKind={state.roundKind}
+              active={
+                (state.phase === "PREPARE" || postBakeStepRendered) &&
+                !isReferencePopoverOpen &&
+                !cookingInputPaused &&
+                !state.dinner?.abandonRequested
+              }
+              selectedIngredientId={selectedIngredientId}
+              ownedIngredientIds={state.ownedIngredientIds}
+              preparedIngredientIds={state.preparedIngredientIds}
+              makingStepToken={state.makingStepToken}
+              resetToken={pizzaResetToken}
+              onPrep={onPrepIngredient}
+              onBusyChange={setPrepBusy}
+            />
+          ) : undefined
+        }
       />
 
       {/* Pizza Cutting 1.0 Phase 2 (design doc §8.1/§8.4): progress readout + the CUT step's own
@@ -1025,6 +1054,7 @@ export function GameScreen({
           <div
             className={`prepare-dock${dockReserve.pager ? "" : " prepare-dock--no-pager"}${familyAbove ? " prepare-dock--family-above" : ""}`}
             data-testid="prepare-dock"
+            inert={prepBusy ? true : undefined}
             style={
               {
                 "--dock-sauce-rows": dockReserve.sauceRows,

@@ -11,12 +11,14 @@ import {
   useReducer as useReactReducer,
   useRef,
   type CSSProperties,
+  type ReactNode,
   type MouseEvent as ReactMouseEvent,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
+import { preparedPieceVisual } from "../logic/prep/beefDoneness";
 import { PostBakePiece } from "./PostBakePiece";
 import { activeToppingRankScale } from "../preview/toppingScalePreview";
 import { toppingPhaseScale } from "../preview/resultScalePreview";
@@ -193,6 +195,11 @@ interface PizzaStageProps {
    *  blind percentage. Never combined with `roomy`/`compact` (GameScreen.tsx only ever sets one
    *  of the three, gated on FREE's own `isFreeResultScreen`). */
   resultCompact?: boolean;
+  /** Cooking Prep Phase 1 PR-B: ingredient ids the player prepped this round (`GameState.preparedIngredientIds`). Placed pieces of those draw their prepped
+   *  look (colour only; ../logic/prep/beefDoneness.ts). Absent = today's drawing, byte for byte. */
+  preparedIngredientIds?: readonly string[];
+  /** Cooking Prep Phase 1 PR-B: an element rendered inside the stage after the dough (the "炒める" pill / pan screen, ./CookingPrepLayer.tsx). */
+  overlay?: ReactNode;
 }
 
 interface GestureState {
@@ -265,6 +272,8 @@ export function PizzaStage({
   roomy = false,
   compact = false,
   resultCompact = false,
+  preparedIngredientIds,
+  overlay,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   // Square-Pan Dough D2-a2 (#537): the pan this round is cooked on, for every step DOUGH..RESULT -- the Preview / DEV override or the recipe's own pan,
@@ -1386,10 +1395,12 @@ export function PizzaStage({
                 `toppingPieceStyle` curve instead of `cheeseStyle` reused as-is -- see that
                 variable's own comment above for why. */}
             {(() => {
+              const preparedLook = preparedIngredientIds?.includes(ingredient.id) ? preparedPieceVisual(ingredient.id) : null;
               const m1Piece = (
                 <IngredientPieceVisual
                   ingredient={ingredient}
-                  style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
+                  className={preparedLook?.className}
+                  style={ingredient.category === "cheese" ? cheeseStyle : preparedLook ? { ...toppingPieceStyle(ingredient), ...preparedLook.style } : toppingPieceStyle(ingredient)}
                 />
               );
               if (!(ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
@@ -1713,6 +1724,7 @@ export function PizzaStage({
           />
         </div>
       )}
+      {overlay}
     </div>
   );
 }

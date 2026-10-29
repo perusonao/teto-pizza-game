@@ -1404,6 +1404,7 @@ function App() {
           onBeginPrepare={() => dispatch({ type: "BEGIN_PREPARE", now: Date.now() })}
           onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
           onUndoPlacement={() => dispatch({ type: "UNDO_LAST_PLACEMENT" })}
+          onPrepIngredient={(ingredientId) => dispatch({ type: "PREP_INGREDIENT", ingredientId })}
           onConfirmMakingStep={handleConfirmMakingStep}
           onStartBake={() => dispatch({ type: "START_BAKE", now: Date.now() })}
           onShowHint={() => dispatch({ type: "SHOW_HINT" })}
