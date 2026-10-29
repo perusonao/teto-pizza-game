@@ -27,8 +27,13 @@ describe("preparedIngredientIds is read only where it is owned", () => {
     expect(offenders).toEqual([]);
   });
 
+  it("Phase 1B: the same for preparedLook (the recorded pan time of a prepped ingredient)", () => {
+    const offenders = files.filter((f) => !ALLOWED.has(f) && readFileSync(path.join(SRC, f), "utf8").includes("preparedLook"));
+    expect(offenders).toEqual([]);
+  });
+
   it.each(["state/pendingRound.ts", "state/persistence.ts", "logic/scoringV2.ts"])("%s (if present) does not", (f) => {
     if (!files.includes(f)) return;
-    expect(readFileSync(path.join(SRC, f), "utf8")).not.toMatch(/preparedIngredientIds|PREP_INGREDIENT/);
+    expect(readFileSync(path.join(SRC, f), "utf8")).not.toMatch(/preparedIngredientIds|preparedLook|PREP_INGREDIENT/);
   });
 });

@@ -198,6 +198,8 @@ interface PizzaStageProps {
   /** Cooking Prep Phase 1 PR-B: ingredient ids the player prepped this round (`GameState.preparedIngredientIds`). Placed pieces of those draw their prepped
    *  look (colour only; ../logic/prep/beefDoneness.ts). Absent = today's drawing, byte for byte. */
   preparedIngredientIds?: readonly string[];
+  /** Cooking Prep Phase 1B: how far into the pan time each prepped ingredient was taken out (`GameState.preparedLook`); picks the piece colour. */
+  preparedLook?: Readonly<Record<string, number>>;
   /** Cooking Prep Phase 1 PR-B: an element rendered inside the stage after the dough (the "炒める" pill / pan screen, ./CookingPrepLayer.tsx). */
   overlay?: ReactNode;
 }
@@ -273,6 +275,7 @@ export function PizzaStage({
   compact = false,
   resultCompact = false,
   preparedIngredientIds,
+  preparedLook: preparedLookByIngredient,
   overlay,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
@@ -1395,7 +1398,7 @@ export function PizzaStage({
                 `toppingPieceStyle` curve instead of `cheeseStyle` reused as-is -- see that
                 variable's own comment above for why. */}
             {(() => {
-              const preparedLook = preparedIngredientIds?.includes(ingredient.id) ? preparedPieceVisual(ingredient.id) : null;
+              const preparedLook = preparedIngredientIds?.includes(ingredient.id) ? preparedPieceVisual(ingredient.id, preparedLookByIngredient?.[ingredient.id]) : null;
               const m1Piece = (
                 <IngredientPieceVisual
                   ingredient={ingredient}

@@ -338,6 +338,9 @@ export interface GameState {
    *  Display-only -- scoring, identification, inventory, completion, the Dex and every save read `pizza` / `recipe` only, never this.
    *  Never persisted; RESET_PIZZA removes the property itself. See ../data/prepIngredients.ts, ../data/prepExperienceGate.ts. */
   preparedIngredientIds?: readonly string[];
+  /** Cooking Prep Phase 1B: how far into the pan time each prepped ingredient was taken out (0..1, `PREP_INGREDIENT`'s `progress`). Transient, display-only,
+   *  same life as `preparedIngredientIds`: never persisted, removed by RESET_PIZZA, read by nothing but the piece colour. Absent = the cooked look. */
+  preparedLook?: Readonly<Record<string, number>>;
   /** Issue #38 E-P1/E-P2: canonical transient RESULT/DISCOVERED display snapshot for the
    *  per-pizza Pitz credit `REGISTER_TO_DEX` just applied (../logic/pitzReward.ts) -- the display
    *  layer reads these five numbers rather than recomputing any of them (same discipline
@@ -482,7 +485,7 @@ export type GameAction =
   | { type: "UNDO_LAST_PLACEMENT" }
   // Cooking Prep Phase 1 (PR-A): marks one prep-able ingredient (beef) as prepped for this round. TOPPING step of a GUIDED / FREE_COOK round only,
   // behind PREP_EXPERIENCE_PRODUCTION / the Preview opt-in. Optional: nothing requires it and nothing can fail.
-  | { type: "PREP_INGREDIENT"; ingredientId: string }
+  | { type: "PREP_INGREDIENT"; ingredientId: string; progress?: number }
   // Issue #33 D1: commits one complete DOUGH radial-stretch gesture's final shape as a
   // single atomic replacement of `pizza.doughShape` -- mirrors COMMIT_SAUCE_DISPENSE's own
   // "PizzaStage buffers locally, dispatches once at a successful pointerup" contract
@@ -1169,7 +1172,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (!canPrepIngredient(action.ingredientId)) return state;
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       if (state.preparedIngredientIds?.includes(action.ingredientId)) return state;
-      return { ...state, preparedIngredientIds: [...(state.preparedIngredientIds ?? []), action.ingredientId] };
+      // Phase 1B: an optional `progress` (how long the player pan-fried it). A value that is not a finite number is refused outright (same state).
+      if (action.progress !== undefined && !Number.isFinite(action.progress)) return state;
+      const prepared = { ...state, preparedIngredientIds: [...(state.preparedIngredientIds ?? []), action.ingredientId] };
+      if (action.progress === undefined) return prepared;
+      return { ...prepared, preparedLook: { ...(state.preparedLook ?? {}), [action.ingredientId]: Math.min(1, Math.max(0, action.progress)) } };
     }
 
     case "UNDO_LAST_PLACEMENT": {
@@ -1213,7 +1220,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
               return { cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
             })();
       // Cooking Prep Phase 1: a discarded pizza takes its prep with it -- the property is removed, never set to `undefined`.
-      const { preparedIngredientIds: _discardedPrep, ...stateWithoutPrep } = state;
+      const { preparedIngredientIds: _discardedPrep, preparedLook: _discardedLook, ...stateWithoutPrep } = state;
       return {
         ...stateWithoutPrep,
         ...panReset,

@@ -3,6 +3,7 @@ import { useReducer, useState } from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { PREP_DONE_MS, PREP_GUARD_MS } from "../logic/prep/prepOffer";
 import { GameScreen } from "./GameScreen";
 import { createInitialGameState, gameReducer } from "../state/gameReducer";
 import { INITIAL_MISSION_STATE } from "../mission/lunchRush";
@@ -21,7 +22,6 @@ vi.mock("../data/prepExperienceGate", () => ({ PREP_EXPERIENCE_PRODUCTION: false
 
 const referencePizza = getReferencePizza("margherita")!;
 const GENEROUS = Object.fromEntries(INGREDIENTS.filter((i) => i.unlockCondition).map((i) => [i.id, 999]));
-const sleep = (ms: number) => act(() => new Promise<void>((r) => setTimeout(r, ms)));
 
 function Harness({ prepWired = true }: { prepWired?: boolean }) {
   const [state, dispatch] = useReducer(gameReducer, undefined, () => {
@@ -34,6 +34,7 @@ function Harness({ prepWired = true }: { prepWired?: boolean }) {
     <div>
       <span data-testid="topping-count">{state.pizza.toppings.length}</span>
       <span data-testid="prepped">{(state.preparedIngredientIds ?? []).join(",")}</span>
+      <span data-testid="prepped-look">{JSON.stringify(state.preparedLook ?? {})}</span>
       <GameScreen
         state={state}
         mission={INITIAL_MISSION_STATE}
@@ -57,7 +58,7 @@ function Harness({ prepWired = true }: { prepWired?: boolean }) {
         onBeginPrepare={() => {}}
         onResetPizza={() => dispatch({ type: "RESET_PIZZA" })}
         onUndoPlacement={() => {}}
-        onPrepIngredient={prepWired ? (ingredientId) => dispatch({ type: "PREP_INGREDIENT", ingredientId }) : undefined}
+        onPrepIngredient={prepWired ? (ingredientId, progress) => dispatch({ type: "PREP_INGREDIENT", ingredientId, progress }) : undefined}
         onConfirmMakingStep={() => dispatch({ type: "CONFIRM_MAKING_STEP" })}
         onStartBake={() => {}}
         onShowHint={() => {}}
@@ -91,7 +92,7 @@ function Harness({ prepWired = true }: { prepWired?: boolean }) {
 const count = () => Number(screen.getByTestId("topping-count").textContent);
 const dough = () => document.querySelector('[data-pizza-drop-target="true"]') as HTMLElement;
 const pill = () => screen.getByTestId("cooking-prep-pill");
-const surface = () => screen.getByTestId("cooking-prep-surface");
+const take = () => screen.getByTestId("cooking-prep-take");
 const pan = () => screen.queryByTestId("cooking-prep-pan");
 
 /** Enter and Space aimed straight at the dough (a focused dough is where Shift+Tab used to land). */
@@ -99,13 +100,7 @@ function pressEnterAndSpaceOnDough() {
   fireEvent.keyDown(dough(), { key: "Enter" });
   fireEvent.keyDown(dough(), { key: " " });
 }
-async function threeTosses() {
-  for (let i = 0; i < 3; i += 1) {
-    fireEvent.pointerDown(surface());
-    await sleep(140);
-  }
-}
-
+const advance = (ms: number) => act(() => void vi.advanceTimersByTime(ms));
 afterEach(() => {
   cleanup();
   gate.open = true;
@@ -124,7 +119,7 @@ describe("the dough takes no input while the pan screen is up (Codex P2)", () =>
     render(<Harness />);
     fireEvent.click(pill()); // keyboard-style open (detail 0)
     expect(pan()).toBeInTheDocument();
-    expect(surface()).toHaveFocus();
+    expect(take()).toHaveFocus();
     expect(dough()).toHaveAttribute("tabindex", "-1");
     expect(dough()).not.toHaveClass("pizza-dough--interactive");
     for (let i = 0; i < 4; i += 1) {
@@ -154,28 +149,58 @@ describe("the dough takes no input while the pan screen is up (Codex P2)", () =>
     expect(pill()).toBeInTheDocument();
   });
 
-  it("third toss: the pan screen finishes (it is NOT torn down early), the guard keeps the dough shut for 300 ms, then normal input returns", async () => {
-    render(<Harness />);
-    fireEvent.click(pill());
-    await threeTosses();
-    expect(screen.getByTestId("cooking-prep-pan")).toHaveAttribute("data-mode", "done"); // still there during "ジュッ！"
-    pressEnterAndSpaceOnDough();
-    expect(count(), "during the done moment").toBe(0);
-    await sleep(760);
-    expect(screen.getByTestId("prepped")).toHaveTextContent("beef"); // the third toss did reach the reducer
-    expect(screen.getByTestId("cooking-prep-guard")).toBeInTheDocument();
-    expect(dough()).toHaveAttribute("tabindex", "-1");
-    dough().focus();
-    pressEnterAndSpaceOnDough();
-    fireEvent.pointerDown(dough());
-    expect(count(), "during the guard").toBe(0);
-    await sleep(360);
-    expect(screen.queryByTestId("cooking-prep-guard")).toBeNull();
-    expect(dough()).toHaveAttribute("tabindex", "0");
-    expect(screen.getByTestId("prepare-dock")).not.toHaveAttribute("inert");
-    fireEvent.keyDown(dough(), { key: "Enter" });
-    expect(count(), "after the guard").toBe(1);
-  }, 10_000);
+  it("best press: the pan screen finishes (it is NOT torn down early), the guard keeps the dough shut for 300 ms, then normal input returns; the look is recorded", () => {
+    vi.useFakeTimers();
+    try {
+      render(<Harness />);
+      fireEvent.click(pill());
+      advance(3000);
+      fireEvent.click(take()); // keyboard-style press, at +3000 ms = best
+      expect(screen.getByTestId("cooking-prep-pan")).toHaveAttribute("data-grade", "best"); // still there during the result
+      pressEnterAndSpaceOnDough();
+      expect(count(), "during the result").toBe(0);
+      advance(PREP_DONE_MS);
+      expect(screen.getByTestId("prepped")).toHaveTextContent("beef"); // the keep did reach the reducer
+      expect(JSON.parse(screen.getByTestId("prepped-look").textContent ?? "{}")).toEqual({ beef: 0.5 });
+      expect(screen.getByTestId("cooking-prep-guard")).toBeInTheDocument();
+      expect(dough()).toHaveAttribute("tabindex", "-1");
+      dough().focus();
+      pressEnterAndSpaceOnDough();
+      fireEvent.pointerDown(dough());
+      expect(count(), "during the guard").toBe(0);
+      advance(PREP_GUARD_MS);
+      expect(screen.queryByTestId("cooking-prep-guard")).toBeNull();
+      expect(dough()).toHaveAttribute("tabindex", "0");
+      expect(screen.getByTestId("prepare-dock")).not.toHaveAttribute("inert");
+      fireEvent.keyDown(dough(), { key: "Enter" });
+      expect(count(), "after the guard").toBe(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("early / overdone results keep the dough shut too, until the player chooses; × then returns everything and nothing was prepped", () => {
+    vi.useFakeTimers();
+    try {
+      render(<Harness />);
+      fireEvent.click(pill());
+      advance(1000);
+      fireEvent.click(take()); // early
+      expect(screen.getByTestId("cooking-prep-pan")).toHaveAttribute("data-grade", "early");
+      advance(20_000); // no time limit on the choice
+      dough().focus();
+      pressEnterAndSpaceOnDough();
+      expect(count()).toBe(0);
+      expect(screen.getByTestId("prepare-dock")).toHaveAttribute("inert");
+      fireEvent.click(screen.getByTestId("cooking-prep-cancel"));
+      expect(pan()).toBeNull();
+      expect(screen.getByTestId("prepped")).toHaveTextContent("");
+      expect(screen.getByTestId("prepped-look")).toHaveTextContent("{}");
+      expect(dough()).toHaveAttribute("tabindex", "0");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 
   it("flag OFF / not wired: the dough is exactly as before (interactive, no prep DOM)", () => {
     gate.open = false;

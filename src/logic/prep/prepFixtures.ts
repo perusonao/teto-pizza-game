@@ -21,15 +21,16 @@ export function toStep(kind: "GUIDED" | "FREE_COOK", upTo: "DOUGH" | "SAUCE" | "
   return s;
 }
 
-export function placeBeefAndBake(s: GameState, prep: boolean): GameState {
-  if (prep) s = gameReducer(s, { type: "PREP_INGREDIENT", ingredientId: "beef" });
+export function placeBeefAndBake(s: GameState, prep: boolean | number): GameState {
+  // `true` = prepped without a look (PR-B), a number = prepped and taken out at that progress (Phase 1B).
+  if (prep !== false) s = gameReducer(s, typeof prep === "number" ? { type: "PREP_INGREDIENT", ingredientId: "beef", progress: prep } : { type: "PREP_INGREDIENT", ingredientId: "beef" });
   for (const [x, y] of [[40, 50], [60, 50], [50, 30]]) s = gameReducer(s, { type: "PLACE_TOPPING", ingredientId: "beef", x, y });
   s = gameReducer(s, { type: "START_BAKE" });
   return gameReducer(s, { type: "CONFIRM_BAKE", value: 70 });
 }
 
-/** The state with module-level counters (topping ids, placement token) normalised, minus the prep set itself. */
+/** The state with module-level counters (topping ids, placement token) normalised, minus the prep set and its look. */
 export function normalised(s: GameState): unknown {
-  const { preparedIngredientIds: _prep, ...rest } = s;
+  const { preparedIngredientIds: _prep, preparedLook: _look, ...rest } = s;
   return JSON.parse(JSON.stringify(rest).replace(/"topping-\d+"/g, '"topping-N"').replace(/"token":\d+/g, '"token":0'));
 }
