@@ -45,7 +45,9 @@ export type DedicatedIngredientVisual =
   | "cod-roe-mass"
   | "nori-strips"
   | "porcini-slice"
-  | "mussel-shell";
+  | "mussel-shell"
+  | "salmon-fillet"
+  | "cream-cheese-block";
 
 export interface Ingredient {
   id: string;
@@ -746,6 +748,9 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C0}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    // Ingredient Icons 2.0 Pilot D (#623, Style Lock §1b A): a foil-wrapped block SVG. A cheese with a `pieceVisual` draws it inside the `.pizza-cheese` wrapper
+    // (Style Lock §0-6 / §4.4), so the generic white CSS circle is no longer used for it.
+    pieceVisual: "cream-cheese-block",
   },
   /** Expansion Batch 2: finite ladder material, step 37 (T4). Family `fruit`. 🍋 is distinct from `pineapple` 🍍. */
   {
@@ -766,6 +771,9 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F363}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    // Ingredient Icons 2.0 Pilot D (#623, Style Lock §1b A): a dedicated fillet SVG (orange body, white fat stripes, silver skin) replaces the 🍣 sushi emoji.
+    // `emoji` stays as the text fallback (never drawn while `pieceVisual` is set).
+    pieceVisual: "salmon-fillet",
   },
   /** Expansion Batch 3: finite ladder material, step 38 (T4). Family `seafood`. 🐡 distinct from `anchovy` 🐟 / `tuna` 🐠 / `salmon` 🍣 / `shrimp` 🦐 / `clam` 🦪 and the seafood class symbol 🌊 (G18). */
   {

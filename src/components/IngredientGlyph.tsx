@@ -51,6 +51,8 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "nori-strips": "0 0 64 64",
   "porcini-slice": "0 0 64 64",
   "mussel-shell": "0 0 64 64",
+  "salmon-fillet": "0 0 64 64",
+  "cream-cheese-block": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -89,6 +91,8 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "nori-strips" && <NoriStrips />}
       {visual === "porcini-slice" && <PorciniSlice />}
       {visual === "mussel-shell" && <MusselShell />}
+      {visual === "salmon-fillet" && <SalmonFillet />}
+      {visual === "cream-cheese-block" && <CreamCheeseBlock />}
     </svg>
   );
 }
@@ -773,6 +777,33 @@ function MusselShell() {
         <path d="M10 28 C16 20 26 15 38 15" stroke="#5b6b8f" strokeWidth="1.6" strokeLinecap="round" fill="none" />
         <path d="M8 38 C12 48 22 53 34 53" stroke="#5b6b8f" strokeWidth="1.6" strokeLinecap="round" fill="none" />
       </g>
+    </g>
+  );
+}
+
+/* ---------- Pilot D (#623): salmon / cream-cheese. Art = Style Lock §1b A (docs/design/references/ingredient-icons-2.0/salmon.svg / cream-cheese.svg), unchanged. ---------- */
+
+function SalmonFillet() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
+      <path d="M5 35C5 22 22 13 40 16c14 3 21 12 18 22-3 10-22 13-37 10C11 46 5 42 5 35z" fill="#f98a62" stroke="#8a2f1c" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M9 42c8 8 30 8 44-2" stroke="#b6c4d0" strokeWidth="3.4" strokeLinecap="round" fill="none" />
+      <path d="M14 22c6 10 6 16 4 22M26 17c6 9 7 17 4 26M38 17c5 8 6 17 3 25M49 22c3 6 3 11 1 16" stroke="#ffe6d6" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+    </g>
+  );
+}
+
+/* The reference SVG ends with an undrawn path (`stroke-width="0"`); Owner decision 2026-10-22: not ported (the look is identical). */
+function CreamCheeseBlock() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
+      <path d="M6 30l8-10h38l6 10v20c0 3-3 5-6 5H12c-3 0-6-2-6-5z" fill="#c9d3dd" stroke="#5c6b7c" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M6 30h52" stroke="#5c6b7c" strokeWidth="2.2" />
+      <path d="M6 30l8-10h38l6 10z" fill="#fbfdff" stroke="#5c6b7c" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M14 26c6-5 14 1 20-2s12 0 16 2" stroke="#e6edf4" strokeWidth="3.4" strokeLinecap="round" fill="none" />
+      <path d="M12 40l6 8M24 38l6 12M38 38l-4 12M50 40l-6 8" stroke="#8fa0b3" strokeWidth="2" strokeLinecap="round" />
     </g>
   );
 }

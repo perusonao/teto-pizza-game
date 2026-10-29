@@ -871,6 +871,15 @@
   margin: -0.15em;
 }
 
+/* Pilot D (#623, Owner decision 2026-10-22): salmon fillet / cream-cheese block. Same 64-box margin fix as the groups above (individual class, own rule so the earlier
+   groups stay untouched). cream-cheese draws inside `.pizza-cheese--glyph`, whose box is unchanged. */
+.ingredient-glyph--salmon-fillet,
+.ingredient-glyph--cream-cheese-block {
+  width: 1.2em;
+  height: 1.2em;
+  margin: -0.1em;
+}
+
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */
 /* Generic fallback so a new cheese ingredient is still visible before it gets a
    dedicated .pizza-cheese--<id> rule below. Each dedicated rule sets its own
