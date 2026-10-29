@@ -2,6 +2,8 @@
 
 Status: **Owner 承認済みの設計 authority（Style Lock）。26 種の対象が全て確定（8 + 17 + clam 既存維持）。既存 26 種類のデザインは確定済み、27 種類目の goat-cheese は未デザイン（§9）。Pilot A = hot-dog / sausage / feta / ricotta（§5、2026-10-08 Owner 決定）。**実装状況（main `d70bd20`、2026-10-22 時点。§10）: Pilot A の 4 種は main に実装済み。26 種のうち未実装は 21 種。26 種の外で shiso / whitebait が実装済み、salmon-roe は PR #584（HOLD）内。次の実装は salmon + cream-cheese（Pilot D、**#621 の merge 後**、§0-7 / §10.3）。Pilot B は #438 の Owner HV 結果の記録まで HOLD。#423 の実装ガードは解除済み（§7）。**
 Path: `docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`
+
+> **2026-10-29 Fresh Gate:** 上の Status 行と §10.1 の実装状況は **2026-10-22（main `d70bd20` / `d7fab62`）時点の記録**で、現行（main `3bc4ba6`）とは異なる。現行の照合・食い違い・Gate 判定は **§11**。決定（§0 / §0-7 / §1 / §1b / §1d / §1e / §9）は変更していない。
 Design reference (SVG + comparison sheet): [`docs/design/references/ingredient-icons-2.0/`](../design/references/ingredient-icons-2.0/)
 Remaining-17 comparison sheets / candidates: [`docs/design/candidates/ingredient-icons-2.0-remaining/`](../design/candidates/ingredient-icons-2.0-remaining/)
 Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.md)
@@ -334,3 +336,43 @@ Cooking Steps の FINISH（`stage: "post"`）で置かれる piece の規則。*
 ### 10.8 本版で直していないもの
 
 - `docs/PROJECT_HANDOFF.md` の「Ingredient Icon 2.0」節（「Implementation has not started」ほか）は古いが、**HOT file のため本 PR では触れない**。別の docs-only PR（#621 / #584 の扱いが決まった後）で更新する。
+
+## 11. Fresh Gate — 現行実装との差分（2026-10-29、docs-only）
+
+Base: `main` `3bc4ba63da4f7d38ea45ae1b477db18ab40f2b1f`（#697 merge 後）。**決定は変更しない。** 本節は「記述が現行と食い違う箇所」と「Gate の現状」だけを根拠付きで記録する。判定の詳細・証跡・Owner 判断事項: [`TETO_INGREDIENT-VISUAL_PHASE1A_Style-Lock-Fresh-Gate_2026-10-29.md`](../reports/TETO_INGREDIENT-VISUAL_PHASE1A_Style-Lock-Fresh-Gate_2026-10-29.md)。
+
+### 11.1 実装状況（`INGREDIENTS` の `pieceVisual` を実行して集計。専用 SVG 25 種 / 全 92 材料）
+
+| 区分 | 数 | 食材 |
+|---|--:|---|
+| Style Lock 26 種のうち**実装済み** | 6 | hot-dog / sausage / feta / ricotta（Pilot A）、shrimp（`shrimp-curl`、§1d）、clam（既存 `clam-valve`） |
+| Style Lock 26 種のうち**未実装** | **20** | チーズ 8: mozzarella / grana-padano / parmigiano / gorgonzola / fontina / cashew-cheese / cream-cheese / catupiry。肉 7: pepperoni / bacon / ham / chicken / salami / prosciutto-crudo / pork。魚介 5: anchovy / sardine / tuna / salmon / salt-cod |
+| Lock 外・既存 32×32 | 2 | tomato-slice（`fresh-tomato`）/ caper-cluster（`capers`） |
+| Lock 外・**Style Lock に記載あり**（§10.2 / §1e） | 6 | shiso / whitebait / salmon-roe / pickles / wurstel / paprika-powder |
+| Lock 外・**Style Lock に記載なし**（実装済み） | **11** | arugula / green-onion / white-sesame / pomegranate / cilantro / beef / wasabi / cod-roe / nori / porcini / mussel（`pieceVisual` は `src/data/ingredients.ts`。**本書は採用の追認をしない**。登録・参照 SVG の扱いは Owner 判断） |
+| Lock 外・未デザイン | 3 | goat-cheese（§9）、paneer、swiss-cheese（後者 2 種は Lock に記載なし） |
+
+6 + 20 = 26。26 種の外の実装済みは 2 + 6 + 11 = 19、25 − 6 = 19 で一致。未実装 20 種の**すべて**に、`docs/design/references/ingredient-icons-2.0/` の参照 SVG がある（ディレクトリ一覧で確認。clam は元々参照 SVG なし）。Pilot D / E / F / B の候補 13 種の参照 SVG（pepperoni / salami / prosciutto-crudo / pork / sardine / salt-cod / tuna / anchovy / salmon / cream-cheese / grana-padano / parmigiano / gorgonzola）は、いずれも 64×64・`id` / gradient / `<defs>` / `url(#` なしで §2 に適合することを今回確認した。
+
+### 11.2 記述と現行の食い違い（根拠付き）
+
+| 箇所 | 記述（2026-10-22 時点） | 現行の根拠（2026-10-29 に確認） | 扱い |
+|---|---|---|---|
+| Status 行 / §10.1 | 未実装 21 種、実装は Pilot A の 4 種 + shiso / whitebait | 未実装 **20 種**。shrimp は §1d で実装済み。26 種の外に 19 種が実装済み（§11.1） | §11.1 が現行。旧記述は履歴として残す |
+| §10.1 / §10.2 / §0-7(a) | salmon-roe は「main に無い。#621 経由」、#584 は HOLD | **main にある**（PR #627、merge `db6e360`、2026-10-23）。**#584 は merge されずに close**（2026-10-23、証跡は #632 で保全） | 履歴として残す。#584 は HOLD ではない |
+| §0-7(d) / §10.3 / Issue #623 | Pilot D の着手は「#621 の merge 後」「#584・#621 の解消後」 | #627 は merge 済み、#584 は close 済み。**Pilot D 固有の技術的前提は満たされたように見える**。ただし Issue #621 自体は open（E5 の公開ゲート G-1〜G-5 の追跡先。Pilot D の前提ではない）。#623 本文は未更新 | Gate 判定は報告書 §3。**着手は Owner の判断**（#623 本文の「Owner が満たしたと判断した時点」） |
+| §10.4 | 後乗せ（FINISH）は「本番 OFF」 | `FREE_COOK_FINISH_PRODUCTION = true`、`LATE_CATALOG_PRODUCTION = true`（`src/data/freeCookFinishGate.ts` / `lateCatalog.ts`）。**E5（#654）が 2026-10-24 に merge** | 後乗せ層の描画規則（§10.4）は**本番の面にも適用される**。本番デプロイの有無は本書では未確認 |
+| §10.3-6 | roe・shiso = SVG、salmon = 絵文字、cream-cheese = CSS 形状の混在を「E4b では暫定許容。E5 前までに解消するかは決めていない」 | E5 が merge 済みで、**この混在が本番コード上の ikura-salmon-pizza に存在する**（salmon・cream-cheese は 3〜4 レシピで使用） | 解消時期は Owner 判断のまま（報告書 §7） |
+| §10.5 | 「#621 は実機動画の HV を E5 の前に必須」 | E5 は merge 済み。`#621` の最後の記録（2026-10-23）は AC-8・iPhone 実機 HV とも**未実施**。以降の記録は未確認 | 完了扱いにしない |
+| §0-7(e) / §5 / §10.1 | Pilot B は #438 の Owner HV 結果の記録待ち | #438 / #417 に Owner の結果記録なし（#438 のコメントは 2026-10-22 のセッション確認 1 件のみ）。`docs/reports/screenshots/ingredient-icons-2-pilot-a/COMPARISON-NOTES_hotdog-sausage.md` も「判定は未記録」。**§0-6 の改訂は 2026-10-17 の #503 実機 HV の指摘に基づく**が、その後の PASS / FAIL の語は記録がない | **PASS 扱いにしない**。Pilot B は HOLD のまま |
+| `docs/design/references/ingredient-icons-2.0/README.md` | 「27 SVG。salmon-roe は PR #584 にあり、ここにない」 | `salmon-roe.svg` は同ディレクトリにある（#627）。pickles / wurstel / paprika-powder は README の末尾に別記済み | README の該当文に日付付きの注記を追加（本 Gate） |
+| §10.8 / `PROJECT_HANDOFF.md` | 「Ingredient Icon 2.0」節が古い。#621 / #584 の扱いが決まった後に別 PR で更新 | 扱いは決まった（上記）。HANDOFF は HOT file のため**本 Gate でも触れない** | 別の docs-only PR（Owner 判断） |
+
+### 11.3 Gate の現状（要約。根拠は報告書）
+
+| 候補 | 判定 | 理由（短く） |
+|---|---|---|
+| Pilot D（salmon / cream-cheese、#623） | **YELLOW** | 技術的前提（#584 / #621 の解消）は満たされたように見える。残り: Owner の着手判断、claim 投稿、最新の Owner Gate（最後の実行は 2026-10-22）、#468 との `App.css`（HOT）重複確認。**実装は開始しない** |
+| Pilot B（grana-padano / parmigiano / gorgonzola） | **RED（HOLD）** | #438 の Owner HV 結果が未記録 |
+| 肉 4 種（pepperoni / salami / prosciutto-crudo / pork） | **RED（未割当）** | Lock 17 種の Pilot 割当は未定（§5）。割当は Owner。`IngredientGlyph.tsx` 等を Pilot D と共有するため直列 |
+| 魚介 4 種（sardine / salt-cod / tuna / anchovy） | **RED（未割当）** | 同上。既存の専用 SVG との重複なし |

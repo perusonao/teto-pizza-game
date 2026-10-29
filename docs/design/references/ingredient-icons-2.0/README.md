@@ -12,3 +12,5 @@ Not here, and not adopted: everything under
 Ingredient Visual V1 (PR #690, Style Lock §1e) added `pickles.svg`, `wurstel.svg` and `paprika-powder.svg` (the art of `pickle-slices` / `wurstel-links` / `paprika-powder-pile`; Owner image HV PASS on 390x844, 2026-10-28).
 
 These files are design references; nothing in `src/` reads them yet.
+
+> **2026-10-29 注記（docs-only、Fresh Gate）:** 上の「`salmon-roe` is in PR #584 and is not here」は古い。`salmon-roe.svg` は本ディレクトリにある（PR #627、merge `db6e360`、2026-10-23）。#584 は merge されずに close された。決定ではなく現状の注記で、文面は変更していない。現行の実装状況は Style Lock v2 §11。
