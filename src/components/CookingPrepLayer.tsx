@@ -86,7 +86,9 @@ function CookingPrepOffer(props: CookingPrepLayerProps & { offered: string }) {
   const takeRef = useRef<HTMLButtonElement>(null);
   // The latest `onPrep` without making the auto-close timer restart whenever the parent re-renders with a new function.
   const onPrepRef = useRef(onPrep);
-  onPrepRef.current = onPrep;
+  useEffect(() => {
+    onPrepRef.current = onPrep;
+  }, [onPrep]);
 
   const mode = pan.status;
 
@@ -125,7 +127,6 @@ function CookingPrepOffer(props: CookingPrepLayerProps & { offered: string }) {
   // A finished pan: "best" closes by itself after the sizzle; the other two wait for the player's choice, whose buttons arm after a short moment.
   useEffect(() => {
     if (finished === null) return;
-    setResultArmed(false);
     if (finished.grade === "best") {
       const t = window.setTimeout(() => commit(finished.progress), PREP_DONE_MS);
       return () => window.clearTimeout(t);
@@ -239,7 +240,14 @@ function CookingPrepOffer(props: CookingPrepLayerProps & { offered: string }) {
   const copy = finished ? panResultCopy(finished.grade, finished.by) : null;
   return (
     <div className="cooking-prep-pan" data-testid="cooking-prep-pan" data-mode={finished ? "done" : "running"} data-stage={shownStage} data-grade={grade ?? undefined}>
-      <p className="cooking-prep-pan__title">いい焼き色で取り出そう</p>
+      {/* One slot for both: the title while it cooks, the result once it is out -- above the pan, so the beef you took out stays fully visible. */}
+      {copy ? (
+        <p className={`cooking-prep-pan__title cooking-prep-pan__result cooking-prep-pan__result--${finished?.grade}`} data-testid="cooking-prep-result">
+          {copy.label}
+        </p>
+      ) : (
+        <p className="cooking-prep-pan__title">いい焼き色で取り出そう</p>
+      )}
       <div className="cooking-prep-pan__pan">
         <span className="cooking-prep-pan__oil" aria-hidden="true" />
         <span className="cooking-prep-pan__vapor" aria-hidden="true" data-testid="cooking-prep-vapor">
@@ -255,11 +263,6 @@ function CookingPrepOffer(props: CookingPrepLayerProps & { offered: string }) {
         {beef && (
           <span className={`cooking-prep-pan__beef ${PREPARED_PIECE_CLASS}`} style={beefLookStyle(shownProgress)} aria-hidden="true" data-testid="cooking-prep-beef">
             <IngredientGlyph ingredient={beef} />
-          </span>
-        )}
-        {copy && (
-          <span className={`cooking-prep-pan__result cooking-prep-pan__result--${finished?.grade}`} data-testid="cooking-prep-result">
-            {copy.label}
           </span>
         )}
       </div>

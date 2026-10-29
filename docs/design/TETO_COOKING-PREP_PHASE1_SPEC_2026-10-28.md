@@ -4,6 +4,7 @@
 根拠: `docs/reports/TETO_COOKING-PREP_Technical-Investigation_Result.md`（T0〜T7、以下「調査 Result」）、`…_Phase1-PreImplementation-Verification.md`、`…_Fresh-Audit.md`
 性質: **仕様の整理のみ。** 製品コード・テスト・CSS・データ・Preview・PR・merge・claim は変更・実施していない。HV 動画は audit-only のため対象外。
 **「推奨」は助言であり Owner Decision ではない。** 数値（寸法・時間・色）は設計値で、実機 HV で確定する。
+**更新 2026-10-29（Phase 1B、Owner 決定 Q1 / D2 / D3、管理 Issue #696）: 「3 回タップ」は「焼き加減を見て『取り出す！』を押すタイミングゲーム」へ改訂された。** early `0 ≤ t < 2100ms` / best `2100 ≤ t < 4200ms`（半開区間。4200ms ちょうどは overdone）/ overdone `t ≥ 4200ms`、`6000ms` で自動終了、開始 300ms は入力無視、ゲージ・残り時間は出さない。early / overdone では「もう一度炒める」「これで使う」。**失敗状態は無い**（焼きすぎでも「これで使う」か × か、もう一度で進める）。以下の §3・P-1・AC-3・AC-13・§3.4 の読み上げ文言は PR-B 時点の記述で、**現行は `docs/reports/TETO_COOKING-PREP_PHASE1B_Fresh-Audit.md`・`…_Gameplay-Visual_Research.md`・`…_PHASE1B_Result.md` を正とする**（AC-3・AC-13 は下表のとおり本文も改訂済み）。
 **更新 2026-10-28（第 5 回・main 取り込み）: 本書と根拠資料を docs-only で main へ取り込む。#679 merge 済み・#691（`beef-slices`）open・beef 使用レシピ 2 件（#691 merge 後）という最新状態に記述を更新し、生の牛肉の色を #691 の HV 合格色に改め、O-1〜O-8 の Owner 判断を反映した（§18）。仕様判断（P-1〜P-10、AC-1〜AC-18）は変更していない。実装開始（O-2）は未承認。**
 **更新 2026-10-28（第 4 回・追加判断）: 第 3 回の最終仕様判断に続き、補助文言と AC-16 の初期設計値も Owner が承認した（§17）。Phase 1 の仕様判断は完了。**
 **更新 2026-10-28（第 3 回・最終仕様判断）: Owner が P-1〜P-10 のすべてを決定した（§10.1、§16）。仕様は確定。ただし実装開始の承認は未取得で、製品コードの実装は開始していない。本番有効化には Owner の明示承認が必須（§16.3）。**
@@ -319,7 +320,7 @@ TOPPING 工程で beef の chip を選ぶ
 
 | ID | 状況 | 決定内容 |
 |---|---|---|
-| P-1 | **決定** | **3 回タップ** |
+| P-1 | **決定（Phase 1B で改訂: Q1）** | ~~3 回タップ~~ → 焼き加減を見て「取り出す！」を押すタイミングゲーム（#696） |
 | P-2 | **決定** | **ステージ下の空き帯**（生地の下） |
 | P-4 | **決定** | **配置済みの beef も一括で炒め済みの見た目に変える**（食材単位、ピース単位の状態は作らない） |
 | P-6 | **決定** | **タイミング演出なし**（v1 は 3 回のタップのみ。足すかは iPhone HV の結果を見てから別判断） |
@@ -338,7 +339,7 @@ TOPPING 工程で beef の chip を選ぶ
 |---|---|
 | AC-1 | フラグ OFF: `RECIPES × {Guided, Free, Lunch Rush, Dinner}` の既存 golden がバイト同一。DOM も同一 |
 | AC-2 | フラグ ON で炒めなし: 状態・採点・確定・在庫・Dex が従来と同一（連番を正規化した parity テスト） |
-| AC-3 | 炒めあり: `pizza` / `score` / `scoringV2Result` / `completion` / `inventory` が炒めなしと同一（`preparedIngredientIds` 以外が同一） |
+| AC-3 | 炒めあり: `pizza` / `score` / `scoringV2Result` / `completion` / `inventory` が炒めなしと同一（`preparedIngredientIds` と `preparedLook` 以外が同一。**Phase 1B 改訂**） |
 | AC-4 | Lunch Rush・Dinner・TOPPING 以外・beef 以外・SVG なし・所持なし・既に炒め済みは**同一参照のまま拒否** |
 | AC-5 | `RESET_PIZZA` でプロパティが消える。新ラウンド・`PLAY_AGAIN`・`RETRY_SAME_RECIPE` で持ち越さない |
 | AC-6 | architecture test: discovery / scoringV2 / completionGate / pendingRound / hints が炒め状態を参照しない |
@@ -348,7 +349,7 @@ TOPPING 工程で beef の chip を選ぶ
 | AC-10 | 中断（blur・visibility・ステップ確認・RESET）でパン画面が破棄され、半端な状態が残らない |
 | AC-11 | タップのみで完了（長押し不要）。キーボードと読み上げが成立。「動きを減らす」で動きなし |
 | AC-12 | Research / Dinner で標的が漏れない（文言・表示が食材単位でモード間同一）。既存の anti-spoiler E2E が無修正で通る |
-| AC-13 | 所要 ≤ 8 秒、失敗状態なし、任意（押さずに配置できる） |
+| AC-13 | 任意（押さずに配置できる）。失敗状態なし（焼きすぎ・時間切れでも「これで使う」/ × / もう一度で進める）。1 回の所要は最大 6 秒 + 結果（best は約 0.7 秒で自動で閉じる）。**Phase 1B 改訂**（旧: 所要 ≤ 8 秒） |
 | AC-14 | **通常の git リポジトリで全テストを再実行**（git archive 環境の 1 件の失敗の再確認を含む）。typecheck / lint / build / WebKit gate |
 | AC-15 | HV: **iPhone 実機**の動画（ユーザーへ直接提出）＋前後スクリーンショット。§6.3・§16.2 の合否を Owner が判定 |
 | AC-16 | **誤タップ防止（P-8）:** (a) ピルと dock の chip の間隔が両 viewport で 16px 以上（設計値は 24px、実測で確認）。(b) ピルは**指を離したとき**にピル上にある場合だけ開始（外れたら開始しない）。(c) 3 回目の完了後、閉じるまでと閉じた直後 300ms の入力は無視し、**後続のタップが生地（配置）や chip に漏れない**。(d) 「✓ 炒め済み」は押しても何も起きない。(e) パン画面の × は中止のみ（状態を変えない）。(f) ピルを誤って押しても、× で何も残さず戻れる。**具体値（16px / 300ms）は初期設計値として Owner 承認済み（§17）。iPhone 実機 HV で、誤タップ防止と操作感を優先して調整する** |
