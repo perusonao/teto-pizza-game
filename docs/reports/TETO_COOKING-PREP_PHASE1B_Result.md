@@ -60,7 +60,7 @@ Status: **実装済み・自動検証済み（Vitest 全件 / Chromium E2E 2 画
 | 区分 | 結果 |
 |---|---|
 | 単体・境界 | `panDoneness.test.ts` 36 件（境界 2099/2100/4199/4200/4201/5999/6000、NaN/負/Infinity、1ms 刻みの全域 sweep、ARM、時間切れ優先、二重入力、時計異常、段階の単調性と判定との整合）。`beefDoneness`（3 点補間の単調性・つやの形・端点）、reducer（`preparedLook`）、`CookingPrepLayer`（fake timer で 37 件）、`GameScreen.CookingPrep`（6 件）、`PizzaStage.CookingPrep` |
-| 全 Vitest | **実行中（完了後に追記）。** 関連範囲（`src/logic/prep` `src/components` `src/screens/GameScreen.CookingPrep` `src/preview`）は 123 files / 1979 tests 全 pass |
+| **全 Vitest** | **558 files passed / 1 skipped（計 559）、10,639 tests passed / 13 skipped / 2 todo、失敗 0**（HEAD `cd091cf`、所要 1,050 秒。ハングではなく、4 コアのこの環境では全件に約 17 分かかる。#695 の 553 files / 10,546 tests から、1B の追加分（`panDoneness` 36、`preparedLook` ほか）で増えた。skipped / todo は 1B 以前からのもの） |
 | `tsc -b` | エラーなし |
 | oxlint | 触ったファイルに**警告 0**（残る警告は `CheesePoolCanvas.tsx` / `GameScreen.tsx:542` の既存分で、本変更前から存在） |
 | `npm run build` | 成功 |
