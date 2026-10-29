@@ -9,7 +9,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fail=0
 
 echo "== 1. suites"
-if node --test "$here/ops.test.mjs" "$here/regress.test.mjs" "$here/safety.test.mjs"; then echo "suites pass"; else echo "suites FAILED"; exit 1; fi
+if node --test "$here/ops.test.mjs" "$here/regress.test.mjs" "$here/pagination.test.mjs" "$here/safety.test.mjs"; then echo "suites pass"; else echo "suites FAILED"; exit 1; fi
 
 echo "== 2. mutation check (each broken copy must be caught)"
 work="$(mktemp -d)"
@@ -20,7 +20,7 @@ mutate() { # name file sed-expression
   rm -rf "$work/m" && mkdir -p "$work/m/scripts" "$work/m/.github" && cp -r "$here" "$work/m/scripts/ops" && cp -r "$here/../../.github/workflows" "$work/m/.github/workflows"
   sed -i -E "$expr" "$work/m/scripts/ops/$file"
   if cmp -s "$here/$file" "$work/m/scripts/ops/$file"; then echo "FAIL  $name: mutation did not change the file"; fail=1; return; fi
-  if node --test "$work/m/scripts/ops/ops.test.mjs" "$work/m/scripts/ops/regress.test.mjs" "$work/m/scripts/ops/safety.test.mjs" > "$work/out.txt" 2>&1; then
+  if node --test "$work/m/scripts/ops/ops.test.mjs" "$work/m/scripts/ops/regress.test.mjs" "$work/m/scripts/ops/pagination.test.mjs" "$work/m/scripts/ops/safety.test.mjs" > "$work/out.txt" 2>&1; then
     echo "FAIL  $name: mutant survived"; fail=1
   else
     echo "ok    $name"
@@ -62,5 +62,15 @@ mutate "N1 older superseded statuses all count"    collect-facts.mjs 's/if \(!la
 mutate "N2 summary errors measured from commit date" lib/gate-state.mjs 's/hasError\(Number\.isNaN\(summaryAt\) \? headAt : summaryAt\)/hasError(headAt)/'
 mutate "N5 same-instant errors are ignored"         lib/gate-state.mjs 's/ms\(o\.at\) >= cutoff/ms(o.at) > cutoff/'
 mutate "N4 unclosed fences stay live"               lib/hold.mjs 's/return closed\.replace\(.*$/return closed;/'
+
+# Owner Gate pagination fix (run 40879496988): each fix reverted must be caught by pagination.test.mjs.
+mutate "G1 truncation discards the comments already read" collect-facts.mjs 's/repoComments = dedupeById\(Array\.isArray\(e\.partial\) \? e\.partial : \[\]\);/repoComments = [];/'
+mutate "G2 an exact multiple of the cap looks truncated" collect-facts.mjs 's/\.length === 0\) return all;/.length === -1) return all;/'
+mutate "G3 the repo comment cap is 500 again"      collect-facts.mjs 's/REPO_COMMENT_MAX_PAGES = 30;/REPO_COMMENT_MAX_PAGES = 5;/'
+mutate "G4 repo gaps do not block READY"           lib/gate-state.mjs 's/if \(!repoGaps\.length\) return results;/return results;/'
+mutate "G5 repo gaps are not applied in the report" owner-gate.mjs 's/applyRepoGaps\(prFacts\.map\(\(f\) => evaluateGate\(f\)\), repoGaps\)/prFacts.map((f) => evaluateGate(f))/'
+mutate "G6 a non-list page is read as empty"       collect-facts.mjs 's/if \(!Array\.isArray\(items\)\) throw new Error/if (false) throw new Error/'
+mutate "G7 duplicate comments are not removed"     collect-facts.mjs 's/if \(seen\.has\(id\)\) return false;/void 0;/'
+mutate "G8 'active 0' is shown without a warning"  lib/render.mjs 's/repoGaps\.some\(\(g\) => g\.startsWith\("claims:"\)\)\) L\.push/false) L.push/'
 if [ "$fail" -ne 0 ]; then echo "mutation check FAILED"; exit 1; fi
 echo "mutation check passed"
