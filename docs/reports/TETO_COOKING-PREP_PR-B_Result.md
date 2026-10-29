@@ -95,3 +95,14 @@ Status: **実装済み・自動検証済み（Vitest 全件 / Chromium E2E / tsc
   - `src/screens/GameScreen.CookingPrep.test.tsx`（実 GameScreen + 実 reducer、ゲート ON）5 件: ベースライン（何も開いていなければ Enter で配置）／パン画面中は Shift+Tab を 4 回繰り返しても生地に届かず、強制フォーカス後の Enter / Space・ポインターでも配置 0・パン画面は残る・dock は inert／× 後は生地のキー入力・dock が復帰／3 タップ後の「ジュッ！」中とガード中（300ms）は生地が `tabindex=-1` でキー・ポインターとも配置 0、ガード終了後に Enter で配置できる／フラグ OFF では現行どおり。**修正前のコードに戻すと 2 件が落ちることを確認済み**（戻した）。
   - `e2e/cooking-prep.spec.ts` に 1 件追加（Chromium 2 画面、CI で WebKit も実行）: パン画面中の Shift+Tab（1 回で ホーム ボタンへ。2 回目はページ外に出て、ウィンドウ離脱でパン画面が破棄される設計）・強制フォーカス後の Enter / Space で配置 0・パン画面が残る → × 後に生地が `tabindex=0` に戻り Enter で配置できる。
 - **検証:** `tsc -b` エラー 0、`oxlint` 追加ファイルに警告 0、`npm run build` 成功。Vitest（`src/screens` `src/components` `src/logic/prep` `src/preview`）**140 files / 2,238 tests pass**。Playwright `cooking-prep.spec.ts` Chromium 2 画面 **20 / 20 pass**。全 Vitest・WebKit は CI。
+
+## Cooking Prep HV 入口（`?cookPrepHv=1`、Preview / DEV 限定）
+実機 HV のたびに URL 切替・State Editor・生地・具材選択が要るため、1 URL で検証を始める入口を足した。
+
+- **URL:** `…/teto-pizza-game-preview/?cookPrepHv=1&cookPrep=on`（`cookPrep=on` は従来の PR-A オプトイン。2 つとも 1 回だけ）。
+- **開始状態:** FREE COOKING の TOPPING 工程、牛肉は所持済み・選択済み、炒める前（ピル表示、置いたピースは生の色）。
+- **使い捨て:** ページの `localStorage` を**メモリ上のストレージ**に差し替える。端末の Preview セーブは読まず書かない。リロードで最初からやり直し。差し替えられない環境では入口は無効のまま通常起動（fail closed）。
+- **既存の仕組みの再利用:** セーブは `src/preview/hvSeeds.ts` の既存シード（`calabresa-key-free` のスナップショット）＋牛肉（ラダー外の材料）を実セーブ書き込み（`persistProgress`）で作る。開始操作は reducer の既存アクション（`START_FREE_COOK` → `COMMIT_DOUGH_STRETCH`（`createIdealDoughShape`）→ `CONFIRM_MAKING_STEP` ×3）と、アプリ自身の選択 state。新しい状態生成ロジックは無い。
+- **本番に含まれない:** `main.tsx` / `App.tsx` の呼び出しは `import.meta.env.DEV || VITE_PREVIEW_MODE` の静的ゲート内。`src/preview/cookPrepHv.gate.test.ts` が本物の `vite build` で、本番バンドルにクエリ名・マークが無く Preview バンドルにはあることを確認する。
+- **差分:** 新規 `src/preview/cookPrepHv.ts` / `CookPrepHvStarter.tsx`（＋テスト 2）、`main.tsx` +9 行、`App.tsx` +4 行、E2E 3 件。`GameScreen` / `PizzaStage` / reducer / persistence / devtools は無変更。
+- **テスト:** 単体 5（クエリ解決・使い捨て・実ストレージ無書き込み・fail closed・開始アクション列）、バンドルゲート 3、E2E 3（1 URL で TOPPING・牛肉選択・実セーブのバイト一致、リロードで初期化、パラメータ無しは通常起動）。

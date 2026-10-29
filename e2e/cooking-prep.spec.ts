@@ -109,6 +109,56 @@ async function noOverflow(page: Page) {
   expect(m.sh).toBeLessThanOrEqual(m.ih);
 }
 
+test.describe("Cooking Prep: HV entry (?cookPrepHv=1)", () => {
+  const REAL = "REAL-SAVE-SENTINEL";
+  async function openEntry(page: Page, query: string) {
+    await page.goto("icons/icon-16.png");
+    await page.evaluate(([k, v]) => {
+      localStorage.clear();
+      localStorage.setItem(k, v);
+    }, [SAVE_KEY, REAL] as const);
+    await page.goto(`/${query}`);
+  }
+
+  test("one URL lands on the TOPPING step with the beef selected and unprepared, and the real save is never touched", async ({ page, context }) => {
+    await openEntry(page, "?cookPrepHv=1&cookPrep=on");
+    await expect(pill(page)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId("prepare-dock")).toBeVisible();
+    await expect(page.locator("html")).toHaveAttribute("data-cook-prep-hv", "cook-prep-hv-v1");
+    expect(await beefPieces(page)).toBe(0);
+    await expect(page.getByTestId("cooking-prep-done")).toHaveCount(0);
+    // a placed piece starts raw, and the pan opens straight from here
+    await tapDoughPercent(page, 38, 48);
+    expect(await beefPieces(page)).toBe(1);
+    expect(await beefFill(page)).toBe("rgb(184, 71, 58)");
+    await pill(page).click();
+    await expect(pan(page)).toBeVisible();
+    // another page of the same origin still sees the device's own save, byte for byte
+    const other = await context.newPage();
+    await other.goto("icons/icon-16.png");
+    expect(await other.evaluate((k) => localStorage.getItem(k), SAVE_KEY)).toBe(REAL);
+    await other.close();
+  });
+
+  test("a reload starts the entry over (nothing is kept)", async ({ page }) => {
+    await openEntry(page, "?cookPrepHv=1&cookPrep=on");
+    await expect(pill(page)).toBeVisible({ timeout: 10_000 });
+    await tapDoughPercent(page, 38, 48);
+    expect(await beefPieces(page)).toBe(1);
+    await page.reload();
+    await expect(pill(page)).toBeVisible({ timeout: 10_000 });
+    expect(await beefPieces(page)).toBe(0);
+  });
+
+  test("without the param the game opens as usual: no marker, no jump into cooking", async ({ page }) => {
+    await openEntry(page, "?cookPrep=on");
+    await page.waitForSelector(".app-frame");
+    await expect(page.locator("html")).not.toHaveAttribute("data-cook-prep-hv", /.*/);
+    await expect(pill(page)).toHaveCount(0);
+    expect(await page.evaluate((k) => localStorage.getItem(k), SAVE_KEY)).toBe(REAL);
+  });
+});
+
 test.describe("Cooking Prep: production default (no opt-in)", () => {
   test("beef selected: no pill, no prep DOM, dock not inert", async ({ page }) => {
     await toTopping(page, "");
