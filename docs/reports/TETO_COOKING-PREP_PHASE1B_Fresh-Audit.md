@@ -1,0 +1,127 @@
+# Cooking Prep Phase 1B — Fresh Audit と詳細設計（docs-only、実装は未着手）
+
+日付: 2026-10-29 / ブランチ: `claude/teto-cooking-prep-1b-p96ftb`（main `3e34656` = #694 から）/ Refs #611
+目的: PR #695 の「3 タップ」を、牛肉の焼き加減を見極めて「取り出す！」を押すタイミングゲームへ改める。
+
+## 1. Fresh Audit（2026-10-29 時点の GitHub 実測）
+
+| 項目 | 状態 |
+|---|---|
+| main | `3e34656`（#694 PR-A: reducer・フラグ・Preview opt-in）。**`CookingPrepLayer` / `beefDoneness` / `prepOffer` / `CookingPrep.css` は main に存在しない** |
+| PR #695（PR-B） | **open・未 merge**・mergeable clean・43 files / +1946 −8。HEAD `5beb87b` |
+| #695 の CI | HEAD `5beb87b` の 11 check **全 success**（WebKit 6 シャード含む）。`fd99869` の WebKit 1 件失敗（`finished-pizza-visual-2.0` の dough box）は無関係と記録済み・HEAD では success |
+| #695 の Codex | `fd99869` は「指摘なし」。最新 HEAD `5beb87b` の再レビューは **running**（Preview/DEV 限定の HV 入口の差分）。未解決スレッドの有無は未確認 |
+| #695 の HV | 動画・比較画像は用意済み。**iPhone 実機 HV は Owner 判定待ち**。merge は Owner 承認後（Squash） |
+| 重複 PR / Issue | open PR に 1B と重なるものなし（`GameScreen.tsx` を触る #478 Draft、`PizzaStage.tsx` を触る #468 のみ要注意）。Issue 検索で焼き加減/タイミングの実装 Issue なし |
+| claim | #611 に Cooking Prep 1B の claim なし（#695 側の claim は #611）。**1B の claim は着手承認後に投稿する** |
+
+**結論: 依存関係あり。1B が変更する主ファイルはすべて #695 で新規追加されるため、最新 main への独立 PR は #695 の merge 前には成立しない。**
+Session Operations §2 の `WAIT_DEPENDENCY`（未 merge の base に積まない）に従い、**ここで止めて Owner 判断を求める**（§7）。
+
+## 2. 既存実装の調査（#695 HEAD `5beb87b`）
+
+- `src/logic/prep/prepOffer.ts`: 表示条件（純関数）と定数 `PREP_TOSSES=3` / `PREP_TOSS_DEBOUNCE_MS=120` / `PREP_DONE_MS=700` / `PREP_GUARD_MS=300`。
+- `src/logic/prep/beefDoneness.ts`: doneness(0..1)→色。生 `#b8473a` 系 → 炒め済み `#7a4226` 系（暫定）の **2 点間の線形補間**。`preparedPieceVisual` は常に doneness=1。
+- `src/components/CookingPrepLayer.tsx`: `idle → pan → done` の 3 状態。1 回目〜3 回目のタップで `tosses` が増え、3 回目で `onPrep` を **1 回だけ** dispatch。`key={step:reset:ingredient}` の再マウントで工程切替・やり直しを破棄。blur / visibilitychange で破棄。× は中止のみ。
+- reducer `PREP_INGREDIENT`: フラグ OFF・Lunch Rush/Dinner・TOPPING 以外・非対象・未所持・炒め済みを **同一参照で拒否**。保持するのは `preparedIngredientIds`（transient。`RESET_PIZZA` 等で消え、保存・journal に出ない = AC-5/7/19）。
+- テスト資産: `CookingPrepLayer.test.tsx`、`GameScreen.CookingPrep.test.tsx`、`PizzaStage.CookingPrep.test.tsx`、`beefDoneness.test.tsx`、`prepOffer.test.ts`、`e2e/cooking-prep.spec.ts`（18 件）、`cookPrepHv*.test.ts`。**3 タップを前提にした期待値が複数ある**（改修対象）。
+- main 側で触るのは reducer の `PREP_INGREDIENT` と `GameState`（`gameReducer.ts` は HOT file）。
+
+## 3. 仕様差分（#695 → 1B）と、Owner 承認済み仕様との関係
+
+| # | 項目 | #695（承認済み仕様） | 1B（今回の指示） |
+|---|---|---|---|
+| 1 | 操作 | どこでも 3 タップ | 約 6 秒進行する焼き加減を見て「取り出す！」を 1 回押す |
+| 2 | 判定 | なし（3 回で必ず成功） | 押した瞬間の経過時間で early / best / overdone |
+| 3 | 時間切れ | なし | 6 秒で自動終了＝焼きすぎ |
+| 4 | 色 | 3 段階（タップごと）の見た目 | 時間連続（生 → 炒め済み → 焦げ） |
+| 5 | 失敗 | 失敗なし | **進行不能なし**（やり直し・そのまま使う・× / スキップ） |
+| 6 | 採点・在庫・Dex・保存 | 不変 | 不変（維持） |
+
+要 Owner 確認: #1・#2・#3 は spec §3 / P-系の決定（3 タップ・時間制限なし・失敗なし）と **正面から変わる**。AC-13（所要 ≤ 8 秒・失敗状態なし）は 6 秒＋結果表示で収まる見込みだが「失敗状態なし」の解釈（焼きすぎ＝失敗に見えない設計）の承認が要る。AC-3（炒めあり/なしで `preparedIngredientIds` 以外が同一）は、結果を状態に持つ場合 **「`preparedIngredientIds` と新フィールド以外」** への文言変更が要る（§5.4）。
+
+## 4. 詳細設計
+
+### 4.1 純粋ロジック（先に実装・単体テスト）— 新規 `src/logic/prep/panDoneness.ts`
+
+React・DOM・`Date.now()` に依存しない。時刻は常に引数で受ける。
+
+```
+PAN_TOTAL_MS = 6000          // 全体
+BEST_START_MS = 2100         // 35%
+BEST_END_MS   = 4200         // 70%
+PAN_ARM_MS    = 300          // 開いた直後の「取り出す！」無効時間（pill を押した指の誤爆防止。HV で調整可）
+type PanGrade = "early" | "best" | "overdone"
+progressAt(elapsedMs) -> 0..1          // clamp、NaN/負は 0
+gradeAt(elapsedMs)    -> PanGrade      // elapsed >= TOTAL は overdone、BEST_START <= t <= BEST_END が best
+```
+
+- 境界: `2100` と `4200` は **best に含める**（閉区間）。`4200 < t < 6000` は overdone ではなく… 指示は「2.1〜4.2 秒がベスト」「時間切れは焼きすぎ」のみで、**4.2〜6.0 秒の判定が未定義**。本設計は「4.2 秒超は overdone（焼きすぎ）」と解釈（Owner 確認 Q2）。
+- 状態機械（純 reducer）`panReducer(state, event)`:
+  `idle --START(now)--> running{startedAt} --TAKE(now)--> finished{grade, progress, at:"take"}` /
+  `running --TICK(now>=startedAt+TOTAL)--> finished{overdone, progress:1, at:"timeout"}` / `any --CANCEL--> idle`。
+  - TAKE は `now - startedAt < PAN_ARM_MS` なら **無視**（誤タップ）。`finished` 以降の TAKE / TICK / START は無視（二重入力）。
+  - 時間切れと TAKE が同一フレームで競合したら、**`now` が TOTAL 以上なら時間切れ優先**（押下イベントの `timeStamp` を使う）。
+  - 時計が巻き戻る / 非有限値は START 時刻に clamp（early 扱い、クラッシュしない）。
+- 色: `beefDoneness.ts` を 3 点補間（生 → 炒め済み @ best 中央 ≈ 0.525 → 焦げ @ 1.0）へ拡張。`beefColorsAt(progress)`。既存 `beefDonenessStyle(0..1)` は後方互換（#695 の呼び出しを壊さない）。焦げ色は暫定（HV で確定）。
+- 結果文言（`gradeCopy`）: early「まだ生っぽい」/ best「ちょうどいい！」/ overdone「焼きすぎた…」。**レシピ・標的に依存しない**（AC-12）。
+
+### 4.2 UI（`CookingPrepLayer`）
+
+- パン画面を開いた時刻を `performance.now()` で保持。進行表示は `requestAnimationFrame`（判定は rAF ではなく **押下イベントの `timeStamp`** で行い、描画の遅れが判定に入らない）。タイマーは時間切れ用に `setTimeout(TOTAL)` を 1 本（アンマウントで必ず clear）。
+- 画面構成: 既存のパン画面に ①牛肉（時間で色が連続変化）②進行ゲージ（ベスト帯は **見せない**＝見極めゲームのため。表示するかは Owner 確認 Q3）③大きな「取り出す！」ボタン（高さ ≥ 56px、画面下寄り、親指で届く位置）④× は従来位置（取り出すボタンから ≥ 16px 離す）。
+- 結果: 押下後に入力ロック → 結果ラベル＋ジュッ演出（~700ms、既存 `PREP_DONE_MS`）→ best は自動で閉じ「✓ 炒め済み」。early / overdone は **「もう一度炒める」「これで使う」** を表示（どちらも必須ではなく、× でも閉じられる＝進行不能なし）。「もう一度」は新しい START。
+- `onPrep` の dispatch は「これで使う / best 確定」の 1 回のみ（既存の 1 回保証を維持）。
+- 動きを減らす: 既存 `@media (prefers-reduced-motion: reduce)` に倣い、振る・湯気アニメ・ジュッ拡大を止める。**色変化と数値/ラベル表示は維持**（情報は色と文字で伝わる）。スクリーンリーダー向けは「進行中」「結果: …」のみ読み上げ、毎フレーム読み上げない。
+- 画面離脱: blur / visibilitychange / 工程切替 / やり直しで破棄（#695 の挙動を継承。バックグラウンド中に時間が進んだ状態で復帰しない）。
+- 誤タップ: pill の「離した位置で開始」・stage/dock の 300ms ガード・dock `inert` は維持。さらに `PAN_ARM_MS` と、結果表示中の全入力ロックを追加。
+- viewport: 390×844 / 360×800 を優先。#695 の既知リスク（360×800 でピル↔生地 4.2px）は 1B で悪化させない（パン画面はピルのレイアウトに触れない）。
+
+### 4.3 見た目（配置後のピース）
+
+配置後の牛肉は、取り出した時点の色（early＝淡い、best＝炒め済み、overdone＝焦げ）で描画（色のみ。`bakeVisual.ts` 無変更・`PREP_HEAT_OFFSET=0` 維持）。Reference 見本・図鑑は生のまま（P-5/AC-17 維持）。
+
+### 4.4 状態の持ち方（Owner 確認 Q4）
+
+案 A（推奨）: `preparedIngredientIds` はそのまま、`PREP_INGREDIENT` に任意 `progress?: number` を足し、`preparedLook?: Readonly<Record<string, number>>`（transient・clamp 0..1・非有限は拒否）に保持。`RESET_PIZZA` / 新ラウンド / `pendingRound` 復元で消える（AC-5/7/19 と同じ行列で固定）。reducer の変更は `PREP_INGREDIENT` と型のみ。
+案 B: reducer 無変更。結果色は GameScreen のローカル state。→ RESET・工程切替との同期漏れと、`PizzaStage` への新 prop が必要で、AC-5 の保証を UI 側で再実装することになるため非推奨。
+案 C: 見た目は常に best 色（結果を配置後に反映しない）。最小変更だが「焼き加減が効いた」実感が弱い。
+
+## 5. 変更ファイルと依存関係（実装時の見込み）
+
+新規: `src/logic/prep/panDoneness.ts`、`panDoneness.test.ts`（境界・clamp・競合・二重入力・時計異常・property 的な全域 sweep）。
+変更（**#695 の merge 後**）: `prepOffer.ts`（定数の置換）、`beefDoneness.ts`(+test)、`CookingPrepLayer.tsx`(+test)、`CookingPrep.css`、`GameScreen.CookingPrep.test.tsx`、`PizzaStage.CookingPrep.test.tsx`、`e2e/cooking-prep.spec.ts`、`cookPrepHv*.ts`（HV 入口の説明）、`TETO_COOKING-PREP_PHASE1_SPEC_*.md`（§3 / AC-3 / AC-13 の改訂）。
+案 A のみ追加: `src/state/gameReducer.ts`（HOT。`PREP_INGREDIENT` と state 型）、`prepIngredient.*.test.ts`、`PizzaStage.tsx`（prop 1 つ）、`GameScreen.tsx`（受け渡し）。
+不変の確認対象: `BeefSlices` / `IngredientGlyph.tsx` / `ingredients.ts` / `bakeVisual.ts` / `App.css` / 採点 / 在庫 / Dex / `persistence.ts` / `prepExperienceGate.ts`（**本番フラグ OFF のまま**）。
+
+## 6. テスト・検証計画
+
+1. **単体（先行）**: `gradeAt` の境界 2099/2100/4200/4201/5999/6000/6001・負・NaN・Infinity、`panReducer` の全遷移（ARM 内 TAKE 無視、二重 TAKE、時間切れ競合、CANCEL、finished 後の入力）、色の単調性とエンドポイント一致（progress=0 が `BEEF_RAW_COLORS` と同一）。
+2. **既存の不変**: フラグ OFF の DOM 同一・parity（炒めあり/なしで pizza/score/completion/inventory 同一）・architecture test（scoring/discovery/hints が炒め状態を参照しない）・`pendingRound` 行列。
+3. **結合**: fake timer で early / best / overdone / 時間切れ / × キャンセル / スキップ / blur 破棄 / 工程切替破棄 / 二重タップ / pill 誤爆（ARM 内）/ reduced-motion。
+4. **全体**: 全 Vitest、`tsc -b`、`oxlint`、`npm run build`。
+5. **E2E**: Chromium と WebKit の 390×844・360×800 の 2 画面。保存データの前後同一（localStorage スナップショット比較）・在庫・Dex・スコア不変。E2E は実時間依存で flaky になりやすいため、時間は `page.clock`（fake time）で進め、`sleep` 待ちに頼らない。
+6. **HV**（CLAUDE.md / HV Policy）: 390×844 の動画（early / best / overdone / 時間切れ / キャンセル / スキップ / RESULT までを人間の速度で。リポジトリに commit せず Owner に直接提出）、before/after 画像を `docs/reports/screenshots/cooking-prep-1b/`、360×800 は固有の差が出た場合に追加。iPhone Safari 実機 HV は Owner 判定。
+7. WebKit はローカル不可の可能性が高く、CI のシャードで確認（#695 と同じ）。
+
+## 7. 残存リスク（現時点）
+
+- 仕様変更（3 タップ→タイミング）が #695 の Owner 承認済み仕様を覆す点（Q1）。
+- 4.2〜6.0 秒の判定が指示に無い（Q2）。
+- ベスト帯 2.1〜4.2 秒（2.1 秒幅）は iPhone の指で十分取れるが、**ARM 300ms と合わせた体感は実機でしか確認できない**。定数は 1 か所（`panDoneness.ts`）に集約し HV で調整可能にする。
+- 焦げ色・早取り色は暫定。
+- E2E の時間依存（fake clock 前提）。`gameReducer.ts` は HOT file（案 A のみ）。
+- #695 の最新 HEAD の Codex 結果と実機 HV が未了のため、#695 自体が修正を受ける可能性（1B はその後の最新 main で作るので影響は小さい）。
+
+## 8. Owner 判断をお願いしたい事項
+
+| # | 質問 | 推奨 |
+|---|---|---|
+| **D1** | 進め方 | **A: #695 の merge を待ち、最新 main から独立 PR（推奨）**。待ち時間を使い、新規ファイルのみの純ロジック＋単体テスト（`panDoneness.ts`）を **別の小 PR として今 main に先行 merge 可能**（#695 と無衝突）かどうか。B: #695 の上に積む（`Depends-on: #695`、Session Ops の方針とは逆）。C: #695 に直接追加（指示の「原則追加しない」に反する） |
+| Q1 | 承認済み仕様（3 タップ・時間制限なし）の改訂を承認するか。spec §3 / AC-3 / AC-13 の文言更新を 1B PR に含める | 承認して含める |
+| Q2 | 4.2〜6.0 秒の判定 | 焼きすぎ（overdone） |
+| Q3 | ベスト帯・残り時間をゲージで見せるか | 見せない（色と牛肉の見た目で見極める） |
+| Q4 | 結果の持ち方 | 案 A（transient な `preparedLook`、reducer は小変更） |
+| Q5 | early / overdone の扱い | 「もう一度炒める」＋「これで使う」（best は自動確定） |
+
+**Owner 承認までに行わないこと:** merge、本番フラグ ON、共有 Preview の更新、1B の runtime 実装、Monitor 作成。
