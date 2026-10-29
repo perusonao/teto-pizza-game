@@ -11,6 +11,16 @@ import { parseClaims, parseDependsOnDetailed } from "./lib/claims.mjs";
 import { isHold } from "./lib/hold.mjs";
 
 export class TruncatedError extends Error {}
+/** A read that failed after some pages were fetched: `partial` holds what was read so far (never treated as complete). */
+export class PartialReadError extends Error {
+  constructor(message, partial) {
+    super(message);
+    this.partial = partial;
+  }
+}
+
+/** Page budget for the repo-wide recent-comments read: 100 pages = 10000 comments in 14 days; beyond that is a gap, not a silent cut. */
+export const REPO_COMMENT_MAX_PAGES = 100;
 
 export function createApi({ token, fetchImpl = fetch, apiUrl = "https://api.github.com" }) {
   const headers = {
@@ -30,12 +40,19 @@ export function createApi({ token, fetchImpl = fetch, apiUrl = "https://api.gith
     const sep = path.includes("?") ? "&" : "?";
     const all = [];
     for (let page = 1; page <= maxPages; page++) {
-      const body = await rest(`${path}${sep}per_page=100&page=${page}`);
-      const items = key ? body[key] : body;
+      let items;
+      try {
+        const body = await rest(`${path}${sep}per_page=100&page=${page}`);
+        items = key ? body[key] : body;
+      } catch (e) {
+        throw new PartialReadError(`${e.message} (page ${page})`, all);
+      }
       all.push(...items);
       if (items.length < 100) return all;
     }
-    throw new TruncatedError(`${path.split("?")[0]} has more than ${maxPages * 100} items`);
+    const e = new TruncatedError(`${path.split("?")[0]} has more than ${maxPages * 100} items`);
+    e.partial = all;
+    throw e;
   }
   async function graphql(query, variables) {
     if (!/^\s*query\b/.test(query)) throw new Error("only GraphQL queries are allowed");
@@ -212,9 +229,11 @@ export async function collectRepoFacts(api, repo, { only = null, now = Date.now(
   const since = new Date(now - sinceDays * 86400 * 1000).toISOString();
   let repoComments = [];
   try {
-    repoComments = await api.restAll(`/repos/${repo}/issues/comments?since=${encodeURIComponent(since)}&sort=created&direction=desc`, null, 5);
+    repoComments = await api.restAll(`/repos/${repo}/issues/comments?since=${encodeURIComponent(since)}&sort=created&direction=desc`, null, REPO_COMMENT_MAX_PAGES);
   } catch (e) {
-    repoGaps.push(`claims: recent comments could not be read completely (${e.message}); older claims may be missing`);
+    // Keep what was read (a release seen is still a release) but record the gap: older claims may be missing.
+    repoComments = Array.isArray(e.partial) ? e.partial : [];
+    repoGaps.push(`claims: recent comments could not be read completely (${e.message}; ${repoComments.length} read); older claims may be missing`);
   }
 
   const prFiles = [];

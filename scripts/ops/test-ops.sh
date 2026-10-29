@@ -9,7 +9,7 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fail=0
 
 echo "== 1. suites"
-if node --test "$here/ops.test.mjs" "$here/regress.test.mjs" "$here/safety.test.mjs"; then echo "suites pass"; else echo "suites FAILED"; exit 1; fi
+if node --test "$here/ops.test.mjs" "$here/regress.test.mjs" "$here/safety.test.mjs" "$here/claims-pagination.test.mjs"; then echo "suites pass"; else echo "suites FAILED"; exit 1; fi
 
 echo "== 2. mutation check (each broken copy must be caught)"
 work="$(mktemp -d)"
@@ -20,7 +20,7 @@ mutate() { # name file sed-expression
   rm -rf "$work/m" && mkdir -p "$work/m/scripts" "$work/m/.github" && cp -r "$here" "$work/m/scripts/ops" && cp -r "$here/../../.github/workflows" "$work/m/.github/workflows"
   sed -i -E "$expr" "$work/m/scripts/ops/$file"
   if cmp -s "$here/$file" "$work/m/scripts/ops/$file"; then echo "FAIL  $name: mutation did not change the file"; fail=1; return; fi
-  if node --test "$work/m/scripts/ops/ops.test.mjs" "$work/m/scripts/ops/regress.test.mjs" "$work/m/scripts/ops/safety.test.mjs" > "$work/out.txt" 2>&1; then
+  if node --test "$work/m/scripts/ops/ops.test.mjs" "$work/m/scripts/ops/regress.test.mjs" "$work/m/scripts/ops/safety.test.mjs" "$work/m/scripts/ops/claims-pagination.test.mjs" > "$work/out.txt" 2>&1; then
     echo "FAIL  $name: mutant survived"; fail=1
   else
     echo "ok    $name"
@@ -48,7 +48,10 @@ mutate "F3 HOLD outranks other blockers"           lib/gate-state.mjs 's/^  "CLO
 mutate "F4 any receipt counts as clean"            collect-facts.mjs 's/clean: CLEAN_RECEIPT\.test\(body\)/clean: true/'
 mutate "F4 null findings count as clean"           collect-facts.mjs 's/hasUnresolved: typeof st\.has_unresolved_findings === "boolean" \? st\.has_unresolved_findings : null/hasUnresolved: st.has_unresolved_findings === true/'
 mutate "F5 Codex error comments are ignored"       lib/gate-state.mjs 's/else if \(hasError\(headAt\)\) \{/else if (false) {/'
-mutate "F6 truncated lists look complete"          collect-facts.mjs 's/throw new TruncatedError\(`\$\{path\.split\("\?"\)\[0\]\} has more than \$\{maxPages \* 100\} items`\);/return all;/'
+mutate "F6 truncated lists look complete"          collect-facts.mjs 's/^    throw e;$/    return all;/'
+mutate "G1 repo comments capped at 500"            collect-facts.mjs 's/export const REPO_COMMENT_MAX_PAGES = 100;/export const REPO_COMMENT_MAX_PAGES = 5;/'
+mutate "G1 partial read is dropped"                collect-facts.mjs 's/repoComments = Array\.isArray\(e\.partial\) \? e\.partial : \[\];/repoComments = [];/'
+mutate "G1 repo gap can still be READY"            owner-gate.mjs 's/if \(repoGaps\.length === 0 \|\| r\.state/if (true || r.state/'
 mutate "F6 failed reads are not recorded"          collect-facts.mjs 's/gaps\.push\(`\$\{label\}: \$\{e\.message\}`\);/void 0;/'
 mutate "F8 HTML is not stripped"                   lib/sanitize.mjs 's/\.replace\(\/\[<>\]\/g, ""\)/.replace(\/x^\/g, "")/'
 mutate "F8 control characters are kept"            lib/sanitize.mjs 's/\.replace\(CONTROL, " "\)/.replace(\/x^\/g, " ")/'

@@ -23,9 +23,15 @@ function parseArgs(argv) {
   return a;
 }
 
+/** Repo-level data gaps (claims / changed files unreadable) mean overlap checks are unreliable: never READY. */
+function withRepoGaps(r, repoGaps) {
+  if (repoGaps.length === 0 || r.state !== "READY_FOR_OWNER_REVIEW") return r;
+  return { ...r, state: "FACTS_INCOMPLETE", blockers: [...r.blockers, `FACTS_INCOMPLETE: repository-level data gap (${repoGaps.length}); see "Data gaps"`], nextAction: "Repository-level facts (claims / changed files) were not read completely. Re-run the Gate; do not treat this PR as ready." };
+}
+
 export function buildReport({ prFacts, prFiles, claims, repo, now, repoGaps = [] }) {
   const hotFiles = JSON.parse(fs.readFileSync(path.join(here, "hot-files.json"), "utf8")).hotFiles;
-  const results = prFacts.map((f) => evaluateGate(f));
+  const results = prFacts.map((f) => evaluateGate(f)).map((r) => withRepoGaps(r, repoGaps));
   const overlaps = findOverlaps({ prs: prFiles, claims: claims.active, hotFiles });
   const md = renderMarkdown({ results, overlaps, claims, repo, generatedAt: new Date(now).toISOString(), repoGaps, dryRun: true });
   return { results, overlaps, claims, md };
