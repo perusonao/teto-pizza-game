@@ -219,6 +219,28 @@ test.describe("Cooking Prep: opt-in", () => {
     await expect(page.getByTestId("cooking-prep-done")).toHaveCount(0);
   });
 
+  test("the dough behind the pan screen takes no keyboard input (focus + Enter / Space place nothing); it works again after ×", async ({ page }) => {
+    await toTopping(page, "?cookPrep=on");
+    await select(page, "牛肉");
+    await tapDoughPercent(page, 35, 50);
+    expect(await beefPieces(page)).toBe(1);
+    await pill(page).click();
+    await expect(pan(page)).toBeVisible();
+    const dough = page.locator(".pizza-dough");
+    await expect(dough).toHaveAttribute("tabindex", "-1");
+    await dough.evaluate((el) => (el as HTMLElement).focus());
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Space");
+    expect(await beefPieces(page)).toBe(1);
+    await expect(pan(page)).toBeVisible();
+    await page.getByTestId("cooking-prep-cancel").click();
+    await expect(pan(page)).toHaveCount(0);
+    await expect(dough).toHaveAttribute("tabindex", "0");
+    await dough.evaluate((el) => (el as HTMLElement).focus());
+    await page.keyboard.press("Enter");
+    expect(await beefPieces(page)).toBe(2);
+  });
+
   test("three taps prep the beef: the placed pieces change colour, the mark appears, saves / stock / pieces are untouched, and the first tap after it cannot leak", async ({ page }) => {
     await toTopping(page, "?cookPrep=on");
     await select(page, "牛肉");

@@ -889,7 +889,10 @@ export function GameScreen({
           (state.phase === "PREPARE" || postBakeStepRendered) &&
           !isReferencePopoverOpen &&
           !cookingInputPaused &&
-          !state.dinner?.abandonRequested
+          !state.dinner?.abandonRequested &&
+          // Cooking Prep: while the pan screen / its 300ms guard is up, the dough behind it takes no
+          // pointer or keyboard input. Kept out of the layer's own `active` so the pan screen survives.
+          !prepBusy
         }
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
