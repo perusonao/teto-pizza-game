@@ -242,6 +242,8 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       // docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md). The design matrix itself is unchanged (still 85 non-target rows); only the runtime catalog now carries them.
       // B11 S1 (PROVISIONAL SPEC, original NOT confirmed): boscaiola and porcini-pizza are BLOCKED_PRODUCT_DECISION rows shipped by Owner approval, the same way (the matrix is unchanged).
       const ownerApproved = new Set(["curry-pizza-japan-pizzadb-p2", "rendang-pizza-pizzadb-p14", "tandoori-paneer-pizza-pizzadb-p5", "boscaiola-pizzadb-p12", "porcini-pizza-pizzadb-p13"]);
+      // B12 (Issue #706): caponata / jamaican-jerk-chicken are BLOCKED_PRODUCT_DECISION rows (BASE_SAUCE_UNSPECIFIED) shipped as NO_SAUCE under a GAMEPLAY ASSUMPTION; the Owner decision is a merge condition of the B12 PR.
+      for (const id of ["caponata-pizza-pizzadb-p2", "jamaican-jerk-chicken-pizza-pizzadb-p3"]) ownerApproved.add(id);
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(

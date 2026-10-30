@@ -222,7 +222,7 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
       expect(rec(id).ladderCredit, id).toBeUndefined();
       expect(countsTowardLadder(id), id).toBe(true);
     }
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza", "grandma-pizza", "porcini-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // Square Dough E-2 appends grandma-pizza; Batch 8a appends three non-credit recipes; Issue #561 promotes frango-catupiry to credited
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza", "grandma-pizza", "porcini-pizza", "caponata-pizza", "jamaican-jerk-chicken-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // Square Dough E-2 appends grandma-pizza; Batch 8a appends three non-credit recipes; Issue #561 promotes frango-catupiry to credited
   });
 
   it("states: vongole UNKNOWN before step 27, KBMM until parsley is bought, DISCOVERABLE after", () => {
