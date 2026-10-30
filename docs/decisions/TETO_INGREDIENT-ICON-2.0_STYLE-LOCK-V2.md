@@ -52,7 +52,7 @@ Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.
 |---|---|---|---|---|---|
 | `fontina` | フォンティーナ | cheese | A | `fontina.svg` | 穴あきの黄色い扇形 + 橙の皮 |
 | `cashew-cheese` | カシューチーズ | cheese | A | `cashew-cheese.svg` | 小さな丸塊 + カシュー 2 粒 |
-| `cream-cheese` | クリームチーズ | cheese | A | `cream-cheese.svg` | 青みのある銀紙包みの角丸ブロック |
+| `cream-cheese` | クリームチーズ | cheese | **C1（2026-10-30 に A から差し替え）** | `cream-cheese.svg`（A 案の旧参照。現行の描画は `IngredientGlyph.tsx` の `CreamCheeseBlock`） | 温かい白の本体＋**下半分だけ銀紙**で包んだブロック（旧 A 案の「青みのある銀紙包みの角丸ブロック」は金属の缶に見えたため廃止） |
 | `catupiry` | カトゥピリ | cheese | A | `catupiry.svg` | 渦巻き状に盛った滑らかなクリーム |
 | `pepperoni` | ペパロニ | meat | A | `pepperoni.svg` | 明るい赤橙の円 2 枚 + 脂の斑点 |
 | `bacon` | ベーコン | meat | A | `bacon.svg` | 赤 + クリーム縞の波打つ帯 2 本 |
@@ -287,6 +287,14 @@ Lock 由来ではなく **OD-B8-2 追記（Batch 8b / 8c）で認可された専
 - **salmon-roe の参照 SVG は本書の PR では main に入れない**（#584 と add/add で競合するため。#621 が入れる）。最終デザインは #621 の Owner HV で確認され、**本書は確定しない**。
 - サイズ補正: shiso / whitebait は `.ingredient-glyph--<visual>` の 1.2em（§3 追記）。クラス倍率は shiso = xs、whitebait = s。RESULT では ×0.75 も重なり、shiso の描画箱は約 17.6px。20px 未満での識別性は未計測。
 - 色の住み分け: salmon-roe（橙の丸粒）と salmon（桃橙の切り身）は同系色。**形で区別する**（丸粒の山 vs 縞のある楕円）。焼けた生地（橙）に対する明度コントラストは低く、識別は暗い輪郭と形に依存する。
+
+### 10.3b 2026-10-30 Owner 決定 — cream-cheese を C1 へ（Pilot D2、Issue #703）
+
+実機画像で、A 案のクリームチーズが銀色の金属の箱・缶に見えたため、Owner が **C1 最終案**を承認した（形・色の変更。§1c の「Owner の明示承認」に当たる）。サーモンは変更しない。
+- 本体: 前面 `#fff4e2`（承認案は `#fff1d2` だったが、焼成後のチーズ用フィルタ（brightness 1.06 / saturate 1.12 / sepia .14）で黄緑寄りのレモン色になりバターに見えたため、実装時に調整）、上面 `#fffcf4`、輪郭 `#7a6548`（2.4）、上面のハイライト `#f6e6bd`、前面の切り口の線 `#ecd9aa`。
+- 銀紙: 前面の下約半分だけ。ぎざぎざの上端、`#d3d9df`、輪郭 `#6b7380`（2.2）、ハイライト `#f1f4f7`。
+- 64×64、影楕円、`id` / gradient / `<defs>` なし。`pieceVisual` `cream-cheese-block`、食材 id、保存・レシピ・採点・在庫は不変。個別の 1.2em 補正（§0-7(c)）も維持。
+- 比較資料: `docs/reports/TETO_INGREDIENT-VISUAL_PILOT-D2_Result.md`。
 
 ### 10.3 Pilot D = `salmon`, `cream-cheese`
 
