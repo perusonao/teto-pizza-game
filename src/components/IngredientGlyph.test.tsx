@@ -50,6 +50,8 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "shrimp-curl",
   "sesame-seeds",
   "pomegranate-aril",
+  "salmon-fillet",
+  "cream-cheese-block",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -85,7 +87,9 @@ const V1_DEDICATED: Record<string, DedicatedIngredientVisual> = { pickles: "pick
 // E5: with the late catalog on (Production) the late salmon-roe is a production row too (its art is pinned in the FIN-E4b-ikura block below).
 const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains", "white-sesame": "sesame-seeds", pomegranate: "pomegranate-aril", cilantro: "cilantro-leaf", wasabi: "wasabi-dab", "cod-roe": "cod-roe-mass", nori: "nori-strips" } : {};
 const B11_DEDICATED: Record<string, DedicatedIngredientVisual> = { porcini: "porcini-slice", mussel: "mussel-shell" }; // B11 S1 (provisional adoption; the final adoption is the 390x844 / 360x800 HV)
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...LATE_DEDICATED };
+/** Ingredient Icons 2.0 Pilot D (#623, Style Lock v2 §10.3): salmon / cream-cheese dedicated art instead of 🍣 / the generic CSS cheese circle. */
+const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PILOT_D_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -941,5 +945,98 @@ describe("B11 S1: porcini / mussel dedicated art (production rows)", () => {
     const all = ["porcini", "mussel", "mushroom", "sausage", "clam", "shrimp"].map(html);
     expect(new Set(all).size).toBe(all.length);
     expect(getIngredient("mushroom")!.pieceVisual).toBeUndefined(); // the plain mushroom stays on its emoji
+  });
+});
+
+/**
+ * Ingredient Icons 2.0 Pilot D (#623, Style Lock v2 §10.3): `salmon` and `cream-cheese` are drawn by their own dedicated art (Style Lock §1b A, unchanged).
+ * Only `pieceVisual` is added: identity, colour, placement, size class and stock are unchanged; the emoji stays the text fallback and never reaches the DOM.
+ */
+describe("Pilot D: salmon / cream-cheese dedicated art (production rows)", () => {
+  const ROWS = Object.entries(PILOT_D_DEDICATED) as [string, DedicatedIngredientVisual][];
+
+  it("declares the visual and keeps its identity", () => {
+    expect(getIngredient("salmon")).toMatchObject({ id: "salmon", nameJa: "サーモン", category: "topping", placement: "scatter", color: "#f08a6c", pieceVisual: "salmon-fillet" });
+    expect(getIngredient("cream-cheese")).toMatchObject({ id: "cream-cheese", nameJa: "クリームチーズ", category: "cheese", placement: "scatter", color: "#fbf7ec", pieceVisual: "cream-cheese-block" });
+  });
+
+  it.each(ROWS)("%s draws an SVG on the glyph and on the placed piece (64x64, no id / gradient / defs) and never prints its emoji", (id, visual) => {
+    const ingredient = getIngredient(id)!;
+    for (const node of [<IngredientGlyph key="g" ingredient={ingredient} />, <IngredientPieceVisual key="p" ingredient={ingredient} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(svg!.getAttribute("focusable")).toBe("false");
+      expect(svg!.getAttribute("class")).toBe(`ingredient-glyph ingredient-glyph--${visual}`);
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      expect(container.innerHTML).not.toContain("<defs");
+      expect(container.innerHTML).not.toContain("gradient");
+      unmount();
+    }
+  });
+
+  it("the markup does not depend on the ingredient id (same visual under another id)", () => {
+    const own = getIngredient("salmon")!;
+    expect(renderToStaticMarkup(<IngredientGlyph ingredient={{ ...own, id: "other" }} />)).toBe(renderToStaticMarkup(<IngredientGlyph ingredient={own} />));
+  });
+
+  it("cream-cheese draws inside the .pizza-cheese wrapper (--glyph), not the generic CSS circle", () => {
+    const { container } = render(<IngredientPieceVisual ingredient={getIngredient("cream-cheese")!} />);
+    const wrapper = container.querySelector(".pizza-cheese.pizza-cheese--cream-cheese.pizza-cheese--glyph");
+    expect(wrapper).not.toBeNull();
+    expect(wrapper!.querySelector('svg[data-ingredient-visual="cream-cheese-block"]')).not.toBeNull();
+  });
+
+  it("the art is the Style Lock §1b A drawing: salmon = body + silver skin + 4 fat stripes in one path; cream-cheese = foil block, no undrawn path", () => {
+    const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+    expect(html("salmon")).toContain('fill="#f98a62"');
+    expect(html("salmon")).toContain('stroke="#b6c4d0"');
+    expect(html("salmon")).toContain('stroke="#ffe6d6"');
+    expect(html("cream-cheese")).toContain('fill="#c9d3dd"');
+    expect(html("cream-cheese")).toContain('fill="#fbfdff"');
+    expect(html("cream-cheese")).not.toContain('stroke-width="0"'); // Owner decision 2026-10-22: the undrawn reference path is not ported
+  });
+
+  it("they are distinct from each other, from salmon-roe / shrimp, and from every other cheese drawing", () => {
+    const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+    const ids = ["salmon", "cream-cheese", "salmon-roe", "shrimp", "feta", "ricotta", "whitebait"];
+    const all = ids.map(html);
+    expect(new Set(all).size).toBe(all.length);
+  });
+
+  it("tray chips and Inventory use the SVG (salmon topping, cream-cheese cheese) and no CSS cheese slot", () => {
+    for (const [category, id] of [["topping", "salmon"], ["cheese", "cream-cheese"]] as const) {
+      const visual = PILOT_D_DEDICATED[id];
+      const tray = render(
+        <IngredientTray
+          activeCategory={category}
+          selectedIngredientId={null}
+          onSelectIngredient={() => {}}
+          ownedIngredientIds={[id]}
+          recipe={FREE_COOK_RECIPE}
+          freeCook
+          inventory={{ [id]: 3 }}
+          pizza={createEmptyPizza()}
+        />,
+      );
+      expect(tray.container.querySelector(`.ingredient-chip__emoji svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+      expect(tray.container.querySelector(".ingredient-chip__cheese-slot")).toBeNull();
+      tray.unmount();
+      const inventory = render(<InventoryOverlay ownedIngredientIds={[id]} inventory={{ [id]: 1 }} onClose={() => {}} />);
+      expect(inventory.container.querySelector(`.inventory-card__emoji svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
+      expect(inventory.container.querySelector(".inventory-card__cheese-slot")).toBeNull();
+      inventory.unmount();
+    }
+  });
+
+  it("other un-migrated cheeses keep their CSS shape (no emoji regression), and salmon / cream-cheese change nothing else in the catalog", () => {
+    const legacyCheese = INGREDIENTS.filter((i) => i.category === "cheese" && !i.pieceVisual).map((i) => i.id);
+    expect(legacyCheese).not.toContain("cream-cheese");
+    expect(legacyCheese).toContain("gorgonzola");
+    expect(INGREDIENTS.filter((i) => i.pieceVisual).map((i) => i.id)).toEqual(expect.arrayContaining(["salmon", "cream-cheese"]));
   });
 });
