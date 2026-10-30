@@ -1,0 +1,106 @@
+{
+ "390-fish-burnt-placed": {
+  "salmon": [
+   {
+    "w": 38.6,
+    "h": 38.6
+   },
+   {
+    "w": 38.6,
+    "h": 38.6
+   },
+   {
+    "w": 38.6,
+    "h": 38.6
+   }
+  ]
+ },
+ "390-fish-ideal-placed": {
+  "salmon": [
+   {
+    "w": 38.6,
+    "h": 38.6
+   },
+   {
+    "w": 38.6,
+    "h": 38.6
+   },
+   {
+    "w": 38.6,
+    "h": 38.6
+   }
+  ]
+ },
+ "390-cheese-placed": {
+  "cream": [
+   {
+    "w": 38.6,
+    "h": 38.6
+   },
+   {
+    "w": 38.6,
+    "h": 38.6
+   }
+  ]
+ },
+ "390-tray-pager": {
+  "pages": 11,
+  "anyOverflowX": false,
+  "anyPageScroll": false,
+  "chipSizes": [
+   "118x64"
+  ]
+ },
+ "360-fish-ideal-placed": {
+  "salmon": [
+   {
+    "w": 38.6,
+    "h": 38.6
+   },
+   {
+    "w": 38.6,
+    "h": 38.6
+   },
+   {
+    "w": 38.6,
+    "h": 38.6
+   }
+  ]
+ },
+ "360-fish-burnt-placed": {
+  "salmon": [
+   {
+    "w": 38.6,
+    "h": 38.6
+   },
+   {
+    "w": 38.6,
+    "h": 38.6
+   },
+   {
+    "w": 38.5,
+    "h": 38.5
+   }
+  ]
+ },
+ "360-cheese-placed": {
+  "cream": [
+   {
+    "w": 38.6,
+    "h": 38.6
+   },
+   {
+    "w": 38.6,
+    "h": 38.6
+   }
+  ]
+ },
+ "360-tray-pager": {
+  "pages": 11,
+  "anyOverflowX": false,
+  "anyPageScroll": false,
+  "chipSizes": [
+   "108x64"
+  ]
+ }
+}
