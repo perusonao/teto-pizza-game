@@ -221,7 +221,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     const card = page.locator(".dex-card").filter({ hasText: "ペストガンベリピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.12");
-    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("13/18");
+    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("13/19"); // (Expansion Batch 12: + supreme-pizza in chapter 3)
     await card.scrollIntoViewIfNeeded();
     await noOverflow(page, "Dex");
     await capture(page, "exp1-dex-no12", project);

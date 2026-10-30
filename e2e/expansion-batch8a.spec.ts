@@ -159,15 +159,15 @@ test.describe("Batch 8a (non-credit, zero-material: chilean-napolitana / spanish
     expect(errors).toEqual([]);
   });
 
-  test("spanish-chorizo-pizza: its own bell-pepper cohort (bare label); cook mozzarella 2 / sausage 3 / bell-pepper 2 / onion 1 -> NEW DISCOVERY", async ({ page }, testInfo) => {
+  test("spanish-chorizo-pizza: shares its bell-pepper cohort with supreme-pizza since Expansion Batch 12 (label B; was a bare label); cook mozzarella 2 / sausage 3 / bell-pepper 2 / onion 1 -> NEW DISCOVERY", async ({ page }, testInfo) => {
     const errors = watch(page);
     const project = testInfo.project.name;
     const discovered = ALL_IDS.filter((id) => id !== "spanish-chorizo-pizza");
     await open(page, saveJson(discovered, materialsUpTo(LAST_STEP)));
     const cards = await researchCards(page, discovered, project, "batch8a-chorizo");
     await expect(cards).toHaveCount(1);
-    await expect(cards.first()).toHaveAttribute("aria-label", "？？？ピザ（パプリカ）を研究する");
-    await startResearch(page, /^？？？ピザ（パプリカ）を研究する$/, discovered);
+    await expect(cards.first()).toHaveAttribute("aria-label", "？？？ピザ B（パプリカ）を研究する"); // Expansion Batch 12 (Owner-approved shift): the bell-pepper cohort is {supreme-pizza A, spanish-chorizo-pizza B}
+    await startResearch(page, /^？？？ピザ B（パプリカ）を研究する$/, discovered);
     let spot = await place(page, [["モッツァレラ", 2]], 0);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await expect(page.getByRole("tab", { name: "具材", selected: true })).toBeVisible();
