@@ -584,7 +584,7 @@ test.describe("Cooking Prep Phase 1B: timing game", () => {
     await expect(page.getByTestId("cooking-prep-done")).toBeVisible({ timeout: 4000 });
   });
 
-  test("reduced motion: nothing animates, and every stage is still readable as a still frame (steam, then smoke, then dark smoke)", async ({ page }) => {
+  test("reduced motion: nothing animates, and every stage is still readable as a still frame (steam, then smoke, then dark smoke)", async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await toFrozenTopping(page);
     await openPanByKeyboard(page);
@@ -592,21 +592,35 @@ test.describe("Cooking Prep Phase 1B: timing game", () => {
       page.evaluate(() => {
         const v = document.querySelector('[data-testid="cooking-prep-vapor"]') as HTMLElement;
         const i = v.querySelector("i") as HTMLElement;
-        return { opacity: Number(getComputedStyle(v).opacity), animation: getComputedStyle(i).animationName, bg: getComputedStyle(i).backgroundImage };
+        const stage = document.querySelector('[data-testid="cooking-prep-pan"]')?.getAttribute("data-stage") ?? null;
+        return { opacity: Number(getComputedStyle(v).opacity), animation: getComputedStyle(i).animationName, bg: getComputedStyle(i).backgroundImage, stage, perfNow: performance.now(), dateNow: Date.now() };
       });
-    const frames: { opacity: number; animation: string; bg: string }[] = [];
-    let at = 0;
-    for (const ms of [1000, 2500, 3800, 4500]) {
-      await page.clock.runFor(ms - at);
-      at = ms;
-      frames.push(await vapor());
+    const frames: Awaited<ReturnType<typeof vapor>>[] = [];
+    // What the page showed at each step, attached to the report on failure (#394): a stage that is late tells a repaint that lags the faked clock
+    // (it arrives within the wait) apart from a stage timer that never fired (the wait times out with the stage still shown).
+    const trail: { ms: number; expectedStage: string; stage: string | null; perfNow: number; dateNow: number }[] = [];
+    try {
+      let at = 0;
+      for (const [ms, stage] of [[1000, "0"], [2500, "2"], [3800, "3"], [4500, "4"]] as const) {
+        await page.clock.runFor(ms - at);
+        at = ms;
+        // The stage is set by a timer and painted by React afterwards: wait for the stage this moment must show, then read the style.
+        await expect(pan(page), `+${ms}ms`).toHaveAttribute("data-stage", stage);
+        const f = await vapor();
+        trail.push({ ms, expectedStage: stage, stage: f.stage, perfNow: f.perfNow, dateNow: f.dateNow });
+        frames.push(f);
+      }
+      for (const f of frames) expect(f.animation).toBe("none");
+      expect(frames[0].opacity).toBe(0); // stage 0: nothing yet
+      expect(frames[1].opacity).toBeGreaterThan(0.5); // best: steam
+      expect(frames[2].bg).not.toBe(frames[1].bg); // about to burn: the steam turned to smoke
+      expect(frames[3].bg).not.toBe(frames[2].bg); // burnt: darker smoke
+      const names = await page.evaluate(() => [...document.querySelectorAll(".cooking-prep-pan__bubbles i")].map((e) => getComputedStyle(e).animationName));
+      for (const n of names) expect(n).toBe("none");
+    } catch (error) {
+      const now = await page.evaluate(() => ({ stage: document.querySelector('[data-testid="cooking-prep-pan"]')?.getAttribute("data-stage") ?? null, perfNow: performance.now(), dateNow: Date.now() })).catch(() => null);
+      await testInfo.attach("cooking-prep-reduced-motion-trail.json", { body: JSON.stringify({ trail, frames, atFailure: now }, null, 2), contentType: "application/json" });
+      throw error;
     }
-    for (const f of frames) expect(f.animation).toBe("none");
-    expect(frames[0].opacity).toBe(0); // stage 0: nothing yet
-    expect(frames[1].opacity).toBeGreaterThan(0.5); // best: steam
-    expect(frames[2].bg).not.toBe(frames[1].bg); // about to burn: the steam turned to smoke
-    expect(frames[3].bg).not.toBe(frames[2].bg); // burnt: darker smoke
-    const names = await page.evaluate(() => [...document.querySelectorAll(".cooking-prep-pan__bubbles i")].map((e) => getComputedStyle(e).animationName));
-    for (const n of names) expect(n).toBe("none");
   });
 });
