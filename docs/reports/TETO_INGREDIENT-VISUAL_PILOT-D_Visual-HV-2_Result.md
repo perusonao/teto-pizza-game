@@ -11,7 +11,7 @@
 
 ## 成果物（この branch）
 `docs/reports/screenshots/ingredient-visual-pilot-d-hv2/`
-- `sheets/` 比較シート 28 枚（下表）。ChatGPT に共有するときは、まず S1 / S3 / X1 / X3 の 390 を推奨。
+- `sheets/` 比較シート 26 枚（下表）。ChatGPT に共有するときは、まず S1 / S3 / X1 / X3 の 390 を推奨。
 - `raw_key/` 原寸の主要 4 枚（Chromium / WebKit の 390 サーモン通常・焼き過ぎ）。
 - `data/` DOM 実測（ピース寸法、重なり、トレイ）とコントラスト実測の JSON。
 
