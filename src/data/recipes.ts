@@ -1417,6 +1417,42 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "supreme-pizza",
+    nameJa: "スプリームピッツァ",
+    description: "トマトソースの生地に、ペパロニとソーセージ、パプリカ、きのこ、玉ねぎ、オリーブをのせた、具だくさんの一枚。",
+    // Expansion Batch 12 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; Issue #707. SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking or post-bake step is modelled; name (the source name スプリームピザ is a substring of the existing ベジースプリームピザ, so it ships as スプリームピッツァ) and description are provisional.)
+    // Non-credit (`ladderCredit: false`, no ladder step of its own): every material already exists, so it adds no Shop row. Source set has NO mozzarella (the catalog candidate `supreme` had it and was deferred for 7 non-sauce types, see the Batch 1B-C deferral note near the top of this list); this PIZZA DB set has 6 non-sauce types, the same as veggie-supreme-pizza. The id is `supreme-pizza`; no `supreme` id exists.
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "pepperoni", minCount: 2 },
+      { ingredientId: "sausage", minCount: 2 },
+      { ingredientId: "mushroom", minCount: 1 },
+      { ingredientId: "onion", minCount: 1 },
+      { ingredientId: "bell-pepper", minCount: 1 },
+      { ingredientId: "black-olive", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
+  {
+    id: "pizza-alla-norma",
+    nameJa: "ピッツァ・アッラ・ノルマ",
+    description: "トマトソースの生地に、ナスとバジル、リコッタサラータをのせた、シチリア風の一枚。",
+    // Expansion Batch 12 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; Issue #707. SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking or post-bake step is modelled; name (the source name スプリームピザ is a substring of the existing ベジースプリームピザ, so it ships as スプリームピッツァ) and description are provisional.)
+    // Ladder-credited: the key recipe of step 64 (ricotta-salata, the one new material). No mozzarella (the PIZZA DB set; the catalog candidate `alla-norma` with mozzarella / olive-oil is NOT adopted, Owner exception pending).
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "eggplant", minCount: 3 },
+      { ingredientId: "ricotta-salata", minCount: 3 },
+      { ingredientId: "basil", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /**

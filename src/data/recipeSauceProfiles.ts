@@ -348,6 +348,17 @@ export const RECIPE_SAUCE_PROFILES = {
     ingredientId: "tomato-sauce",
     interaction: "PAINT",
   },
+  // Expansion Batch 12 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): both use the tomato-sauce PAINT like the other single-sauce tomato recipes.
+  "supreme-pizza": {
+    recipeId: "supreme-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "pizza-alla-norma": {
+    recipeId: "pizza-alla-norma",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
   // Multi-Sauce S3 / Square Dough E-2: the PRIMARY sauce only (tomato-sauce, the Reference target). The secondary olive-oil has no profile entry and is scored by presence (Design Lock §5.3).
   "grandma-pizza": {
     recipeId: "grandma-pizza",

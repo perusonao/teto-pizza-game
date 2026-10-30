@@ -46,6 +46,7 @@ export type DedicatedIngredientVisual =
   | "nori-strips"
   | "porcini-slice"
   | "mussel-shell"
+  | "ricotta-salata-shavings"
   | "salmon-fillet"
   | "cream-cheese-block";
 
@@ -1135,6 +1136,20 @@ const BASE_INGREDIENTS: Ingredient[] = [
     pieceVisual: "mussel-shell",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * Expansion Batch 12 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, step 64 (T4, no star gate), the sole material of pizza-alla-norma's step. Cheese category like every cheese (shared 🧀 convention; no cheese subdivision, so no topping family row).
+   * Drawn by the dedicated `ricotta-salata-shavings` visual (thin curled white shavings with a dry grated look), kept apart from the round `ricotta` mound and the boxy `feta` cubes; `color` is PROVISIONAL until the 390x844 / 360x800 HV.
+   */
+  {
+    id: "ricotta-salata",
+    category: "cheese",
+    nameJa: "リコッタサラータ",
+    color: "#f1ecdc",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "ricotta-salata-shavings",
   },
 ];
 

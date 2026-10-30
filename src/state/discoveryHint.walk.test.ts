@@ -116,7 +116,7 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
     let s = createInitialGameState(undefined, undefined, 1_000_000);
     const records: StageRecord[] = [];
 
-    for (let guard = 0; guard < 80; guard += 1) {
+    for (let guard = 0; guard < TOTAL + 20; guard += 1) { // (was a fixed 80: one stage per recipe, so the catalog reaching 80 stopped the walk early -- the same root cause B11 S1 fixed in researchAttemptSim)
       // Batch 6 PR-2: replay for the star gates once their step is reached (a real player must).
       s = replayForGateStars(s);
       const dexCount = discoveredRecipeIds(s.dex).length;

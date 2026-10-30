@@ -409,7 +409,8 @@ describe("ESC_PARITY pricing (OD-H3-4 / OD-H3-15)", () => {
       }
     }
     // B11 S1 (Owner decision 3, PROVISIONAL SPEC): pescatore (7 distinct ingredients: tomato-sauce / mozzarella / shrimp / clam / mussel / garlic / parsley) is the second documented exception, the same rule as veggie-supreme-pizza.
-    expect(capBinds).toEqual(["veggie-supreme-pizza", "pescatore"]);
+    // Expansion Batch 12 (PROVISIONAL SPEC; OWNER ACCEPTANCE PENDING): supreme-pizza (7 distinct ingredients: tomato-sauce / pepperoni / sausage / mushroom / onion / bell-pepper / black-olive) is the third documented exception, the same rule and the same 5th-fact zeroing as the two above.
+    expect(capBinds).toEqual(["veggie-supreme-pizza", "pescatore", "supreme-pizza"]);
   });
 
   it("measurement: the 24 paid targets' full unlock total (not asserted to 1480, not an economy authority)", () => {

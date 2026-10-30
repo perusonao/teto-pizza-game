@@ -51,6 +51,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "nori-strips": "0 0 64 64",
   "porcini-slice": "0 0 64 64",
   "mussel-shell": "0 0 64 64",
+  "ricotta-salata-shavings": "0 0 64 64",
   "salmon-fillet": "0 0 64 64",
   "cream-cheese-block": "0 0 64 64",
 };
@@ -91,6 +92,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "nori-strips" && <NoriStrips />}
       {visual === "porcini-slice" && <PorciniSlice />}
       {visual === "mussel-shell" && <MusselShell />}
+      {visual === "ricotta-salata-shavings" && <RicottaSalataShavings />}
       {visual === "salmon-fillet" && <SalmonFillet />}
       {visual === "cream-cheese-block" && <CreamCheeseBlock />}
     </svg>
@@ -807,6 +809,29 @@ function CreamCheeseBlock() {
       <path d="M16 36h12" stroke="#ecd9aa" strokeWidth="2.2" strokeLinecap="round" />
       <path d="M6 45l4.5-2.5 4.5 2.5 4.5-2.5 4.5 2.5 4.5-2.5 4.5 2.5 4.5-2.5 4.5 2.5 4.5-2.5 4.5 2.5 4.5-2.5 4.5 2.5 2-1.5V50c0 3-3 5-6 5H12c-3 0-6-2-6-5z" fill="#d3d9df" stroke="#6b7380" strokeWidth="2.2" strokeLinejoin="round" />
       <path d="M14 50h11M35 50.5h8" stroke="#f1f4f7" strokeWidth="2.2" strokeLinecap="round" />
+    </g>
+  );
+}
+
+/* ---------- ricotta-salata (Expansion Batch 12, PROVISIONAL SPEC / adoption): three thin curled shavings of a firm, dry white cheese, stacked, with a few grated crumbs. The curled, layered ribbons keep it apart from the round `ricotta` mound and the boxy `feta` cubes. ---------- */
+function RicottaSalataShavings() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.2" fill="#000" opacity=".14" />
+      <path d="M8 44 C8 36 16 32 26 34 C36 36 44 34 52 38 C56 40 56 46 50 48 C42 51 34 49 24 50 C14 51 8 49 8 44 Z" fill="#e9e1c8" stroke="#8d7f5a" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M12 33 C12 25 20 21 29 23 C38 25 46 22 53 27 C57 30 55 36 49 37 C41 39 34 36 25 37 C17 38 12 37 12 33 Z" fill="#f6f1e1" stroke="#8d7f5a" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M16 22 C16 15 23 11 31 13 C39 15 45 13 50 17 C53 20 51 25 46 26 C39 28 33 25 26 26 C20 27 16 26 16 22 Z" fill="#fffaf0" stroke="#8d7f5a" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M21 18 C25 15 31 16 36 18" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+      <path d="M15 31 C20 29 26 30 31 32" stroke="#d6cba8" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <path d="M14 43 C20 41 27 42 34 44" stroke="#cfc39c" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <g fill="#d9cfae">
+        <circle cx="44" cy="43" r="1.6" />
+        <circle cx="37" cy="31" r="1.4" />
+        <circle cx="30" cy="20" r="1.3" />
+        <circle cx="19" cy="47" r="1.4" />
+        <circle cx="52" cy="52" r="1.7" />
+        <circle cx="9" cy="54" r="1.5" />
+      </g>
     </g>
   );
 }
