@@ -11,7 +11,7 @@ This guide supplements, and does not override, `docs/decisions/TETO_HUMAN-VERIFI
 
 ## Claude Codeへの標準指示（UI/UX/gameplay変更）
 1. 対象PRの**exact HEAD SHA**、最新の規則、既存の撮影成果物を確認する。既存素材を再利用し、必要な差分のみ追加撮影する。
-2. Playwright **ChromiumとWebKit** で、原則 **390×844** と **360×800** の実ゲーム画面を撮影する。WebKitが使えない場合は理由と未確認範囲を明記する。
+2. Playwright **ChromiumとWebKit** で、**390×844**（HV Policy の Authority、原則必須）の実ゲーム画面を撮影する。**360×800** は HV Policy の Secondary として、360 固有の変更・リスクがある場合、またはOwnerが求めた場合に追加する（必須要件ではない）。WebKitが使えない場合は理由と未確認範囲を明記する。
 3. Before/After、実寸/拡大、通常/失敗/境界、重なり、暗い背景など、変更に関連する条件を比較する。操作変更は食材選択から工程・RESULTまでの人間が読める速度の動画を含める。
 4. スクリーンショットは `docs/reports/screenshots/<task-name>/` に保存。動画はrepoにcommitせず、直接提出または既存HVポリシーが認めるActions Artifactで提供する。ファイル情報と取得方法をResult Reportに記す。
 5. 視覚判定を **PASS / 要改善 / FAIL / 未確認** として根拠画像に対応づける。ChatGPTに共有しやすい比較シートを作成する。
