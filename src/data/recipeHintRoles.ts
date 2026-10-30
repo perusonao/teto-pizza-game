@@ -132,7 +132,6 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "porcini-pizza": { keyFree: true },
   pescatore: { keyFree: true },
   // B12 (Issue #706): permanently key-free.
-  "caponata-pizza": { keyFree: true },
   "jamaican-jerk-chicken-pizza": { keyFree: true },
   // Multi-Sauce S3 / Square Dough E-2: permanently key-free.
   "grandma-pizza": { keyFree: true },

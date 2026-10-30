@@ -285,7 +285,6 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "bacalhau",
         "bambino",
         "boscaiola",
-        "caponata-pizza",
         "brazilian-calabresa",
         "brazilian-catupiry-corn-pizza",
         "calabresa-argentina",

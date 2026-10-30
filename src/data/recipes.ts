@@ -1418,23 +1418,6 @@ const BASE_RECIPES = [
     lunchRush: false,
   },
   {
-    id: "caponata-pizza",
-    nameJa: "カポナータピザ",
-    description: "ソースを使わず、ナスとブラックオリーブ、ケッパー、モッツァレラをのせた、シチリア風の野菜の一枚。",
-    // B12 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; Issue #706). SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the source sauce field is 'その他' (BASE_SAUCE_UNSPECIFIED), treated as NO_SAUCE pending an Owner decision; the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window).
-    // NO_SAUCE (no sauce step), `ladderCredit: false`: no new material, so no ladder step of its own (makeable once capers, step 23, is owned).
-    requiredIngredients: [
-      { ingredientId: "mozzarella", minCount: 3 },
-      { ingredientId: "eggplant", minCount: 3 },
-      { ingredientId: "black-olive", minCount: 1 },
-      { ingredientId: "capers", minCount: 1 },
-    ],
-    bakeTarget: { start: 58, end: 78 },
-    baseRewardPitz: 100,
-    ladderCredit: false,
-    lunchRush: false,
-  },
-  {
     id: "jamaican-jerk-chicken-pizza",
     nameJa: "ジャマイカンジャークチキンピザ",
     description: "ソースを使わず、チキンとピーマン、パイナップル、モッツァレラをのせた、甘みと香ばしさの一枚。",
