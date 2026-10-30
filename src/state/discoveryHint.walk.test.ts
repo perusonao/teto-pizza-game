@@ -116,7 +116,7 @@ describe("Final Gate: the 25-recipe ladder from a new save to a complete Dex, hi
     let s = createInitialGameState(undefined, undefined, 1_000_000);
     const records: StageRecord[] = [];
 
-    for (let guard = 0; guard < 80; guard += 1) {
+    for (let guard = 0; guard < TOTAL; guard += 1) { // (the guard follows the catalog size: a fixed 80 stopped the walk one recipe short once B12 made it 81)
       // Batch 6 PR-2: replay for the star gates once their step is reached (a real player must).
       s = replayForGateStars(s);
       const dexCount = discoveredRecipeIds(s.dex).length;

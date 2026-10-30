@@ -82,7 +82,7 @@ describe("Batch 8a: Research labels (anonymous; the letter only)", () => {
   });
 
   it("step 44: frango joins brazilian-catupiry-corn-pizza's cohort -> A / B", () => {
-    const found = [...keysBefore(44), "ratatouille-pizza", ...EARLIER_NON_CREDIT, ...BATCH.filter((id) => id !== "frango-catupiry")]; // ratatouille: the credited step-28 sibling (not a ladder key)
+    const found = [...keysBefore(44), "ratatouille-pizza", ...EARLIER_NON_CREDIT, ...BATCH.filter((id) => id !== "frango-catupiry"), "jamaican-jerk-chicken-pizza"]; // (B12: the non-credit jerk, cookable from step 32, is found too) ratatouille: the credited step-28 sibling (not a ladder key)
     // (pinsa-romana, present only while PINSA_PRODUCTION is open, is an entry of ARUGULA's cohort, not of this one: its letters are pinned in lateCatalog.pinsa.test.ts)
     const l = Object.fromEntries(researchEntryViews({ dex: discover(...found), ownedIngredientIds: ladderOwned(44) }).filter((v) => (v.recipeId as string) !== "pinsa-romana").map((v) => [v.recipeId, v.label]));
     expect(Object.keys(l).sort()).toEqual(["brazilian-catupiry-corn-pizza", "frango-catupiry"]);

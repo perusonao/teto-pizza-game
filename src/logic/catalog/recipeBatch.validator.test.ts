@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../../data/recipes";
-import { B11_S1_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
+import { B11_S1_BATCH, B12_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
 import {
   ordinaryCatalogView,
   productionCatalogView,
@@ -35,6 +35,14 @@ describe("production catalog", () => {
     expect(B11_S1_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["porcini", "porcini", "mussel"]);
     expect(B11_S1_BATCH.acceptedLetterShifts).toBeUndefined();
     expect(validateBatchManifest(B11_S1_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("B12 (jamaican-jerk-chicken-pizza) is LANDED and consistent: appended tail, no ladder step of its own, shares green-pepper's cohort; the one named letter shift is veggie-supreme-pizza", () => {
+    expect(RECIPE_BATCHES).toContain(B12_BATCH);
+    expect(B12_BATCH.status).toBe("landed");
+    expect(B12_BATCH.recipes.map((r) => r.recipeId)).toEqual(["jamaican-jerk-chicken-pizza"]);
+    expect(B12_BATCH.acceptedLetterShifts).toEqual({ "veggie-supreme-pizza": "-->B" });
+    expect(validateBatchManifest(B12_BATCH, ordinaryCatalogView())).toEqual([]);
   });
 });
 
