@@ -54,7 +54,18 @@ Status: **実装完了・自動ゲート結果は §6。Owner の承認（§8）
 
 ## 6. 検証結果
 
-RESULTS_PLACEHOLDER
+| ゲート | 結果 |
+|---|---|
+| `tsc -b` | エラー 0 |
+| `oxlint` | エラー 0（警告は既存） |
+| `npm run build` | 成功（chunk サイズの警告は既存） |
+| Vitest 全体（Pinsa ON） | **10,728 件中 10,713 passed / 0 failed**（13 skipped、2 todo） |
+| Vitest 全体（`TETO_PINSA_OFF=1`） | **10,719 件中 10,705 passed / 0 failed**（12 skipped、2 todo） |
+| E2E `e2e/b12.spec.ts`（Chromium、390×844 と 360×800 × 2 レシピ） | **4/4 passed**（Shop → Research ラベル（漏えいなし）→ 調理 → NEW DISCOVERY → Dex、横スクロールなし、console error 0） |
+| WebKit E2E | 本環境では未実施（WebKit なし）。PR の CI の WebKit シャードで確認する |
+| Safari / iPhone 実機 | **未実施**（Owner の HV） |
+
+E2E は環境の Playwright が要求するブラウザ版と入っているものが違うため、リポジトリに含めないローカル設定（`playwright.local.config.ts`、`.git/info/exclude`）で `/opt/pw-browsers/chromium-1243` を指定して実行した。リポジトリの設定は変更していない。
 
 ## 7. Human Verification
 
