@@ -343,6 +343,9 @@ export const RECIPE_SAUCE_PROFILES = {
     interaction: "PAINT_TEMPORARY",
   },
   "porcini-pizza": null,
+  // B12 (Issue #706; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): the source sauce field is 'その他' (unspecified); both are NO_SAUCE (the existing `null` mapping, like aussie) pending an Owner decision.
+  "caponata-pizza": null,
+  "jamaican-jerk-chicken-pizza": null,
   pescatore: {
     recipeId: "pescatore",
     ingredientId: "tomato-sauce",
