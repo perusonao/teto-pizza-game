@@ -991,14 +991,18 @@ describe("Pilot D: salmon / cream-cheese dedicated art (production rows)", () =>
     expect(wrapper!.querySelector('svg[data-ingredient-visual="cream-cheese-block"]')).not.toBeNull();
   });
 
-  it("the art is the Style Lock §1b A drawing: salmon = body + silver skin + 4 fat stripes in one path; cream-cheese = foil block, no undrawn path", () => {
+  it("the art: salmon = Style Lock §1b A (body + silver skin + 4 fat stripes in one path); cream-cheese = Pilot D2 C1 (warm-white block, foil on the lower half only)", () => {
     const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
     expect(html("salmon")).toContain('fill="#f98a62"');
     expect(html("salmon")).toContain('stroke="#b6c4d0"');
     expect(html("salmon")).toContain('stroke="#ffe6d6"');
-    expect(html("cream-cheese")).toContain('fill="#c9d3dd"');
-    expect(html("cream-cheese")).toContain('fill="#fbfdff"');
-    expect(html("cream-cheese")).not.toContain('stroke-width="0"'); // Owner decision 2026-10-22: the undrawn reference path is not ported
+    const cream = html("cream-cheese");
+    expect(cream).toContain('fill="#fff4e2"'); // warm-white body (tuned from the approved #fff1d2: the bake filter turned that lemon-yellow)
+    expect(cream).toContain('fill="#fffcf4"'); // top face
+    expect(cream).toContain('fill="#d3d9df"'); // the foil band (lower half only)
+    expect(cream).not.toContain("#c9d3dd"); // the C0 metal-tin body is gone
+    expect(cream).not.toContain('stroke-width="0"');
+    expect(cream).not.toMatch(/id=|<defs|gradient|url\(#/);
   });
 
   it("they are distinct from each other, from salmon-roe / shrimp, and from every other cheese drawing", () => {

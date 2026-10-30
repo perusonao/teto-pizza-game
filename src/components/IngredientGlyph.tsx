@@ -794,16 +794,19 @@ function SalmonFillet() {
   );
 }
 
-/* The reference SVG ends with an undrawn path (`stroke-width="0"`); Owner decision 2026-10-22: not ported (the look is identical). */
+/* Pilot D2 (#703, Owner-approved 2026-10-30; Style Lock §1b cream-cheese A -> C1): a warm-white block with only its lower half wrapped in foil
+   (it read as a metal tin before). Same 64x64 frame, outline weight and shadow as the other dedicated art; no id / gradient / defs. */
 function CreamCheeseBlock() {
   return (
     <g>
       <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
-      <path d="M6 30l8-10h38l6 10v20c0 3-3 5-6 5H12c-3 0-6-2-6-5z" fill="#c9d3dd" stroke="#5c6b7c" strokeWidth="2.4" strokeLinejoin="round" />
-      <path d="M6 30h52" stroke="#5c6b7c" strokeWidth="2.2" />
-      <path d="M6 30l8-10h38l6 10z" fill="#fbfdff" stroke="#5c6b7c" strokeWidth="2.4" strokeLinejoin="round" />
-      <path d="M14 26c6-5 14 1 20-2s12 0 16 2" stroke="#e6edf4" strokeWidth="3.4" strokeLinecap="round" fill="none" />
-      <path d="M12 40l6 8M24 38l6 12M38 38l-4 12M50 40l-6 8" stroke="#8fa0b3" strokeWidth="2" strokeLinecap="round" />
+      <path d="M6 30l8-10h38l6 10v20c0 3-3 5-6 5H12c-3 0-6-2-6-5z" fill="#fff4e2" stroke="#7a6548" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M6 30h52" stroke="#7a6548" strokeWidth="2.2" />
+      <path d="M6 30l8-10h38l6 10z" fill="#fffcf4" stroke="#7a6548" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M14 26c6-5 14 1 20-2s12 0 16 2" stroke="#f6e6bd" strokeWidth="3.4" strokeLinecap="round" fill="none" />
+      <path d="M16 36h12" stroke="#ecd9aa" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M6 45l4.5-2.5 4.5 2.5 4.5-2.5 4.5 2.5 4.5-2.5 4.5 2.5 4.5-2.5 4.5 2.5 4.5-2.5 4.5 2.5 4.5-2.5 4.5 2.5 2-1.5V50c0 3-3 5-6 5H12c-3 0-6-2-6-5z" fill="#d3d9df" stroke="#6b7380" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M14 50h11M35 50.5h8" stroke="#f1f4f7" strokeWidth="2.2" strokeLinecap="round" />
     </g>
   );
 }
