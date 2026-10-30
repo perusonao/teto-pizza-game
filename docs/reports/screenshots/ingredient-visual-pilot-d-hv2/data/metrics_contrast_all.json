@@ -1,0 +1,58 @@
+{
+ "chromium-390": {
+  "ideal": {
+   "outline_vs_bg": 2.35,
+   "bright_vs_bg": 1.82,
+   "stripe_vs_body": 1.88,
+   "body_vs_bg": 1.32
+  },
+  "burnt": {
+   "outline_vs_bg": 1.77,
+   "bright_vs_bg": 4.74,
+   "stripe_vs_body": 1.88,
+   "body_vs_bg": 2.52
+  }
+ },
+ "chromium-360": {
+  "ideal": {
+   "outline_vs_bg": 2.61,
+   "bright_vs_bg": 2.33,
+   "stripe_vs_body": 2.02,
+   "body_vs_bg": 1.26
+  },
+  "burnt": {
+   "outline_vs_bg": 1.77,
+   "bright_vs_bg": 4.76,
+   "stripe_vs_body": 1.88,
+   "body_vs_bg": 2.54
+  }
+ },
+ "webkit-390": {
+  "ideal": {
+   "outline_vs_bg": 2.21,
+   "bright_vs_bg": 2.81,
+   "stripe_vs_body": 1.86,
+   "body_vs_bg": 1.5
+  },
+  "burnt": {
+   "outline_vs_bg": 2.22,
+   "bright_vs_bg": 5.43,
+   "stripe_vs_body": 1.98,
+   "body_vs_bg": 2.73
+  }
+ },
+ "webkit-360": {
+  "ideal": {
+   "outline_vs_bg": 2.16,
+   "bright_vs_bg": 2.77,
+   "stripe_vs_body": 1.84,
+   "body_vs_bg": 1.5
+  },
+  "burnt": {
+   "outline_vs_bg": 1.93,
+   "bright_vs_bg": 5.54,
+   "stripe_vs_body": 2.06,
+   "body_vs_bg": 2.69
+  }
+ }
+}

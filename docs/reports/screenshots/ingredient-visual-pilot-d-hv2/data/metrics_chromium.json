@@ -1,0 +1,54 @@
+{
+ "390": {
+  "ideal": {
+   "outline_vs_bg": 2.35,
+   "bright_vs_bg": 1.82,
+   "stripe_vs_body": 1.88,
+   "body_vs_bg": 1.32
+  },
+  "ideal_roe": {
+   "outline_vs_bg": 2.02,
+   "bright_vs_bg": 2.04,
+   "stripe_vs_body": 2.22,
+   "body_vs_bg": 1.09
+  },
+  "burnt": {
+   "outline_vs_bg": 1.77,
+   "bright_vs_bg": 4.74,
+   "stripe_vs_body": 1.88,
+   "body_vs_bg": 2.52
+  },
+  "burnt_roe": {
+   "outline_vs_bg": 1.51,
+   "bright_vs_bg": 3.55,
+   "stripe_vs_body": 1.9,
+   "body_vs_bg": 1.94
+  }
+ },
+ "360": {
+  "ideal": {
+   "outline_vs_bg": 2.61,
+   "bright_vs_bg": 2.33,
+   "stripe_vs_body": 2.02,
+   "body_vs_bg": 1.26
+  },
+  "ideal_roe": {
+   "outline_vs_bg": 1.6,
+   "bright_vs_bg": 1.8,
+   "stripe_vs_body": 1.57,
+   "body_vs_bg": 1.23
+  },
+  "burnt": {
+   "outline_vs_bg": 1.77,
+   "bright_vs_bg": 4.76,
+   "stripe_vs_body": 1.88,
+   "body_vs_bg": 2.54
+  },
+  "burnt_roe": {
+   "outline_vs_bg": 1.56,
+   "bright_vs_bg": 3.87,
+   "stripe_vs_body": 1.48,
+   "body_vs_bg": 2.61
+  }
+ }
+}
