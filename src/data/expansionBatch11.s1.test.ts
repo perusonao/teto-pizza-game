@@ -105,9 +105,9 @@ describe("the two ordinary steps (62 and 63), derived by the REC-04 rule", () =>
     expect(steps[62].starGates).toBeUndefined();
     expect(DISCOVERY_LADDER.steps.some((s) => s.keyRecipeId === "porcini-pizza")).toBe(false);
   });
-  it("the late steps follow them at 65-71 (derived; Expansion Batch 12 inserted the ordinary step 64), and the fixed floors are unchanged", () => {
+  it("the late steps follow them at 66-72 (derived; Expansion Batch 12 inserted the ordinary step 64, Expansion Batch 13 step 65), and the fixed floors are unchanged", () => {
     const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
-    expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual([65, 66, 67, 68, 69, 70, 71]);
+    expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual([66, 67, 68, 69, 70, 71, 72]);
     expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 });
   });
 });

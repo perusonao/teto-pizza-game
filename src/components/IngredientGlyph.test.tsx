@@ -53,6 +53,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "salmon-fillet",
   "cream-cheese-block",
   "ricotta-salata-shavings",
+  "mayo-squeeze",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -89,9 +90,10 @@ const V1_DEDICATED: Record<string, DedicatedIngredientVisual> = { pickles: "pick
 const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains", "white-sesame": "sesame-seeds", pomegranate: "pomegranate-aril", cilantro: "cilantro-leaf", wasabi: "wasabi-dab", "cod-roe": "cod-roe-mass", nori: "nori-strips" } : {};
 const B11_DEDICATED: Record<string, DedicatedIngredientVisual> = { porcini: "porcini-slice", mussel: "mussel-shell" }; // B11 S1 (provisional adoption; the final adoption is the 390x844 / 360x800 HV)
 /** Ingredient Icons 2.0 Pilot D (#623, Style Lock v2 §10.3): salmon / cream-cheese dedicated art instead of 🍣 / the generic CSS cheese circle. */
+const B13_DEDICATED: Record<string, DedicatedIngredientVisual> = { mayo: "mayo-squeeze" }; // Expansion Batch 13 (provisional adoption; the 20px check "it does not read as the letter M" is the 390x844 / 360x800 HV)
 const B12_DEDICATED: Record<string, DedicatedIngredientVisual> = { "ricotta-salata": "ricotta-salata-shavings" }; // Expansion Batch 12 (provisional adoption; the final adoption is the 390x844 / 360x800 HV)
 const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PILOT_D_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...LATE_DEDICATED };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PILOT_D_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -1084,6 +1086,42 @@ describe("Batch 12: ricotta-salata dedicated art (production row)", () => {
   it("is distinct from the neighbouring cheese art (ricotta mound, feta cubes, cream-cheese block)", () => {
     const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
     const all = ["ricotta-salata", "ricotta", "feta", "cream-cheese"].map(html);
+    expect(new Set(all).size).toBe(all.length);
+  });
+});
+
+/**
+ * Expansion Batch 13 (PROVISIONAL SPEC / adoption, original NOT confirmed): `mayo` is a topping (scatter, family `spice`) drawn by its own dedicated art (a squeezed zigzag bead, M1) on the glyph and on the placed piece,
+ * never by its emoji (the 🧴 is only the text fallback). It is a topping, not a sauce: no sauce wrapper, no sauce interaction.
+ */
+describe("Batch 13: mayo dedicated art (production row)", () => {
+  const visual = "mayo-squeeze";
+
+  it("declares the visual and keeps its identity (a topping, not a sauce)", () => {
+    expect(getIngredient("mayo")).toMatchObject({ id: "mayo", nameJa: "マヨネーズ", category: "topping", placement: "scatter", pieceVisual: visual });
+  });
+
+  it("draws an SVG on the glyph and on the placed piece (64x64, no id / gradient / defs) and never prints its emoji", () => {
+    const ingredient = getIngredient("mayo")!;
+    for (const node of [<IngredientGlyph key="g" ingredient={ingredient} />, <IngredientPieceVisual key="p" ingredient={ingredient} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(svg!.getAttribute("focusable")).toBe("false");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      expect(container.innerHTML).not.toContain("<defs");
+      expect(container.innerHTML).not.toContain("gradient");
+      unmount();
+    }
+  });
+
+  it("is distinct from the neighbouring cheese / white art (ricotta mound, ricotta-salata shavings, cream-cheese block, feta cubes)", () => {
+    const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+    const all = ["mayo", "ricotta", "ricotta-salata", "cream-cheese", "feta"].map(html);
     expect(new Set(all).size).toBe(all.length);
   });
 });

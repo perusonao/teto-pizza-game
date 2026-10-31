@@ -52,6 +52,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "porcini-slice": "0 0 64 64",
   "mussel-shell": "0 0 64 64",
   "ricotta-salata-shavings": "0 0 64 64",
+  "mayo-squeeze": "0 0 64 64",
   "salmon-fillet": "0 0 64 64",
   "cream-cheese-block": "0 0 64 64",
 };
@@ -93,6 +94,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "porcini-slice" && <PorciniSlice />}
       {visual === "mussel-shell" && <MusselShell />}
       {visual === "ricotta-salata-shavings" && <RicottaSalataShavings />}
+      {visual === "mayo-squeeze" && <MayoSqueeze />}
       {visual === "salmon-fillet" && <SalmonFillet />}
       {visual === "cream-cheese-block" && <CreamCheeseBlock />}
     </svg>
@@ -832,6 +834,20 @@ function RicottaSalataShavings() {
         <circle cx="52" cy="52" r="1.7" />
         <circle cx="9" cy="54" r="1.5" />
       </g>
+    </g>
+  );
+}
+
+/* ---------- mayo (Expansion Batch 13, PROVISIONAL SPEC / adoption): a squeezed zigzag bead of mayonnaise (M1), cream-white with a warm brown outline, with a small dab at the start of the squeeze. Drawn as a thick outline stroke under a cream stroke so it reads as a bead, not as a letter M or a cheese block. ---------- */
+function MayoSqueeze() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.2" fill="#000" opacity=".14" />
+      <path d="M10 42 L21 22 L33 42 L45 22 L55 40" fill="none" stroke="#7a6548" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10 42 L21 22 L33 42 L45 22 L55 40" fill="none" stroke="#fff6dc" strokeWidth="8.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M13 38 L21 25" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" opacity=".85" />
+      <path d="M36 38 L45 25" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" opacity=".85" />
+      <circle cx="55" cy="40" r="2.2" fill="#fff" opacity=".85" />
     </g>
   );
 }
