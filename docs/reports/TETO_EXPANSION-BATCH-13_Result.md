@@ -37,11 +37,11 @@ Status: **実装完了。Owner の承認と実機 HV の前は merge しない�
 
 ## 3. 変更ファイル（要点）
 
-`ingredients.ts`（mayo、`mayo-squeeze`）/ `IngredientGlyph.tsx`（SVG）/ `toppingSizeClass.ts` / `ingredientTaxonomy.ts`（mayo = spice）/ `discoveryLadder.ts`（step 65）/ `recipes.ts` / `referencePizza.ts` / `orders.ts` / `discoveryCatalog.ts` / `recipeHintRoles.ts` / `recipeSauceProfiles.ts` ＋ 件数 pin・manifest（`B13_BATCH`）・golden・DH4 audit・E2E の追従。新規テスト: `e2e/batch13-potato-mayo.spec.ts`（390×844 / 360×800 の通し）、`IngredientGlyph.test.tsx` の Batch 13 契約。
+`ingredients.ts`（mayo、`mayo-drop`）/ `IngredientGlyph.tsx`（SVG）/ `toppingSizeClass.ts` / `ingredientTaxonomy.ts`（mayo = spice）/ `discoveryLadder.ts`（step 65）/ `recipes.ts` / `referencePizza.ts` / `orders.ts` / `discoveryCatalog.ts` / `recipeHintRoles.ts` / `recipeSauceProfiles.ts` ＋ 件数 pin・manifest（`B13_BATCH`）・golden・DH4 audit・E2E の追従。新規テスト: `e2e/batch13-potato-mayo.spec.ts`（390×844 / 360×800 の通し）、`IngredientGlyph.test.tsx` の Batch 13 契約。
 
 ## 4. 検証
 
-- 全 Vitest: Pinsa ON 568 files・10797 passed・0 failed / Pinsa OFF 568 files・10789 passed・0 failed（案A と #717 のテスト統合後）。
+- 全 Vitest: **Pinsa ON 570 files（+1 skipped）・10,826 passed・0 failed / Pinsa OFF 570 files（+1 skipped）・10,818 passed・0 failed**（§7 の追加後。`866298f` 時点は 568 files・10,797 / 10,789）。`tsc -b` 0 error・oxlint 0 error（警告 14 は変更前と同数）・`vite build` 成功。WebKit はこの環境では本体のダウンロードがプロキシのポリシーで拒否される（403）ため、CI の WebKit 6 シャードで確認する。
 - `tsc -b` / `vite build` / oxlint: error なし。
 - Chromium E2E（`batch13-potato-mayo`）: 390×844 / 360×800 とも 1/1 passed（Shop NEW → 購入 → Research（漏えいなし）→ ソースなしで次へ → モッツァレラ → 具材（マヨネーズは**2 回なぞる = 2 個**）→ 焼成 → NEW DISCOVERY → 図鑑、横スクロールなし、console error 0）。新規: `squeeze.test.ts`（13）/ `gameReducer.squeeze.test.ts` / `PizzaStage.squeeze.test.tsx`（5: なぞり = 1 個の線、タップ = しずく、60% の上限、プレビュー、他の具材は不変）。
 - スクリーンショット 14 枚（しずく形・なぞり後の線）: `docs/reports/screenshots/b13/`。動画（390×844）は Owner へ直接提出（リポジトリには含めない）。
@@ -54,3 +54,29 @@ Status: **実装完了。Owner の承認と実機 HV の前は merge しない�
 3. 名称「じゃがマヨピザ」と説明文（暫定）。
 4. NO_SAUCE 仮定（この 1 件限り）の維持。原典確認は未了。
 5. **iPhone 実機 HV**（Owner。セッションは PASS を代行しない）: マヨネーズを**なぞって**置く操作と見え方、しずく形の識別（モッツァレラ、クリームチーズ、リコッタ、リコッタサラータとの取り違え）、じゃがマヨピザの調理から RESULT まで（ソースは塗らない。チーズ工程は飛ばさない）、図鑑・Research の表示。
+
+## 7. 案A の仕上げ（Owner 指示の追加確認、HEAD 866298f の上への追加コミット）
+
+`866298f` の案A 実装に対し、Owner 決定のうち未対応だった点だけを追加した（実装の二重化は避け、API は `onPlaceTrail` のまま）。
+
+| 項目 | 内容 |
+|---|---|
+| 線を描いた後に消える現象の最小化 | (1) **在庫なし**: 押した時点で通常タップ扱い（`activeIngredientPlaceable`、`canPlaceIngredient`）→ 線を描かず、既存の ✕ を即表示。(2) **中点が他の具材で埋まっている**: 線は描いたまま動かさず、ピースを**線上**の最初の空き点へ（中点→両端の順）。線上に空きがないときだけ従来どおり線ごとずらす |
+| プレビューと確定線のずれ | 確定線が内側の枠、プレビューが外枠で描かれ、縁の近くで離した瞬間に線が最大約 8px 動いていた（実測 7.2px）。確定線も外枠で描くよう CSS を修正。E2E が「線の始点 = 指を置いた位置（1.5px 未満）」を検証（修正前は 7.2px で失敗することを確認） |
+| 食材切り替え | なぞっている途中で別の食材に切り替えると、その 1 本は破棄（何も置かない） |
+| 検証 | 取り消し（1つ戻す）で最後の 1 本だけ消える / pointercancel・捕捉喪失・blur で何も置かない / 二本指は無視 / FINISH では軌跡を無視 / 認識・採点・在庫消費は軌跡あり・なしで一致 / pendingRound に軌跡が出ない・再開前後で一致 |
+| 上限の実測（E2E） | 390×844: ドウ 290.0px・1 本の最大 167.0px（57.6%）／ 360×800: ドウ 273.6px・157.6px（57.6%） |
+
+追加・変更: `src/logic/squeeze.ts`（`trailPointAt` / `anchorCandidates`）、`gameReducer.ts`、`PizzaStage.tsx`、`GameScreen.tsx`、`App.css`、`e2e/gestures.ts`（`squeezeDoughPath`）、`e2e/batch13-potato-mayo.spec.ts`、テスト `gameReducer.mayoTrail.test.ts`・`PizzaStage.mayoSqueeze.test.tsx`・`gameReducer.squeeze.test.ts`（更新）。画像: `docs/reports/screenshots/b13-mayo-squeeze/`（before / after 比較 6 枚、20〜24px アイコン比較 1 枚）。
+
+## Human Verification Videos
+
+| Video | Viewport | Duration | Size | Verification |
+|---|---|---:|---:|---|
+| `pr716-mayo-squeeze-390x844.mp4`（H.264） | 390×844 | 44.8s | 809,382 bytes | PASS |
+
+Download: セッション内で直接提出（リポジトリには含めない）。共有 Preview は更新していない（ローカルの開発サーバーで撮影）。
+
+Video Verification: PASS
+
+確認すること: 研究 → 具材 → マヨネーズ選択 → 上限いっぱいの 1 本 → 1つ戻す → タップのしずく → 1つ戻す → ジグザグ 2 本 → 焼成 → NEW PIZZA → 図鑑。

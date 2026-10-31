@@ -119,6 +119,29 @@ export function trailAnchor(points: readonly TrailPoint[]): TrailPoint {
   return { ...points[points.length - 1] };
 }
 
+/** The point `fraction` (0..1) of the way along the polyline, by length. */
+export function trailPointAt(points: readonly TrailPoint[], fraction: number): TrailPoint {
+  if (points.length === 0) return { x: 50, y: 50 };
+  const target = Math.min(1, Math.max(0, fraction)) * trailLength(points);
+  let length = 0;
+  for (let i = 1; i < points.length; i += 1) {
+    const segment = Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+    if (segment > 0 && length + segment >= target) {
+      const t = (target - length) / segment;
+      return { x: points[i - 1].x + (points[i].x - points[i - 1].x) * t, y: points[i - 1].y + (points[i].y - points[i - 1].y) * t };
+    }
+    length += segment;
+  }
+  return { ...points[points.length - 1] };
+}
+
+/** Where the piece may sit on its own stroke when the midpoint is taken: the midpoint, then outward along the line to both ends. */
+export const SQUEEZE_ANCHOR_FRACTIONS: readonly number[] = [0.5, 0.375, 0.625, 0.25, 0.75, 0.125, 0.875, 0, 1];
+
+export function anchorCandidates(points: readonly TrailPoint[]): TrailPoint[] {
+  return SQUEEZE_ANCHOR_FRACTIONS.map((fraction) => trailPointAt(points, fraction));
+}
+
 /** The same stroke moved by (dx, dy), each point clamped back by `clamp` (used when the open-spot search nudged the anchor). */
 export function shiftTrail(points: readonly TrailPoint[], dx: number, dy: number, clamp: (x: number, y: number) => TrailPoint = (x, y) => ({ x, y })): TrailPoint[] {
   return points.map((p) => clamp(p.x + dx, p.y + dy));

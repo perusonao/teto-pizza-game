@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
-import { bakeToTarget, completeDoughStep, paintSauceRing, squeezeDoughStroke, tapDoughPercent } from "./gestures";
+import { bakeToTarget, completeDoughStep, paintSauceRing, squeezeDoughPath, squeezeDoughStroke, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { expectResearchLead } from "./support/hintNote";
@@ -81,14 +81,17 @@ async function open(page: Page, json: string) {
   await page.goto("/");
   await page.waitForSelector(".app-frame");
 }
-/** Two strokes of a squeezed bead, in the clear lanes between the ring slots (each 40% of the dough wide, under the 60% cap). */
-const STROKES: [[number, number], [number, number]][] = [[[32, 34], [68, 34]], [[32, 70], [68, 70]]];
+/** Two wavy strokes of a squeezed bead, in the clear lanes between the ring slots (each about 40% of the dough wide, under the 60% cap). */
+const STROKES: [number, number][][] = [
+  [[32, 36], [40, 31], [48, 37], [56, 31], [64, 37], [70, 33]],
+  [[30, 70], [38, 65], [46, 71], [54, 65], [62, 71], [68, 67]],
+];
 async function place(page: Page, picks: [RegExp, number, "stroke"?][], startSpot: number) {
   let spot = startSpot;
   for (const [name, count, mode] of picks) {
     await (await chipOnTrayOrPin(page, name)).click();
     for (let i = 0; i < count; i += 1) {
-      if (mode === "stroke") await squeezeDoughStroke(page, ...STROKES[i % STROKES.length]);
+      if (mode === "stroke") await squeezeDoughPath(page, STROKES[i % STROKES.length]);
       else await tapDoughPercent(page, ...SPOTS[spot++ % SPOTS.length]);
     }
   }
@@ -167,6 +170,48 @@ test.describe("Expansion Batch 13 (potato-mayo-pizza, played end to end)", () =>
       await bar(page).getByRole("button", { name: /次へ/ }).click();
       await expect(page.getByRole("tab", { name: "具材", selected: true })).toBeVisible();
       await capture(page, `b13-${c.id}-tray-topping`, project);
+      // Owner 案A, measured on the real layout: (1) the committed line sits where the finger drew it (no jump at release, even near the rim), (2) one stroke
+      // is capped at 60% of the dough's diameter, (3) 1つ戻す takes back exactly the last stroke / the tap's droplet.
+      await (await chipOnTrayOrPin(page, /マヨネーズ/)).click();
+      const doughBox = (await page.locator('[data-pizza-drop-target="true"]').boundingBox())!;
+      const screenOf = (px: number, py: number) => ({ x: doughBox.x + (px / 100) * doughBox.width, y: doughBox.y + (py / 100) * doughBox.height });
+      await squeezeDoughStroke(page, [14, 46], [60, 46]);
+      const line = page.locator("svg.pizza-squeeze-trail").first();
+      await expect(line).toHaveCount(1);
+      const geometry = await line.evaluate((svg) => {
+        const box = svg.getBoundingClientRect();
+        const pts = svg.querySelector("path")!.getAttribute("d")!.match(/-?\d+(?:\.\d+)?/g)!.map(Number);
+        return { left: box.left, top: box.top, width: box.width, height: box.height, pts };
+      });
+      const first = { x: geometry.left + (geometry.pts[0] / 100) * geometry.width, y: geometry.top + (geometry.pts[1] / 100) * geometry.height };
+      const want = screenOf(14, 46);
+      expect(Math.abs(first.x - want.x), `${project}: line start vs finger (x)`).toBeLessThan(1.5);
+      expect(Math.abs(first.y - want.y), `${project}: line start vs finger (y)`).toBeLessThan(1.5);
+      await page.getByRole("button", { name: "1つ戻す" }).click();
+      await expect(page.locator("svg.pizza-squeeze-trail")).toHaveCount(0);
+      await squeezeDoughStroke(page, [6, 50], [94, 50], 40); // far longer than the cap
+      const capped = await page.locator("svg.pizza-squeeze-trail").first().evaluate((svg) => {
+        const box = svg.getBoundingClientRect();
+        const pts = svg.querySelector("path")!.getAttribute("d")!.match(/-?\d+(?:\.\d+)?/g)!.map(Number);
+        let len = 0;
+        for (let i = 2; i < pts.length; i += 2) len += Math.hypot(((pts[i] - pts[i - 2]) / 100) * box.width, ((pts[i + 1] - pts[i - 1]) / 100) * box.height);
+        return len;
+      });
+      const ratio = capped / doughBox.width;
+      console.log(`[mayo cap] ${project}: dough ${doughBox.width.toFixed(1)}px, one stroke max ${capped.toFixed(1)}px (${(ratio * 100).toFixed(1)}% of the dough box; the cap is 60% of the 96% dough diameter = 57.6%)`);
+      expect(ratio).toBeGreaterThan(0.57);
+      expect(ratio).toBeLessThan(0.585);
+      await capture(page, `b13-${c.id}-mayo-cap`, project);
+      await hold(page, 1500);
+      await page.getByRole("button", { name: "1つ戻す" }).click();
+      await expect(page.locator("svg.pizza-squeeze-trail")).toHaveCount(0);
+      await tapDoughPercent(page, 50, 50); // a tap = the single droplet, no line
+      await expect(page.locator('.pizza-dough [data-ingredient-visual="mayo-drop"]')).toHaveCount(1);
+      await expect(page.locator("svg.pizza-squeeze-trail")).toHaveCount(0);
+      await capture(page, `b13-${c.id}-mayo-drop`, project);
+      await hold(page, 1500);
+      await page.getByRole("button", { name: "1つ戻す" }).click();
+      await expect(page.locator(".pizza-topping--mayo")).toHaveCount(0);
       spot = await place(page, c.toppings, spot);
       // Owner 案A: each mayo = ONE stroke = ONE piece, drawn as a line (not a droplet); the strokes are inside the dough and the page does not scroll sideways.
       await expect(page.locator(".pizza-squeeze-trail")).toHaveCount(2);

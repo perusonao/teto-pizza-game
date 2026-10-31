@@ -94,7 +94,7 @@ import { doughSwitchOffered } from "../state/doughSelection";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import { canUndoPlacement } from "../state/undoPlacement";
-import { canPlacePostBakeIngredient } from "../state/inventory";
+import { canPlaceIngredient, canPlacePostBakeIngredient } from "../state/inventory";
 import { isLunchRushRound } from "../state/roundKind";
 import { CookingPrepLayer } from "../components/CookingPrepLayer";
 
@@ -534,6 +534,10 @@ export function GameScreen({
   const roomyStage = state.phase === "BAKE" || (postBakeStepRendered && !isFinishStep);
   const finishTray = isFinishStep ? finishTrayIngredients(state.recipe, state.ownedIngredientIds) : [];
   const finishTrayCount = finishTray.length;
+  // Mayo squeeze (#708): the Stock Gate for the selected ingredient, so a squeeze press with no stock left is an ordinary tap (the refusal mark shows at
+  // once; no line is drawn and then lost). Pre-bake only: FINISH keeps its own selection rule below and never squeezes.
+  const selectedIngredientForGate = selectedIngredientId ? getIngredient(selectedIngredientId) : undefined;
+  const selectedIngredientPlaceable = !selectedIngredientForGate || isFinishStep || canPlaceIngredient(selectedIngredientForGate, state.inventory, state.pizza);
 
   // FIN-B carry-over: once the stock of the selected late ingredient is used up (or after an ingredient that FINISH does
   // not offer was left selected), release the selection so a tap on the pizza cannot act on a disabled chip.
@@ -906,6 +910,7 @@ export function GameScreen({
         onDoughElementChange={onDoughElementChange}
         onTap={onTapPizza}
         onPlaceTrail={onPlaceTrail}
+        activeIngredientPlaceable={selectedIngredientPlaceable}
         onDispenseProgress={onDispenseProgress}
         onDispenseCommit={onDispenseCommit}
         onDoughStretchProgress={onDoughStretchProgress}

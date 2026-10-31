@@ -146,6 +146,9 @@ interface PizzaStageProps {
   /** Expansion Batch 13 (#708, "案A"): fired once, at a successful pointerup, with the stroke (dough percent, already capped at 60% of the dough's
    *  diameter) of a squeezable topping (mayo) in the TOPPING step -- one stroke = one piece. A tap still goes to `onTap` (the single droplet). */
   onPlaceTrail?: (points: readonly TrailPoint[]) => void;
+  /** Whether one more piece of the selected ingredient may be placed (the Stock Gate). `false` makes a squeeze press an ordinary tap, so the
+   *  reducer's refusal mark shows at once instead of a line being drawn and then vanishing on release. Default true. */
+  activeIngredientPlaceable?: boolean;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
    *  for the in-progress dispense session on every tick, and with `[]` the instant that
    *  session ends for any reason (commit or discard) -- lets the Prototype Metrics panel
@@ -278,6 +281,7 @@ export function PizzaStage({
   squareDough,
   onTap,
   onPlaceTrail,
+  activeIngredientPlaceable = true,
   onDispenseProgress,
   onDispenseCommit,
   cutState,
@@ -331,7 +335,8 @@ export function PizzaStage({
   const isDoughStep = makingStep === "DOUGH";
   const isPaintMode = activeIngredient?.placement === "spread";
   // Expansion Batch 13 (#708, "案A"): a squeezable topping (mayo) selected in the TOPPING step -- one stroke across the dough places ONE piece.
-  const isSqueezeMode = interactive && makingStep === "TOPPING" && !!onPlaceTrail && isSqueezeIngredientId(activeIngredient?.id);
+  const isSqueezeMode =
+    interactive && makingStep === "TOPPING" && !!onPlaceTrail && activeIngredientPlaceable && isSqueezeIngredientId(activeIngredient?.id);
   // Pizza Cutting 1.0 Phase 2 (design doc §2.2): gates the CUT edge-to-edge drag gesture branch
   // below, mirroring isDoughStep's own role -- mutually exclusive with sauce/dough gestures in
   // practice (CUT only ever becomes the active `makingStep` during POST_BAKE, after PREPARE/BAKE
@@ -571,7 +576,8 @@ export function PizzaStage({
     const newId = activeIngredient?.id ?? null;
     if (activeIngredientIdRef.current === newId) return;
     activeIngredientIdRef.current = newId;
-    if (activeSessionRef.current) abortActiveGesture();
+    // a squeeze stroke in progress belongs to the ingredient it started with: switching away discards it (nothing is placed)
+    if (activeSessionRef.current || gestureRef.current.squeezePoints.length > 0) abortActiveGesture();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIngredient]);
 

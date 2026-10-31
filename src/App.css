@@ -8274,9 +8274,12 @@ p.hint-sheet__step {
    A stroke never takes pointer events and never receives the single-piece landing animation. */
 .pizza-squeeze-trail {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  /* The pointer math (and so the live stroke preview, .pizza-paint-trail) is percent of the dough's BORDER box, while a piece's own left / top is
+     percent of its padding box: drawn in the padding box the line would jump up to ~8px at release near the rim. Draw it in the border box, exactly
+     like .pizza-paint-trail / .pizza-cut-layer, so the committed line sits where the finger drew it. */
+  inset: calc(-1 * var(--dough-border-width, 10px));
+  width: calc(100% + 2 * var(--dough-border-width, 10px));
+  height: calc(100% + 2 * var(--dough-border-width, 10px));
   pointer-events: none;
   overflow: visible;
 }

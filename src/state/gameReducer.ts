@@ -101,7 +101,7 @@ import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
 import { isValidSquareDough, type SquareDough } from "../logic/pan/squareDough";
 import { activePanShape } from "../preview/panShapePreview";
 import { getPanGeometry } from "../logic/pan/panGeometry";
-import { isSqueezeIngredientId, normalizeTrail, shiftTrail, trailAnchor } from "../logic/squeeze";
+import { anchorCandidates, isSqueezeIngredientId, normalizeTrail, shiftTrail, trailAnchor } from "../logic/squeeze";
 import { cookingProfileForPan } from "../logic/pan/panProfile";
 import { effectivePanShape } from "../logic/pan/effectivePan";
 import type { PanShape } from "../logic/pan/panShape";
@@ -1120,10 +1120,24 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           },
         };
       }
-      const spot =
+      const openSpotNear = (px: number, py: number) =>
         pan.shape === "round"
-          ? findOpenSpot(state.pizza.toppings, anchor.x, anchor.y)
-          : findOpenSpotOnPan(pan, state.pizza.toppings, anchor.x, anchor.y, MIN_TOPPING_DISTANCE);
+          ? findOpenSpot(state.pizza.toppings, px, py)
+          : findOpenSpotOnPan(pan, state.pizza.toppings, px, py, MIN_TOPPING_DISTANCE);
+      let spot = openSpotNear(anchor.x, anchor.y);
+      // A stroke whose midpoint is taken keeps its drawn line EXACTLY (what the finger drew is what stays) and slides its piece along that line to the
+      // first free point (midpoint outward to both ends); only when no point of the line is free is the whole stroke nudged with the piece, as before.
+      let slidOnLine = false;
+      if (rawTrail && spot && (spot.x !== anchor.x || spot.y !== anchor.y)) {
+        for (const candidate of anchorCandidates(rawTrail)) {
+          const free = openSpotNear(candidate.x, candidate.y);
+          if (free && free.x === candidate.x && free.y === candidate.y) {
+            spot = free;
+            slidOnLine = true;
+            break;
+          }
+        }
+      }
       placementTokenCounter += 1;
 
       if (!spot) {
@@ -1150,11 +1164,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             y: spot.y,
             ...(inFinish ? { stage: "post" as const } : {}),
             // The stroke moves with the piece when the open-spot search nudged its anchor.
-            ...(rawTrail ? { trail: shiftTrail(rawTrail, spot.x - anchor.x, spot.y - anchor.y, (px, py) => pan.clamp(px, py)) } : {}),
+            ...(rawTrail ? { trail: slidOnLine ? rawTrail : shiftTrail(rawTrail, spot.x - anchor.x, spot.y - anchor.y, (px, py) => pan.clamp(px, py)) } : {}),
           },
         ],
       };
-      const wasAdjusted = spot.x !== anchor.x || spot.y !== anchor.y;
+      const wasAdjusted = !slidOnLine && (spot.x !== anchor.x || spot.y !== anchor.y);
       return {
         ...state,
         pizza,

@@ -33,14 +33,28 @@ describe("PLACE_TOPPING with a stroke (mayo)", () => {
     expect(trailLength(state.pizza.toppings[0].trail!)).toBeLessThanOrEqual(SQUEEZE_MAX_LENGTH + 1e-6);
   });
 
-  it("two strokes are two pieces (the recipe's mayo 2); the second is nudged off the first and its stroke moves with it", () => {
+  it("two strokes are two pieces (the recipe's mayo 2); a taken midpoint slides the second piece along ITS OWN line, which stays exactly as drawn", () => {
     let state = gameReducer(toppingState(), { type: "PLACE_TOPPING", ingredientId: "mayo", x: 50, y: 50, trail: stroke(30, 70) });
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mayo", x: 50, y: 50, trail: stroke(30, 70) });
     expect(state.pizza.toppings.filter((t) => t.ingredientId === "mayo")).toHaveLength(2);
     const [a, b] = state.pizza.toppings;
-    expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThan(0);
-    const anchorShift = { dx: b.x - a.x, dy: b.y - a.y };
-    expect(b.trail![0].x - a.trail![0].x).toBeCloseTo(anchorShift.dx, 1);
+    expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeGreaterThanOrEqual(9); // MIN_TOPPING_DISTANCE
+    expect(b.y).toBeCloseTo(50, 6); // still on the drawn line
+    expect(b.x).toBeGreaterThanOrEqual(30);
+    expect(b.x).toBeLessThanOrEqual(70);
+    expect(b.trail![0].x).toBeCloseTo(a.trail![0].x, 6); // the line did not move with the piece
+    expect(state.placement?.status).toBe("placed");
+  });
+
+  it("with no free point on the line the stroke is nudged with its piece (the earlier behaviour)", () => {
+    let state = toppingState();
+    for (const x of [26, 38, 50, 62, 74]) state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x, y: 50 });
+    const before = state.pizza.toppings.length;
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mayo", x: 50, y: 50, trail: stroke(26, 74) });
+    const piece = state.pizza.toppings[before];
+    expect(state.pizza.toppings).toHaveLength(before + 1);
+    expect(Math.hypot(piece.x - 50, piece.y - 50)).toBeGreaterThan(0);
+    expect(piece.trail![0].x - 26).toBeCloseTo(piece.x - 50, 1);
   });
 
   it("a tap-sized or malformed trail is the ordinary single drop (no trail stored)", () => {
