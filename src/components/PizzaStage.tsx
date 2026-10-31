@@ -1239,7 +1239,17 @@ export function PizzaStage({
           t.ingredientId === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas"
             ? Math.max(TOPPING_REACH, cheesePoolReachPercent(Math.round(CHEESE_RENDER_MODE.sizePx * activeToppingRankScale(t.ingredientId)), doughPx))
             : toppingFootprintRadiusPercent(activeToppingRankScale(t.ingredientId) * toppingPhaseScale(t.ingredientId, resultCompact), doughPx);
-        return [t.id, placeTopping(pieceLayout, t.x, t.y, reach)] as const;
+        const own = placeTopping(pieceLayout, t.x, t.y, reach);
+        if (!t.trail || t.trail.length < 2) return [t.id, own] as const;
+        // A squeezed stroke is long: it belongs to EVERY piece it crosses (not only the ones round its anchor), and each piece draws it through its own clip.
+        const crossed = new Set<number>(own.halves);
+        for (const point of t.trail) {
+          const here = placeTopping(pieceLayout, point.x, point.y, reach);
+          crossed.add(here.home);
+          for (const half of here.halves) crossed.add(half);
+        }
+        crossed.delete(own.home);
+        return [t.id, { home: own.home, halves: [...crossed] }] as const;
       }),
     );
   }, [pieceLayout, pizza.toppings, doughPx, resultCompact]);

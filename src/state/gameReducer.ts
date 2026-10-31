@@ -1128,7 +1128,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // A stroke whose midpoint is taken keeps its drawn line EXACTLY (what the finger drew is what stays) and slides its piece along that line to the
       // first free point (midpoint outward to both ends); only when no point of the line is free is the whole stroke nudged with the piece, as before.
       let slidOnLine = false;
-      if (rawTrail && spot && (spot.x !== anchor.x || spot.y !== anchor.y)) {
+      // (also when the search around the midpoint found nothing: `findOpenSpot` only looks ~22% around it, while the stroke may reach 58% across)
+      if (rawTrail && (!spot || spot.x !== anchor.x || spot.y !== anchor.y)) {
         for (const candidate of anchorCandidates(rawTrail)) {
           const free = openSpotNear(candidate.x, candidate.y);
           if (free && free.x === candidate.x && free.y === candidate.y) {

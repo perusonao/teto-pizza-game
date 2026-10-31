@@ -57,6 +57,21 @@ describe("PLACE_TOPPING with a stroke (mayo)", () => {
     expect(piece.trail![0].x - 26).toBeCloseTo(piece.x - 50, 1);
   });
 
+  it("a crowded midpoint does not lose the stroke: the search round the midpoint is only ~22%, but the line reaches 58% across, so its free points are tried too", () => {
+    let state = toppingState();
+    const ring = Array.from({ length: 8 }, (_, i) => ({ x: 50 + 15 * Math.cos((i * Math.PI) / 4), y: 50 + 15 * Math.sin((i * Math.PI) / 4) }));
+    for (const p of [{ x: 50, y: 50 }, ...ring]) state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: p.x, y: p.y });
+    expect(state.pizza.toppings).toHaveLength(9);
+    const before = state.pizza.toppings.length;
+    state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "mayo", x: 50, y: 50, trail: stroke(21.2, 78.8) });
+    expect(state.placement?.status).toBe("placed");
+    expect(state.pizza.toppings).toHaveLength(before + 1);
+    const piece = state.pizza.toppings[before];
+    expect(piece.y).toBeCloseTo(50, 6); // on its own line
+    expect(piece.trail![0].x).toBeCloseTo(21.2, 1); // the drawn line is untouched
+    for (const other of state.pizza.toppings.slice(0, before)) expect(Math.hypot(piece.x - other.x, piece.y - other.y)).toBeGreaterThanOrEqual(9);
+  });
+
   it("a tap-sized or malformed trail is the ordinary single drop (no trail stored)", () => {
     for (const trail of [undefined, [], [{ x: 50, y: 50 }], [{ x: 50, y: 50 }, { x: 51, y: 50 }], [{ x: NaN, y: 1 }, { x: 5, y: 5 }]]) {
       const state = gameReducer(toppingState(), { type: "PLACE_TOPPING", ingredientId: "mayo", x: 50, y: 50, trail: trail as never });
