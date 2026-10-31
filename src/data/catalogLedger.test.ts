@@ -24,12 +24,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // PR-2 late4 (#578 / #611): + wasabi-beef-pizza and tarako-cream-pizza (late catalog, credited, chapter 4), + soy-sauce and fresh-cream-sauce (late sauces) + wasabi / cod-roe / nori (late toppings), + their late ladder steps 67 and 68.
       // B11 S1 (PROVISIONAL SPEC, original NOT confirmed): + boscaiola (credited, the key of ordinary step 62), + porcini-pizza (non-credit, NO_SAUCE, the same step), + pescatore (credited, the key of ordinary step 63), chapter 4; + porcini (vegetable) and mussel (seafood) toppings; + ordinary steps 62-63 (the late steps shift +2: 64-70).
       // Expansion Batch 12 (#707) on top of B12 (#706): B12 adds jamaican-jerk-chicken-pizza (non-credit, NO_SAUCE, no new material, joins the green-pepper cohort, chapter 4 with its key step 32); Expansion Batch 12 adds supreme-pizza (non-credit, chapter 3, no new material), pizza-alla-norma (credited, chapter 4, the key of ordinary step 64) and ricotta-salata (a cheese, so `toppings` does not move).
-      recipes: pinsa ? 83 : 82,
-      credited: 74,
-      ingredients: 93,
-      toppings: 66,
-      ladderSteps: 71,
-      chapterSizes: [6, 12, 19, pinsa ? 46 : 45],
+      // Expansion Batch 13 (#708, PROVISIONAL SPEC, original NOT confirmed): + potato-mayo-pizza (credited, NO_SAUCE, chapter 4, the key of ordinary step 65), + mayo (a scattered spice-family topping); the late steps shift +1 again.
+      recipes: pinsa ? 84 : 83,
+      credited: 75,
+      ingredients: 94,
+      toppings: 67,
+      ladderSteps: 72,
+      chapterSizes: [6, 12, 19, pinsa ? 47 : 46],
       lunchRushPool: 25,
     });
   });
@@ -40,6 +41,6 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id)! : i.category;
       byShelf[shelf] = (byShelf[shelf] ?? 0) + 1;
     }
-    expect(byShelf).toEqual({ sauce: 13, cheese: 14, meat: 12, seafood: 11, vegetable: 24, fruit: 3, herb: 9, spice: 4, other: 3 });
+    expect(byShelf).toEqual({ sauce: 13, cheese: 14, meat: 12, seafood: 11, vegetable: 24, fruit: 3, herb: 9, spice: 5, other: 3 });
   });
 });

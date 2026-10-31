@@ -52,6 +52,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "porcini-slice": "0 0 64 64",
   "mussel-shell": "0 0 64 64",
   "ricotta-salata-shavings": "0 0 64 64",
+  "mayo-zigzag": "0 0 64 64",
   "salmon-fillet": "0 0 64 64",
   "cream-cheese-block": "0 0 64 64",
 };
@@ -93,6 +94,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "porcini-slice" && <PorciniSlice />}
       {visual === "mussel-shell" && <MusselShell />}
       {visual === "ricotta-salata-shavings" && <RicottaSalataShavings />}
+      {visual === "mayo-zigzag" && <MayoZigzag />}
       {visual === "salmon-fillet" && <SalmonFillet />}
       {visual === "cream-cheese-block" && <CreamCheeseBlock />}
     </svg>
@@ -832,6 +834,22 @@ function RicottaSalataShavings() {
         <circle cx="52" cy="52" r="1.7" />
         <circle cx="9" cy="54" r="1.5" />
       </g>
+    </g>
+  );
+}
+
+/* ---------- mayo (Expansion Batch 13, PROVISIONAL SPEC; Style Lock v2 M1): a squeezed zigzag line (a thick cream ribbon folded back and forth with rounded ends and a dimple at each turn) in the dark-warm outline #7a6548 / body #fff6dc, so it reads as a drizzle and not as a letter M (the HV checks that at 20px). */
+function MayoZigzag() {
+  // A tilted, irregular squeezed line (five turns, uneven spacing, a fat start where the nozzle pressed): tilting and the uneven turns keep it from reading as a letter M / W at 20px.
+  const zig = "M12 40 L19 25 L27 43 L33 22 L42 44 L47 27 L55 38";
+  return (
+    <g transform="rotate(-18 32 33)">
+      <ellipse cx="32" cy="56" rx="22" ry="3" fill="#000" opacity=".14" transform="rotate(18 32 33)" />
+      <path d={zig} fill="none" stroke="#7a6548" strokeWidth="13" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="40" r="8.2" fill="#7a6548" />
+      <path d={zig} fill="none" stroke="#fff6dc" strokeWidth="8.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="40" r="5.2" fill="#fff6dc" />
+      <path d="M20 28 L25 38 M34 27 L38 38" stroke="#fffdf4" strokeWidth="2.2" strokeLinecap="round" fill="none" />
     </g>
   );
 }

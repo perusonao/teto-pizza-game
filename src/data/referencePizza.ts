@@ -5102,6 +5102,84 @@ export const JAMAICAN_JERK_CHICKEN_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * B13 (Issue #708; NO_SAUCE; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): Reference Truth for `potato-mayo-pizza`. Pieces take the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment and the sauce quantity / coverage (the shared mechanical derivation) are GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const POTATO_MAYO_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "potato-mayo-pizza",
+  sauce: computeMechanicalSauceReference("potato-mayo-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "potato",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "bacon",
+      positions: [
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "corn",
+      positions: [
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "mayo",
+      positions: [
+        { x: 25, y: 36 },
+        { x: 50, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -5177,6 +5255,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [JAMAICAN_JERK_CHICKEN_PIZZA_REFERENCE.recipeId, JAMAICAN_JERK_CHICKEN_PIZZA_REFERENCE],
   [SUPREME_PIZZA_REFERENCE.recipeId, SUPREME_PIZZA_REFERENCE],
   [PIZZA_ALLA_NORMA_REFERENCE.recipeId, PIZZA_ALLA_NORMA_REFERENCE],
+  [POTATO_MAYO_PIZZA_REFERENCE.recipeId, POTATO_MAYO_PIZZA_REFERENCE],
   [GRANDMA_PIZZA_REFERENCE.recipeId, GRANDMA_PIZZA_REFERENCE],
   [IKURA_SALMON_PIZZA_REFERENCE.recipeId, IKURA_SALMON_PIZZA_REFERENCE],
   [YUZU_SHRIMP_PIZZA_REFERENCE.recipeId, YUZU_SHRIMP_PIZZA_REFERENCE],

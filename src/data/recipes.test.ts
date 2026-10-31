@@ -116,6 +116,7 @@ const BATCH10_PR1_RECIPE_IDS: readonly RecipeId[] = ["curry-pizza-japan", "renda
 const B11_S1_RECIPE_IDS: readonly RecipeId[] = ["boscaiola", "porcini-pizza", "pescatore"];
 const B12_RECIPE_IDS: readonly RecipeId[] = ["jamaican-jerk-chicken-pizza"];
 const BATCH12_RECIPE_IDS: readonly RecipeId[] = ["supreme-pizza", "pizza-alla-norma"];
+const BATCH13_RECIPE_IDS: readonly RecipeId[] = ["potato-mayo-pizza"];
 
 /** Expansion Batch 3: Chapter 4, appended after Batch 2 (six NO_SAUCE recipes). */
 const BATCH3_RECIPE_IDS: readonly RecipeId[] = ["bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli"];
@@ -143,7 +144,7 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
     expect(ordinaryRecipes(RECIPES).slice(63, 64).map((r) => r.id)).toEqual(GRANDMA_RECIPE_IDS); // appended: No.64 (Square Dough E-2)
     expect(ordinaryRecipes(RECIPES).slice(64, 69).map((r) => r.id)).toEqual(BATCH10_PR1_RECIPE_IDS); // appended: No.65-69 (Expansion Batch 10 PR-1)
     expect(ordinaryRecipes(RECIPES).slice(69, 72).map((r) => r.id)).toEqual(B11_S1_RECIPE_IDS); // appended: No.70-72 (B11 S1)
-    expect(ordinaryRecipes(RECIPES).slice(72).map((r) => r.id)).toEqual([...B12_RECIPE_IDS, ...BATCH12_RECIPE_IDS]); // appended: No.73 (B12), No.74-75 (Expansion Batch 12)
+    expect(ordinaryRecipes(RECIPES).slice(72).map((r) => r.id)).toEqual([...B12_RECIPE_IDS, ...BATCH12_RECIPE_IDS, ...BATCH13_RECIPE_IDS]); // appended: No.73 (B12), No.74-75 (Expansion Batch 12), No.76 (Expansion Batch 13)
   });
 
   it("the pre-Batch-1A Starter 6 + fugazza are unchanged", () => {
@@ -178,6 +179,7 @@ describe("RECIPES (Phase 3C-6: fugazza is Recipe #7; Batch 1A adds #8-#11; Batch
           !B11_S1_RECIPE_IDS.includes(r.id) &&
           !B12_RECIPE_IDS.includes(r.id) &&
           !BATCH12_RECIPE_IDS.includes(r.id) &&
+          !BATCH13_RECIPE_IDS.includes(r.id) &&
           !isLateRecipeId(r.id),
       )
         .map((r) => r.id)

@@ -177,7 +177,7 @@ describe("ladder, Shop, Research and the entitlement floors", () => {
     expect(stepOf("nori")).toMatchObject({ ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: TARAKO });
     expect(stepOf("wasabi").step).toBe(stepOf("bbq-sauce").step + 1);
     expect(stepOf("nori").step).toBe(stepOf("wasabi").step + 1);
-    expect([stepOf("wasabi").step, stepOf("nori").step]).toEqual([70, 71]);
+    expect([stepOf("wasabi").step, stepOf("nori").step]).toEqual([71, 72]);
     expect(steps.at(-1)).toBe(stepOf("nori"));
     for (const id of ["wasabi", "nori"]) expect(stepOf(id).starGates).toBeUndefined();
     expect(stepOf("nori").step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length);

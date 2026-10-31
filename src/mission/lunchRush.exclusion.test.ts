@@ -67,7 +67,8 @@ describe("lunchRush: false foundation", () => {
       "jamaican-jerk-chicken-pizza",
       "supreme-pizza",
       "pizza-alla-norma",
-    ]); // opt-out total = 50 (B12 adds one; Expansion Batch 10 PR-1 adds five; B11 S1 adds three; Expansion Batch 12 adds two)
+      "potato-mayo-pizza",
+    ]); // opt-out total = 51 (B12 adds one; Expansion Batch 10 PR-1 adds five; B11 S1 adds three; Expansion Batch 12 adds two; Expansion Batch 13 adds one)
     const original = (RECIPES as readonly Recipe[]).filter((r) => r.lunchRush !== false);
     expect(original).toHaveLength(25);
     expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);

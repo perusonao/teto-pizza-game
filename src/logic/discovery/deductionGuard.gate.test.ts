@@ -147,7 +147,9 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     // the public catalog the hypotheses are drawn from gains three recipes). The per-material split was NOT measured separately.
     // Re-measured again at Expansion Batch 12 (93 ingredients: ricotta-salata (a cheese) joins, plus supreme-pizza and pizza-alla-norma). The hardened `toEqual([])` above held for every state in every configuration (this test, and every privacy assertion in this file, passed unchanged).
     // Only this LEGACY DH4-2A count moves, 199 -> 211, for the same effects (the public catalog the hypotheses are drawn from gains two recipes and a cheese). The per-material split was NOT measured separately.
-    expect(dh42aLeaks).toBe(211);
+    // Re-measured again at Expansion Batch 13 (94 ingredients: mayo (a spice-family topping, size s) joins, plus potato-mayo-pizza). The hardened `toEqual([])` above held for every state in every configuration (every privacy assertion in this file passed unchanged).
+    // Only this LEGACY DH4-2A count moves, 211 -> 225, for the same effects (the synthetic families are cut from TOPPINGS by array index, so one more topping re-shapes them; the public catalog the hypotheses are drawn from gains a recipe). The per-material split was NOT measured separately.
+    expect(dh42aLeaks).toBe(225);
   }, 120_000);
 });
 

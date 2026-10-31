@@ -123,6 +123,8 @@ const BASE_TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[
   // B11 S1 (PROVISIONAL SPEC, GAMEPLAY ASSUMPTION): porcini = vegetable, mussel = seafood (L1 only, no `other`).
   ["porcini", "vegetable"],
   ["mussel", "seafood"],
+  // B13 (Issue #708, PROVISIONAL SPEC, GAMEPLAY ASSUMPTION; Owner decision 2026-10-30): mayo = spice (L1 only, NOT `other`).
+  ["mayo", "spice"],
 ];
 
 /** The base rows, plus the late-catalog ingredients' rows (./lateCatalog.ts) when that catalog is enabled; otherwise the base rows themselves. */

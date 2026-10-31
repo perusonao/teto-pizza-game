@@ -126,6 +126,8 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   // Expansion Batch 12: PIZZA DB evidence ids from the 172 matrix (PROVISIONAL SPEC, original NOT confirmed).
   "supreme-pizza": "supreme-pizzadb",
   "pizza-alla-norma": "pizza-alla-norma-pizzadb-p9",
+  // Expansion Batch 13 (Issue #708): PIZZA DB evidence id from the 172 matrix (PROVISIONAL SPEC, original NOT confirmed; NO_SAUCE by the Owner exception for this one row).
+  "potato-mayo-pizza": "potato-mayo-pizza-pizzadb-p3",
   // Multi-Sauce S3 / Square Dough E-2 (#521): PIZZA DB evidence id from the 172 matrix.
   "grandma-pizza": "grandma-pizza-pizzadb",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).

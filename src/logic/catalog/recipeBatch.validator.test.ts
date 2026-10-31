@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../../data/recipes";
-import { B11_S1_BATCH, B12_BATCH, B12B_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
+import { B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
 import {
   ordinaryCatalogView,
   productionCatalogView,
@@ -52,6 +52,15 @@ describe("production catalog", () => {
     expect(B12B_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["bell-pepper", "ricotta-salata"]);
     expect(B12B_BATCH.acceptedLetterShifts).toEqual({ "spanish-chorizo-pizza": "-->B" });
     expect(validateBatchManifest(B12B_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("Expansion Batch 13 (potato-mayo-pizza, credited, NO_SAUCE; one new material mayo) is LANDED and consistent: appended tail, append-only ladder, chapter identity; mayo is a single-member Research cohort, so NO existing recipe changes its letter", () => {
+    expect(RECIPE_BATCHES).toContain(B13_BATCH);
+    expect(B13_BATCH.status).toBe("landed");
+    expect(B13_BATCH.recipes.map((r) => r.recipeId)).toEqual(["potato-mayo-pizza"]);
+    expect(B13_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["mayo"]);
+    expect(B13_BATCH.acceptedLetterShifts).toBeUndefined();
+    expect(validateBatchManifest(B13_BATCH, ordinaryCatalogView())).toEqual([]);
   });
 });
 

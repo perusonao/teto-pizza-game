@@ -47,6 +47,7 @@ export type DedicatedIngredientVisual =
   | "porcini-slice"
   | "mussel-shell"
   | "ricotta-salata-shavings"
+  | "mayo-zigzag"
   | "salmon-fillet"
   | "cream-cheese-block";
 
@@ -1150,6 +1151,20 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pieceVisual: "ricotta-salata-shavings",
+  },
+  /**
+   * Expansion Batch 13 (Issue #708; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, step 65 (T4, no star gate), the sole material of potato-mayo-pizza's step. A scattered topping (NOT a sauce, NOT post-bake), family `spice`.
+   * Drawn by the dedicated `mayo-zigzag` visual (Style Lock v2 M1: a squeezed zigzag line); `color` and the squeeze-bottle emoji 🧴 (unique, G18) are PROVISIONAL until the 390x844 / 360x800 HV.
+   */
+  {
+    id: "mayo",
+    category: "topping",
+    nameJa: "マヨネーズ",
+    color: "#fff6dc",
+    emoji: "\u{1F9F4}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "mayo-zigzag",
   },
 ];
 

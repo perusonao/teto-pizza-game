@@ -176,7 +176,18 @@ describe("LC-R1: 62 catalog (design target, not activated) is fail-closed", () =
     const production = new Set(INGREDIENTS.map((i) => i.id));
     const overlap = catalog.filter((i) => production.has(i.id));
     expect(overlap.length).toBeGreaterThan(0);
-    for (const item of overlap) expect(item.shelf).toBe(ingredientShelf(item.id));
+    // B13 (Issue #708, Owner decision 2026-10-30): the 62-catalog design snapshot lists `mayo` as a post-bake spread SAUCE; the shipped runtime is a scattered `spice` topping. The snapshot is NOT edited
+    // (design authority data). The divergence is pinned HERE, by id and by value, so it can never widen silently: any other overlapping id must still equal ingredientShelf().
+    const RUNTIME_DIVERGES_FROM_SNAPSHOT: Readonly<Record<string, { snapshotShelf: string; runtimeShelf: string }>> = { mayo: { snapshotShelf: "sauce", runtimeShelf: "spice" } };
+    for (const item of overlap) {
+      const diverges = RUNTIME_DIVERGES_FROM_SNAPSHOT[item.id];
+      if (diverges) {
+        expect(item.shelf, item.id).toBe(diverges.snapshotShelf);
+        expect(ingredientShelf(item.id), item.id).toBe(diverges.runtimeShelf);
+      } else {
+        expect(item.shelf).toBe(ingredientShelf(item.id));
+      }
+    }
   });
 
   it("unclassified rows are visible with no shelf filter and never under any shelf filter", () => {

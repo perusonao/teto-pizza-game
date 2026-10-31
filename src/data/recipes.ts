@@ -1470,6 +1470,24 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "potato-mayo-pizza",
+    nameJa: "じゃがマヨピザ",
+    description: "ソースを使わず、じゃがいもとベーコン、コーン、モッツァレラにマヨネーズを合わせた、ほくほくでまろやかな一枚。",
+    // Expansion Batch 13 (Issue #708; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `potato-mayo-pizza-pizzadb-p3` only (bacon / corn / mayo / mozzarella / potato; its source sauce field 'ホワイトソース -> unspecified' is BASE_SAUCE_UNSPECIFIED).
+    // Owner decision (2026-10-30): NO_SAUCE for this ONE row (the existing `null` sauce-profile mapping; no SAUCE step; it does not extend to any other BASE_SAUCE_UNSPECIFIED row). GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring (mozzarella 2 / potato 2 / bacon 1 / corn 1 / mayo 2); bake 58-78 (the generic window).
+    // Ladder-credited: the key recipe of step 65 (`mayo`, the one new material: a scattered spice-family topping, NOT a sauce and NOT post-bake). `lunchRush: false`, no CUT, permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "potato", minCount: 2 },
+      { ingredientId: "bacon", minCount: 1 },
+      { ingredientId: "corn", minCount: 1 },
+      { ingredientId: "mayo", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /**

@@ -76,6 +76,8 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   pickles: "s",
   mussel: "s",
   whitebait: "s",
+  // Expansion Batch 13 (Issue #708): a squeezed line, small; re-evaluable at the real-device HV.
+  mayo: "s",
   "sweet-potato": "m",
   // large
   mozzarella: "l",

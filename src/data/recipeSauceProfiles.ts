@@ -345,6 +345,8 @@ export const RECIPE_SAUCE_PROFILES = {
   "porcini-pizza": null,
   // B12 (Issue #706; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): the source sauce field is 'その他' (unspecified); both are NO_SAUCE (the existing `null` mapping, like aussie) pending an Owner decision.
   "jamaican-jerk-chicken-pizza": null,
+  // B13 (Issue #708; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; Owner exception for this ONE row): the source sauce field is unspecified; NO_SAUCE (the existing `null` mapping, like aussie / porcini-pizza / jamaican).
+  "potato-mayo-pizza": null,
   pescatore: {
     recipeId: "pescatore",
     ingredientId: "tomato-sauce",
