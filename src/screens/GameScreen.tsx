@@ -193,6 +193,8 @@ interface GameScreenProps {
   /** Clears the tray selection (IngredientTray's page switch hides the selected chip). */
   onClearIngredientSelection?: () => void;
   onTapPizza: (x: number, y: number) => void;
+  /** Expansion Batch 13 (#708, "案A"): one stroke of a squeezable topping (mayo) = one piece (dough percent points). */
+  onPlaceTrail?: (points: readonly { x: number; y: number }[]) => void;
   onBakeTick: (value: number) => void;
   onConfirmBake: (value: number) => void | boolean;
   /** R8 (#617): why the last bake / post-BAKE step was not saved (the round did not move on). Optional. */
@@ -300,6 +302,7 @@ export function GameScreen({
   onSelectIngredient,
   onClearIngredientSelection,
   onTapPizza,
+  onPlaceTrail,
   onBakeTick,
   onConfirmBake,
   roundNotices = null,
@@ -902,6 +905,7 @@ export function GameScreen({
         showDoughShape={showDoughShape}
         onDoughElementChange={onDoughElementChange}
         onTap={onTapPizza}
+        onPlaceTrail={onPlaceTrail}
         onDispenseProgress={onDispenseProgress}
         onDispenseCommit={onDispenseCommit}
         onDoughStretchProgress={onDoughStretchProgress}

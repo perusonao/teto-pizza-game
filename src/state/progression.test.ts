@@ -325,6 +325,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "polish-kielbasa",
         "porchetta-pizza",
         "porcini-pizza",
+        "potato-mayo-pizza",
         "prosciutto-funghi",
         "puttanesca-pizza",
         "ratatouille-pizza",

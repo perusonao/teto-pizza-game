@@ -13,6 +13,12 @@ export interface PlacedTopping {
    * Absent (or `"pre"`) = placed before the bake -- every piece the game places today. Not persisted.
    */
   stage?: "pre" | "post";
+  /**
+   * Expansion Batch 13 (#708, "案A"): the stroke a squeezed topping (mayonnaise) was placed with, in dough percent -- one stroke is ONE piece.
+   * Absent for every other piece (and for a squeezable topping that was only tapped: that is a single droplet). `x` / `y` are the stroke's
+   * midpoint, the only thing scoring ever reads. Never persisted (the pizza is not saved).
+   */
+  trail?: readonly { x: number; y: number }[];
 }
 
 /** True for a piece placed in the FINISH step (after the bake). */

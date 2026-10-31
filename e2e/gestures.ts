@@ -264,6 +264,22 @@ export async function tapDoughPercent(page: Page, xPercent: number, yPercent: nu
   await page.mouse.up();
 }
 
+/**
+ * Expansion Batch 13 (#708, Owner 案A): one stroke of a squeezable topping (mayo) across the dough -- press at `from`, drag to `to` in several moves, release.
+ * Both points are dough percent of the dough's box; one stroke places ONE piece.
+ */
+export async function squeezeDoughStroke(page: Page, from: [number, number], to: [number, number], steps = 10) {
+  const { box } = await doughBox(page);
+  const at = (p: [number, number]) => ({ x: box.x + (p[0] / 100) * box.width, y: box.y + (p[1] / 100) * box.height });
+  const a = at(from);
+  const b = at(to);
+  await waitUntilDoughReady(page, a);
+  await page.mouse.move(a.x, a.y);
+  await page.mouse.down();
+  for (let i = 1; i <= steps; i += 1) await page.mouse.move(a.x + ((b.x - a.x) * i) / steps, a.y + ((b.y - a.y) * i) / steps);
+  await page.mouse.up();
+}
+
 export async function completeDoughStep(page: Page) {
   const { cx, cy, r, box } = await doughBox(page);
   // An oval dough (3:2) keeps the circular percent space, so the ring is an ellipse with the box's own aspect; a round dough has ry === r.
