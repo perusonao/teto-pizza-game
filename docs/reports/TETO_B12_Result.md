@@ -47,13 +47,14 @@ Status: 実装・自動テスト・Visual HV（動画は Owner へ直接提出�
 | 項目 | 結果 |
 |---|---|
 | Vitest（全件、Pinsa ON） | 558 files / 10656 tests passed |
-| Vitest（Pinsa OFF、`npm run test:pinsa-off`） | PR 本文に記載（実行結果を参照） |
+| Vitest（Pinsa OFF、`npm run test:pinsa-off`） | 560 files / 10657 tests passed |
 | typecheck / build | green（`tsc -b`、`vite build`） |
 | lint（oxlint） | error なし（既存 warning のみ、本変更は warning を増やしていない） |
 | Playwright Chromium E2E | 390×844 / 360×800 とも 1/1 passed（ショップ NEW → 購入 → Research（匿名ラベル `？？？ピザ A（ピーマン）`、漏洩なし）→ ソース無し → チーズ → 具材 → NEW DISCOVERY → 図鑑、横スクロールなし、console error なし） |
-| WebKit E2E / 実機 | **未実施**（Owner 判断） |
+| CI（PR #711、head `6ad4f0a`） | **11/11 success**: build / classify / layout-chromium / WebKit 390×844・360×800 各 3 shard / Layout Contract Gate / WebKit Gate。mergeable は clean |
+| WebKit（ローカル）/ iPhone 実機 | ローカル WebKit は未実施。CI の WebKit シャードは success。**実機は未実施**（Owner の HV、§7） |
 | Visual HV | 動画（390×844、mp4）は Owner へ直接提出済み。リポジトリには含めない。スクリーンショットは `docs/reports/screenshots/b12/`（新規レシピのため before はなし） |
-| Codex レビュー | PR 作成後に実施（結果は PR を参照） |
+| Codex レビュー | **完了、指摘 0 件**（head `6ad4f0a`、2026-10-30 17:55Z）。未解決のレビュースレッド 0 件 |
 
 HV 目視で気づいた点: ピーマン（green-pepper）のトレイ絵文字が赤い唐辛子（🌶️）に見える。既存食材の描画で本 PR では変更していない（識別性の改善は別課題）。
 
@@ -66,3 +67,31 @@ HV 目視で気づいた点: ピーマン（green-pepper）のトレイ絵文字
 5. **カポナータの扱い**: 初期オンボーディング変更（step 23 の pool 変更）を承認して再開するか、別候補にするか。
 6. **共有 Preview 更新・main への merge**: Owner 承認待ち（本セッションでは実施しない）。
 7. 数値・説明文・注文文言は暫定。実機 Human Feel で確認。
+
+## 7. Human Verification（Owner 判定。`PASS` / `FAIL` はセッションが書かない）
+
+スクリーンショット: `docs/reports/screenshots/b12/`（390×844 と 360×800 の 2 viewport、各 7 枚）。新規レシピなので before は無い（既存食材の描画は変更していない）。
+動画: 390×844 の mp4（`HV_VIDEO=1`、`e2e/b12.spec.ts`）を Owner へ直接提出済み（リポジトリには含めない）。
+
+### 7.1 iPhone Safari 実機チェックリスト（Owner 用）
+
+事前: 共有 Preview・Production は更新しない（Owner が承認した方法でのみ）。保存は Preview 専用キーなので捨ててよい。**step 32（ピーマン）まで進んだ保存**を用意する。
+
+| # | 対象画面 | 確認項目 |
+|---|---|---|
+| 1 | **Shop**（ピーマンの NEW 行） | 初回 120 Pitz、「ピザ分」表記、買うボタンが押せる、文字が切れない |
+| 2 | **図鑑の研究ラベル** | 「？？？ピザ A（ピーマン）」。レシピ名・個数が出ていない。`veggie-supreme-pizza` が未発見なら「？？？ピザ B（ピーマン）」も並ぶ（コホート文字の確認、§6-2） |
+| 3 | **ソース工程（最重要）** | 何も塗らず「次へ」でよい（NO_SAUCE）。Research のラウンドでもソース工程は表示される |
+| 4 | **チーズ → 具材（最重要）** | モッツァレラ 2 → チキン 3 / ピーマン 1 / パイナップル 2。**ピーマンのトレイ絵が赤い唐辛子に見える**（既存の描画）。取り違え・識別のしにくさを Owner が判断 |
+| 5 | **具材トレイ** | ページ送り・family 絞り込みで chip が潰れない（肉系・野菜系・果物系） |
+| 6 | **焼成 → RESULT** | 取り出す → NEW PIZZA「ジャマイカンジャークチキンピザ」、No.37（第4章 45/45 は Pinsa ON の表示）。完成した絵に 3 種の具材が残る |
+| 7 | **図鑑** | 新カードの食材チップ。第 4 章の達成表示（44→45。**全達成済みの保存は未達成に戻る**、§3） |
+| 8 | **画面** | 横スクロールなし、下部のボタンが画面内。390 幅と 360 幅（可能なら両方） |
+| 9 | **既存の保存を持つ端末** | 既存の Dex・所持品が消えない。ショップの内容が後退しない |
+| 10 | **Step 32 の発見 pool** | `veggie-supreme-pizza` が未発見のとき、ピーマン購入後の発見候補が 2 つ（案内の自然さ）。ジャークは非クレジットで ladder を進めない |
+
+### 7.2 HV の残課題
+
+- 動画は Chromium の録画（WebKit ではない）。CI の WebKit シャードは全て success だが、Safari 実機の見え方・操作感は未確認。
+- 「ジャーク」の調味はモデル化していない。レシピ説明文・注文文言・個数・bake 58–78 は暫定（実機 Human Feel で確認）。
+- 本節は Owner の `PASS` ではない。判定は Owner の実機 HV による。
