@@ -259,6 +259,17 @@ describe("PizzaStage cut pieces: a squeezed mayo stroke (Expansion Batch 13)", (
     expect(drawnIn.reduce((a, b) => a + b, 0)).toBe(1);
   });
 
+  it("a straight stroke of two far-apart samples is drawn in EVERY piece its segment crosses (not only the pieces round its two ends)", () => {
+    const straight = [{ x: 21.2, y: 40 }, { x: 78.8, y: 40 }];
+    const state2: GameState = { ...base, pizza: { ...base.pizza, toppings: [...base.pizza.toppings, { id: "mayo-3", ingredientId: "mayo", x: 50, y: 40, trail: straight }] } };
+    const cuts = [30, 40, 60, 70].map((x) => ({ start: { x, y: 2 }, end: { x, y: 98 }, path: [{ x, y: 2 }, { x, y: 98 }] }) as CutLine);
+    const { container } = render(stage(state2, cuts, "CUT"));
+    const pieces = [...container.querySelectorAll<HTMLElement>(".pizza-piece")];
+    expect(pieces).toHaveLength(5);
+    const drawnIn = pieces.map((piece) => piece.querySelectorAll('svg.pizza-squeeze-trail[data-squeeze-trail-for="mayo-3"]').length);
+    expect(drawnIn).toEqual([1, 1, 1, 1, 1]);
+  });
+
   it("an uncut pizza draws it once, as before", () => {
     const { container } = render(stage(withMayo, [], "CUT"));
     expect(container.querySelectorAll("svg.pizza-squeeze-trail")).toHaveLength(1);

@@ -18,7 +18,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
-import { SQUEEZE_MAX_LENGTH, SQUEEZE_MIN_LENGTH, SQUEEZE_MIN_STEP, capTrailLength, isSqueezeIngredientId, trailAnchor, trailLength, trailPathD, type TrailPoint } from "../logic/squeeze";
+import { SQUEEZE_MAX_LENGTH, SQUEEZE_MIN_LENGTH, SQUEEZE_MIN_STEP, capTrailLength, densifyTrail, isSqueezeIngredientId, trailAnchor, trailLength, trailPathD, type TrailPoint } from "../logic/squeeze";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { preparedPieceVisual } from "../logic/prep/beefDoneness";
 import { PostBakePiece } from "./PostBakePiece";
@@ -1243,7 +1243,7 @@ export function PizzaStage({
         if (!t.trail || t.trail.length < 2) return [t.id, own] as const;
         // A squeezed stroke is long: it belongs to EVERY piece it crosses (not only the ones round its anchor), and each piece draws it through its own clip.
         const crossed = new Set<number>(own.halves);
-        for (const point of t.trail) {
+        for (const point of densifyTrail(t.trail)) {
           const here = placeTopping(pieceLayout, point.x, point.y, reach);
           crossed.add(here.home);
           for (const half of here.halves) crossed.add(half);

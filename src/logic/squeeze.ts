@@ -142,6 +142,21 @@ export function anchorCandidates(points: readonly TrailPoint[]): TrailPoint[] {
   return SQUEEZE_ANCHOR_FRACTIONS.map((fraction) => trailPointAt(points, fraction));
 }
 
+/** The stroke's polyline cut into points at most `step` apart (its own vertices kept): what "which pieces does this line cross" samples, so a straight stroke made of two far-apart samples is not judged by its two ends alone. */
+export function densifyTrail(points: readonly TrailPoint[], step: number = 1.5): TrailPoint[] {
+  const out: TrailPoint[] = [];
+  for (let i = 0; i < points.length; i += 1) {
+    if (i > 0) {
+      const a = points[i - 1];
+      const b = points[i];
+      const pieces = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / step));
+      for (let k = 1; k < pieces; k += 1) out.push({ x: a.x + ((b.x - a.x) * k) / pieces, y: a.y + ((b.y - a.y) * k) / pieces });
+    }
+    out.push({ x: points[i].x, y: points[i].y });
+  }
+  return out;
+}
+
 /** The same stroke moved by (dx, dy), each point clamped back by `clamp` (used when the open-spot search nudged the anchor). */
 export function shiftTrail(points: readonly TrailPoint[], dx: number, dy: number, clamp: (x: number, y: number) => TrailPoint = (x, y) => ({ x, y })): TrailPoint[] {
   return points.map((p) => clamp(p.x + dx, p.y + dy));

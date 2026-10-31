@@ -6,6 +6,7 @@ import {
   SQUEEZE_MAX_POINTS,
   SQUEEZE_MIN_LENGTH,
   capTrailLength,
+  densifyTrail,
   isSqueezeIngredientId,
   normalizeTrail,
   shiftTrail,
@@ -72,5 +73,16 @@ describe("squeeze helpers (Expansion Batch 13, Owner 案A)", () => {
     expect(thin[0]).toEqual(dense[0]);
     expect(thin[thin.length - 1]).toEqual(dense[dense.length - 1]);
     expect(thin.length).toBeLessThan(dense.length);
+  });
+
+  it("densifyTrail keeps every vertex and leaves no gap wider than the step", () => {
+    const line = [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 4 }];
+    const dense = densifyTrail(line, 1.5);
+    expect(dense[0]).toEqual({ x: 0, y: 0 });
+    expect(dense).toContainEqual({ x: 10, y: 0 });
+    expect(dense[dense.length - 1]).toEqual({ x: 10, y: 4 });
+    for (let i = 1; i < dense.length; i += 1) expect(Math.hypot(dense[i].x - dense[i - 1].x, dense[i].y - dense[i - 1].y)).toBeLessThanOrEqual(1.5 + 1e-9);
+    expect(densifyTrail([{ x: 5, y: 5 }])).toEqual([{ x: 5, y: 5 }]);
+    expect(densifyTrail([])).toEqual([]);
   });
 });
