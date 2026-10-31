@@ -445,6 +445,12 @@ const BASE_ORDERS: Order[] = [
     lineJa: "魚介たっぷりのトマトのピザ、おいしそう！食べてみたいな！",
   },
   {
+    id: "order-jamaican-jerk-chicken-pizza",
+    recipeId: "jamaican-jerk-chicken-pizza",
+    requestedBy: "mito",
+    lineJa: "パイナップルののったチキンのピザ、おいしそう！食べてみたいな！",
+  },
+  {
     id: "order-supreme-pizza",
     recipeId: "supreme-pizza",
     requestedBy: "mito",

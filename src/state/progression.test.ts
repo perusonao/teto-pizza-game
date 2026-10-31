@@ -300,6 +300,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "grandma-pizza",
         "hawaiian",
         "jalapeno-popper-pizza",
+        "jamaican-jerk-chicken-pizza",
         "jamon-serrano-pizza",
         "melanzane-pizza",
         "new-haven-apizza",

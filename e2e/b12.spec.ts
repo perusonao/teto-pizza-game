@@ -9,10 +9,9 @@ import { expectResearchLead } from "./support/hintNote";
 import { materialsUpTo, CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
- * Expansion Batch 12 representative E2E (Issue #707; PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): supreme-pizza and pizza-alla-norma played end to end at 390x844 and 360x800 (Free Cooking's Research round).
- *  - supreme-pizza: no new material (non-credit, no Shop row); its Research label shares the bell-pepper cohort with spanish-chorizo-pizza (A); tomato-sauce PAINT, no cheese-category ingredient, six toppings.
- *  - pizza-alla-norma: ricotta-salata (the step's only material; a cheese drawn by its own SVG) -> tomato-sauce -> ricotta-salata -> eggplant + basil.
- * Counts, the generic 58-78 bake window, colours, names and the SVG shape are provisional. Step numbers are DERIVED from the ladder, never hard-coded.
+ * B12 representative E2E (Issue #706; PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): jamaican-jerk-chicken-pizza played end to end at 390x844 and 360x800.
+ *  - NO_SAUCE (the SAUCE step is skipped with no sauce painted); no new material: its unlock material green-pepper (shared with veggie-supreme-pizza) opens it, so its Research label carries the cohort letter A.
+ * Counts and the generic 58-78 bake window are provisional. Step numbers are DERIVED from the ladder, never hard-coded.
  *
  * Optional output: HV_SCREENSHOT_DIR (screenshots), HV_VIDEO=1 (Playwright video, 390x844 project only).
  */
@@ -24,36 +23,24 @@ const SPOTS: [number, number][] = [[50, 24], [73, 36], [76, 63], [58, 79], [38, 
 interface Case {
   id: string;
   nameJa: string;
-  /** The ladder material whose step the save has not reached (Shop NEW row), or null when the recipe adds no material. */
-  newMaterial: readonly [string, string, string] | null;
-  /** The ladder material whose step bounds what the save owns. */
-  boundMaterial: string;
+  /** Shop rows of the step: [ingredient id, nameJa, shot slug]. */
+  materials: readonly [string, string, string][];
   /** The Research Entry label: only the unlock material (and the cohort letter, where the cohort has two members) is named. */
   label: string;
-  sauce: RegExp;
+  /** null = NO_SAUCE: no sauce is painted (the SAUCE step is skipped). */
+  sauce: RegExp | null;
   cheese: [RegExp, number][];
   toppings: [RegExp, number][];
 }
 const CASES: readonly Case[] = [
   {
-    id: "supreme-pizza",
-    nameJa: "スプリームピッツァ",
-    newMaterial: null,
-    boundMaterial: "bell-pepper",
-    label: "？？？ピザ A（パプリカ）",
-    sauce: /トマトソース/,
-    cheese: [],
-    toppings: [[/ペパロニ/, 2], [/ソーセージ/, 2], [/マッシュルーム/, 1], [/たまねぎ/, 1], [/パプリカ/, 1], [/ブラックオリーブ/, 1]],
-  },
-  {
-    id: "pizza-alla-norma",
-    nameJa: "ピッツァ・アッラ・ノルマ",
-    newMaterial: ["ricotta-salata", "リコッタサラータ", "b12-ricotta-salata"],
-    boundMaterial: "ricotta-salata",
-    label: "？？？ピザ（リコッタサラータ）",
-    sauce: /トマトソース/,
-    cheese: [[/リコッタサラータ/, 3]],
-    toppings: [[/ナス/, 3], [/バジル/, 2]],
+    id: "jamaican-jerk-chicken-pizza",
+    nameJa: "ジャマイカンジャークチキンピザ",
+    materials: [["green-pepper", "ピーマン", "b12-green-pepper"]],
+    label: "？？？ピザ A（ピーマン）",
+    sauce: null,
+    cheese: [[/モッツァレラ/, 2]],
+    toppings: [[/チキン/, 3], [/ピーマン/, 1], [/パイナップル/, 2]],
   },
 ];
 
@@ -102,28 +89,26 @@ async function place(page: Page, picks: [RegExp, number][], startSpot: number) {
   return spot;
 }
 
-test.describe("Expansion Batch 12 (supreme-pizza / pizza-alla-norma, played end to end)", () => {
+test.describe("B12 (jamaican-jerk-chicken-pizza, played end to end)", () => {
   test.setTimeout(300_000);
 
   for (const c of CASES) {
-    test(`${c.id}: ${c.newMaterial ? "Shop NEW -> purchase" : "no Shop row"} -> Research (no leak) -> paint, cheese, toppings -> NEW DISCOVERY -> Dex`, async ({ page }, testInfo) => {
+    test(`${c.id}: Shop NEW -> purchase -> Research (no leak) -> ${c.sauce ? "paint" : "skip the sauce"}, cheese, toppings -> NEW DISCOVERY -> Dex`, async ({ page }, testInfo) => {
       const errors: string[] = [];
       page.on("console", (m) => m.type() === "error" && !new URL(m.location().url || "http://x/").pathname.endsWith("/favicon.ico") && errors.push(m.text()));
       page.on("pageerror", (e) => errors.push(String(e)));
       const project = testInfo.project.name;
-      const step = DISCOVERY_LADDER.steps.findIndex((s) => s.ingredientIds.includes(c.boundMaterial)) + 1;
+      const step = DISCOVERY_LADDER.steps.findIndex((s) => s.ingredientIds.includes(c.materials[0][0])) + 1;
       // This save has played everything but the target; it owns every material before the target's step.
       const discovered = ALL_IDS.filter((id) => id !== c.id);
-      // A non-credit recipe adds no step: the save owns everything up to and including the step of its last-unlocking material.
-      await open(page, saveJson(discovered, materialsUpTo(c.newMaterial ? step - 1 : step)));
+      await open(page, saveJson(discovered, materialsUpTo(step - 1)));
       await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${discovered.length}/${CATALOG_COUNTS.recipes}`));
       await hold(page);
 
-      // 1. Shop: the step's material is NEW (T4: 120 Pitz, no star gate). supreme-pizza adds none: its materials are all owned, so there is nothing new to buy.
+      // 1. Shop: the step's material is NEW (T4: 120 Pitz, no star gate).
       await page.getByRole("button", { name: /ショップ/ }).click();
       await page.waitForSelector(".shop-overlay__panel");
-      if (c.newMaterial) {
-        const [id, nameJa, shot] = c.newMaterial;
+      for (const [id, nameJa, shot] of c.materials) {
         const row = page.locator(`.shop-item[data-ingredient-id="${id}"]`);
         await row.scrollIntoViewIfNeeded();
         await expect(row).toHaveCount(1);
@@ -136,12 +121,6 @@ test.describe("Expansion Batch 12 (supreme-pizza / pizza-alla-norma, played end 
         await hold(page, 2000);
         await row.locator(".shop-item__buy-button").click();
         await expect(row).not.toHaveAttribute("data-shop-state", "NEW");
-      } else {
-        // (Other NEW rows may show: this save has played every other recipe, so the ladder has granted every later material. None belongs to supreme-pizza.)
-        await expect(page.locator('.shop-item[data-ingredient-id="bell-pepper"][data-shop-state="NEW"]')).toHaveCount(0);
-        await noOverflow(page, "shop (no NEW row)");
-        await capture(page, `b12-${c.id}-shop-no-new`, project);
-        await hold(page, 2000);
       }
       await page.locator(".shop-overlay__panel").getByRole("button", { name: "閉じる" }).click();
       await expect(page.locator(".shop-overlay__panel")).toHaveCount(0);
@@ -158,26 +137,27 @@ test.describe("Expansion Batch 12 (supreme-pizza / pizza-alla-norma, played end 
       await expectResearchLead(page, "？？？ピザ");
       await expectNoUndiscoveredIdentity(page, discovered, "Research PREPARE");
 
-      // 3. Cooking: SAUCE (the existing PAINT gesture), [CHEESE,] TOPPING.
+      // 3. Cooking: [SAUCE (the existing PAINT gesture),] CHEESE, TOPPING.
       await page.waitForSelector(".pizza-stage");
       await completeDoughStep(page);
       await bar(page).getByRole("button", { name: /次へ/ }).click();
-      await expect(page.getByRole("tab", { name: "ソース", selected: true })).toBeVisible();
-      await (await chipOnTrayOrPin(page, c.sauce)).click();
-      await capture(page, `b12-${c.id}-tray-sauce`, project);
-      await paintSauceRing(page, 25, 16);
-      await hold(page, 2200);
-      await capture(page, `b12-${c.id}-sauce-painted`, project);
-      await noOverflow(page, "sauce painted");
-      await bar(page).getByRole("button", { name: /次へ/ }).click();
-      // A Research round shows the CHEESE step whether or not the recipe has a cheese (the player does not know the recipe): supreme-pizza places none.
-      await expect(page.getByRole("tab", { name: "チーズ", selected: true })).toBeVisible();
-      if (c.cheese.length > 0) await capture(page, `b12-${c.id}-tray-cheese`, project);
-      let spot = await place(page, c.cheese, 0);
-      if (c.cheese.length > 0) {
-        await capture(page, `b12-${c.id}-cheese-placed`, project);
-        await hold(page, 1800);
+      if (c.sauce) {
+        await expect(page.getByRole("tab", { name: "ソース", selected: true })).toBeVisible();
+        await (await chipOnTrayOrPin(page, c.sauce)).click();
+        await capture(page, `b12-${c.id}-tray-sauce`, project);
+        await paintSauceRing(page, 25, 16);
+        await hold(page, 2200);
+        await capture(page, `b12-${c.id}-sauce-painted`, project);
+        await noOverflow(page, "sauce painted");
+        await bar(page).getByRole("button", { name: /次へ/ }).click();
+      } else {
+        // NO_SAUCE: a Research round still offers the SAUCE step (the player does not know the recipe); choosing no sauce is how the recipe is made.
+        await expect(page.getByRole("tab", { name: "ソース", selected: true })).toBeVisible();
+        await capture(page, `b12-${c.id}-no-sauce-step`, project);
+        await bar(page).getByRole("button", { name: /次へ/ }).click();
       }
+      await expect(page.getByRole("tab", { name: "チーズ", selected: true })).toBeVisible();
+      let spot = await place(page, c.cheese, 0);
       await bar(page).getByRole("button", { name: /次へ/ }).click();
       await expect(page.getByRole("tab", { name: "具材", selected: true })).toBeVisible();
       await capture(page, `b12-${c.id}-tray-topping`, project);

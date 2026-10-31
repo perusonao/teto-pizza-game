@@ -36,19 +36,19 @@ Status: **実装完了・自動ゲート結果は §6。Owner の承認（§8）
 - **#561 slack**: supreme-pizza は非 credit かつ step なし。alla-norma は credited + 専用 step（credited +1、step +1）なので slack は不変。`ladderReachability.starGate` 系は全体実行で通過（§6）。
 - **図鑑**: 章 3 が 18 → 19（supreme-pizza、スロット 19）、章 4 が +1（alla-norma）。既存レシピの章・No. は不変（`CHAPTER_IDENTITY` 検査）。
 - **解禁**: alla-norma は ricotta-salata を購入（step 64 = 63 件目の key を発見後）して初めて作れる。supreme-pizza は既存素材だけなので、bell-pepper（step 28）購入後から Research の対象。
-- **保存互換**: schema v2 のまま・移行なし。新素材・新 Dex id を持つ保存は読み書きで保たれ、旧ビルドが知らない id は再保存でも残る（`persistence.batch12.test.ts`）。既存の保存の late 素材の解禁は後退しない（floors 不変、`materialEntitlement.lateFloor.test.ts`）。
+- **保存互換**: schema v2 のまま・移行なし。新素材・新 Dex id を持つ保存は読み書きで保たれ、旧ビルドが知らない id は再保存でも残る（`persistence.batch12b.test.ts`）。既存の保存の late 素材の解禁は後退しない（floors 不変、`materialEntitlement.lateFloor.test.ts`）。
 
 ## 4. 既存への影響（Owner が見るべき点）
 
-1. **Research ラベルのずれ 1 件（要 Owner 確認）**: supreme-pizza の解禁素材は bell-pepper（step 28）で、既に spanish-chorizo-pizza がいる単独コホート。2 人組になり、supreme-pizza = A、**spanish-chorizo-pizza は無印 → B**。Batch 8a の chilean / frango と同種。`B12_BATCH.acceptedLetterShifts = { "spanish-chorizo-pizza": "-->B" }` に明示し、他の既存レシピの文字は不変（`expansionBatch12.test.ts` で全 prefix を検査）。alla-norma は単独コホート（文字なし）。
+1. **Research ラベルのずれ 1 件（要 Owner 確認）**: supreme-pizza の解禁素材は bell-pepper（step 28）で、既に spanish-chorizo-pizza がいる単独コホート。2 人組になり、supreme-pizza = A、**spanish-chorizo-pizza は無印 → B**。Batch 8a の chilean / frango と同種。`B12_BATCH.acceptedLetterShifts = { "spanish-chorizo-pizza": "-->B" }` に明示し、他の既存レシピの文字は不変（`expansionBatch12b.test.ts` で全 prefix を検査）。alla-norma は単独コホート（文字なし）。
 2. **Hint 価格キャップの例外が 3 件目**: supreme-pizza は 7 種の素材（tomato-sauce + 6）で、veggie-supreme-pizza・pescatore と同じ規則・同じ 5 つ目の事実のゼロ化になる（`selectableHint.test.ts` の `capBinds`）。規則は不変。
 3. **DH4 の「単一候補」固定リストに pizza-alla-norma を追加**: melanzane / parmigiana と同じく、最小 prefix で H が 1 候補になる。fail-closed（existence・topping clause なし）は全メンバーで検証済み。ハードガードの漏えいは 0 のまま。legacy DH4-2A の件数が 199 → 211（privacy 検査は無改変で通過）。
-4. **BLOCKED_PRODUCT_DECISION 行の採用（Owner 承認例外）**: 両 matrix 行は未出荷 catalog 候補との構成差（COMPOSITION_CONFLICT_CANDIDATE）で BLOCKED。B10 / B11 と同様、**PIZZA DB の構成を採用する承認例外**を `discoveryCatalog.test` / `matcher.test` に置いた（承認は Owner、PR は承認まで merge しない）。matrix は不変。`expansionBatch12.test.ts` が target の items が matrix の identity set と一致することを固定する。catalog 候補 `alla-norma`（mozzarella / olive-oil 入り）は採用していない。
+4. **BLOCKED_PRODUCT_DECISION 行の採用（Owner 承認例外）**: 両 matrix 行は未出荷 catalog 候補との構成差（COMPOSITION_CONFLICT_CANDIDATE）で BLOCKED。B10 / B11 と同様、**PIZZA DB の構成を採用する承認例外**を `discoveryCatalog.test` / `matcher.test` に置いた（承認は Owner、PR は承認まで merge しない）。matrix は不変。`expansionBatch12b.test.ts` が target の items が matrix の identity set と一致することを固定する。catalog 候補 `alla-norma`（mozzarella / olive-oil 入り）は採用していない。
 5. **テスト基盤の 1 件**: `discoveryHint.walk.test.ts` の固定 stage guard 80 を `RECIPES.length + 20` に（B11 S1 の researchAttemptSim と同じ根本原因: 1 stage = 1 レシピなので 80 件目で歩行が打ち切られ 2 件を取りこぼす）。assertion・timeout は不変。
 
 ## 5. 新規・更新テスト
 
-- 新規: `expansionBatch12.test.ts`（材料・レシピ構造・Reference・集合の一意性（部分集合 / 上位集合なし）・step 64・late +1・matrix との一致・**Free Cooking / Research の完走（Completion Gate PASS、Scoring 2.0 のソース量 / 被覆 > 0.95、UNIQUE_MATCH → NEW_DISCOVERY、余分 / 不足で発見しない）**・解禁と Research ラベル）、`persistence.batch12.test.ts`（保存互換）、`e2e/b12.spec.ts`（390×844・360×800 の通し）、`IngredientGlyph.test.tsx` の Batch 12 契約。
+- 新規: `expansionBatch12b.test.ts`（材料・レシピ構造・Reference・集合の一意性（部分集合 / 上位集合なし）・step 64・late +1・matrix との一致・**Free Cooking / Research の完走（Completion Gate PASS、Scoring 2.0 のソース量 / 被覆 > 0.95、UNIQUE_MATCH → NEW_DISCOVERY、余分 / 不足で発見しない）**・解禁と Research ラベル）、`persistence.batch12b.test.ts`（保存互換）、`e2e/batch12-supreme-norma.spec.ts`（390×844・360×800 の通し）、`IngredientGlyph.test.tsx` の Batch 12 契約。
 - 更新（意味の変更なし、件数・導出番号・一覧のみ）: `catalogLedger`（82 / 74 / 93 / 71 / [6,12,19,45]、cheese 棚 14）・`recipes`・`cookingProfiles`・`lunchRush.exclusion`（opt-out 49）・`progression`・`recipeChapters`・`materialShop`（step 64 追加、late +1）・`materialEntitlement.batch6 / lateFloor`・`lateCatalog.bbq / late4`・`expansionBatch11.s1`・`discoveryProgressionModel`・`discoveryExpansion2.wave2`・`researchLabels.batch8a`・`researchCohortLetter`・`DexOverlay.researchIdentity`・`hint5Ladder.baseCompat`（key-free 56、sauce+cheese 28、sauce のみ 9）・`deduction*`。
 - golden: `hint5.ladders55.json` は**挿入のみ**（既存エントリの削除・変更 0 行）、`hint5.alphaFamilyOnly.json` は +2 行（既存値は不変）、DH4-1 監査 JSON は category 件数 +1 のみ（生成物として再生成、手編集なし）。
 
@@ -61,7 +61,7 @@ Status: **実装完了・自動ゲート結果は §6。Owner の承認（§8）
 | `npm run build` | 成功（chunk サイズの警告は既存） |
 | Vitest 全体（Pinsa ON） | **10,728 件中 10,713 passed / 0 failed**（13 skipped、2 todo） |
 | Vitest 全体（`TETO_PINSA_OFF=1`） | **10,719 件中 10,705 passed / 0 failed**（12 skipped、2 todo） |
-| E2E `e2e/b12.spec.ts`（Chromium、390×844 と 360×800 × 2 レシピ） | **4/4 passed**（Shop → Research ラベル（漏えいなし）→ 調理 → NEW DISCOVERY → Dex、横スクロールなし、console error 0） |
+| E2E `e2e/batch12-supreme-norma.spec.ts`（Chromium、390×844 と 360×800 × 2 レシピ） | **4/4 passed**（Shop → Research ラベル（漏えいなし）→ 調理 → NEW DISCOVERY → Dex、横スクロールなし、console error 0） |
 | WebKit E2E | 本環境では未実施（WebKit なし）。PR の CI の WebKit シャードで確認する |
 | Safari / iPhone 実機 | **未実施**（Owner の HV） |
 
@@ -78,7 +78,7 @@ E2E は環境の Playwright が要求するブラウザ版と入っているも�
 | `b12-hv-supreme-pizza-390x844.mp4` | 390×844 | 30.6 s | 605,245 B | PASS |
 | `b12-hv-pizza-alla-norma-390x844.mp4` | 390×844 | 33.0 s | 615,913 B | PASS |
 
-Download: セッション内直接提出（`SendUserFile`）。codec H.264（yuv420p、25 fps、音声なし）、`e2e/b12.spec.ts` を `HV_VIDEO=1`（各状態 1〜3 秒保持）で録画し ffmpeg で WebM から MP4 に変換。
+Download: セッション内直接提出（`SendUserFile`）。codec H.264（yuv420p、25 fps、音声なし）、`e2e/batch12-supreme-norma.spec.ts` を `HV_VIDEO=1`（各状態 1〜3 秒保持）で録画し ffmpeg で WebM から MP4 に変換。
 内容: HOME → Shop（supreme-pizza は NEW 行なし / alla-norma は ricotta-salata の NEW 行 → 購入）→ 図鑑の Research ラベル → 調理（SAUCE → CHEESE → TOPPING）→ 焼成 → RESULT（NEW PIZZA）。
 Video Verification: PASS（ファイルが存在し size > 0、`ffmpeg -f null` で最後まで復号できる、390×844 の全画面が映る、対象操作が映る、等間隔 8 フレームで全工程を確認）。
 
