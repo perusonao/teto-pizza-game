@@ -23,12 +23,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // Expansion Batch 10 PR-1: + curry-pizza-japan, rendang-pizza, currywurst, tandoori-paneer-pizza, cuban-pizza (credited, chapter 4); + 8 materials (curry-ketchup / mustard sauces, paneer / swiss-cheese cheeses, beef / wurstel / paprika-powder / pickles toppings); + ordinary steps 57-61 (the late steps shift +5).
       // PR-2 late4 (#578 / #611): + wasabi-beef-pizza and tarako-cream-pizza (late catalog, credited, chapter 4), + soy-sauce and fresh-cream-sauce (late sauces) + wasabi / cod-roe / nori (late toppings), + their late ladder steps 67 and 68.
       // B11 S1 (PROVISIONAL SPEC, original NOT confirmed): + boscaiola (credited, the key of ordinary step 62), + porcini-pizza (non-credit, NO_SAUCE, the same step), + pescatore (credited, the key of ordinary step 63), chapter 4; + porcini (vegetable) and mussel (seafood) toppings; + ordinary steps 62-63 (the late steps shift +2: 64-70).
-      recipes: pinsa ? 80 : 79,
+      // B12 (Issue #706, PROVISIONAL SPEC, original NOT confirmed): + jamaican-jerk-chicken-pizza (non-credit, NO_SAUCE, no new material: it joins the green-pepper cohort, chapter 4 with its key step 32).
+      recipes: pinsa ? 81 : 80,
       credited: 73,
       ingredients: 92,
       toppings: 66,
       ladderSteps: 70,
-      chapterSizes: [6, 12, 18, pinsa ? 44 : 43],
+      chapterSizes: [6, 12, 18, pinsa ? 45 : 44],
       lunchRushPool: 25,
     });
   });

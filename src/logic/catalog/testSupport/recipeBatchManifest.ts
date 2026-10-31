@@ -21,7 +21,7 @@ export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
     { recipeId: "currywurst", keyIngredientId: "wurstel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "cuban-pizza", keyIngredientId: "swiss-cheese", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["boscaiola", "porcini-pizza", "pescatore"], // (B11 S1 is appended after cuban-pizza)
+  followedBy: ["boscaiola", "porcini-pizza", "pescatore", "jamaican-jerk-chicken-pizza"], // (B11 S1 is appended after cuban-pizza, B12 after B11 S1)
 };
 
 /**
@@ -37,9 +37,23 @@ export const B11_S1_BATCH: RecipeBatchManifest = {
     { recipeId: "porcini-pizza", keyIngredientId: "porcini", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "pescatore", keyIngredientId: "mussel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
+  followedBy: ["jamaican-jerk-chicken-pizza"], // (B12 is appended after pescatore)
 };
 
-export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH];
+/**
+ * B12 (Issue #706; PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION, Owner decision pending): jamaican-jerk-chicken-pizza (`ladderCredit: false`, NO_SAUCE, no new material, so no ladder step of its own). Its Research cohort key is
+ * green-pepper (ordinary step 32), shared with the credited veggie-supreme-pizza: that cohort becomes {veggie-supreme-pizza, jamaican-jerk-chicken-pizza}, so veggie-supreme-pizza gains "B" (`-->B`; jerk takes A by registration order), the one named exception
+ * (the same shape as Batch 8a's frango-catupiry joining the catupiry cohort); any other shift stays a failure.
+ */
+export const B12_BATCH: RecipeBatchManifest = {
+  batchId: "b12-jamaican-jerk",
+  status: "landed",
+  afterRecipeId: "pescatore",
+  recipes: [{ recipeId: "jamaican-jerk-chicken-pizza", keyIngredientId: "green-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
+  acceptedLetterShifts: { "veggie-supreme-pizza": "-->B" },
+};
+
+export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH];
 
 /**
  * Pinsa Romana (#577 P3-b-3, Owner Q7): the manifest the validator checks in a build where the Pinsa gate (src/data/pinsaGate.ts) is OPEN. Deliberately NOT in

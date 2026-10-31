@@ -23,6 +23,9 @@ const BATCH10_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["curry-pizza-j
 // B11 S1 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the Phase-2 matrix classifies these two rows BLOCKED_PRODUCT_DECISION (COMPOSITION_CONFLICT_CANDIDATE), so they have no SHIPPED_KEEP target; the Owner approval of B11 S1 ships them.
 // expansionBatch11.s1.test.ts pins their exact ingredient sets.
 const B11_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["boscaiola", "porcini-pizza"];
+// B12 (Issue #706): the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED: the source sauce field is 'その他'). It is implemented as NO_SAUCE
+// as a GAMEPLAY ASSUMPTION and is NOT yet Owner-approved: the Owner's decision on that assumption is a merge condition of the B12 PR (not a precedent for later batches).
+const B12_PHASE2_BLOCKED_PENDING_OWNER: readonly string[] = ["jamaican-jerk-chicken-pizza"];
 
 describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("has exactly one target per production recipe, in RECIPES order", () => {
@@ -38,6 +41,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       // the Owner's approval (curry-ketchup as the base, D-B3) supersedes it, so they have no SHIPPED_KEEP target. expansionBatch10.pr1.test.ts pins their exact ingredient sets.
       if (BATCH10_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (B11_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (B12_PHASE2_BLOCKED_PENDING_OWNER.includes(t.recipeId)) continue;
       if (isLateRecipeId(t.recipeId)) continue; // E5: the late target has no Phase-2 row; lateCatalog.ikura.test.ts pins it
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);
       expect(expected, t.recipeId).toBeDefined();
