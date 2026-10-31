@@ -2,6 +2,7 @@ import { CheesePoolCanvas, cheesePoolReachPercent } from "./CheesePoolCanvas";
 import { cheesePoolBakeParams } from "../logic/cheesePoolBake";
 import { CHEESE_RENDER_MODE } from "../preview/cheeseRenderMode";
 import {
+  Fragment,
   useEffect,
   useLayoutEffect,
   useState,
@@ -17,6 +18,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
+import { SQUEEZE_MAX_LENGTH, SQUEEZE_MIN_LENGTH, SQUEEZE_MIN_STEP, capTrailLength, isSqueezeIngredientId, trailAnchor, trailLength, trailPathD, type TrailPoint } from "../logic/squeeze";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { preparedPieceVisual } from "../logic/prep/beefDoneness";
 import { PostBakePiece } from "./PostBakePiece";
@@ -141,6 +143,9 @@ interface PizzaStageProps {
    *  stretch gesture (its pointer events stop in the layer); absent, nothing below changes. */
   squareDough?: { dough: SquareDough; onCommit: (dough: SquareDough) => void; ramp?: SquareDoughRamp };
   onTap: (xPercent: number, yPercent: number) => void;
+  /** Expansion Batch 13 (#708, "案A"): fired once, at a successful pointerup, with the stroke (dough percent, already capped at 60% of the dough's
+   *  diameter) of a squeezable topping (mayo) in the TOPPING step -- one stroke = one piece. A tap still goes to `onTap` (the single droplet). */
+  onPlaceTrail?: (points: readonly TrailPoint[]) => void;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
    *  for the in-progress dispense session on every tick, and with `[]` the instant that
    *  session ends for any reason (commit or discard) -- lets the Prototype Metrics panel
@@ -217,6 +222,9 @@ interface GestureState {
   cutStart: DoughPoint | null;
   /** Issue #418: the straight cut currently shown -- exactly what release commits. */
   cutPath: readonly [DoughPoint, DoughPoint] | null;
+  /** Expansion Batch 13 (#708): the squeeze stroke so far (dough percent) and whether it already reached the length cap. */
+  squeezePoints: TrailPoint[];
+  squeezeFull: boolean;
 }
 
 function createGestureState(): GestureState {
@@ -231,6 +239,8 @@ function createGestureState(): GestureState {
     lastInsideDough: null,
     cutStart: null,
     cutPath: null,
+    squeezePoints: [],
+    squeezeFull: false,
   };
 }
 
@@ -267,6 +277,7 @@ export function PizzaStage({
   onDoughElementChange,
   squareDough,
   onTap,
+  onPlaceTrail,
   onDispenseProgress,
   onDispenseCommit,
   cutState,
@@ -319,6 +330,8 @@ export function PizzaStage({
   // independently rather than assuming that.
   const isDoughStep = makingStep === "DOUGH";
   const isPaintMode = activeIngredient?.placement === "spread";
+  // Expansion Batch 13 (#708, "案A"): a squeezable topping (mayo) selected in the TOPPING step -- one stroke across the dough places ONE piece.
+  const isSqueezeMode = interactive && makingStep === "TOPPING" && !!onPlaceTrail && isSqueezeIngredientId(activeIngredient?.id);
   // Pizza Cutting 1.0 Phase 2 (design doc §2.2): gates the CUT edge-to-edge drag gesture branch
   // below, mirroring isDoughStep's own role -- mutually exclusive with sauce/dough gestures in
   // practice (CUT only ever becomes the active `makingStep` during POST_BAKE, after PREPARE/BAKE
@@ -630,6 +643,19 @@ export function PizzaStage({
     }
   }
 
+  /** Expansion Batch 13 (#708): extends the squeeze stroke with one point; points off the dough are ignored and the stroke stops growing at the length cap. */
+  function appendSqueezePoint(point: DoughPoint) {
+    const g = gestureRef.current;
+    if (g.squeezeFull || !pan.contains(point.x, point.y)) return;
+    const last = g.squeezePoints[g.squeezePoints.length - 1];
+    if (last && Math.hypot(point.x - last.x, point.y - last.y) < SQUEEZE_MIN_STEP / 3) return;
+    const next = [...g.squeezePoints, { x: point.x, y: point.y }];
+    const capped = capTrailLength(next);
+    g.squeezePoints = capped;
+    if (trailLength(next) > SQUEEZE_MAX_LENGTH) g.squeezeFull = true;
+    pathRef.current?.setAttribute("d", trailPathD(capped));
+  }
+
   function appendTrailPoint(x: number, y: number) {
     const g = gestureRef.current;
     g.pathD += g.pathD ? ` L ${x.toFixed(2)} ${y.toFixed(2)}` : `M ${x.toFixed(2)} ${y.toFixed(2)}`;
@@ -711,6 +737,8 @@ export function PizzaStage({
       lastInsideDough: dough,
       cutStart: isCutStep ? dough : null,
       cutPath: null,
+      squeezePoints: isSqueezeMode ? [dough] : [],
+      squeezeFull: false,
     };
 
     // MUST FIX 9: prevents this press from also producing a compatibility mouse event, a
@@ -828,6 +856,7 @@ export function PizzaStage({
 
     if (pan.contains(dough.x, dough.y)) g.lastInsideDough = dough;
     if (isPaintMode) appendTrailPoint(dough.x, dough.y);
+    if (isSqueezeMode) appendSqueezePoint(dough);
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
@@ -923,6 +952,20 @@ export function PizzaStage({
     if (!g.dragging) {
       // Tap: unchanged Phase 2C one-tap behavior.
       onTap(g.startDough.x, g.startDough.y);
+      gestureRef.current = createGestureState();
+      return;
+    }
+
+    if (isSqueezeMode) {
+      // Expansion Batch 13 (#708, "案A"): a stroke places ONE piece along the path (capped at 60% of the dough's diameter); one that never really moved is a tap.
+      const points = g.squeezePoints;
+      if (points.length >= 2 && trailLength(points) >= SQUEEZE_MIN_LENGTH) {
+        onPlaceTrail?.(points);
+      } else {
+        const anchor = points.length > 0 ? trailAnchor(points) : g.startDough;
+        if (pan.contains(anchor.x, anchor.y)) onTap(anchor.x, anchor.y);
+      }
+      clearTrail();
       gestureRef.current = createGestureState();
       return;
     }
@@ -1377,9 +1420,16 @@ export function PizzaStage({
         // #514: the RESULT-only multiplier (production 0.75; 1 off the RESULT and for the exempt mozzarella: the var is then not set at all)
         const phaseScale = toppingPhaseScale(t.ingredientId, resultCompact);
         return (
+          <Fragment key={t.id}>
+          {t.trail && t.trail.length >= 2 && (
+            // Expansion Batch 13 (#708, "案A"): a squeezed stroke is ONE piece drawn as a line, in the same percent frame as the pieces (the dough's padding box).
+            <svg className="pizza-squeeze-trail" viewBox="0 0 100 100" {...ovalSvgProps} aria-hidden="true" data-squeeze-trail-for={t.id}>
+              <path className="pizza-squeeze-trail__outline" d={trailPathD(t.trail)} />
+              <path className="pizza-squeeze-trail__body" d={trailPathD(t.trail)} />
+            </svg>
+          )}
           <span
-            key={t.id}
-            className={half ? "pizza-topping-half" : `pizza-topping pizza-topping--${ingredient.id}`}
+            className={half ? "pizza-topping-half" : `pizza-topping pizza-topping--${ingredient.id}${t.trail ? " pizza-topping--trail" : ""}`}
             data-topping-id={t.id}
             style={{
               left: `${t.x}%`,
@@ -1397,7 +1447,7 @@ export function PizzaStage({
                 melt/spread/toast/char); every other ingredient gets its own dedicated
                 `toppingPieceStyle` curve instead of `cheeseStyle` reused as-is -- see that
                 variable's own comment above for why. */}
-            {(() => {
+            {t.trail ? null : (() => {
               const preparedLook = preparedIngredientIds?.includes(ingredient.id) ? preparedPieceVisual(ingredient.id, preparedLookByIngredient?.[ingredient.id]) : null;
               const m1Piece = (
                 <IngredientPieceVisual
@@ -1438,6 +1488,7 @@ export function PizzaStage({
               );
             })()}
           </span>
+          </Fragment>
         );
       })}
       {piece === undefined && placement?.status === "rejected" && (
@@ -1681,7 +1732,7 @@ export function PizzaStage({
         {isCutStep && interactive && <div className="pizza-cut-hit-zone" aria-hidden="true" />}
         {!separatePostLayer && cutToolLayer}
         <svg className="pizza-paint-trail" viewBox="0 0 100 100" {...ovalSvgProps} aria-hidden="true">
-          <path ref={pathRef} className="pizza-paint-trail__stroke" style={trailStrokeStyle} />
+          <path ref={pathRef} className={isSqueezeMode ? "pizza-paint-trail__stroke pizza-paint-trail__stroke--squeeze" : "pizza-paint-trail__stroke"} style={trailStrokeStyle} />
         </svg>
       </div>
       {separatePostLayer && (

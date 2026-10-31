@@ -101,6 +101,7 @@ import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
 import { isValidSquareDough, type SquareDough } from "../logic/pan/squareDough";
 import { activePanShape } from "../preview/panShapePreview";
 import { getPanGeometry } from "../logic/pan/panGeometry";
+import { isSqueezeIngredientId, normalizeTrail, shiftTrail, trailAnchor } from "../logic/squeeze";
 import { cookingProfileForPan } from "../logic/pan/panProfile";
 import { effectivePanShape } from "../logic/pan/effectivePan";
 import type { PanShape } from "../logic/pan/panShape";
@@ -479,7 +480,7 @@ export type GameAction =
   // reflect a stroke the player didn't actually finish. The reducer validates the ingredient
   // against the current recipe's shared sauce profile for both FREE and Lunch Rush.
   | { type: "COMMIT_SAUCE_DISPENSE"; ingredientId: string; deposits: SauceDeposit[] }
-  | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number }
+  | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number; trail?: readonly { x: number; y: number }[] }
   // Cooking Steps 2.0 Phase 1 (Issue #449 / #270): takes back the piece placed last in the current CHEESE / TOPPING
   // step. No payload; see ./undoPlacement.ts for the rule (PREPARE only, never Lunch Rush, never a confirmed step).
   | { type: "UNDO_LAST_PLACEMENT" }
@@ -1074,7 +1075,12 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (!Number.isFinite(action.x) || !Number.isFinite(action.y)) return state;
       // Square-Pan Dough D1-b: the drop must lie on this round's pan (the round pan's `contains` is `isInsideDough` itself).
       const pan = getPanGeometry(effectivePanShape(state.recipe, state.pizza));
-      if (!pan.contains(action.x, action.y)) return state;
+      // Expansion Batch 13 (#708, "案A"): a squeezable topping (mayo) may arrive with its stroke. The reducer is the boundary: it keeps the stroke only
+      // for such an ingredient in a pre-bake round, thins and caps it (60% of the dough's diameter), clamps every point onto the pan, and anchors the
+      // piece at the stroke's midpoint. Anything that is not a clean stroke is placed as the ordinary single drop at (x, y).
+      const rawTrail = !inFinish && isSqueezeIngredientId(action.ingredientId) ? normalizeTrail(action.trail, (px, py) => pan.clamp(px, py)) : null;
+      const anchor = rawTrail ? trailAnchor(rawTrail) : { x: action.x, y: action.y };
+      if (!pan.contains(anchor.x, anchor.y)) return state;
       // Same ownership boundary as APPLY_SAUCE above.
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       // Issue #32 Phase 2: PLACE_TOPPING is shared by both CHEESE and TOPPING ingredients
@@ -1116,8 +1122,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       }
       const spot =
         pan.shape === "round"
-          ? findOpenSpot(state.pizza.toppings, action.x, action.y)
-          : findOpenSpotOnPan(pan, state.pizza.toppings, action.x, action.y, MIN_TOPPING_DISTANCE);
+          ? findOpenSpot(state.pizza.toppings, anchor.x, anchor.y)
+          : findOpenSpotOnPan(pan, state.pizza.toppings, anchor.x, anchor.y, MIN_TOPPING_DISTANCE);
       placementTokenCounter += 1;
 
       if (!spot) {
@@ -1143,10 +1149,12 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             x: spot.x,
             y: spot.y,
             ...(inFinish ? { stage: "post" as const } : {}),
+            // The stroke moves with the piece when the open-spot search nudged its anchor.
+            ...(rawTrail ? { trail: shiftTrail(rawTrail, spot.x - anchor.x, spot.y - anchor.y, (px, py) => pan.clamp(px, py)) } : {}),
           },
         ],
       };
-      const wasAdjusted = spot.x !== action.x || spot.y !== action.y;
+      const wasAdjusted = spot.x !== anchor.x || spot.y !== anchor.y;
       return {
         ...state,
         pizza,

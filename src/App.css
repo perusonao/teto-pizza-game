@@ -583,6 +583,13 @@
   transition: opacity 260ms ease;
 }
 
+.pizza-paint-trail__stroke--squeeze {
+  /* Expansion Batch 13 (#708): the live squeeze stroke -- a cream bead with a warm outline, as thick as the committed one. */
+  stroke-width: 3.2;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 0.6px #7a6548) drop-shadow(0 0 0.6px #7a6548);
+}
+
 .pizza-paint-trail__stroke--fade {
   opacity: 0;
 }
@@ -8261,4 +8268,36 @@ p.hint-sheet__step {
 [data-held-discard-dialog] .settings-reset-confirm__panel {
   max-height: calc(100dvh - 48px);
   overflow-y: auto;
+}
+
+/* Expansion Batch 13 (#708, "案A"): one squeezed stroke = ONE piece, drawn as a line in the same percent frame as the pieces (the dough's padding box).
+   A stroke never takes pointer events and never receives the single-piece landing animation. */
+.pizza-squeeze-trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.pizza-squeeze-trail__outline,
+.pizza-squeeze-trail__body {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pizza-squeeze-trail__outline {
+  stroke: #7a6548;
+  stroke-width: 3.6;
+}
+
+.pizza-squeeze-trail__body {
+  stroke: #fff6dc;
+  stroke-width: 2.4;
+}
+
+.pizza-topping--trail {
+  animation: none;
 }

@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
-import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { bakeToTarget, completeDoughStep, paintSauceRing, squeezeDoughStroke, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { expectResearchLead } from "./support/hintNote";
@@ -30,7 +30,8 @@ interface Case {
   /** null = NO_SAUCE: no sauce is painted (the SAUCE step is skipped). */
   sauce: RegExp | null;
   cheese: [RegExp, number][];
-  toppings: [RegExp, number][];
+  /** A third element "stroke" places each piece with ONE stroke across the dough (squeezable mayo, Owner 案A) instead of a tap. */
+  toppings: [RegExp, number, "stroke"?][];
 }
 const CASES: readonly Case[] = [
   {
@@ -40,7 +41,7 @@ const CASES: readonly Case[] = [
     label: "？？？ピザ（マヨネーズ）",
     sauce: null,
     cheese: [[/モッツァレラ/, 2]],
-    toppings: [[/じゃがいも/, 2], [/ベーコン/, 1], [/コーン/, 1], [/マヨネーズ/, 2]],
+    toppings: [[/じゃがいも/, 2], [/ベーコン/, 1], [/コーン/, 1], [/マヨネーズ/, 2, "stroke"]],
   },
 ];
 
@@ -80,11 +81,16 @@ async function open(page: Page, json: string) {
   await page.goto("/");
   await page.waitForSelector(".app-frame");
 }
-async function place(page: Page, picks: [RegExp, number][], startSpot: number) {
+/** Two strokes of a squeezed bead, in the clear lanes between the ring slots (each 40% of the dough wide, under the 60% cap). */
+const STROKES: [[number, number], [number, number]][] = [[[32, 34], [68, 34]], [[32, 70], [68, 70]]];
+async function place(page: Page, picks: [RegExp, number, "stroke"?][], startSpot: number) {
   let spot = startSpot;
-  for (const [name, count] of picks) {
+  for (const [name, count, mode] of picks) {
     await (await chipOnTrayOrPin(page, name)).click();
-    for (let i = 0; i < count; i += 1) await tapDoughPercent(page, ...SPOTS[spot++ % SPOTS.length]);
+    for (let i = 0; i < count; i += 1) {
+      if (mode === "stroke") await squeezeDoughStroke(page, ...STROKES[i % STROKES.length]);
+      else await tapDoughPercent(page, ...SPOTS[spot++ % SPOTS.length]);
+    }
   }
   return spot;
 }
@@ -162,6 +168,9 @@ test.describe("Expansion Batch 13 (potato-mayo-pizza, played end to end)", () =>
       await expect(page.getByRole("tab", { name: "具材", selected: true })).toBeVisible();
       await capture(page, `b13-${c.id}-tray-topping`, project);
       spot = await place(page, c.toppings, spot);
+      // Owner 案A: each mayo = ONE stroke = ONE piece, drawn as a line (not a droplet); the strokes are inside the dough and the page does not scroll sideways.
+      await expect(page.locator(".pizza-squeeze-trail")).toHaveCount(2);
+      await expect(page.locator(".pizza-topping--mayo")).toHaveCount(2);
       await capture(page, `b13-${c.id}-topped`, project);
       await noOverflow(page, "topped");
       await hold(page, 2000);

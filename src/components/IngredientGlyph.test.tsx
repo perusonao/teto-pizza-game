@@ -53,7 +53,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "salmon-fillet",
   "cream-cheese-block",
   "ricotta-salata-shavings",
-  "mayo-squeeze",
+  "mayo-drop",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -90,7 +90,7 @@ const V1_DEDICATED: Record<string, DedicatedIngredientVisual> = { pickles: "pick
 const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains", "white-sesame": "sesame-seeds", pomegranate: "pomegranate-aril", cilantro: "cilantro-leaf", wasabi: "wasabi-dab", "cod-roe": "cod-roe-mass", nori: "nori-strips" } : {};
 const B11_DEDICATED: Record<string, DedicatedIngredientVisual> = { porcini: "porcini-slice", mussel: "mussel-shell" }; // B11 S1 (provisional adoption; the final adoption is the 390x844 / 360x800 HV)
 /** Ingredient Icons 2.0 Pilot D (#623, Style Lock v2 §10.3): salmon / cream-cheese dedicated art instead of 🍣 / the generic CSS cheese circle. */
-const B13_DEDICATED: Record<string, DedicatedIngredientVisual> = { mayo: "mayo-squeeze" }; // Expansion Batch 13 (provisional adoption; the 20px check "it does not read as the letter M" is the 390x844 / 360x800 HV)
+const B13_DEDICATED: Record<string, DedicatedIngredientVisual> = { mayo: "mayo-drop" }; // Expansion Batch 13 (provisional adoption; the 20px check "it does not read as the letter M" is the 390x844 / 360x800 HV)
 const B12_DEDICATED: Record<string, DedicatedIngredientVisual> = { "ricotta-salata": "ricotta-salata-shavings" }; // Expansion Batch 12 (provisional adoption; the final adoption is the 390x844 / 360x800 HV)
 const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
 const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PILOT_D_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...LATE_DEDICATED };
@@ -1091,11 +1091,11 @@ describe("Batch 12: ricotta-salata dedicated art (production row)", () => {
 });
 
 /**
- * Expansion Batch 13 (PROVISIONAL SPEC / adoption, original NOT confirmed): `mayo` is a topping (scatter, family `spice`) drawn by its own dedicated art (a squeezed zigzag bead, M1) on the glyph and on the placed piece,
+ * Expansion Batch 13 (PROVISIONAL SPEC / adoption, original NOT confirmed): `mayo` is a topping (scatter, family `spice`) drawn by its own dedicated art (a cream teardrop; a stroke across the dough is drawn by the stage) on the glyph and on the placed piece,
  * never by its emoji (the 🧴 is only the text fallback). It is a topping, not a sauce: no sauce wrapper, no sauce interaction.
  */
-describe("Batch 13: mayo dedicated art (production row)", () => {
-  const visual = "mayo-squeeze";
+describe("Batch 13: mayo dedicated art (production row; a teardrop since Owner decision 2026-10-31)", () => {
+  const visual = "mayo-drop";
 
   it("declares the visual and keeps its identity (a topping, not a sauce)", () => {
     expect(getIngredient("mayo")).toMatchObject({ id: "mayo", nameJa: "マヨネーズ", category: "topping", placement: "scatter", pieceVisual: visual });
