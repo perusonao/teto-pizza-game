@@ -82,6 +82,7 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   fontina: "l",
   feta: "l",
   ricotta: "l",
+  "ricotta-salata": "l",
   "cream-cheese": "l",
   catupiry: "l",
   "goat-cheese": "l",

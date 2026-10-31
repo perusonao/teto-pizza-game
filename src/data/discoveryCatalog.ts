@@ -123,6 +123,9 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   pescatore: "pescatore-pizzadb-p11",
   // B12 (Issue #706): PIZZA DB evidence ids from the 172 matrix (PROVISIONAL SPEC, original NOT confirmed).
   "jamaican-jerk-chicken-pizza": "jamaican-jerk-chicken-pizza-pizzadb-p3",
+  // Expansion Batch 12: PIZZA DB evidence ids from the 172 matrix (PROVISIONAL SPEC, original NOT confirmed).
+  "supreme-pizza": "supreme-pizzadb",
+  "pizza-alla-norma": "pizza-alla-norma-pizzadb-p9",
   // Multi-Sauce S3 / Square Dough E-2 (#521): PIZZA DB evidence id from the 172 matrix.
   "grandma-pizza": "grandma-pizza-pizzadb",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).

@@ -19,6 +19,7 @@ describe("recipeChapters (OD-DISC-9)", () => {
         "pesto-tonno", "new-haven-apizza", "pesto-caprese", "pesto-patate", "puttanesca-pizza",
         "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese",
         "chilean-napolitana", "spanish-chorizo-pizza", // Batch 8a: non-credit, key steps 20 / 28 (Chapter 3)
+        "supreme-pizza", // Expansion Batch 12: non-credit, key step 28 (bell-pepper; Chapter 3, slot 19)
       ],
       ["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone", "bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli", "brazilian-catupiry-corn-pizza", "jalapeno-popper-pizza", "pizza-feta-eliniki", "pizza-moscow", "pizza-bianca-ricotta", "pizza-overload", "california-style-pizza", "spinach-artichoke-pizza"],
     ].map((ids) => [...ids].sort((a, b) => RECIPES.findIndex((r) => r.id === a) - RECIPES.findIndex((r) => r.id === b)));
@@ -59,7 +60,7 @@ describe("recipeChapters (OD-DISC-9)", () => {
     const [c1, c2, c3] = buildRecipeChapters();
     expect(chapterProgress(c1, dex)).toEqual({ discovered: 2, total: 6 });
     expect(chapterProgress(c2, dex)).toEqual({ discovered: 1, total: 12 });
-    expect(chapterProgress(c3, dex)).toEqual({ discovered: 0, total: 18 });
+    expect(chapterProgress(c3, dex)).toEqual({ discovered: 0, total: 19 }); // (Expansion Batch 12: + supreme-pizza)
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "margherita")!)).toBe(1);
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "marinara")!)).toBe(1);
   });

@@ -239,7 +239,10 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
     expect(checked).toBeGreaterThan(1000);
     expect(failClosed).toBeGreaterThan(0);
     // Measured snapshot of the Hint 3.0 public model (every state's guard assertions above held): Expansion Batch 2 added pesto-caprese (a new material shrank one of its candidate sets to a single candidate); Expansion Batch 3's six new materials widen that candidate set again, so it leaves the list (existence / no-clause stays asserted for every member).
-    expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza"]);
+    // Expansion Batch 12: the seeded sample is a SUBSET of the exhaustive fixed list (SINGLE_CANDIDATE_RECIPES in the next describe, which is the exact pin): the sample draws different states once the catalog grows, so pesto-caprese (already in the fixed list) can now appear in it. Every member keeps existence / no-clause, asserted above.
+    const SAMPLE_UNIVERSE = ["melanzane-pizza", "parmigiana-pizza", "pesto-caprese", "pizza-alla-norma"];
+    expect([...preExistingPublic].every((id) => SAMPLE_UNIVERSE.includes(id))).toBe(true);
+    expect([...preExistingPublic]).toEqual(expect.arrayContaining(["melanzane-pizza", "parmigiana-pizza"]));
   }, SWEEP_TIMEOUT_MS);
 
   it("an independent attacker (no access to the guard's hypothesis set) names the reserve in 0 states", () => {
@@ -391,7 +394,8 @@ function minimalPrefixResults(): Map<string, MinimalPrefixResult> {
 describe("DH4-PROD gate: exhaustive minimal-prefix states (deterministic, independent of the seeded shuffle)", () => {
   const results = minimalPrefixResults();
   /** The recipes whose reserve is already a single public candidate in their smallest possible prefix. A change here is a structural change (a recipe's ingredients or Rule W). */
-  const SINGLE_CANDIDATE_RECIPES = ["melanzane-pizza", "parmigiana-pizza", "pesto-caprese"];
+  // Expansion Batch 12 (PROVISIONAL SPEC): + pizza-alla-norma (tomato-sauce / eggplant / basil share the melanzane / parmigiana public candidates once ricotta-salata's cheese family is the only cheese). Fail-closed for it too (existence, no topping clause: asserted for every member just below).
+  const SINGLE_CANDIDATE_RECIPES = ["melanzane-pizza", "parmigiana-pizza", "pesto-caprese", "pizza-alla-norma"];
 
   it("the recipes whose H can be a single candidate are exactly the fixed list (not a function of the seeded orders)", () => {
     const single = [...results.entries()].filter(([, r]) => r.minH < MIN_ATTRIBUTE_CANDIDATES).map(([id]) => id).sort();

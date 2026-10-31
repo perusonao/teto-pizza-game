@@ -21,7 +21,7 @@ export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
     { recipeId: "currywurst", keyIngredientId: "wurstel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "cuban-pizza", keyIngredientId: "swiss-cheese", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["boscaiola", "porcini-pizza", "pescatore", "jamaican-jerk-chicken-pizza"], // (B11 S1 is appended after cuban-pizza, B12 after B11 S1)
+  followedBy: ["boscaiola", "porcini-pizza", "pescatore", "jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma"], // (B11 S1 is appended after cuban-pizza, B12 after B11 S1, Expansion Batch 12 after B12)
 };
 
 /**
@@ -37,7 +37,7 @@ export const B11_S1_BATCH: RecipeBatchManifest = {
     { recipeId: "porcini-pizza", keyIngredientId: "porcini", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "pescatore", keyIngredientId: "mussel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["jamaican-jerk-chicken-pizza"], // (B12 is appended after pescatore)
+  followedBy: ["jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma"], // (B12 is appended after pescatore; Expansion Batch 12 after B12)
 };
 
 /**
@@ -50,10 +50,27 @@ export const B12_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "pescatore",
   recipes: [{ recipeId: "jamaican-jerk-chicken-pizza", keyIngredientId: "green-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
+  followedBy: ["supreme-pizza", "pizza-alla-norma"], // (Expansion Batch 12 is appended after B12)
   acceptedLetterShifts: { "veggie-supreme-pizza": "-->B" },
 };
 
-export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH];
+/**
+ * Expansion Batch 12 (the second 'B12'; Issue #707, appended after jamaican-jerk-chicken-pizza of #706/#711, PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): supreme-pizza (`ladderCredit: false`, no new material, no step of its own) and pizza-alla-norma (credited, the key of ordinary step 64, the one new material ricotta-salata).
+ * supreme-pizza's last-unlocking material is bell-pepper (ordinary step 28), the cohort `spanish-chorizo-pizza` already sits in alone (a bare label), so that pair becomes a two-member lettered cohort: spanish-chorizo-pizza's label gains a letter.
+ * That is a visible Research-label change to a pre-existing recipe, listed here as the single accepted shift (OWNER CONFIRMATION PENDING; the same kind as Batch 8a's chilean-napolitana / frango-catupiry). pizza-alla-norma's cohort (ricotta-salata) is a single member, so it shifts nothing.
+ */
+export const B12B_BATCH: RecipeBatchManifest = {
+  batchId: "expansion-batch-12",
+  status: "landed",
+  afterRecipeId: "jamaican-jerk-chicken-pizza",
+  recipes: [
+    { recipeId: "supreme-pizza", keyIngredientId: "bell-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "pizza-alla-norma", keyIngredientId: "ricotta-salata", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+  ],
+  acceptedLetterShifts: { "spanish-chorizo-pizza": "-->B" },
+};
+
+export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH, B12B_BATCH];
 
 /**
  * Pinsa Romana (#577 P3-b-3, Owner Q7): the manifest the validator checks in a build where the Pinsa gate (src/data/pinsaGate.ts) is OPEN. Deliberately NOT in

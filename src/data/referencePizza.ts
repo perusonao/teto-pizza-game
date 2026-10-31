@@ -4851,6 +4851,150 @@ export const PESCATORE_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * Expansion Batch 12 (tomato-sauce PAINT; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): Reference Truth for `supreme-pizza`. Pieces take the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment and the sauce quantity / coverage (the shared mechanical derivation) are GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const SUPREME_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "supreme-pizza",
+  sauce: computeMechanicalSauceReference("supreme-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "pepperoni",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "sausage",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "mushroom",
+      positions: [
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "onion",
+      positions: [
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "bell-pepper",
+      positions: [
+        { x: 25, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "black-olive",
+      positions: [
+        { x: 50, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
+ * Expansion Batch 12 (tomato-sauce PAINT; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): Reference Truth for `pizza-alla-norma`. Pieces take the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment and the sauce quantity / coverage (the shared mechanical derivation) are GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const PIZZA_ALLA_NORMA_REFERENCE: ReferencePizza = {
+  recipeId: "pizza-alla-norma",
+  sauce: computeMechanicalSauceReference("pizza-alla-norma"),
+  pieceGroups: [
+    {
+      ingredientId: "eggplant",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+        { x: 76, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "ricotta-salata",
+      positions: [
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "basil",
+      positions: [
+        { x: 25, y: 36 },
+        { x: 50, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "LIGHT_LEAF",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
+/**
  * Multi-Sauce S3 / Square Dough E-2 (#521): Reference Truth for `grandma-pizza` (two required sauces, square pan). `sauce` is the PRIMARY tomato-sauce target only (RECIPE_SAUCE_PROFILES); on the tray Scoring 2.0 and the
  * Completion Gate swap it for the square Reference (../logic/pan/squareReference.ts, E-1). The olive-oil is a presence-only secondary sauce, neither a piece nor a Reference target.
  * Pieces (mozzarella 3 / garlic 2 = 5) sit on a square grid inside the pan: mozzarella on the upper row, garlic on the lower row (kept within REFERENCE_SLOT_MAX_RADIUS of the centre).
@@ -5031,6 +5175,8 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PORCINI_PIZZA_REFERENCE.recipeId, PORCINI_PIZZA_REFERENCE],
   [PESCATORE_REFERENCE.recipeId, PESCATORE_REFERENCE],
   [JAMAICAN_JERK_CHICKEN_PIZZA_REFERENCE.recipeId, JAMAICAN_JERK_CHICKEN_PIZZA_REFERENCE],
+  [SUPREME_PIZZA_REFERENCE.recipeId, SUPREME_PIZZA_REFERENCE],
+  [PIZZA_ALLA_NORMA_REFERENCE.recipeId, PIZZA_ALLA_NORMA_REFERENCE],
   [GRANDMA_PIZZA_REFERENCE.recipeId, GRANDMA_PIZZA_REFERENCE],
   [IKURA_SALMON_PIZZA_REFERENCE.recipeId, IKURA_SALMON_PIZZA_REFERENCE],
   [YUZU_SHRIMP_PIZZA_REFERENCE.recipeId, YUZU_SHRIMP_PIZZA_REFERENCE],

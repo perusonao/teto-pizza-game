@@ -133,6 +133,9 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   pescatore: { keyFree: true },
   // B12 (Issue #706): permanently key-free.
   "jamaican-jerk-chicken-pizza": { keyFree: true },
+  // Expansion Batch 12: permanently key-free.
+  "supreme-pizza": { keyFree: true },
+  "pizza-alla-norma": { keyFree: true },
   // Multi-Sauce S3 / Square Dough E-2: permanently key-free.
   "grandma-pizza": { keyFree: true },
   // FIN-E4b-ikura (#621, late catalog): permanently key-free.

@@ -35,7 +35,7 @@ import { pinsaEnabled } from "../data/pinsaGate";
 const IDS = ["vongole", "pesto-vegetariana", "ratatouille-pizza"] as const;
 /** The non-credit onion-step recipes (calabresa, and TQ-1D's aussie): excluded where a test isolates the Wave 2 pool. */
 // Outside the Wave 2 population: the two non-credit recipes, and Slice 3 pesto-trapanese (appended step 29, after this Wave).
-const NON_CREDIT: readonly string[] = ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza", "spanish-chorizo-pizza", "pesto-trapanese"]; // Batch 8a: + the non-credit chilean (step 20) and chorizo (step 28, bell-pepper)
+const NON_CREDIT: readonly string[] = ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza", "spanish-chorizo-pizza", "pesto-trapanese", "supreme-pizza"]; // Expansion Batch 12: + the non-credit supreme-pizza (bell-pepper, step 28); Batch 8a: + the non-credit chilean (step 20) and chorizo (step 28, bell-pepper)
 const [VONGOLE, PESTO_VEG, RATATOUILLE] = IDS;
 const rec = (id: string) => getRecipe(id as RecipeId)! as Recipe;
 const NEW_INGREDIENTS = ["parsley", "bell-pepper", "zucchini"] as const;
@@ -222,7 +222,7 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
       expect(rec(id).ladderCredit, id).toBeUndefined();
       expect(countsTowardLadder(id), id).toBe(true);
     }
-    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza", "grandma-pizza", "porcini-pizza", "jamaican-jerk-chicken-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // Square Dough E-2 appends grandma-pizza; Batch 8a appends three non-credit recipes; Issue #561 promotes frango-catupiry to credited
+    expect((RECIPES as readonly Recipe[]).filter((r) => r.ladderCredit === false).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza", "grandma-pizza", "porcini-pizza", "jamaican-jerk-chicken-pizza", "supreme-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // Square Dough E-2 append; Expansion Batch 12: + supreme-pizzas grandma-pizza; Batch 8a appends three non-credit recipes; Issue #561 promotes frango-catupiry to credited
   });
 
   it("states: vongole UNKNOWN before step 27, KBMM until parsley is bought, DISCOVERABLE after", () => {

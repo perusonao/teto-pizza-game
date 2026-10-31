@@ -158,7 +158,7 @@ describe("ladderCredit:false (brazilian-calabresa and, since TQ-1D, aussie)", ()
   });
   it("is read from the production credit predicate, is in the pool from step 12 on, and never advances the ladder", () => {
     const calabresa = model.nonCreditRecipes.find((r) => r.recipeId === "brazilian-calabresa")!;
-    expect(model.nonCreditRecipes.map((r) => r.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "chilean-napolitana", "grandma-pizza", "jamaican-jerk-chicken-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : []), "porcini-pizza", "spanish-chorizo-pizza"]); // Batch 8a adds three non-credit recipes (Square Dough E-2: + grandma-pizza); Issue #561 promotes frango-catupiry to credited
+    expect(model.nonCreditRecipes.map((r) => r.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "chilean-napolitana", "grandma-pizza", "jamaican-jerk-chicken-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : []), "porcini-pizza", "spanish-chorizo-pizza", "supreme-pizza"]); // Batch 8a adds three non-credit recipes (Square Dough E-2: + grandma-pizza); Issue #561 promotes frango-catupiry to credited
     expect(calabresa.advancesLadder).toBe(countsTowardLadder("brazilian-calabresa"));
     expect(calabresa.advancesLadder).toBe(false);
     expect(calabresa.lunchRush).toBe(participatesInLunchRush("brazilian-calabresa"));

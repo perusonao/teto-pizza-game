@@ -180,7 +180,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
 
     // Expansion Slice 1: the 26th credited discovery reaches step 26, so the RESULT announces the new material (shrimp) and
     // its CTA is 「新しい食材を見る」; the slot line reads chapter 3 No.11 of 15. The Dex is then opened from HOME.
-    await expect(discovery).toContainText("No.11（第3章 12/18）");
+    await expect(discovery).toContainText("No.11（第3章 12/19）"); // (Expansion Batch 12: + supreme-pizza in chapter 3)
     await expect(discovery).toContainText("新しい材料が入荷：エビ");
     await expect(discovery.getByRole("button", { name: "🛒 新しい食材を見る" })).toBeVisible();
     // Dex: No.27, chapter 3 now 15 slots, 32 total; schema unchanged.
@@ -191,7 +191,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     const card = page.locator(".dex-card").filter({ hasText: "ペストポッロピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.11"); // chapter-relative slot 11 of 第3章
-    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("12/18");
+    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("12/19"); // (Expansion Batch 12)
     await card.scrollIntoViewIfNeeded();
     await noOverflow(page);
     await capture(page, "no27-dex-no27", project);

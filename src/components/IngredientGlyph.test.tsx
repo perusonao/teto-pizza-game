@@ -52,6 +52,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "pomegranate-aril",
   "salmon-fillet",
   "cream-cheese-block",
+  "ricotta-salata-shavings",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -88,8 +89,9 @@ const V1_DEDICATED: Record<string, DedicatedIngredientVisual> = { pickles: "pick
 const LATE_DEDICATED: Record<string, DedicatedIngredientVisual> = lateCatalogEnabled() ? { "salmon-roe": "salmon-roe-grains", "white-sesame": "sesame-seeds", pomegranate: "pomegranate-aril", cilantro: "cilantro-leaf", wasabi: "wasabi-dab", "cod-roe": "cod-roe-mass", nori: "nori-strips" } : {};
 const B11_DEDICATED: Record<string, DedicatedIngredientVisual> = { porcini: "porcini-slice", mussel: "mussel-shell" }; // B11 S1 (provisional adoption; the final adoption is the 390x844 / 360x800 HV)
 /** Ingredient Icons 2.0 Pilot D (#623, Style Lock v2 §10.3): salmon / cream-cheese dedicated art instead of 🍣 / the generic CSS cheese circle. */
+const B12_DEDICATED: Record<string, DedicatedIngredientVisual> = { "ricotta-salata": "ricotta-salata-shavings" }; // Expansion Batch 12 (provisional adoption; the final adoption is the 390x844 / 360x800 HV)
 const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PILOT_D_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...LATE_DEDICATED };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PILOT_D_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -1042,5 +1044,46 @@ describe("Pilot D: salmon / cream-cheese dedicated art (production rows)", () =>
     expect(legacyCheese).not.toContain("cream-cheese");
     expect(legacyCheese).toContain("gorgonzola");
     expect(INGREDIENTS.filter((i) => i.pieceVisual).map((i) => i.id)).toEqual(expect.arrayContaining(["salmon", "cream-cheese"]));
+  });
+});
+
+/**
+ * Expansion Batch 12 (PROVISIONAL SPEC / adoption, original NOT confirmed): `ricotta-salata` is a cheese row drawn by its own dedicated art on the glyph and on the placed piece (inside the `.pizza-cheese` wrapper, like ricotta / feta),
+ * never by its emoji (the shared 🧀 is only the text fallback). The neighbouring ricotta mound and feta cubes are not touched.
+ */
+describe("Batch 12: ricotta-salata dedicated art (production row)", () => {
+  const visual = "ricotta-salata-shavings";
+
+  it("declares the visual and keeps its identity", () => {
+    expect(getIngredient("ricotta-salata")).toMatchObject({ id: "ricotta-salata", nameJa: "リコッタサラータ", category: "cheese", placement: "scatter", pieceVisual: visual });
+  });
+
+  it("draws an SVG on the glyph and on the placed piece (64x64, no id / gradient / defs) and never prints its emoji", () => {
+    const ingredient = getIngredient("ricotta-salata")!;
+    for (const node of [<IngredientGlyph key="g" ingredient={ingredient} />, <IngredientPieceVisual key="p" ingredient={ingredient} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(svg!.getAttribute("focusable")).toBe("false");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      expect(container.innerHTML).not.toContain("<defs");
+      expect(container.innerHTML).not.toContain("gradient");
+      unmount();
+    }
+  });
+
+  it("on the pizza it draws inside the .pizza-cheese wrapper (--glyph), like ricotta / feta", () => {
+    const { container } = render(<IngredientPieceVisual ingredient={getIngredient("ricotta-salata")!} />);
+    expect(container.querySelector(".pizza-cheese.pizza-cheese--ricotta-salata.pizza-cheese--glyph")).not.toBeNull();
+  });
+
+  it("is distinct from the neighbouring cheese art (ricotta mound, feta cubes, cream-cheese block)", () => {
+    const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+    const all = ["ricotta-salata", "ricotta", "feta", "cream-cheese"].map(html);
+    expect(new Set(all).size).toBe(all.length);
   });
 });

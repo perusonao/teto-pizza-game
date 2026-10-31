@@ -208,6 +208,8 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   // Steps 62-63 (B11 S1, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): one step per new material. Steps 1-61 frozen. Step 62 `porcini`: key recipe `boscaiola` (porcini-pizza, `ladderCredit: false`, is also makeable here; REC-04 ties break by recipe id, so boscaiola stays the key). Step 63 `mussel`: key recipe `pescatore`. Cohort keys: porcini, mussel.
   { ingredientIds: ["porcini"], keyRecipeId: "boscaiola" },
   { ingredientIds: ["mussel"], keyRecipeId: "pescatore" },
+  // Step 64 (Expansion Batch 12, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `ricotta-salata`, key recipe `pizza-alla-norma`. Steps 1-63 frozen. `supreme-pizza` (`ladderCredit: false`) adds no step.
+  { ingredientIds: ["ricotta-salata"], keyRecipeId: "pizza-alla-norma" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

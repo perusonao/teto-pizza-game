@@ -15258,6 +15258,567 @@
   ]
  },
  {
+  "id": "supreme-pizza",
+  "keyFree": true,
+  "total": 7,
+  "rungs": [
+   [
+    1,
+    "SAUCE",
+    null,
+    "tomato-sauce"
+   ],
+   [
+    2,
+    "STRUCTURE",
+    null
+   ],
+   [
+    3,
+    "SUB_CLASS",
+    1,
+    "mushroom"
+   ],
+   [
+    4,
+    "SUB_CLASS",
+    2,
+    "onion"
+   ],
+   [
+    5,
+    "SUB_CLASS",
+    3,
+    "sausage"
+   ],
+   [
+    6,
+    "SUB_CLASS",
+    4,
+    "pepperoni"
+   ],
+   [
+    7,
+    "SUB_CLASS",
+    5,
+    "black-olive"
+   ],
+   [
+    8,
+    "SUB_CLASS",
+    6,
+    "bell-pepper"
+   ]
+  ],
+  "empty": [],
+  "reserved": [],
+  "states": [
+   {
+    "n": 0,
+    "next": {
+     "rungIndex": 1,
+     "kind": "SAUCE",
+     "labelJa": "ヒント1: ソース",
+     "price": 10
+    },
+    "board": [],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "ing:tomato-sauce",
+      "h5:sauce"
+     ],
+     "charge": 10
+    }
+   },
+   {
+    "n": 1,
+    "next": {
+     "rungIndex": 2,
+     "kind": "STRUCTURE",
+     "labelJa": "ヒント2: 構成（材料の数）",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "meta:ingredient-total",
+      "h5:structure"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 2,
+    "next": {
+     "rungIndex": 3,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント3: サブトッピング①の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "STRUCTURE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:mushroom"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 3,
+    "next": {
+     "rungIndex": 4,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント4: サブトッピング②の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:onion"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 4,
+    "next": {
+     "rungIndex": 5,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント5: サブトッピング③の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:sausage"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 5,
+    "next": {
+     "rungIndex": 6,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント6: サブトッピング④の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 5,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:pepperoni"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 6,
+    "next": {
+     "rungIndex": 7,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント7: サブトッピング⑤の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 5,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 6,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:black-olive"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 7,
+    "next": {
+     "rungIndex": 8,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント8: サブトッピング⑥の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 5,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 6,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 7,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:bell-pepper"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 8,
+    "next": null,
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 5,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 6,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 7,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 8,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "LADDER_COMPLETE",
+     "addFactIds": [],
+     "charge": 0
+    }
+   }
+  ]
+ },
+ {
+  "id": "pizza-alla-norma",
+  "keyFree": true,
+  "total": 4,
+  "rungs": [
+   [
+    1,
+    "SAUCE",
+    null,
+    "tomato-sauce"
+   ],
+   [
+    2,
+    "CHEESE",
+    null,
+    "ricotta-salata"
+   ],
+   [
+    3,
+    "STRUCTURE",
+    null
+   ],
+   [
+    4,
+    "SUB_CLASS",
+    1,
+    "basil"
+   ],
+   [
+    5,
+    "SUB_CLASS",
+    2,
+    "eggplant"
+   ]
+  ],
+  "empty": [],
+  "reserved": [],
+  "states": [
+   {
+    "n": 0,
+    "next": {
+     "rungIndex": 1,
+     "kind": "SAUCE",
+     "labelJa": "ヒント1: ソース",
+     "price": 10
+    },
+    "board": [],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "ing:tomato-sauce",
+      "h5:sauce"
+     ],
+     "charge": 10
+    }
+   },
+   {
+    "n": 1,
+    "next": {
+     "rungIndex": 2,
+     "kind": "CHEESE",
+     "labelJa": "ヒント2: チーズ",
+     "price": 10
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "ing:ricotta-salata",
+      "h5:cheese"
+     ],
+     "charge": 10
+    }
+   },
+   {
+    "n": 2,
+    "next": {
+     "rungIndex": 3,
+     "kind": "STRUCTURE",
+     "labelJa": "ヒント3: 構成（材料の数）",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "meta:ingredient-total",
+      "h5:structure"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 3,
+    "next": {
+     "rungIndex": 4,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント4: サブトッピング①の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "STRUCTURE"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:basil"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 4,
+    "next": {
+     "rungIndex": 5,
+     "kind": "SUB_CLASS",
+     "labelJa": "ヒント5: サブトッピング②の分類",
+     "price": 5
+    },
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "ANSWERED",
+     "addFactIds": [
+      "cls:eggplant"
+     ],
+     "charge": 5
+    }
+   },
+   {
+    "n": 5,
+    "next": null,
+    "board": [
+     {
+      "rungIndex": 1,
+      "kind": "SAUCE"
+     },
+     {
+      "rungIndex": 2,
+      "kind": "CHEESE"
+     },
+     {
+      "rungIndex": 3,
+      "kind": "STRUCTURE"
+     },
+     {
+      "rungIndex": 4,
+      "kind": "SUB_CLASS"
+     },
+     {
+      "rungIndex": 5,
+      "kind": "SUB_CLASS"
+     }
+    ],
+    "request": {
+     "outcome": "LADDER_COMPLETE",
+     "addFactIds": [],
+     "charge": 0
+    }
+   }
+  ]
+ },
+ {
   "id": "ikura-salmon-pizza",
   "keyFree": true,
   "total": 4,

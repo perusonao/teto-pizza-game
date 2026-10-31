@@ -241,7 +241,8 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       // Expansion Batch 10 PR-1: three of these Phase-2 BLOCKED_EVIDENCE rows (unresolved / unspecified curry base) are shipped by Owner approval (curry-ketchup as the base, D-B3;
       // docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md). The design matrix itself is unchanged (still 85 non-target rows); only the runtime catalog now carries them.
       // B11 S1 (PROVISIONAL SPEC, original NOT confirmed): boscaiola and porcini-pizza are BLOCKED_PRODUCT_DECISION rows shipped by Owner approval, the same way (the matrix is unchanged).
-      const ownerApproved = new Set(["curry-pizza-japan-pizzadb-p2", "rendang-pizza-pizzadb-p14", "tandoori-paneer-pizza-pizzadb-p5", "boscaiola-pizzadb-p12", "porcini-pizza-pizzadb-p13"]);
+      const ownerApproved = new Set(["curry-pizza-japan-pizzadb-p2", "rendang-pizza-pizzadb-p14", "tandoori-paneer-pizza-pizzadb-p5", "boscaiola-pizzadb-p12", "porcini-pizza-pizzadb-p13", "supreme-pizzadb", "pizza-alla-norma-pizzadb-p9"]);
+      // Expansion Batch 12 (Issue #707): supreme-pizzadb and pizza-alla-norma-pizzadb-p9 are BLOCKED_PRODUCT_DECISION rows adopted with the PIZZA DB composition; OWNER APPROVAL PENDING (the PR is not merged without it). The matrix is unchanged.
       // B12 (Issue #706): jamaican-jerk-chicken is a BLOCKED_PRODUCT_DECISION row (BASE_SAUCE_UNSPECIFIED) shipped as NO_SAUCE under a GAMEPLAY ASSUMPTION; the Owner decision is a merge condition of the B12 PR.
       ownerApproved.add("jamaican-jerk-chicken-pizza-pizzadb-p3");
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));

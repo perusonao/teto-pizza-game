@@ -51,13 +51,13 @@ describe("Dex research cards: stable cohort labels", () => {
   });
 
   it("step 28 with A discovered: the remaining card is B", () => {
-    const settled = ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza", "spanish-chorizo-pizza"]; // Batch 8a: the non-credit branches of steps 20 / 28 are settled too
+    const settled = ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza", "spanish-chorizo-pizza", "supreme-pizza"]; // Batch 8a: the non-credit branches of steps 20 / 28 are settled too (Expansion Batch 12: + supreme-pizza)
     expect(renderDex(28, [...settled, "ratatouille-pizza"]).titles).toEqual(["？？？ピザ B（ズッキーニ）"]);
     expect(renderDex(28, settled).titles).toEqual(["？？？ピザ A（ズッキーニ）", "？？？ピザ B（ズッキーニ）"]);
   });
 
   it("DOM / aria scan: no recipe id or name, No.xx, cohort size, hash or circled number in the research section", () => {
-    for (const [step, extra] of [[12, []], [12, ["brazilian-calabresa"]], [28, ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza", "spanish-chorizo-pizza"]]] as const) {
+    for (const [step, extra] of [[12, []], [12, ["brazilian-calabresa"]], [28, ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza", "spanish-chorizo-pizza", "supreme-pizza"]]] as const) {
       const { section } = renderDex(step, extra);
       const html = section.outerHTML;
       for (const r of RECIPES) {

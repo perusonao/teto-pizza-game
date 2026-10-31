@@ -19,7 +19,7 @@ const FREE_BAKE = { start: 58, end: 78 };
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const ID = "pesto-trapanese";
 // The recipes of the catalog up to and including this slice (later batches are not found yet).
-const DISCOVERED = RECIPES.slice(0, RECIPES.findIndex((r) => r.id === ID) + 1).map((r) => r.id as string).filter((id) => id !== ID).concat(["chilean-napolitana", "spanish-chorizo-pizza", "grandma-pizza"]); // Batch 8a: the non-credit step-20 / step-28 recipes are makeable here, so a settled save has found them
+const DISCOVERED = RECIPES.slice(0, RECIPES.findIndex((r) => r.id === ID) + 1).map((r) => r.id as string).filter((id) => id !== ID).concat(["chilean-napolitana", "spanish-chorizo-pizza", "grandma-pizza", "supreme-pizza"]); // Batch 8a: the non-credit step-20 / step-28 recipes are makeable here, so a settled save has found them
 const OWNED_BEFORE = materialsUpTo(28);
 
 const saveJson = () =>
@@ -52,7 +52,7 @@ test("Expansion Slice 3: Shop (almond NEW -> bought) -> Research Entry (no name 
   }, [SAVE_KEY, saveJson()] as const);
   await page.goto("/");
   await page.waitForSelector(".app-frame");
-  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`35/${CATALOG_COUNTS.recipes}`));
+  await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`36/${CATALOG_COUNTS.recipes}`));
 
   // 1. Shop: almond is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
   await page.getByRole("button", { name: /ショップ/ }).click();
@@ -110,10 +110,10 @@ test("Expansion Slice 3: Shop (almond NEW -> bought) -> Research Entry (no name 
   await page.getByRole("button", { name: /ホーム/ }).first().click();
   await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
   await page.waitForSelector(".dex-overlay");
-  await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`36\\s*/\\s*${CATALOG_COUNTS.recipes}`));
+  await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`37\\s*/\\s*${CATALOG_COUNTS.recipes}`)); // (Expansion Batch 12: + supreme-pizza in the save)
   const card = page.locator(".dex-card").filter({ hasText: "ペストトラパネーゼピザ" });
   await expect(card).toHaveCount(1);
-  await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("18/18");
+  await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("19/19"); // (Expansion Batch 12: + supreme-pizza in chapter 3)
   await card.scrollIntoViewIfNeeded();
   await noOverflow(page, "Dex");
   const saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "{}"), SAVE_KEY);

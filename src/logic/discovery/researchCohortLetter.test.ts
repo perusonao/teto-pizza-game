@@ -27,12 +27,12 @@ const play = (step: number, also: readonly string[] = []) => ({
   dex: discover(...keysBefore(step), ...also),
   ownedIngredientIds: ladderOwned(step),
 });
-/** The non-credit recipes closed, as a player past their step has them: the two step-12 recipes (TQ-1D: aussie), Batch 8a's chilean-napolitana (fresh-tomato, step 20) and spanish-chorizo-pizza (bell-pepper, step 28). */
+/** The non-credit recipes closed, as a player past their step has them: the two step-12 recipes (TQ-1D: aussie), Batch 8a's chilean-napolitana (fresh-tomato, step 20) and spanish-chorizo-pizza and Expansion Batch 12's supreme-pizza (bell-pepper, step 28). */
 const settled = (step: number, also: readonly string[] = []) =>
   play(step, [
     ...(step > 12 ? ["brazilian-calabresa", "aussie"] : []),
     ...(step >= 20 ? ["chilean-napolitana"] : []),
-    ...(step >= 28 ? ["spanish-chorizo-pizza"] : []),
+    ...(step >= 28 ? ["spanish-chorizo-pizza", "supreme-pizza"] : []),
     ...also,
   ]);
 /** recipeId -> label of every current entry. */
