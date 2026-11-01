@@ -657,7 +657,7 @@ export function GameScreen({
   return (
     <>
     <div
-      className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}
+      className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}${prepBusy ? " game-screen--prep-busy" : ""}`}
       // Research UX Phase 1: while the PREPARE 試作ノート is open nothing behind it can take focus or a keypress
       // (Shift+Tab / Enter would otherwise reset the pizza, advance a step or bake). The sheet itself is rendered
       // beside this root, below, so it is not inert. Same pattern as the Hint sheet's own notebook.
@@ -1178,7 +1178,8 @@ export function GameScreen({
               additionally disabled until `doughShapeComplete` (the task's own "size-only"
               completion gate) -- the only step whose CTA is ever disabled; SAUCE/CHEESE's has
               never been (no reducer-side completion gate exists for them either, by design). */}
-          <div className={`action-row prepare-bake-bar${showUndoButton ? " prepare-bake-bar--undo" : ""}`}>
+          {/* Cooking Prep: with the pan screen up, やり直す / 焼く！/ 次へ must not be reachable behind it (touch, keyboard, screen reader). */}
+          <div className={`action-row prepare-bake-bar${showUndoButton ? " prepare-bake-bar--undo" : ""}`} inert={prepBusy ? true : undefined}>
             <button type="button" className="secondary-button" onClick={handleResetPizza}>
               やり直す
             </button>

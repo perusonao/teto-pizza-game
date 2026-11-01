@@ -624,3 +624,141 @@ test.describe("Cooking Prep Phase 1B: timing game", () => {
     }
   });
 });
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------
+   HV fix (iPhone Safari, PR #721 preview): the pan screen's text sat too close to the ×, the result buttons ran past the panel's bottom edge on a real
+   iPhone's short stage, and the tray / 焼く！ behind the screen stayed prominent -- and tappable. A real iPhone Safari stage is far shorter than the
+   Desktop-Chrome 390x844 one (~260-290px), so the layout is checked at those heights too, for every outcome.
+   ------------------------------------------------------------------------------------------------------------------------------------------------ */
+const textRect = (page: Page, testId: string) =>
+  page.evaluate((id) => {
+    const el = document.querySelector(`[data-testid="${id}"]`);
+    if (!el) return null;
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const b = range.getBoundingClientRect();
+    return { t: b.top, b: b.bottom, l: b.left, r: b.right };
+  }, testId);
+
+type Outcome = "early" | "overdone" | "timeout" | "best";
+const OUTCOMES: { kind: Outcome; runMs: number; press: boolean; label: string }[] = [
+  { kind: "early", runMs: 1000, press: true, label: "まだ赤みが残ってる" },
+  { kind: "overdone", runMs: 4500, press: true, label: "焦げちゃった…（煙が出る前に！）" },
+  { kind: "timeout", runMs: 6000, press: false, label: "出し遅れた…" },
+  { kind: "best", runMs: 2500, press: true, label: "ちょうどいい！" },
+];
+
+test.describe("Cooking Prep Phase 1B: panel layout and the screen behind it (HV fix)", () => {
+  // 844 / 800 are the projects' own viewports; 664 / 640 are what an iPhone Safari with its bars actually leaves (stage ~280 / ~260px).
+  for (const [w, h] of [[390, 844], [360, 800], [390, 664], [360, 640]] as const) {
+    test(`every outcome fits the panel and keeps clear of the × (${w}x${h})`, async ({ page }) => {
+      test.skip(page.viewportSize()?.width !== w, "the project's own width only");
+      await page.emulateMedia({ reducedMotion: "reduce" }); // the result's pop animation would scale the boxes being measured
+      await page.setViewportSize({ width: w, height: h });
+      await toFrozenTopping(page, { place: [[40, 50]] });
+      for (const o of OUTCOMES) {
+        await openPanByKeyboard(page);
+        await page.clock.runFor(o.runMs);
+        if (o.press) await page.keyboard.press("Enter");
+        await expect(pan(page), o.kind).toHaveAttribute("data-grade", o.kind === "early" ? "early" : o.kind === "best" ? "best" : "overdone");
+        await expect(page.getByTestId("cooking-prep-result")).toHaveText(o.label);
+        await page.clock.runFor(300); // the result buttons arm
+        const panel = (await rect(page, '[data-testid="cooking-prep-pan"]'))!;
+        const x = (await rect(page, '[data-testid="cooking-prep-cancel"]'))!;
+        const text = (await textRect(page, "cooking-prep-result"))!;
+        const bowl = (await rect(page, ".cooking-prep-pan__pan"))!;
+        const msg = `${o.kind} ${w}x${h}`;
+        // the message: inside the panel, and >= 16px from the × (sideways, or entirely below it)
+        expect(text.t, msg).toBeGreaterThanOrEqual(panel.t + 4);
+        expect(text.l, msg).toBeGreaterThanOrEqual(panel.l + 8);
+        expect(text.r, msg).toBeLessThanOrEqual(panel.r - 8);
+        expect(Math.max(x.l - text.r, text.t - x.b), msg).toBeGreaterThanOrEqual(16);
+        // the bowl is below the message and inside the panel
+        expect(bowl.t, msg).toBeGreaterThanOrEqual(text.b);
+        expect(bowl.b, msg).toBeLessThanOrEqual(panel.b);
+        if (o.kind !== "best") {
+          // the buttons: fully inside the panel with room under them, >= 48px tall, side by side without overlap, below the bowl
+          const retry = (await rect(page, '[data-testid="cooking-prep-retry"]'))!;
+          const use = (await rect(page, '[data-testid="cooking-prep-use"]'))!;
+          for (const b of [retry, use]) {
+            expect(b.h, msg).toBeGreaterThanOrEqual(48);
+            expect(b.w, msg).toBeGreaterThanOrEqual(120);
+            expect(b.b, msg).toBeLessThanOrEqual(panel.b - 8);
+            expect(b.l, msg).toBeGreaterThanOrEqual(panel.l + 8);
+            expect(b.r, msg).toBeLessThanOrEqual(panel.r - 8);
+            expect(b.t, msg).toBeGreaterThanOrEqual(bowl.b);
+          }
+          expect(use.l, msg).toBeGreaterThanOrEqual(retry.r);
+          await shot(page, `hv-fix-${o.kind}-${w}x${h}`);
+          await page.getByTestId("cooking-prep-cancel").click(); // × leaves nothing; ready for the next outcome
+          await expect(pan(page)).toHaveCount(0);
+        } else {
+          await shot(page, `hv-fix-best-${w}x${h}`);
+        }
+        await noOverflow(page);
+      }
+    });
+  }
+
+  test("while the pan screen is up, the 焼く！ bar, the tray and the step tabs behind it take no touch; they step back (lighter, not dark) and come back after ×", async ({ page }) => {
+    await toFrozenTopping(page, { place: [[40, 50]] });
+    const root = page.locator(".game-screen");
+    const bar = page.locator(".prepare-bake-bar");
+    const opacity = (sel: string) => page.evaluate((s) => Number(getComputedStyle(document.querySelector(s)!).opacity), sel);
+    // before: nothing is dimmed
+    await expect(root).not.toHaveClass(/game-screen--prep-busy/);
+    expect(await opacity(".prepare-bake-bar")).toBe(1);
+    await expect(bar).not.toHaveAttribute("inert", /.*/);
+
+    await openPanByKeyboard(page);
+    await expect(root).toHaveClass(/game-screen--prep-busy/);
+    await expect(bar).toHaveAttribute("inert", "");
+    await expect(page.getByTestId("prepare-dock")).toHaveAttribute("inert", "");
+    // lighter, but not washed out: behind the screen the bar / tray stay between 0.5 and 0.75 opaque; the stage itself is untouched
+    for (const sel of [".prepare-bake-bar", ".prepare-dock"]) {
+      await expect.poll(() => opacity(sel), { message: `${sel} settles after the short fade` }).toBeLessThanOrEqual(0.75);
+      expect(await opacity(sel), sel).toBeGreaterThanOrEqual(0.5);
+    }
+    expect(await opacity(".pizza-stage")).toBe(1);
+    expect(await opacity('[data-testid="cooking-prep-pan"]')).toBe(1);
+    expect(await opacity(".app-header")).toBe(1); // the header's ホーム is neither dimmed nor blocked by this change
+
+    // real taps on the screen behind -- during the run and during a result -- change nothing
+    const piecesBefore = await beefPieces(page);
+    const saveBefore = await readSave(page);
+    const tapCentre = async (selector: string) => {
+      const r = (await rect(page, selector))!;
+      await page.mouse.click((r.l + r.r) / 2, (r.t + r.b) / 2);
+    };
+    const attempt = async (phase: string) => {
+      await tapCentre(".cta-button--bake"); // 焼く！ (the last PREPARE step)
+      await tapCentre(".prepare-bake-bar .secondary-button"); // やり直す
+      await tapCentre(".prepare-dock .ingredient-chip"); // a tray chip
+      await tapCentre(".making-step-tab");
+      await expect(pan(page), phase).toBeVisible();
+      expect(await beefPieces(page), phase).toBe(piecesBefore);
+      await expect(page.locator(".cta-button--bake"), `${phase}: still in PREPARE`).toBeVisible();
+    };
+    await attempt("running");
+    await page.clock.runFor(1000);
+    await take(page).focus(); // the clicks above moved the focus
+    await page.keyboard.press("Enter");
+    await expect(pan(page)).toHaveAttribute("data-grade", "early");
+    await page.clock.runFor(300);
+    await attempt("result");
+    // keyboard: a forced focus on 焼く！ plus Enter does nothing
+    await page.locator(".cta-button--bake").evaluate((el) => (el as HTMLElement).focus());
+    await page.keyboard.press("Enter");
+    await expect(pan(page)).toBeVisible();
+    await expect(page.locator(".cta-button--bake")).toBeVisible();
+    expect(await readSave(page)).toEqual(saveBefore);
+
+    // × brings everything back
+    await page.getByTestId("cooking-prep-cancel").click();
+    await expect(pan(page)).toHaveCount(0);
+    await expect(root).not.toHaveClass(/game-screen--prep-busy/);
+    await expect(bar).not.toHaveAttribute("inert", /.*/);
+    await expect.poll(() => opacity(".prepare-bake-bar")).toBe(1);
+    await expect.poll(() => opacity(".prepare-dock")).toBe(1);
+  });
+});
