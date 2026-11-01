@@ -54,6 +54,9 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "cream-cheese-block",
   "ricotta-salata-shavings",
   "mayo-drop",
+  "green-pepper-strips",
+  "bell-pepper-quarter",
+  "pineapple-wedges",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -92,8 +95,10 @@ const B11_DEDICATED: Record<string, DedicatedIngredientVisual> = { porcini: "por
 /** Ingredient Icons 2.0 Pilot D (#623, Style Lock v2 §10.3): salmon / cream-cheese dedicated art instead of 🍣 / the generic CSS cheese circle. */
 const B13_DEDICATED: Record<string, DedicatedIngredientVisual> = { mayo: "mayo-drop" }; // Expansion Batch 13 (provisional adoption; the 20px check "it does not read as the letter M" is the 390x844 / 360x800 HV)
 const B12_DEDICATED: Record<string, DedicatedIngredientVisual> = { "ricotta-salata": "ricotta-salata-shavings" }; // Expansion Batch 12 (provisional adoption; the final adoption is the 390x844 / 360x800 HV)
+/** Ingredient Icons 2.0 Pilot E (#715, Style Lock v2 §11): green-pepper / bell-pepper / pineapple dedicated art instead of 🌶️ / 🫑 / 🍍. */
+const PILOT_E_DEDICATED: Record<string, DedicatedIngredientVisual> = { "green-pepper": "green-pepper-strips", "bell-pepper": "bell-pepper-quarter", pineapple: "pineapple-wedges" };
 const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PILOT_D_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...LATE_DEDICATED };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -229,11 +234,10 @@ describe("I5a: W1 dedicated-visual materials never draw their emoji fallback", (
     inventory.unmount();
   });
 
-  it("corn / eggplant / pineapple / potato draw their approved emoji", () => {
+  it("corn / eggplant / potato draw their approved emoji (pineapple moved to Pilot E art)", () => {
     const expected: Record<string, string> = {
       corn: "\u{1F33D}",
       eggplant: "\u{1F346}",
-      pineapple: "\u{1F34D}",
       potato: "\u{1F954}",
     };
     for (const [id, emoji] of Object.entries(expected)) {
@@ -1123,5 +1127,60 @@ describe("Batch 13: mayo dedicated art (production row; a teardrop since Owner d
     const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
     const all = ["mayo", "ricotta", "ricotta-salata", "cream-cheese", "feta"].map(html);
     expect(new Set(all).size).toBe(all.length);
+  });
+});
+
+/**
+ * Ingredient Icons 2.0 Pilot E (#715, Style Lock v2 §11; Owner decision 2026-10-31 / 2026-11-01): green-pepper / bell-pepper / pineapple are drawn by their own dedicated art on the glyph and on the placed piece,
+ * never by their emoji (🌶️ / 🫑 / 🍍 are only the text fallbacks). `chicken` keeps its emoji (§1b A drumstick stays, no boneless art without the Owner's approval). Drawing only: ids, emoji, colour and size class are unchanged.
+ */
+describe("Pilot E: green-pepper / bell-pepper / pineapple dedicated art (production rows)", () => {
+  const CASES = [
+    { id: "green-pepper", nameJa: "ピーマン", visual: "green-pepper-strips", emoji: "\u{1F336}\u{FE0F}" },
+    { id: "bell-pepper", nameJa: "パプリカ", visual: "bell-pepper-quarter", emoji: "\u{1FAD1}" },
+    { id: "pineapple", nameJa: "パイナップル", visual: "pineapple-wedges", emoji: "\u{1F34D}" },
+  ] as const;
+
+  it.each(CASES)("$id declares $visual and keeps its identity (id / emoji / category / placement)", ({ id, nameJa, visual, emoji }) => {
+    expect(getIngredient(id)).toMatchObject({ id, nameJa, emoji, category: "topping", placement: "scatter", pieceVisual: visual });
+  });
+
+  it.each(CASES)("$id draws an SVG on the glyph and on the placed piece (64x64, no id / gradient / defs) and never prints its emoji", ({ id, visual }) => {
+    const ingredient = getIngredient(id)!;
+    for (const node of [<IngredientGlyph key="g" ingredient={ingredient} />, <IngredientPieceVisual key="p" ingredient={ingredient} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("class")).toBe(`ingredient-glyph ingredient-glyph--${visual}`);
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(svg!.getAttribute("focusable")).toBe("false");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      expect(container.innerHTML).not.toContain("<defs");
+      expect(container.innerHTML).not.toContain("gradient");
+      unmount();
+    }
+  });
+
+  it.each(CASES)("$visual depends on the declared visual, not the ingredient id", ({ id, visual }) => {
+    const base = getIngredient(id)!;
+    const a = renderToStaticMarkup(<IngredientGlyph ingredient={base} />);
+    const b = renderToStaticMarkup(<IngredientGlyph ingredient={{ ...base, id: "other-id", nameJa: "別名" }} />);
+    expect(b).toBe(a);
+    expect(a).toContain(`data-ingredient-visual="${visual}"`);
+  });
+
+  it("the three drawings differ from each other and from the neighbouring look-alikes (green onion, pickles, pepperoni, tomato slice, feta cubes)", () => {
+    const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+    const all = ["green-pepper", "bell-pepper", "pineapple", "green-onion", "pickles", "pepperoni", "fresh-tomato", "feta"].map(html);
+    expect(new Set(all).size).toBe(all.length);
+  });
+
+  it("chicken keeps its emoji (no dedicated art)", () => {
+    const chicken = getIngredient("chicken")!;
+    expect(chicken.pieceVisual).toBeUndefined();
+    expect(renderToStaticMarkup(<IngredientGlyph ingredient={chicken} />)).toBe(chicken.emoji);
   });
 });

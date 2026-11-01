@@ -8304,3 +8304,24 @@ p.hint-sheet__step {
 .pizza-topping--trail {
   animation: none;
 }
+
+/* Ingredient Icons 2.0 Pilot E (#715, Owner decision 2026-10-31 / 2026-11-01): green-pepper strips / bell-pepper quarter / pineapple wedges. Drawn inside a 64-box with margins, so they read smaller than the
+   emoji they replace; sized per ingredient with a negative margin of -(em-1)/2 so the layout box stays 1em. PROVISIONAL starting values (1.45em / 1.65em / 1.45em), measured on 390x844 / 360x800 in HV.
+   Its own block: the earlier groups stay untouched. */
+.ingredient-glyph--green-pepper-strips,
+.ingredient-glyph--pineapple-wedges {
+  width: 1.45em;
+  height: 1.45em;
+  margin: -0.225em;
+}
+.ingredient-glyph--bell-pepper-quarter {
+  width: 1.65em;
+  height: 1.65em;
+  margin: -0.325em;
+}
+/* The tray chip's icon box is a fixed 26px: the 1.65em quarter would overflow it (arugula's precedent above), so the chip draws it smaller. PROVISIONAL, measured in HV. */
+.ingredient-chip .ingredient-glyph--bell-pepper-quarter {
+  width: 1.35em;
+  height: 1.35em;
+  margin: -0.175em;
+}

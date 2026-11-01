@@ -22,6 +22,7 @@ import { isLateRecipeId as recipeIsLate } from "../logic/catalog/testSupport/lat
  * emoji; no id, order, placement or unlock change). Same bytes otherwise.
  * Regenerated a second time for the same reason: `shrimp` gained `pieceVisual: "shrimp-curl"` (Owner-approved peeled-shrimp art replacing the shelled 🦐; no id, order, placement or unlock change).
  * Regenerated again for Ingredient Icons 2.0 Pilot D (#623, Owner-approved): `salmon` gained `pieceVisual: "salmon-fillet"` and `cream-cheese` gained `pieceVisual: "cream-cheese-block"` (the only two differences in the first 66 entries; no id, order, placement or unlock change).
+ * Regenerated again for Ingredient Icons 2.0 Pilot E (#715, Owner-approved): `green-pepper`, `bell-pepper` and `pineapple` gained `pieceVisual` "green-pepper-strips" / "bell-pepper-quarter" / "pineapple-wedges" (the only three differences in the first 66 entries, checked by diffing the canonical JSON before / after; no id, order, emoji, placement or unlock change).
  */
 const canon = (value: unknown): string =>
   JSON.stringify(value, (_key, v) =>

@@ -48,6 +48,9 @@ export type DedicatedIngredientVisual =
   | "mussel-shell"
   | "ricotta-salata-shavings"
   | "mayo-drop"
+  | "green-pepper-strips"
+  | "bell-pepper-quarter"
+  | "pineapple-wedges"
   | "salmon-fillet"
   | "cream-cheese-block";
 
@@ -506,7 +509,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
    *   entitlement. They become reachable when the W1 recipes and their ladder ship together.
    * - Visuals are the W1 Human Visual Gate authority (7/7 HUMAN_PASS): capers / clam /
    *   fresh-tomato draw their dedicated `pieceVisual` (their `emoji` is only the required text
-   *   fallback and is never drawn); corn / eggplant / pineapple / potato use their emoji.
+   *   fallback and is never drawn); corn / eggplant / potato use their emoji (pineapple moved to a dedicated visual in Pilot E, #715).
    * - `fresh-tomato` is its own id (a slice), never an alias of `cherry-tomato` or `tomato-sauce`.
    */
   {
@@ -565,6 +568,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F34D}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "pineapple-wedges", // Ingredient Icons 2.0 Pilot E (#715): two wedges of cut flesh instead of the whole-fruit 🍍 (🍍 is only the text fallback)
   },
   {
     id: "potato",
@@ -634,6 +638,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1FAD1}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "bell-pepper-quarter", // Ingredient Icons 2.0 Pilot E (#715): a red quarter (🫑 is only the text fallback)
   },
   {
     id: "zucchini",
@@ -688,8 +693,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
   },
   /**
    * Expansion Batch 1 (veggie-supreme-pizza): finite ladder material, step 32 (T4). Family `vegetable`. Its own
-   * ingredient, never `bell-pepper` (パプリカ 🫑): 🌶️ is a different glyph, and the Japanese names differ
-   * (ピーマン / パプリカ), so the two cannot be confused in the tray, Shop or Dex.
+   * ingredient, never `bell-pepper` (パプリカ): the Japanese names differ (ピーマン / パプリカ) and, since Pilot E (#715), green strips vs a red quarter are drawn by dedicated visuals
+   * (the 🌶️ / 🫑 emoji are only text fallbacks), so the two cannot be confused in the tray, Shop or Dex.
    */
   {
     id: "green-pepper",
@@ -699,6 +704,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F336}\u{FE0F}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "green-pepper-strips", // Ingredient Icons 2.0 Pilot E (#715): green strips instead of the red chilli 🌶️ (🌶️ is only the text fallback)
   },
   /** Expansion Batch 2: finite ladder material, step 33 (T4). Cheese category like every cheese (shared 🧀 convention, told apart by name / colour). */
   {

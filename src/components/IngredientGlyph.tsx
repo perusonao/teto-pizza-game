@@ -53,6 +53,9 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "mussel-shell": "0 0 64 64",
   "ricotta-salata-shavings": "0 0 64 64",
   "mayo-drop": "0 0 64 64",
+  "green-pepper-strips": "0 0 64 64",
+  "bell-pepper-quarter": "0 0 64 64",
+  "pineapple-wedges": "0 0 64 64",
   "salmon-fillet": "0 0 64 64",
   "cream-cheese-block": "0 0 64 64",
 };
@@ -95,6 +98,9 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "mussel-shell" && <MusselShell />}
       {visual === "ricotta-salata-shavings" && <RicottaSalataShavings />}
       {visual === "mayo-drop" && <MayoDrop />}
+      {visual === "green-pepper-strips" && <GreenPepperStrips />}
+      {visual === "bell-pepper-quarter" && <BellPepperQuarter />}
+      {visual === "pineapple-wedges" && <PineappleWedges />}
       {visual === "salmon-fillet" && <SalmonFillet />}
       {visual === "cream-cheese-block" && <CreamCheeseBlock />}
     </svg>
@@ -845,6 +851,79 @@ function MayoDrop() {
       <ellipse cx="32" cy="57" rx="23" ry="3.2" fill="#000" opacity=".14" />
       <path d="M32 6 C32 6 15 27 15 39 C15 48 22 54 32 54 C42 54 49 48 49 39 C49 27 32 6 32 6 Z" fill="#fff6dc" stroke="#7a6548" strokeWidth="2.4" strokeLinejoin="round" />
       <path d="M24 41 C24 35 27 30 31 25" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" opacity=".9" />
+    </g>
+  );
+}
+
+/* ---------- Ingredient Icons 2.0 Pilot E (#715, Style Lock v2 §11; Owner decision 2026-10-31 / 2026-11-01): green pepper: three green strips (GP-A2). Ported as-is from docs/design/candidates/ingredient-icons-2.0-pilot-e0/svg/green-pepper-a2-strips.svg (64x64, no id / gradient / defs). ---------- */
+function GreenPepperStrips() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
+      <path d="M10 21Q27 9 50 18" stroke="#2c5a1c" strokeWidth="12.6" strokeLinecap="round" fill="none" />
+      <path d="M10 21Q27 9 50 18" stroke="#5fa83a" strokeWidth="8.6" strokeLinecap="round" fill="none" />
+      <path transform="translate(-1.4 -1.1)" d="M10 21Q27 9 50 18" stroke="#c4e892" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      <path d="M12 35Q30 24 55 32" stroke="#2c5a1c" strokeWidth="12.6" strokeLinecap="round" fill="none" />
+      <path d="M12 35Q30 24 55 32" stroke="#5fa83a" strokeWidth="8.6" strokeLinecap="round" fill="none" />
+      <path transform="translate(-1.4 -1.1)" d="M12 35Q30 24 55 32" stroke="#c4e892" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      <path d="M10 49Q27 40 49 46" stroke="#2c5a1c" strokeWidth="12.6" strokeLinecap="round" fill="none" />
+      <path d="M10 49Q27 40 49 46" stroke="#5fa83a" strokeWidth="8.6" strokeLinecap="round" fill="none" />
+      <path transform="translate(-1.4 -1.1)" d="M10 49Q27 40 49 46" stroke="#c4e892" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      <circle cx="49.6" cy="18.1" r="2.3" fill="#e4f3c0" stroke="#4f8a35" strokeWidth="1.1" />
+      <circle cx="54.6" cy="32.1" r="2.3" fill="#e4f3c0" stroke="#4f8a35" strokeWidth="1.1" />
+      <circle cx="48.6" cy="46.1" r="2.3" fill="#e4f3c0" stroke="#4f8a35" strokeWidth="1.1" />
+    </g>
+  );
+}
+
+/* ---------- Ingredient Icons 2.0 Pilot E (#715, Style Lock v2 §11; Owner decision 2026-10-31 / 2026-11-01): bell pepper: a red quarter with the pale inside and a green stem (BP-B2). Ported as-is from docs/design/candidates/ingredient-icons-2.0-pilot-e0/svg/bell-pepper-b2-quarter.svg (64x64, no id / gradient / defs). ---------- */
+function BellPepperQuarter() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
+      <g transform="translate(10.2 12.2) scale(.68)">
+        <path d="M14 24C14 14 24 10 32 14C40 10 50 14 50 24C50 40 44 52 32 54C20 52 14 40 14 24Z" fill="#d8402f" stroke="#6e1a12" strokeWidth="3.2" strokeLinejoin="round" />
+        <path d="M22 26C22 20 28 18 32 21C36 18 42 20 42 26C42 36 38 44 32 46C26 44 22 36 22 26Z" fill="#f6c9a0" stroke="#a8431f" strokeWidth="2.2" strokeLinejoin="round" />
+        <g fill="#fff4d2">
+          <ellipse cx="29" cy="29" rx="2.2" ry="1.5" />
+          <ellipse cx="35" cy="28" rx="2.2" ry="1.5" />
+          <ellipse cx="32" cy="35" rx="2.1" ry="1.5" />
+        </g>
+        <path d="M18 22C18 17 23 14 28 15" stroke="#ff9a82" strokeWidth="3.2" strokeLinecap="round" fill="none" />
+        <path d="M30 14C30 10 32 8 34 7" stroke="#3a6b2b" strokeWidth="5.6" strokeLinecap="round" fill="none" />
+        <path d="M30 14C30 10 32 8 34 7" stroke="#6faa44" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+      </g>
+    </g>
+  );
+}
+
+/* ---------- Ingredient Icons 2.0 Pilot E (#715, Style Lock v2 §11; Owner decision 2026-10-31 / 2026-11-01): pineapple: two yellow wedges of cut flesh (PA-A2). Ported as-is from docs/design/candidates/ingredient-icons-2.0-pilot-e0/svg/pineapple-a2-wedges.svg (64x64, no id / gradient / defs). ---------- */
+function PineappleWedges() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
+      <g transform="translate(21 27) rotate(-26) scale(1.32) translate(0 13)">
+        <path d="M-11.3 -18.9A22 22 0 0 1 11.3 -18.9L4.1 -6.9A8 8 0 0 0 -4.1 -6.9Z" fill="#f9d84a" stroke="#8d6a12" strokeWidth="2.4" strokeLinejoin="round" />
+        <path d="M-11.3 -18.9A22 22 0 0 1 11.3 -18.9L10.0 -16.6A19.4 19.4 0 0 0 -10.0 -16.6Z" fill="#efc23a" />
+        <path d="M-2.9 -10.1L-4.8 -16.7" stroke="#fff3b0" strokeWidth="1.7" strokeLinecap="round" />
+        <path d="M0.0 -10.5L0.0 -17.4" stroke="#fff3b0" strokeWidth="1.7" strokeLinecap="round" />
+        <path d="M2.9 -10.1L4.8 -16.7" stroke="#fff3b0" strokeWidth="1.7" strokeLinecap="round" />
+        <circle cx="-6.4" cy="-19.7" r="0.6" fill="#b08a1e" />
+        <circle cx="-2.2" cy="-20.6" r="0.6" fill="#b08a1e" />
+        <circle cx="2.2" cy="-20.6" r="0.6" fill="#b08a1e" />
+        <circle cx="6.4" cy="-19.7" r="0.6" fill="#b08a1e" />
+      </g>
+      <g transform="translate(43 40) rotate(30) scale(1.32) translate(0 13)">
+        <path d="M-11.3 -18.9A22 22 0 0 1 11.3 -18.9L4.1 -6.9A8 8 0 0 0 -4.1 -6.9Z" fill="#f9d84a" stroke="#8d6a12" strokeWidth="2.4" strokeLinejoin="round" />
+        <path d="M-11.3 -18.9A22 22 0 0 1 11.3 -18.9L10.0 -16.6A19.4 19.4 0 0 0 -10.0 -16.6Z" fill="#efc23a" />
+        <path d="M-2.9 -10.1L-4.8 -16.7" stroke="#fff3b0" strokeWidth="1.7" strokeLinecap="round" />
+        <path d="M0.0 -10.5L0.0 -17.4" stroke="#fff3b0" strokeWidth="1.7" strokeLinecap="round" />
+        <path d="M2.9 -10.1L4.8 -16.7" stroke="#fff3b0" strokeWidth="1.7" strokeLinecap="round" />
+        <circle cx="-6.4" cy="-19.7" r="0.6" fill="#b08a1e" />
+        <circle cx="-2.2" cy="-20.6" r="0.6" fill="#b08a1e" />
+        <circle cx="2.2" cy="-20.6" r="0.6" fill="#b08a1e" />
+        <circle cx="6.4" cy="-19.7" r="0.6" fill="#b08a1e" />
+      </g>
     </g>
   );
 }
