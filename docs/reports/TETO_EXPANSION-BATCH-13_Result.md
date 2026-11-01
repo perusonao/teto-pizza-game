@@ -69,6 +69,20 @@ Status: **実装完了。Owner の承認と実機 HV の前は merge しない�
 
 追加・変更: `src/logic/squeeze.ts`（`trailPointAt` / `anchorCandidates`）、`gameReducer.ts`、`PizzaStage.tsx`、`GameScreen.tsx`、`App.css`、`e2e/gestures.ts`（`squeezeDoughPath`）、`e2e/batch13-potato-mayo.spec.ts`、テスト `gameReducer.mayoTrail.test.ts`・`PizzaStage.mayoSqueeze.test.tsx`・`gameReducer.squeeze.test.ts`（更新）。画像: `docs/reports/screenshots/b13-mayo-squeeze/`（before / after 比較 6 枚、20〜24px アイコン比較 1 枚）。
 
+## 8. トレイの残数表示（Owner 2026-11-01 採用方針、iPhone HV の指摘への対応）
+
+iPhone HV で、マヨネーズの線を置いても在庫表示が `×7` のままで、「1つ戻す」を押しても変わらなかった。調査の結果、**在庫が壊れているのではなく、`×N` が保存在庫そのものを表示していた**ため（在庫を減らすのは焼成確定 `CONFIRM_BAKE` だけ。置く = 予約）。全食材に共通で、マヨネーズ固有ではない。Owner が案A（表示のみ）を採用した。
+
+| 項目 | 内容 |
+|---|---|
+| 表示 | 焼成前のトレイの `×N` を、有限在庫の scatter 食材について **「保存在庫 − このピザに置いた個数」** にする（`src/logic/trayStockDisplay.ts`、`IngredientTray.tsx`）。置くと減り、「1つ戻す」で戻る（ピースから導出するので Undo に自動で追従） |
+| 0 の扱い | 置ける数が 0 のとき `×0`（チップも無効）。配置可否の判定（`canPlaceIngredient`）と一致（全ての有限 scatter 食材 × 在庫 0〜5 × 配置数で網羅テスト） |
+| 変えていないもの | 無限在庫（`∞` / `常備`）、仕上げ工程の「あと a/b」、ソース（spread）、`inventory`・reducer・保存スキーマ v2・`CONFIRM_BAKE`・Lunch Rush（1つ戻すなし）。ショップ・インベントリ画面（保存在庫の表示）も同じ |
+| タイミング | 減るのは**指を離して 1 本が確定した時**（なぞっている途中は変わらない。ピースが置かれるのは離したとき） |
+| 焼成後との連続 | 焼成前の表示（在庫 − ピース）= 焼成後の保存在庫。テストで固定（`×5` → 焼成後 `inventory = 5`） |
+
+追加テスト: `trayStockDisplay.test.ts`（7）、`IngredientTray.stockDisplay.test.tsx`（6: 置く→1つ戻す→再配置、在庫上限、マヨ・通常食材、無限在庫、仕上げ工程、焼成後の連続性）、`gameReducer.undoStock.test.ts`（7: 在庫契約・予約ゲート・焼成消費・Lunch Rush）。E2E（390×844 / 360×800）は残数の変化を実ブラウザで検証（修正を戻すと「期待 19、実際 20」で失敗することを確認）。画像: `docs/reports/screenshots/b13-stock-display/`。
+
 ## Human Verification Videos
 
 | Video | Viewport | Duration | Size | Verification |

@@ -172,10 +172,18 @@ test.describe("Expansion Batch 13 (potato-mayo-pizza, played end to end)", () =>
       await capture(page, `b13-${c.id}-tray-topping`, project);
       // Owner 案A, measured on the real layout: (1) the committed line sits where the finger drew it (no jump at release, even near the rim), (2) one stroke
       // is capped at 60% of the dough's diameter, (3) 1つ戻す takes back exactly the last stroke / the tap's droplet.
-      await (await chipOnTrayOrPin(page, /マヨネーズ/)).click();
+      const mayoChip = await chipOnTrayOrPin(page, /マヨネーズ/);
+      await mayoChip.click();
+      // Owner 2026-11-01: before the bake the chip reads "stock - pieces placed" (display only): placing takes one, 「1つ戻す」 gives it back, 0 = cannot place.
+      const mayoStock = async () => Number(((await mayoChip.locator(".ingredient-chip__stock").textContent()) ?? "").replace(/[^0-9]/g, ""));
+      const stockAtStart = await mayoStock();
+      expect(stockAtStart, `${project}: the chip reads a finite stock`).toBeGreaterThan(2);
       const doughBox = (await page.locator('[data-pizza-drop-target="true"]').boundingBox())!;
       const screenOf = (px: number, py: number) => ({ x: doughBox.x + (px / 100) * doughBox.width, y: doughBox.y + (py / 100) * doughBox.height });
       await squeezeDoughStroke(page, [14, 46], [60, 46]);
+      await expect.poll(mayoStock, { message: `${project}: placing a line takes one from the chip` }).toBe(stockAtStart - 1);
+      await capture(page, `b13-${c.id}-stock-after-place`, project);
+      await hold(page, 1500);
       const line = page.locator("svg.pizza-squeeze-trail").first();
       await expect(line).toHaveCount(1);
       const geometry = await line.evaluate((svg) => {
@@ -189,7 +197,11 @@ test.describe("Expansion Batch 13 (potato-mayo-pizza, played end to end)", () =>
       expect(Math.abs(first.y - want.y), `${project}: line start vs finger (y)`).toBeLessThan(1.5);
       await page.getByRole("button", { name: "1つ戻す" }).click();
       await expect(page.locator("svg.pizza-squeeze-trail")).toHaveCount(0);
+      await expect.poll(mayoStock, { message: `${project}: 1つ戻す gives the unit back` }).toBe(stockAtStart);
+      await capture(page, `b13-${c.id}-stock-after-undo`, project);
+      await hold(page, 1500);
       await squeezeDoughStroke(page, [6, 50], [94, 50], 40); // far longer than the cap
+      await expect.poll(mayoStock, { message: `${project}: re-placing takes it again` }).toBe(stockAtStart - 1);
       const capped = await page.locator("svg.pizza-squeeze-trail").first().evaluate((svg) => {
         const box = svg.getBoundingClientRect();
         const pts = svg.querySelector("path")!.getAttribute("d")!.match(/-?\d+(?:\.\d+)?/g)!.map(Number);
@@ -205,14 +217,18 @@ test.describe("Expansion Batch 13 (potato-mayo-pizza, played end to end)", () =>
       await hold(page, 1500);
       await page.getByRole("button", { name: "1つ戻す" }).click();
       await expect(page.locator("svg.pizza-squeeze-trail")).toHaveCount(0);
+      await expect.poll(mayoStock).toBe(stockAtStart);
       await tapDoughPercent(page, 50, 50); // a tap = the single droplet, no line
       await expect(page.locator('.pizza-dough [data-ingredient-visual="mayo-drop"]')).toHaveCount(1);
+      await expect.poll(mayoStock, { message: `${project}: a tapped droplet takes one too` }).toBe(stockAtStart - 1);
       await expect(page.locator("svg.pizza-squeeze-trail")).toHaveCount(0);
       await capture(page, `b13-${c.id}-mayo-drop`, project);
       await hold(page, 1500);
       await page.getByRole("button", { name: "1つ戻す" }).click();
       await expect(page.locator(".pizza-topping--mayo")).toHaveCount(0);
+      await expect.poll(mayoStock).toBe(stockAtStart);
       spot = await place(page, c.toppings, spot);
+      await expect.poll(mayoStock, { message: `${project}: the recipe's 2 mayo take 2 from the chip` }).toBe(stockAtStart - 2);
       // Owner 案A: each mayo = ONE stroke = ONE piece, drawn as a line (not a droplet); the strokes are inside the dough and the page does not scroll sideways.
       await expect(page.locator(".pizza-squeeze-trail")).toHaveCount(2);
       await expect(page.locator(".pizza-topping--mayo")).toHaveCount(2);
