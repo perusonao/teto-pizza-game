@@ -189,9 +189,9 @@ describe("late material compatibility floor against the production ladder (Expan
   const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
 
   it("the late steps now derive from the longer ordinary ladder, and the floors stay at their shipped numbers", () => {
-    expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 8); // B10 PR-1 appended 57-61, B11 S1 appended 62-63, Expansion Batch 12 appended 64
-    expect(stepOf(ROE)).toBe(65);
-    expect(stepOf("tahini")).toBe(68);
+    expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 9); // B10 PR-1 appended 57-61, B11 S1 appended 62-63, Expansion Batch 12 appended 64, Expansion Batch 13 appended 65
+    expect(stepOf(ROE)).toBe(66);
+    expect(stepOf("tahini")).toBe(69);
     expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 }); // PR-2 late4: 67 / 68; BBQ Chicken (#611) shipped after Batch 10: 61 ordinary + 5 late = 66
   });
 
@@ -217,11 +217,11 @@ describe("late material compatibility floor against the production ladder (Expan
  * B11 S1 (PROVISIONAL SPEC) appended ordinary steps 62-63, so the BBQ / wasabi / tarako late materials now derive at 68 / 69 / 70 while their FIXED floors stay 66 / 67 / 68: a save that reached those counts before B11 S1
  * (and has not launched since) still gets them, and a save one discovery below the floor does not. The floors are not changed by B11 S1.
  */
-describe("late floors after Expansion Batch 12 (BBQ 66, wasabi 67, tarako 68 against the derived 69 / 70 / 71; B11 S1 derived 68 / 69 / 70)", () => {
+describe("late floors after Expansion Batch 13 (BBQ 66, wasabi 67, tarako 68 against the derived 70 / 71 / 72; Expansion Batch 12 derived 69 / 70 / 71; B11 S1 derived 68 / 69 / 70)", () => {
   const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((st) => st.ingredientIds.includes(id))!.step;
 
-  it("derived numbers moved +3 (B11 S1 +2, Expansion Batch 12 +1) and the floors did not", () => {
-    expect([stepOf("bbq-sauce"), stepOf("wasabi"), stepOf("nori")]).toEqual([69, 70, 71]);
+  it("derived numbers moved +4 (B11 S1 +2, Expansion Batch 12 +1, Expansion Batch 13 +1) and the floors did not", () => {
+    expect([stepOf("bbq-sauce"), stepOf("wasabi"), stepOf("nori")]).toEqual([70, 71, 72]);
     expect([LATE_ENTITLEMENT_FLOORS["bbq-sauce"], LATE_ENTITLEMENT_FLOORS.wasabi, LATE_ENTITLEMENT_FLOORS.nori]).toEqual([66, 67, 68]);
   });
 

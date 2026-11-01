@@ -245,6 +245,8 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       // Expansion Batch 12 (Issue #707): supreme-pizzadb and pizza-alla-norma-pizzadb-p9 are BLOCKED_PRODUCT_DECISION rows adopted with the PIZZA DB composition; OWNER APPROVAL PENDING (the PR is not merged without it). The matrix is unchanged.
       // B12 (Issue #706): jamaican-jerk-chicken is a BLOCKED_PRODUCT_DECISION row (BASE_SAUCE_UNSPECIFIED) shipped as NO_SAUCE under a GAMEPLAY ASSUMPTION; the Owner decision is a merge condition of the B12 PR.
       ownerApproved.add("jamaican-jerk-chicken-pizza-pizzadb-p3");
+      // Expansion Batch 13 (Issue #708): potato-mayo-pizza is a BLOCKED_PRODUCT_DECISION row (BASE_SAUCE_UNSPECIFIED) shipped as NO_SAUCE under a GAMEPLAY ASSUMPTION for this one row (Owner decision 2026-10-30).
+      ownerApproved.add("potato-mayo-pizza-pizzadb-p3");
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(

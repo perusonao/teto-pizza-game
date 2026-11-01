@@ -264,6 +264,44 @@ export async function tapDoughPercent(page: Page, xPercent: number, yPercent: nu
   await page.mouse.up();
 }
 
+/**
+ * Expansion Batch 13 (#708, Owner 案A): one stroke of a squeezable topping (mayo) across the dough -- press at `from`, drag to `to` in several moves, release.
+ * Both points are dough percent of the dough's box; one stroke places ONE piece.
+ */
+export async function squeezeDoughStroke(page: Page, from: [number, number], to: [number, number], steps = 10) {
+  const { box } = await doughBox(page);
+  const at = (p: [number, number]) => ({ x: box.x + (p[0] / 100) * box.width, y: box.y + (p[1] / 100) * box.height });
+  const a = at(from);
+  const b = at(to);
+  await waitUntilDoughReady(page, a);
+  await page.mouse.move(a.x, a.y);
+  await page.mouse.down();
+  for (let i = 1; i <= steps; i += 1) {
+    await page.mouse.move(a.x + ((b.x - a.x) * i) / steps, a.y + ((b.y - a.y) * i) / steps);
+    if (process.env.HV_VIDEO) await page.waitForTimeout(60); // a human-speed stroke on the review video
+  }
+  await page.mouse.up();
+}
+
+/** Like `squeezeDoughStroke`, through any number of dough-percent waypoints (a wavy stroke), `stepsPerLeg` moves between each pair. */
+export async function squeezeDoughPath(page: Page, waypoints: readonly [number, number][], stepsPerLeg = 6) {
+  const { box } = await doughBox(page);
+  const at = (p: [number, number]) => ({ x: box.x + (p[0] / 100) * box.width, y: box.y + (p[1] / 100) * box.height });
+  const first = at(waypoints[0]);
+  await waitUntilDoughReady(page, first);
+  await page.mouse.move(first.x, first.y);
+  await page.mouse.down();
+  for (let leg = 1; leg < waypoints.length; leg += 1) {
+    const a = at(waypoints[leg - 1]);
+    const b = at(waypoints[leg]);
+    for (let i = 1; i <= stepsPerLeg; i += 1) {
+      await page.mouse.move(a.x + ((b.x - a.x) * i) / stepsPerLeg, a.y + ((b.y - a.y) * i) / stepsPerLeg);
+      if (process.env.HV_VIDEO) await page.waitForTimeout(45); // a human-speed stroke on the review video
+    }
+  }
+  await page.mouse.up();
+}
+
 export async function completeDoughStep(page: Page) {
   const { cx, cy, r, box } = await doughBox(page);
   // An oval dough (3:2) keeps the circular percent space, so the ring is an ellipse with the box's own aspect; a round dough has ry === r.

@@ -170,14 +170,14 @@ describe("discovery targets", () => {
 describe("ladder, Shop, Research and the entitlement floors", () => {
   const stepOf = (ingredientId: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(ingredientId))!;
 
-  it("two late steps after the BBQ step, keyed to the recipes, no star gate, derived numbers (70 and 71 after Expansion Batch 12's ordinary step 64; 69 and 70 after B11 S1's ordinary steps 62-63; 67 and 68 before), as the tail", () => {
+  it("two late steps after the BBQ step, keyed to the recipes, no star gate, derived numbers (71 and 72 after Expansion Batch 13's ordinary step 65; 70 and 71 after Expansion Batch 12's ordinary step 64; 69 and 70 after B11 S1's ordinary steps 62-63; 67 and 68 before), as the tail", () => {
     const steps = DISCOVERY_LADDER.steps;
     expect(stepOf("wasabi")).toMatchObject({ ingredientIds: ["soy-sauce", "wasabi"], keyRecipeId: WASABI_BEEF });
     expect(stepOf("soy-sauce")).toBe(stepOf("wasabi"));
     expect(stepOf("nori")).toMatchObject({ ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: TARAKO });
     expect(stepOf("wasabi").step).toBe(stepOf("bbq-sauce").step + 1);
     expect(stepOf("nori").step).toBe(stepOf("wasabi").step + 1);
-    expect([stepOf("wasabi").step, stepOf("nori").step]).toEqual([70, 71]);
+    expect([stepOf("wasabi").step, stepOf("nori").step]).toEqual([71, 72]);
     expect(steps.at(-1)).toBe(stepOf("nori"));
     for (const id of ["wasabi", "nori"]) expect(stepOf(id).starGates).toBeUndefined();
     expect(stepOf("nori").step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length);

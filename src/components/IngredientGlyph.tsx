@@ -52,6 +52,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "porcini-slice": "0 0 64 64",
   "mussel-shell": "0 0 64 64",
   "ricotta-salata-shavings": "0 0 64 64",
+  "mayo-drop": "0 0 64 64",
   "salmon-fillet": "0 0 64 64",
   "cream-cheese-block": "0 0 64 64",
 };
@@ -93,6 +94,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "porcini-slice" && <PorciniSlice />}
       {visual === "mussel-shell" && <MusselShell />}
       {visual === "ricotta-salata-shavings" && <RicottaSalataShavings />}
+      {visual === "mayo-drop" && <MayoDrop />}
       {visual === "salmon-fillet" && <SalmonFillet />}
       {visual === "cream-cheese-block" && <CreamCheeseBlock />}
     </svg>
@@ -832,6 +834,17 @@ function RicottaSalataShavings() {
         <circle cx="52" cy="52" r="1.7" />
         <circle cx="9" cy="54" r="1.5" />
       </g>
+    </g>
+  );
+}
+
+/* ---------- mayo (Expansion Batch 13, PROVISIONAL SPEC / adoption; Owner decision 2026-10-31 "案A"): a cream teardrop of mayonnaise with a warm brown outline and a small highlight. The first art (a zigzag bead) read as the letter M on the iPhone, so the tray chip and the single-tap piece are a droplet; a stroke across the dough is drawn as a squeezed line by the stage (PizzaStage), not by this glyph. ---------- */
+function MayoDrop() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.2" fill="#000" opacity=".14" />
+      <path d="M32 6 C32 6 15 27 15 39 C15 48 22 54 32 54 C42 54 49 48 49 39 C49 27 32 6 32 6 Z" fill="#fff6dc" stroke="#7a6548" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M24 41 C24 35 27 30 31 25" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" opacity=".9" />
     </g>
   );
 }

@@ -884,6 +884,16 @@ function App() {
     }
   }
 
+  // Expansion Batch 13 (#708, "案A"): one stroke of the selected squeezable topping (mayo). The reducer is the boundary (it keeps the stroke only for such an
+  // ingredient, caps it and anchors the piece at its midpoint); the anchor sent here is only the fallback for a stroke it refuses.
+  function handlePlaceTrail(points: readonly { x: number; y: number }[]) {
+    if (!selectedIngredientId || points.length < 2) return;
+    const ingredient = getIngredient(selectedIngredientId);
+    if (!ingredient || ingredient.placement === "spread") return;
+    const mid = points[Math.floor(points.length / 2)];
+    dispatch({ type: "PLACE_TOPPING", ingredientId: ingredient.id, x: mid.x, y: mid.y, trail: points });
+  }
+
   function handlePhysicalDrop(ingredient: Ingredient, point: DoughPoint) {
     setSelectedIngredientId(ingredient.id);
     dispatch({ type: "PLACE_TOPPING", ingredientId: ingredient.id, x: point.x, y: point.y });
@@ -1423,6 +1433,7 @@ function App() {
           onSelectIngredient={handleSelectIngredient}
           onClearIngredientSelection={() => setSelectedIngredientId(null)}
           onTapPizza={handleTapPizza}
+          onPlaceTrail={handlePlaceTrail}
           onBakeTick={handleBakeTick}
           onConfirmBake={handleConfirmBake}
           roundNotices={roundSaveFailure && <RoundSaveFailureNotice copy={roundSaveFailure} />}

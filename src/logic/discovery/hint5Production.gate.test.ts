@@ -160,11 +160,11 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
     expect(subToppingClass("white-sesame")).toBe("spice");
   });
 
-  it("P1 / P2 on a SYNTHETIC catalog: a family with exactly one catalog member (spice = capers alone, as before New Sauces U2 Batch 10 PR-1's paprika-powder and PR-2 late4's wasabi) is still classified, and its sub-topping is shown as that class", async () => {
+  it("P1 / P2 on a SYNTHETIC catalog: a family with exactly one catalog member (spice = capers alone, as before New Sauces U2 Batch 10 PR-1's paprika-powder and PR-2 late4's wasabi and Expansion Batch 13's mayo) is still classified, and its sub-topping is shown as that class", async () => {
     vi.resetModules();
     vi.doMock("../../data/ingredientTaxonomy", async (importOriginal) => {
       const real = await importOriginal<typeof import("../../data/ingredientTaxonomy")>();
-      return { ...real, ingredientAttributeFamily: (id: unknown) => (id === "white-sesame" || id === "paprika-powder" || id === "wasabi" ? "herb" : real.ingredientAttributeFamily(id)) };
+      return { ...real, ingredientAttributeFamily: (id: unknown) => (id === "white-sesame" || id === "paprika-powder" || id === "wasabi" || id === "mayo" ? "herb" : real.ingredientAttributeFamily(id)) };
     });
     try {
       const synth = await import("../../data/ingredientTaxonomy");
@@ -173,7 +173,7 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
       const singletons = toppings.filter((i) => toppings.filter((j) => synth.ingredientAttributeFamily(j.id) === synth.ingredientAttributeFamily(i.id)).length === 1).map((i) => i.id);
       expect(singletons.sort()).toEqual(["capers"]); // the synthetic shape: the old real catalog's only singleton
       for (const id of singletons) expect(synthClass(id), id).toBe("spice");
-      expect(synthClass("white-sesame")).toBe("herb"); // the synthetic reassignments (white-sesame, paprika-powder) are what make capers alone
+      expect(synthClass("white-sesame")).toBe("herb"); // the synthetic reassignments (white-sesame, paprika-powder, wasabi, mayo) are what make capers alone
     } finally {
       vi.doUnmock("../../data/ingredientTaxonomy");
       vi.resetModules();

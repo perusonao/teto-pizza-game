@@ -107,16 +107,16 @@ describe.each(ROWS)("$id", (row) => {
 
 describe("the ordinary step 64 and the supreme-pizza non-step", () => {
   it("step 64 is appended after pescatore's step 63 (steps 1-63 frozen): ricotta-salata alone, no star gate, keyed to pizza-alla-norma; supreme-pizza owns no step", () => {
-    const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
+    const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps).slice(0, 64); // (Expansion Batch 13 appends step 65 after these)
     expect(steps).toHaveLength(64);
     expect(steps[62]).toMatchObject({ step: 63, keyRecipeId: "pescatore" });
     expect(steps[63]).toMatchObject({ step: 64, kind: "MATERIAL", ingredientIds: ["ricotta-salata"], keyRecipeId: "pizza-alla-norma" });
     expect(steps[63].starGates).toBeUndefined();
     expect(DISCOVERY_LADDER.steps.some((s) => s.keyRecipeId === "supreme-pizza")).toBe(false);
   });
-  it("the late steps follow at 65-71 (derived), and the fixed floors are unchanged", () => {
+  it("the late steps follow at 66-72 (derived; Expansion Batch 13 appended the ordinary step 65), and the fixed floors are unchanged", () => {
     const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
-    expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual([65, 66, 67, 68, 69, 70, 71]);
+    expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual([66, 67, 68, 69, 70, 71, 72]);
     expect(LATE_ENTITLEMENT_FLOORS["salmon-roe"]).toBe(57);
   });
 });
