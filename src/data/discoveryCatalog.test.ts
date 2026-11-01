@@ -31,6 +31,9 @@ const BATCH12_PHASE2_BLOCKED_OWNER_APPROVAL_PENDING: readonly string[] = ["supre
 const B12_PHASE2_BLOCKED_PENDING_OWNER: readonly string[] = ["jamaican-jerk-chicken-pizza"];
 // Expansion Batch 13 (Issue #708): the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED); shipped as NO_SAUCE for this one row only (Owner decision 2026-10-30), PROVISIONAL SPEC, original NOT confirmed.
 const BATCH13_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["potato-mayo-pizza"];
+// Expansion Batch 14: the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (UNRESOLVED_INGREDIENT: the sauce field 'ホワイトソース' is ambiguous; its only related id is fromage-blanc-sauce). Owner decision: the existing
+// fromage-blanc-sauce stands in for it, for this one recipe only (an Owner-approved exception to the Phase-2 composition; NOT a NO_SAUCE exception). PROVISIONAL SPEC, original NOT confirmed. The matrix itself is unchanged.
+const BATCH14_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["moussaka-style-pizza"];
 
 describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("has exactly one target per production recipe, in RECIPES order", () => {
@@ -49,6 +52,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       if (BATCH12_PHASE2_BLOCKED_OWNER_APPROVAL_PENDING.includes(t.recipeId)) continue;
       if (B12_PHASE2_BLOCKED_PENDING_OWNER.includes(t.recipeId)) continue;
       if (BATCH13_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (BATCH14_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (isLateRecipeId(t.recipeId)) continue; // E5: the late target has no Phase-2 row; lateCatalog.ikura.test.ts pins it
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);
       expect(expected, t.recipeId).toBeDefined();

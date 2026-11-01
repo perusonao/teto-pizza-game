@@ -167,6 +167,8 @@ const RECIPE_STEP_MATRIX: Record<BaseRecipeId, readonly MakingStep[]> = {
   "pizza-alla-norma": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   // Expansion Batch 13 (#708): NO_SAUCE (no SAUCE step); mozzarella is a cheese-category ingredient.
   "potato-mayo-pizza": ["DOUGH", "CHEESE", "TOPPING"],
+  // Expansion Batch 14: fromage-blanc-sauce is a sauce (PAINT); feta is a cheese-category ingredient.
+  "moussaka-style-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   // TQ-1D: the first no-sauce recipe has no SAUCE step (mozzarella = cheese, bacon / egg / onion = toppings); no CUT.
   aussie: ["DOUGH", "CHEESE", "TOPPING"],
   // Multi-Sauce S3 / Square Dough E-2: grandma-pizza paints both its sauces (tomato-sauce, olive-oil) in the one SAUCE step; no CUT (square pan).

@@ -53,6 +53,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "mussel-shell": "0 0 64 64",
   "ricotta-salata-shavings": "0 0 64 64",
   "mayo-drop": "0 0 64 64",
+  "cinnamon-powder-pile": "0 0 64 64",
   "green-pepper-strips": "0 0 64 64",
   "bell-pepper-quarter": "0 0 64 64",
   "pineapple-wedges": "0 0 64 64",
@@ -98,6 +99,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "mussel-shell" && <MusselShell />}
       {visual === "ricotta-salata-shavings" && <RicottaSalataShavings />}
       {visual === "mayo-drop" && <MayoDrop />}
+      {visual === "cinnamon-powder-pile" && <CinnamonPowderPile />}
       {visual === "green-pepper-strips" && <GreenPepperStrips />}
       {visual === "bell-pepper-quarter" && <BellPepperQuarter />}
       {visual === "pineapple-wedges" && <PineappleWedges />}
@@ -923,6 +925,36 @@ function PineappleWedges() {
         <circle cx="-2.2" cy="-20.6" r="0.6" fill="#b08a1e" />
         <circle cx="2.2" cy="-20.6" r="0.6" fill="#b08a1e" />
         <circle cx="6.4" cy="-19.7" r="0.6" fill="#b08a1e" />
+      </g>
+    </g>
+  );
+}
+
+/* ---------- cinnamon (Expansion Batch 14, PROVISIONAL SPEC / adoption; Owner decision: a powder pile): a flatter, wider mound of tan-brown powder with a darker brown outline, lighter and darker grains and a few stray grains.
+   Same grammar as paprika-powder-pile (one mound + a highlight + grains) but a lighter, yellower brown and a lower, wider silhouette, so the two powders stay apart at 20-24px (the paprika mound is red and taller). 64x64, no id / gradient / defs. ---------- */
+function CinnamonPowderPile() {
+  return (
+    <g>
+      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
+      <path d="M5 51C6 44 14 37 25 34c7-2 15 0 21 5 6 4 11 8 13 12-9 5-45 5-54 0z" fill="#b9733a" stroke="#5a3012" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M12 48c3-5 9-9 16-10 6-1 12 1 16 6" fill="#d9a066" />
+      <g fill="#7c431a">
+        <circle cx="19" cy="46" r="1.5" />
+        <circle cx="31" cy="43" r="1.4" />
+        <circle cx="42" cy="47" r="1.6" />
+        <circle cx="26" cy="49" r="1.3" />
+        <circle cx="49" cy="50" r="1.2" />
+      </g>
+      <g fill="#ecc08a">
+        <circle cx="23" cy="41" r="1.3" />
+        <circle cx="36" cy="40" r="1.2" />
+        <circle cx="16" cy="49" r="1.1" />
+        <circle cx="46" cy="44" r="1.1" />
+      </g>
+      <g fill="#b9733a" stroke="#5a3012" strokeWidth="1">
+        <circle cx="11" cy="30" r="1.7" />
+        <circle cx="52" cy="29" r="1.5" />
+        <circle cx="32" cy="23" r="1.6" />
       </g>
     </g>
   );

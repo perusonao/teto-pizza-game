@@ -138,6 +138,8 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "pizza-alla-norma": { keyFree: true },
   // Expansion Batch 13 (#708): permanently key-free.
   "potato-mayo-pizza": { keyFree: true },
+  // Expansion Batch 14: permanently key-free.
+  "moussaka-style-pizza": { keyFree: true },
   // Multi-Sauce S3 / Square Dough E-2: permanently key-free.
   "grandma-pizza": { keyFree: true },
   // FIN-E4b-ikura (#621, late catalog): permanently key-free.
