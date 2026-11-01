@@ -364,16 +364,16 @@ Base: `main` `d044719`。**本節は Owner 決定の記録（docs-only）。** r
 
 | ingredient id | 日本語名 | `pieceVisual`（案） | 候補 SVG（`candidates/ingredient-icons-2.0-pilot-e0/svg/`） | 識別の要点 | 状態 |
 |---|---|---|---|---|---|
-| `green-pepper` | ピーマン | `green-pepper-strips` | `green-pepper-a2-strips.svg` | 緑の弧状の細切り 3 本（先端に薄緑の断面） | Owner 採用。実装は Pilot E |
-| `bell-pepper` | パプリカ | `bell-pepper-quarter` | `bell-pepper-b2-quarter.svg` | ヘタ付きの赤の四つ割り（薄橙の空洞と種） | **条件付き採用**（サイズ確認）。実装は Pilot E |
-| `pineapple` | パイナップル | `pineapple-wedges` | `pineapple-a2-wedges.svg` | 輪切りを切り分けたくさび形 2 個（外皮の淡い帯と点、繊維の筋） | Owner 採用。実機で識別性を確認。実装は Pilot E |
+| `green-pepper` | ピーマン | `green-pepper-strips` | `green-pepper-a2-strips.svg` | 緑の弧状の細切り 3 本（先端に薄緑の断面） | **実装済み**（PR #718、main `87dc5c9`）。Owner の iPhone Safari 実機 HV 合格（2026-11-01）。補正値は 11.3a で確定 |
+| `bell-pepper` | パプリカ | `bell-pepper-quarter` | `bell-pepper-b2-quarter.svg` | ヘタ付きの赤の四つ割り（薄橙の空洞と種） | **実装済み**（PR #718、main `87dc5c9`）。サイズ確認の条件は Owner の iPhone Safari 実機 HV 合格により解消（2026-11-01）。補正値は 11.3a で確定 |
+| `pineapple` | パイナップル | `pineapple-wedges` | `pineapple-a2-wedges.svg` | 輪切りを切り分けたくさび形 2 個（外皮の淡い帯と点、繊維の筋） | **実装済み**（PR #718、main `87dc5c9`）。実機での識別性は Owner の iPhone Safari 実機 HV 合格（2026-11-01）。補正値は 11.3a で確定 |
 
-- `pieceVisual` 名は**案**（id と独立の原則。実装 Issue で確定）。
-- **参照 SVG（`references/ingredient-icons-2.0/`）への昇格は実装 PR で行う**（本書の PR は `candidates/` に置くのみ。`references/` は「採用済みで実装される絵」の置き場のため、bell-pepper のサイズ確認と最終形の確定を待つ）。昇格時のファイル名は `green-pepper.svg` / `bell-pepper.svg` / `pineapple.svg`。
+- `pieceVisual` 名は PR #718 で**確定**（`green-pepper-strips` / `bell-pepper-quarter` / `pineapple-wedges`。id と独立の原則は不変）。
+- **参照 SVG への昇格は PR #718 で完了**（`references/ingredient-icons-2.0/green-pepper.svg` / `bell-pepper.svg` / `pineapple.svg`）。
 - 作図仕様は §2 に適合（64×64、透明背景、線幅 2.4、接地影、`id` / gradient / `<defs>` / `url(#` なし、文字なし）。**11 点の候補 SVG すべてで機械的に確認済み。**
 - 食材 id・`emoji`・`color`・保存・採点・レシピ・在庫・Dex は変更しない。
 
-### 11.3 サイズ補正の起点（§3 の個別補正の延長。値は実装 PR の Human Verification で確定）
+### 11.3 サイズ補正（§3 の個別補正の延長。起点は下表、実装値は 11.3a）
 
 | 食材 | 起点 | 備考 |
 |---|---|---|
@@ -384,6 +384,18 @@ Base: `main` `d044719`。**本節は Owner 決定の記録（docs-only）。** r
 - 前例: 1.2em（shiso 等）、arugula 1.75em / `-0.375em`（`App.css`）。トレイ chip では別規則（arugula の例）が要るかを実装時に確認する。
 - 補正値は、390×844 / 360×800 の実画面で、チップの高さ・幅・タップ領域を悪化させないことが条件。
 
+### 11.3a 補正値（PR #718 の実装値で確定、Owner 決定 2026-11-01）
+
+| 食材 | ピザ上・RESULT 等 | トレイ chip |
+|---|---|---|
+| `green-pepper` | 1.45em + 負マージン | 同左 |
+| `pineapple` | 1.45em | 同左 |
+| `bell-pepper` | 1.65em | **1.35em**（chip のみ。chip のアイコン枠は固定 26px で、1.65em では溢れるため。arugula の前例） |
+
+- 値の出典は `src/App.css` の Pilot E ブロック。**同ブロックのコメントは「PROVISIONAL」のままで、本書の確定を受けた更新は src / CSS を触る別の変更になる**（本 PR は docs-only のため行わない。Owner が要否を判断する）。
+- chip 寸法は before / after とも 118×64 / 108×64（390 / 360）、タップ領域 64px、glyph は chip 内、横スクロールなし（PR #718 の Chromium E2E）。
+- **Owner が 2026-11-01 に、iPhone Safari 実機 HV 合格を受けて上表を確定値とした**（PR #718 本文の「暫定」を解く）。変更する場合は Owner の承認と本書の改訂が要る。
+
 ### 11.4 既存承認との整合（確認結果）
 
 | 確認 | 結果 |
@@ -393,9 +405,9 @@ Base: `main` `d044719`。**本節は Owner 決定の記録（docs-only）。** r
 | 色・形の衝突 | ピーマン↔青ねぎ（採用済み）は形で区別（細切り vs 輪の房）。ただし**緑同士で色は近く**（ΔE 14〜15）、識別は形に頼る。パイナップル↔フェタ（採用済み）は形・色とも別（形 0.26 / ΔE 62）。最近傍はフォンティーナ（形 0.42 / ΔE 14）で、外皮の濃い帯の有無で区別 |
 | G18（グリフ一意性） | `emoji` フィールドは変更しない（🌶️ / 🫑 / 🍍 はテキストのフォールバックとして残る）ため影響なし |
 | §7（実装は最新 main から。実装 Issue は Owner が起票） | 本節は実装を開始しない。Pilot E の実装 Issue は Owner が起票する（#712 は docs-only の追跡先） |
-| 既存テストの意図 | 実装時、`ingredients.test.ts` の EMOJI_ROWS と `IngredientGlyph.test.tsx` の「approved emoji」から **pineapple を外す**変更が必要（意図的な pin の更新。計画書に記載） |
+| 既存テストの意図 | `ingredients.test.ts` の EMOJI_ROWS と `IngredientGlyph.test.tsx` の「approved emoji」から **pineapple を外した**（PR #718、意図的な pin の更新）。ゴールデン `lateCatalog.offSurface.json` の差分は `pieceVisual` 3 件のみ |
 
-### 11.5 実装時の識別確認項目（Human Verification）
+### 11.5 識別確認項目（Human Verification。PR #718 の iPhone Safari 実機 HV は Owner が合格、2026-11-01。以下は確認観点の記録。未検証の項目は 11.7a）
 - ピーマン: 青ねぎ・ハラペーニョ（🟩）・パクチー・大葉・ピクルスと、32 / 28 / 24 / 20px で形が区別できるか。
 - パプリカ: ピーマン（GP-A2）と並べて区別できるか。ペパロニ（赤い丸、色差 ΔE 16）と取り違えないか。トマト（`tomato-slice`）との比較は**未実施**（実装時に確認）。
 - パイナップル: **実機（iPhone Safari）で「果肉」と認識できるか。** 葉つきの絵文字より離れて見たときに分かりにくくなる点を、トレイ chip（名前つき）・ピザ上・RESULT で確認。フェタ・コーン・フォンティーナ・カシューとの識別。
@@ -407,6 +419,17 @@ Base: `main` `d044719`。**本節は Owner 決定の記録（docs-only）。** r
 
 ### 11.7 NO_SAUCE（参照のみ。本書は決定の記録だけを置く）
 N-A を条件付きで採用。契約（Anti-Oracle Contract 2.1 の INV-D4 / INV-D7）の追加検証が必要で、**実装はまだ行わない**。検討・検証計画: [`TETO_NO-SAUCE_COMMON-GUIDANCE_PROPOSAL.md`](../design/TETO_NO-SAUCE_COMMON-GUIDANCE_PROPOSAL.md)。実装 Issue は Owner が起票する。
+
+### 11.7a 実装後の状態と後続課題（2026-11-01）
+- 実装: PR #718（squash、main `87dc5c9`）。Owner の iPhone Safari 実機 HV は合格。補正値は 11.3a で確定。
+- main の CI（run 41293511361）: WebKit 6 shard・`WebKit Gate`・`Layout Contract Gate`・`layout-chromium` すべて success。Production の Pages deploy（run 41293511434）も success。
+- `chicken` は変更なし（§1b A のまま）。
+- **未検証・後続課題（Owner 決定 2026-11-01。いずれも本節の確定を妨げない）:**
+  1. 焼け過ぎ（heat 2.0）での黄・緑の濁り: **未検証**。
+  2. パプリカとトマト（`tomato-slice`）の厳密な比較: **未検証**。
+  3. 接地影の改善: 後続課題。
+  - 着手する場合は新しい Issue を Owner が起票する（Issue #715 の範囲外）。
+- Issue #715 は本書の PR の merge 後にクローズする。
 
 ### 11.8 編集権限
 本節は docs-only の PR で変更する。Pilot E の実装 PR（`src` / CSS）に混ぜない（SL-8 と同じ扱い）。
