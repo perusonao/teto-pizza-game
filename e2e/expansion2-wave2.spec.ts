@@ -96,12 +96,13 @@ async function cookPrepared(page: Page, { sauce, cheese, toppings, bake }: Cook)
 }
 
 /** Shop: the material row is NEW with its glyph, T3 first pack 100 Pitz / 20 pieces, then bought. */
-async function buyInShop(page: Page, project: string, id: string, glyph: string, nameJa: string, shot: string) {
+async function buyInShop(page: Page, project: string, id: string, glyph: string | { visual: string }, nameJa: string, shot: string) {
   const row = page.locator(`.shop-item[data-ingredient-id="${id}"]`);
   await expect(row).toHaveCount(1);
   await expect(row).toHaveAttribute("data-shop-state", "NEW");
   await expect(row).toContainText(nameJa);
-  await expect(row).toContainText(glyph);
+  if (typeof glyph === "string") await expect(row).toContainText(glyph);
+  else await expect(row.locator(`.shop-item__emoji svg.ingredient-glyph--${glyph.visual}[data-ingredient-visual="${glyph.visual}"]`)).toBeVisible(); // Pilot E: dedicated SVG instead of the emoji
   await expect(row).toContainText("10ピザ分（20個）");
   await expect(row).toContainText(/初回 .*100 Pitz/);
   await row.scrollIntoViewIfNeeded();
@@ -265,7 +266,7 @@ test.describe("Expansion Wave 2", () => {
     // 1. Shop: both materials are NEW at once, then bought.
     await page.getByRole("button", { name: /ショップ/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
-    await buyInShop(page, project, "bell-pepper", "🫑", "パプリカ", "exp2-shop-bell-pepper");
+    await buyInShop(page, project, "bell-pepper", { visual: "bell-pepper-quarter" }, "パプリカ", "exp2-shop-bell-pepper");
     await buyInShop(page, project, "zucchini", "🥒", "ズッキーニ", "exp2-shop-zucchini");
     await capture(page, "exp2-shop-step28-bought", project);
     await hold(page, 2200);

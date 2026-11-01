@@ -165,7 +165,7 @@ const W1_MATERIALS: readonly {
   { id: "corn", nameJa: "コーン", emoji: "\u{1F33D}" },
   { id: "eggplant", nameJa: "ナス", emoji: "\u{1F346}" },
   { id: "fresh-tomato", nameJa: "トマト", emoji: "\u{1F345}", pieceVisual: "tomato-slice" },
-  { id: "pineapple", nameJa: "パイナップル", emoji: "\u{1F34D}" },
+  { id: "pineapple", nameJa: "パイナップル", emoji: "\u{1F34D}", pieceVisual: "pineapple-wedges" },
   { id: "potato", nameJa: "じゃがいも", emoji: "\u{1F954}" },
 ];
 
