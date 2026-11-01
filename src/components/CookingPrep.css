@@ -63,15 +63,22 @@
   pointer-events: none;
 }
 
+/* Layout (HV fix, Issue #696 follow-up): three rows -- title / pan / buttons -- so the buttons are ALWAYS inside the panel (the pan takes whatever height is left,
+   instead of the old centred flex column that overflowed above and below on the short stage of a real iPhone Safari, ~260-290px). The title keeps
+   --cooking-prep-title-inset on both sides (the 44px × + a >= 16px gap), so it can never run into the ×. */
 .cooking-prep-pan {
+  --cooking-prep-close: 44px;
+  --cooking-prep-title-inset: 72px; /* 8px × margin + 44px × + >= 16px gap, mirrored on the left so the title stays centred */
   position: absolute;
   inset: 0;
   z-index: 30;
-  display: flex;
-  flex-direction: column;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  justify-items: center;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  row-gap: 6px;
+  padding: 8px 16px 12px;
   border-radius: 12px;
   background: rgba(40, 20, 10, 0.86);
   color: #fff;
@@ -80,13 +87,16 @@
 }
 .cooking-prep-pan__title {
   position: relative;
+  box-sizing: border-box;
   margin: 0;
-  max-width: 82%; /* clear of the × at the top right */
+  width: 100%;
+  padding: 0 calc(var(--cooking-prep-title-inset) - 16px); /* the grid already pads 16px: clear of the × on the right, mirrored on the left */
   min-height: 2.5em; /* room for two lines, so the result never moves the pan */
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  text-wrap: balance; /* no orphan "に！）" on the second line (older Safari ignores it and wraps as before) */
   font-size: 16px;
   font-weight: 800;
   line-height: 1.25;
@@ -95,8 +105,10 @@
 /* The pan. Phase 1B: a warm brown inside (not near-black) so a dark, burnt beef still stands out from it. */
 .cooking-prep-pan__pan {
   position: relative;
-  width: 230px;
-  width: min(64cqw, 62cqh);
+  container-type: size; /* the beef scales with the pan, not the stage */
+  height: min(100%, 64cqw); /* the row's leftover height, capped by the width */
+  width: auto;
+  max-width: 100%;
   aspect-ratio: 1;
   border-radius: 50%;
   background: radial-gradient(circle at 40% 35%, #8a7a6e, #4a403a 72%);
@@ -116,8 +128,8 @@
 .cooking-prep-pan__beef {
   position: relative;
   display: inline-block;
-  font-size: 100px;
-  font-size: clamp(84px, 34cqw, 124px);
+  font-size: 70px;
+  font-size: clamp(48px, 70cqw, 124px); /* cqw = the pan's own width (it is the nearest size container) */
   line-height: 1;
 }
 /* The sheen is a shape, not a colour: peaks in the middle of "best", dries out toward burnt (--beef-gloss, set from the progress). */
@@ -172,7 +184,7 @@
 .cooking-prep-pan[data-stage="2"] .cooking-prep-pan__bubbles { opacity: 0.6; }
 .cooking-prep-pan[data-stage="3"] .cooking-prep-pan__bubbles { opacity: 0.3; }
 .cooking-prep-pan__result {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 900;
   color: #fde68a;
   text-shadow: 0 0 12px rgba(255, 190, 80, 0.9);
@@ -214,7 +226,7 @@
   display: flex;
   gap: 10px;
   min-height: 56px;
-  width: min(86cqw, 320px);
+  width: min(100%, 320px);
 }
 .cooking-prep-pan__choice {
   flex: 1 1 0;
@@ -230,8 +242,8 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 44px;
-  height: 44px;
+  width: var(--cooking-prep-close);
+  height: var(--cooking-prep-close);
   padding: 0;
   display: inline-flex;
   align-items: center;
@@ -249,6 +261,13 @@
 .cooking-prep-pan__close:focus-visible {
   outline: 3px solid #fde68a;
   outline-offset: 2px;
+}
+/* Behind the pan screen: everything but the stage (and the header's ホーム) steps back -- lighter, not darker, and out of reach of a finger.
+   GameScreen adds the class while the pan screen / its input guard is up and also makes the bake bar and the dock `inert`. */
+.game-screen--prep-busy > :not(.pizza-stage):not(.app-header) {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.12s ease-out;
 }
 /* After the third toss the stage stays covered for a moment so a late tap cannot reach the dough (AC-16 c). */
 .cooking-prep-guard {
@@ -287,5 +306,8 @@
   .cooking-prep-pan__bubbles i,
   .cooking-prep-pan__result {
     animation: none;
+  }
+  .game-screen--prep-busy > :not(.pizza-stage):not(.app-header) {
+    transition: none;
   }
 }

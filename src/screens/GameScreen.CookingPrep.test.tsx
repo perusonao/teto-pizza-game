@@ -20,6 +20,9 @@ import { INGREDIENTS } from "../data/ingredients";
 const gate = vi.hoisted(() => ({ open: true }));
 vi.mock("../data/prepExperienceGate", () => ({ PREP_EXPERIENCE_PRODUCTION: false, prepExperienceEnabled: () => gate.open }));
 
+const bakeBar = () => document.querySelector(".prepare-bake-bar") as HTMLElement;
+const gameScreenRoot = () => document.querySelector(".game-screen") as HTMLElement;
+
 const referencePizza = getReferencePizza("margherita")!;
 const GENEROUS = Object.fromEntries(INGREDIENTS.filter((i) => i.unlockCondition).map((i) => [i.id, 999]));
 
@@ -133,6 +136,11 @@ describe("the dough takes no input while the pan screen is up (Codex P2)", () =>
     expect(count()).toBe(0);
     expect(pan(), "the pan screen is not discarded by the input being switched off").toBeInTheDocument();
     expect(screen.getByTestId("prepare-dock")).toHaveAttribute("inert");
+    // HV fix: the やり直す / 焼く！ bar behind the pan screen is shut too (it was tappable), and the screen steps back via a class
+    expect(bakeBar()).toHaveAttribute("inert");
+    expect(gameScreenRoot()).toHaveClass("game-screen--prep-busy");
+    fireEvent.click(bakeBar().querySelector(".cta-button--bake") as HTMLElement); // what a stray touch would do: the pointer path is covered by the E2E
+    expect(pan()).toBeInTheDocument();
   });
 
   it("× cancels and everything is back: the dough takes keys again, the dock is not inert, nothing was prepped", async () => {
@@ -143,6 +151,8 @@ describe("the dough takes no input while the pan screen is up (Codex P2)", () =>
     expect(dough()).toHaveAttribute("tabindex", "0");
     expect(dough()).toHaveClass("pizza-dough--interactive");
     expect(screen.getByTestId("prepare-dock")).not.toHaveAttribute("inert");
+    expect(bakeBar()).not.toHaveAttribute("inert");
+    expect(gameScreenRoot()).not.toHaveClass("game-screen--prep-busy");
     fireEvent.keyDown(dough(), { key: " " });
     expect(count()).toBe(1);
     expect(screen.getByTestId("prepped")).toHaveTextContent("");
@@ -192,8 +202,10 @@ describe("the dough takes no input while the pan screen is up (Codex P2)", () =>
       pressEnterAndSpaceOnDough();
       expect(count()).toBe(0);
       expect(screen.getByTestId("prepare-dock")).toHaveAttribute("inert");
+      expect(bakeBar()).toHaveAttribute("inert"); // during a result as well
       fireEvent.click(screen.getByTestId("cooking-prep-cancel"));
       expect(pan()).toBeNull();
+      expect(bakeBar()).not.toHaveAttribute("inert");
       expect(screen.getByTestId("prepped")).toHaveTextContent("");
       expect(screen.getByTestId("prepped-look")).toHaveTextContent("{}");
       expect(dough()).toHaveAttribute("tabindex", "0");
@@ -208,5 +220,7 @@ describe("the dough takes no input while the pan screen is up (Codex P2)", () =>
     expect(document.querySelector('[class*="cooking-prep"]')).toBeNull();
     expect(dough()).toHaveAttribute("tabindex", "0");
     expect(screen.getByTestId("prepare-dock")).not.toHaveAttribute("inert");
+    expect(bakeBar()).not.toHaveAttribute("inert");
+    expect(gameScreenRoot()).not.toHaveClass("game-screen--prep-busy");
   });
 });
