@@ -8325,3 +8325,14 @@ p.hint-sheet__step {
   height: 1.35em;
   margin: -0.175em;
 }
+
+/* Pilot E ground shadow (#720, Owner decision 2026-11-01, Fresh Audit option 1): each of these three SVGs carries a baked ground-shadow ellipse at y=57 of the 64-box. Their bodies end well above it
+   (the bell-pepper quarter is drawn at .68 scale) and the glyphs are enlarged above, so on the dough the oval is left detached under the piece and the ingredient reads as floating.
+   On the pizza only -- a placed piece, CUT piece, RESULT and the Reference views all draw it inside `.ingredient-piece-visual__emoji` -- the ellipse is hidden; the wrapper's own `drop-shadow` (and the
+   bake `filter` that re-composes it) then supplies the contact shadow, hugging the body. The tray chip, Inventory, Shop, Dex and the drag preview do not use that wrapper, so they keep the ellipse.
+   Selector: the first-child ellipse directly under the glyph's top-level <g>; every other glyph and every other ellipse is untouched. */
+.ingredient-piece-visual__emoji .ingredient-glyph--green-pepper-strips > g > ellipse:first-child,
+.ingredient-piece-visual__emoji .ingredient-glyph--bell-pepper-quarter > g > ellipse:first-child,
+.ingredient-piece-visual__emoji .ingredient-glyph--pineapple-wedges > g > ellipse:first-child {
+  display: none;
+}
