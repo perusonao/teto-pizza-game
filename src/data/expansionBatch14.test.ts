@@ -75,7 +75,7 @@ describe(ID, () => {
 
   it("uses the existing fromage-blanc-sauce PAINT (NOT a NO_SAUCE exception), and its Reference carries that sauce", () => {
     expect(getRecipeSauceProfile(ID)).toEqual({ recipeId: ID, ingredientId: "fromage-blanc-sauce", interaction: "PAINT" });
-    expect(noSauceRecipeIds().includes(ID)).toBe(false);
+    expect((noSauceRecipeIds() as readonly string[]).includes(ID)).toBe(false);
     expect(getReferencePizza(ID)!.sauce).not.toBeNull();
   });
 
