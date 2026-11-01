@@ -114,9 +114,9 @@ describe("the ordinary step 64 and the supreme-pizza non-step", () => {
     expect(steps[63].starGates).toBeUndefined();
     expect(DISCOVERY_LADDER.steps.some((s) => s.keyRecipeId === "supreme-pizza")).toBe(false);
   });
-  it("the late steps follow at 66-72 (derived; Expansion Batch 13 appended the ordinary step 65), and the fixed floors are unchanged", () => {
+  it("the late steps follow at 67-73 (derived; Expansion Batch 13 appended the ordinary step 65, Expansion Batch 14 step 66), and the fixed floors are unchanged", () => {
     const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
-    expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual([66, 67, 68, 69, 70, 71, 72]);
+    expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual([67, 68, 69, 70, 71, 72, 73]);
     expect(LATE_ENTITLEMENT_FLOORS["salmon-roe"]).toBe(57);
   });
 });
