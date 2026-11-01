@@ -144,6 +144,7 @@ test.describe("Expansion Batch 14 (moussaka-style-pizza, played end to end)", ()
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await expect(page.getByRole("tab", { name: "具材", selected: true })).toBeVisible();
     await capture(page, `b14-${ID}-tray-topping`, project);
+    await chipOnTrayOrPin(page, /シナモン/); // the tray is paged: bring the cinnamon chip on screen before measuring it
     measure.chipIcon = await sizeOf(page, '.ingredient-chip svg[data-ingredient-visual="cinnamon-powder-pile"]');
     spot = await place(page, [[/ナス/, 2], [/ラム/, 2], [/シナモン/, 2]], spot);
     await expect(page.locator('.pizza-dough [data-ingredient-visual="cinnamon-powder-pile"]')).toHaveCount(2);
