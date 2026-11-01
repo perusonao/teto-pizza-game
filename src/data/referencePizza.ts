@@ -5115,14 +5115,14 @@ export const POTATO_MAYO_PIZZA_REFERENCE: ReferencePizza = {
 };
 
 /**
- * Expansion Batch 14 (PAINT fromage-blanc-sauce; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): Reference Truth for `moussaka-style-pizza`. Pieces (eggplant 2 / lamb 2 / feta 2 / cinnamon 2 = 8; the sauce is not a piece) take the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment and the sauce quantity / coverage (the shared mechanical derivation) are GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ * Expansion Batch 14 (PAINT fromage-blanc-sauce; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): Reference Truth for `moussaka-style-pizza`. Pieces (feta 2 / eggplant 2 / lamb 2 / cinnamon 2 = 8; the sauce is not a piece) take the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment and the sauce quantity / coverage (the shared mechanical derivation) are GAMEPLAY / REFERENCE CALIBRATION, not source authority.
  */
 export const MOUSSAKA_STYLE_PIZZA_REFERENCE: ReferencePizza = {
   recipeId: "moussaka-style-pizza",
   sauce: computeMechanicalSauceReference("moussaka-style-pizza"),
   pieceGroups: [
     {
-      ingredientId: "eggplant",
+      ingredientId: "feta",
       positions: [
         { x: 50, y: 24 },
         { x: 73, y: 36 },
@@ -5136,7 +5136,7 @@ export const MOUSSAKA_STYLE_PIZZA_REFERENCE: ReferencePizza = {
       matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
     },
     {
-      ingredientId: "lamb",
+      ingredientId: "eggplant",
       positions: [
         { x: 76, y: 63 },
         { x: 58, y: 79 },
@@ -5150,7 +5150,7 @@ export const MOUSSAKA_STYLE_PIZZA_REFERENCE: ReferencePizza = {
       matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
     },
     {
-      ingredientId: "feta",
+      ingredientId: "lamb",
       positions: [
         { x: 38, y: 79 },
         { x: 22, y: 63 },
