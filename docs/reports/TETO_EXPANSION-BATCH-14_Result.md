@@ -109,3 +109,12 @@ before/after: 新レシピ・新食材のため「before」は存在しない（
 ## 8. 変更ファイル（要点）
 
 `ingredients.ts`（cinnamon）/ `IngredientGlyph.tsx`（SVG）/ `App.css` / `toppingSizeClass.ts` / `ingredientTaxonomy.ts`（cinnamon = spice）/ `discoveryLadder.ts`（step 66）/ `recipes.ts` / `referencePizza.ts` / `orders.ts` / `discoveryCatalog.ts` / `recipeHintRoles.ts` / `recipeSauceProfiles.ts` ＋ 件数 pin・manifest・golden・DH4 audit・E2E の追従。新規テスト: `expansionBatch14.test.ts`、`persistence.batch14.test.ts`、`e2e/batch14-moussaka.spec.ts`（390×844 / 360×800 の通し）、`IngredientGlyph.test.tsx` の Batch 14 契約。
+
+## 9. 視覚改善 addendum — cinnamon の描画品質（描画のみ）
+
+視覚評価（HEAD `813838e`）: フェタ・ナス・ラム、390×844 / 360×800 のレイアウトは PASS。cinnamon のみ「茶色い小さな塊に見え、粉末らしさが弱い」。
+
+- **変更は `IngredientGlyph.tsx` の `CinnamonPowderPile`（SVG）のみ。** 滑らかな輪郭つきのドームをやめ、(1) 不規則にギザついた粉の山の輪郭、(2) 中心の暗い粒＋左上寄りの明るい塊とハイライトによる中心/周辺の濃淡、(3) 暗・明・中間の細かな粒（固定座標、実行時の乱数なし）、(4) 輪郭の外にまばらな飛び散り粒、に描き直した。64×64 の viewBox・外形の大きさ・CSS（`App.css`）・id / gradient / defs なしの契約は不変。パプリカ（赤く背が高い）との区別は、色と低く広い輪郭で維持。
+- **不変**: 他の食材の描画、レシピ、step 66、採点、保存形式、ヒント、経済、色の値（`ingredients.ts` の `#b9733a`、暫定）、原典未確認の暫定仕様。
+- 比較画像（`docs/reports/screenshots/cinnamon-visual/`）: `cinnamon-before-after-iphone-390x844.png`（実ゲーム画面。ショップ 16.8px / トレイ chip 31.2px / 生地上 / 全画面の before・after）、`cinnamon-glyph-sheet-17-31-64-dough.png`（17 / 22 / 31 / 64 / 160px と生地色の上、パプリカ参照つき）、`after-*`（390×844 / 360×800 の after）。動画はコミットしない（Policy §6）。
+- 生地上の実測幅（29.4 → 30.9 など）と feta の幅は実行ごとの配置ジッターで変動する（feta は無変更でも 28.6〜35.5 に動く）。表示サイズ（CSS）は変えていない。

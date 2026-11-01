@@ -930,31 +930,93 @@ function PineappleWedges() {
   );
 }
 
-/* ---------- cinnamon (Expansion Batch 14, PROVISIONAL SPEC / adoption; Owner decision: a powder pile): a flatter, wider mound of tan-brown powder with a darker brown outline, lighter and darker grains and a few stray grains.
-   Same grammar as paprika-powder-pile (one mound + a highlight + grains) but a lighter, yellower brown and a lower, wider silhouette, so the two powders stay apart at 20-24px (the paprika mound is red and taller). 64x64, no id / gradient / defs. ---------- */
+/* ---------- cinnamon (Expansion Batch 14, PROVISIONAL SPEC / adoption; Owner decision: a powder pile). Visual refinement (PR #723): a ragged, irregular mound of fine powder instead of a smooth outlined dome.
+   Dark-brown core grains + a lighter upper-left lobe and highlight give the centre-to-edge tonal gradient; many fine grains (dark / light) and sparse stray grains outside the silhouette read as powder at 17px (shop) and 31px (tray), and on the dough.
+   Still a lower, wider and tan-brown silhouette than paprika-powder-pile (red, taller). Grain positions are fixed constants (no runtime randomness). 64x64 footprint unchanged, no id / gradient / defs. ---------- */
 function CinnamonPowderPile() {
   return (
     <g>
-      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
-      <path d="M5 51C6 44 14 37 25 34c7-2 15 0 21 5 6 4 11 8 13 12-9 5-45 5-54 0z" fill="#b9733a" stroke="#5a3012" strokeWidth="2.4" strokeLinejoin="round" />
-      <path d="M12 48c3-5 9-9 16-10 6-1 12 1 16 6" fill="#d9a066" />
-      <g fill="#7c431a">
-        <circle cx="19" cy="46" r="1.5" />
-        <circle cx="31" cy="43" r="1.4" />
-        <circle cx="42" cy="47" r="1.6" />
-        <circle cx="26" cy="49" r="1.3" />
-        <circle cx="49" cy="50" r="1.2" />
+      <ellipse cx="32" cy="55.5" rx="24" ry="3" fill="#000" opacity=".14" />
+      <path d="M57.9 46L57.4 47.9L55.3 49.6L55.9 51.9L50.6 52.8L45.2 53L41.9 54L38.3 54.8L34.1 55L29.8 55.4L24.4 56.7L21 54.9L15.2 54.9L11.3 53.6L8.3 51.9L6.6 49.9L7.1 47.9L8.8 46L9.8 43.9L9.5 41.6L10.3 39.3L13.6 37.6L16 35.4L19.3 33.2L25.4 34.4L29.7 33.5L34.5 32.7L38.4 34.7L42.8 35.2L47.7 35.6L49.8 37.9L53.9 39.2L55.7 41.4L55.2 43.8z" fill="#a85d2b" stroke="#55300f" strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M43.3 43L42.5 45L42.4 47.3L39.5 49.1L34.7 49.3L31.2 50.7L27.1 49.6L23.4 49.1L18.7 48.9L16.3 47.1L15 45.1L14.7 43L13 40.6L17.5 39.3L18 36.7L22.9 36.3L27.1 36.3L31.3 35.1L35 36.4L38.4 37.6L40.9 39.2L42.1 41.1z" fill="#c98648" />
+      <ellipse cx="29" cy="41.5" rx="8" ry="3.4" fill="#e2ac6e" opacity=".9" />
+      <g fill="#6a3412">
+        <circle cx="31.7" cy="51.8" r="1.1" />
+        <circle cx="39.6" cy="50.9" r="1.4" />
+        <circle cx="21.6" cy="49.4" r="1.2" />
+        <circle cx="31.1" cy="51.7" r="0.9" />
+        <circle cx="34.3" cy="52.7" r="1.1" />
+        <circle cx="16.1" cy="50.2" r="0.8" />
+        <circle cx="27" cy="44.9" r="1.3" />
+        <circle cx="31.2" cy="43.4" r="1.1" />
+        <circle cx="49.5" cy="48" r="0.9" />
+        <circle cx="24.5" cy="47.3" r="0.9" />
+        <circle cx="40" cy="50.6" r="0.9" />
+        <circle cx="33.7" cy="49.2" r="1.1" />
+        <circle cx="38.5" cy="43.6" r="1.3" />
+        <circle cx="22.8" cy="46.5" r="1.3" />
+        <circle cx="43.7" cy="44.5" r="1.2" />
+        <circle cx="39.9" cy="48.5" r="1" />
+        <circle cx="35.9" cy="46.2" r="1.4" />
+        <circle cx="34.4" cy="43.2" r="0.8" />
+        <circle cx="30.7" cy="51.6" r="1.4" />
+        <circle cx="43" cy="44.6" r="1.3" />
+        <circle cx="34.9" cy="44" r="1.5" />
+        <circle cx="33.3" cy="52.1" r="0.9" />
+        <circle cx="33.1" cy="42.6" r="1.3" />
+        <circle cx="27.5" cy="50.2" r="0.8" />
+        <circle cx="28.3" cy="43.7" r="1" />
+        <circle cx="32.1" cy="49.8" r="1" />
       </g>
-      <g fill="#ecc08a">
-        <circle cx="23" cy="41" r="1.3" />
-        <circle cx="36" cy="40" r="1.2" />
-        <circle cx="16" cy="49" r="1.1" />
-        <circle cx="46" cy="44" r="1.1" />
+      <g fill="#f0cb94">
+        <circle cx="43" cy="45.7" r="1.2" />
+        <circle cx="39.1" cy="46.8" r="0.7" />
+        <circle cx="27.7" cy="43.7" r="1.2" />
+        <circle cx="33.9" cy="45.1" r="1.2" />
+        <circle cx="25.9" cy="44.9" r="0.9" />
+        <circle cx="28.9" cy="40.9" r="0.8" />
+        <circle cx="35.3" cy="46.1" r="1" />
+        <circle cx="41.1" cy="43.7" r="0.8" />
+        <circle cx="33.9" cy="47.6" r="0.8" />
+        <circle cx="19" cy="46" r="0.9" />
+        <circle cx="13.5" cy="43" r="1.1" />
+        <circle cx="26.1" cy="43" r="1" />
+        <circle cx="39.5" cy="39.8" r="0.9" />
+        <circle cx="23.4" cy="41.9" r="0.9" />
+        <circle cx="37.3" cy="38.8" r="0.8" />
+        <circle cx="27.9" cy="43.3" r="0.9" />
       </g>
-      <g fill="#b9733a" stroke="#5a3012" strokeWidth="1">
-        <circle cx="11" cy="30" r="1.7" />
-        <circle cx="52" cy="29" r="1.5" />
-        <circle cx="32" cy="23" r="1.6" />
+      <g fill="#8a4a1f">
+        <circle cx="38.9" cy="44.4" r="1" />
+        <circle cx="23.9" cy="42.3" r="0.9" />
+        <circle cx="19.1" cy="52.1" r="1.3" />
+        <circle cx="45.4" cy="51.1" r="1" />
+        <circle cx="36.7" cy="44.2" r="0.8" />
+        <circle cx="36.3" cy="50" r="1.2" />
+        <circle cx="25.8" cy="42.1" r="0.9" />
+        <circle cx="30.3" cy="49.6" r="1.1" />
+        <circle cx="22.7" cy="42.5" r="1.2" />
+        <circle cx="36.6" cy="41.9" r="1.2" />
+        <circle cx="44.2" cy="42.5" r="1.2" />
+        <circle cx="49.5" cy="49.3" r="1" />
+        <circle cx="34.2" cy="41" r="1.1" />
+        <circle cx="34" cy="48.1" r="0.8" />
+      </g>
+      <g fill="#a85d2b" stroke="#55300f" strokeWidth=".7">
+        <circle cx="44" cy="56.1" r="1.2" />
+        <circle cx="29.2" cy="56.9" r="1.3" />
+        <circle cx="5.1" cy="37.4" r="1.1" />
+        <circle cx="4" cy="53" r="1.5" />
+        <circle cx="17.4" cy="32.9" r="1" />
+        <circle cx="58.1" cy="33.5" r="1.4" />
+        <circle cx="49.9" cy="33.7" r="1.6" />
+        <circle cx="4" cy="49.8" r="1.4" />
+        <circle cx="60" cy="51.5" r="1.6" />
+        <circle cx="60" cy="49.1" r="1.3" />
+        <circle cx="44.6" cy="55.7" r="0.7" />
+        <circle cx="42.9" cy="57" r="0.9" />
+        <circle cx="8.8" cy="29.9" r="1" />
+        <circle cx="25.4" cy="57" r="1.4" />
       </g>
     </g>
   );
