@@ -163,3 +163,52 @@ Safari 実機 HV（Owner）／WebKit CI（未実行）／共有 Preview への�
 
 ## 次のアクション
 Owner の次の判断を待って停止する。PR 作成・merge・共有 Preview 更新・Production 更新・本番フラグ ON は行っていない。
+
+---
+
+## 11. 3 秒既定の適用と WebKit CI の結果（2026-11-02 追補、Owner 承認済み）
+
+Owner 承認: 長押し既定 4000ms → 3000ms／関連テストの期待値更新／2・3・4 秒の比較機能は維持／対象ブランチで WebKit CI を `workflow_dispatch` で 1 回実行。
+
+### 11.1 変更（コード HEAD `97fc650fc755ebe4212bbeb9b6e6f9b1b16509b2`）
+| ファイル | 変更 |
+|---|---|
+| `src/logic/sear/searHold.ts` | `SEAR_FULL_MS` 4000 → **3000**（コメントに Owner 決定を記載） |
+| `src/logic/sear/searHold.test.ts` | 直書きだった 2000ms→0.5 を `SEAR_FULL_MS / 2` に変更。**既定が 3000 であることを固定するテストを 1 件追加** |
+| `e2e/cooking-sear.spec.ts` | 既定の `data-full-ms` を `"3000"` に変更。**既定で 1.6 秒押すと「こんがり焼き目」になる**検証を追加 |
+| そのほか | 変更なし（UI・色・reducer・比較スイッチ `?cookSearMs=2000|3000|4000`・炒め・FINISH・採点・保存形式）。テストの緩和・skip・timeout 変更なし |
+
+### 11.2 ローカル検証（push 前）
+| 区分 | 結果 |
+|---|---|
+| sear 系 Vitest（9 files） | **95 / 95 pass** |
+| **全 Vitest** | **584 files passed / 1 skipped（計 585）、10,967 tests passed / 13 skipped / 2 todo、失敗 0**（858 秒） |
+| `tsc -b` / oxlint | エラーなし／sear 関連の警告 0 |
+| Chromium E2E（`cooking-sear.spec.ts`、390×844 と 360×800） | **20 / 20 pass**（既定 3 秒の確認と、2・4 秒の比較を含む） |
+
+### 11.3 WebKit CI（`workflow_dispatch`、1 回のみ）
+- 実行: workflow **E2E WebKit (Cooking UI 1-Screen)**、run **#1320**（run id `41387072418`、attempt 1）、ref `claude/teto-pizza-cooking-audit-5qhbpw`、**head_sha `97fc650fc755ebe4212bbeb9b6e6f9b1b16509b2`（push した SHA と一致）**。
+- URL: https://github.com/perusonao/teto-pizza-game/actions/runs/41387072418
+- 結果: **success（再実行なし）**。classify（success）、layout-chromium（success）、**webkit-390x844 shard 1/3・2/3・3/3 すべて success、webkit-360x800 shard 1/3・2/3・3/3 すべて success**、**Layout Contract Gate success**、**WebKit Gate success**。所要は run 全体で約 21 分。
+- WebKit Gate は「全 shard が成功し、shard 証跡で一覧の全テストが両 viewport で 1 回ずつ実行・成功した」ことを確認するジョブで、**成功している**。`cooking-sear.spec.ts`（各 viewport 10 件）は全 e2e spec の一部としてこの一覧に含まれる。**ただし、個別の cooking-sear テストの行ごとの結果までは、ここでは取得していない**（Gate の成功を根拠にしている）。
+- 失敗・間欠失敗は発生しなかったので、調査・再実行・テスト変更は行っていない。
+
+### 11.4 残課題（PASS にしない）
+1. **iPhone 実機 Safari HV**（Owner）: 長押しの触感、3 秒の体感、コールアウト／文字選択／スクロール抑止、焼き目の線（`-webkit-mask-image`）の見え方。WebKit CI は Playwright の WebKit であり、**実機の代わりではない**。
+2. **共有 Preview への掲載**: #723 の HV 完了後に Owner の承認が必要（現在の公開元は #723 の `4b0df7c`、未更新）。比較用 URL は `?cookSear=on&cookSearMs=2000|3000|4000`。
+3. 3 秒既定でのスクリーンショット・動画の撮り直しは**していない**（既定値以外の画面は変わらない。`INDEX.md` の動画は「2 秒・3 秒・4 秒を明示して比較」する内容で、既定値の変更に影響されない）。必要なら Owner の指示で撮り直す。
+4. ほんのりの色は暫定許容（Owner 方針）。Phase 2（他食材）は保留で未着手。
+5. PR は未作成（#724 は PR 無しのまま）。通常 CI（`ci.yml`）は PR でのみ起動するため、このブランチでは走っていない（今回は Owner 承認どおり WebKit のみ）。
+
+### 11.5 推奨モデル
+- 実機 HV 後の微調整（定数・色・文言）: **Sonnet 5.5**。
+- Phase 2 の再開時の設計・reducer 一般化のレビュー: **Opus 5.5**。
+- 助言であり、決定は Owner。
+
+### 11.6 最終 HEAD
+- **コード HEAD: `97fc650fc755ebe4212bbeb9b6e6f9b1b16509b2`**（WebKit CI の対象）。
+- この追補（docs のみ）は、その上の 1 コミットとして追加した。最終 HEAD の SHA は、会話の最終報告に記載する。
+- 禁止事項の遵守: #723 に触れていない／PR 作成・merge なし／共有 Preview・Production 更新なし／本番フラグ OFF のまま／Phase 2 未実装。
+
+## 次のアクション
+Owner の次の判断を待って停止する（実機 HV の結果、#723 HV 後の Preview 掲載の承認、必要なら画像・動画の撮り直しの指示）。
