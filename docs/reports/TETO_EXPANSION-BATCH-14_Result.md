@@ -158,3 +158,48 @@ before/after: 新レシピ・新食材としての追加には「before」は存
 - **不変**: 他の食材の描画、レシピ、step 66、採点、保存形式、ヒント、経済、色の値（`ingredients.ts` の `#b9733a`、暫定）、原典未確認の暫定仕様。
 - 比較画像（`docs/reports/screenshots/cinnamon-visual/`）: `cinnamon-before-after-iphone-390x844.png`（実ゲーム画面。ショップ 16.8px / トレイ chip 31.2px / 生地上 / 全画面の before・after）、`cinnamon-glyph-sheet-17-31-64-dough.png`（17 / 22 / 31 / 64 / 160px と生地色の上、パプリカ参照つき）、`after-*`（390×844 / 360×800 の after）。動画はコミットしない（Policy §6）。
 - 生地上の実測幅（29.4 → 30.9 など）と feta の幅は実行ごとの配置ジッターで変動する（feta は無変更でも 28.6〜35.5 に動く）。表示サイズ（CSS）は変えていない。
+
+## 10. Final Gate 記録（docs-only、HEAD `4194ead` の上に追記）
+
+### 10.1 視覚 HV（Owner 確認）
+
+- **cinnamon の視覚 HV は Owner 確認で PASS。** 対象は、公開 Preview の cinnamon 描き直し（`4b0df7c`、§9）。判定項目は、粉末らしさ、パプリカパウダーとの識別、具材との区別、レイアウト、操作フロー。
+- **iPhone Safari 実機は未検証。** PASS とは記録しない。未確認の内容: WebKit での粒・輪郭の描画、17px 前後での実際の見え方、公開 URL を開いたときのバッジ表示、指でのトレイ操作。自動撮影（Chromium）の結果は実機 Safari の結果の代わりにならない。**実機 Safari の判定は Owner。**
+- 本 PR の Status（冒頭）は変更していない。実機 Safari HV の前に merge するには、Owner の明示承認が要る。
+
+### 10.2 公開ビルド `4b0df7c` の検証（自動、Chromium、DPR 3）
+
+- **撮影対象**: Pages に公開された実ビルド（preview リポジトリ `site/`、`686f183`＝`4b0df7c`、バッジ「PREVIEW · PR#723 · 4b0df7c」）。**公開 URL（perusonao.github.io）には、撮影環境のプロキシ（403）で到達できなかった**ため、同じ成果物をローカルで配信して撮影した。公開 URL との違いは配信元（origin）のみ。公開 URL での実表示は未確認。
+- **before**: `813838e` をローカルでビルドして撮影。after との差は cinnamon の描画だけ（同じ撮影スクリプト・同じ viewport・同じ DPR）。
+- **対象 viewport**: 390×844 と 360×800。
+- **画像**（`docs/reports/screenshots/cinnamon-visual-published/`）:
+
+| ファイル | 内容 |
+|---|---|
+| `cinnamon-before-after-390-360.png` | before / after（ショップ行 16.8px、トレイ chip 31.2px、生地上）。両 viewport を 1 枚にまとめた比較 |
+| `cinnamon-vs-paprika-after.png` | パプリカパウダーとの比較（ショップ行、トレイ chip、生地上） |
+| `six-scenes-iphone-390x844.png` / `six-scenes-iphone-360x800.png` | ショップ、トレイ、生地上、焼成後の結果、図鑑、パプリカとの比較 |
+
+- **判定（自動撮影の目視）**: 粉末らしさ PASS、パプリカとの識別 PASS（茶と赤、ぎざぎざで平たい形と滑らかで背の高い形）、具材（フェタ・ナス・ラム）との区別 PASS、レイアウト PASS（両 viewport で横スクロールなし、崩れなし）、操作フロー PASS（購入→研究→ソース→フェタ→具材→焼成→NEW DISCOVERY→図鑑を両 viewport で完走、console error なし）。比較用の生地上の配置は比較専用の状態（焼成していない）。
+- **動画**（リポジトリには含めない。Policy §6 のとおり Owner へ直接提出）:
+
+| Video | Viewport | Duration | Size | Codec | Verification |
+|---|---|---:|---:|---|---|
+| `teto-pr723-preview-4b0df7c-hv-390x844.mp4` | 390×844 | 23.8s | 610KB | H.264 | PASS |
+
+  公開ビルドを Playwright Chromium で自動操作（DPR 1）。ホーム→研究→ソース→フェタ→具材→焼成→結果まで。ffprobe で codec / 解像度 / 長さを確認し、抜き出したフレームで流れを目視した。バッジ表示あり。**人間の操作ではない。** トレイのシナモン chip が長く映らないため、chip の拡大は画像で確認する。
+
+Video Verification: PASS（自動撮影のもの。実機 Safari の確認ではない）
+
+- **撮影環境の注記**: 結果画面の「Scoring 2.0 Debug」は Preview 専用の開発用表示で、本番ビルドには出ない。
+
+### 10.3 CI（WebKit 初回 timeout と再実行成功の記録を維持）
+
+- `4b0df7c`: 初回に `webkit-390x844 shard 2/3`（`e2e/expansion-batch8a.spec.ts:181`、WebKit の `locator.click` が 300 秒 timeout、同 shard の 225 件は成功）と、その集約の `WebKit Gate` が失敗。失敗ジョブを **1 回だけ再実行して 11/11 success**。**根本原因は未特定**（その spec・対象レシピは本 PR で未変更、`aeaa8c2` / `813838e` の WebKit では通っている。既知の WebKit 間欠失敗 #394 / #680 と同種に見えるが確定していない）。再発時は本 PR の問題として調査する。skip・無効化・timeout 延長はしていない。
+- `4194ead`（docs-only）: `build` / `classify` / `WebKit Gate` / `Layout Contract Gate` が success、WebKit の各 shard と `layout-chromium` は docs-only の分類で skipped。全 shard を実行した最後のコード HEAD は `4b0df7c`。
+
+### 10.4 Gate の状態（この commit の HEAD は §10 を追記した docs-only の commit）
+
+- Codex: `4b0df7c` 指摘 0 件、未解決スレッド 0 件（docs-only の commit は個別にレビューされていない）。
+- `main` は `7f3aa63`、本 PR とのファイル重複なし、`git merge-tree` で衝突なし。
+- **merge は未承認。Production は更新していない。** merge は `main` への push で本番の GitHub Pages デプロイを自動実行する（フラグでの無効化なし）。Owner の判断事項: 実機 Safari 未検証での merge、暫定仕様（原典未確認）のまま公開すること、WebKit の間欠失敗（根本原因未特定）の許容。
