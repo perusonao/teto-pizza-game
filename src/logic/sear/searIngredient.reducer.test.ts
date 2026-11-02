@@ -31,6 +31,19 @@ describe("SEAR_INGREDIENT: allowed (Guided / Free Cooking, TOPPING, sausage owne
   });
 });
 
+describe("SEAR_INGREDIENT: gate closed (the rollback state: SEAR_EXPERIENCE_PRODUCTION = false, no opt-in)", () => {
+  it.each(["GUIDED", "FREE_COOK"] as const)("%s: refused with the same reference, and a plain round carries no searedLook", (kind) => {
+    gate.open = false;
+    try {
+      const s = toStep(kind, "TOPPING");
+      expect(gameReducer(s, sear())).toBe(s);
+      expect("searedLook" in placeSausageAndBake(s, true)).toBe(false);
+    } finally {
+      gate.open = true;
+    }
+  });
+});
+
 describe("SEAR_INGREDIENT: refused with the SAME state reference", () => {
   it.each(["LUNCH_RUSH", "DINNER"] as const)("%s", (roundKind) => {
     const s = { ...toStep("GUIDED", "TOPPING"), roundKind };
