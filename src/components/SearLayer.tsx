@@ -226,7 +226,10 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
   }
 
   const sausage = getIngredient(offered);
-  const shownAmount = released ? hold.amount : amount;
+  // What is on screen is only ever what the finger is doing now (holding) or what was kept (released). An idle hold -- never started, cancelled by the
+  // system (pointercancel), or a tap that was too short -- shows raw: the repaint `amount` is a leftover there, and showing it would paint a browning that
+  // was never kept (#725 review, P2).
+  const shownAmount = released ? hold.amount : holding ? amount : 0;
   const look = searLookOf(shownAmount);
   const mode = released ? "done" : holding ? "holding" : "idle";
   const title = released ? SEAR_LOOK_COPY[searLookOf(hold.amount)] : holding ? searHoldingTitle(shownAmount) : hold.status === "idle" && hold.tooShort ? "もう少し押し続けてね" : "押している間、焼き目がつくよ";

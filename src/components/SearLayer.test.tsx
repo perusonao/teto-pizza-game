@@ -256,3 +256,36 @@ describe("#724 HV follow-up: the look is readable while the finger is down (word
     expect(sear()).toHaveAttribute("data-mode", "holding");
   });
 });
+
+describe("#725 review: a discarded hold leaves no browning on the screen (the display always matches what was kept)", () => {
+  const RAW_INNER = "#b95e47";
+  const shown = () => ({ inner: food().style.getPropertyValue("--sear-inner"), heat: sear()?.style.getPropertyValue("--sear-heat"), look: sear()?.getAttribute("data-look") });
+
+  it("pointercancel after a long hold: the food, the glow and the look go back to raw, nothing is kept, and the next press starts from raw", () => {
+    const { onSear } = setup();
+    openScreen();
+    fire("pointerdown", now() + 1);
+    advance(2000);
+    expect(shown().inner).not.toBe(RAW_INNER); // it did brown while the finger was down
+    fire("pointercancel", now());
+    expect(sear()).toHaveAttribute("data-mode", "idle");
+    expect(shown()).toEqual({ inner: RAW_INNER, heat: "0.000", look: "light" });
+    expect(onSear).not.toHaveBeenCalled();
+    // pressing again does not jump from a stale colour: it starts from raw
+    fire("pointerdown", now() + 1);
+    expect(shown().inner).toBe(RAW_INNER);
+  });
+
+  it("a tap that is too short keeps nothing and shows nothing: the food stays raw", () => {
+    const { onSear } = setup();
+    openScreen();
+    const start = now() + 1;
+    fire("pointerdown", start);
+    advance(SEAR_MIN_HOLD_MS - 50); // a few repaints happen, but it is still a tap
+    fire("pointerup", start + SEAR_MIN_HOLD_MS - 50);
+    expect(screen.getByTestId("cooking-sear-title")).toHaveTextContent("もう少し押し続けてね");
+    expect(shown()).toEqual({ inner: RAW_INNER, heat: "0.000", look: "light" });
+    expect(onSear).not.toHaveBeenCalled();
+  });
+});
+
