@@ -251,7 +251,7 @@ HOT file の重なり（実装前に確認）:
 - 追加: `searPillPlacement.test.ts`（幾何、権威／短い viewport の 7 プロファイルと境界・未レイアウト）、`searHold.test.ts`（保持中の語・数字なし・閾値）、`SearLayer.test.tsx`（見出しが ほんのり→こんがり→しっかり→まっくろ と進み、dispatch・自動クローズ・進捗バーなし）、`sausageSear.test.ts`（隣り合う段階の色距離 ≥24、ほんのりの色相 +6° 以上）、E2E `cooking-sear-pill-position.spec.ts`（8 プロファイルで: ピルが円に非交差、stage・画面内、生地下端のタップが通る、「炙り済み」も同条件）。
 - 既存テストの緩和・skip・timeout 延長なし（位置 E2E は 1 テスト 8 プロファイルが 30 秒の既定を超えたため、**プロファイルごとのテストに分割**。検証内容は同じ）。
 - 回帰（390×844 / 360×800 の両 project、E2E）: 炙り・入口・位置・炒める（`cooking-prep`）・FINISH 系（`finish-bar-finc` / `finish-flow-find` / `finish-screen-fina` / `finish-tray-finb` / `free-finish-e3b`）= **162 passed、5 skipped（既存の skip）、失敗 0**（位置テストの分割前 1 件のタイムアウトを上記のとおり修正して再実行済み）。
-- 全 Vitest／tsc／oxlint: 下記「最終確認」を参照。
+- **全 Vitest: 589 files passed / 1 skipped、11,036 tests passed / 13 skipped / 2 todo、失敗 0**（HEAD `52902578` の内容。#724 前回の 588 files / 11,022 tests から +1 file / +14 tests）。`tsc -b` エラーなし、oxlint はエラーなし（既存の警告のみ）。Production 隔離テスト（`searPreview.gate` / `cookSearHv.gate`）も全 Vitest に含まれ pass。
 
 ### 13.6 残課題
 1. ほんのり vs 生は改善したがピース 24px では控えめ（色以外の手がかり＝焼き目の質感などは Phase 1 の範囲外）。Owner が実機で足りないと判断した場合のみ追加調整。
