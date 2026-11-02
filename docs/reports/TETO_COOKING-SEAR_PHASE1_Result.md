@@ -173,3 +173,14 @@ HOT file の重なり（実装前に確認）:
 - WebKit CI は `97fc650` で run #1320 を確認済み（文書 `6ed4acf`）。統合 HEAD `a1b7419` では、指定ブランチへの push に対する WebKit は未確認。PR 作成時に CI で確認する。
 - #723 の `E2E WebKit` run #1322 は実行中だった。
 - PR 作成・merge・Production 更新・本番フラグ ON はしていない（Owner 判断待ち）。
+
+## 11. iPhone Safari HV: 「🔥 炙る」ピルが出ない（調査と修正）
+
+| 項目 | 内容 |
+|---|---|
+| 症状 | Preview #724 / a1b7419、TOPPING でソーセージ選択・配置（10→9）は成功、ピルが見えない |
+| 実 DOM / 位置（Chromium＋iPhone 寸法・タッチ・モバイル UA、`?cookSear=on`） | 390×844: stage 100–550、dough 180–470、pill 488–532（帯の中・生地に非接触）。360×800: stage 100–506、dough 166–440、pill 444–488。両方 `elementFromPoint` がピル自身（隠れなし）。390×664 / 360×640 では生地に重なるが表示はされる |
+| 結論 | 表示条件・配置・重なりでは再現せず。ピルの表示は `searExperienceEnabled()`（= Preview/DEV の `?cookSear=on`、**ページ読込時の URL だけ**を読む）に完全に依存。Owner の回答で iPhone では URL に `?cookSear=on` が無い／不明 → opt-in が OFF のまま（正常動作）と判断。Safari 実機・WebKit は本環境から未確認 |
+| 修正（最小） | `?cookSear=on` をタブ単位（sessionStorage、Preview/DEV のみ）で記憶。以降の読込（再読込・クエリ無し）でも ON。`?cookSear=off` で解除。ゲート・本番 OFF（`SEAR_EXPERIENCE_PRODUCTION=false`・本番ビルドに `cookSear` 無し）・3 秒既定・炙り操作は無変更 |
+| テスト | `searPreview.test.ts` に記憶／解除／storage 例外の 3 件追加。sear 系＋preview 系 34 files / 286 tests pass、`tsc -b` エラーなし。既存テストの緩和なし |
+| 未完 | 最初の 1 回は `?cookSear=on` 付き URL で開く必要がある（URL 無しの初回は OFF のまま）。修正版 Preview の公開・実機再確認・HV 動画は Owner 承認後 |

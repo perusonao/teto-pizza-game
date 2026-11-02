@@ -29,3 +29,35 @@ describe("?cookSearMs= (the 2 / 3 / 4 second comparison)", () => {
     expect(resolveSearFullMs(undefined)).toBeNull();
   });
 });
+
+import { resolveSearOptInSticky, SEAR_OPT_IN_STORAGE_KEY } from "./searPreview";
+
+function memory() {
+  const m = new Map<string, string>();
+  return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), removeItem: (k: string) => void m.delete(k) };
+}
+
+describe("the opt-in survives a load without the query (iPhone HV #724: the pill never appeared)", () => {
+  it("?cookSear=on is remembered for the tab; a later load without the query stays on", () => {
+    const s = memory();
+    expect(resolveSearOptInSticky("", s)).toBe(false);
+    expect(resolveSearOptInSticky("?cookSear=on", s)).toBe(true);
+    expect(resolveSearOptInSticky("", s)).toBe(true);
+    expect(resolveSearOptInSticky("?cookPrep=on", s)).toBe(true);
+  });
+  it("?cookSear=off forgets it; nothing else turns it on", () => {
+    const s = memory();
+    resolveSearOptInSticky("?cookSear=on", s);
+    expect(resolveSearOptInSticky("?cookSear=off", s)).toBe(false);
+    expect(resolveSearOptInSticky("", s)).toBe(false);
+    for (const q of ["?cookSear=1", "?cookSear=ON", "?cookSear=on&cookSear=on"]) expect(resolveSearOptInSticky(q, memory())).toBe(false);
+    expect(s.getItem(SEAR_OPT_IN_STORAGE_KEY)).toBeNull();
+  });
+  it("a storage that throws or is absent falls back to the query alone", () => {
+    const broken = { getItem: () => { throw new Error("x"); }, setItem: () => { throw new Error("x"); }, removeItem: () => { throw new Error("x"); } };
+    expect(resolveSearOptInSticky("?cookSear=on", broken)).toBe(true);
+    expect(resolveSearOptInSticky("", broken)).toBe(false);
+    expect(resolveSearOptInSticky("?cookSear=on", null)).toBe(true);
+    expect(resolveSearOptInSticky("", null)).toBe(false);
+  });
+});

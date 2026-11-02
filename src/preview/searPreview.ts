@@ -18,6 +18,45 @@ export function resolveSearOptIn(search: unknown): boolean {
   return all.length === 1 && all[0] === SEAR_ON_VALUE;
 }
 
+/** Per-tab memory of the opt-in (sessionStorage; Preview / DEV only, never in production). Without it the opt-in lived in the address bar alone, so a
+ *  reload, a home-screen launch or a re-typed URL silently turned the 炙る pill off (iPhone HV, #724: the pill "never appeared"). `?cookSear=off` clears it. */
+export const SEAR_OPT_IN_STORAGE_KEY = "teto:cookSear";
+export const SEAR_OFF_VALUE = "off";
+
+interface TabStorage {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+}
+
+/** Pure: the query decides (on = remember, off = forget); with neither, the remembered value counts. Storage failures fall back to the query alone. */
+export function resolveSearOptInSticky(search: unknown, storage: TabStorage | null): boolean {
+  const queryOn = resolveSearOptIn(search);
+  const all = typeof search === "string" ? new URLSearchParams(search).getAll(SEAR_PARAM) : [];
+  const queryOff = all.length === 1 && all[0] === SEAR_OFF_VALUE;
+  try {
+    if (queryOn) {
+      storage?.setItem(SEAR_OPT_IN_STORAGE_KEY, "1");
+      return true;
+    }
+    if (queryOff) {
+      storage?.removeItem(SEAR_OPT_IN_STORAGE_KEY);
+      return false;
+    }
+    return storage?.getItem(SEAR_OPT_IN_STORAGE_KEY) === "1";
+  } catch {
+    return queryOn;
+  }
+}
+
+function tabStorage(): TabStorage | null {
+  try {
+    return typeof window === "undefined" ? null : window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
 let cachedOptIn: boolean | undefined;
 
 /** Test seam: forget the cached page-load value. */
@@ -27,7 +66,7 @@ export function resetSearPreviewForTest(): void {
 
 export function searPreviewOptedIn(): boolean {
   if (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) {
-    if (cachedOptIn === undefined) cachedOptIn = resolveSearOptIn(typeof window === "undefined" ? "" : window.location.search);
+    if (cachedOptIn === undefined) cachedOptIn = resolveSearOptInSticky(typeof window === "undefined" ? "" : window.location.search, tabStorage());
     return cachedOptIn;
   }
   return false;
