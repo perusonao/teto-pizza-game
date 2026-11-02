@@ -174,9 +174,11 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: calc(var(--sear-heat, 0) * 0.8);
-  -webkit-mask-image: repeating-linear-gradient(135deg, #000 0 7%, transparent 7% 24%);
-  mask-image: repeating-linear-gradient(135deg, #000 0 7%, transparent 7% 24%);
+  /* Capped and thin (#724): at full strength the old 0.8 / wide bars blacked out a diagonal band across the slice and hid its flecks; now the bars stay
+     fine lines over a still-readable slice even when charred. */
+  opacity: calc(var(--sear-heat, 0) * 0.4);
+  -webkit-mask-image: repeating-linear-gradient(135deg, #000 0 3.5%, transparent 3.5% 15%);
+  mask-image: repeating-linear-gradient(135deg, #000 0 3.5%, transparent 3.5% 15%);
 }
 .cooking-sear .cooking-sear__food .cooking-sear__marks .ingredient-glyph--sausage-slices {
   filter: brightness(0);
@@ -285,6 +287,19 @@
 .cooking-sear__close:focus-visible {
   outline: 3px solid #fde68a;
   outline-offset: 2px;
+}
+/* Preview / DEV comparison only (?cookSearMs=): which hold length this page is set to. Top-left, clear of the title (72px inset) and of the ×. */
+.cooking-sear__tune {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  pointer-events: none;
 }
 .cooking-sear-sr {
   position: absolute;

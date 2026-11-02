@@ -34,6 +34,11 @@ describe("searHoldReducer", () => {
     const s = release(press(SEAR_IDLE, 1000), 1000 + 2000);
     expect(s).toEqual({ status: "released", amount: 0.5, heldMs: 2000 });
   });
+  it("an explicit fullMs (the 2 / 3 / 4 s comparison) scales the amount, the minimum hold stays the same", () => {
+    expect(searHoldReducer(press(SEAR_IDLE, 0), { type: "RELEASE", now: 1000, fullMs: 2000 })).toEqual({ status: "released", amount: 0.5, heldMs: 1000 });
+    expect(searHoldReducer(press(SEAR_IDLE, 0), { type: "RELEASE", now: 1500, fullMs: 3000 })).toEqual({ status: "released", amount: 0.5, heldMs: 1500 });
+    expect(searHoldReducer(press(SEAR_IDLE, 0), { type: "RELEASE", now: SEAR_MIN_HOLD_MS - 1, fullMs: 2000 }).status).toBe("idle");
+  });
   it("a tap shorter than SEAR_MIN_HOLD_MS keeps nothing", () => {
     expect(release(press(SEAR_IDLE, 10), 10 + SEAR_MIN_HOLD_MS - 1)).toEqual({ status: "idle", tooShort: true });
     expect(release(press(SEAR_IDLE, 10), 10 + SEAR_MIN_HOLD_MS).status).toBe("released");

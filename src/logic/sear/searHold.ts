@@ -16,8 +16,8 @@ export const SEAR_MIN_HOLD_MS = 350;
 const clamp01 = (n: number) => (Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : 0);
 
 /** How seared it is after being held `heldMs` (non-finite / negative -> 0). */
-export function searAmountAt(heldMs: number): number {
-  return clamp01(heldMs / SEAR_FULL_MS);
+export function searAmountAt(heldMs: number, fullMs: number = SEAR_FULL_MS): number {
+  return clamp01(heldMs / fullMs);
 }
 
 /** Look names for the words after release and for the still-frame cues. Descriptive, never a grade: every one of them is a fine result. */
@@ -43,7 +43,8 @@ export type SearHold =
   | { status: "holding"; startedAt: number }
   | { status: "released"; amount: number; heldMs: number };
 
-export type SearHoldAction = { type: "PRESS"; now: number } | { type: "RELEASE"; now: number } | { type: "CANCEL" };
+/** `fullMs` (RELEASE): the hold length that reaches the fully seared look; absent = SEAR_FULL_MS. Only the Preview / DEV comparison (?cookSearMs=) sets it. */
+export type SearHoldAction = { type: "PRESS"; now: number } | { type: "RELEASE"; now: number; fullMs?: number } | { type: "CANCEL" };
 
 export const SEAR_IDLE: SearHold = { status: "idle" };
 
@@ -59,7 +60,7 @@ export function searHoldReducer(state: SearHold, action: SearHoldAction): SearHo
       if (state.status !== "holding") return state;
       const heldMs = action.now - state.startedAt;
       if (!Number.isFinite(heldMs) || heldMs < SEAR_MIN_HOLD_MS) return { status: "idle", tooShort: true };
-      return { status: "released", amount: searAmountAt(heldMs), heldMs };
+      return { status: "released", amount: searAmountAt(heldMs, action.fullMs), heldMs };
     }
     case "CANCEL":
       return SEAR_IDLE;

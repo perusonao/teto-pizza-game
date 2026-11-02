@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { getIngredient } from "../data/ingredients";
 import { searExperienceEnabled } from "../data/searExperienceGate";
+import { searFullMsOverride } from "../preview/searPreview";
 import { SEAR_DONE_MS, SEAR_GUARD_MS, searOfferedIngredient } from "../logic/sear/searOffer";
 import { SEAR_FULL_MS, SEAR_IDLE, SEAR_LOOK_COPY, searAmountAt, searHoldReducer, searLookOf } from "../logic/sear/searHold";
 import { SEARED_PIECE_CLASS, sausageSearStyle } from "../logic/sear/sausageSear";
@@ -72,6 +73,8 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
     onSearRef.current = onSear;
   }, [onSear]);
 
+  // The hold length that reaches the fully seared look: the shipped default, or the Preview / DEV comparison value (?cookSearMs=).
+  const fullMs = searFullMsOverride() ?? SEAR_FULL_MS;
   const holding = hold.status === "holding";
   const released = hold.status === "released";
   const startedAt = hold.status === "holding" ? hold.startedAt : null;
@@ -79,9 +82,9 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
   // While the finger is down: repaint the colour from the held time. Nothing else runs; there is no time-out.
   useEffect(() => {
     if (startedAt === null) return;
-    const timer = window.setInterval(() => setAmount(searAmountAt(nowMs() - startedAt)), TICK_MS);
+    const timer = window.setInterval(() => setAmount(searAmountAt(nowMs() - startedAt, fullMs)), TICK_MS);
     return () => window.clearInterval(timer);
-  }, [startedAt]);
+  }, [startedAt, fullMs]);
 
   const close = useCallback(() => {
     dispatchHold({ type: "CANCEL" });
@@ -135,7 +138,7 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
     dispatchHold({ type: "PRESS", now: eventMoment(stamp) });
   };
   const release = (stamp: number) => {
-    dispatchHold({ type: "RELEASE", now: eventMoment(stamp) });
+    dispatchHold({ type: "RELEASE", now: eventMoment(stamp), fullMs });
   };
 
   if (!screen) {
@@ -214,7 +217,7 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
   };
 
   return (
-    <div className="cooking-sear" data-testid="cooking-sear" data-mode={mode} data-look={look} style={{ "--sear-heat": shownAmount.toFixed(3) } as CSSProperties}>
+    <div className="cooking-sear" data-testid="cooking-sear" data-mode={mode} data-look={look} data-full-ms={fullMs} style={{ "--sear-heat": shownAmount.toFixed(3) } as CSSProperties}>
       <p className={`cooking-sear__title${released ? " cooking-sear__title--result" : ""}`} data-testid="cooking-sear-title">
         {title}
       </p>
@@ -249,7 +252,7 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
           className="cooking-sear__hold"
           data-testid="cooking-sear-hold"
           data-holding={holding ? "true" : "false"}
-          aria-label={`長押しで炙る。押している間だけ焼き目がつき、離すと決まります。最大 ${Math.round(SEAR_FULL_MS / 1000)} 秒で濃くなります`}
+          aria-label={`長押しで炙る。押している間だけ焼き目がつき、離すと決まります。最大 ${Math.round(fullMs / 1000)} 秒で濃くなります`}
           onPointerDown={onHoldPointerDown}
           onPointerUp={(event) => release(event.nativeEvent.timeStamp)}
           onPointerCancel={() => dispatchHold({ type: "CANCEL" })}
@@ -263,6 +266,11 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
       <span className="cooking-sear-sr" role="status" aria-live="polite">
         {released ? title : holding ? "炙っています。離すと決まります" : "長押しで炙ります"}
       </span>
+      {searFullMsOverride() !== null && (
+        <span className="cooking-sear__tune" data-testid="cooking-sear-tune" aria-hidden="true">
+          {Math.round(fullMs / 1000)}秒設定
+        </span>
+      )}
       <button type="button" className="cooking-sear__close" data-testid="cooking-sear-cancel" aria-label="やめる" onClick={close}>
         ×
       </button>

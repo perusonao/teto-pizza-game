@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SEAR_FULL_MS, SEAR_MIN_HOLD_MS } from "../logic/sear/searHold";
 import { SEAR_DONE_MS, SEAR_GUARD_MS } from "../logic/sear/searOffer";
+import { resetSearMsForTest } from "../preview/searPreview";
 import { SearLayer } from "./SearLayer";
 
 /** Cooking Sear Phase 1 (#724): the pill / long-press sear screen, with the experience gate OPEN. Fake timers (performance.now is faked with them). */
@@ -15,6 +16,8 @@ afterEach(() => {
   cleanup();
   vi.useRealTimers();
   gate.open = true;
+  window.history.replaceState(null, "", "/");
+  resetSearMsForTest();
 });
 
 type Props = Parameters<typeof SearLayer>[0];
@@ -211,5 +214,23 @@ describe("the long press", () => {
     fireEvent.click(hold(), { detail: 1 });
     advance(SEAR_DONE_MS * 2);
     expect(onSear).not.toHaveBeenCalled();
+  });
+});
+
+describe("the 2 / 3 / 4 second comparison (?cookSearMs=)", () => {
+  it.each([2000, 3000, 4000])("with %s the same one-second hold reaches 1000 / that of the full look", (ms) => {
+    window.history.replaceState(null, "", `/?cookSear=on&cookSearMs=${ms}`);
+    resetSearMsForTest();
+    const { onSear } = setup();
+    openScreen();
+    heldFor(1000);
+    expect(onSear).toHaveBeenCalledTimes(1);
+    expect(onSear.mock.calls[0][1]).toBeCloseTo(1000 / ms, 5);
+  });
+  it("without the query the shipped default applies", () => {
+    const { onSear } = setup();
+    openScreen();
+    heldFor(SEAR_FULL_MS / 2);
+    expect(onSear).toHaveBeenCalledWith("sausage", 0.5);
   });
 });

@@ -13,3 +13,19 @@ describe("?cookSear=on", () => {
     expect(resolveSearOptIn(42)).toBe(false);
   });
 });
+
+import { resolveSearFullMs, SEAR_MS_CHOICES, SEAR_MS_PARAM } from "./searPreview";
+
+describe("?cookSearMs= (the 2 / 3 / 4 second comparison)", () => {
+  it("the names and the three choices are what the Owner types", () => {
+    expect(SEAR_MS_PARAM).toBe("cookSearMs");
+    expect(SEAR_MS_CHOICES).toEqual([2000, 3000, 4000]);
+  });
+  it("only exactly one of the three values counts; anything else is the default (null)", () => {
+    expect(resolveSearFullMs("?cookSear=on&cookSearMs=2000")).toBe(2000);
+    expect(resolveSearFullMs("?cookSearMs=3000")).toBe(3000);
+    expect(resolveSearFullMs("?cookSearMs=4000")).toBe(4000);
+    for (const q of ["", "?cookSearMs=1000", "?cookSearMs=2500", "?cookSearMs=02000", "?cookSearMs=2000&cookSearMs=3000", "?cookSearMs=abc", "?cookSearMs="]) expect(resolveSearFullMs(q)).toBeNull();
+    expect(resolveSearFullMs(undefined)).toBeNull();
+  });
+});

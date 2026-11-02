@@ -225,3 +225,25 @@ test.describe("Cooking Sear: the long press", () => {
     await shot(page, "10-bake");
   });
 });
+
+test.describe("Cooking Sear: the 2 / 3 / 4 second comparison (?cookSearMs=)", () => {
+  for (const [ms, holdMs, expected] of [[2000, 2400, "まっくろ焦げ目"], [3000, 1600, "こんがり焼き目"], [4000, 1000, "ほんのり焼き目"]] as const) {
+    test(`?cookSearMs=${ms}: a ${holdMs}ms hold lands on ${expected}, and the screen says which setting it is`, async ({ page }) => {
+      await toTopping(page, `?cookSear=on&cookSearMs=${ms}`);
+      await select(page, "ソーセージ");
+      await tapDoughPercent(page, 40, 50);
+      await pill(page).click();
+      await expect(screenEl(page)).toHaveAttribute("data-full-ms", String(ms));
+      await expect(page.getByTestId("cooking-sear-tune")).toHaveText(`${ms / 1000}秒設定`);
+      await holdFor(page, holdMs);
+      await expect(page.getByTestId("cooking-sear-title")).toHaveText(expected);
+    });
+  }
+  test("without cookSearMs there is no setting label and the default applies", async ({ page }) => {
+    await toTopping(page, "?cookSear=on");
+    await select(page, "ソーセージ");
+    await pill(page).click();
+    await expect(screenEl(page)).toHaveAttribute("data-full-ms", "4000");
+    await expect(page.getByTestId("cooking-sear-tune")).toHaveCount(0);
+  });
+});

@@ -24,13 +24,35 @@ describe("sausage sear colours", () => {
     expect(sausageSearColors(9)).toEqual(SAUSAGE_CHARRED_COLORS);
     expect(sausageSearColors(NaN)).toEqual(SAUSAGE_RAW_COLORS);
   });
-  it("the face gets monotonically darker as it sears (the colour is a true progression)", () => {
-    let prev = Infinity;
-    for (let a = 0; a <= 1.0001; a += 0.05) {
-      const l = lum(sausageSearColors(a).inner);
-      expect(l).toBeLessThanOrEqual(prev + 1e-9);
-      prev = l;
+  it("the face and the outer ring get monotonically darker as it sears (the colour is a true progression, no dip on the way)", () => {
+    for (const part of ["inner", "outer"] as const) {
+      let prev = Infinity;
+      for (let a = 0; a <= 1.0001; a += 0.01) {
+        const l = lum(sausageSearColors(a)[part]);
+        expect(l, `${part} @${a.toFixed(2)}`).toBeLessThanOrEqual(prev + 1e-9);
+        prev = l;
+      }
     }
+  });
+  it("#724 visibility: each look's face is clearly darker than the unseared face (WCAG-style luminance ratio floors)", () => {
+    const ratio = (a: string, b: string) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+    const raw = sausageSearColors(0).inner;
+    expect(ratio(raw, sausageSearColors(0.3).inner)).toBeGreaterThanOrEqual(1.25); // ほんのり
+    expect(ratio(raw, sausageSearColors(0.5).inner)).toBeGreaterThanOrEqual(1.55); // こんがり
+    expect(ratio(raw, sausageSearColors(0.75).inner)).toBeGreaterThanOrEqual(2.0); // しっかり
+    expect(ratio(raw, sausageSearColors(1).inner)).toBeGreaterThanOrEqual(2.4); // まっくろ
+  });
+  it("#724 shape: at EVERY amount the outer ring stays darker than the face, the fat flecks stay light, and the outline is the darkest part", () => {
+    const ratio = (a: string, b: string) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+    for (let a = 0; a <= 1.0001; a += 0.05) {
+      const c = sausageSearColors(a);
+      expect(ratio(c.inner, c.outer), `face/ring @${a.toFixed(2)}`).toBeGreaterThanOrEqual(1.3);
+      expect(ratio(c.fat, c.inner), `flecks/face @${a.toFixed(2)}`).toBeGreaterThanOrEqual(2.2);
+      expect(lum(c.edge), `outline @${a.toFixed(2)}`).toBeLessThan(lum(c.outer));
+    }
+  });
+  it("#724 the charred face is not black (a charred slice must not become one dark blob)", () => {
+    expect(lum(sausageSearColors(1).inner)).toBeGreaterThan(0.03);
   });
   it("lerpHex is exact at the ends", () => {
     expect(lerpHex("#000000", "#ffffff", 0)).toBe("#000000");
