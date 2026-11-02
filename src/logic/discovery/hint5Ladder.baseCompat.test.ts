@@ -66,13 +66,13 @@ function reachableLedgers(recipeId: string): string[][] {
 }
 
 describe("section 4.1: M-1..M-3 agree with every reachable state of the real old ladder (51 key-free recipes)", () => {
-  it("the population is the 58 key-free recipes: sauce + cheese 28 (Expansion Batch 13: + potato-mayo-pizza in cheese only; B12: + jamaican-jerk-chicken-pizza in cheese only; Expansion Batch 12: + pizza-alla-norma (tomato-sauce + ricotta-salata) in sauce + cheese and + supreme-pizza (tomato-sauce, no cheese) in sauce only; B11 S1: + boscaiola and pescatore; PR-2 late4: + wasabi-beef-pizza and tarako-cream-pizza; BBQ Chicken #611: + bbq-chicken-pizza; Expansion Batch 10 PR-1: + five sauce + cheese recipes; Square Dough E-2: + grandma-pizza; New Sauces Phase B U1: + yuzu-shrimp-pizza; U2: + eggplant-dengaku-pizza), cheese only 19 (E5: + ikura-salmon-pizza; B11 S1: + porcini-pizza, NO_SAUCE), sauce only 8 (New Sauces Phase B U3: + eggplant-tahini-pizza)", () => {
+  it("the population is the 59 key-free recipes: sauce + cheese 29 (Expansion Batch 14: + moussaka-style-pizza (fromage-blanc-sauce + feta) in sauce + cheese; Expansion Batch 13: + potato-mayo-pizza in cheese only; B12: + jamaican-jerk-chicken-pizza in cheese only; Expansion Batch 12: + pizza-alla-norma (tomato-sauce + ricotta-salata) in sauce + cheese and + supreme-pizza (tomato-sauce, no cheese) in sauce only; B11 S1: + boscaiola and pescatore; PR-2 late4: + wasabi-beef-pizza and tarako-cream-pizza; BBQ Chicken #611: + bbq-chicken-pizza; Expansion Batch 10 PR-1: + five sauce + cheese recipes; Square Dough E-2: + grandma-pizza; New Sauces Phase B U1: + yuzu-shrimp-pizza; U2: + eggplant-dengaku-pizza), cheese only 19 (E5: + ikura-salmon-pizza; B11 S1: + porcini-pizza, NO_SAUCE), sauce only 8 (New Sauces Phase B U3: + eggplant-tahini-pizza)", () => {
     const extra = pinsaEnabled() ? 1 : 0; // Pinsa Romana (#577 P3-b): a sauce + cheese key-free recipe, like jamon, while its gate is open
-    expect(KEY_FREE_RECIPES).toHaveLength(58 + extra);
+    expect(KEY_FREE_RECIPES).toHaveLength(59 + extra);
     const klass = (r: Recipe) => `${hasCategory(r, "sauce") ? "sauce" : ""}+${hasCategory(r, "cheese") ? "cheese" : ""}`;
     const count = (k: string) => KEY_FREE_RECIPES.filter((r) => klass(r) === k).length;
     expect({ both: count("sauce+cheese"), cheeseOnly: count("+cheese"), sauceOnly: count("sauce+"), neither: count("+") }).toEqual({
-      both: 28 + extra,
+      both: 29 + extra,
       cheeseOnly: 21,
       sauceOnly: 9,
       neither: 0,
@@ -98,7 +98,7 @@ describe("section 4.1: M-1..M-3 agree with every reachable state of the real old
         }
       }
     }
-    expect(partials).toBe(28 + (pinsaEnabled() ? 1 : 0)); // one partial state per sauce + cheese recipe
+    expect(partials).toBe(29 + (pinsaEnabled() ? 1 : 0)); // one partial state per sauce + cheese recipe
   });
 
   it("single-marker recipes (cheese only, sauce only) can never be PARTIAL", () => {

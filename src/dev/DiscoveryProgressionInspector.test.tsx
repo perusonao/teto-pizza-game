@@ -10,7 +10,7 @@ import { RECIPES } from "../data/recipes";
 import { DiscoveryProgressionInspector } from "./DiscoveryProgressionInspector";
 
 /** Expansion Batch 10 PR-1: with the late catalog on, the FIXED late floors open a late recipe at each of the ordinary steps 57-60, so those are multi-recipe steps too. */
-const LATE_FLOOR_MULTI = (lateCatalogEnabled() ? 4 : 0) + 1; // (+ 1: B11 S1's step 62, porcini, opens boscaiola and the non-credit porcini-pizza together)
+const LATE_FLOOR_MULTI = (lateCatalogEnabled() ? 5 : 0) + 1; // (+ 1: B11 S1's step 62, porcini, opens boscaiola and the non-credit porcini-pizza together; Expansion Batch 14: the FIXED late floor of bbq-sauce (66) now coincides with the ordinary step 66 (cinnamon), so step 66 opens moussaka-style-pizza and bbq-chicken-pizza together)
 
 afterEach(() => {
   cleanup();

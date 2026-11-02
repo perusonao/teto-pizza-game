@@ -125,6 +125,8 @@ const BASE_TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[
   ["mussel", "seafood"],
   // Expansion Batch 13 (#708; PROVISIONAL SPEC, GAMEPLAY ASSUMPTION; Owner decision 2026-10-30): mayo = spice (L1 only, no `other`).
   ["mayo", "spice"],
+  // Expansion Batch 14 (PROVISIONAL SPEC, GAMEPLAY ASSUMPTION; Owner decision): cinnamon = spice (L1 only, no `other`).
+  ["cinnamon", "spice"],
 ];
 
 /** The base rows, plus the late-catalog ingredients' rows (./lateCatalog.ts) when that catalog is enabled; otherwise the base rows themselves. */

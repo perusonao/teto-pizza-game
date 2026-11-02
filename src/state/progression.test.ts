@@ -303,6 +303,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "jamaican-jerk-chicken-pizza",
         "jamon-serrano-pizza",
         "melanzane-pizza",
+        "moussaka-style-pizza",
         "new-haven-apizza",
         "new-zealand-lamb-pizza",
         "palmito-pizza",

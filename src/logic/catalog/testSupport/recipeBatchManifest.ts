@@ -21,7 +21,7 @@ export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
     { recipeId: "currywurst", keyIngredientId: "wurstel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "cuban-pizza", keyIngredientId: "swiss-cheese", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["boscaiola", "porcini-pizza", "pescatore", "jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza"], // (B11 S1 is appended after cuban-pizza, B12 after B11 S1, Expansion Batch 12 after B12, Expansion Batch 13 after Expansion Batch 12)
+  followedBy: ["boscaiola", "porcini-pizza", "pescatore", "jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza"], // (B11 S1 is appended after cuban-pizza, B12 after B11 S1, Expansion Batch 12 after B12, Expansion Batch 13 after Expansion Batch 12)
 };
 
 /**
@@ -37,7 +37,7 @@ export const B11_S1_BATCH: RecipeBatchManifest = {
     { recipeId: "porcini-pizza", keyIngredientId: "porcini", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "pescatore", keyIngredientId: "mussel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza"], // (B12 is appended after pescatore; Expansion Batch 12 after B12; Expansion Batch 13 after Expansion Batch 12)
+  followedBy: ["jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza"], // (B12 is appended after pescatore; Expansion Batch 12 after B12; Expansion Batch 13 after Expansion Batch 12)
 };
 
 /**
@@ -50,7 +50,7 @@ export const B12_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "pescatore",
   recipes: [{ recipeId: "jamaican-jerk-chicken-pizza", keyIngredientId: "green-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza"], // (Expansion Batch 12 is appended after B12; Expansion Batch 13 after Expansion Batch 12)
+  followedBy: ["supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza"], // (Expansion Batch 12 is appended after B12; Expansion Batch 13 after Expansion Batch 12)
   acceptedLetterShifts: { "veggie-supreme-pizza": "-->B" },
 };
 
@@ -67,7 +67,7 @@ export const B12B_BATCH: RecipeBatchManifest = {
     { recipeId: "supreme-pizza", keyIngredientId: "bell-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "pizza-alla-norma", keyIngredientId: "ricotta-salata", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["potato-mayo-pizza"], // (Expansion Batch 13 is appended after this batch)
+  followedBy: ["potato-mayo-pizza", "moussaka-style-pizza"], // (Expansion Batch 13 is appended after this batch, Expansion Batch 14 after that)
   acceptedLetterShifts: { "spanish-chorizo-pizza": "-->B" },
 };
 
@@ -80,9 +80,21 @@ export const B13_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "pizza-alla-norma",
   recipes: [{ recipeId: "potato-mayo-pizza", keyIngredientId: "mayo", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
+  followedBy: ["moussaka-style-pizza"], // (Expansion Batch 14 is appended after this batch)
 };
 
-export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH];
+/**
+ * Expansion Batch 14 (PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): moussaka-style-pizza (credited; fromage-blanc-sauce PAINT stands in for the matrix's ambiguous white sauce, Owner decision for this recipe only; the key of ordinary step 66: the one new material `cinnamon`, a spice topping).
+ * cinnamon is the only unlock material of its step and moussaka-style-pizza the only recipe of its cohort, so no existing recipe changes its Research label (no `acceptedLetterShifts`).
+ */
+export const B14_BATCH: RecipeBatchManifest = {
+  batchId: "expansion-batch-14",
+  status: "landed",
+  afterRecipeId: "potato-mayo-pizza",
+  recipes: [{ recipeId: "moussaka-style-pizza", keyIngredientId: "cinnamon", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
+};
+
+export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B14_BATCH];
 
 /**
  * Pinsa Romana (#577 P3-b-3, Owner Q7): the manifest the validator checks in a build where the Pinsa gate (src/data/pinsaGate.ts) is OPEN. Deliberately NOT in

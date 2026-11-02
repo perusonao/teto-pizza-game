@@ -78,6 +78,7 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   whitebait: "s",
   "sweet-potato": "m",
   mayo: "s",
+  cinnamon: "s",
   // large
   mozzarella: "l",
   fontina: "l",

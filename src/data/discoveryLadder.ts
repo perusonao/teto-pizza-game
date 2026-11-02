@@ -212,6 +212,8 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["ricotta-salata"], keyRecipeId: "pizza-alla-norma" },
   // Step 65 (Expansion Batch 13, #708, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `mayo`, key recipe `potato-mayo-pizza`. Steps 1-64 frozen.
   { ingredientIds: ["mayo"], keyRecipeId: "potato-mayo-pizza" },
+  // Step 66 (Expansion Batch 14, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `cinnamon`, key recipe `moussaka-style-pizza` (it also needs fromage-blanc-sauce, eggplant, lamb and feta from earlier steps). Steps 1-65 frozen. Cohort key: cinnamon.
+  { ingredientIds: ["cinnamon"], keyRecipeId: "moussaka-style-pizza" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

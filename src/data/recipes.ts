@@ -1487,6 +1487,25 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "moussaka-style-pizza",
+    nameJa: "ムサカ風ピザ",
+    description: "フロマージュブランの白いソースを塗った生地に、ナスとラム肉、フェタ、シナモンをのせた、ギリシャ風の一枚。",
+    // Expansion Batch 14 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `moussaka-style-pizza-pizzadb-p13` only (cinnamon / eggplant / feta / lamb + the sauce field 'ホワイトソース', which the canonicalizer leaves ambiguous; its only related id is fromage-blanc-sauce).
+    // OWNER DECISION (this recipe only; NOT a NO_SAUCE exception): the existing fromage-blanc-sauce stands in for the white sauce (PAINT, the SAUCE step). GAMEPLAY ASSUMPTION / CALIBRATION (not source): fromage-blanc-sauce 1 (PAINT) / feta 2 / eggplant 2 / lamb 2 / cinnamon 2 = 8 non-sauce pieces (the cheese precedes the toppings, so the legacy Hint 2.0 H4 withholds the last topping = the Rule W reserved ingredient) = the 8-slot ring;
+    // bake 58-78 (the generic Free Cooking window, so the median-derived FREE_COOK_BAKE_TARGET stays 58-78); no CUT (the matrix says the round CUT is optional; the CUT allowlist is unchanged); when the cinnamon is added (before or after the bake) is not confirmed -- it is placed in the TOPPING step; the matrix's thin dough is not reproduced.
+    // Ladder-credited: the key recipe of step 66 (cinnamon, the one new material; a topping, not a sauce). `lunchRush: false`; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "fromage-blanc-sauce", minCount: 1 },
+      { ingredientId: "feta", minCount: 2 },
+      { ingredientId: "eggplant", minCount: 2 },
+      { ingredientId: "lamb", minCount: 2 },
+      { ingredientId: "cinnamon", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /**

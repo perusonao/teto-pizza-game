@@ -347,6 +347,12 @@ export const RECIPE_SAUCE_PROFILES = {
   "jamaican-jerk-chicken-pizza": null,
   // Expansion Batch 13 (#708; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): the source sauce field is unspecified (BASE_SAUCE_UNSPECIFIED); NO_SAUCE for this one row only (Owner decision 2026-10-30), the existing `null` mapping.
   "potato-mayo-pizza": null,
+  // Expansion Batch 14 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): the source sauce field is 'ホワイトソース' (ambiguous in the canonicalizer; its only related id is fromage-blanc-sauce). Owner decision: the existing fromage-blanc-sauce stands in for it, for this one recipe only (the existing PAINT gesture; NOT a NO_SAUCE exception).
+  "moussaka-style-pizza": {
+    recipeId: "moussaka-style-pizza",
+    ingredientId: "fromage-blanc-sauce",
+    interaction: "PAINT",
+  },
   pescatore: {
     recipeId: "pescatore",
     ingredientId: "tomato-sauce",

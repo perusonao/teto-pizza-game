@@ -48,6 +48,7 @@ export type DedicatedIngredientVisual =
   | "mussel-shell"
   | "ricotta-salata-shavings"
   | "mayo-drop"
+  | "cinnamon-powder-pile"
   | "green-pepper-strips"
   | "bell-pepper-quarter"
   | "pineapple-wedges"
@@ -1171,6 +1172,21 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pieceVisual: "mayo-drop",
+  },
+  /**
+   * Expansion Batch 14 (Issue: none, Owner-directed; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, step 66 (T4, no star gate), the sole material of moussaka-style-pizza's step.
+   * Owner decision: a topping (scatter) -- not a sauce -- family `spice`, size class `s`, colour `#b9733a` (PROVISIONAL until the 390x844 / 360x800 HV), drawn as a powder pile (`cinnamon-powder-pile`, the `paprika-powder-pile` grammar in a lighter, flatter brown).
+   * `emoji` 🍪 is only the required, never-displayed text fallback (G18: not the spice family symbol 🧂, and no other ingredient uses it). When the cinnamon is added (before or after the bake) is NOT confirmed against the original; it is placed in the TOPPING step.
+   */
+  {
+    id: "cinnamon",
+    category: "topping",
+    nameJa: "シナモン",
+    color: "#b9733a",
+    emoji: "\u{1F36A}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "cinnamon-powder-pile",
   },
 ];
 
