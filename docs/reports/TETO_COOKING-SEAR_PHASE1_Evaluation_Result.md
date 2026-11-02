@@ -111,5 +111,55 @@ Owner 判断（2026-11-02）: Phase 1 試作 GO／Phase 2 保留／焼き色改�
 3. #723 の HV 完了後に、共有 Preview へ #724 を載せてよいか（SHA は承認時に確定）。
 4. Phase 2 は保留のまま、ここで Phase 1 を締めるか。
 
+---
+
+## 10. 次の Gate の準備（2026-11-02 追補）
+
+Owner 方針: 長押し 3 秒を第一候補／ほんのりの色は暫定許容／現在の焼き色改善を維持／Phase 2 保留／**Phase 1 は Safari 実機 HV と WebKit 検証まで未完了**／#723 の HV が終わるまで共有 Preview を更新しない。
+
+### 10.1 最新状態の確認
+| 項目 | 結果 |
+|---|---|
+| main | `7f3aa63`（変化なし）。このブランチは main を含む（取り込み不要） |
+| Issue #724 / claim | claim を更新（ファイル一覧を実態に合わせ、期限 2026-11-09）: https://github.com/perusonao/teto-pizza-game/issues/724#issuecomment-6568487662 。他セッションの #724 claim なし |
+| PR #723 | open。HEAD **`4194ead`**（docs-only: Result 文書の整合修正）。`git merge-tree` で本ブランチとの**衝突なし**。ファイルの重なりなし（#723: `App.css` / `IngredientGlyph.tsx` / `ingredients.ts` / `recipes.ts` / `PROJECT_HANDOFF.md` ほか。本ブランチはこれらを編集していない）。**#723 には触れていない（読み取りのみ）** |
+| 共有 Preview | 現在の公開元は **#723 の `4b0df7c`**（2026-11-02 03:03 UTC に deploy。#723 の HV 用）。**更新していない・更新しない**（#723 HV 完了まで） |
+| 他の HOT 重なり | #468 / #478 は古い履歴（draft・stale）で `merge-tree` 不可（unrelated histories）。以前の判断のとおり、追加のみの変更で、後から merge する側が base を取り込む |
+
+### 10.2 長押し 3 秒を既定にする場合の変更範囲（ドライランで確認）
+一時的に `SEAR_FULL_MS` を 3000 にして sear 系 Vitest と E2E を実行し、**確認後に元へ戻した**（**ブランチの既定は 4 秒のまま。Owner の指示までコードは変えない**）。
+
+| 区分 | 必要な変更 | ドライランの結果 |
+|---|---|---|
+| 本体 | `src/logic/sear/searHold.ts:12` の `SEAR_FULL_MS = 4000` → `3000`（**1 行**）。UI・色・reducer・比較スイッチは変更なし | — |
+| 単体テスト | `searHold.test.ts` の「press -> release keeps what the hold reached」が 2000ms→0.5 を直書き → `SEAR_FULL_MS / 2` に直す（1 テスト）。ほかの sear 系は定数相対なので無変更 | sear 系 89 件中 1 件だけ失敗（上記の想定どおり） |
+| E2E | `e2e/cooking-sear.spec.ts` の「without cookSearMs … default applies」の `data-full-ms` を `"4000"` → `"3000"`（1 か所＋タイトル） | 20 件中 2 件（390 / 360 の同テスト）だけ失敗（想定どおり） |
+| 比較機能 | `?cookSearMs=2000|3000|4000` は**そのまま維持**（3 秒が既定でも 2 秒・4 秒を比較できる） | 比較 E2E は全 pass |
+| ドキュメント | 本 Result・前回 Result の「既定 4 秒」の記述 | — |
+| 影響 | 採点・保存・レシピ・在庫・Dex・炒め・FINISH への影響なし。3 秒既定では「こんがり」の幅が約 0.96 秒、最短押下 350ms は量 0.117 | — |
+
+### 10.3 WebKit CI の実行準備
+| 項目 | 結果 |
+|---|---|
+| ローカルの WebKit | **実行不可**（`npx playwright install webkit` がダウンロード失敗: `Download failure, code=1`。既知の環境制約） |
+| 起動方法 | `.github/workflows/e2e-webkit.yml` は **PR（main 宛）／push to main／`workflow_dispatch`（任意の ref で Full 実行）** で起動。このブランチは PR が無いため、**今は走っていない**。方法 A: Actions → `E2E WebKit (Cooking UI 1-Screen)` → Run workflow（ref = `claude/teto-pizza-cooking-audit-5qhbpw`）。方法 B: PR を作る（Owner の指示が必要）。いずれも共有 Preview には影響しない |
+| 走る範囲 | 全 e2e spec を webkit-390×844 と webkit-360×800 × 3 shard。**`cooking-sear.spec.ts`（各 viewport 10 件）も自動で含まれる**。WebKit Gate は「両 viewport で同じテスト一覧」を要求するが、本 spec に viewport 限定の skip は無い。所要の目安: 各 shard 最大約 35 分 |
+| 本件で WebKit 実機確認が必要な箇所 | `setPointerCapture`／`pointercancel` による長押しの取り消し、`touch-action: none`、`-webkit-mask-image`（焼き目の線）、`-webkit-touch-callout` / `user-select`、`inert`（背面を触れなくする）、`cqw` 単位（既存の炒めと同じ）。E2E は実ポインター（`page.mouse`）で長押しを検証しているが、**iOS Safari の長押しのコールアウトや選択は CI では検出できない → 実機 HV が必要** |
+| 実行状況 | **未実行**（Owner の指示待ち）。実行したら run URL と shard 別結果を記録する |
+| 既知の間欠失敗 | #394 / #680 系（毎回別のテストが落ちる）。落ちた場合は失敗ジョブの再実行 1 回までとし、テスト・timeout は変更しない |
+
+### 10.4 最新の画像・動画
+- 画像（commit 済み）: `docs/reports/screenshots/cooking-sear-phase1-eval/`（**`INDEX.md` に一覧**）。1 枚で全体が見える `review-sheet-{390x844,360x800}.png`、旧/新の段階比較（実寸・3 倍）、長押し 2/3/4 秒の比較、before/after、動画の 12 コマ `video-frames-*.png`。
+- 動画（commit なし・直接提出）: `cooking-sear-phase1-eval-hv-390x844.mp4`（Authority、約 42 秒）と `…-360x800.mp4`（Secondary、約 42 秒）。同じ 2.0 秒の長押しを 2/3/4 秒設定で比較 → 最後に焼成 → RESULT。**コードは前回の評価時から変更なしのため、動画の挙動は現在のブランチと同一**。
+- 旧い試作の画像（`../cooking-sear-phase1/`）は改善前の記録。評価には上の最新を使う。
+
+### 10.5 まだ未完了（PASS にしない）
+Safari 実機 HV（Owner）／WebKit CI（未実行）／共有 Preview への掲載（#723 の HV 完了後に Owner が承認）／3 秒既定の適用（Owner の指示待ち）／Phase 2（保留）。
+
+### 10.6 Owner の次の判断
+1. **3 秒を既定にする変更（§10.2: 本体 1 行＋テスト 2 か所）を適用してよいか。**
+2. **WebKit CI を `workflow_dispatch`（ref = このブランチ）で今走らせてよいか**（共有 Preview・#723 には影響しない）。PR を作る場合は別途ご指示ください。
+3. #723 の HV 完了後に、共有 Preview へこのブランチを掲載してよいか（SHA は承認時に確定。復旧は #723 の公開 SHA で再実行）。
+
 ## 次のアクション
-Owner の最終判断を待って停止する。PR 作成・merge・共有 Preview 更新・Production 更新は行っていない。
+Owner の次の判断を待って停止する。PR 作成・merge・共有 Preview 更新・Production 更新・本番フラグ ON は行っていない。
