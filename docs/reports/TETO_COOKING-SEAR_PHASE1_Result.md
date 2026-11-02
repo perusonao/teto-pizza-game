@@ -313,4 +313,52 @@ HV Policy の成果物: 静止画 before/after は `docs/reports/screenshots/coo
 5. Phase 2（他食材への展開）は保留のまま。
 
 ### 15.4 Final Gate の記録方法
-HEAD が変わると CI・WebKit・Codex の証跡は無効になる（SESSION-OPERATIONS §2「latest head vs reviewed head」）。このため、**最新 HEAD に対する CI・WebKit Gate・Layout Contract Gate・Codex レビュー・未解決スレッド・mergeability の実測値は PR 本文（`Final Gate` 節）に追記し、文書 commit は追加しない**（追加すると head が動いて Codex の再レビューが必要になるため）。Result Report には、PR 作成時の HEAD と上記の固定の事実のみを置く。merge・Production 更新・機能有効化は行っていない。
+HEAD が変わると CI・WebKit・Codex の証跡は無効になる（SESSION-OPERATIONS §2「latest head vs reviewed head」）。このため、最新 HEAD に対する CI・WebKit Gate・Layout Contract Gate・Codex レビュー・未解決スレッド・mergeability の実測値は、PR 本文（`Final Gate` 節）と、下記 §16 に記録する（§16 は**コード HEAD `0034b476` の証跡**。この文書だけの commit で head が動くため、最終 head の証跡は PR 本文に別に追記する）。merge・Production 更新・機能有効化は行っていない。
+
+
+## 16. Final Gate（PR #725、コード HEAD `0034b47602fd7d097fa6a83957a35d335e72d85d`）
+
+記録時点: 2026-11-02。base = main `82665c8`（#723）。この節を足す commit は**文書のみ**で、コードは `0034b476` と同一。
+
+### 16.1 実測値（`0034b476` に対するもの。他の head の結果は数えない）
+| 項目 | 結果 |
+|---|---|
+| required CI（`CI` run 41478097768） | `build` = **success**（全 Vitest 含む）、`classify` = success |
+| WebKit Gate（`E2E WebKit` run 41478097139） | **success**。6 シャード（390×844 / 360×800 × 3）すべて success |
+| Layout Contract Gate | **success**（`layout-chromium` = success、WebKit シャード内の Layout Contract も success） |
+| Codex レビュー | **クリーンな受領**: 「Didn't find any major issues」、Reviewed commit `0034b47602`、サマリーも `has_unresolved_findings: false` |
+| 未解決レビュースレッド | **0**（2 件とも解決済み。下記 16.2） |
+| mergeability | `mergeable_state: clean`、draft ではない、base `82665c8` に対し衝突なし |
+| PR | https://github.com/perusonao/teto-pizza-game/pull/725 |
+
+### 16.2 レビュー指摘と修正（すべて同じ PR 内で対応し、新 head で再検証）
+| 指摘 | 内容 | 対応 |
+|---|---|---|
+| Codex P2 #1（`cfa222d`） | `pointercancel` 後、保持は idle に戻るが再描画用 `amount` が残り、保存されていない焼き色が表示され続ける（短いタップでも同様） | `2ef7083`: 表示量を「押している間」と「離して確定した値」だけから導出。**修正前に再現**（取り消し後 `#683e1e`、短いタップ後 `#b05b3b`）してから直し、回帰テスト 2 件 |
+| Codex P2 #2（`2ef7083`） | Enter を押したまま Tab で × へ移ると `keyup` が保持ボタンに届かず保持が続き、戻った時に離していた時間まで炙り量に入る | `60bf310`: 保持ボタンの `onBlur` から `INTERRUPT`（保持中のみ破棄、idle / released は不変）。回帰テスト（reducer 2・コンポーネント 2。`onBlur` を外すと失敗することを確認） |
+
+### 16.3 途中の失敗の記録（`60bf310` の `E2E WebKit` run 41473990222、attempt 1）
+`WebKit Gate` はこの head で通っていない。未完了・失敗を GREEN とは扱わず、原因を調べて次の head で再検証した:
+1. **`e2e/cooking-sear-hv.spec.ts`「entry → … → RESULT」（私の新規テスト）が両 viewport の WebKit shard 1/3 で timeout。** 原因: 既定の焼き窓が 58–78（0.6 秒）で針は 33pt/秒なのに、「66 以上を待ってから取り出す」を実時間で行っていたため、負荷の高い WebKit ランナーで窓を外し、FINISH を飛ばして「完成」が出なかった。**テストの不備**であり製品の不具合ではない。`0034b476` で既存の `bake-one-way.spec.ts` と同じ**仮想クロック**に変更（針を正確に 66 で取り出す。検証内容は同じ）。Chromium で通常 3 回＋CPU 高負荷下 24 回連続で通過し、`0034b476` の WebKit 6 シャードで通過。
+2. **既存の `e2e/cooking-prep.spec.ts:477`「early / overdone …」が 390×844 の shard 1/3 でのみ timeout**（360×800 では通過）。炒める機能・本 PR が触れていない箇所。同じ shard は `0034b476` で通過し、ローカル Chromium でも通過（86 passed）。**根本原因は未特定で、再現もしていない。** 「flake」と断定はしないが、この PR の変更が原因だという証拠も無い（炒めのロジックは無変更）。重ねて発生するなら別 Issue で追う。再実行の成功は根本原因ではなく、緩和・skip・timeout 延長はしていない。
+- なお main 自体の直近の `E2E WebKit`（run 41414562010、#723 の merge）も `failure`（webkit-390x844 shard 2/3）で、WebKit の不安定さは本 PR 固有ではない（別のテスト）。
+
+### 16.4 Final Gate の判定材料（Owner 向け）
+| 区分 | 状態 |
+|---|---|
+| 自動の Gate（CI・WebKit・Layout Contract・Codex・スレッド・mergeability） | `0034b476` で**すべて GREEN**（上記 16.1） |
+| 実機 HV（iPhone Safari） | 入口・炙り・焼成・RESULT は Owner 報告で PASS（正式な判定語は Owner が明記するまで確定扱いにしない）。**ツールバー切替は未確認（PASS として扱わない）** |
+| HV 動画（Policy §12 の DoD） | 今回のコード分は**未提出・未完了**。要否は Owner の判断 |
+| 炙りの既定 | 3 秒を維持（`SEAR_FULL_MS = 3000`）。2 / 4 秒は Preview/DEV の比較のみ |
+| Production | **OFF のまま**（`SEAR_EXPERIENCE_PRODUCTION = false`、実ビルドのゲートテストで Production バンドルに `cookSear` / `cookSearHv` なしを確認） |
+| 保存互換性 | 保存スキーマ v2 不変、`persistence.ts` 無変更、`searedLook` は一時項目 |
+| 共有 Preview | 公開済みの `2000dba4` のまま。`0034b476` までのレビュー修正（`2ef7083`・`60bf310`）は**まだ Preview に載っていない**（Owner の承認が必要） |
+| merge・Production 更新・機能の有効化 | **していない**（禁止事項） |
+
+### 16.5 未解決事項・残課題
+1. **Preview の更新:** 上記のレビュー修正（表示の取り消し漏れ、キーボード保持のフォーカス離脱）を実機で確認するには、共有 Preview を最新 head に更新する必要がある（Owner の承認待ち）。
+2. **Safari ツールバー切替の実機確認**（帯⇄角の切替）: 未確認。
+3. **HV 動画:** 未提出（要否は Owner 判断）。
+4. **WebKit `cooking-prep` early/overdone の単発 timeout:** 根本原因未特定、再現せず。再発時は別 Issue。
+5. **別 Issue 候補（この PR では実装しない）:** 焼き目の追加視認性改善／角のピルの見つけやすさ／保持中の語表示の採否／Phase 2（他食材、保留）。
+6. 最終 head（この文書を含む commit）の CI・Codex の証跡は PR 本文の Final Gate 節に記録する。
