@@ -93,7 +93,7 @@ HOT file の重なり（実装前に確認）:
 |---|---|
 | 新規 Vitest | `logic/sear/**`（長押しの状態機械・色・reducer・flagOff・architecture）、`searIngredients`、`searPreview`、`SearLayer`（fake timer 15 件）、`PizzaStage.SearLook`（ソーセージ SVG の構造固定＋ class/変数の受け渡し）。**合計 約 80 件・全件 pass** |
 | 実ビルド・ゲート | `searPreview.gate.test.ts`（本番ビルドに `cookSear` が無い／Preview ビルドにはある。2 回の `vite build`） |
-| 全 Vitest | 下記「全 Vitest」を参照 |
+| 全 Vitest | **584 files passed / 1 skipped（計 585）、10,956 tests passed / 13 skipped / 2 todo、失敗 0**（所要 1,130 秒。skipped / todo は既存分。直前の Cooking Prep 1B 時点の 10,639 件から新規分で増加） |
 | `tsc -b` | エラーなし |
 | oxlint | 触ったファイルに警告 0（全体の残りは `CheesePoolCanvas.tsx` / `GameScreen.tsx:553` の既存分） |
 | Chromium E2E（新規 `e2e/cooking-sear.spec.ts`） | **390×844・360×800 で各 6 件、計 12 / 12 pass**。ゲート（フラグ無しではピルが出ない・`?cookPrep=on` だけでは出ない）／ピルの位置（44px・ステージ下端−18px・生地に触れない）／押している間だけ色が動き離すと止まる／保存データ（localStorage）が前後で同一／タップは残さない／× は残さない／ボタン ≥56px・× から ≥8px・スクロールなし／背面（焼く！・トレイ）は触れず、閉じた直後の遅れタップが生地に届かない／炙ったまま 焼く → 取り出す → RESULT まで進む |
