@@ -1506,6 +1506,24 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "nigerian-suya-pizza",
+    nameJa: "ナイジェリアンスヤピザ",
+    description: "ソースを使わず、牛肉とピーマン、玉ねぎ、モッツァレラをのせた、香ばしい一枚。",
+    // Expansion Batch 15 (Issue #728; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `nigerian-suya-pizza-pizzadb-p5` only (comparison table p5, relayed 2026-09-22, never independently re-fetched): beef / onion / green-pepper / mozzarella; sauce field 'その他' (BASE_SAUCE_UNSPECIFIED).
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source): NO_SAUCE is a suya-only Owner exception (2026-11-02), NOT a general rule for unspecified sauce fields; the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); every piece is placed BEFORE the bake (the source states no timing). The suya spice is not in the source ingredient list and is not modelled (no spice step is added).
+    // Non-credit (`ladderCredit: false`, no ladder step of its own): every material already exists (beef = ordinary step 58, the key of rendang-pizza, so both become makeable together; green-pepper step 32; onion step 12). No new material, no new technique.
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "beef", minCount: 3 },
+      { ingredientId: "green-pepper", minCount: 1 },
+      { ingredientId: "onion", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
 ] as const;
 
 /**

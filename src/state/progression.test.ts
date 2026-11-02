@@ -306,6 +306,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "moussaka-style-pizza",
         "new-haven-apizza",
         "new-zealand-lamb-pizza",
+        "nigerian-suya-pizza",
         "palmito-pizza",
         "parmigiana-pizza",
         "pescatore",

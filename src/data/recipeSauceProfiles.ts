@@ -345,6 +345,8 @@ export const RECIPE_SAUCE_PROFILES = {
   "porcini-pizza": null,
   // B12 (Issue #706; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): the source sauce field is 'その他' (unspecified); both are NO_SAUCE (the existing `null` mapping, like aussie) pending an Owner decision.
   "jamaican-jerk-chicken-pizza": null,
+  // Expansion Batch 15 (Issue #728): NO_SAUCE is a suya-only Owner exception (2026-11-02), NOT a general rule for "source field = その他". Original (pizzadb.jp) NOT CONFIRMED.
+  "nigerian-suya-pizza": null,
   // Expansion Batch 13 (#708; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): the source sauce field is unspecified (BASE_SAUCE_UNSPECIFIED); NO_SAUCE for this one row only (Owner decision 2026-10-30), the existing `null` mapping.
   "potato-mayo-pizza": null,
   // Expansion Batch 14 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): the source sauce field is 'ホワイトソース' (ambiguous in the canonicalizer; its only related id is fromage-blanc-sauce). Owner decision: the existing fromage-blanc-sauce stands in for it, for this one recipe only (the existing PAINT gesture; NOT a NO_SAUCE exception).
