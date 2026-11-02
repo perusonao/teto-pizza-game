@@ -294,6 +294,7 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
           onPointerDown={onHoldPointerDown}
           onPointerUp={(event) => release(event.nativeEvent.timeStamp)}
           onPointerCancel={() => dispatchHold({ type: "CANCEL" })}
+          onBlur={() => dispatchHold({ type: "INTERRUPT" })}
           onContextMenu={(event) => event.preventDefault()}
           onKeyDown={onHoldKeyDown}
           onKeyUp={onHoldKeyUp}

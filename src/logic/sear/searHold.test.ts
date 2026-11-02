@@ -82,3 +82,17 @@ describe("#724 HV follow-up: live look words", () => {
     expect(searHoldingTitle(0.9)).toContain("まっくろ");
   });
 });
+
+describe("#725 review: INTERRUPT (the hold button lost focus)", () => {
+  it("drops a hold in progress and keeps nothing", () => {
+    const held = searHoldReducer(SEAR_IDLE, { type: "PRESS", now: 100 });
+    expect(searHoldReducer(held, { type: "INTERRUPT" })).toEqual(SEAR_IDLE);
+  });
+  it("leaves an idle state and a kept (released) result exactly as they are (a blur from the button being removed must not erase the result)", () => {
+    const idle = { status: "idle", tooShort: true } as const;
+    expect(searHoldReducer(idle, { type: "INTERRUPT" })).toBe(idle);
+    const released = { status: "released", amount: 0.7, heldMs: 2100 } as const;
+    expect(searHoldReducer(released, { type: "INTERRUPT" })).toBe(released);
+  });
+});
+

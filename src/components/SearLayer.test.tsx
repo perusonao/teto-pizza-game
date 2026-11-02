@@ -289,3 +289,39 @@ describe("#725 review: a discarded hold leaves no browning on the screen (the di
   });
 });
 
+describe("#725 review: a keyboard hold does not survive the focus leaving the hold button", () => {
+  it("Enter held, Tab to the × : the hold is dropped (the keyup would never reach the button), nothing is kept, the display is raw, and the next press starts fresh", () => {
+    const { onSear } = setup();
+    openScreen();
+    const key = (type: "keydown" | "keyup", target: HTMLElement) => act(() => void (type === "keydown" ? fireEvent.keyDown : fireEvent.keyUp)(target, { key: "Enter" }));
+    key("keydown", hold());
+    advance(1500);
+    expect(sear()).toHaveAttribute("data-mode", "holding");
+    act(() => hold().blur()); // focus moves to another control
+    expect(sear()).toHaveAttribute("data-mode", "idle");
+    advance(10_000); // the time the key stays "down" elsewhere never counts
+    // the key is let go on the other control: nothing reaches the hold button, and nothing was kept
+    key("keyup", screen.getByTestId("cooking-sear-cancel"));
+    expect(onSear).not.toHaveBeenCalled();
+    expect(food().style.getPropertyValue("--sear-inner")).toBe("#b95e47");
+    // back on the hold button: a fresh hold of 1 s counts as 1 s, not as 11 s
+    act(() => hold().focus());
+    key("keydown", hold());
+    advance(1000);
+    key("keyup", hold());
+    expect(onSear).toHaveBeenCalledTimes(1);
+    expect(onSear.mock.calls[0][1]).toBeCloseTo(1000 / SEAR_FULL_MS, 1);
+  });
+
+  it("a kept result is not erased by a blur that follows the release", () => {
+    const { onSear } = setup();
+    openScreen();
+    heldFor(1000);
+    expect(onSear).toHaveBeenCalledTimes(1);
+    expect(sear()).toHaveAttribute("data-mode", "done");
+    advance(SEAR_DONE_MS + 50);
+    expect(sear()).toBeNull(); // closed by itself after the words, exactly once
+    expect(onSear).toHaveBeenCalledTimes(1);
+  });
+});
+

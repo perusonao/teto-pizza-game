@@ -58,7 +58,13 @@ export type SearHold =
   | { status: "released"; amount: number; heldMs: number };
 
 /** `fullMs` (RELEASE): the hold length that reaches the fully seared look; absent = SEAR_FULL_MS. Only the Preview / DEV comparison (?cookSearMs=) sets it. */
-export type SearHoldAction = { type: "PRESS"; now: number } | { type: "RELEASE"; now: number; fullMs?: number } | { type: "CANCEL" };
+export type SearHoldAction =
+  | { type: "PRESS"; now: number }
+  | { type: "RELEASE"; now: number; fullMs?: number }
+  | { type: "CANCEL" }
+  // The hold button lost focus (keyboard: Tab to another control while the key is still down, so its keyup never reaches the button). Drops a hold in progress and
+  // nothing else: an idle or already released state is returned as it is, so a blur caused by the button being removed cannot erase a kept result (#725 review).
+  | { type: "INTERRUPT" };
 
 export const SEAR_IDLE: SearHold = { status: "idle" };
 
@@ -78,5 +84,7 @@ export function searHoldReducer(state: SearHold, action: SearHoldAction): SearHo
     }
     case "CANCEL":
       return SEAR_IDLE;
+    case "INTERRUPT":
+      return state.status === "holding" ? SEAR_IDLE : state;
   }
 }
