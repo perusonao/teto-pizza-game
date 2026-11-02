@@ -111,6 +111,8 @@ import type { DoughKind } from "../logic/dough/doughKind";
 import { findOpenSpotOnPan } from "../logic/pan/panPlacement";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import { canPrepIngredient } from "../data/prepIngredients";
+import { canSearIngredient } from "../data/searIngredients";
+import { searExperienceEnabled } from "../data/searExperienceGate";
 import { prepExperienceEnabled } from "../data/prepExperienceGate";
 import {
   isOnboardingHintSession,
@@ -342,6 +344,9 @@ export interface GameState {
   /** Cooking Prep Phase 1B: how far into the pan time each prepped ingredient was taken out (0..1, `PREP_INGREDIENT`'s `progress`). Transient, display-only,
    *  same life as `preparedIngredientIds`: never persisted, removed by RESET_PIZZA, read by nothing but the piece colour. Absent = the cooked look. */
   preparedLook?: Readonly<Record<string, number>>;
+  /** Cooking Sear Phase 1 (Issue #724): how far each long-press-seared ingredient was seared (0..1, `SEAR_INGREDIENT`'s `amount`). Transient and display-only:
+   *  never persisted, removed by RESET_PIZZA, read by nothing but the piece colour. Its keys are the seared ingredients. Absent = none. Independent of the 炒める prep. */
+  searedLook?: Readonly<Record<string, number>>;
   /** Issue #38 E-P1/E-P2: canonical transient RESULT/DISCOVERED display snapshot for the
    *  per-pizza Pitz credit `REGISTER_TO_DEX` just applied (../logic/pitzReward.ts) -- the display
    *  layer reads these five numbers rather than recomputing any of them (same discipline
@@ -487,6 +492,9 @@ export type GameAction =
   // Cooking Prep Phase 1 (PR-A): marks one prep-able ingredient (beef) as prepped for this round. TOPPING step of a GUIDED / FREE_COOK round only,
   // behind PREP_EXPERIENCE_PRODUCTION / the Preview opt-in. Optional: nothing requires it and nothing can fail.
   | { type: "PREP_INGREDIENT"; ingredientId: string; progress?: number }
+  // Cooking Sear Phase 1 (Issue #724): marks one sear-able ingredient (sausage) as seared for this round, at the amount the player's long press reached.
+  // TOPPING step of a GUIDED / FREE_COOK round only, behind SEAR_EXPERIENCE_PRODUCTION / the Preview opt-in. Optional: nothing requires it and nothing can fail.
+  | { type: "SEAR_INGREDIENT"; ingredientId: string; amount: number }
   // Issue #33 D1: commits one complete DOUGH radial-stretch gesture's final shape as a
   // single atomic replacement of `pizza.doughShape` -- mirrors COMMIT_SAUCE_DISPENSE's own
   // "PizzaStage buffers locally, dispatches once at a successful pointerup" contract
@@ -1202,6 +1210,19 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       return { ...prepared, preparedLook: { ...(state.preparedLook ?? {}), [action.ingredientId]: Math.min(1, Math.max(0, action.progress)) } };
     }
 
+    case "SEAR_INGREDIENT": {
+      // Every refusal returns the SAME state reference (the UI only offers it when this would pass). Nothing is consumed and nothing but `searedLook`
+      // changes, so pizza / score / completion / inventory are untouched.
+      if (!searExperienceEnabled()) return state;
+      if (state.phase !== "PREPARE" || state.makingStep !== "TOPPING") return state;
+      if (state.roundKind !== "GUIDED" && state.roundKind !== "FREE_COOK") return state;
+      if (!canSearIngredient(action.ingredientId)) return state;
+      if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      if (state.searedLook?.[action.ingredientId] !== undefined) return state;
+      if (!Number.isFinite(action.amount)) return state;
+      return { ...state, searedLook: { ...(state.searedLook ?? {}), [action.ingredientId]: Math.min(1, Math.max(0, action.amount)) } };
+    }
+
     case "UNDO_LAST_PLACEMENT": {
       // The reducer is the real backstop (the button's disabled state is only a hint): the rule lives in one
       // pure function shared with the UI. Nothing here touches inventory (consumed once at CONFIRM_BAKE),
@@ -1243,7 +1264,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
               return { cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
             })();
       // Cooking Prep Phase 1: a discarded pizza takes its prep with it -- the property is removed, never set to `undefined`.
-      const { preparedIngredientIds: _discardedPrep, preparedLook: _discardedLook, ...stateWithoutPrep } = state;
+      const { preparedIngredientIds: _discardedPrep, preparedLook: _discardedLook, searedLook: _discardedSear, ...stateWithoutPrep } = state;
       return {
         ...stateWithoutPrep,
         ...panReset,

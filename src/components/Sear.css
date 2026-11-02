@@ -1,0 +1,323 @@
+/* Cooking Sear Phase 1 (焼き目をつける・長押し炙り, Issue #724). Its own file: App.css and CookingPrep.css are not touched. Nothing here applies unless the
+   experience is ON (the class / elements below are only rendered then); with it OFF the DOM is today's. Colours / sizes are PROVISIONAL until the iPhone HV. */
+
+/* ---- A seared sausage piece. `fill` / `stroke` set by CSS beat the SVG presentation attributes, so `SausageSlices` stays byte-identical.
+   Paths of the glyph, in drawing order: outer 1, inner 1, fat 1, outer 2, inner 2, fat 2; the seeds / flecks are the two <g fill=...> groups. ---- */
+.ingredient-piece--seared .ingredient-glyph--sausage-slices path:nth-of-type(1),
+.ingredient-piece--seared .ingredient-glyph--sausage-slices path:nth-of-type(4) {
+  fill: var(--sear-outer);
+  stroke: var(--sear-edge);
+}
+.ingredient-piece--seared .ingredient-glyph--sausage-slices path:nth-of-type(2),
+.ingredient-piece--seared .ingredient-glyph--sausage-slices path:nth-of-type(5) {
+  fill: var(--sear-inner);
+}
+.ingredient-piece--seared .ingredient-glyph--sausage-slices path:nth-of-type(3),
+.ingredient-piece--seared .ingredient-glyph--sausage-slices path:nth-of-type(6) {
+  fill: var(--sear-fat);
+}
+.ingredient-piece--seared .ingredient-glyph--sausage-slices g[fill="#6e2a1e"] {
+  fill: var(--sear-dots);
+}
+.ingredient-piece--seared .ingredient-glyph--sausage-slices g[fill="#f5dcc6"] {
+  fill: var(--sear-fat);
+}
+/* The sheen: a thin warm highlight along the upper edge, only as strong as the browning. */
+.ingredient-piece--seared .ingredient-glyph--sausage-slices {
+  filter: drop-shadow(0 -1px 0 rgba(255, 232, 190, calc(var(--sear-gloss, 0) * 0.6)));
+}
+
+/* ---- The pill, the "done" mark and the guard. All of them live INSIDE `.pizza-stage` (position: relative), after `.pizza-dough`. Same band and size as the
+   炒める pill (the two are never on screen together: one ingredient is selected at a time). ---- */
+.cooking-sear-pill,
+.cooking-sear-done {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  height: 44px;
+  min-width: 120px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 22px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  z-index: 5;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.cooking-sear-pill {
+  border: 2px solid #7a1f12;
+  background: #ff8a5c;
+  color: #3a0f06;
+  cursor: pointer;
+}
+.cooking-sear-pill:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+.cooking-sear-done {
+  border: 2px solid transparent;
+  background: rgba(143, 63, 46, 0.14);
+  color: #6b2f1e;
+  pointer-events: none;
+}
+.cooking-sear-guard {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: transparent;
+  touch-action: manipulation;
+}
+
+/* ---- The sear screen: three rows -- title / grill plate / hold button -- so the button is ALWAYS inside the panel (the plate takes whatever height is left;
+   the lesson of the 炒める HV fix, where a short real-iPhone stage of ~260-290px overflowed a centred column). The title keeps 72px on both sides, clear of the ×. ---- */
+.cooking-sear {
+  --cooking-sear-close: 44px;
+  --cooking-sear-title-inset: 72px;
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  justify-items: center;
+  align-items: center;
+  row-gap: 6px;
+  padding: 8px 16px 12px;
+  border-radius: 12px;
+  background: rgba(36, 18, 12, 0.88);
+  color: #fff;
+  container-type: size;
+  touch-action: none; /* a long press must never become a scroll / zoom / callout */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.cooking-sear__title {
+  box-sizing: border-box;
+  margin: 0;
+  width: 100%;
+  padding: 0 calc(var(--cooking-sear-title-inset) - 16px);
+  min-height: 2.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-wrap: balance;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+  pointer-events: none;
+}
+.cooking-sear__title--result {
+  font-size: 19px;
+  font-weight: 900;
+  color: #ffd9a0;
+  text-shadow: 0 0 12px rgba(255, 150, 60, 0.85);
+  animation: cooking-sear-pop 0.35s ease-out;
+}
+/* The grill plate: warm iron (not near-black) with bars, so a charred sausage still stands out from it. */
+.cooking-sear__plate {
+  position: relative;
+  container-type: size; /* the sausage scales with the plate, not the stage */
+  height: min(100%, 64cqw);
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 1;
+  border-radius: 18px;
+  border: 5px solid #1a1411;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0) 0 11px, rgba(20, 12, 8, 0.55) 11px 15px),
+    radial-gradient(circle at 50% 45%, #8a7466, #4f4038 78%);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+/* The heat under the food: it brightens with the browning, so the plate itself says how far along it is. */
+.cooking-sear__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 70%, rgba(255, 120, 40, 0.9), rgba(255, 90, 20, 0.35) 45%, rgba(255, 90, 20, 0) 72%);
+  opacity: 0.12;
+  transition: opacity 0.12s linear;
+}
+.cooking-sear[data-mode="holding"] .cooking-sear__glow {
+  opacity: calc(0.3 + var(--sear-heat, 0) * 0.55);
+}
+.cooking-sear[data-mode="done"] .cooking-sear__glow {
+  opacity: 0.25;
+}
+/* A halo behind the food: the sausage goes nearly as dark as the plate when charred, so its outline is lit from behind. */
+.cooking-sear__food {
+  position: relative;
+  display: inline-block;
+  font-size: 70px;
+  font-size: clamp(56px, 74cqw, 132px);
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(255, 226, 170, 0.75));
+}
+.cooking-sear .cooking-sear__food .ingredient-glyph--sausage-slices {
+  filter: drop-shadow(0 -2px 0 rgba(255, 236, 200, calc(var(--sear-gloss, 0) * 0.85)));
+}
+/* Grill marks: the same drawing in black, cut into diagonal bars (mask), laid over the food; they darken with the browning, so "焼き目" reads even where
+   the base colours are close. Only in the sear screen (a piece on the pizza is ~24px: colour carries it there). */
+.cooking-sear__marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: calc(var(--sear-heat, 0) * 0.8);
+  -webkit-mask-image: repeating-linear-gradient(135deg, #000 0 7%, transparent 7% 24%);
+  mask-image: repeating-linear-gradient(135deg, #000 0 7%, transparent 7% 24%);
+}
+.cooking-sear .cooking-sear__food .cooking-sear__marks .ingredient-glyph--sausage-slices {
+  filter: brightness(0);
+}
+/* Flames along the bottom of the plate, only while the finger is down. */
+.cooking-sear__flames {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -2%;
+  height: 26%;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  opacity: 0;
+}
+.cooking-sear__flames i {
+  display: block;
+  width: 24%;
+  height: 100%;
+  border-radius: 50% 50% 20% 20% / 80% 80% 20% 20%;
+  background: radial-gradient(ellipse at 50% 85%, #fff2a8, #ff9d2e 55%, rgba(255, 90, 20, 0) 78%);
+  transform-origin: 50% 100%;
+  animation: cooking-sear-flicker 0.42s ease-in-out infinite alternate;
+}
+.cooking-sear__flames i:nth-child(2) { animation-delay: 0.14s; }
+.cooking-sear__flames i:nth-child(3) { animation-delay: 0.27s; }
+.cooking-sear[data-mode="holding"] .cooking-sear__flames { opacity: 1; }
+/* Smoke: a still cue for the deep / charred looks (opacity only, readable as a still frame). */
+.cooking-sear__smoke {
+  position: absolute;
+  top: 2%;
+  left: 20%;
+  right: 20%;
+  height: 34%;
+  display: flex;
+  justify-content: space-around;
+  opacity: 0;
+}
+.cooking-sear__smoke i {
+  display: block;
+  width: 24%;
+  height: 100%;
+  border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(circle at 50% 70%, #cfc9c3, rgba(150, 144, 138, 0) 72%);
+  animation: cooking-sear-rise 1.2s ease-out infinite;
+}
+.cooking-sear__smoke i:nth-child(2) { animation-delay: 0.4s; }
+.cooking-sear__smoke i:nth-child(3) { animation-delay: 0.8s; }
+.cooking-sear[data-look="deep"] .cooking-sear__smoke { opacity: 0.55; }
+.cooking-sear[data-look="charred"] .cooking-sear__smoke { opacity: 0.95; }
+.cooking-sear[data-look="charred"] .cooking-sear__smoke i { background: radial-gradient(circle at 50% 70%, #6a625c, rgba(60, 56, 52, 0) 74%); }
+/* The hold button: tall, wide, low in the screen (thumb reach), far from the × at the top right. */
+.cooking-sear__hold,
+.cooking-sear__holdslot {
+  box-sizing: border-box;
+  min-height: 64px;
+  width: min(78cqw, 280px);
+}
+.cooking-sear__hold {
+  border: 2px solid #7a1f12;
+  border-radius: 32px;
+  background: #ff8a5c;
+  color: #3a0f06;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  transition: transform 0.08s ease-out;
+}
+.cooking-sear__hold[data-holding="true"] {
+  background: #ffb066;
+  transform: scale(0.97);
+  box-shadow: 0 0 0 4px rgba(255, 160, 80, 0.45);
+}
+.cooking-sear__hold:focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: 3px;
+}
+.cooking-sear__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: var(--cooking-sear-close);
+  height: var(--cooking-sear-close);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  z-index: 2;
+}
+.cooking-sear__close:focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: 2px;
+}
+.cooking-sear-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes cooking-sear-flicker {
+  0% { transform: scaleY(0.75) scaleX(0.95); }
+  100% { transform: scaleY(1.1) scaleX(1.05); }
+}
+@keyframes cooking-sear-rise {
+  0% { transform: translateY(14px) scale(0.8); opacity: 0.9; }
+  100% { transform: translateY(-16px) scale(1.15); opacity: 0; }
+}
+@keyframes cooking-sear-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  40% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+/* "Reduce motion": flames do not flicker, smoke does not rise, nothing pops. Every look stays readable as a still frame (the sausage colour, the glow
+   and the smoke strength follow data-look / --sear-heat above). */
+@media (prefers-reduced-motion: reduce) {
+  .cooking-sear__flames i,
+  .cooking-sear__smoke i,
+  .cooking-sear__title--result {
+    animation: none;
+  }
+  .cooking-sear__glow,
+  .cooking-sear__hold {
+    transition: none;
+  }
+}
