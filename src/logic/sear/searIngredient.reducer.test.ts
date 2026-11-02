@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { gameReducer } from "../../state/gameReducer";
 import { normalised, placeSausageAndBake, toStep } from "./searFixtures";
 
-/** Cooking Sear Phase 1 (#724): SEAR_INGREDIENT with the experience gate OPEN. The production-OFF half is ./searIngredient.flagOff.test.ts. */
+/** Cooking Sear Phase 1 (#724): SEAR_INGREDIENT with the experience gate OPEN. The production switch is pinned in ./searIngredient.flagOn.test.ts. */
 const gate = vi.hoisted(() => ({ open: true }));
 vi.mock("../../data/searExperienceGate", () => ({ SEAR_EXPERIENCE_PRODUCTION: false, searExperienceEnabled: () => gate.open }));
 
