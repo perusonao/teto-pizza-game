@@ -128,9 +128,48 @@ HOT file の重なり（実装前に確認）:
 
 1. 実機 HV（§4.1 の ①〜⑤）の結果と、4 秒の長押しの長さ。
 2. 盤面の視認性（§4.2）: 色の見直しをしてよいか（暗さの抑制、薄い側の差の強調）。
-3. Preview の共有デプロイ（この ブランチで実機に出すため）を認めるか。**未実施。**
+3. Preview の共有デプロイ（この ブランチで実機に出すため）を認めるか。**→ §10 のとおり 2026-11-02 に実施済み（Owner 指示）。**
 4. 炙りを 1 ラウンド 1 回・取り消し無しのままでよいか。
 5. Phase 2（他食材）に進むか、ここで評価を止めるか。
 
 ## 次のアクション
-Owner の判断を待って停止する。PR 作成・merge・共有 Preview 更新・Production 更新は行っていない。
+§10 の iPhone Safari 実機 HV を Owner が行い、結果を待って停止する。PR 作成・merge・Production 更新・本番フラグ ON は行っていない（共有 Preview のみ #724 に切替済み）。
+
+## 10. 再開セッション（2026-11-02）: 統合と共有 Preview の #724 への切替
+
+### 10.1 重複防止の確認
+| 項目 | 結果 |
+|---|---|
+| 最新 main | `82665c8`（#723 merge 済み）。#724 の PR は未作成、open PR に #724 と重なるものなし |
+| 実作業の所在 | `claude/teto-pizza-cooking-audit-5qhbpw`（base `7f3aa63`）。指定ブランチ `claude/teto-pizza-724-cooking-sear-nr27h1` は main と同一で空だった |
+| 3 秒既定 | 維持（`SEAR_FULL_MS = 3000`、コード `97fc650`、文書 `6ed4acf`）。2/3/4 秒の比較（`?cookSearMs=`）も維持 |
+| 統合 | 指定ブランチへ上記ブランチを `--no-ff` で merge（衝突なし、履歴の書換えなし）。統合 HEAD = `a1b7419`。元ブランチは削除していない |
+
+### 10.2 PR #723 の Production Deploy
+`Deploy to GitHub Pages` run #492（head `82665c8`）= **success**。同 head の `E2E WebKit` run #1322 は確認時点で実行中（Preview 切替の条件ではない）。
+
+### 10.3 安全性（Preview 公開前）
+- `SEAR_EXPERIENCE_PRODUCTION = false` のまま。Production ビルドは `cookSear` / `cookSearMs` を含まない（`searPreview.gate.test.ts` が実ビルドで確認）。main 自体にこのコードは未到達。
+- 炙りは Preview/DEV の `?cookSear=on` のときだけ有効。保存形式・採点・既存の炒め／FINISH は変更なし。
+- 検証（統合 HEAD `a1b7419`）: `tsc -b` エラーなし／全 Vitest **586 files passed / 1 skipped、11,010 tests passed / 13 skipped / 2 todo、失敗 0**／oxlint エラーなし。既存テストの skip・緩和・timeout 延長なし。
+
+### 10.4 共有 Preview の切替
+| 項目 | 内容 |
+|---|---|
+| 切替前（復元用） | Source commit `4b0df7cf0224d7c2c562503340f74684e38089fc`（#723）。戻す場合は `Build & deploy a source PR/branch` にこの SHA と PR 番号 723 を入れて再実行し、続けて `Deploy Preview to GitHub Pages` を実行 |
+| 切替後 | Source commit `a1b7419bed41f4a6f73b778b6cd498e1640afcb1`、Source PR 表示 `#724`（Issue 番号。PR は未作成）、Built 2026-11-02T09:05:53Z |
+| 実行 | preview repo: Build & deploy run #203 = success、Deploy Preview to GitHub Pages run #200 = success |
+| 公開物の確認 | preview repo の `site/assets` に `cookSear` / `cookSearMs` / PREVIEW バッジを確認。**公開 URL へは本環境から到達できず（プロキシが拒否）、実ページの表示は未確認** |
+| 注意 | Preview の保存キーは全 Preview ビルド共通。#723 の Preview で作った保存が残っている場合は想定外の状態になりうるため、使い捨てとして扱う |
+
+### 10.5 iPhone Safari での確認
+- URL: `https://perusonao.github.io/teto-pizza-game-preview/?cookSear=on`（3 秒既定）。比較は末尾に `&cookSearMs=2000` / `3000` / `4000` を付ける。`?cookSear=on` が無いと炙りは出ない（正常）。
+- 手順: ①画面に PREVIEW バッジ `#724` / `a1b7419` を確認 → ②Free Cooking → ③TOPPING でソーセージを選び生地に置く（所持が必要。無ければ Shop で購入）→ ④「焼き目をつける」のピルをタップ → ⑤短いタップでは何も残らない → ⑥長押し（約 3 秒で「しっかり焼き目」）、押している間だけ色が進み離すと止まる → ⑦× で閉じ、盤面の色と「✓ 炙り済み」→ ⑧焼く → 取り出す → RESULT まで進む → ⑨`cookSearMs` を 2000 / 4000 にして長さの違いを比較 → ⑩`?cookSear=on` を外したらピルが出ないこと。
+- 見てほしい点: §4.1 の ①〜⑤、盤面の視認性（§4.2）、WebKit 固有（`pointercancel`・長押し中のスクロール／選択／コールアウトが出ない）。
+
+### 10.6 未実施・残課題
+- iPhone Safari 実機 HV は **未実施**（Owner）。結果の PASS/FAIL は Owner の言葉で記録する。
+- HV 動画・スクリーンショットは従来分（dev サーバー＋Playwright）のまま。今回の再開セッションでは新規撮影なし（コード変更なし）。
+- WebKit CI は `97fc650` で run #1320 を確認済み（文書 `6ed4acf`）。統合 HEAD `a1b7419` では、指定ブランチへの push に対する WebKit は未確認。PR 作成時に CI で確認する。
+- #723 の `E2E WebKit` run #1322 は実行中だった。
+- PR 作成・merge・Production 更新・本番フラグ ON はしていない（Owner 判断待ち）。
