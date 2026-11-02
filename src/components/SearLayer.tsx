@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useReducer, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import { getIngredient } from "../data/ingredients";
 import { searExperienceEnabled } from "../data/searExperienceGate";
 import { searFullMsOverride } from "../preview/searPreview";
 import { SEAR_DONE_MS, SEAR_GUARD_MS, searOfferedIngredient } from "../logic/sear/searOffer";
-import { SEAR_FULL_MS, SEAR_IDLE, SEAR_LOOK_COPY, searAmountAt, searHoldReducer, searLookOf } from "../logic/sear/searHold";
+import { searPillNeedsCorner } from "../logic/sear/searPillPlacement";
+import { SEAR_FULL_MS, SEAR_IDLE, SEAR_LOOK_COPY, searAmountAt, searHoldReducer, searHoldingTitle, searLookOf } from "../logic/sear/searHold";
 import { SEARED_PIECE_CLASS, sausageSearStyle } from "../logic/sear/sausageSear";
 import type { RoundKind } from "../state/roundKind";
 import { IngredientGlyph } from "./IngredientGlyph";
@@ -57,6 +58,33 @@ export function SearLayer(props: SearLayerProps) {
   return <SearOffer key={`${makingStepToken}:${resetToken}:${offered}`} {...props} offered={offered} />;
 }
 
+/** Whether the pill / done mark must use the stage's corner (see ../logic/sear/searPillPlacement.ts). Re-measured when the stage or the dough is resized. */
+function useSearCorner(anchor: RefObject<HTMLElement | null>, deps: readonly unknown[]): boolean {
+  const [corner, setCorner] = useState(false);
+  useLayoutEffect(() => {
+    const el = anchor.current;
+    const stage = el?.offsetParent as HTMLElement | null;
+    const dough = stage?.querySelector<HTMLElement>(".pizza-dough") ?? null;
+    if (!el || !stage || !dough) return;
+    const measure = () => {
+      const s = stage.getBoundingClientRect();
+      const d = dough.getBoundingClientRect();
+      setCorner(searPillNeedsCorner({ left: s.left, top: s.top, right: s.right, bottom: s.bottom }, { left: d.left, top: d.top, right: d.right, bottom: d.bottom }));
+    };
+    measure();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    observer?.observe(stage);
+    observer?.observe(dough);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return corner;
+}
+
 function SearOffer(props: SearLayerProps & { offered: string }) {
   const { offered, searedLook, onSear, onBusyChange } = props;
   const seared = searedLook?.[offered] !== undefined;
@@ -68,6 +96,7 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
   const downOnPill = useRef(false);
   const guardTimer = useRef<number | undefined>(undefined);
   const holdRef = useRef<HTMLButtonElement>(null);
+  const anchorRef = useRef<HTMLElement>(null);
   const onSearRef = useRef(onSear);
   useEffect(() => {
     onSearRef.current = onSear;
@@ -133,6 +162,10 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
     if (screen) holdRef.current?.focus();
   }, [screen]);
 
+  // The pill / done mark are the only things on the stage while the screen is closed; the screen itself covers the whole stage.
+  const corner = useSearCorner(anchorRef, [screen, seared]);
+  const placement = corner ? "corner" : undefined;
+
   const press = (stamp: number) => {
     setAmount(0);
     dispatchHold({ type: "PRESS", now: eventMoment(stamp) });
@@ -145,7 +178,7 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
     if (seared) {
       return (
         <>
-          <span className="cooking-sear-done" role="status" data-testid="cooking-sear-done">
+          <span ref={anchorRef} className="cooking-sear-done" role="status" data-testid="cooking-sear-done" data-placement={placement}>
             ✓ 炙り済み
           </span>
           {guard && <div className="cooking-sear-guard" data-testid="cooking-sear-guard" />}
@@ -168,9 +201,11 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
     return (
       <>
         <button
+          ref={anchorRef as RefObject<HTMLButtonElement>}
           type="button"
           className="cooking-sear-pill"
           data-testid="cooking-sear-pill"
+          data-placement={placement}
           onPointerDown={() => {
             downOnPill.current = true;
           }}
@@ -194,7 +229,7 @@ function SearOffer(props: SearLayerProps & { offered: string }) {
   const shownAmount = released ? hold.amount : amount;
   const look = searLookOf(shownAmount);
   const mode = released ? "done" : holding ? "holding" : "idle";
-  const title = released ? SEAR_LOOK_COPY[searLookOf(hold.amount)] : holding ? "炙ってる… 離すと決まるよ" : hold.status === "idle" && hold.tooShort ? "もう少し押し続けてね" : "押している間、焼き目がつくよ";
+  const title = released ? SEAR_LOOK_COPY[searLookOf(hold.amount)] : holding ? searHoldingTitle(shownAmount) : hold.status === "idle" && hold.tooShort ? "もう少し押し続けてね" : "押している間、焼き目がつくよ";
 
   const onHoldPointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
     event.preventDefault();

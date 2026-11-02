@@ -234,3 +234,25 @@ describe("the 2 / 3 / 4 second comparison (?cookSearMs=)", () => {
     expect(onSear).toHaveBeenCalledWith("sausage", 0.5);
   });
 });
+
+describe("#724 HV follow-up: the look is readable while the finger is down (words only: no gauge, no grade, no limit)", () => {
+  it("the title follows the colour: ほんのり -> こんがり -> しっかり -> まっくろ, and nothing is dispatched until the release", () => {
+    const { onSear } = setup();
+    openScreen();
+    const start = now() + 1;
+    fire("pointerdown", start);
+    const title = () => screen.getByTestId("cooking-sear-title");
+    expect(title()).toHaveTextContent("いま ほんのり… 離すと決まるよ");
+    advance(SEAR_FULL_MS * 0.45);
+    expect(title()).toHaveTextContent("いま こんがり… 離すと決まるよ");
+    advance(SEAR_FULL_MS * 0.3);
+    expect(title()).toHaveTextContent("いま しっかり… 離すと決まるよ");
+    advance(SEAR_FULL_MS * 0.4);
+    expect(title()).toHaveTextContent("いま まっくろ… 離すと決まるよ");
+    expect(onSear).not.toHaveBeenCalled();
+    expect(screen.queryByRole("progressbar")).toBeNull();
+    expect(sear()).toHaveAttribute("data-mode", "holding"); // still holding: no time-out, nothing closed by itself
+    advance(10_000);
+    expect(sear()).toHaveAttribute("data-mode", "holding");
+  });
+});

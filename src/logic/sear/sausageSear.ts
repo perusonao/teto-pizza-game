@@ -19,16 +19,17 @@ export interface SausageColors {
 export const SAUSAGE_RAW_COLORS: SausageColors = { outer: "#8f3f2e", inner: "#b95e47", fat: "#f5dcc6", dots: "#6e2a1e", edge: "#431a12" };
 /**
  * Five stops at amounts 0 / 0.25 / 0.5 / 0.75 / 1 (the four looks ほんのり / こんがり / しっかり / まっくろ, #724 colour improvement).
- * Designed on luminance, not only hue: every stop's face is clearly darker than the one before (so the early looks read at pizza size, where a piece is
- * ~24px), the outer ring always stays darker than the face and the fat flecks always stay light (so even the charred slice keeps its two-ring shape
- * and its texture instead of turning into one black blob). The numeric floors are pinned in ./sausageSear.test.ts. PROVISIONAL until the iPhone HV.
+ * Designed on luminance AND hue: every stop's face is darker than the one before, and the hue walks from the raw pink-red (about 12 degrees) to a browner
+ * amber (21-28 degrees) as soon as the sear starts, so ほんのり is told apart from the raw piece even at pizza size (a piece is ~24px) where a luminance
+ * step alone is small (HV #724 follow-up: ほんのり read as "unchanged"). The outer ring always stays darker than the face and the fat flecks always stay
+ * light (so even the charred slice keeps its two-ring shape and its texture instead of turning into one black blob). The numeric floors are pinned in ./sausageSear.test.ts. PROVISIONAL until the iPhone HV.
  */
 export const SAUSAGE_SEAR_STOPS: readonly { at: number; colors: SausageColors }[] = [
   { at: 0, colors: SAUSAGE_RAW_COLORS },
-  { at: 0.25, colors: { outer: "#7a3b27", inner: "#9b5439", fat: "#f0cfa6", dots: "#5c2619", edge: "#3a160e" } },
-  { at: 0.5, colors: { outer: "#683718", inner: "#814b24", fat: "#e8b86c", dots: "#44200f", edge: "#2a1208" } },
-  { at: 0.75, colors: { outer: "#4d2c19", inner: "#643e26", fat: "#cf9c5f", dots: "#2c140a", edge: "#1c0d06" } },
-  { at: 1, colors: { outer: "#281912", inner: "#4c3326", fat: "#b58f64", dots: "#130905", edge: "#0e0604" } },
+  { at: 0.25, colors: { outer: "#76391d", inner: "#a2572a", fat: "#f2d6a4", dots: "#5c2617", edge: "#3a160e" } },
+  { at: 0.5, colors: { outer: "#5a3115", inner: "#84461c", fat: "#e8b86c", dots: "#44200f", edge: "#2a1208" } },
+  { at: 0.75, colors: { outer: "#3e230e", inner: "#5a3a1f", fat: "#d0a062", dots: "#2c140a", edge: "#1c0d06" } },
+  { at: 1, colors: { outer: "#22160f", inner: "#432d27", fat: "#b99266", dots: "#130905", edge: "#0b0503" } },
 ];
 export const SAUSAGE_GOLDEN_COLORS: SausageColors = SAUSAGE_SEAR_STOPS[2].colors;
 export const SAUSAGE_CHARRED_COLORS: SausageColors = SAUSAGE_SEAR_STOPS[4].colors;

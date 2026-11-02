@@ -68,6 +68,34 @@
   color: #6b2f1e;
   pointer-events: none;
 }
+/* SHORT STAGE (#724 iPhone HV follow-up). The centred band above is free only when the stage is tall enough for the ROUND dough (stage >= dough + ~124px). On a
+   real iPhone Safari the visible height is shorter (address / tab bar): the dough fills the stage, and the centred pill sat 30-58px ON it, hiding and blocking
+   its bottom. SearLayer measures the live rects (../logic/sear/searPillPlacement.ts) and sets data-placement="corner": the pill becomes a compact button in the
+   stage's bottom-right corner, which lies OUTSIDE the circle. Same element, same label, same tap target (>= 52px). No media / container query: the decision is
+   the geometry itself, so the address bar collapsing or any other size lands on the right side. Pinned by e2e/cooking-sear-pill-position.spec.ts. */
+.cooking-sear-pill[data-placement="corner"] {
+  left: auto;
+  right: 8px;
+  bottom: 8px;
+  transform: none;
+  width: 56px;
+  min-width: 0;
+  height: 52px;
+  padding: 0;
+  border-radius: 18px;
+  font-size: 13px;
+}
+.cooking-sear-done[data-placement="corner"] {
+  left: auto;
+  right: 8px;
+  bottom: 8px;
+  transform: none;
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 14px;
+  font-size: 11px;
+}
 .cooking-sear-guard {
   position: absolute;
   inset: 0;

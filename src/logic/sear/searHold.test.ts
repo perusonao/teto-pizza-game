@@ -66,3 +66,19 @@ describe("searHoldReducer", () => {
     expect(searHoldReducer(press(SEAR_IDLE, 100), { type: "CANCEL" })).toBe(SEAR_IDLE);
   });
 });
+
+import { SEAR_LOOK_LIVE, searHoldingTitle } from "./searHold";
+describe("#724 HV follow-up: live look words", () => {
+  it("one word per look, the same four as the result words, and no digit anywhere (no gauge / countdown)", () => {
+    expect(SEAR_LOOK_LIVE).toEqual({ light: "ほんのり", golden: "こんがり", deep: "しっかり", charred: "まっくろ" });
+    for (let a = 0; a <= 1.0001; a += 0.05) expect(searHoldingTitle(a)).not.toMatch(/[0-9０-９%％]/);
+  });
+  it("the word changes exactly at the look thresholds", () => {
+    expect(searHoldingTitle(0.29)).toContain("ほんのり");
+    expect(searHoldingTitle(0.3)).toContain("こんがり");
+    expect(searHoldingTitle(0.61)).toContain("こんがり");
+    expect(searHoldingTitle(0.62)).toContain("しっかり");
+    expect(searHoldingTitle(0.89)).toContain("しっかり");
+    expect(searHoldingTitle(0.9)).toContain("まっくろ");
+  });
+});

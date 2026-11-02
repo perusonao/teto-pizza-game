@@ -73,4 +73,22 @@ describe("sausage sear colours", () => {
     expect(searedPieceVisual("beef", 0.5)).toBeNull();
     expect(searedPieceVisual("sausage", 0.5)?.className).toBe("ingredient-piece--seared");
   });
+
+  it("#724 HV follow-up: the four looks are told apart from their neighbours (and ほんのり from the raw piece) by colour distance AND hue, not luminance alone", () => {
+    const channels = (h: string) => [(parseInt(h.slice(1), 16) >> 16) & 255, (parseInt(h.slice(1), 16) >> 8) & 255, parseInt(h.slice(1), 16) & 255];
+    const dist = (a: string, b: string) => Math.hypot(...channels(a).map((v, i) => v - channels(b)[i]));
+    const hue = (h: string) => {
+      const [r, g, b] = channels(h).map((v) => v / 255);
+      const max = Math.max(r, g, b);
+      const d = max - Math.min(r, g, b);
+      if (d === 0) return 0;
+      const x = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+      return (x * 60 + 360) % 360;
+    };
+    // a representative amount inside each look's range: raw, ほんのり (0.2), こんがり (0.46), しっかり (0.76), まっくろ (1)
+    const faces = [0, 0.2, 0.46, 0.76, 1].map((a) => sausageSearColors(a).inner);
+    for (let i = 0; i < 4; i += 1) expect(dist(faces[i], faces[i + 1]), `look ${i} -> ${i + 1}`).toBeGreaterThanOrEqual(24);
+    // the first sear step shifts the hue from the raw pink-red toward amber, which is what makes ほんのり readable next to a raw piece at ~24px
+    expect(hue(faces[1]) - hue(faces[0])).toBeGreaterThanOrEqual(6);
+  });
 });

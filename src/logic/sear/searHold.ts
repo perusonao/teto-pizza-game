@@ -38,6 +38,20 @@ export const SEAR_LOOK_COPY: Record<SearLook, string> = {
   charred: "まっくろ焦げ目",
 };
 
+/** The same four looks as a word while the finger is still down (#724 HV follow-up: the differences between looks must be readable DURING the hold, not only after
+ *  the release). A description of the colour now -- never a grade, a target or a gauge: there is no "right" word, no time limit and nothing is judged. */
+export const SEAR_LOOK_LIVE: Record<SearLook, string> = {
+  light: "ほんのり",
+  golden: "こんがり",
+  deep: "しっかり",
+  charred: "まっくろ",
+};
+
+/** The title while the finger is down. */
+export function searHoldingTitle(amount: number): string {
+  return `いま ${SEAR_LOOK_LIVE[searLookOf(amount)]}… 離すと決まるよ`;
+}
+
 export type SearHold =
   | { status: "idle"; tooShort?: boolean }
   | { status: "holding"; startedAt: number }
