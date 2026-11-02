@@ -4,6 +4,7 @@ import { PizzaSelectScreen } from "./screens/PizzaSelectScreen";
 import { DinnerMissionScreen } from "./screens/DinnerMissionScreen";
 import { PreviewBadge } from "./components/PreviewBadge";
 import { CookPrepHvStarter } from "./preview/CookPrepHvStarter";
+import { CookSearHvStarter } from "./preview/CookSearHvStarter";
 import { GameScreen } from "./screens/GameScreen";
 import { DexOverlay } from "./components/DexOverlay";
 import { ShopOverlay } from "./components/ShopOverlay";
@@ -1302,7 +1303,10 @@ function App() {
     <div className="app-frame">
       <PreviewBadge />
       {(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && (
-        <CookPrepHvStarter state={state} dispatch={dispatch} setScreen={setScreen} setSelectedIngredientId={setSelectedIngredientId} />
+        <>
+          <CookPrepHvStarter state={state} dispatch={dispatch} setScreen={setScreen} setSelectedIngredientId={setSelectedIngredientId} />
+          <CookSearHvStarter state={state} dispatch={dispatch} setScreen={setScreen} setSelectedIngredientId={setSelectedIngredientId} />
+        </>
       )}
       {screen === "HOME" && (
         <HomeScreen

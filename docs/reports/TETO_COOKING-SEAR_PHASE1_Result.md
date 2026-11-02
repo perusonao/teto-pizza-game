@@ -184,3 +184,17 @@ HOT file の重なり（実装前に確認）:
 | 修正（最小） | `?cookSear=on` をタブ単位（sessionStorage、Preview/DEV のみ）で記憶。以降の読込（再読込・クエリ無し）でも ON。`?cookSear=off` で解除。ゲート・本番 OFF（`SEAR_EXPERIENCE_PRODUCTION=false`・本番ビルドに `cookSear` 無し）・3 秒既定・炙り操作は無変更 |
 | テスト | `searPreview.test.ts` に記憶／解除／storage 例外の 3 件追加。sear 系＋preview 系 34 files / 286 tests pass、`tsc -b` エラーなし。既存テストの緩和なし |
 | 未完 | 最初の 1 回は `?cookSear=on` 付き URL で開く必要がある（URL 無しの初回は OFF のまま）。修正版 Preview の公開・実機再確認・HV 動画は Owner 承認後 |
+
+## 12. 実機 HV 専用入口 `?cookSearHv=1`（Preview/DEV 限定）
+
+| 項目 | 内容 |
+|---|---|
+| URL | `https://perusonao.github.io/teto-pizza-game-preview/?cookSearHv=1`（長押し比較は `&cookSearMs=2000` / `4000`）。`?cookSear=on` は不要 |
+| 開始状態 | Free Cooking の TOPPING。生地は理想形、ソース（トマト）は実際に塗布、チーズ（モッツァレラ）は実際に配置済み（reducer の実アクション）。ソーセージ所持 10・最初から選択、「🔥 炙る」ピルが即表示。炙り ON・長押し既定 3 秒 |
+| 保存データ | **端末の実保存は読まず・書かない**。`localStorage` をメモリ上の使い捨て保存（Hint 5.0 HV seed `calabresa-key-free` を実 save writer で書いたもの。全 ladder 素材を 10 ずつ所持）に差し替え。再読込でやり直し。差し替え失敗時は入口 OFF（fail closed）。タブ記憶（`teto:cookSear`）も書かない |
+| 重複回避 | #724 ブランチ・`3b49a9f`（opt-in 記憶）を確認。炒める入口（`cookPrepHv`）の仕組みを再利用（`createDisposableStorage` を export しただけ、挙動不変）。両方指定時は炒める入口を優先し本入口は OFF |
+| Production | `import.meta.env.DEV \|\| VITE_PREVIEW_MODE` の静的ゲート内のみ。`cookSearHv.gate.test.ts` が実ビルドで、Production に `cookSearHv` / `cook-sear-hv-v1` が無く Preview にはあることを確認。`SEAR_EXPERIENCE_PRODUCTION=false` のまま |
+| 変更ファイル | `src/preview/cookSearHv.ts`・`CookSearHvStarter.tsx`（新規）、`searPreview.ts`（`forceSearOptInForHv` 追加）、`main.tsx` / `App.tsx`（各数行）、`cookPrepHv.ts`（export のみ） |
+| テスト | Vitest: `cookSearHv.test.tsx`（6 件）・`cookSearHv.gate.test.ts`（3 件）。E2E `e2e/cooking-sear-hv.spec.ts`（入口・保存非破壊・位置、入口→置く→炙り 3 秒→焼成→取り出す→仕上げ→RESULT、再読込でやり直し・`cookSearMs`、パラメータ無しは通常起動）を 390×844 / 360×800 で実行。炙り・炒める既存 E2E 含め 78 件 pass。テストの緩和なし |
+| 画像 | `docs/reports/screenshots/cooking-sear-hv-entry/`（`iphone-390x844-` / `iphone-360x800-` の `hv-00-entry`〜`hv-03-result`） |
+| 未実施 | Safari 実機 HV（Owner）、HV 動画 |

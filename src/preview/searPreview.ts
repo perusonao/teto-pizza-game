@@ -64,6 +64,12 @@ export function resetSearPreviewForTest(): void {
   cachedOptIn = undefined;
 }
 
+/** Cooking Sear HV entry (`?cookSearHv=1`, ./cookSearHv.ts): turns the sear on for this page load without the query or the tab memory. Preview / DEV only (the
+ *  caller sits behind the same static gate). */
+export function forceSearOptInForHv(): void {
+  cachedOptIn = true;
+}
+
 export function searPreviewOptedIn(): boolean {
   if (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) {
     if (cachedOptIn === undefined) cachedOptIn = resolveSearOptInSticky(typeof window === "undefined" ? "" : window.location.search, tabStorage());
