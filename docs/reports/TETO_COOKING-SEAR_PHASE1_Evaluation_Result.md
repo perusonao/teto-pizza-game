@@ -1,0 +1,214 @@
+# Cooking Sear Phase 1 — 評価・改善 Result（焼き色改善／長押し 2・3・4 秒の比較）
+
+Status: **実装済み・自動検証済み（Preview/DEV 限定、本番 OFF）。実機 HV は Owner 待ち。共有 Preview は更新していない（理由は §1）。PR 未作成・未 merge。**
+管理 Issue: **#724**。基準 main: `7f3aa63`（変化なし）。ブランチ `claude/teto-pizza-cooking-audit-5qhbpw`。前回の Result: `TETO_COOKING-SEAR_PHASE1_Result.md`。
+Owner 判断（2026-11-02）: Phase 1 試作 GO／Phase 2 保留／焼き色改善を承認／長押しは 2・3・4 秒を比較／1 ラウンド 1 回・取り消しなしは暫定維持／本番 OFF。
+
+## 1. 着手前の確認と共有 Preview の判断
+
+| 確認 | 結果 |
+|---|---|
+| main | `7f3aa63`（#722）のまま。CLAUDE.md・PROJECT_HANDOFF.md の規則に変更なし |
+| PR #723 | open・ready。HEAD `4b0df7c`（cinnamon の描画改善のみ）。CI 11/11（WebKit は 1 回再実行で成功）、Codex 指摘 0、mergeable clean。**Owner の実機 iPhone HV は未完了（PR 本文のチェックが未）**。#723 には一切触れていない（読み取りのみ） |
+| 共有 Preview の現在のデプロイ元 | `perusonao/teto-pizza-game-preview` の README: **Source PR #723 / Source commit `813838ede9093104abc2ab4468ae0cb158ddf11a` / Built 2026-11-01T17:40:31Z**（最新の deploy commit `b675b45`）。#723 の現 HEAD `4b0df7c` より古い |
+| 競合の評価 | 共有 Preview は #723 の実機 HV に使われている最中で、**更新すると #723 の検証環境を上書きする**。さらに Preview のビルドは全て同じ localStorage キーを共有する（SESSION-OPERATIONS §5）ため、別ビルドを載せると #723 の HV 用セーブにも影響しうる |
+| **判断** | **共有 Preview にはデプロイしない。**（Owner の指示「#723 の検証環境を上書きする恐れがある場合はデプロイしない」に該当。安全を確認できなかったのではなく、#723 の HV が未完了と確認できたため） |
+| #724 の実機確認の進め方 | **#723 の HV が終わった後**、Owner が Actions → `Build & deploy a source PR/branch` を `ref = claude/teto-pizza-cooking-audit-5qhbpw`（SHA は Owner 承認時に確定）で実行する。復旧用: `ref = 813838ede9093104abc2ab4468ae0cb158ddf11a` / `pr_number = 723`。URL: `https://perusonao.github.io/teto-pizza-game-preview/?cookSear=on&cookSearMs=2000`（`3000` / `4000` も）。専用の HV 入口は無いので Free Cooking → 生地 → TOPPING → ソーセージ選択 |
+
+## 2. 焼き色 4 段階の分析（改善前の試作）
+
+実ゲームの盤面（約 24px）と炙り画面を、輝度比（WCAG 式）とスクリーンショットで分析した。
+
+| 量 | 改善前: 面／生の面 | 面／外輪 | 脂の斑点／面 | 所見 |
+|---:|---:|---:|---:|---|
+| 0.25 ほんのり | **1.18** | 1.65 | 3.37 | 生とほぼ同じ。色相がわずかに茶へ動くだけで、盤面では「焼いた」と読めない |
+| 0.5 こんがり | **1.39** | 1.67 | 3.40 | 暗い鈍い茶色。「こんがり」の黄金色（脂のきつね色）が出ていない |
+| 0.75 しっかり | 2.19 | 1.40 | 2.75 | 読める |
+| 1.0 まっくろ | 3.36 | **1.15** | **1.87** | 面が rgb(59,33,21) でほぼ黒。**外輪と面の差が消え、脂の斑点も沈み、2 枚の輪切りが 1 つの黒い塊に見える** |
+
+加えて、比較シート作成中に **炙り画面の「焼き目の線」が強く出すぎる欠陥**を見つけた（量が高いと 1 枚の上に太い黒い斜め帯が出て、形と斑点を隠す）。
+
+## 3. 改善内容
+
+1. **色の再設計（輝度で設計）:** 停止色を 3 点から **5 点（0 / 0.25 / 0.5 / 0.75 / 1）**に変更。各段で面が前の段より確実に暗く、外輪は常に面より暗く、脂の斑点は常に明るく残る。生（0）は出荷済みの絵と同一。こんがりは「きつね色（脂 #e8b86c）」、まっくろは面 #4c3326・脂 #b58f64（焦げた薄茶）で**黒い塊にならない**。
+2. **焼き目の線:** 不透明度の上限 0.8 → **0.4**、線を細く（帯幅 7%/周期 24% → 3.5%/15%）。まっくろでも輪切りの輪郭・斑点が読める。
+3. **長押し時間の比較用スイッチ:** Preview/DEV 限定の `?cookSearMs=2000|3000|4000`（`?cookSear=on` と併用）。炙り画面の左上に「N秒設定」を表示（比較時のみ）。既定は変更せず **4 秒のまま**（Owner の選択前に既定を動かさない）。
+
+### 改善後の数値
+
+| 量 | 改善後: 面／生の面（旧→新） | 面／外輪（旧→新） | 脂の斑点／面（旧→新） |
+|---:|---|---|---|
+| 0.25 ほんのり | 1.18 → **1.28** | 1.65 → 1.50 | 3.37 → 3.81 |
+| 0.5 こんがり | 1.39 → **1.60** | 1.67 → 1.38 | 3.40 → 3.88 |
+| 0.75 しっかり | 2.19 → 2.10 | 1.40 → 1.34 | 2.75 → 3.80 |
+| 1.0 まっくろ | 3.36 → 2.63 | **1.15 → 1.46** | **1.87 → 3.91** |
+
+- 盤面の面の輝度は 0.25 で 0.152 → 0.136、0.5 で 0.121 → 0.098、1.0 で 0.021 → 0.040（黒ではない）。生地（235,202,143）との比は 0.25 で 3.31 → 3.60、0.5 で 3.90 → 4.51。
+- 下限は単体テストで固定（面／生 ≥ 1.25・1.55・2.0・2.4、全量で 面／外輪 ≥ 1.3・斑点／面 ≥ 2.2・輪郭が外輪より暗い、まっくろの面の輝度 > 0.03、面と外輪が量に対して単調に暗くなる）。
+- **ほんのりは依然として最も控えめ**（1.28 倍）。盤面で一目で分かる強さではなく、「少し焼けた」程度に留めてある。こんがり以降ははっきり差が出る。ブラックオリーブ（灰色の円）とは、まっくろでも**茶色＋斑点**で見分けられる（比較シートに同じ盤面で並べた）。
+
+## 4. 長押し 2 秒・3 秒・4 秒の比較
+
+押している時間 → 量（= 時間 ÷ 設定）。見た目の名前に達する時間（計算値）:
+
+| 設定 | ほんのり→こんがり（量 0.3） | こんがり→しっかり（0.62） | しっかり→まっくろ（0.9） | 最大（1.0） | **「こんがり」の幅**（0.3〜0.62） |
+|---|---:|---:|---:|---:|---:|
+| 2 秒 | 0.60 s | 1.24 s | 1.80 s | 2.0 s | **0.64 s** |
+| 3 秒 | 0.90 s | 1.86 s | 2.70 s | 3.0 s | **0.96 s** |
+| 4 秒 | 1.20 s | 2.48 s | 3.60 s | 4.0 s | **1.28 s** |
+
+- 最短押下 350ms は共通（量 0.175 / 0.117 / 0.088）。同じ 2.0 秒押すと、2 秒設定は「まっくろ」、3 秒設定は「しっかり（0.67）」、4 秒設定は「こんがり（0.5）」で離すことになる（動画はこれ）。
+- **所見（実機で確かめるまで仮説）:**
+  - **2 秒:** 指が疲れず軽快。ただし「こんがり」で離せる幅が約 0.6 秒しかなく、狙って離すのが難しい（行き過ぎやすい）。気軽さ重視向き。
+  - **3 秒:** 狙える幅が約 1 秒で、押している実感も十分。**現時点の推奨候補。**
+  - **4 秒:** 狙いやすい（約 1.3 秒）が、全体が長く感じる／待ちが出る恐れ。じっくり派向き。
+- 実機の指の疲れ・待ち時間の体感は **Owner の HV で決める**。既定値は変更していない（4 秒）。
+
+## 5. 検証
+
+| 区分 | 結果 |
+|---|---|
+| 新規・更新 Vitest | `sausageSear`（色の単調性・視認性の下限・形状保持・黒化防止）、`searHold`（`fullMs`）、`searPreview`（`cookSearMs` の厳密な解釈）、`SearLayer`（2/3/4 秒で同じ 1 秒の押下が 0.5 / 0.33 / 0.25）、既存の sear テスト一式 — **sear 系 89 件 pass** |
+| 全 Vitest | **584 files passed / 1 skipped（計 585）、10,966 tests passed / 13 skipped / 2 todo、失敗 0**（所要 832 秒。前回の 10,956 件から新規分で増加。本番ビルドに `cookSear`／`cookSearMs` が含まれないことを確認する実ビルドのゲートテストを含む） |
+| `tsc -b` / oxlint | エラーなし／触ったファイルに警告 0 |
+| Chromium E2E（`e2e/cooking-sear.spec.ts`、390×844 と 360×800） | **20 / 20 pass**（前回の 12 件＋比較 4 件×2 viewport）。2/3/4 秒それぞれで同じ押下の結果の言葉が期待どおりになること、設定ラベルの表示、`cookSearMs` 無しでは既定 4 秒でラベルが出ないこと、前回までの全項目 |
+| 既存の炒め E2E | 前回 `cooking-prep.spec.ts` 50 pass / 4 skip。**今回は炒め関連ファイルを一切触っていない**ため再実行していない（炙りの CSS・コードは別ファイル） |
+| WebKit | ローカル不可（CI 待ち）。`-webkit-mask-image` と長押しの `touch-action: none` は iOS Safari の実機確認が必要 |
+| 実機 iPhone Safari | 未実施（共有 Preview に載せていないため） |
+
+## 6. HV 成果物
+
+| 区分 | 内容 |
+|---|---|
+| 動画（repo に commit しない・Owner へ直接提出） | `cooking-sear-phase1-eval-hv-390x844.mp4`（H.264、390×844、約 42 秒、指のリング付き）。**同じ 2.0 秒の長押しを 2 秒・3 秒・4 秒設定で 3 回**（まっくろ／しっかり／こんがり）、各回で炙り画面の「N秒設定」→ 長押し → 離す → 盤面の色、最後に焼く → 取り出す → RESULT まで |
+| スクリーンショット（commit 済み） | `docs/reports/screenshots/cooking-sear-phase1-eval/` |
+| ・段階の旧／新比較（実ゲーム盤面） | `stages-old-vs-new-{390x844,360x800}-{actual-size,zoom3x}.png`（生・ほんのり・こんがり・しっかり・まっくろ × 旧/新、ブラックオリーブ併置。3× の実機相当解像度で撮影） |
+| ・長押し時間の比較 | `hold-time-compare-{390x844,360x800}.png`（2/3/4 秒設定 × 押し始めから約 0.5〜4 秒の炙り画面。量は撮影時の実測値） |
+| ・before / after（実画面） | `before-after-06-released-*.png`（炙り画面、旧は黒い帯、新は形を保つ）、`before-after-07-seared-on-pizza-*.png`（盤面）、ほか前回と同じ 00〜10 の全画面（新しい色で再撮影） |
+| Video Verification | PASS（ファイル存在・size > 0・最後まで再生・390×844 全体が映る・対象操作が映る。ffprobe: h264 / 390×844 / 41.7 s） |
+
+撮影ブラウザ: Playwright Chromium（dev サーバー）、390×844 と 360×800。比較シートは DSF 3（iPhone 相当）。**WebKit・実機 Safari では未撮影。**
+
+## 7. 既知のリスク・未確認
+
+1. **実機未確認**（Preview に載せていないため）。長押しのコールアウト・選択・スクロール抑止・`-webkit-mask-image` は iOS Safari で要確認。
+2. ほんのりは依然として控えめ（1.28 倍）。盤面で目立たせるには更に暗くする必要があり、こんがりとの差が縮む（トレードオフ。Owner の目で判断）。
+3. ソーセージの色の上書きは SVG の構造に依存する（前回と同じ。構造固定テストあり）。#723 は `IngredientGlyph.tsx` に cinnamon を追加しているだけで、ソーセージの絵は変えていない（`4b0df7c` の差分は cinnamon のみ）。
+4. 比較のスクリーンショットの「約 N 秒付近」は撮影遅延（約 0.35 秒）を含む。量は撮影の前後で実測した平均で、秒は目安。
+5. 動画・画像は dev サーバー＋Playwright の実ポインター入力で、Preview ビルドの実機録画ではない。
+6. 1 ラウンド 1 回・取り消しなしは暫定維持（変更なし）。
+
+## 8. 推奨モデル
+
+- **長押し時間の確定・色の微調整・文言（HV 後の修正）:** Sonnet 5.5 で足りる（定数と CSS の範囲）。
+- **Phase 2（他食材）の設計、`searedLook` と `preparedLook` の統合、reducer の一般化:** 保留中。再開時は Opus 5.5 を推奨。
+- これは助言で、決定は Owner。
+
+## 9. Owner の最終判断を要する事項
+
+1. 長押し時間: 2 秒／3 秒／4 秒（推奨候補は 3 秒、実機 HV の体感で決定）。
+2. ほんのりの視認性をこの強さで十分とするか。
+3. #723 の HV 完了後に、共有 Preview へ #724 を載せてよいか（SHA は承認時に確定）。
+4. Phase 2 は保留のまま、ここで Phase 1 を締めるか。
+
+---
+
+## 10. 次の Gate の準備（2026-11-02 追補）
+
+Owner 方針: 長押し 3 秒を第一候補／ほんのりの色は暫定許容／現在の焼き色改善を維持／Phase 2 保留／**Phase 1 は Safari 実機 HV と WebKit 検証まで未完了**／#723 の HV が終わるまで共有 Preview を更新しない。
+
+### 10.1 最新状態の確認
+| 項目 | 結果 |
+|---|---|
+| main | `7f3aa63`（変化なし）。このブランチは main を含む（取り込み不要） |
+| Issue #724 / claim | claim を更新（ファイル一覧を実態に合わせ、期限 2026-11-09）: https://github.com/perusonao/teto-pizza-game/issues/724#issuecomment-6568487662 。他セッションの #724 claim なし |
+| PR #723 | open。HEAD **`4194ead`**（docs-only: Result 文書の整合修正）。`git merge-tree` で本ブランチとの**衝突なし**。ファイルの重なりなし（#723: `App.css` / `IngredientGlyph.tsx` / `ingredients.ts` / `recipes.ts` / `PROJECT_HANDOFF.md` ほか。本ブランチはこれらを編集していない）。**#723 には触れていない（読み取りのみ）** |
+| 共有 Preview | 現在の公開元は **#723 の `4b0df7c`**（2026-11-02 03:03 UTC に deploy。#723 の HV 用）。**更新していない・更新しない**（#723 HV 完了まで） |
+| 他の HOT 重なり | #468 / #478 は古い履歴（draft・stale）で `merge-tree` 不可（unrelated histories）。以前の判断のとおり、追加のみの変更で、後から merge する側が base を取り込む |
+
+### 10.2 長押し 3 秒を既定にする場合の変更範囲（ドライランで確認）
+一時的に `SEAR_FULL_MS` を 3000 にして sear 系 Vitest と E2E を実行し、**確認後に元へ戻した**（**ブランチの既定は 4 秒のまま。Owner の指示までコードは変えない**）。
+
+| 区分 | 必要な変更 | ドライランの結果 |
+|---|---|---|
+| 本体 | `src/logic/sear/searHold.ts:12` の `SEAR_FULL_MS = 4000` → `3000`（**1 行**）。UI・色・reducer・比較スイッチは変更なし | — |
+| 単体テスト | `searHold.test.ts` の「press -> release keeps what the hold reached」が 2000ms→0.5 を直書き → `SEAR_FULL_MS / 2` に直す（1 テスト）。ほかの sear 系は定数相対なので無変更 | sear 系 89 件中 1 件だけ失敗（上記の想定どおり） |
+| E2E | `e2e/cooking-sear.spec.ts` の「without cookSearMs … default applies」の `data-full-ms` を `"4000"` → `"3000"`（1 か所＋タイトル） | 20 件中 2 件（390 / 360 の同テスト）だけ失敗（想定どおり） |
+| 比較機能 | `?cookSearMs=2000|3000|4000` は**そのまま維持**（3 秒が既定でも 2 秒・4 秒を比較できる） | 比較 E2E は全 pass |
+| ドキュメント | 本 Result・前回 Result の「既定 4 秒」の記述 | — |
+| 影響 | 採点・保存・レシピ・在庫・Dex・炒め・FINISH への影響なし。3 秒既定では「こんがり」の幅が約 0.96 秒、最短押下 350ms は量 0.117 | — |
+
+### 10.3 WebKit CI の実行準備
+| 項目 | 結果 |
+|---|---|
+| ローカルの WebKit | **実行不可**（`npx playwright install webkit` がダウンロード失敗: `Download failure, code=1`。既知の環境制約） |
+| 起動方法 | `.github/workflows/e2e-webkit.yml` は **PR（main 宛）／push to main／`workflow_dispatch`（任意の ref で Full 実行）** で起動。このブランチは PR が無いため、**今は走っていない**。方法 A: Actions → `E2E WebKit (Cooking UI 1-Screen)` → Run workflow（ref = `claude/teto-pizza-cooking-audit-5qhbpw`）。方法 B: PR を作る（Owner の指示が必要）。いずれも共有 Preview には影響しない |
+| 走る範囲 | 全 e2e spec を webkit-390×844 と webkit-360×800 × 3 shard。**`cooking-sear.spec.ts`（各 viewport 10 件）も自動で含まれる**。WebKit Gate は「両 viewport で同じテスト一覧」を要求するが、本 spec に viewport 限定の skip は無い。所要の目安: 各 shard 最大約 35 分 |
+| 本件で WebKit 実機確認が必要な箇所 | `setPointerCapture`／`pointercancel` による長押しの取り消し、`touch-action: none`、`-webkit-mask-image`（焼き目の線）、`-webkit-touch-callout` / `user-select`、`inert`（背面を触れなくする）、`cqw` 単位（既存の炒めと同じ）。E2E は実ポインター（`page.mouse`）で長押しを検証しているが、**iOS Safari の長押しのコールアウトや選択は CI では検出できない → 実機 HV が必要** |
+| 実行状況 | **未実行**（Owner の指示待ち）。実行したら run URL と shard 別結果を記録する |
+| 既知の間欠失敗 | #394 / #680 系（毎回別のテストが落ちる）。落ちた場合は失敗ジョブの再実行 1 回までとし、テスト・timeout は変更しない |
+
+### 10.4 最新の画像・動画
+- 画像（commit 済み）: `docs/reports/screenshots/cooking-sear-phase1-eval/`（**`INDEX.md` に一覧**）。1 枚で全体が見える `review-sheet-{390x844,360x800}.png`、旧/新の段階比較（実寸・3 倍）、長押し 2/3/4 秒の比較、before/after、動画の 12 コマ `video-frames-*.png`。
+- 動画（commit なし・直接提出）: `cooking-sear-phase1-eval-hv-390x844.mp4`（Authority、約 42 秒）と `…-360x800.mp4`（Secondary、約 42 秒）。同じ 2.0 秒の長押しを 2/3/4 秒設定で比較 → 最後に焼成 → RESULT。**コードは前回の評価時から変更なしのため、動画の挙動は現在のブランチと同一**。
+- 旧い試作の画像（`../cooking-sear-phase1/`）は改善前の記録。評価には上の最新を使う。
+
+### 10.5 まだ未完了（PASS にしない）
+Safari 実機 HV（Owner）／WebKit CI（未実行）／共有 Preview への掲載（#723 の HV 完了後に Owner が承認）／3 秒既定の適用（Owner の指示待ち）／Phase 2（保留）。
+
+### 10.6 Owner の次の判断
+1. **3 秒を既定にする変更（§10.2: 本体 1 行＋テスト 2 か所）を適用してよいか。**
+2. **WebKit CI を `workflow_dispatch`（ref = このブランチ）で今走らせてよいか**（共有 Preview・#723 には影響しない）。PR を作る場合は別途ご指示ください。
+3. #723 の HV 完了後に、共有 Preview へこのブランチを掲載してよいか（SHA は承認時に確定。復旧は #723 の公開 SHA で再実行）。
+
+## 次のアクション
+Owner の次の判断を待って停止する。PR 作成・merge・共有 Preview 更新・Production 更新・本番フラグ ON は行っていない。
+
+---
+
+## 11. 3 秒既定の適用と WebKit CI の結果（2026-11-02 追補、Owner 承認済み）
+
+Owner 承認: 長押し既定 4000ms → 3000ms／関連テストの期待値更新／2・3・4 秒の比較機能は維持／対象ブランチで WebKit CI を `workflow_dispatch` で 1 回実行。
+
+### 11.1 変更（コード HEAD `97fc650fc755ebe4212bbeb9b6e6f9b1b16509b2`）
+| ファイル | 変更 |
+|---|---|
+| `src/logic/sear/searHold.ts` | `SEAR_FULL_MS` 4000 → **3000**（コメントに Owner 決定を記載） |
+| `src/logic/sear/searHold.test.ts` | 直書きだった 2000ms→0.5 を `SEAR_FULL_MS / 2` に変更。**既定が 3000 であることを固定するテストを 1 件追加** |
+| `e2e/cooking-sear.spec.ts` | 既定の `data-full-ms` を `"3000"` に変更。**既定で 1.6 秒押すと「こんがり焼き目」になる**検証を追加 |
+| そのほか | 変更なし（UI・色・reducer・比較スイッチ `?cookSearMs=2000|3000|4000`・炒め・FINISH・採点・保存形式）。テストの緩和・skip・timeout 変更なし |
+
+### 11.2 ローカル検証（push 前）
+| 区分 | 結果 |
+|---|---|
+| sear 系 Vitest（9 files） | **95 / 95 pass** |
+| **全 Vitest** | **584 files passed / 1 skipped（計 585）、10,967 tests passed / 13 skipped / 2 todo、失敗 0**（858 秒） |
+| `tsc -b` / oxlint | エラーなし／sear 関連の警告 0 |
+| Chromium E2E（`cooking-sear.spec.ts`、390×844 と 360×800） | **20 / 20 pass**（既定 3 秒の確認と、2・4 秒の比較を含む） |
+
+### 11.3 WebKit CI（`workflow_dispatch`、1 回のみ）
+- 実行: workflow **E2E WebKit (Cooking UI 1-Screen)**、run **#1320**（run id `41387072418`、attempt 1）、ref `claude/teto-pizza-cooking-audit-5qhbpw`、**head_sha `97fc650fc755ebe4212bbeb9b6e6f9b1b16509b2`（push した SHA と一致）**。
+- URL: https://github.com/perusonao/teto-pizza-game/actions/runs/41387072418
+- 結果: **success（再実行なし）**。classify（success）、layout-chromium（success）、**webkit-390x844 shard 1/3・2/3・3/3 すべて success、webkit-360x800 shard 1/3・2/3・3/3 すべて success**、**Layout Contract Gate success**、**WebKit Gate success**。所要は run 全体で約 21 分。
+- WebKit Gate は「全 shard が成功し、shard 証跡で一覧の全テストが両 viewport で 1 回ずつ実行・成功した」ことを確認するジョブで、**成功している**。`cooking-sear.spec.ts`（各 viewport 10 件）は全 e2e spec の一部としてこの一覧に含まれる。**ただし、個別の cooking-sear テストの行ごとの結果までは、ここでは取得していない**（Gate の成功を根拠にしている）。
+- 失敗・間欠失敗は発生しなかったので、調査・再実行・テスト変更は行っていない。
+
+### 11.4 残課題（PASS にしない）
+1. **iPhone 実機 Safari HV**（Owner）: 長押しの触感、3 秒の体感、コールアウト／文字選択／スクロール抑止、焼き目の線（`-webkit-mask-image`）の見え方。WebKit CI は Playwright の WebKit であり、**実機の代わりではない**。
+2. **共有 Preview への掲載**: #723 の HV 完了後に Owner の承認が必要（現在の公開元は #723 の `4b0df7c`、未更新）。比較用 URL は `?cookSear=on&cookSearMs=2000|3000|4000`。
+3. 3 秒既定でのスクリーンショット・動画の撮り直しは**していない**（既定値以外の画面は変わらない。`INDEX.md` の動画は「2 秒・3 秒・4 秒を明示して比較」する内容で、既定値の変更に影響されない）。必要なら Owner の指示で撮り直す。
+4. ほんのりの色は暫定許容（Owner 方針）。Phase 2（他食材）は保留で未着手。
+5. PR は未作成（#724 は PR 無しのまま）。通常 CI（`ci.yml`）は PR でのみ起動するため、このブランチでは走っていない（今回は Owner 承認どおり WebKit のみ）。
+
+### 11.5 推奨モデル
+- 実機 HV 後の微調整（定数・色・文言）: **Sonnet 5.5**。
+- Phase 2 の再開時の設計・reducer 一般化のレビュー: **Opus 5.5**。
+- 助言であり、決定は Owner。
+
+### 11.6 最終 HEAD
+- **コード HEAD: `97fc650fc755ebe4212bbeb9b6e6f9b1b16509b2`**（WebKit CI の対象）。
+- この追補（docs のみ）は、その上の 1 コミットとして追加した。最終 HEAD の SHA は、会話の最終報告に記載する。
+- 禁止事項の遵守: #723 に触れていない／PR 作成・merge なし／共有 Preview・Production 更新なし／本番フラグ OFF のまま／Phase 2 未実装。
+
+## 次のアクション
+Owner の次の判断を待って停止する（実機 HV の結果、#723 HV 後の Preview 掲載の承認、必要なら画像・動画の撮り直しの指示）。

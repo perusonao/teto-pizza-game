@@ -21,7 +21,7 @@ export const COOK_PREP_HV_BEEF_ID = "beef";
 const SEED_ID = "calabresa-key-free";
 const BEEF_STOCK = 10; // the seed's own per-material stock
 
-function createDisposableStorage(): StorageLike {
+export function createDisposableStorage(): StorageLike {
   const map = new Map<string, string>();
   return { getItem: (key) => map.get(key) ?? null, setItem: (key, value) => void map.set(key, value), removeItem: (key) => void map.delete(key) };
 }

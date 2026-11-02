@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.tsx'
 import { applyPreviewHvSeed } from './preview/hvSeeds'
 import { activateCookPrepHv } from './preview/cookPrepHv'
+import { activateCookSearHv } from './preview/cookSearHv'
 
 // Discovery Progression Inspector: a DEV / Preview only, read-only developer screen, opened with
 // `?inspector=discovery`. Both env checks are replaced statically by Vite, so a production build
@@ -33,7 +34,8 @@ const postLayerBenchRequested =
 // Cooking Prep HV entry (`?cookPrepHv=1`): DEV / Preview only, same static gate; swaps in a disposable in-memory save, never touching the real one.
 if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
   try {
-    activateCookPrepHv(window)
+    // The two HV entries are exclusive: the 炒める one wins when both are asked for.
+    if (!activateCookPrepHv(window)) activateCookSearHv(window)
   } catch {
     // A failing entry must never stop the game from starting.
   }

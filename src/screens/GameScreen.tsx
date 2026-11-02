@@ -97,6 +97,7 @@ import { canUndoPlacement } from "../state/undoPlacement";
 import { canPlaceIngredient, canPlacePostBakeIngredient } from "../state/inventory";
 import { isLunchRushRound } from "../state/roundKind";
 import { CookingPrepLayer } from "../components/CookingPrepLayer";
+import { SearLayer } from "../components/SearLayer";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -174,6 +175,8 @@ interface GameScreenProps {
   onUndoPlacement: () => void;
   /** Cooking Prep Phase 1 PR-B: dispatches PREP_INGREDIENT (the optional 炒める prep). Absent = the prep UI is never offered. */
   onPrepIngredient?: (ingredientId: string, progress: number) => void;
+  /** Cooking Sear Phase 1 (#724): dispatches SEAR_INGREDIENT (the optional 炙る long press). Absent = the sear UI is never offered. */
+  onSearIngredient?: (ingredientId: string, amount: number) => void;
   onConfirmMakingStep: () => void;
   onStartBake: () => void;
   onShowHint: () => void;
@@ -290,6 +293,7 @@ export function GameScreen({
   onResetPizza,
   onUndoPlacement,
   onPrepIngredient,
+  onSearIngredient,
   onConfirmMakingStep,
   onStartBake,
   onShowHint,
@@ -927,6 +931,24 @@ export function GameScreen({
         resultCompact={isFreeResultScreen || isDinnerResult}
         preparedIngredientIds={state.preparedIngredientIds}
         preparedLook={state.preparedLook}
+        searedLook={state.searedLook}
+        searOverlay={
+          onSearIngredient ? (
+            <SearLayer
+              phase={state.phase}
+              makingStep={state.makingStep}
+              roundKind={state.roundKind}
+              active={stageInputActive}
+              selectedIngredientId={selectedIngredientId}
+              ownedIngredientIds={state.ownedIngredientIds}
+              searedLook={state.searedLook}
+              makingStepToken={state.makingStepToken}
+              resetToken={pizzaResetToken}
+              onSear={onSearIngredient}
+              onBusyChange={setPrepBusy}
+            />
+          ) : undefined
+        }
         overlay={
           onPrepIngredient ? (
             <CookingPrepLayer
