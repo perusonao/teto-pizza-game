@@ -69,7 +69,7 @@ Owner 判断（2026-11-02）: Phase 1 試作 GO／Phase 2 保留／焼き色改�
 | 区分 | 結果 |
 |---|---|
 | 新規・更新 Vitest | `sausageSear`（色の単調性・視認性の下限・形状保持・黒化防止）、`searHold`（`fullMs`）、`searPreview`（`cookSearMs` の厳密な解釈）、`SearLayer`（2/3/4 秒で同じ 1 秒の押下が 0.5 / 0.33 / 0.25）、既存の sear テスト一式 — **sear 系 89 件 pass** |
-| 全 Vitest | 下記「全 Vitest」を参照 |
+| 全 Vitest | **584 files passed / 1 skipped（計 585）、10,966 tests passed / 13 skipped / 2 todo、失敗 0**（所要 832 秒。前回の 10,956 件から新規分で増加。本番ビルドに `cookSear`／`cookSearMs` が含まれないことを確認する実ビルドのゲートテストを含む） |
 | `tsc -b` / oxlint | エラーなし／触ったファイルに警告 0 |
 | Chromium E2E（`e2e/cooking-sear.spec.ts`、390×844 と 360×800） | **20 / 20 pass**（前回の 12 件＋比較 4 件×2 viewport）。2/3/4 秒それぞれで同じ押下の結果の言葉が期待どおりになること、設定ラベルの表示、`cookSearMs` 無しでは既定 4 秒でラベルが出ないこと、前回までの全項目 |
 | 既存の炒め E2E | 前回 `cooking-prep.spec.ts` 50 pass / 4 skip。**今回は炒め関連ファイルを一切触っていない**ため再実行していない（炙りの CSS・コードは別ファイル） |
