@@ -8,8 +8,8 @@
  * The numbers are initial design values, tuned in the iPhone HV (one place, here).
  */
 
-/** Held time at which the colour reaches its end. Past it the pan goes on holding the same (fully seared) look. */
-export const SEAR_FULL_MS = 4000;
+/** Held time at which the colour reaches its end. Past it the pan goes on holding the same (fully seared) look. Owner decision 2026-11-02: 3 s (was 4 s in the first trial); 2 s / 4 s stay comparable through ?cookSearMs=. */
+export const SEAR_FULL_MS = 3000;
 /** A hold shorter than this is a tap and keeps nothing (a stray touch must not mark the sausage). */
 export const SEAR_MIN_HOLD_MS = 350;
 

@@ -30,9 +30,12 @@ describe("searHoldReducer", () => {
   const press = (s: SearHold, now: number) => searHoldReducer(s, { type: "PRESS", now });
   const release = (s: SearHold, now: number) => searHoldReducer(s, { type: "RELEASE", now });
 
+  it("the shipped default is 3 s (Owner decision 2026-11-02); 2 s and 4 s are reachable only through the Preview / DEV comparison switch", () => {
+    expect(SEAR_FULL_MS).toBe(3000);
+  });
   it("press -> release keeps what the hold reached", () => {
-    const s = release(press(SEAR_IDLE, 1000), 1000 + 2000);
-    expect(s).toEqual({ status: "released", amount: 0.5, heldMs: 2000 });
+    const s = release(press(SEAR_IDLE, 1000), 1000 + SEAR_FULL_MS / 2);
+    expect(s).toEqual({ status: "released", amount: 0.5, heldMs: SEAR_FULL_MS / 2 });
   });
   it("an explicit fullMs (the 2 / 3 / 4 s comparison) scales the amount, the minimum hold stays the same", () => {
     expect(searHoldReducer(press(SEAR_IDLE, 0), { type: "RELEASE", now: 1000, fullMs: 2000 })).toEqual({ status: "released", amount: 0.5, heldMs: 1000 });

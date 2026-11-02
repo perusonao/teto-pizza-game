@@ -243,7 +243,9 @@ test.describe("Cooking Sear: the 2 / 3 / 4 second comparison (?cookSearMs=)", ()
     await toTopping(page, "?cookSear=on");
     await select(page, "ソーセージ");
     await pill(page).click();
-    await expect(screenEl(page)).toHaveAttribute("data-full-ms", "4000");
+    await expect(screenEl(page)).toHaveAttribute("data-full-ms", "3000"); // Owner decision 2026-11-02: the default is 3 s
     await expect(page.getByTestId("cooking-sear-tune")).toHaveCount(0);
+    await holdFor(page, 1600); // 1.6 s of a 3 s default = 0.53 = こんがり
+    await expect(page.getByTestId("cooking-sear-title")).toHaveText("こんがり焼き目");
   });
 });
