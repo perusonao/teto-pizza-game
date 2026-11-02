@@ -259,3 +259,20 @@ HOT file の重なり（実装前に確認）:
 3. 保持中の語表示の採否は Owner の判断（数値・ゲージ・判定は無いが「語」は進捗の手がかり）。不要なら `searHoldingTitle` を固定文言に戻す 1 箇所の変更で戻せる。
 4. WebKit での `ResizeObserver` による再計測（アドレスバー伸縮時）は Chromium のみで確認。実機 Safari で、ツールバーの出し入れ後にピルが帯⇄角で正しく切り替わるかの確認が必要。
 5. 共有 Preview は未更新（Owner の承認待ち）。
+
+## 14. 共有 Preview の更新（Owner 承認済み、HEAD `2000dba4`）
+
+| 項目 | 内容 |
+|---|---|
+| 公開前の確認 | HEAD `2000dba4fc5cedea844f943848e6de3239a79f91` = origin の同ブランチ、作業ツリーはクリーン、`SEAR_EXPERIENCE_PRODUCTION = false`。テスト結果は §13.5（全 Vitest 589 files / 11,036 tests、失敗 0。E2E 162 passed、失敗 0） |
+| ビルド | preview repo: `Build & deploy a source PR/branch` run #205（ref = `2000dba4…`、pr_number = 724）= **success** |
+| Pages デプロイ | `Deploy Preview to GitHub Pages` run #202（preview repo main `5a4218ce`、コミットメッセージ `Deploy preview: 2000dba…`）= **success** |
+| 公開 SHA | preview repo README: Source commit `2000dba4fc5cedea844f943848e6de3239a79f91`、Source PR 表示 `#724`（Issue 番号。PR は未作成）、Built 2026-11-02T14:59:21Z |
+| 公開 URL の実ページ | 本環境から到達できず（プロキシが拒否）、表示は未確認。Actions の成功と README の SHA までを確認 |
+| 復元用（直前の公開元） | `2d9c3d492093cf3495f0cc3b57d3d65ab2d8841e`（`Build & deploy a source PR/branch` を ref = この SHA、pr_number = 724 で再実行し、続けて `Deploy Preview to GitHub Pages`） |
+
+実機確認 URL: `https://perusonao.github.io/teto-pizza-game-preview/?cookSearHv=1`（画面のバッジが `#724` / `2000dba`）。長押し時間の比較は末尾に `&cookSearMs=2000` / `4000`。
+
+実機で見てほしい点: (1) 短い可視高（Safari のツールバーあり）でピルが右下の角に出て、生地と重ならず、生地の下端にも置ける。(2) 画面を縦に伸ばす／縮める（ツールバーを出し入れする）とピルが帯⇄角で正しく切り替わる（§13.6-4）。(3) 保持中の見出し（ほんのり→こんがり→しっかり→まっくろ）と色の見分け。(4) 3 秒の長押し感（必要なら 2 / 4 秒と比較）。(5) 炙り後の焼成〜取り出し〜仕上げ〜RESULT での色の維持。
+
+PR 作成・main への merge・Production 更新はしていない。Production の炙りは OFF のまま。公開後の追加実装はなく、Owner の実機 HV 結果を待つ。
