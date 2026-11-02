@@ -276,3 +276,41 @@ HOT file の重なり（実装前に確認）:
 実機で見てほしい点: (1) 短い可視高（Safari のツールバーあり）でピルが右下の角に出て、生地と重ならず、生地の下端にも置ける。(2) 画面を縦に伸ばす／縮める（ツールバーを出し入れする）とピルが帯⇄角で正しく切り替わる（§13.6-4）。(3) 保持中の見出し（ほんのり→こんがり→しっかり→まっくろ）と色の見分け。(4) 3 秒の長押し感（必要なら 2 / 4 秒と比較）。(5) 炙り後の焼成〜取り出し〜仕上げ〜RESULT での色の維持。
 
 PR 作成・main への merge・Production 更新はしていない。Production の炙りは OFF のまま。公開後の追加実装はなく、Owner の実機 HV 結果を待つ。
+
+## 15. PR 作成前の Fresh Audit と実機 HV の記録（Final Gate 準備）
+
+### 15.1 Fresh Audit（base `82665c8`、branch HEAD の時点）
+| 項目 | 結果 |
+|---|---|
+| 最新 main | `82665c8`（#723）。#724 の branch は main の先に 1 本の履歴で、`git merge-tree` で **衝突なし**（merge 不要） |
+| 既存 PR | #724 の実装 PR は**無い**（`perusonao/teto-pizza-game` の open PR を確認）。炙り（sear）に触れる open PR も無い。`GameScreen.tsx` / `PizzaStage.tsx` に触れる stale な draft（#478・#468）は古い履歴で、claim（Issue #724 のコメント）に記載済みのとおり後発が base を取り込む |
+| 必読ドキュメント | `CLAUDE.md`、`PROJECT_HANDOFF.md`（startup checklist）、`TETO_HUMAN-VERIFICATION-POLICY.md`、`TETO_SESSION-OPERATIONS_1.0.md`（claim / Owner Gate / HV 手順）を確認 |
+| PR テンプレート | リポジトリに無し（`.github/` は workflows のみ）。PR 本文は Result Report の構成に合わせる |
+| 変更範囲 | main との差分: 新規ファイル（`src/logic/sear/**`、`src/components/SearLayer*`・`Sear.css`、`src/data/sear*`、`src/preview/searPreview*`・`cookSearHv*`・`CookSearHvStarter.tsx`、E2E 3 本、文書・画像）と、既存ファイル 6 本への**追加のみ**の小変更: `App.tsx`（+6 / −1）、`GameScreen.tsx`（+22 / −0）、`gameReducer.ts`（+22 / −1）、`PizzaStage.tsx`（+19 / −2）、`main.tsx`（+3 / −1）、`cookPrepHv.ts`（`export` を 1 語足しただけ）。HOT ファイルは `App.tsx` / `GameScreen.tsx` / `gameReducer.ts`（いずれも追加のみ、重なる open PR なし） |
+| Production OFF | `SEAR_EXPERIENCE_PRODUCTION = false`。炙りは Preview/DEV の `?cookSear=on`（タブ記憶つき）または `?cookSearHv=1` のときだけ。`searPreview.gate.test.ts` / `cookSearHv.gate.test.ts` が**実 `vite build`** で、Production バンドルに `cookSear` / `cookSearHv` / `cook-sear-hv-v1` が無いことを確認（Preview バンドルにはあることも確認） |
+| 保存互換性 | `persistence.ts` は**無変更**。`searedLook` は `GameState` の一時項目で、保存されず、`RESET_PIZZA` で消え、ピースの色以外に読まれない。保存スキーマ v2 不変。HV 入口は使い捨てのメモリ保存で端末の実保存を読み書きしない（E2E で実保存のバイト一致を確認）。所持数・進行・採点・★・Pitz は炙りで変わらない（§13.3: 得点 87 点で生と同一） |
+| 炒める・FINISH への影響 | 炒める（`CookingPrepLayer` / `logic/prep/**` / `prepIngredients` / `prepExperienceGate` / `prepPreview`）と FINISH のロジックは**無変更**。既存の炒める・FINISH の E2E を両 viewport で実行して回帰なし（§13.5: 162 passed、失敗 0）。炒める HV 入口（`?cookPrepHv=1`）は両方指定時に優先される |
+| 炙りの既定 | 長押し 3 秒（`SEAR_FULL_MS = 3000`）を維持。2 / 4 秒は `?cookSearMs=` の比較のみ（Preview/DEV） |
+
+### 15.2 実機 HV の記録（iPhone Safari、Preview `2000dba4`、`?cookSearHv=1`）
+**出所:** Owner からの依頼文（2026-11-02）に記載された結果の転記。SESSION-OPERATIONS §3 のとおり HV の PASS / FAIL の語は Owner のものなので、Owner が PR / Issue 上で改めて明記するまでは、**正式な HV 判定の記録としては扱わない**（セッションが代わりに PASS を宣言しない）。
+
+| 確認項目 | 結果（Owner 報告） |
+|---|---|
+| 専用入口（`?cookSearHv=1`）の表示と開始状態 | PASS |
+| 炙り（ピル・長押し・炙り済み表示） | PASS |
+| 焼成 | PASS |
+| RESULT | PASS |
+| Safari **ツールバーの出し入れ**でピルが帯⇄角で切り替わる動き（§13.6-4） | **未確認**（PASS として扱わない。Chromium のみで確認済み） |
+
+HV Policy の成果物: 静止画 before/after は `docs/reports/screenshots/cooking-sear-hv-followup/`（6 枚）と `cooking-sear-hv-entry/`（8 枚）に commit 済み。**HV 動画**（390×844、ユーザーへ直接提出、commit しない）は今回のコード（`2d9c3d49` → `2000dba4`）分は**未提出**で、Policy §12 の DoD の「Human Verification video / Video validation / Download link」は**未完了**。実機 HV（Owner）が主な証跡で、動画の要否は Owner の判断に委ねる（未完了を PASS とは書かない）。
+
+### 15.3 別 Issue 候補（この PR では実装しない）
+1. **焼き目の追加視認性改善:** ほんのり vs 生は色相の分離で改善したが、盤面のピース（約 24px）ではなお控えめ。色以外の手がかり（焼き目の質感・グリルマーク等）は Phase 1 の範囲外のため別 Issue 候補。
+2. **Safari ツールバー切替の実機確認:** 帯⇄角の切替（`ResizeObserver` による再測定）を実機 Safari で確認する（未確認の項目）。
+3. **角のピルの見つけやすさ:** 実機で見つけにくい場合の表示（縦 2 行など）。
+4. **保持中の語表示の採否:** Owner の判断（不要なら `searHoldingTitle` を固定文言に戻す 1 箇所の変更）。
+5. Phase 2（他食材への展開）は保留のまま。
+
+### 15.4 Final Gate の記録方法
+HEAD が変わると CI・WebKit・Codex の証跡は無効になる（SESSION-OPERATIONS §2「latest head vs reviewed head」）。このため、**最新 HEAD に対する CI・WebKit Gate・Layout Contract Gate・Codex レビュー・未解決スレッド・mergeability の実測値は PR 本文（`Final Gate` 節）に追記し、文書 commit は追加しない**（追加すると head が動いて Codex の再レビューが必要になるため）。Result Report には、PR 作成時の HEAD と上記の固定の事実のみを置く。merge・Production 更新・機能有効化は行っていない。
