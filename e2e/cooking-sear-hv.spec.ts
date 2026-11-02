@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { BAKE_SPEED_PCT_PER_S } from "../src/logic/bakeProgress";
 import { tapDoughPercent } from "./gestures";
 import { SAVE_KEY } from "./support/familyTray";
 
@@ -24,6 +25,24 @@ async function openEntry(page: Page, query: string) {
     localStorage.setItem(k, v);
   }, [SAVE_KEY, REAL] as const);
   await page.goto(`/${query}`);
+}
+
+/** Enters BAKE with the virtual clock paused, so the needle starts at exactly 0 (same helper shape as bake-one-way.spec.ts). The click is a DOM click: Playwright's own actionability wait needs a running rAF. */
+async function enterBakeAtZero(page: Page) {
+  await page.clock.install();
+  let paused = false;
+  for (const buffer of [300, 800, 2000]) {
+    try {
+      await page.clock.pauseAt(Date.now() + buffer);
+      paused = true;
+      break;
+    } catch (error) {
+      if (!String(error).includes("to the past")) throw error;
+    }
+  }
+  if (!paused) throw new Error("enterBakeAtZero: could not pause the clock before BAKE");
+  await page.getByRole("button", { name: /焼く/ }).evaluate((el) => (el as HTMLButtonElement).click());
+  await page.waitForSelector(".bake-gauge__needle");
 }
 
 test.describe("Cooking Sear HV entry (?cookSearHv=1)", () => {
@@ -70,10 +89,12 @@ test.describe("Cooking Sear HV entry (?cookSearHv=1)", () => {
     await expect(page.getByTestId("cooking-sear-done")).toBeVisible({ timeout: 4000 });
     await page.waitForTimeout(700);
     await shot(page, "hv-02-on-pizza");
-    await page.getByRole("button", { name: /焼く/ }).click();
-    await page.waitForSelector(".bake-gauge__needle");
-    await page.waitForFunction(() => Number.parseFloat((document.querySelector(".bake-gauge__needle") as HTMLElement | null)?.style.left ?? "0") >= 66, undefined, { polling: "raf" });
-    await page.getByRole("button", { name: "取り出す！" }).click();
+    // The bake is driven by the VIRTUAL clock (the way bake-one-way.spec.ts does): the generic Free Cooking window is only 58-78 and the needle moves 33 pt/s, so
+    // "wait until >= 66, then click" on a loaded WebKit runner can overshoot the window (a burnt bake skips 仕上げ and the 完成 button never appears).
+    await enterBakeAtZero(page);
+    await page.clock.runFor(Math.round((66 / BAKE_SPEED_PCT_PER_S) * 1000)); // the needle at 66, inside the JUST band
+    await page.getByRole("button", { name: "取り出す！" }).evaluate((el) => (el as HTMLButtonElement).click());
+    await page.clock.resume();
     await page.getByRole("button", { name: "完成" }).click(); // the FINISH step ("仕上げ") before RESULT
     await page.waitForSelector(".result-panel", { timeout: 15_000 });
     await shot(page, "hv-03-result");
