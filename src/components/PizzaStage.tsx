@@ -21,6 +21,7 @@ import { getIngredient, type Ingredient } from "../data/ingredients";
 import { SQUEEZE_MAX_LENGTH, SQUEEZE_MIN_LENGTH, SQUEEZE_MIN_STEP, capTrailLength, densifyTrail, isSqueezeIngredientId, trailAnchor, trailLength, trailPathD, type TrailPoint } from "../logic/squeeze";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { preparedPieceVisual } from "../logic/prep/beefDoneness";
+import { searedPieceVisual } from "../logic/sear/sausageSear";
 import { PostBakePiece } from "./PostBakePiece";
 import { activeToppingRankScale } from "../preview/toppingScalePreview";
 import { toppingPhaseScale } from "../preview/resultScalePreview";
@@ -210,6 +211,10 @@ interface PizzaStageProps {
   preparedLook?: Readonly<Record<string, number>>;
   /** Cooking Prep Phase 1 PR-B: an element rendered inside the stage after the dough (the "炒める" pill / pan screen, ./CookingPrepLayer.tsx). */
   overlay?: ReactNode;
+  /** Cooking Sear Phase 1 (#724): how far each long-press-seared ingredient was seared (`GameState.searedLook`); picks the piece colour. Absent = today's drawing. */
+  searedLook?: Readonly<Record<string, number>>;
+  /** Cooking Sear Phase 1 (#724): an element rendered inside the stage after `overlay` (the "炙る" pill / sear screen, ./SearLayer.tsx). */
+  searOverlay?: ReactNode;
 }
 
 interface GestureState {
@@ -292,6 +297,8 @@ export function PizzaStage({
   preparedIngredientIds,
   preparedLook: preparedLookByIngredient,
   overlay,
+  searedLook: searedLookByIngredient,
+  searOverlay,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   // Square-Pan Dough D2-a2 (#537): the pan this round is cooked on, for every step DOUGH..RESULT -- the Preview / DEV override or the recipe's own pan,
@@ -1465,11 +1472,20 @@ export function PizzaStage({
                 variable's own comment above for why. */}
             {t.trail ? null : (() => {
               const preparedLook = preparedIngredientIds?.includes(ingredient.id) ? preparedPieceVisual(ingredient.id, preparedLookByIngredient?.[ingredient.id]) : null;
+              const searLook = searedPieceVisual(ingredient.id, searedLookByIngredient?.[ingredient.id]);
               const m1Piece = (
                 <IngredientPieceVisual
                   ingredient={ingredient}
-                  className={preparedLook?.className}
-                  style={ingredient.category === "cheese" ? cheeseStyle : preparedLook ? { ...toppingPieceStyle(ingredient), ...preparedLook.style } : toppingPieceStyle(ingredient)}
+                  className={preparedLook?.className ?? searLook?.className}
+                  style={
+                    ingredient.category === "cheese"
+                      ? cheeseStyle
+                      : preparedLook
+                        ? { ...toppingPieceStyle(ingredient), ...preparedLook.style }
+                        : searLook
+                          ? { ...toppingPieceStyle(ingredient), ...searLook.style }
+                          : toppingPieceStyle(ingredient)
+                  }
                 />
               );
               if (!(ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
@@ -1795,6 +1811,7 @@ export function PizzaStage({
         </div>
       )}
       {overlay}
+      {searOverlay}
     </div>
   );
 }
