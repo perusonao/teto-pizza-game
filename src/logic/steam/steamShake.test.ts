@@ -164,6 +164,13 @@ describe("bad input", () => {
     expect(steamShakeReducer(base, tap(500))).toBe(base);
     expect(steamShakeReducer(base, mv(500, 10))).toBe(base);
   });
+  it("OPEN with a clock before the last input is ignored (no result built from input in its future)", () => {
+    const eight = run([tap(0), ...Array.from({ length: 8 }, () => tap(2000))]); // the first tap fades away; eight more at 2000 ms
+    expect(steaming(eight).level).toBeCloseTo(0.8, 9);
+    expect(steamShakeReducer(eight, { type: "OPEN", now: 1000 })).toBe(eight);
+    // the same OPEN at or after the last input still keeps the result
+    expect(steamShakeReducer(eight, { type: "OPEN", now: 2000 }).status).toBe("released");
+  });
   it("OPEN with an unreadable clock is a stray tap", () => {
     expect(run([tap(0), { type: "OPEN", now: NaN }])).toEqual({ status: "idle", tooShort: true });
   });

@@ -96,6 +96,8 @@ export function steamShakeReducer(state: SteamShake, action: SteamShakeAction): 
     }
     case "OPEN": {
       if (state.status !== "steaming") return state;
+      // A clock that ran backwards past the last input is ignored (like MOVE / TAP): it must not keep a result that includes input from its "future".
+      if (Number.isFinite(action.now) && action.now < state.lastInputAt) return state;
       const elapsedMs = action.now - state.startedAt;
       if (!Number.isFinite(elapsedMs) || elapsedMs < STEAM_SHAKE_MIN_MS) return { status: "idle", tooShort: true };
       const level = steamShakeLevelAt(state, action.now);
