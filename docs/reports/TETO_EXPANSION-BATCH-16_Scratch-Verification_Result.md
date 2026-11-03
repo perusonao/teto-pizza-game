@@ -1,5 +1,7 @@
 # Expansion Batch 16 — 梅しそピザ scratch 検証 Result（docs-only・実装は HOLD）
 
+> **更新（2026-11-03）**: Owner は案 A（通常 step 67・大葉は焼成前・late 移動なし）を採用し、#731 は merge 済み。本書の V-A（大葉＝焼成後）は不採用、V-B が採用案。最新の更新範囲・検証計画・推奨仕様は `TETO_EXPANSION-BATCH-16_Implementation-Plan.md` を参照（矛盾する箇所は同書が優先）。
+
 Status: **Owner 方針どおりの組み合わせ（通常 step 67・credited ＋ 大葉を焼成後）は、現行アーキテクチャでは成立しない。実装せず停止する。** 代替 2 案（§6）を整理し、うち「大葉も焼成前」案（V-B）は scratch で実測して成立を確認した。
 本 repo の Production コード・テスト・データ・保存仕様・ladder は未変更（本書のみ）。#731 の変更ファイルには触れていない。PR 作成・merge・Preview 更新・Production Deploy・CI 再実行なし。グローバルの Jaccard 0.4 基準は変更していない。
 基準 `origin/main` = `079da33`（#730 / #729 merge 済み）。先行: `TETO_EXPANSION-BATCH-16_Research_Result.md`（同 branch）。scratch は repo 外（`/tmp/.../scratchpad/scratch16`、`079da33` の clone）のみで、commit していない。
