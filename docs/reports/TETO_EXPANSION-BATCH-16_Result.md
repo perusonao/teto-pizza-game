@@ -74,8 +74,16 @@ Issue #736 / branch `claude/expansion-batch-16-ume-shiso` / 基準 `main` `158e0
 - **ChatGPT 等がレビューできる静止画**: 動画の 12 コマのコンタクトシート `docs/reports/screenshots/b16/b16-contact-sheet-390x844.png`（コミット済み）と、個別スクリーンショット（各 390×844 / 360×800）: ショップ NEW（梅肉）、Research エントリ、ソーストレイ（梅肉チップ）、梅肉を塗った生地、具材トレイ、盛り付け、NEW RECIPE、図鑑、Research 2 エントリ。新規レシピのため before はなし。
 - 実機（iPhone Safari）で Owner が確認する点: ① 梅肉ソースの色（`#b8405a` 付近。生地が全体的に赤みの強いピンクになる。トマト・豆板醤との識別、**焼成後の色は未測定**）② 🍑 の表示（ソーストレイ・ショップ）③ しらす 4・大葉 2 の盛り付けが 8 スロットに収まるか（大葉は生地上で小さく見える）④ ソース工程で「選ばずに次へ」にならないこと ⑤ Research に recipe 名が出ないこと ⑥ 横スクロールなし。
 
-## 7. CI・Codex レビュー
-（PR 作成後に追記）
+## 7. CI・Codex レビュー（PR #737）
+
+| head | 結果 |
+|---|---|
+| `3e5712d`（初回） | **WebKit shard 2/3 が両 viewport（360×800・390×844）で同一の 1 件失敗**（集約の WebKit Gate も）。ほかの shard・`layout-chromium`・`Layout Contract Gate`・`classify` は success（233 / 227 passed）。失敗したのは `e2e/expansion-batch8b.spec.ts:104`（shirasu-pizza の Shop NEW）で、`shiso` の行に「10ピザ分（10個）」を期待し実際は「（20個）」。**原因は本 PR の見落とし（flake ではない）**: Owner 承認済みの消費量の変更で shiso の k が 1→2、whitebait が 3→4 になり、ショップ表示（在庫 20 / 40）が変わった。単体テスト（`materialShop.test`）は更新済みだったが、この E2E の期待値が未更新だった |
+| `c63d4e9`（修正後） | 期待値のみを「10ピザ分（20個）」「10ピザ分（40個）」に更新（assertion の対象・testid は不変）。**全 11 チェック success**（build / classify / layout-chromium / WebKit 6 shard / WebKit Gate / Layout Contract Gate）。mergeable は clean。再実行（rerun）は 1 度もしていない（push で新規実行） |
+
+- 本環境の限界: ローカル Chromium では `expansion-batch8b` が、何も変更していない main でも後段のコンソール 404（sandbox 依存）で落ちる。そのため E2E の修正は CI の WebKit で確認した。
+- **Codex レビュー**: head `3e5712d` で完了、**指摘 0 件・未解決スレッド 0 件**（PR 作成時の自動レビュー）。E2E の期待値だけを変えた `c63d4e9` 以降は、Codex の再レビューはまだ付いていない（自動トリガーは PR 作成時。再依頼は Owner / session の判断で、本セッションでは依頼していない）。
+- review thread は 0 件。
 
 ## 8. Owner に必要な確認事項
 
