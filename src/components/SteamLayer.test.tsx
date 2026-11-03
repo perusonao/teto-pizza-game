@@ -1,4 +1,6 @@
 import "@testing-library/jest-dom/vitest";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { STEAM_LID_FULL_MS, STEAM_LID_MIN_MS } from "../logic/steam/steamLid";
@@ -359,5 +361,22 @@ describe("accessibility and the stage", () => {
     openScreen();
     expect(screen.queryByTestId("cooking-sear")).toBeNull();
     expect(screen.queryByTestId("cooking-sear-pill")).toBeNull();
+  });
+});
+
+describe("the shells keep their place while they open", () => {
+  it("every shell's outer group carries only its position; the pop animation is on an inner group (a CSS transform on the outer one would fling it to the corner)", () => {
+    setup();
+    openScreen();
+    for (let i = 0; i < STEAM_SHELL_COUNT; i += 1) {
+      const shell = screen.getByTestId(`cooking-steam-shell-${i}`);
+      expect(shell.getAttribute("transform")).toMatch(/^translate\(\d+ \d+\)$/);
+      expect(shell.querySelector(":scope > .cooking-steam__shell-pop")).not.toBeNull();
+    }
+  });
+  it("Steam.css never animates a positioned shell group: the pop selector targets .cooking-steam__shell-pop only", () => {
+    const css = readFileSync(path.resolve(__dirname, "Steam.css"), "utf8");
+    expect(css).toMatch(/\.cooking-steam__shell\[data-open="true"\] \.cooking-steam__shell-pop\s*\{[^}]*animation:/);
+    expect(css).not.toMatch(/\.cooking-steam__shell(\[data-open="true"\])?\s*\{[^}]*(animation|transform):/);
   });
 });

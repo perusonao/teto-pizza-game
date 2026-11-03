@@ -104,16 +104,19 @@ function Shell({ index, open }: { index: number; open: boolean }) {
   const spot = SHELL_SPOTS[index];
   return (
     <g className="cooking-steam__shell" transform={`translate(${spot.x} ${spot.y})`} data-open={open ? "true" : "false"} data-testid={`cooking-steam-shell-${index}`}>
-      {/* closed: one domed valve with ridges */}
-      <g className="cooking-steam__shell-closed">
-        <path className="cooking-steam__shell-valve" d="M-14 4 Q-14 -11 0 -11 Q14 -11 14 4 Q0 9 -14 4 Z" />
-        <path className="cooking-steam__shell-ridge" d="M-7 3 Q-6 -5 -3 -8 M0 4 L0 -9 M7 3 Q6 -5 3 -8" />
-      </g>
-      {/* open: the body shows between two valves */}
-      <g className="cooking-steam__shell-open">
-        <path className="cooking-steam__shell-valve" d="M-14 4 Q0 12 14 4 L12 0 Q0 6 -12 0 Z" />
-        <ellipse className="cooking-steam__shell-body" cx="0" cy="-1" rx="10" ry="4.5" />
-        <path className="cooking-steam__shell-valve" transform="translate(-3 -8) rotate(-32)" d="M-14 3 Q-14 -9 0 -9 Q14 -9 14 3 Q0 7 -14 3 Z" />
+      {/* The pop animation runs on THIS inner group: a CSS transform on the translated group above would replace its `transform` attribute and fling the shell to the pot's corner. */}
+      <g className="cooking-steam__shell-pop">
+        {/* closed: one domed valve with ridges */}
+        <g className="cooking-steam__shell-closed">
+          <path className="cooking-steam__shell-valve" d="M-14 4 Q-14 -11 0 -11 Q14 -11 14 4 Q0 9 -14 4 Z" />
+          <path className="cooking-steam__shell-ridge" d="M-7 3 Q-6 -5 -3 -8 M0 4 L0 -9 M7 3 Q6 -5 3 -8" />
+        </g>
+        {/* open: the body shows between two valves */}
+        <g className="cooking-steam__shell-open">
+          <path className="cooking-steam__shell-valve" d="M-14 4 Q0 12 14 4 L12 0 Q0 6 -12 0 Z" />
+          <ellipse className="cooking-steam__shell-body" cx="0" cy="-1" rx="10" ry="4.5" />
+          <path className="cooking-steam__shell-valve" transform="translate(-3 -8) rotate(-32)" d="M-14 3 Q-14 -9 0 -9 Q14 -9 14 3 Q0 7 -14 3 Z" />
+        </g>
       </g>
     </g>
   );

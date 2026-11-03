@@ -240,7 +240,9 @@
 .cooking-steam__shell[data-open="true"] .cooking-steam__shell-closed {
   display: none;
 }
-.cooking-steam__shell[data-open="true"] {
+/* The pop runs on the INNER group: the outer one carries the shell's position as a `transform` attribute, which a CSS transform would replace (the shell would
+   flash at the pot's corner while it opens -- seen in the first HV recording). */
+.cooking-steam__shell[data-open="true"] .cooking-steam__shell-pop {
   animation: cooking-steam-pop 0.28s ease-out;
   transform-box: fill-box;
   transform-origin: center;
@@ -396,7 +398,7 @@
    steam strength and the words follow data-open / --steam-heat / data-look above). */
 @media (prefers-reduced-motion: reduce) {
   .cooking-steam__puffs i,
-  .cooking-steam__shell[data-open="true"],
+  .cooking-steam__shell[data-open="true"] .cooking-steam__shell-pop,
   .cooking-steam__title--result {
     animation: none;
   }

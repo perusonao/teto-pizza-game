@@ -152,6 +152,21 @@ test.describe("Cooking Steam HV entry (?cookSteamHv=1)", () => {
     expect(geo.titleHitsClose).toBe(false);
     await page.getByTestId("cooking-steam-lid-button").click();
     await expect(screenEl(page)).toHaveAttribute("data-mode", "steaming");
+    // While the shells open (the pop animation runs) none of them may leave the pot: sample every shell's box every ~40 ms for ~3 s (HV recording found one flashing in the corner)
+    const strays = await page.evaluate(async () => {
+      const pot = document.querySelector('[data-testid="cooking-steam-pot"]')!.getBoundingClientRect();
+      let worst = 0;
+      for (let i = 0; i < 75; i += 1) {
+        for (const g of document.querySelectorAll('[data-testid^="cooking-steam-shell-"]')) {
+          const r = g.getBoundingClientRect();
+          const outside = Math.max(pot.left - r.left, r.right - pot.right, pot.top - r.top, r.bottom - pot.bottom);
+          if (outside > worst) worst = outside;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 40));
+      }
+      return worst;
+    });
+    expect(strays).toBeLessThanOrEqual(1);
     await expect(screenEl(page)).toHaveAttribute("data-open-count", /^[1-5]$/, { timeout: 4000 }); // the first shell opens on its own
     await shot(page, "A-01-steaming");
     await page.waitForTimeout(1200);
