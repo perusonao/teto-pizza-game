@@ -5246,6 +5246,72 @@ export const JAMAICAN_JERK_CHICKEN_PIZZA_REFERENCE: ReferencePizza = {
   ],
 };
 
+/**
+ * Expansion Batch 15 (Issue #728; NO_SAUCE = a suya-only Owner exception; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED): Reference Truth for `nigerian-suya-pizza`. Pieces (mozzarella 2 / beef 3 / green-pepper 1 / onion 2 = 8) take the RT-01 8-piece ring consecutively in `requiredIngredients` order, the same slot geometry as `jamaican-jerk-chicken-pizza` (same counts). Slot assignment and the sauce quantity / coverage are GAMEPLAY ASSUMPTIONS, not source.
+ */
+export const NIGERIAN_SUYA_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "nigerian-suya-pizza",
+  sauce: computeMechanicalSauceReference("nigerian-suya-pizza"),
+  pieceGroups: [
+    {
+      ingredientId: "mozzarella",
+      positions: [
+        { x: 50, y: 24 },
+        { x: 73, y: 36 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "beef",
+      positions: [
+        { x: 76, y: 63 },
+        { x: 58, y: 79 },
+        { x: 38, y: 79 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "green-pepper",
+      positions: [
+        { x: 22, y: 63 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+    {
+      ingredientId: "onion",
+      positions: [
+        { x: 25, y: 36 },
+        { x: 50, y: 52 },
+      ],
+      interaction: {
+        family: "TAP_PLACE",
+        primaryInput: "DRAG_FROM_TRAY",
+        fallbackInput: "TAP_ON_PIZZA",
+        landingStyle: "HEAVY_SQUASH",
+      },
+      matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
+    },
+  ],
+};
+
 const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [MARGHERITA_REFERENCE.recipeId, MARGHERITA_REFERENCE],
   [MARINARA_REFERENCE.recipeId, MARINARA_REFERENCE],
@@ -5323,6 +5389,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PIZZA_ALLA_NORMA_REFERENCE.recipeId, PIZZA_ALLA_NORMA_REFERENCE],
   [POTATO_MAYO_PIZZA_REFERENCE.recipeId, POTATO_MAYO_PIZZA_REFERENCE],
   [MOUSSAKA_STYLE_PIZZA_REFERENCE.recipeId, MOUSSAKA_STYLE_PIZZA_REFERENCE],
+  [NIGERIAN_SUYA_PIZZA_REFERENCE.recipeId, NIGERIAN_SUYA_PIZZA_REFERENCE],
   [GRANDMA_PIZZA_REFERENCE.recipeId, GRANDMA_PIZZA_REFERENCE],
   [IKURA_SALMON_PIZZA_REFERENCE.recipeId, IKURA_SALMON_PIZZA_REFERENCE],
   [YUZU_SHRIMP_PIZZA_REFERENCE.recipeId, YUZU_SHRIMP_PIZZA_REFERENCE],
