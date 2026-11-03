@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../../data/recipes";
-import { B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B15_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
+import { B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B15_BATCH, B16_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
 import {
   ordinaryCatalogView,
   productionCatalogView,
@@ -71,6 +71,16 @@ describe("production catalog", () => {
     expect(B15_BATCH.recipes[0].ladderCredit).toBe(false);
     expect(B15_BATCH.acceptedLetterShifts).toEqual({ "rendang-pizza": "-->B" });
     expect(validateBatchManifest(B15_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("Expansion Batch 16 (ume-shiso-pizza, credited, the key of ordinary step 67) is LANDED and consistent: appended tail, append-only ladder, chapter identity; no pre-existing recipe changes its Research letter", () => {
+    expect(RECIPE_BATCHES).toContain(B16_BATCH);
+    expect(B16_BATCH.status).toBe("landed");
+    expect(B16_BATCH.recipes.map((r) => r.recipeId)).toEqual(["ume-shiso-pizza"]);
+    expect(B16_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["umeboshi-paste"]);
+    expect(B16_BATCH.recipes[0].ladderCredit).toBe(true);
+    expect(B16_BATCH.acceptedLetterShifts).toBeUndefined();
+    expect(validateBatchManifest(B16_BATCH, ordinaryCatalogView())).toEqual([]);
   });
 });
 

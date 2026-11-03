@@ -1187,7 +1187,22 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pieceVisual: "cinnamon-powder-pile",
+  },  /**
+   * Expansion Batch 16 (Issue #736; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, ordinary step 67 (T4, no star gate), the sole material of ume-shiso-pizza's step.
+   * Owner decision (2026-11-03): a spread SAUCE painted in the SAUCE step (the existing PAINT gesture) -- the matrix names 梅肉 (plum flesh; the canonicalizer's id `umeboshi-paste`) and leaves the sauce field 'その他' unspecified, and reading 梅肉 as
+   * the sauce is a B16-only provisional exception. A sauce carries no topping family (so no ingredientTaxonomy row; 梅肉 is not meat: `false_friend_not_meat`). Colour `#b8405a` and the emoji 🍑 (a sauce shows its emoji; G18: no other ingredient uses it)
+   * are PROVISIONAL until the 390x844 / 360x800 HV.
+   */
+  {
+    id: "umeboshi-paste",
+    category: "sauce",
+    nameJa: "梅肉",
+    color: "#b8405a",
+    emoji: "\u{1F351}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
   },
+
 ];
 
 /**

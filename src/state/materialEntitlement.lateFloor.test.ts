@@ -189,9 +189,9 @@ describe("late material compatibility floor against the production ladder (Expan
   const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
 
   it("the late steps now derive from the longer ordinary ladder, and the floors stay at their shipped numbers", () => {
-    expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 10); // B10 PR-1 appended 57-61, B11 S1 appended 62-63, Expansion Batch 12 appended 64, Expansion Batch 13 appended 65, Expansion Batch 14 appended 66
-    expect(stepOf(ROE)).toBe(67);
-    expect(stepOf("tahini")).toBe(70);
+    expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 11); // B10 PR-1 appended 57-61, B11 S1 appended 62-63, Expansion Batch 12 appended 64, Expansion Batch 13 appended 65, Expansion Batch 14 appended 66, Expansion Batch 16 appended 67
+    expect(stepOf(ROE)).toBe(68);
+    expect(stepOf("tahini")).toBe(71);
     expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 }); // PR-2 late4: 67 / 68; BBQ Chicken (#611) shipped after Batch 10: 61 ordinary + 5 late = 66
   });
 
@@ -220,8 +220,8 @@ describe("late material compatibility floor against the production ladder (Expan
 describe("late floors after Expansion Batch 14 (BBQ 66, wasabi 67, tarako 68 against the derived 71 / 72 / 73; Expansion Batch 13 derived 70 / 71 / 72; Expansion Batch 12 derived 69 / 70 / 71; B11 S1 derived 68 / 69 / 70)", () => {
   const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((st) => st.ingredientIds.includes(id))!.step;
 
-  it("derived numbers moved +5 (B11 S1 +2, Expansion Batch 12 +1, Expansion Batch 13 +1, Expansion Batch 14 +1) and the floors did not", () => {
-    expect([stepOf("bbq-sauce"), stepOf("wasabi"), stepOf("nori")]).toEqual([71, 72, 73]);
+  it("derived numbers moved +6 (B11 S1 +2, Expansion Batch 12 +1, Expansion Batch 13 +1, Expansion Batch 14 +1, Expansion Batch 16 +1) and the floors did not", () => {
+    expect([stepOf("bbq-sauce"), stepOf("wasabi"), stepOf("nori")]).toEqual([72, 73, 74]);
     expect([LATE_ENTITLEMENT_FLOORS["bbq-sauce"], LATE_ENTITLEMENT_FLOORS.wasabi, LATE_ENTITLEMENT_FLOORS.nori]).toEqual([66, 67, 68]);
   });
 
