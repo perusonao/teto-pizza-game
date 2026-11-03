@@ -79,7 +79,7 @@ describe("Batch 16 save compatibility", () => {
     expect(at(66)).not.toContain(NEW_MATERIAL);
     expect(at(67)).toContain(NEW_MATERIAL);
     expect(at(67).filter((id) => !at(66).includes(id)).sort()).toEqual([NEW_MATERIAL, "soy-sauce", "wasabi"].sort());
-    expect(at(68).filter((id) => !at(67).includes(id)).sort()).toEqual(["cod-roe", "fresh-cream-sauce", "nori"]); // the late floor 68, not moved by the new ordinary step
+    expect(at(68).filter((id) => !at(67).includes(id)).sort()).toEqual(["cod-roe", "fresh-cream-sauce", "nori", "sour-cream"]); // the late floor 68 (not moved by the new ordinary step) plus Expansion Batch 17's own step 68 (sour-cream), which lands at the same count
     for (const c of [60, 64, 65, 66]) expect(at(c + 1).filter((id) => at(c).includes(id)), `count ${c}`).toEqual(at(c)); // nothing is ever taken back
   });
 

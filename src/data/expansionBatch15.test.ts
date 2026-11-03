@@ -146,9 +146,9 @@ describe("the discovery target is the four matrix ids (Owner exception: the unsp
     expect(target.sauceBase ?? []).toEqual([]);
   });
 
-  it("the exception is not generalised: other unspecified-sauce HOLD / candidate rows are not shipped (caponata, tsukimi, pesto-genovese, goulash; ume-shiso-pizza was shipped later by its OWN Owner-approved Batch 16)", () => {
+  it("the exception is not generalised: other unspecified-sauce HOLD / candidate rows are not shipped (caponata, tsukimi, pesto-genovese, goulash; ume-shiso-pizza and goulash-pizza were shipped later by their OWN Owner-approved Batches 16 / 17)", () => {
     const shipped = new Set(RECIPES.map((r) => r.id as string));
-    for (const held of ["caponata-pizza", "tsukimi-pizza", "pesto-genovese-pizza", "goulash-pizza"]) expect(shipped.has(held), held).toBe(false);
+    for (const held of ["caponata-pizza", "tsukimi-pizza", "pesto-genovese-pizza"]) expect(shipped.has(held), held).toBe(false);
   });
 });
 

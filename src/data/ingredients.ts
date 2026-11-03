@@ -54,7 +54,8 @@ export type DedicatedIngredientVisual =
   | "pineapple-wedges"
   | "salmon-fillet"
   | "cream-cheese-block"
-  | "umeboshi-paste-dab";
+  | "umeboshi-paste-dab"
+  | "sour-cream-dab";
 
 export interface Ingredient {
   id: string;
@@ -1204,7 +1205,23 @@ const BASE_INGREDIENTS: Ingredient[] = [
     unlockCondition: { minTotalStars: 0 },
     // Issue #739 (Owner P1, 2026-11): a paste dab with a plum blossom instead of the 🍑 (which read as a peach on the 390x844 / 360x800 HV). `emoji` stays only as the required text fallback (G18 keeps it unique). Presentation only.
     pieceVisual: "umeboshi-paste-dab",
+  },  /**
+   * Expansion Batch 17 (Issue #741; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, ordinary step 68 (T4, no star gate), the sole material of goulash-pizza's step.
+   * Owner decision (2026-11-03): a spread SAUCE painted in the SAUCE step (the existing PAINT gesture) -- the matrix names サワークリーム and leaves the sauce field 'その他' unspecified, and reading it as the sauce is a B17-only provisional exception.
+   * A sauce carries no topping family (no ingredientTaxonomy row). Colour `#f1ecdc` is PROVISIONAL (a white sauce cannot reach DeltaE 20 against fromage-blanc-sauce `#fffdf8`, so the chip is told apart by its dedicated dab, plan A: a swirl with a peak, and the label).
+   * `emoji` 🍦 is only the required text fallback (G18: not 🥣, which tahini uses; no other ingredient uses it).
+   */
+  {
+    id: "sour-cream",
+    category: "sauce",
+    nameJa: "サワークリーム",
+    color: "#f1ecdc",
+    emoji: "\u{1F366}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "sour-cream-dab",
   },
+
 
 ];
 

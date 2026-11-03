@@ -1541,7 +1541,24 @@ const BASE_RECIPES = [
     bakeTarget: { start: 58, end: 78 },
     baseRewardPitz: 100,
     lunchRush: false,
+  },  {
+    id: "goulash-pizza",
+    nameJa: "グヤーシュピザ",
+    description: "サワークリームのソースに、牛肉と玉ねぎとパプリカをのせた、ハンガリー風の一枚。",
+    // Expansion Batch 17 (Issue #741; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `goulash-pizza-pizzadb-p3` only (comparison table p3, relayed 2026-09-22, never independently re-fetched): 牛肉 / 玉ねぎ / パプリカパウダー / サワークリーム; sauce field 'その他' (BASE_SAUCE_UNSPECIFIED, matrix BLOCKED_PRODUCT_DECISION, unchanged).
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source; Owner-confirmed 2026-11-03): サワークリーム is painted as the SAUCE (a B17-only provisional exception, NOT a general rule for unspecified sauce fields); counts sour-cream 1 (PAINT) / beef 3 / onion 3 / paprika-powder 2 (non-sauce 8 pieces = the 8-slot ring), NO cheese (the matrix lists none; vongole / fugazza are the sauce-without-cheese precedent), bake 58-78 (the generic Free Cooking window).
+    // EVERY piece is placed BEFORE the bake (the source states no timing; no POST_BAKE, so no FINISH step; no prep / steam / sear step). Ladder-credited: the key of ordinary step 68 (sour-cream, a single-member Research cohort: no existing recipe changes its label); `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "sour-cream", minCount: 1 },
+      { ingredientId: "beef", minCount: 3 },
+      { ingredientId: "onion", minCount: 3 },
+      { ingredientId: "paprika-powder", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
   },
+
 ] as const;
 
 /**

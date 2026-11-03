@@ -58,6 +58,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "bell-pepper-quarter",
   "pineapple-wedges",
   "umeboshi-paste-dab",
+  "sour-cream-dab",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -101,7 +102,8 @@ const B12_DEDICATED: Record<string, DedicatedIngredientVisual> = { "ricotta-sala
 const PILOT_E_DEDICATED: Record<string, DedicatedIngredientVisual> = { "green-pepper": "green-pepper-strips", "bell-pepper": "bell-pepper-quarter", pineapple: "pineapple-wedges" };
 const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
 const ISSUE739_DEDICATED: Record<string, DedicatedIngredientVisual> = { "umeboshi-paste": "umeboshi-paste-dab" }; // Issue #739 (Owner P1): the 梅肉 sauce, drawn by a paste dab instead of the 🍑
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
+const B17_DEDICATED: Record<string, DedicatedIngredientVisual> = { "sour-cream": "sour-cream-dab" }; // Expansion Batch 17 (Owner plan A): the サワークリーム sauce, a swirl-and-peak dab; the 🍦 is only the text fallback
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -1262,6 +1264,55 @@ describe("Issue #739: umeboshi-paste dedicated art (a SAUCE drawn through Ingred
 
   it("keeps the 🍑 text fallback unique (G18)", () => {
     expect(INGREDIENTS.filter((i) => i.emoji === ume.emoji).map((i) => i.id)).toEqual(["umeboshi-paste"]);
+  });
+});
+
+/**
+ * Expansion Batch 17 (Issue #741, Owner plan A): the サワークリーム sauce (`sour-cream`) is drawn by a dedicated swirl-and-peak dab. A white sauce cannot be told apart from fromage-blanc-sauce by colour (dE < 20), so the SHAPE does it.
+ * Presentation only: identity, colour (#f1ecdc), recipes, scoring and the save are untouched. The 🍦 stays only as the required text fallback (G18) and must never reach the DOM.
+ */
+describe("Expansion Batch 17: sour-cream dedicated art (a SAUCE drawn through IngredientGlyph)", () => {
+  const visual = "sour-cream-dab";
+  const cream = getIngredient("sour-cream")!;
+
+  it("declares the visual and keeps its identity and colour (a spread sauce, #f1ecdc)", () => {
+    expect(cream).toMatchObject({ id: "sour-cream", nameJa: "サワークリーム", category: "sauce", placement: "spread", color: "#f1ecdc", pieceVisual: visual });
+  });
+
+  it("draws an SVG on the glyph and on the piece visual (64x64, no id / gradient / defs) and never prints the 🍦", () => {
+    for (const node of [<IngredientGlyph key="g" ingredient={cream} />, <IngredientPieceVisual key="p" ingredient={cream} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      expect(container.innerHTML).not.toContain("<defs");
+      expect(container.innerHTML).not.toContain("gradient");
+      unmount();
+    }
+  });
+
+  it("draws the cream in the ingredient colour with a swirl and a peak, and differs from every other sauce / white art (the white fromage-blanc-sauce included)", () => {
+    const html = renderToStaticMarkup(<IngredientGlyph ingredient={cream} />);
+    expect(html).toContain('fill="#f1ecdc"');
+    expect(html.match(/<ellipse/g)!.length).toBe(1); // the contact shadow only
+    expect(html.match(/<path/g)!.length).toBe(3); // the dab + the swirl + the peak
+    const all = INGREDIENTS.filter((i) => i.category === "sauce" || i.id === "mayo").map((i) => renderToStaticMarkup(<IngredientGlyph ingredient={i} />));
+    expect(new Set(all).size).toBe(all.length);
+    expect(renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient("fromage-blanc-sauce")!} />)).not.toBe(html);
+  });
+
+  it("keeps the 🍦 text fallback unique (G18) and different from tahini's 🥣", () => {
+    expect(INGREDIENTS.filter((i) => i.emoji === cream.emoji).map((i) => i.id)).toEqual(["sour-cream"]);
+    expect(cream.emoji).not.toBe(getIngredient("tahini")?.emoji);
+  });
+
+  it("leaves the existing sauce art alone: umeboshi-paste keeps its plum dab and fromage-blanc-sauce still draws its emoji", () => {
+    expect(getIngredient("umeboshi-paste")!.pieceVisual).toBe("umeboshi-paste-dab");
+    expect(getIngredient("fromage-blanc-sauce")!.pieceVisual).toBeUndefined();
   });
 });
 
