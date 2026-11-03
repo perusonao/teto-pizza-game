@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { gameReducer } from "../../state/gameReducer";
 import { normalised, placeSausageAndBake, toStep } from "./searFixtures";
 
-/** Cooking Sear Phase 1 (#724): SEAR_INGREDIENT with the experience gate OPEN. The production-OFF half is ./searIngredient.flagOff.test.ts. */
+/** Cooking Sear Phase 1 (#724): SEAR_INGREDIENT with the experience gate OPEN. The production switch is pinned in ./searIngredient.flagOn.test.ts. */
 const gate = vi.hoisted(() => ({ open: true }));
 vi.mock("../../data/searExperienceGate", () => ({ SEAR_EXPERIENCE_PRODUCTION: false, searExperienceEnabled: () => gate.open }));
 
@@ -28,6 +28,19 @@ describe("SEAR_INGREDIENT: allowed (Guided / Free Cooking, TOPPING, sausage owne
     const s = toStep("GUIDED", "TOPPING");
     expect(gameReducer(s, sear(7)).searedLook).toEqual({ sausage: 1 });
     expect(gameReducer(s, sear(-2)).searedLook).toEqual({ sausage: 0 });
+  });
+});
+
+describe("SEAR_INGREDIENT: gate closed (the rollback state: SEAR_EXPERIENCE_PRODUCTION = false, no opt-in)", () => {
+  it.each(["GUIDED", "FREE_COOK"] as const)("%s: refused with the same reference, and a plain round carries no searedLook", (kind) => {
+    gate.open = false;
+    try {
+      const s = toStep(kind, "TOPPING");
+      expect(gameReducer(s, sear())).toBe(s);
+      expect("searedLook" in placeSausageAndBake(s, true)).toBe(false);
+    } finally {
+      gate.open = true;
+    }
   });
 });
 

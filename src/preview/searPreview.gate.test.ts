@@ -7,8 +7,9 @@ import { SEAR_ON_VALUE, SEAR_PARAM } from "./searPreview";
 /**
  * Cooking Sear Phase 1 (#724) gate (bundle level), the same shape as ./freeFinishPreview.gate.test.ts: the PRODUCTION bundle contains nothing of the
  * Preview opt-in -- no `cookSear` query name, so the sear experience cannot be switched on there -- and a Preview bundle does (so the scan can see
- * what it looks for). Real, in-memory `vite build`s of this tree, one without and one with `VITE_PREVIEW_MODE`. The production literal stays
- * `false` (SEAR_EXPERIENCE_PRODUCTION), so no literal override is needed for the positive control.
+ * what it looks for). Real, in-memory `vite build`s of this tree, one without and one with `VITE_PREVIEW_MODE`. Production ON (#727):
+ * SEAR_EXPERIENCE_PRODUCTION is `true`, so the sear itself ships in the production bundle (asserted below), but the Preview / DEV opt-in names still must
+ * not (a production player cannot reach the comparison switches or the HV entry). No literal override is needed for the positive control.
  */
 const root = path.resolve(__dirname, "../..");
 
@@ -47,6 +48,12 @@ describe("Cooking Sear opt-in isolation (real vite builds)", () => {
     production = await bundleText(false);
     expect(production.length).toBeGreaterThan(100_000); // a real app bundle, not an empty result
     expect(production.includes(SEAR_PARAM), `production bundle contains ${SEAR_PARAM}`).toBe(false);
+  }, 240_000);
+
+  it("Production ON (#727): the sear UI itself ships in the production bundle (only the Preview / DEV query names are absent)", async () => {
+    production = production || (await bundleText(false));
+    expect(production.includes("cooking-sear-pill"), "production bundle is missing the sear pill").toBe(true);
+    expect(production.includes("cookSearMs"), "production bundle carries the Preview-only hold-time query name").toBe(false);
   }, 240_000);
 
   it("the scan can see it: a Preview bundle carries the query name (positive control)", async () => {

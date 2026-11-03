@@ -5,7 +5,7 @@ import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Cooking Sear Phase 1 (#724, 焼き目をつける・長押し炙り): the optional sausage sear in the TOPPING step, on both authority viewports (390x844, 360x800).
- * Production is OFF; the Preview / DEV opt-in `?cookSear=on` stands in for it. HV_SHOT_DIR (optional) writes the screenshots.
+ * Production is ON (#727); `?cookSear=on` (Preview / DEV) is kept for the comparison switches. HV_SHOT_DIR (optional) writes the screenshots.
  * The pill sits in the same band as the 炒める pill (44px high, centred, pill bottom = stage bottom - 18px).
  */
 const SHOT_DIR = process.env.HV_SHOT_DIR;
@@ -72,25 +72,27 @@ async function noOverflow(page: Page) {
 }
 
 test.describe("Cooking Sear: gate", () => {
-  test("production default (no query): selecting sausage shows no pill and nothing changes", async ({ page }) => {
+  test("production default (no query, #727 Production ON): sausage offers the pill, beef does not, a plain tap still places a raw piece", async ({ page }) => {
     await toTopping(page, "");
     await select(page, "ソーセージ");
-    await expect(pill(page)).toHaveCount(0);
-    await expect(screenEl(page)).toHaveCount(0);
-    // "before": the same three pieces with the feature OFF are the shipped drawing and there is nothing to press (screenshots only)
+    await expect(pill(page)).toBeVisible();
+    await expect(screenEl(page)).toHaveCount(0); // the sear screen opens only from the pill
+    await shot(page, "00-production-default-pill");
+    // a plain tap on the dough still places a raw (unseared) piece, exactly as before
     await tapDoughPercent(page, 38, 48);
-    await tapDoughPercent(page, 60, 52);
-    await tapDoughPercent(page, 50, 30);
     expect(await sausageInner(page)).toBe("rgb(185, 94, 71)");
+    await page.waitForTimeout(700); // the piece's landing animation
+    await shot(page, "01-production-default-raw-piece");
+    // beef is the 炒める prep's ingredient (that prep is still OFF in production): no sear pill, no prep pill
+    await select(page, "牛肉");
     await expect(pill(page)).toHaveCount(0);
-    await page.waitForTimeout(700); // the last piece's landing animation
-    await shot(page, "00-before-feature-off");
+    await expect(page.getByTestId("cooking-prep-pill")).toHaveCount(0);
   });
 
-  test("?cookPrep=on alone does not turn the sear on, and the 炒める pill still belongs to beef", async ({ page }) => {
+  test("?cookPrep=on: the 炒める pill belongs to beef and the sear pill to sausage, never both", async ({ page }) => {
     await toTopping(page, "?cookPrep=on");
     await select(page, "ソーセージ");
-    await expect(pill(page)).toHaveCount(0);
+    await expect(pill(page)).toBeVisible();
     await expect(page.getByTestId("cooking-prep-pill")).toHaveCount(0);
     await select(page, "牛肉");
     await expect(page.getByTestId("cooking-prep-pill")).toBeVisible();
