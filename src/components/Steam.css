@@ -261,9 +261,10 @@
   transform-origin: 50% 100%;
   transition: transform 0.25s ease-out, opacity 0.25s ease-out;
 }
+/* Off: the lid is lifted clear and invisible (an off-pot lid drawn beside the pot ran over the title / the variant switch / the × on a short stage). */
 .cooking-steam__pot[data-lid="off"] .cooking-steam__lid {
-  transform: translate(34px, -22px) rotate(16deg);
-  opacity: 0.6;
+  transform: translateY(-18px);
+  opacity: 0;
 }
 /* The steam: three puffs above the pot. How many are visible and how strong follows the steam level (--steam-heat, 0..1); nothing shows before it starts. */
 .cooking-steam__puffs {
