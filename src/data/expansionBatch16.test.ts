@@ -57,7 +57,7 @@ describe("umeboshi-paste, the one new material (provisional spec)", () => {
   it("is a SPREAD SAUCE (PAINT in the SAUCE step), named 梅肉, finite, with the provisional colour; it carries no topping family and is not meat", () => {
     expect(ing).toMatchObject({ id: "umeboshi-paste", nameJa: "梅肉", category: "sauce", placement: "spread", color: "#b8405a" });
     expect(ing.unlockCondition).toEqual({ minTotalStars: 0 });
-    expect(ing.pieceVisual).toBeUndefined();
+    expect(ing.pieceVisual).toBe("umeboshi-paste-dab"); // Issue #739: drawn by a dedicated paste-dab SVG; the 🍑 is only the text fallback (checked below)
     expect(ingredientAttributeFamily("umeboshi-paste")).not.toBe("meat"); // 梅肉 = plum flesh (false_friend_not_meat)
   });
   it("has an emoji no other ingredient uses (G18)", () => {

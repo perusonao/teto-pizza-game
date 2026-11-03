@@ -840,6 +840,20 @@
   margin: -0.1em;
 }
 
+/* Issue #739 (Owner P1): the whitebait school is drawn with larger fish and a darker outline, and its box is 1.35em (was the shared 1.2em above), so the school reads on the baked dough. Its own rule: the shared group above stays untouched. The layout box stays 1em via the negative margin. */
+.ingredient-glyph--whitebait-school {
+  width: 1.35em;
+  height: 1.35em;
+  margin: -0.175em;
+}
+
+/* Issue #739 (Owner P1): the plum-paste dab of the 梅肉 sauce chip. A 64-box with margins, so it gets a boost (1.5em: the flat dab fills only the lower two thirds of its box) to match the neighbouring emoji chips; PROVISIONAL until the 390x844 / 360x800 HV. */
+.ingredient-glyph--umeboshi-paste-dab {
+  width: 1.5em;
+  height: 1.5em;
+  margin: -0.25em;
+}
+
 /* Ingredient Visual V1 (pickles / wurstel / paprika-powder): drawn inside a 64-box with margins, so on the dough they read smaller than the emoji they replace (measured on 390x844 / 360x800).
    Same fix class as the group above, kept as its own rule so later visuals append without touching it. */
 .ingredient-glyph--pickle-slices,

@@ -57,6 +57,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "green-pepper-strips",
   "bell-pepper-quarter",
   "pineapple-wedges",
+  "umeboshi-paste-dab",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -99,7 +100,8 @@ const B12_DEDICATED: Record<string, DedicatedIngredientVisual> = { "ricotta-sala
 /** Ingredient Icons 2.0 Pilot E (#715, Style Lock v2 §11): green-pepper / bell-pepper / pineapple dedicated art instead of 🌶️ / 🫑 / 🍍. */
 const PILOT_E_DEDICATED: Record<string, DedicatedIngredientVisual> = { "green-pepper": "green-pepper-strips", "bell-pepper": "bell-pepper-quarter", pineapple: "pineapple-wedges" };
 const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
+const ISSUE739_DEDICATED: Record<string, DedicatedIngredientVisual> = { "umeboshi-paste": "umeboshi-paste-dab" }; // Issue #739 (Owner P1): the 梅肉 sauce, drawn by a paste dab instead of the 🍑
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -1219,5 +1221,71 @@ describe("Batch 14: cinnamon dedicated art (production row; a powder pile)", () 
     const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
     const all = ["cinnamon", "paprika-powder", "mayo", "feta", "ricotta-salata", "fromage-blanc-sauce"].map(html);
     expect(new Set(all).size).toBe(all.length);
+  });
+});
+
+/**
+ * Issue #739 (Owner P1): the 梅肉 sauce (`umeboshi-paste`) is drawn by a dedicated paste-dab SVG, and the whitebait school by larger fish with a darker outline.
+ * Presentation only: identity, colour (#b8405a), recipes, scoring and the save are untouched. The 🍑 stays only as the required text fallback (G18) and must never reach the DOM.
+ */
+describe("Issue #739: umeboshi-paste dedicated art (a SAUCE drawn through IngredientGlyph)", () => {
+  const visual = "umeboshi-paste-dab";
+  const ume = getIngredient("umeboshi-paste")!;
+
+  it("declares the visual and keeps its identity and colour (a spread sauce, #b8405a)", () => {
+    expect(ume).toMatchObject({ id: "umeboshi-paste", nameJa: "梅肉", category: "sauce", placement: "spread", color: "#b8405a", pieceVisual: visual });
+  });
+
+  it("draws an SVG on the glyph and on the piece visual (64x64, no id / gradient / defs) and never prints the 🍑", () => {
+    for (const node of [<IngredientGlyph key="g" ingredient={ume} />, <IngredientPieceVisual key="p" ingredient={ume} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      expect(container.innerHTML).not.toContain("<defs");
+      expect(container.innerHTML).not.toContain("gradient");
+      unmount();
+    }
+  });
+
+  it("draws the paste in the ingredient colour with a five-petal blossom, and differs from every other sauce / white art", () => {
+    const html = renderToStaticMarkup(<IngredientGlyph ingredient={ume} />);
+    expect(html).toContain('fill="#b8405a"');
+    expect(html.match(/<ellipse/g)!.length).toBe(1 + 5); // the contact shadow + five petals
+    const all = INGREDIENTS.filter((i) => i.category === "sauce" || i.id === "mayo").map((i) => renderToStaticMarkup(<IngredientGlyph ingredient={i} />));
+    expect(new Set(all).size).toBe(all.length);
+  });
+
+  it("keeps the 🍑 text fallback unique (G18)", () => {
+    expect(INGREDIENTS.filter((i) => i.emoji === ume.emoji).map((i) => i.id)).toEqual(["umeboshi-paste"]);
+  });
+});
+
+describe("Issue #739: whitebait-school larger fish and darker outline", () => {
+  const whitebait = getIngredient("whitebait")!;
+  const html = renderToStaticMarkup(<IngredientGlyph ingredient={whitebait} />);
+
+  it("keeps three fish, now at scale 1.5 with a #2e2a1d / 2.8 outline (was 1.3 and #4d4837 / 2.1)", () => {
+    expect(html.match(/scale\(1\.5\)/g)!.length).toBe(3);
+    expect(html).not.toContain("scale(1.3)");
+    expect(html).toContain('stroke="#2e2a1d"');
+    expect(html).toContain('stroke-width="2.8"');
+    expect(html).not.toContain("#4d4837");
+  });
+
+  it("stays a plain inline SVG (no id / gradient / defs)", () => {
+    expect(html).not.toContain("id=");
+    expect(html).not.toContain("url(#");
+    expect(html).not.toContain("<defs");
+  });
+
+  it("shiso (out of scope for #739) is unchanged", () => {
+    const shiso = renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient("shiso")!} />);
+    expect(shiso).toContain('stroke="#245f2c"');
+    expect(shiso).toContain('fill="#5aa84f"');
   });
 });
