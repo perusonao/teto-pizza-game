@@ -1,6 +1,6 @@
 # Expansion Batch 15 — Result Report（nigerian-suya-pizza）
 
-Status: **実装・自動検証・Chromium E2E・HV 動画（390×844）まで完了。Owner の承認と iPhone Safari 実機 HV の前は merge しない。共有 Preview・Production は更新していない。**
+Status: **完了（2026-11-03）。#731 は squash merge `50ac26b`、Production Deploy・WebKit E2E は success。HV は Chromium の画像・動画レビューで PASS、Safari 実機 HV は Owner 判断で免除（§9）。** 以下 §0〜§8 は merge 前（2026-11-02）の記録で、そのまま残している。merge 後の結果・判定は §9。
 Issue #728 / branch `claude/expansion-batch-15-nigerian-suya` / 基準 `main` `cfbb083`（#725）。`PROJECT_HANDOFF.md` は変更していない（Owner 指示）。
 調査資料（別 branch `claude/teto-pizza-recipe-research-pllftj`）: `TETO_EXPANSION-NEXT-BATCH-15_Research_2026-11-02.md` / `TETO_EXPANSION-BATCH-15_Spec_Result.md` / `TETO_EXPANSION-BATCH-15_Verification_Result.md`。
 
@@ -85,3 +85,55 @@ Issue #728 / branch `claude/expansion-batch-15-nigerian-suya` / 基準 `main` `c
 ## 8. 実施しなかったこと
 
 `PROJECT_HANDOFF.md`・`ingredients.ts`・UI・`lateCatalog.ts`・保存仕様・ladder の変更、新食材・新調理法・新 step の追加、炙り（#724/#727）・蒸す（#726）への干渉、Production・共有 Preview の更新、merge、不要な CI 再実行、Monitor 作成、pizzadb.jp の取得（到達不可）。
+
+## 9. HV 判定・merge・Deploy・Preview 復旧の記録（2026-11-03、docs-only 追記）
+
+§0〜§8 は merge 前の記録で、この節で上書きせずに追記する。数値・SHA・run ID は GitHub 上の実測または報告に基づく。
+
+### 9.1 Owner 判定（Owner の判断として記録）
+
+| 項目 | 判定 |
+|---|---|
+| Chromium 390×844 / 360×800 の画像・動画 HV（ChatGPT によるレビューを踏まえた Owner の判断） | **PASS**。機能・画面遷移にブロッカーなし |
+| iPhone Safari 実機 HV | **今回に限り免除**（Owner 判断）。自動撮影を実機 PASS とは扱っていない |
+| 牛肉（beef）・ピーマン（green-pepper）の視認性 | merge 条件ではなく別 Issue #733（P2、親 #417）で扱う |
+| #731 の merge | 条件付き承認（Final Gate が GREEN であること）→ §9.3 |
+| 原典（pizzadb.jp） | **未確認のまま**。個数・焼成窓・投入タイミング・説明文・注文セリフは GAMEPLAY ASSUMPTION（暫定）で、記録を維持 |
+| squash commit の履歴 | 修正不要（Owner 判断） |
+
+### 9.2 画像・動画 HV（Chromium、WebKit は取得失敗で未使用）
+
+- 対象は #731 の exact HEAD `9f5b354dcc6ca3b37e7a8246d53d0b5967af885a`。共有 Preview も同 SHA（§9.4）。撮影は同 HEAD の作業コピーを dev server で動かして行い、公開中の Preview そのものではない。
+- ブラウザは Chromium（Playwright 同梱版）。Playwright WebKit はダウンロードに失敗し、この環境では使えなかった。**WebKit・Safari 実機の描画は、本 PR の CI と main の WebKit E2E（§9.3）以外では確認していない。**
+- 画像: 各 viewport 12 枚（ショップ NEW・購入後・Research A/B・研究開始・ソースなし工程・モッツァレラ 2・8 個配置・焼成開始・完成ピザ・RESULT・図鑑登録・suya 発見後の rendang ラベル）に、追加撮影（購入後の牛肉行、ピーマン・牛肉のトレイ）。コンタクトシート 3 枚。
+- 動画 5 本（MP4 / H.264、390×844 が 3 本、360×800 が 2 本、各 約 10〜15 秒）。リポジトリには入れず、Owner へ直接提出済み（Policy §6）。焼成の針は仮想クロックで進めているため、実時間より速く見える。
+- 計測: 8 個の食材が生地内に収まる（はみ出し 0・重なり 0）、横縦のスクロールなし（全画面 dx=0・dy=0）、console error 0。
+- **所見（別件）**: 牛肉は暗い赤茶の細切れでベーコン・ハムに近く見える。ピーマンは緑のさや形で、赤唐辛子には見えないが、さやいんげん・オクラに近く見え、ピーマンと分かりにくい（B12 HV の「赤唐辛子に見える」指摘は今回の build で再現しなかった）。→ #733。
+- **訂正（Result §7 の運用手順について）**: suya 発見後に rendang の Research ラベルが `？？？ピザ B（牛肉）` のまま残るのは設計どおり（`researchCohortLetter.test.ts` の「発見済みの兄弟も枠を保持する。A が発見済みでも B は B のまま」）。「B が消える」という説明は誤りだった。
+
+### 9.3 Final Gate・merge・Deploy
+
+| 項目 | 結果 |
+|---|---|
+| merge 前の確認 | head `9f5b354`（変更なし）、CI 11/11 success、Codex 指摘 0 件、未解決スレッド 0、最新 main `bca9aec` との競合なし |
+| merge 後の状態の事前検証（ローカル、main `bca9aec` + #731） | `tsc -b` 成功、全 Vitest 600 files / 11,193 passed / 0 failed（13 skipped / 2 todo） |
+| merge | squash `50ac26bb13a7a73e8f3c0394a71fe102020a72fb`（`expectedHeadSha` 固定） |
+| Production Deploy（Deploy to GitHub Pages） | run `41605448005`: **success** |
+| main の E2E WebKit | run `41605448083`: **success**（run attempt 1、再実行なし） |
+
+### 9.4 共有 Preview の一時公開と復旧
+
+| 段階 | 内容 |
+|---|---|
+| 更新前 | PR #724 / `2000dba4fc5cedea844f943848e6de3239a79f91`（preview main `5a4218c`、Pages run 41467242689） |
+| 一時公開 | #731 `9f5b354`（build run 41597806490 → Pages run 41598023271、いずれも success。preview main `cf40cf0`） |
+| 復旧 | PR #724 / `2000dba…`（build run 41605467473 → Pages run 41605656623、いずれも success。preview main `95bd624`）。preview repo の README の Source commit が `2000dba…`、Source PR が #724 であることを確認 |
+
+- 公開ページ自体は、この環境のネットワーク制限（`github.io` へ接続不可）で取得できず、**公開 SHA は README と Pages run の成功で確認した**。バッジ表示の目視は未確認。
+
+### 9.5 残る事項
+
+- iPhone Safari 実機での見え方は未確認（免除）。実機の絵文字・フォント・safe-area・実際の指の操作、Safari ツールバー開閉は未確認のまま。
+- 牛肉・ピーマンの視認性は #733（P2）。
+- 原典（pizzadb.jp）は未確認のまま。個数・焼成窓・説明文・注文セリフは暫定。
+- §7 の項目 7（#706 / #707 / #708 が merge 済みで open のまま、`lateCatalog.ts` のコメントと値の食い違い、`PROJECT_HANDOFF.md` の B13 / B14 の記述が pending）は、この PR でも未変更。
