@@ -63,12 +63,12 @@ Issue #741 / branch `claude/batch-17-spec-investigation-8hfcsj` / 基準 `main` 
 | 検証 | 結果 | 備考 |
 |---|---|---|
 | 全 Vitest（Pinsa ON） | **11,381 件中 11,365 passed・1 failed → 修正後に解消**（13 skipped / 2 todo、610 files） | 失敗の 1 件は `hint5.alphaFamilyOnly.json` の golden（+1 行）で、更新後に当該 3 テスト（alphaReport / golden55 / DH4 audit）が pass。それ以外の変更はなし |
-| 全 Vitest（Pinsa OFF、`TETO_PINSA_OFF=1`） | §7 に追記 | |
+| 全 Vitest（Pinsa OFF、`TETO_PINSA_OFF=1`） | **11,372 件中 11,353 passed・5 failed → 単独実行で解消**（12 skipped / 2 todo、610 files） | 5 件はすべて 5 秒のテストタイムアウトで、E2E と並行して CPU を使っていた実行中の負荷が原因（`App.lk8Backstop` 2 / `HintSheet.hint5` 1 / `gameReducer.deductionHint` 1 / `gameReducer.dinner` 1）。同 4 ファイルを単独で再実行すると **111/111 passed**。コードの変更はなし |
 | `tsc -b` | エラーなし | |
 | `oxlint` | exit 0（警告は変更前から存在するもののみ、新規 0） | |
 | `npm run build` | 成功 | |
 | Chromium E2E `e2e/b17.spec.ts`（390×844 / 360×800） | **各 2/2（計 4/4）passed** | Shop NEW（サワークリーム）→ 購入 → Research（漏えいなし、`？？？ピザ（サワークリーム）`）→ **サワークリームを塗る** → チーズ工程は選ばずに次へ → 牛肉 3・たまねぎ 3・パプリカパウダー 2 → 焼成 → NEW DISCOVERY → 図鑑（schema v2、横スクロールなし、console error なし）。もう 1 本: rendang 未発見で Research に牛肉の cohort 文字とサワークリーム（文字なし）が別々に出る。本環境は Playwright 既定の chromium の版が合わないため、一時 config（未コミット、削除済み）で `/opt/pw-browsers/chromium` を使用 |
-| WebKit E2E / CI | PR の CI で確認（§7 に追記） | 不要な再実行はしない |
+| WebKit E2E / CI | **全 11 チェック success**（§7） | 失敗した job を 1 回だけ再実行（§7） |
 | iPhone 実機 Safari | **未実施**（Owner の HV） | |
 
 ## 6. Visual HV 証跡
@@ -83,7 +83,18 @@ Issue #741 / branch `claude/batch-17-spec-investigation-8hfcsj` / 基準 `main` 
 
 ## 7. CI・Codex レビュー
 
-PR 作成後に追記する。
+PR #743（head `23e72e52d312c8419799234a8595198be5142f89`）。
+
+| 項目 | 結果 |
+|---|---|
+| Codex レビュー | **完了・指摘 0 件**（自動レビュー、対象 `23e72e5`）。未解決スレッド 0 件 |
+| 初回 CI（run 41688599134） | `classify` / `layout-chromium` / `Layout Contract Gate` / `build` / WebKit の 4 shard は success。**WebKit 390×844 の shard 1/3 と 2/3 が各 1 件失敗**し、集約の WebKit Gate も失敗 |
+| 失敗 1 | shard 1/3: `e2e/batch14-moussaka.spec.ts:81`（既存の B14 spec）。`chipOnTrayOrPin`（`e2e/support/handPick.ts:13`）で、「前のページ」ボタンが有効と判定された直後に無効になり、5 分のテストタイムアウト。確認と操作の間の競合 |
+| 失敗 2 | shard 2/3: `e2e/lunch-rush-r8-restore.spec.ts:147`（既存の Lunch Rush spec）。`page.reload()` 後の `.app-frame` 待ちが 30 秒のテスト上限に到達 |
+| 切り分け | どちらも本 PR が触っていない spec で、goulash / sour-cream を使わず、WebKit 390×844 のみ（360×800 は成功）。ローカル Chromium では `batch14-moussaka.spec.ts` は両 viewport とも通過。ルールどおり**失敗した job を 1 回だけ再実行**（コードの変更なし） |
+| 再実行後 | **全 11 チェック success**（build / classify / layout-chromium / WebKit 6 shard / WebKit Gate / Layout Contract Gate）。失敗は再現しなかった |
+
+- 上の 2 件は、WebKit の実行時間が長い shard（約 19 分）で起きた既存 spec のタイミング依存で、本 PR の変更とは無関係と判断した。ただし根本原因は特定していない（`chipOnTrayOrPin` の check-then-act は潜在的な競合）。本 PR では spec を変更していない。
 
 ## 8. Owner に必要な確認事項
 
