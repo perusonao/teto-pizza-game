@@ -59,6 +59,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "pineapple-wedges": "0 0 64 64",
   "salmon-fillet": "0 0 64 64",
   "cream-cheese-block": "0 0 64 64",
+  "umeboshi-paste-dab": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -105,6 +106,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "pineapple-wedges" && <PineappleWedges />}
       {visual === "salmon-fillet" && <SalmonFillet />}
       {visual === "cream-cheese-block" && <CreamCheeseBlock />}
+      {visual === "umeboshi-paste-dab" && <UmeboshiPasteDab />}
     </svg>
   );
 }
@@ -456,7 +458,7 @@ function ShisoLeaf() {
   );
 }
 
-/* ---------- whitebait (Batch 8b, OD-B8-2 amended): three small white fish (reference art: docs/design/references/ingredient-icons-2.0/whitebait.svg) ---------- */
+/* ---------- whitebait (Batch 8b, OD-B8-2 amended; Issue #739 Owner P1 "plan D": fish scale 1.3 -> 1.5 and a darker, thicker outline #4d4837 / 2.1 -> #2e2a1d / 2.8, because on the baked dough the pale fish read as a small grey-white smear): three small white fish (reference art: docs/design/references/ingredient-icons-2.0/whitebait.svg) ---------- */
 const WHITEBAIT_FISH: readonly { x: number; y: number; rotate: number }[] = [
   { x: 28, y: 16, rotate: -10 },
   { x: 38, y: 31, rotate: 8 },
@@ -468,8 +470,8 @@ function WhitebaitSchool() {
     <g>
       <ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15" />
       {WHITEBAIT_FISH.map((fish) => (
-        <g key={fish.y} transform={`translate(${fish.x} ${fish.y}) rotate(${fish.rotate}) scale(1.3)`}>
-          <path d="M-12 0C-8-7 3-7 8-1.4L15-7V7L8 1.4C3 7-8 7-12 0Z" fill="#fbf9f1" stroke="#4d4837" strokeWidth="2.1" strokeLinejoin="round" />
+        <g key={fish.y} transform={`translate(${fish.x} ${fish.y}) rotate(${fish.rotate}) scale(1.5)`}>
+          <path d="M-12 0C-8-7 3-7 8-1.4L15-7V7L8 1.4C3 7-8 7-12 0Z" fill="#fbf9f1" stroke="#2e2a1d" strokeWidth="2.8" strokeLinejoin="round" />
           <path d="M-9-3C-5-5.2 1-5 5-2.2" stroke="#8fa7b3" strokeWidth="2" strokeLinecap="round" fill="none" />
           <circle cx="-7" cy="-1.6" r="1.8" fill="#2b2b2b" />
         </g>
@@ -1017,6 +1019,24 @@ function CinnamonPowderPile() {
         <circle cx="42.9" cy="57" r="0.9" />
         <circle cx="8.8" cy="29.9" r="1" />
         <circle cx="25.4" cy="57" r="1.4" />
+      </g>
+    </g>
+  );
+}
+
+/* ---------- umeboshi-paste (Issue #739, Owner P1): a dab of plum-pink paste (the ingredient colour #b8405a) stamped with a five-petal plum blossom, so a SAUCE chip reads as "plum paste", not a peach. Same grammar as mayo-drop / wasabi-dab: contact-shadow ellipse, dark outline, no id / gradient / defs. Reference art: docs/design/references/ingredient-icons-2.0/umeboshi-paste.svg. ---------- */
+const UME_PETAL_ROTATIONS = [0, 72, 144, 216, 288] as const;
+
+function UmeboshiPasteDab() {
+  return (
+    <g>
+      <ellipse cx="32" cy="55" rx="22" ry="3.5" fill="#000" opacity=".15" />
+      <path d="M10 44C8 30 20 18 34 20C50 20 58 32 54 44C50 54 16 54 10 44Z" fill="#b8405a" stroke="#6e1f35" strokeWidth="2.4" strokeLinejoin="round" />
+      <g transform="translate(32 33) scale(.42) translate(-32 -32)">
+        {UME_PETAL_ROTATIONS.map((angle) => (
+          <ellipse key={angle} cx="32" cy="15" rx="9" ry="11" fill="#fde6ec" stroke="#8c2f4a" strokeWidth="2" transform={`rotate(${angle} 32 32)`} />
+        ))}
+        <circle cx="32" cy="32" r="5" fill="#f6d36b" stroke="#8c2f4a" strokeWidth="1.5" />
       </g>
     </g>
   );

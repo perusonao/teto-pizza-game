@@ -53,7 +53,8 @@ export type DedicatedIngredientVisual =
   | "bell-pepper-quarter"
   | "pineapple-wedges"
   | "salmon-fillet"
-  | "cream-cheese-block";
+  | "cream-cheese-block"
+  | "umeboshi-paste-dab";
 
 export interface Ingredient {
   id: string;
@@ -1201,6 +1202,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F351}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
+    // Issue #739 (Owner P1, 2026-11): a paste dab with a plum blossom instead of the 🍑 (which read as a peach on the 390x844 / 360x800 HV). `emoji` stays only as the required text fallback (G18 keeps it unique). Presentation only.
+    pieceVisual: "umeboshi-paste-dab",
   },
 
 ];
