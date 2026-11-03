@@ -1,0 +1,406 @@
+/* Cooking Steam Phase 1 (蒸す, Issue #726, S3). Its own file: App.css, Sear.css and CookingPrep.css are not touched. Nothing here applies unless the experience is
+   ON (the classes / elements below are only rendered then); with it OFF the DOM is today's. Colours / sizes are PROVISIONAL until the iPhone HV. */
+
+/* ---- A steamed piece on the pizza. The wrapper (.ingredient-piece-visual__emoji) already carries the bake `filter` (inline during BAKE / RESULT) and a base
+   drop-shadow, and an inline value always wins over a class -- so the steam look goes on the INNER glyph (which has no filter of its own for clam / mussel).
+   Nested filters compose (glyph first, wrapper after): the steamed sheen x the bake's roast. `transform` is never used (placement scale owns it). ---- */
+.ingredient-piece--steamed .ingredient-glyph {
+  filter: brightness(var(--steam-bright, 1)) saturate(var(--steam-sat, 1)) drop-shadow(0 -1px 0 rgba(255, 255, 255, calc(var(--steam-sheen, 0) * 0.45)));
+  transition: filter 0.3s ease;
+}
+
+/* ---- The pill, the "done" mark and the guard. All of them live INSIDE `.pizza-stage` (position: relative), after `.pizza-dough`. Same band and size as the
+   other cooking pills (never on screen together: one ingredient is selected at a time, and the three treatments have disjoint ingredients). ---- */
+.cooking-steam-pill,
+.cooking-steam-done {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  height: 44px;
+  min-width: 120px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 22px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  z-index: 5;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.cooking-steam-pill {
+  border: 2px solid #1d4f6e;
+  background: #8fd0ee;
+  color: #08283a;
+  cursor: pointer;
+}
+.cooking-steam-pill:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+.cooking-steam-done {
+  border: 2px solid transparent;
+  background: rgba(60, 130, 170, 0.16);
+  color: #1d4f6e;
+  pointer-events: none;
+}
+/* SHORT STAGE: when the centred band would touch the dough (measured by ../logic/steam/steamPillPlacement.ts), the pill becomes a compact button in the
+   stage's bottom-right corner, which lies outside the circle. Same element, same label, same tap target (>= 52px). */
+.cooking-steam-pill[data-placement="corner"] {
+  left: auto;
+  right: 8px;
+  bottom: 8px;
+  transform: none;
+  width: 56px;
+  min-width: 0;
+  height: 52px;
+  padding: 0;
+  border-radius: 18px;
+  font-size: 13px;
+}
+.cooking-steam-done[data-placement="corner"] {
+  left: auto;
+  right: 8px;
+  bottom: 8px;
+  transform: none;
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 14px;
+  font-size: 11px;
+}
+.cooking-steam-guard {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: transparent;
+  touch-action: manipulation;
+}
+
+/* ---- The steam screen: a column -- title / (variant switch) / pot / controls -- so the controls are ALWAYS inside the panel (the pot takes whatever height is
+   left). The title keeps 72px on both sides, clear of the ×. ---- */
+.cooking-steam {
+  --cooking-steam-close: 44px;
+  --cooking-steam-title-inset: 72px;
+  --steam-shell: #d8c6a2;
+  --steam-shell-edge: #3f2f1e;
+  --steam-shell-body: #f29a4a;
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px 12px;
+  border-radius: 12px;
+  background: rgba(14, 30, 42, 0.9);
+  color: #fff;
+  container-type: size;
+  touch-action: none; /* a shake must never become a scroll / zoom / callout */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.cooking-steam[data-ingredient="mussel"] {
+  --steam-shell: #2f3a52;
+  --steam-shell-edge: #10172a;
+}
+.cooking-steam__title {
+  box-sizing: border-box;
+  margin: 0;
+  width: 100%;
+  padding: 0 calc(var(--cooking-steam-title-inset) - 16px);
+  min-height: 2.5em;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-wrap: balance;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+  pointer-events: none;
+}
+.cooking-steam__title--result {
+  font-size: 19px;
+  font-weight: 900;
+  color: #d6f0ff;
+  text-shadow: 0 0 12px rgba(120, 200, 255, 0.85);
+  animation: cooking-steam-pop 0.35s ease-out;
+}
+/* Only in the Preview / DEV comparison (both operations offered): which one this screen is on. */
+.cooking-steam__variants {
+  flex: 0 0 auto;
+  display: inline-flex;
+  gap: 6px;
+}
+.cooking-steam__variant {
+  box-sizing: border-box;
+  min-width: 72px;
+  height: 36px;
+  padding: 0 14px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.cooking-steam__variant[aria-pressed="true"] {
+  background: #8fd0ee;
+  border-color: #8fd0ee;
+  color: #08283a;
+}
+.cooking-steam__variant:disabled:not([aria-pressed="true"]) {
+  opacity: 0.45;
+}
+.cooking-steam__variant:focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: 2px;
+}
+/* The pot takes the remaining height; the drawing keeps its own proportions inside. It is the shake's drag surface. */
+.cooking-steam__pot {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  max-width: 340px;
+  touch-action: none;
+  outline: none;
+}
+.cooking-steam__pot:focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+.cooking-steam__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.cooking-steam__body {
+  fill: #5a6068;
+  stroke: #1b1f24;
+  stroke-width: 4;
+  stroke-linejoin: round;
+}
+.cooking-steam__handle {
+  fill: none;
+  stroke: #1b1f24;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+.cooking-steam__inside {
+  fill: #23282e;
+}
+.cooking-steam__water {
+  fill: #3d7fa0;
+  opacity: 0.85;
+}
+.cooking-steam__rim {
+  fill: none;
+  stroke: #9aa2ab;
+  stroke-width: 4;
+}
+/* The shells: closed = one domed valve; open = two valves with the body between (the "出来事" that tells the player how far the steam has got). */
+.cooking-steam__shell-valve {
+  fill: var(--steam-shell);
+  stroke: var(--steam-shell-edge);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+.cooking-steam__shell-ridge {
+  fill: none;
+  stroke: var(--steam-shell-edge);
+  stroke-width: 1;
+  opacity: 0.55;
+  stroke-linecap: round;
+}
+.cooking-steam__shell-body {
+  fill: var(--steam-shell-body);
+  stroke: #c4631c;
+  stroke-width: 1.4;
+}
+.cooking-steam__shell[data-open="false"] .cooking-steam__shell-open,
+.cooking-steam__shell[data-open="true"] .cooking-steam__shell-closed {
+  display: none;
+}
+.cooking-steam__shell[data-open="true"] {
+  animation: cooking-steam-pop 0.28s ease-out;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.cooking-steam__lid-glass {
+  fill: rgba(210, 232, 246, 0.22);
+  stroke: #d6ecfa;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+.cooking-steam__lid-knob {
+  fill: #d6ecfa;
+  stroke: #6b8aa0;
+  stroke-width: 2;
+}
+.cooking-steam__lid {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+}
+.cooking-steam__pot[data-lid="off"] .cooking-steam__lid {
+  transform: translate(34px, -22px) rotate(16deg);
+  opacity: 0.6;
+}
+/* The steam: three puffs above the pot. How many are visible and how strong follows the steam level (--steam-heat, 0..1); nothing shows before it starts. */
+.cooking-steam__puffs {
+  position: absolute;
+  top: -2%;
+  left: 24%;
+  right: 24%;
+  height: 34%;
+  display: flex;
+  justify-content: space-around;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.cooking-steam[data-mode="steaming"] .cooking-steam__puffs {
+  opacity: calc(0.25 + var(--steam-heat, 0) * 0.75);
+}
+.cooking-steam[data-mode="done"] .cooking-steam__puffs {
+  opacity: 0.35;
+}
+.cooking-steam__puffs i {
+  display: block;
+  width: 26%;
+  height: 100%;
+  border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(circle at 50% 70%, rgba(236, 246, 252, 0.95), rgba(236, 246, 252, 0) 72%);
+  animation: cooking-steam-rise 1.3s ease-out infinite;
+}
+.cooking-steam__puffs i:nth-child(2) { animation-delay: 0.43s; }
+.cooking-steam__puffs i:nth-child(3) { animation-delay: 0.86s; }
+.cooking-steam[data-look="over"] .cooking-steam__puffs i {
+  background: radial-gradient(circle at 50% 70%, rgba(190, 196, 200, 0.9), rgba(150, 156, 160, 0) 72%);
+}
+/* The controls: tall, wide, low in the screen (thumb reach), far from the × at the top right. */
+.cooking-steam__controls {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  min-height: 64px;
+  width: min(86cqw, 320px);
+  display: flex;
+  gap: 8px;
+}
+.cooking-steam__button {
+  box-sizing: border-box;
+  flex: 1 1 0;
+  min-height: 64px;
+  border: 2px solid #1d4f6e;
+  border-radius: 32px;
+  background: #cfe9f6;
+  color: #08283a;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.cooking-steam__button--main {
+  background: #8fd0ee;
+}
+.cooking-steam__button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.cooking-steam__button:focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: 3px;
+}
+.cooking-steam__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: var(--cooking-steam-close);
+  height: var(--cooking-steam-close);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  z-index: 2;
+}
+.cooking-steam__close:focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: 2px;
+}
+/* Preview / DEV comparison only (?cookSteamMs=): which lid-on time this page is set to. Top-left, clear of the title (72px inset) and of the ×. */
+.cooking-steam__tune {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  pointer-events: none;
+}
+.cooking-steam-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes cooking-steam-rise {
+  0% { transform: translateY(14px) scale(0.8); opacity: 0.9; }
+  100% { transform: translateY(-16px) scale(1.15); opacity: 0; }
+}
+@keyframes cooking-steam-pop {
+  0% { transform: scale(0.8); opacity: 0.4; }
+  40% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+/* "Reduce motion": the steam does not rise, the shells do not pop, the lid does not slide. Every state stays readable as a still frame (the open shells, the
+   steam strength and the words follow data-open / --steam-heat / data-look above). */
+@media (prefers-reduced-motion: reduce) {
+  .cooking-steam__puffs i,
+  .cooking-steam__shell[data-open="true"],
+  .cooking-steam__title--result {
+    animation: none;
+  }
+  .cooking-steam__lid,
+  .ingredient-piece--steamed .ingredient-glyph {
+    transition: none;
+  }
+}

@@ -20,7 +20,12 @@ const isSource = (f: string) => /\.(ts|tsx|css)$/.test(f) && !/\.test\.tsx?$/.te
 const all = walk(SRC).map(rel).filter(isSource);
 
 /** The files that may mention the steam: its own modules, and (for the later, separately approved slices) the files that own / relay the state. */
-const OWN = (f: string) => f.startsWith("logic/steam/") || /^data\/steam[A-Za-z]*\.ts$/.test(f) || /^preview\/steam[A-Za-z]*\.ts$/.test(f);
+const OWN = (f: string) =>
+  f.startsWith("logic/steam/") ||
+  /^data\/steam[A-Za-z]*\.ts$/.test(f) ||
+  /^preview\/(steam|CookSteam|cookSteam)[A-Za-z]*\.tsx?$/.test(f) ||
+  f === "components/SteamLayer.tsx" ||
+  f === "components/Steam.css";
 const LATER_SLICES = new Set(["state/gameReducer.ts", "components/PizzaStage.tsx", "components/SteamLayer.tsx", "components/Steam.css", "screens/GameScreen.tsx", "App.tsx"]);
 const STEAM_NAMES = /steamedLook|STEAM_INGREDIENT|steamExperienceGate|steamPreview|steamIngredients|logic\/steam|cookSteam/;
 
