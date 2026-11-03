@@ -113,6 +113,8 @@ import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import { canPrepIngredient } from "../data/prepIngredients";
 import { canSearIngredient } from "../data/searIngredients";
 import { searExperienceEnabled } from "../data/searExperienceGate";
+import { canSteamIngredient } from "../data/steamIngredients";
+import { steamExperienceEnabled } from "../data/steamExperienceGate";
 import { prepExperienceEnabled } from "../data/prepExperienceGate";
 import {
   isOnboardingHintSession,
@@ -347,6 +349,10 @@ export interface GameState {
   /** Cooking Sear Phase 1 (Issue #724): how far each long-press-seared ingredient was seared (0..1, `SEAR_INGREDIENT`'s `amount`). Transient and display-only:
    *  never persisted, removed by RESET_PIZZA, read by nothing but the piece colour. Its keys are the seared ingredients. Absent = none. Independent of the 炒める prep. */
   searedLook?: Readonly<Record<string, number>>;
+  /** Cooking Steam Phase 1 (Issue #726, S2): how far each steamed ingredient (clam / mussel) was steamed (`STEAM_INGREDIENT`'s `amount`, the number `steamResultOf` keeps, 0..1).
+   *  Transient and display-only, same life as `searedLook`: never persisted, removed by RESET_PIZZA, read by nothing but the piece look. Its keys are the steamed
+   *  ingredients. Absent = none. Independent of the 炒める prep and the 炙り sear. */
+  steamedLook?: Readonly<Record<string, number>>;
   /** Issue #38 E-P1/E-P2: canonical transient RESULT/DISCOVERED display snapshot for the
    *  per-pizza Pitz credit `REGISTER_TO_DEX` just applied (../logic/pitzReward.ts) -- the display
    *  layer reads these five numbers rather than recomputing any of them (same discipline
@@ -495,6 +501,9 @@ export type GameAction =
   // Cooking Sear Phase 1 (Issue #724): marks one sear-able ingredient (sausage) as seared for this round, at the amount the player's long press reached.
   // TOPPING step of a GUIDED / FREE_COOK round only, behind SEAR_EXPERIENCE_PRODUCTION / the Preview opt-in. Optional: nothing requires it and nothing can fail.
   | { type: "SEAR_INGREDIENT"; ingredientId: string; amount: number }
+  // Cooking Steam Phase 1 (Issue #726, S2): marks one steam-able ingredient (clam / mussel) as steamed for this round at the amount the steam pot kept. TOPPING step of a
+  // GUIDED / FREE_COOK round only, behind STEAM_EXPERIENCE_PRODUCTION (fixed OFF) / the Preview opt-in. Optional: nothing requires it and nothing can see it but the piece look.
+  | { type: "STEAM_INGREDIENT"; ingredientId: string; amount: number }
   // Issue #33 D1: commits one complete DOUGH radial-stretch gesture's final shape as a
   // single atomic replacement of `pizza.doughShape` -- mirrors COMMIT_SAUCE_DISPENSE's own
   // "PizzaStage buffers locally, dispatches once at a successful pointerup" contract
@@ -1223,6 +1232,19 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, searedLook: { ...(state.searedLook ?? {}), [action.ingredientId]: Math.min(1, Math.max(0, action.amount)) } };
     }
 
+    case "STEAM_INGREDIENT": {
+      // Same shape as SEAR_INGREDIENT, its own key: every refusal returns the SAME state reference; nothing is consumed and nothing but `steamedLook` changes.
+      // The amount is only clamped here -- what it means (open / over) lives in ../logic/steam/steamPot.ts.
+      if (!steamExperienceEnabled()) return state;
+      if (state.phase !== "PREPARE" || state.makingStep !== "TOPPING") return state;
+      if (state.roundKind !== "GUIDED" && state.roundKind !== "FREE_COOK") return state;
+      if (!canSteamIngredient(action.ingredientId)) return state;
+      if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      if (state.steamedLook?.[action.ingredientId] !== undefined) return state;
+      if (!Number.isFinite(action.amount)) return state;
+      return { ...state, steamedLook: { ...(state.steamedLook ?? {}), [action.ingredientId]: Math.min(1, Math.max(0, action.amount)) } };
+    }
+
     case "UNDO_LAST_PLACEMENT": {
       // The reducer is the real backstop (the button's disabled state is only a hint): the rule lives in one
       // pure function shared with the UI. Nothing here touches inventory (consumed once at CONFIRM_BAKE),
@@ -1264,7 +1286,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
               return { cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
             })();
       // Cooking Prep Phase 1: a discarded pizza takes its prep with it -- the property is removed, never set to `undefined`.
-      const { preparedIngredientIds: _discardedPrep, preparedLook: _discardedLook, searedLook: _discardedSear, ...stateWithoutPrep } = state;
+      const { preparedIngredientIds: _discardedPrep, preparedLook: _discardedLook, searedLook: _discardedSear, steamedLook: _discardedSteam, ...stateWithoutPrep } = state;
       return {
         ...stateWithoutPrep,
         ...panReset,
