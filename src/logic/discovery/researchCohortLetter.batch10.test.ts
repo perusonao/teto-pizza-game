@@ -11,7 +11,10 @@ import { researchCohortLetters, researchEntryLabel } from "./researchEntry";
  */
 const NEW_RECIPES: readonly string[] = ["curry-pizza-japan", "rendang-pizza", "tandoori-paneer-pizza", "currywurst", "cuban-pizza"];
 const NEW_MATERIALS: readonly string[] = ["curry-ketchup", "beef", "paneer", "paprika-powder", "wurstel", "mustard", "pickles", "swiss-cheese"];
-const ORDINARY = ordinaryRecipes(RECIPES);
+// Expansion Batch 15 (Issue #728, Owner-approved 2026-11-02): nigerian-suya-pizza (non-credit) joins rendang-pizza's beef cohort, so rendang-pizza gains the letter "B" -- a deliberate, named change to a pre-existing Batch 10 label.
+// This file pins the Batch 10-era invariant ("the five Batch 10 recipes letter nothing"), so it is evaluated over the catalog WITHOUT that later recipe; the B15 change itself is pinned exactly (before / after, every other recipe unchanged)
+// in expansionBatch15.test.ts and as `acceptedLetterShifts` in B15_BATCH. Nothing else is excluded.
+const ORDINARY = ordinaryRecipes(RECIPES).filter((r) => r.id !== "nigerian-suya-pizza");
 const BEFORE = ORDINARY.filter((r) => !NEW_RECIPES.includes(r.id));
 const ladderMaterials = ordinaryLadderSteps(DISCOVERY_LADDER.steps).flatMap((s) => s.ingredientIds);
 

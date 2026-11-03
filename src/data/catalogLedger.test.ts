@@ -26,12 +26,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // Expansion Batch 12 (#707) on top of B12 (#706): B12 adds jamaican-jerk-chicken-pizza (non-credit, NO_SAUCE, no new material, joins the green-pepper cohort, chapter 4 with its key step 32); Expansion Batch 12 adds supreme-pizza (non-credit, chapter 3, no new material), pizza-alla-norma (credited, chapter 4, the key of ordinary step 64) and ricotta-salata (a cheese, so `toppings` does not move).
       // Expansion Batch 13 (#708, PROVISIONAL SPEC, original NOT confirmed): + potato-mayo-pizza (credited, NO_SAUCE, chapter 4: its key step 65 is the new material `mayo`), + mayo (a spice topping), + ordinary step 65 (the late steps shift +1).
       // Expansion Batch 14 (PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + moussaka-style-pizza (credited, chapter 4: its key is the new material `cinnamon`), + cinnamon (a spice topping), + ordinary step 66 (the late steps shift +1).
-      recipes: pinsa ? 85 : 84,
+      // Expansion Batch 15 (#728, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + nigerian-suya-pizza (non-credit, NO_SAUCE as a suya-only Owner exception, chapter 4, no new material, no new ladder step; it joins the beef cohort of rendang-pizza at ordinary step 58).
+      recipes: pinsa ? 86 : 85,
       credited: 76,
       ingredients: 95,
       toppings: 68,
       ladderSteps: 73,
-      chapterSizes: [6, 12, 19, pinsa ? 48 : 47],
+      chapterSizes: [6, 12, 19, pinsa ? 49 : 48],
       lunchRushPool: 25,
     });
   });

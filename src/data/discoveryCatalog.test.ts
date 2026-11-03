@@ -34,6 +34,9 @@ const BATCH13_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["potato-mayo-p
 // Expansion Batch 14: the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (UNRESOLVED_INGREDIENT: the sauce field 'ホワイトソース' is ambiguous; its only related id is fromage-blanc-sauce). Owner decision: the existing
 // fromage-blanc-sauce stands in for it, for this one recipe only (an Owner-approved exception to the Phase-2 composition; NOT a NO_SAUCE exception). PROVISIONAL SPEC, original NOT confirmed. The matrix itself is unchanged.
 const BATCH14_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["moussaka-style-pizza"];
+// Expansion Batch 15 (Issue #728): the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED: the source sauce field is 'その他'). Shipped as NO_SAUCE as a SUYA-ONLY Owner exception (2026-11-02);
+// it is NOT a general rule for unspecified sauce fields, and no other BASE_SAUCE_UNSPECIFIED row is exempted here. PROVISIONAL SPEC, original pizzadb.jp NOT confirmed. expansionBatch15.test.ts pins its exact ingredient set against the 172 matrix.
+const BATCH15_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["nigerian-suya-pizza"];
 
 describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("has exactly one target per production recipe, in RECIPES order", () => {
@@ -53,6 +56,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       if (B12_PHASE2_BLOCKED_PENDING_OWNER.includes(t.recipeId)) continue;
       if (BATCH13_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (BATCH14_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (BATCH15_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (isLateRecipeId(t.recipeId)) continue; // E5: the late target has no Phase-2 row; lateCatalog.ikura.test.ts pins it
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);
       expect(expected, t.recipeId).toBeDefined();

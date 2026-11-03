@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../../data/recipes";
-import { B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
+import { B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B15_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
 import {
   ordinaryCatalogView,
   productionCatalogView,
@@ -61,6 +61,16 @@ describe("production catalog", () => {
     expect(B13_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["mayo"]);
     expect(B13_BATCH.acceptedLetterShifts).toBeUndefined();
     expect(validateBatchManifest(B13_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("Expansion Batch 15 (nigerian-suya-pizza, non-credit, no step of its own) is LANDED and consistent: appended tail, append-only ladder, no new material; rendang-pizza is the single named Research-letter shift", () => {
+    expect(RECIPE_BATCHES).toContain(B15_BATCH);
+    expect(B15_BATCH.status).toBe("landed");
+    expect(B15_BATCH.recipes.map((r) => r.recipeId)).toEqual(["nigerian-suya-pizza"]);
+    expect(B15_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["beef"]);
+    expect(B15_BATCH.recipes[0].ladderCredit).toBe(false);
+    expect(B15_BATCH.acceptedLetterShifts).toEqual({ "rendang-pizza": "-->B" });
+    expect(validateBatchManifest(B15_BATCH, ordinaryCatalogView())).toEqual([]);
   });
 });
 

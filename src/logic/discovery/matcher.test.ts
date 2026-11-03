@@ -249,6 +249,8 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       ownerApproved.add("potato-mayo-pizza-pizzadb-p3");
       // Expansion Batch 14: moussaka-style-pizza is a BLOCKED_PRODUCT_DECISION row (UNRESOLVED_INGREDIENT 'ホワイトソース') shipped with fromage-blanc-sauce standing in for it, for this one recipe only (Owner decision).
       ownerApproved.add("moussaka-style-pizza-pizzadb-p13");
+      // Expansion Batch 15 (Issue #728): nigerian-suya-pizza is a BLOCKED_PRODUCT_DECISION row (BASE_SAUCE_UNSPECIFIED) shipped as NO_SAUCE as a SUYA-ONLY Owner exception (2026-11-02); no other unspecified-sauce row is approved by this.
+      ownerApproved.add("nigerian-suya-pizza-pizzadb-p5");
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(
