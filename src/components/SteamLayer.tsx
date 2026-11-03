@@ -8,6 +8,7 @@ import { STEAM_SHELL_COUNT, type SteamVariant } from "../logic/steam/steamPot";
 import { STEAM_DONE_MS, STEAM_GUARD_MS, STEAM_TICK_MS, steamAnnouncement, steamLidLive, steamShakeLive, steamShellOpen, steamTitle } from "../logic/steam/steamScreen";
 import { STEAM_SHAKE_IDLE, steamShakeReducer } from "../logic/steam/steamShake";
 import type { RoundKind } from "../state/roundKind";
+import { armSteamGhostClickGuard } from "./steamGhostClick";
 import "./Steam.css";
 
 interface SteamLayerProps {
@@ -134,6 +135,7 @@ function SteamOffer(props: SteamLayerProps & { offered: string; done: boolean })
   const [guard, setGuard] = useState(false);
   const downOnPill = useRef(false);
   const guardTimer = useRef<number | undefined>(undefined);
+  const disposeGhostGuard = useRef<(() => void) | null>(null);
   const potRef = useRef<HTMLDivElement>(null);
   const lidButtonRef = useRef<HTMLButtonElement>(null);
   const anchorRef = useRef<HTMLElement>(null);
@@ -179,7 +181,13 @@ function SteamOffer(props: SteamLayerProps & { offered: string; done: boolean })
     return () => window.clearTimeout(t);
   }, [keptAmount, offered, close]);
 
-  useEffect(() => () => window.clearTimeout(guardTimer.current), []);
+  useEffect(
+    () => () => {
+      window.clearTimeout(guardTimer.current);
+      disposeGhostGuard.current?.();
+    },
+    [],
+  );
 
   // Leaving the page / the app mid-steam discards it, and an open screen with it.
   useEffect(() => {
@@ -241,7 +249,12 @@ function SteamOffer(props: SteamLayerProps & { offered: string; done: boolean })
       if (!startedHere) return;
       // Open only when the finger is released ON the pill, so a press that slides off it opens nothing.
       const r = event.currentTarget.getBoundingClientRect();
-      if (event.clientX >= r.left && event.clientX <= r.right && event.clientY >= r.top && event.clientY <= r.bottom) open();
+      if (event.clientX >= r.left && event.clientX <= r.right && event.clientY >= r.top && event.clientY <= r.bottom) {
+        // The tap's own compatibility click will land on the screen that replaces this pill (see ./steamGhostClick.ts): swallow that one click, nothing else.
+        disposeGhostGuard.current?.();
+        disposeGhostGuard.current = armSteamGhostClickGuard();
+        open();
+      }
     };
     return (
       <>

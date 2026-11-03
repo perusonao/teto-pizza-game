@@ -67,5 +67,27 @@
 5. 蒸す Production ON は HOLD。S4（Owner の HV 判断・採否）は別途。
 6. 殻の開き（開閉）をピース側にも出すか、ピースの差をもう少し強めるか — HV 後の判断。
 
+## 7. 追補: ghost click 修正（タッチでピルを開くと案 A が即 steaming になる不具合）
+
+**発見:** 提出用の A/B 比較（タッチ入力）で判明。マウスの E2E・動画では出ない種類の不具合。
+
+**原因（イベント順序をページ読み込み時から記録して特定）:** `pointerdown`(ピル) → `touchstart` → `pointerup`(ピル。React がここで蒸し画面を**同期的に開き**ピルが消える) → 約 30ms 後にブラウザが同じタッチの互換イベント `mousedown` → `mouseup` → `click`（`detail=1`、**新しい `pointerdown` を伴わない**）を、**今その指の下にある要素**＝蒸し画面の大きな下ボタンへ送る。案 A の「ふたをする」は `click` で受けるため、**画面が開いた瞬間にふたが閉まり蒸し始める**。案 B は click が 2 つのボタンの隙間に落ち無害（レイアウト次第の偶然）。炙りは長押しを `pointerdown` で受けるので影響なし。
+
+**採用した対策（最小・同じ入力由来の click だけを 1 回抑止）:** `src/components/steamGhostClick.ts`。ピルを pointer で開いた時だけ武装し、(1) **新しい `pointerdown` が来たら解除**（意図的な 2 回目のタップは必ず自分の `pointerdown` から始まる）、(2) `detail === 0`（キーボードの Enter / Space）の click は素通しで武装を消費しない、(3) click が来なければ 600ms で解除、(4) アンマウントで解除。**開いた直後に一律の無効時間（450ms 等）は設けない**。キーボードでピルを開いた場合は武装しない。
+
+**検証:**
+| 区分 | 結果 |
+|---|---|
+| 再現（修正前） | 390×844 / 360×800、タッチ: 案 A = 開いた直後 `steaming`、案 B = `idle`（click は `controls` の隙間） |
+| 修正後 | 案 A・B とも開いた直後は `idle`。**120ms 後の次の明示的なタップで即 `steaming`**（390×844・360×800・短い画面 390×664 / 360×640 の計 8 パターン、E2E） |
+| 検出力の確認 | 修正を外すと、新しい単体テスト 3 件と E2E（案 A）が、イベント順序つきのメッセージで落ちる |
+| 単体 | `steamGhostClick.test.ts`（7）＋ `SteamLayer.test.tsx` の 6（案 A・B・キーボード開始・指が外れた場合・アンマウント）。素早い 2 回目のタップ（60ms 後）が効くことも固定 |
+| 追加 E2E（タッチ） | 6 本 × 2 viewport = 12 件（`hasTouch`）。CDP のタッチ入力で、鍋のドラッグでページがスクロールしない・文字選択なし・長押しで画面が保たれることも確認（Chromium のみ） |
+| 全 Vitest | **611 files / 11,331 tests passed、失敗 0**（13 skipped・2 todo は既存） |
+| tsc / oxlint / build | エラー・新規警告なし／成功 |
+| 関連 E2E（Chromium 両 viewport） | 蒸し・炙り関連 **66 passed**、`dynamic-cooking-steps`・`viewport-1screen`・炒め **85 passed**、失敗 0（skip は既存） |
+
+注意: WebKit では Playwright のタッチ入力が Chromium と同じ互換イベントを出すとは限らない（CI で確認）。実機 iPhone Safari での確認は Owner の HV。
+
 ## 6. 禁止事項の遵守
 `STEAM_EXPERIENCE_PRODUCTION = false` 維持／共有 Preview・Production 設定は未変更／炙り・炒め・`IngredientGlyph.tsx` 未変更／保存・採点・Dex・ladder・privacy gate 未変更／`handPick.ts` 未変更／CI の再実行・Monitor なし／merge しない。

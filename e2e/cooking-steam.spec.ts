@@ -288,3 +288,91 @@ test.describe("Cooking Steam HV entry (?cookSteamHv=1)", () => {
     expect(await clamPieces(page)).toBe(0);
   });
 });
+
+/**
+ * Touch input (the ghost click of the pill's own tap). On a touch tap the pill opens the screen on `pointerup`; the browser then sends the tap's compatibility
+ * `mousedown` / `mouseup` / `click` (no new `pointerdown`) to whatever is under the finger NOW -- the screen's bottom button. Before the fix operation A started
+ * steaming the moment the screen opened. Both authority viewports and the short visible heights real iPhone Safari has (address / tab bar).
+ */
+test.describe("Cooking Steam with touch input (?cookSteamHv=1)", () => {
+  test.use({ hasTouch: true });
+
+  for (const short of [false, true]) {
+    for (const variant of ["lid", "shake"] as const) {
+      test(`${variant}${short ? ", short screen" : ""}: opening the screen with a tap leaves it idle; the next deliberate tap (120 ms later) starts the steam`, async ({ page }) => {
+        const vp = page.viewportSize()!;
+        if (short) await page.setViewportSize({ width: vp.width, height: vp.width === 390 ? 664 : 640 });
+        await openEntry(page, `?cookSteamHv=1&cookSteamVariant=${variant}`);
+        await expect(pill(page)).toBeVisible({ timeout: 10_000 });
+        // the order and targets of the events that follow the pill's tap (kept for the failure message)
+        await page.evaluate(() => {
+          const w = window as unknown as { __log: string[] };
+          w.__log = [];
+          for (const t of ["pointerdown", "touchstart", "pointerup", "mousedown", "click"]) {
+            document.addEventListener(t, (e) => w.__log.push(`${t}->${(e.target as HTMLElement).getAttribute?.("data-testid") ?? (e.target as HTMLElement).className?.toString().slice(0, 24)}`), true);
+          }
+        });
+        await pill(page).tap();
+        await expect(screenEl(page)).toBeVisible();
+        await page.waitForTimeout(400); // long enough for any compatibility click of that same tap to have arrived
+        const log = await page.evaluate(() => (window as unknown as { __log: string[] }).__log.join(" | "));
+        await expect(screenEl(page), `events after the pill's tap: ${log}`).toHaveAttribute("data-mode", "idle");
+        if (variant === "lid") await expect(page.getByTestId("cooking-steam-lid-button")).toHaveText(/ふたをする/);
+        await shot(page, `touch-${variant}${short ? "-short" : ""}-00-just-opened-idle`);
+        // the next EXPLICIT tap works at once: no dead time after the screen opens
+        await page.waitForTimeout(120);
+        await page.getByTestId(variant === "lid" ? "cooking-steam-lid-button" : "cooking-steam-shake").tap();
+        await expect(screenEl(page)).toHaveAttribute("data-mode", "steaming");
+        await shot(page, `touch-${variant}${short ? "-short" : ""}-01-steaming-after-own-tap`);
+        // and the controls are all inside the stage, on this height too
+        const fits = await page.evaluate(() => {
+          const st = document.querySelector(".pizza-stage")!.getBoundingClientRect();
+          const inside = (sel: string) => [...document.querySelectorAll(sel)].every((el) => { const r = el.getBoundingClientRect(); return r.left >= st.left - 0.5 && r.right <= st.right + 0.5 && r.top >= st.top - 0.5 && r.bottom <= st.bottom + 0.5; });
+          return { controls: inside(".cooking-steam__button"), close: inside(".cooking-steam__close"), noOverflowX: document.documentElement.scrollWidth <= innerWidth };
+        });
+        expect(fits).toEqual({ controls: true, close: true, noOverflowX: true });
+      });
+    }
+  }
+
+  test("two quick taps in a row both count: the first starts A's steam, the second (lifted after the minimum) keeps it", async ({ page }) => {
+    await openEntry(page, "?cookSteamHv=1&cookSteamVariant=lid");
+    await expect(pill(page)).toBeVisible({ timeout: 10_000 });
+    await pill(page).tap();
+    await expect(screenEl(page)).toBeVisible();
+    await page.waitForTimeout(300);
+    await expect(screenEl(page)).toHaveAttribute("data-mode", "idle");
+    await page.getByTestId("cooking-steam-lid-button").tap();
+    await expect(screenEl(page)).toHaveAttribute("data-mode", "steaming");
+    await page.waitForTimeout(900);
+    await page.getByTestId("cooking-steam-lid-button").tap();
+    await expect(screenEl(page)).toHaveAttribute("data-mode", "done");
+  });
+
+  test("a touch drag on the pot (B) never scrolls the page or selects text, and a long press keeps the screen", async ({ page }) => {
+    await openEntry(page, "?cookSteamHv=1&cookSteamVariant=shake");
+    await expect(pill(page)).toBeVisible({ timeout: 10_000 });
+    await pill(page).tap();
+    await page.waitForTimeout(300);
+    const cdp = await page.context().newCDPSession(page).catch(() => null);
+    test.skip(cdp === null, "needs CDP touch events (Chromium only)");
+    const touch = (type: string, x: number, y: number) => cdp!.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x, y, id: 1 }] } as never);
+    const pot = (await page.getByTestId("cooking-steam-pot").boundingBox())!;
+    const y = pot.y + pot.height * 0.6;
+    const before = await page.evaluate(() => JSON.stringify([scrollX, scrollY, document.documentElement.scrollTop, document.querySelector(".game-screen")?.scrollTop ?? 0]));
+    await touch("touchStart", pot.x + pot.width * 0.1, y);
+    for (let i = 0; i < 20; i += 1) {
+      await touch("touchMove", pot.x + pot.width * (i % 2 === 0 ? 0.9 : 0.1), y + (i % 4 === 1 ? 14 : i % 4 === 3 ? -14 : 0));
+      await page.waitForTimeout(60);
+    }
+    await touch("touchEnd", 0, 0);
+    await expect(screenEl(page)).toHaveAttribute("data-mode", "steaming");
+    expect(Number(await screenEl(page).getAttribute("data-open-count"))).toBeGreaterThanOrEqual(2);
+    expect(await page.evaluate(() => JSON.stringify([scrollX, scrollY, document.documentElement.scrollTop, document.querySelector(".game-screen")?.scrollTop ?? 0]))).toBe(before);
+    expect(await page.evaluate(() => String(getSelection()?.toString() ?? ""))).toBe("");
+    await touch("touchStart", pot.x + pot.width * 0.5, y);
+    await page.waitForTimeout(900);
+    await touch("touchEnd", 0, 0);
+    await expect(screenEl(page)).toBeVisible();
+  });
+});

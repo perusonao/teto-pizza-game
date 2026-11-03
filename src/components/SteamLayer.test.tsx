@@ -380,3 +380,75 @@ describe("the shells keep their place while they open", () => {
     expect(css).not.toMatch(/\.cooking-steam__shell(\[data-open="true"\])?\s*\{[^}]*(animation|transform):/);
   });
 });
+
+describe("the pill's own touch does not reach the screen behind it (ghost click)", () => {
+  // The real order on a touch tap: pointerdown, pointerup (the screen opens right here), then ~30 ms later a compatibility click with NO pointerdown, aimed at what is
+  // under the finger now -- the screen's bottom button. (Measured with emulated touch; see ./steamGhostClick.ts.)
+  const pointerOpen = () => {
+    stamped("pointerdown", now(), pill(), { clientX: 0, clientY: 0 });
+    stamped("pointerup", now(), pill(), { clientX: 0, clientY: 0 });
+  };
+  const ghostClick = (el: HTMLElement) => stamped("click", now(), el, { detail: 1 });
+  /** A deliberate tap: its own pointerdown first, then the click. */
+  const realTap = (el: HTMLElement) => {
+    stamped("pointerdown", now(), el);
+    stamped("click", now(), el, { detail: 1 });
+  };
+
+  it("A: opening the screen with a touch leaves it idle; the ghost click does not put the lid on", () => {
+    setup({}, "?cookSteam=on&cookSteamVariant=lid");
+    pointerOpen();
+    expect(steam()).toHaveAttribute("data-mode", "idle");
+    advance(30);
+    ghostClick(screen.getByTestId("cooking-steam-lid-button"));
+    expect(steam()).toHaveAttribute("data-mode", "idle");
+    expect(screen.getByTestId("cooking-steam-lid-button")).toHaveTextContent("ふたをする");
+  });
+
+  it("A: the very next DELIBERATE tap (even 60 ms later) starts the steam -- there is no dead time", () => {
+    setup({}, "?cookSteam=on&cookSteamVariant=lid");
+    pointerOpen();
+    advance(30);
+    ghostClick(screen.getByTestId("cooking-steam-lid-button"));
+    advance(30);
+    realTap(screen.getByTestId("cooking-steam-lid-button"));
+    expect(steam()).toHaveAttribute("data-mode", "steaming");
+  });
+
+  it("B: the ghost click adds no steam; the next deliberate tap on ゆする does", () => {
+    setup({}, "?cookSteam=on&cookSteamVariant=shake");
+    pointerOpen();
+    advance(30);
+    ghostClick(screen.getByTestId("cooking-steam-shake"));
+    expect(steam()).toHaveAttribute("data-mode", "idle");
+    advance(30);
+    realTap(screen.getByTestId("cooking-steam-shake"));
+    expect(steam()).toHaveAttribute("data-mode", "steaming");
+  });
+
+  it("opening from the keyboard (Enter / Space on the pill) arms nothing: the next click works at once", () => {
+    setup({}, "?cookSteam=on&cookSteamVariant=lid");
+    openScreen(); // a click with detail 0
+    ghostClick(screen.getByTestId("cooking-steam-lid-button"));
+    expect(steam()).toHaveAttribute("data-mode", "steaming");
+  });
+
+  it("a press that slides off the pill opens nothing and arms nothing", () => {
+    setup({}, "?cookSteam=on&cookSteamVariant=lid");
+    stamped("pointerdown", now(), pill());
+    stamped("pointerup", now(), pill(), { clientX: 9999, clientY: 9999 });
+    expect(steam()).toBeNull();
+    const probe = new MouseEvent("click", { bubbles: true, cancelable: true, detail: 1 });
+    act(() => void pill().dispatchEvent(probe));
+    expect(probe.defaultPrevented).toBe(false);
+  });
+
+  it("the guard does not outlive the layer (unmount disposes it)", () => {
+    setup({}, "?cookSteam=on&cookSteamVariant=lid");
+    pointerOpen();
+    cleanup();
+    const later = new MouseEvent("click", { bubbles: true, cancelable: true, detail: 1 });
+    document.body.dispatchEvent(later);
+    expect(later.defaultPrevented).toBe(false);
+  });
+});

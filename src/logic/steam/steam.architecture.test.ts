@@ -25,6 +25,7 @@ const OWN = (f: string) =>
   /^data\/steam[A-Za-z]*\.ts$/.test(f) ||
   /^preview\/(steam|CookSteam|cookSteam)[A-Za-z]*\.tsx?$/.test(f) ||
   f === "components/SteamLayer.tsx" ||
+  f === "components/steamGhostClick.ts" ||
   f === "components/Steam.css";
 const LATER_SLICES = new Set(["state/gameReducer.ts", "components/PizzaStage.tsx", "components/SteamLayer.tsx", "components/Steam.css", "screens/GameScreen.tsx", "App.tsx", "main.tsx"]);
 const STEAM_NAMES = /steamedLook|STEAM_INGREDIENT|steamExperienceGate|steamPreview|steamIngredients|logic\/steam|cookSteam/;
