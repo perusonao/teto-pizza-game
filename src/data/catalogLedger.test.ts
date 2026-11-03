@@ -27,12 +27,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // Expansion Batch 13 (#708, PROVISIONAL SPEC, original NOT confirmed): + potato-mayo-pizza (credited, NO_SAUCE, chapter 4: its key step 65 is the new material `mayo`), + mayo (a spice topping), + ordinary step 65 (the late steps shift +1).
       // Expansion Batch 14 (PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + moussaka-style-pizza (credited, chapter 4: its key is the new material `cinnamon`), + cinnamon (a spice topping), + ordinary step 66 (the late steps shift +1).
       // Expansion Batch 15 (#728, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + nigerian-suya-pizza (non-credit, NO_SAUCE as a suya-only Owner exception, chapter 4, no new material, no new ladder step; it joins the beef cohort of rendang-pizza at ordinary step 58).
-      recipes: pinsa ? 86 : 85,
-      credited: 76,
-      ingredients: 95,
+      // Expansion Batch 16 (#736, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + ume-shiso-pizza (credited, chapter 4: its key is the new material `umeboshi-paste`), + umeboshi-paste (a SAUCE, so `toppings` does not move), + ordinary step 67 (the late steps shift +1).
+      recipes: pinsa ? 87 : 86,
+      credited: 77,
+      ingredients: 96,
       toppings: 68,
-      ladderSteps: 73,
-      chapterSizes: [6, 12, 19, pinsa ? 49 : 48],
+      ladderSteps: 74,
+      chapterSizes: [6, 12, 19, pinsa ? 50 : 49],
       lunchRushPool: 25,
     });
   });
@@ -43,6 +44,6 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id)! : i.category;
       byShelf[shelf] = (byShelf[shelf] ?? 0) + 1;
     }
-    expect(byShelf).toEqual({ sauce: 13, cheese: 14, meat: 12, seafood: 11, vegetable: 24, fruit: 3, herb: 9, spice: 6, other: 3 });
+    expect(byShelf).toEqual({ sauce: 14, cheese: 14, meat: 12, seafood: 11, vegetable: 24, fruit: 3, herb: 9, spice: 6, other: 3 });
   });
 });

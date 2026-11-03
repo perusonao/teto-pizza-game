@@ -4374,6 +4374,20 @@ export const EGGPLANT_TAHINI_PIZZA_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * Expansion Batch 16 (Issue #736; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): Reference Truth for `ume-shiso-pizza` (the umeboshi-paste PAINT sauce is not a piece). Pieces (mozzarella 2 / whitebait 4 / shiso 2 = 8 non-sauce, ALL before the bake) take the RT-01
+ * 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION, not source; the shiso leaves use the leafy-herb `LIGHT_LEAF` landing like every other bakeRoastResistant herb.
+ */
+export const UME_SHISO_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "ume-shiso-pizza",
+  sauce: computeMechanicalSauceReference("ume-shiso-pizza"),
+  pieceGroups: [
+    { ingredientId: "mozzarella", positions: [{ x: 50, y: 24 }, { x: 73, y: 36 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "whitebait", positions: [{ x: 76, y: 63 }, { x: 58, y: 79 }, { x: 38, y: 79 }, { x: 22, y: 63 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "shiso", positions: [{ x: 25, y: 36 }, { x: 50, y: 52 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "LIGHT_LEAF" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+  ],
+};
+
+/**
  * BBQ Chicken (Issue #611, late catalog): Reference Truth for `bbq-chicken-pizza` (the bbq-sauce PAINT sauce is not a piece). Pieces (mozzarella 2 / onion 1 / chicken 3 / cilantro 2 = 8 non-sauce, the last 2 POST_BAKE) take the
  * RT-01 reference layout consecutively in `requiredIngredients` order (post-bake pieces use the same slots, like `ikura-salmon-pizza`): slots 1-8 of `getReferenceSlots(8)`, the last being the dough centre. Slot assignment is
  * GAMEPLAY / REFERENCE CALIBRATION, not source authority; no piece-count limit is defined by this recipe (RT-01 generates a multi-ring layout above 8).
@@ -5395,6 +5409,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [YUZU_SHRIMP_PIZZA_REFERENCE.recipeId, YUZU_SHRIMP_PIZZA_REFERENCE],
   [EGGPLANT_TAHINI_PIZZA_REFERENCE.recipeId, EGGPLANT_TAHINI_PIZZA_REFERENCE],
   [BBQ_CHICKEN_PIZZA_REFERENCE.recipeId, BBQ_CHICKEN_PIZZA_REFERENCE],
+  [UME_SHISO_PIZZA_REFERENCE.recipeId, UME_SHISO_PIZZA_REFERENCE],
   [WASABI_BEEF_PIZZA_REFERENCE.recipeId, WASABI_BEEF_PIZZA_REFERENCE],
   [TARAKO_CREAM_PIZZA_REFERENCE.recipeId, TARAKO_CREAM_PIZZA_REFERENCE],
   [EGGPLANT_DENGAKU_PIZZA_REFERENCE.recipeId, EGGPLANT_DENGAKU_PIZZA_REFERENCE],

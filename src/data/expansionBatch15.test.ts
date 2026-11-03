@@ -113,7 +113,7 @@ describe("no new material, technique or ladder step", () => {
     expect(DISCOVERY_LADDER.steps.some((s) => s.keyRecipeId === ID)).toBe(false);
     const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
     expect(steps[57]).toMatchObject({ step: 58, ingredientIds: ["beef"], keyRecipeId: "rendang-pizza" });
-    expect(steps[steps.length - 1]).toMatchObject({ step: 66, ingredientIds: ["cinnamon"], keyRecipeId: "moussaka-style-pizza" });
+    expect(steps[65]).toMatchObject({ step: 66, ingredientIds: ["cinnamon"], keyRecipeId: "moussaka-style-pizza" }); // (Expansion Batch 16 appended the ordinary step 67 after it)
   });
   it("every ingredient already exists, and beef (ordinary step 58) is the last one unlocked", () => {
     for (const q of recipe.requiredIngredients) expect(getIngredient(q.ingredientId), q.ingredientId).toBeDefined();
@@ -146,9 +146,9 @@ describe("the discovery target is the four matrix ids (Owner exception: the unsp
     expect(target.sauceBase ?? []).toEqual([]);
   });
 
-  it("the exception is not generalised: other unspecified-sauce HOLD / candidate rows are not shipped (caponata, tsukimi, pesto-genovese, goulash, ume-shiso)", () => {
+  it("the exception is not generalised: other unspecified-sauce HOLD / candidate rows are not shipped (caponata, tsukimi, pesto-genovese, goulash; ume-shiso-pizza was shipped later by its OWN Owner-approved Batch 16)", () => {
     const shipped = new Set(RECIPES.map((r) => r.id as string));
-    for (const held of ["caponata-pizza", "tsukimi-pizza", "pesto-genovese-pizza", "goulash-pizza", "ume-shiso-pizza"]) expect(shipped.has(held), held).toBe(false);
+    for (const held of ["caponata-pizza", "tsukimi-pizza", "pesto-genovese-pizza", "goulash-pizza"]) expect(shipped.has(held), held).toBe(false);
   });
 });
 

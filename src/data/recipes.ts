@@ -1524,6 +1524,24 @@ const BASE_RECIPES = [
     ladderCredit: false,
     lunchRush: false,
   },
+  {
+    id: "ume-shiso-pizza",
+    nameJa: "梅しそピザ",
+    description: "梅のさわやかなソースに、しらすと大葉をそえた、和風の一枚。",
+    // Expansion Batch 16 (Issue #736; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `ume-shiso-pizza-pizzadb-p14` only (comparison table p14, relayed 2026-09-22, never independently re-fetched): 梅肉 / 大葉 / モッツァレラ / しらす; sauce field 'その他' (BASE_SAUCE_UNSPECIFIED, matrix BLOCKED_PRODUCT_DECISION).
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source; Owner-confirmed 2026-11-03): 梅肉 is painted as the SAUCE (a B16-only provisional exception, NOT a general rule for unspecified sauce fields); counts umeboshi-paste 1 (PAINT) / mozzarella 2 / whitebait 4 / shiso 2 = 8 non-sauce pieces; bake 58-78 (= the generic Free Cooking window, so the median-derived
+    // FREE_COOK_BAKE_TARGET stays 58-78, as for shirasu-pizza); EVERY piece is placed BEFORE the bake (the source states no timing; shiso before the bake like shirasu-pizza; no POST_BAKE, so no FINISH step -- the FINISH constraints are untouched). Its identity differs from shirasu-pizza by the sauce and the lemon (Jaccard 0.60, a B16-only Owner exception; the global 0.4 criterion is unchanged).
+    // Ladder-credited: the key of ordinary step 67 (umeboshi-paste, a single-member Research cohort: no existing recipe changes its label); `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "umeboshi-paste", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "whitebait", minCount: 4 },
+      { ingredientId: "shiso", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 ] as const;
 
 /**

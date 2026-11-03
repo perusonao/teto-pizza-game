@@ -340,6 +340,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "spinach-artichoke-pizza",
         "supreme-pizza",
         "tandoori-paneer-pizza",
+        "ume-shiso-pizza",
         "vegan-cashew-cheese-pizza",
         "veggie-supreme-pizza",
         "vongole",

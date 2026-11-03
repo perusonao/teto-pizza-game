@@ -118,10 +118,10 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     }
   });
 
-  it("catalog counts after PR-2 late4 (which follows this recipe): 86 recipes (85 with the Pinsa gate off), 95 ingredients, 73 ladder steps (7 late; B11 S1 added three recipes, two materials and ordinary steps 62-63; B12 added one recipe; Expansion Batch 12 added two recipes, one material and ordinary step 64; Expansion Batch 14 added one recipe, one material and ordinary step 66; Expansion Batch 15 added one recipe, no material and no step)", () => {
-    expect(RECIPES.length).toBe(pinsaEnabled() ? 86 : 85); // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
-    expect(INGREDIENTS.length).toBe(95);
-    expect(DISCOVERY_LADDER.steps.length).toBe(73);
+  it("catalog counts after PR-2 late4 (which follows this recipe): 87 recipes (86 with the Pinsa gate off), 96 ingredients, 74 ladder steps (7 late; B11 S1 added three recipes, two materials and ordinary steps 62-63; B12 added one recipe; Expansion Batch 12 added two recipes, one material and ordinary step 64; Expansion Batch 14 added one recipe, one material and ordinary step 66; Expansion Batch 15 added one recipe, no material and no step; Expansion Batch 16 added one recipe, one material and ordinary step 67)", () => {
+    expect(RECIPES.length).toBe(pinsaEnabled() ? 87 : 86); // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
+    expect(INGREDIENTS.length).toBe(96);
+    expect(DISCOVERY_LADDER.steps.length).toBe(74);
     expect(LATE_LADDER_STEPS.length).toBe(7);
   });
 
