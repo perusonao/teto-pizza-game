@@ -770,6 +770,41 @@ function timingChecks() {
     const text = formatTimingReport(timingReport(suite({})));
     return text.includes("### Test timing (informational") && text.includes("| project | shard | attempt |") && text.includes("Shard balance") && text.includes("| use of timeout |") && !text.includes("Classification:");
   });
+  check("CLI collect: prints this shard's timing to stdout (the shard job's log) and writes the evidence, exit 0", () => {
+    const dir = mkdtempSync(join(tmpdir(), "webkit-collect-"));
+    try {
+      const self = fileURLToPath(import.meta.url);
+      const list = fakeReport("p390", IDS.map((id) => [id, "skipped"]));
+      const results = fakeTimedReport("p390", [["t1", "expected", 1500, 30000, 0, 0], ["t2", "expected", 27000, 30000, 1, 100]]);
+      writeFileSync(join(dir, "list.json"), JSON.stringify(list));
+      writeFileSync(join(dir, "results.json"), JSON.stringify(results));
+      const out = join(dir, "evidence", "evidence.json");
+      const r = spawnSync(process.execPath, [self, "collect", "--project", "p390", "--shard", "1", "--total", "2", "--attempt", "1", "--list", join(dir, "list.json"), "--results", join(dir, "results.json"), "--out", out], { encoding: "utf8" });
+      const ev = JSON.parse(readFileSync(out, "utf8"));
+      return (
+        r.status === 0 &&
+        r.stdout.includes("p390 shard 1/2 attempt 1: listed 5, executed 2") &&
+        r.stdout.includes("### Test timing (informational") &&
+        r.stdout.includes("90% LOW") &&
+        ev.executed[K("t2")].durationMs === 27000 && ev.executed[K("t2")].timeoutMs === 30000 && ev.test_status === "passed"
+      );
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+  check("CLI collect with a missing results file still exits 0 and records the error (timing: no data); the evidence is not affected by the timing section", () => {
+    const dir = mkdtempSync(join(tmpdir(), "webkit-collect-"));
+    try {
+      const self = fileURLToPath(import.meta.url);
+      writeFileSync(join(dir, "list.json"), JSON.stringify(fakeReport("p390", IDS.map((id) => [id, "skipped"]))));
+      const out = join(dir, "evidence.json");
+      const r = spawnSync(process.execPath, [self, "collect", "--project", "p390", "--shard", "1", "--total", "2", "--attempt", "1", "--list", join(dir, "list.json"), "--results", join(dir, "missing.json"), "--out", out], { encoding: "utf8" });
+      const ev = JSON.parse(readFileSync(out, "utf8"));
+      return r.status === 0 && ev.test_status === "not_run" && ev.errors.length === 1 && r.stdout.includes("no timing data");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
   check("CLI verify: timing is printed below the verdict; exit code and the single Classification line are the verdict's, passing and failing", () => {
     const dir = mkdtempSync(join(tmpdir(), "webkit-evidence-"));
     try {
@@ -892,6 +927,14 @@ if (isMain) {
       `${evidence.project} shard ${evidence.shard}/${evidence.total} attempt ${evidence.runAttempt}: listed ${evidence.listed.length}, ` +
         `executed ${Object.keys(evidence.executed).length}${errors.length ? `, errors: ${errors.join("; ")}` : ""}`,
     );
+    // D4: this shard's timing, in THIS step's stdout = the shard job's log (readable through the job-log API). The Gate's own copy of the report goes to the
+    // run's step summary (webkit-gate.sh writes the verify output there), which the job-log API does not return. Informational: any trouble is one line.
+    try {
+      console.log("");
+      console.log(formatTimingReport(timingReport([evidence])));
+    } catch (error) {
+      console.log(`Test timing: unavailable (${String(error?.message ?? error).split("\n")[0].slice(0, 120)})`);
+    }
   } else if (mode === "verify") {
     const files = findJsonFiles(arg("dir") ?? "");
     const evidences = [];
