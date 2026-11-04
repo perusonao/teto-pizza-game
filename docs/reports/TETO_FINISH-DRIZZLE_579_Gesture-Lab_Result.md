@@ -18,7 +18,7 @@ Gesture contract implemented: pointerdown inside the dough starts a pending stro
 
 ## 2. Isolation (what was NOT touched)
 
-No change to: `PizzaStage` or any shared gesture controller, `gameReducer`, inventory, scoring, recipes, Dex, `pendingRound`, save schema, persistence, Steam #738, #394 CI/E2E diagnostics. `git diff main --stat` touches only `src/main.tsx` among existing files. No new ingredient id, no production flag.
+No change to: `PizzaStage` or any shared gesture controller, `gameReducer`, inventory, scoring, recipes, Dex, `pendingRound`, save schema, persistence, Steam #738, #394 CI/E2E diagnostics. `git diff main --stat` touches only `src/main.tsx` and one pinned-regex assertion in `src/devtools/devtoolsAccess.test.ts` among existing files. No new ingredient id, no production flag.
 
 Enforced by tests: source-level (the lab imports only `react` and its own model; no storage / dispatch / persist tokens), runtime (`Storage.prototype.setItem` is never called while drawing / leaving; e2e: the localStorage key set is identical before/after, a sentinel save is unchanged), and a **production bundle gate** (real in-memory `vite build`s): the production bundle and its CSS contain none of `drizzleLab`, the mark, the label, the title, the CSS class prefix or the surface test id; the Preview bundle contains all of them (positive control).
 
@@ -30,7 +30,7 @@ Enforced by tests: source-level (the lab imports only `react` and its own model;
 | `npm run lint` (oxlint) | 0 errors; the warnings listed are pre-existing files, none in the new files |
 | `npm run build` | passes |
 | New vitest | **34 tests in 3 files** (`drizzleLab.test.ts` 17, `DrizzleLab.test.tsx` 15, `drizzleLab.gate.test.ts` 3 incl. 2 real builds), all pass |
-| Full `vitest run` | see §4 |
+| Full `vitest run` (default project, 613 files) | first run: **11399 passed, 1 failed** — `src/devtools/devtoolsAccess.test.ts` pins the exact `main.tsx` seed-guard line; my edit added `&& !drizzleLabRequested` to it (so the lab never seeds the Preview save). Fixed by updating that one regex; the file plus `previewIsolation` re-run: 9/9 pass. The full suite was not re-run end to end after the fix; CI runs it |
 | Playwright Chromium `e2e/drizzle-lab.spec.ts` | **8 tests x 2 projects (iphone-390x844, iphone-360x800) = 16 passed**; the four profiles 390x844 / 360x800 / 390x664 / 360x640 are each exercised in both (viewport set inside the test): no page scroll/overflow, surface and reset fully on screen, reset >= 44px, stroke + tap + second tap = exactly 3 lines (no duplicate), reset clears; edge clamp; pointercancel discard; off for `=1` / repeat / none; storage untouched + reload empties; `touch-action: none` on the surface only |
 | Playwright **WebKit** | **NOT RUN**: this container has Chromium only (WebKit not installed). The spec is browser-neutral; the repo's CI WebKit job runs on PR and its result is reported below if it executes the spec |
 
