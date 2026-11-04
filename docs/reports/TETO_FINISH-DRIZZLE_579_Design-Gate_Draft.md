@@ -60,3 +60,22 @@ DESIGN DRAFT ONLY. No source/test/CI/Preview/Production modifications. Next acti
 - Inspect `PizzaState` persistence and schema v2 serialization/restore, including pendingRound.
 - Inspect `scoreRecipeComponentV2` and `finalizeRound` to determine post-bake sauce role and provisional scoring.
 - Confirm recipe data for a real first target and Free/Research gates. Verify latest main again.
+
+## 8. Save / inventory / settlement audit (2026-11-04, main `00162221`)
+
+- `src/state/persistence.ts:145,528-602`: persisted progression uses schema v2; the root is not a general serialization of GameState. A schema bump is not automatically necessary for an in-round liquid, but the pending-round journal must round-trip it safely.
+- `src/state/pendingRound.ts:29-32,109-120,160-168,197-246`: journal pizza currently captures toppings (including optional `stage`), `sauceIds`, `sauceDeposits`, and validates them on read. There is no dedicated post-bake liquid collection. An added field would require explicit journal writer, reader, size cap and recovery behavior.
+- `src/state/inventory.ts:134-156,165-188`: pre-bake debit includes `sauceIds`. Post-bake placement and debit count only `pizza.toppings` with `stage === "post"`, then call `consumePizzaInventory` with `sauceIds: []`. A post-bake sauce would not be charged through this path.
+- `src/state/finalizeRound.ts:89-140`: PROVISIONAL/SINGLE consumes baked inventory, FINAL consumes post-bake pieces. Free Cooking identification is deferred until FINAL. The #495 provisional Reference behavior remains a separate scoring issue.
+- `src/state/pendingRoundSettle.ts:35-99`: journal settlement replays `finalizeRound` and intentionally preserves the base inventory (already consumed). A new FINISH liquid must have its debit committed before journal settlement, or carry an explicit idempotent consumption record; otherwise recovery can lose or double-charge stock.
+- `src/logic/scoringV2/recipeComponent.ts:60-115`: used ingredient types are the union of `sauceIds` and toppings, with no timing distinction for sauces. Existing recipe scoring would need an explicit phase-aware liquid role.
+
+### Recommended minimal architecture (proposal, NOT approved)
+1. Prototype DRIZZLE gesture and drawing as **transient Preview/DEV-only visual state**, with no stock debit, save writes, recipe credit or scoring claims.
+2. For gameplay, design a **separate phase-tagged post-bake liquid placement model**, rather than putting it into `sauceIds` or treating it as an ordinary topping. Decide the exact field and journal versioning only after Owner approves a concrete recipe.
+3. Keep `schemaVersion:2` only if pendingRound forward/backward compatibility and unknown-field preservation can be proven by tests. Otherwise require an explicit migration/compatibility Gate; do not assume compatibility.
+4. Define atomic and idempotent post-bake stock debit, including interrupted rounds and `pendingRoundSettle`; then phase-aware identity and Reference scoring.
+5. Regression matrix: pre-bake PAINT/NO_SAUCE, late toppings, Free/Research deferred identification, failed bake skip, cancel/reset/undo, save reload before and after FINISH, unknown schema, interrupted writes, and Dinner/Lunch Rush unchanged.
+
+### Gate verdict
+**D0 partially complete / implementation HOLD.** Runtime source audit confirms the current model is insufficient for persistent DRIZZLE. Remaining before design approval: exact recipe/material selection, pendingRound compatibility strategy and tests, transactional debit and settlement design, and scoring/Reference contract. This is not a claim that schema v2 must change; it is a requirement to prove whether it can stay unchanged.
