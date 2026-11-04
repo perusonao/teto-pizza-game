@@ -1,6 +1,6 @@
 # Ingredient Icons 2.0 / Fry — eggplant（ナス）食材 SVG デザイン案 Result Report
 
-Status: **A 案（輪切り）を採用候補として固定（Owner 指示 2026-11-05。正式採用・Style Lock への追記は Owner の別承認）。Fry 専用 Pilot として扱う。** docs / assets のみ。runtime・`ingredients.ts`・`IngredientGlyph.tsx`・`PizzaStage.tsx`・CSS は一切変更していない。Fry F2〜F4 は実装していない。Production ON・共有 Preview 更新・merge はしていない。Owner の PASS はここでは推定しない。
+Status: **A 案（輪切り）を正式採用（Owner 2026-11-05）。Style Lock V2 §12 に採用を記録済み（G1 完了）。Fry 専用 Pilot として扱う。** docs / assets のみ。runtime・`ingredients.ts`・`IngredientGlyph.tsx`・`PizzaStage.tsx`・CSS は一切変更していない。Fry F2〜F4 は実装していない。Production ON・共有 Preview 更新・merge はしていない。Owner の PASS はここでは推定しない。
 Base: `main` `c69cb2b`（Fry F1 #750 merge 後）。Refs #417 / #749 / #751、Style Lock V2。
 
 ## 1. 事前確認（Duplicate / claim）
@@ -128,7 +128,7 @@ Base: `main` `c69cb2b`（Fry F1 #750 merge 後）。Refs #417 / #749 / #751、St
 
 | Gate | 内容 | 待ち |
 |---|---|---|
-| G1 | Style Lock V2 への追記（A を参照 SVG として昇格、`eggplant-slices` 命名）と Owner 採用の記録 | Owner の採用。docs-only の別 PR（SL-8）。既存 Style Lock・既存 Ingredient Icons 設計書は本作業で編集していない |
+| G1（**完了**: Style Lock V2 §12、`references/.../eggplant.svg`） | Style Lock V2 への追記（A を参照 SVG として昇格、`eggplant-slices` 命名）と Owner 採用の記録 | Owner の採用。docs-only の別 PR（SL-8）。既存 Style Lock・既存 Ingredient Icons 設計書は本作業で編集していない |
 | G2 | `ingredients.ts` に `pieceVisual` +1 行、`IngredientGlyph.tsx`、CSS、テスト（`W1_DEDICATED` 等） | #748 の claim 解除/失効（2026-11-18）と最新 main での重なり再確認。#738 の merge 後（`PizzaStage.tsx` の合成点） |
 | G3 | F2（reducer）/ F3（UI・Preview/DEV 入口）/ F4（E2E・iPhone HV） | #749 で HOLD。Owner 承認 |
 | G4 | 実機 HV（390×844 動画 + before/after、24px 識別、焦げの見え方） | Owner。PASS は Owner のみ |

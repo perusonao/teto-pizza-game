@@ -1,6 +1,6 @@
 # Ingredient Icon 2.0 — Style Lock v2 (Issue #417)
 
-Status: **Owner 承認済みの設計 authority（Style Lock）。26 種の対象が全て確定（8 + 17 + clam 既存維持）。既存 26 種類のデザインは確定済み、27 種類目の goat-cheese は未デザイン（§9）。Pilot A = hot-dog / sausage / feta / ricotta（§5、2026-10-08 Owner 決定）。**実装状況（main `d70bd20`、2026-10-22 時点。§10）: Pilot A の 4 種は main に実装済み。26 種のうち未実装は 21 種。26 種の外で shiso / whitebait が実装済み、salmon-roe は PR #584（HOLD）内。次の実装は salmon + cream-cheese（Pilot D、**#621 の merge 後**、§0-7 / §10.3）。Pilot B は #438 の Owner HV 結果の記録まで HOLD。#423 の実装ガードは解除済み（§7）。**
+Status: **Owner 承認済みの設計 authority（Style Lock）。2026-11-05: eggplant（ナス）A 案を 26 種の外の追加対象として採用（§12、デザインのみ・未実装）。26 種の対象が全て確定（8 + 17 + clam 既存維持）。既存 26 種類のデザインは確定済み、27 種類目の goat-cheese は未デザイン（§9）。Pilot A = hot-dog / sausage / feta / ricotta（§5、2026-10-08 Owner 決定）。**実装状況（main `d70bd20`、2026-10-22 時点。§10）: Pilot A の 4 種は main に実装済み。26 種のうち未実装は 21 種。26 種の外で shiso / whitebait が実装済み、salmon-roe は PR #584（HOLD）内。次の実装は salmon + cream-cheese（Pilot D、**#621 の merge 後**、§0-7 / §10.3）。Pilot B は #438 の Owner HV 結果の記録まで HOLD。#423 の実装ガードは解除済み（§7）。**
 Path: `docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`
 Design reference (SVG + comparison sheet): [`docs/design/references/ingredient-icons-2.0/`](../design/references/ingredient-icons-2.0/)
 Remaining-17 comparison sheets / candidates: [`docs/design/candidates/ingredient-icons-2.0-remaining/`](../design/candidates/ingredient-icons-2.0-remaining/)
@@ -433,3 +433,37 @@ N-A を条件付きで採用。契約（Anti-Oracle Contract 2.1 の INV-D4 / IN
 
 ### 11.8 編集権限
 本節は docs-only の PR で変更する。Pilot E の実装 PR（`src` / CSS）に混ぜない（SL-8 と同じ扱い）。
+
+## 12. eggplant（ナス）の採用記録（2026-11-05 Owner 決定、Issue #749 / #417、docs-only = G1）
+
+Base: `main` `5d54bf2`。**本節はデザイン採用の記録のみ。** runtime・`ingredients.ts`・`IngredientGlyph.tsx`・CSS は変更しない。比較・測定・仕様の全文は [`TETO_INGREDIENT-ICON-2.0_EGGPLANT-FRY-SVG_Design-Result.md`](../reports/TETO_INGREDIENT-ICON-2.0_EGGPLANT-FRY-SVG_Design-Result.md)（本書は規則と状態だけを持つ。食い違えば本書が正）。
+
+### 12.1 Owner 決定
+
+| 項目 | 決定 |
+|---|---|
+| 採用案 | **A（輪切り 2 枚。標準紫の皮 + クリーム色の身）。** B（身が緑がかりズッキーニに読める）・C（salami と色・明度が近い）は不採用 |
+| 位置づけ | 26 種の外の追加対象（§10.2 / §11.2 と同じ扱い）。**Fry 専用 Pilot**（既存の bake Pilot の shrimp / bacon / pepperoni には入れない。Pilot A〜E の対象・順序は変更しない） |
+| 参照 SVG | `references/ingredient-icons-2.0/eggplant.svg`（候補 A の SVG を byte-for-byte で昇格）。`pieceVisual` 名の案は `eggplant-slices`（#の実装 PR で確定。visual 名は id と独立の原則） |
+| 方式 | 同一 SVG + CSS 変数（`pizzaVisual` は追加しない）。Tray = Raw = 生の絵 |
+| 揚げ色 | 部位色（skin / flesh / rim の 3×3 キーフレーム = bake heat × 揚げ位置）を主とし、**ナスでは F1 の `--fry-bright/sat/sepia` を使わない**（二重 filter 防止）。`--fry-sheen` は sheen の不透明度に使う。`--fry-golden` は F3 で必要になった場合のみ追加 |
+| Dex | Phase 1 では技法を Dex に追加しない |
+| 色 | **PROVISIONAL**（Owner の実機 HV まで） |
+
+### 12.2 共通仕様との関係
+
+§2 に適合（64×64・透明背景・線幅 2.4・接地影・`id` / gradient / `<defs>` / `url(#` / 文字なし）。🍆 `emoji` は text fallback として残す（G18 不変）。サイズ補正は起点 1em〜1.05em（§3 の個別クラス方式。占有 約 87%）。後乗せ層は見た目を持たない（§10.4）。縮みは SVG の内側のみで、ラッパー寸法・`--piece-rank-scale` は不変。
+
+### 12.3 状態（実装 Gate まで未実装）
+
+| Gate | 内容 | 待ち |
+|---|---|---|
+| G2 | `ingredients.ts` に `pieceVisual` +1 行・`IngredientGlyph.tsx`・CSS・テスト（§6 の dedicated 集合） | Issue #748 の claim（〜2026-11-18）の解除/失効と最新 main での重なり再確認、#738 の merge 後（`PizzaStage.tsx`）。同監査（bake Audit）との変数・属性名の統一 |
+| G3 | Fry F2 / F3 / F4 | #749 で HOLD。Owner 承認 |
+| G4 | 実機 HV（390×844 動画 + before/after、24px 識別、焦げの見え方、Tray の輪切りが🍆より識別しにくくならないか） | Owner（PASS は Owner のみ） |
+
+`canFryIngredient("eggplant")` は、絵が付く（G2）まで false のまま。Production は OFF（`FRY_EXPERIENCE_PRODUCTION = false`）。
+
+### 12.4 編集権限
+
+本節は docs-only の PR で変更する。G2 の実装 PR（`src` / CSS）に混ぜない（SL-8 と同じ扱い）。

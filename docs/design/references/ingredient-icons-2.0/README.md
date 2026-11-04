@@ -16,3 +16,5 @@ Pilot E (Issue #715, Style Lock §11) added `green-pepper.svg` (GP-A2 strips), `
 These files are design references; the production art lives in `src/components/IngredientGlyph.tsx` (ported as-is).
 
 Issue #739 (Owner P1, 2026-11): added `umeboshi-paste.svg` (the 梅肉 sauce: a plum-pink paste dab stamped with a plum blossom, instead of the 🍑 text fallback) and re-drew `whitebait.svg` (fish scale 1.3 → 1.5, outline `#4d4837` / 2.1 → `#2e2a1d` / 2.8). Both are PROVISIONAL until the 390×844 / 360×800 HV.
+
+Eggplant (Style Lock §12, Owner adoption 2026-11-05, Fry-only Pilot): `eggplant.svg` (candidate A, two round slices) promoted byte-for-byte from [`../../candidates/ingredient-icons-2.0-eggplant-fry/svg/eggplant-a.svg`](../../candidates/ingredient-icons-2.0-eggplant-fry/svg/eggplant-a.svg). Design adoption only: **not implemented** (no `pieceVisual` yet; Fry G2 is gated). Baked / fried states are CSS variables on this same SVG (see `eggplant-a-states.css` in the candidates directory).
