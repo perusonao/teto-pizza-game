@@ -212,3 +212,7 @@ HV 動画: docs-only の調査のため対象外（`TETO_HUMAN-VERIFICATION-POLI
 
 ## 10. 禁止事項の遵守
 既存ソース・PR・Production・共有 Preview の変更なし／PR・Issue・claim の作成なし／本書以外のファイル追加なし／炒め・炙りの実装・フラグ・HV 状態に触れていない／他セッションの作業と競合しうる HOT file は編集していない。
+
+---
+
+> **後続（2026-11-04）:** 蒸す採用後の「次」の比較（揚げる／茹でる／煮込む／炒め拡張／172 マトリクスの調理法要求行の実測）は `TETO_COOKING-METHODS-AFTER-STEAM_Design-Audit.md` に分離した。本書 §7.5 の「揚げる＝次点」は、同書で推奨（Phase 1 は食材単位、Phase 2 は `FRY_COOK`）に更新された。本書の本文は調査時点の記録として変更していない。
