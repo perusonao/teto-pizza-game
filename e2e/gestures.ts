@@ -1,6 +1,7 @@
 import { expect, type Page } from "@playwright/test";
 import { JUST_HALF_WIDTH_PT } from "../src/logic/bake";
 import { BAKE_SPEED_PCT_PER_S } from "../src/logic/bakeProgress";
+import { cutMarkCount, diagMouse, installPointerTrace, reportCutCommit } from "./support/diag";
 
 /**
  * Real-mouse (not synthetic PointerEvent dispatch) gesture helpers for driving a FREE round
@@ -255,13 +256,14 @@ async function doughBox(page: Page) {
 }
 
 export async function tapDoughPercent(page: Page, xPercent: number, yPercent: number) {
+  const mouse = diagMouse(page, "tap");
   const { box } = await doughBox(page);
   const x = box.x + (xPercent / 100) * box.width;
   const y = box.y + (yPercent / 100) * box.height;
   await waitUntilDoughReady(page, { x, y });
-  await page.mouse.move(x, y);
-  await page.mouse.down();
-  await page.mouse.up();
+  await mouse.move(x, y);
+  await mouse.down();
+  await mouse.up();
 }
 
 /**
@@ -269,40 +271,43 @@ export async function tapDoughPercent(page: Page, xPercent: number, yPercent: nu
  * Both points are dough percent of the dough's box; one stroke places ONE piece.
  */
 export async function squeezeDoughStroke(page: Page, from: [number, number], to: [number, number], steps = 10) {
+  const mouse = diagMouse(page, "squeeze");
   const { box } = await doughBox(page);
   const at = (p: [number, number]) => ({ x: box.x + (p[0] / 100) * box.width, y: box.y + (p[1] / 100) * box.height });
   const a = at(from);
   const b = at(to);
   await waitUntilDoughReady(page, a);
-  await page.mouse.move(a.x, a.y);
-  await page.mouse.down();
+  await mouse.move(a.x, a.y);
+  await mouse.down();
   for (let i = 1; i <= steps; i += 1) {
-    await page.mouse.move(a.x + ((b.x - a.x) * i) / steps, a.y + ((b.y - a.y) * i) / steps);
+    await mouse.move(a.x + ((b.x - a.x) * i) / steps, a.y + ((b.y - a.y) * i) / steps);
     if (process.env.HV_VIDEO) await page.waitForTimeout(60); // a human-speed stroke on the review video
   }
-  await page.mouse.up();
+  await mouse.up();
 }
 
 /** Like `squeezeDoughStroke`, through any number of dough-percent waypoints (a wavy stroke), `stepsPerLeg` moves between each pair. */
 export async function squeezeDoughPath(page: Page, waypoints: readonly [number, number][], stepsPerLeg = 6) {
+  const mouse = diagMouse(page, "squeeze-path");
   const { box } = await doughBox(page);
   const at = (p: [number, number]) => ({ x: box.x + (p[0] / 100) * box.width, y: box.y + (p[1] / 100) * box.height });
   const first = at(waypoints[0]);
   await waitUntilDoughReady(page, first);
-  await page.mouse.move(first.x, first.y);
-  await page.mouse.down();
+  await mouse.move(first.x, first.y);
+  await mouse.down();
   for (let leg = 1; leg < waypoints.length; leg += 1) {
     const a = at(waypoints[leg - 1]);
     const b = at(waypoints[leg]);
     for (let i = 1; i <= stepsPerLeg; i += 1) {
-      await page.mouse.move(a.x + ((b.x - a.x) * i) / stepsPerLeg, a.y + ((b.y - a.y) * i) / stepsPerLeg);
+      await mouse.move(a.x + ((b.x - a.x) * i) / stepsPerLeg, a.y + ((b.y - a.y) * i) / stepsPerLeg);
       if (process.env.HV_VIDEO) await page.waitForTimeout(45); // a human-speed stroke on the review video
     }
   }
-  await page.mouse.up();
+  await mouse.up();
 }
 
 export async function completeDoughStep(page: Page) {
+  const mouse = diagMouse(page, "dough");
   const { cx, cy, r, box } = await doughBox(page);
   // An oval dough (3:2) keeps the circular percent space, so the ring is an ellipse with the box's own aspect; a round dough has ry === r.
   const ry = r * (box.height / box.width);
@@ -311,9 +316,9 @@ export async function completeDoughStep(page: Page) {
     const x = cx + Math.cos(angle) * r;
     const y = cy + Math.sin(angle) * ry;
     await waitUntilDoughReady(page, { x, y });
-    await page.mouse.move(x, y);
-    await page.mouse.down();
-    await page.mouse.up();
+    await mouse.move(x, y);
+    await mouse.down();
+    await mouse.up();
   }
 }
 
@@ -339,6 +344,7 @@ export async function physicalDragToDough(
   xPercent: number,
   yPercent: number,
 ) {
+  const mouse = diagMouse(page, "drag");
   const chip = page.getByRole("button", { name: chipNameRegex });
   const chipBox = await chip.boundingBox();
   if (!chipBox) throw new Error("Draggable chip missing");
@@ -348,42 +354,51 @@ export async function physicalDragToDough(
   const targetX = box.x + (xPercent / 100) * box.width;
   const targetY = box.y + (yPercent / 100) * box.height;
   await waitUntilDoughReady(page, { x: targetX, y: targetY });
-  await page.mouse.move(startX, startY);
-  await page.mouse.down();
-  await page.mouse.move(startX + 2, startY - 10, { steps: 3 });
+  await mouse.move(startX, startY);
+  await mouse.down();
+  await mouse.move(startX + 2, startY - 10, { steps: 3 });
   const steps = 10;
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
-    await page.mouse.move(startX + (targetX - startX) * t, startY - 10 + (targetY - (startY - 10)) * t);
+    await mouse.move(startX + (targetX - startX) * t, startY - 10 + (targetY - (startY - 10)) * t);
   }
-  await page.mouse.up();
+  await mouse.up();
 }
 
 export async function cutThreeLines(page: Page) {
   const { cx, cy, r } = await doughBox(page);
+  const mouse = diagMouse(page, "cut");
+  // #394 Phase 2 (diagnostics only): pointer recording and a mark count before / after. Neither waits or fails; the mouse sequence below is unchanged.
+  await installPointerTrace(page);
+  const marksBefore = await cutMarkCount(page);
   for (const angleDeg of [0, 60, 120]) {
     const angle = (angleDeg * Math.PI) / 180;
     const dx = Math.cos(angle) * r;
     const dy = Math.sin(angle) * r;
     await waitUntilDoughReady(page, { x: cx - dx, y: cy - dy });
-    await page.mouse.move(cx - dx, cy - dy);
-    await page.mouse.down();
-    await page.mouse.move(cx + dx, cy + dy, { steps: 5 });
-    await page.mouse.up();
+    await mouse.move(cx - dx, cy - dy);
+    await mouse.down();
+    await mouse.move(cx + dx, cy + dy, { steps: 5 });
+    await mouse.up();
   }
+  await reportCutCommit(page, "cutThreeLines", marksBefore, 3);
 }
 
 /** One rim-to-rim cut through the dough's centre at `angleDeg` (the same drag `cutThreeLines` makes, at any angle). */
 export async function cutThroughCentre(page: Page, angleDeg: number) {
   const { cx, cy, r } = await doughBox(page);
+  const mouse = diagMouse(page, `cut ${angleDeg}°`);
+  await installPointerTrace(page);
+  const marksBefore = await cutMarkCount(page);
   const angle = (angleDeg * Math.PI) / 180;
   const dx = Math.cos(angle) * r;
   const dy = Math.sin(angle) * r;
   await waitUntilDoughReady(page, { x: cx - dx, y: cy - dy });
-  await page.mouse.move(cx - dx, cy - dy);
-  await page.mouse.down();
-  await page.mouse.move(cx + dx, cy + dy, { steps: 5 });
-  await page.mouse.up();
+  await mouse.move(cx - dx, cy - dy);
+  await mouse.down();
+  await mouse.move(cx + dx, cy + dy, { steps: 5 });
+  await mouse.up();
+  await reportCutCommit(page, `cutThroughCentre(${angleDeg}°)`, marksBefore, 1);
 }
 
 /** HOME -> Pizza Select -> margherita -> PREPARE (a guided round).
