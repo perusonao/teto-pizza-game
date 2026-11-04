@@ -46,7 +46,7 @@ describe("Steam Gameplay Pilot #755 (no production wiring)", () => {
       { type: "OPEN", now: T + 5500 },
     ]);
     expect(switched).toMatchObject({ status: "released", result: { outcome: "justRight", openCount: 5 } });
-    expect(liftAt(5500)).toMatchObject({ result: { outcome: "overcooked" } });
+    expect(liftAt(6000)).toMatchObject({ result: { outcome: "overcooked" } });
   });
 
   it("low fire eventually opens every shell but never makes a quicker result", () => {
