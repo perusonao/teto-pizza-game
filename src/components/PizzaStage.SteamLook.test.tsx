@@ -158,3 +158,21 @@ describe("./Steam.css: the steam filter targets the inner glyph only", () => {
     expect(glyphRule).not.toMatch(/transform:/);
   });
 });
+
+describe("./Steam.css: H11 opened-shell overlay (#738)", () => {
+  const css = readFileSync(path.resolve(__dirname, "Steam.css"), "utf8");
+  it("draws the clam / mussel overlay only under .ingredient-piece--steamed, as a non-interactive absolute ::after (no layout / transform / filter change)", () => {
+    const overlayRules = [...css.matchAll(/([^{}]*::after)\s*\{/g)].map((m) => m[1]).join("\n");
+    for (const sel of overlayRules.split(",")) expect(sel).toContain(".ingredient-piece--steamed");
+    expect(css).toMatch(/\.ingredient-piece--steamed:has\(\.ingredient-glyph--clam-valve\)::after/);
+    expect(css).toMatch(/\.ingredient-piece--steamed:has\(\.ingredient-glyph--mussel-shell\)::after/);
+    const base = css.match(/\.ingredient-piece--steamed:has\(\.ingredient-glyph--clam-valve\)::after,\s*\.ingredient-piece--steamed:has\(\.ingredient-glyph--mussel-shell\)::after\s*\{([^}]*)\}/)![1];
+    expect(base).toMatch(/position:\s*absolute/);
+    expect(base).toMatch(/pointer-events:\s*none/);
+    expect(base).not.toMatch(/transform:|filter:/);
+  });
+  it("leaves the raw glyph SVG source untouched (no steam wiring in IngredientGlyph.tsx)", () => {
+    const glyph = readFileSync(path.resolve(__dirname, "IngredientGlyph.tsx"), "utf8");
+    expect(glyph).not.toMatch(/steam/i);
+  });
+});
