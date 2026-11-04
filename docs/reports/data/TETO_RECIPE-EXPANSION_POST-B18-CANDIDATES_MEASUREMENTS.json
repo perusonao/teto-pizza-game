@@ -1,0 +1,5146 @@
+{
+ "meta": {
+  "recipesOrdinaryParsed": 80,
+  "recipesLateParsed": 8,
+  "ingredientIdsOwned": 97,
+  "plannedB18": [
+   "PLANNED:baingan-bharta",
+   "PLANNED:reina-pepiada"
+  ],
+  "matrixRows": 172,
+  "shippedMatched": 79,
+  "unshipped": 93,
+  "excludedShippedDuplicates": [
+   "bismarck-pizza-pizzadb-p7",
+   "breakfast-pizza-pizzadb-p11",
+   "capricciosa-pizzadb",
+   "fugazza-pizzadb-p10",
+   "margherita-pizzadb-row",
+   "marinara-pizza-pizzadb-p13",
+   "meat-lovers-pizza-pizzadb-p13",
+   "pesto-genovese-pizza-pizzadb-p11",
+   "quattro-formaggi-pizzadb"
+  ],
+  "excludedClaimed748": [
+   "baingan-bharta-pizza-pizzadb-p6",
+   "venezuelan-reina-pepiada-pizzadb-p12"
+  ],
+  "candidates": 82,
+  "notMatchedRuntimeRecipes": [
+   "bismarck",
+   "breakfast-pizza",
+   "capricciosa",
+   "fugazza",
+   "funghi",
+   "genovese",
+   "marinara",
+   "meat-lovers",
+   "napoletana",
+   "pizza-bianca",
+   "quattro-formaggi"
+  ]
+ },
+ "candidates": [
+  {
+   "evidenceId": "bulgogi-pizza-pizzadb-p11",
+   "nameJa": "プルコギピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "甘辛だれ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "beef",
+     "mozzarella",
+     "onion",
+     "white-sesame"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [
+     "rendang-pizza",
+     "nigerian-suya-pizza"
+    ],
+    "top3_jaccard": [
+     [
+      0.6,
+      "rendang-pizza"
+     ],
+     [
+      0.6,
+      "nigerian-suya-pizza"
+     ],
+     [
+      0.5,
+      "wasabi-beef-pizza"
+     ]
+    ],
+    "max_jaccard": 0.6
+   }
+  },
+  {
+   "evidenceId": "caponata-pizza-pizzadb-p2",
+   "nameJa": "カポナータピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "その他",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "black-olive",
+     "capers",
+     "eggplant",
+     "mozzarella"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.4,
+      "palmito-pizza"
+     ],
+     [
+      0.33,
+      "melanzane-pizza"
+     ],
+     [
+      0.33,
+      "eggplant-dengaku-pizza"
+     ]
+    ],
+    "max_jaccard": 0.4
+   }
+  },
+  {
+   "evidenceId": "hokkaido-cheese-pizza-pizzadb-p15",
+   "nameJa": "北海道チーズピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "チーズ",
+     "mozzarella"
+    ]
+   ],
+   "sauceStatus": "none",
+   "sauceFamily": "チーズ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "bacon",
+     "corn",
+     "mozzarella",
+     "potato"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [
+     "potato-mayo-pizza"
+    ],
+    "cand_superset_of": [],
+    "add_remove_1": [
+     "potato-mayo-pizza"
+    ],
+    "swap_1": [
+     "pesto-patate"
+    ],
+    "top3_jaccard": [
+     [
+      0.8,
+      "potato-mayo-pizza"
+     ],
+     [
+      0.6,
+      "pesto-patate"
+     ],
+     [
+      0.4,
+      "brazilian-catupiry-corn-pizza"
+     ]
+    ],
+    "max_jaccard": 0.8
+   }
+  },
+  {
+   "evidenceId": "philly-cheesesteak-pizza-pizzadb-p9",
+   "nameJa": "フィリーチーズステーキピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "チーズソース",
+     "mozzarella"
+    ]
+   ],
+   "sauceStatus": "none",
+   "sauceFamily": "チーズ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "beef",
+     "green-pepper",
+     "mozzarella",
+     "onion"
+    ],
+    "size": 4,
+    "exact": [
+     "nigerian-suya-pizza"
+    ],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [
+     "rendang-pizza"
+    ],
+    "top3_jaccard": [
+     [
+      1.0,
+      "nigerian-suya-pizza"
+     ],
+     [
+      0.6,
+      "rendang-pizza"
+     ],
+     [
+      0.5,
+      "wasabi-beef-pizza"
+     ]
+    ],
+    "max_jaccard": 1.0
+   }
+  },
+  {
+   "evidenceId": "pizza-zucchine-menta-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・ズッキーネ・クルーデ・エ・メンタ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "ノンソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "lemon",
+     "mint",
+     "mozzarella",
+     "olive-oil",
+     "ricotta",
+     "zucchini"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.43,
+      "pizza-bianca-ricotta"
+     ],
+     [
+      0.43,
+      "eggplant-ricotta-pizza"
+     ],
+     [
+      0.25,
+      "shirasu-pizza"
+     ]
+    ],
+    "max_jaccard": 0.43
+   }
+  },
+  {
+   "evidenceId": "tsukimi-pizza-pizzadb-p14",
+   "nameJa": "月見ピザ",
+   "status": "READY",
+   "requiredCapabilities": [],
+   "blockers": [],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "チーズ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "bacon",
+     "egg",
+     "green-onion",
+     "mozzarella"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [
+     "breakfast-pizza",
+     "aussie"
+    ],
+    "top3_jaccard": [
+     [
+      0.6,
+      "breakfast-pizza"
+     ],
+     [
+      0.6,
+      "aussie"
+     ],
+     [
+      0.5,
+      "full-english-pizza"
+     ]
+    ],
+    "max_jaccard": 0.6
+   }
+  },
+  {
+   "evidenceId": "chicken-tikka-pizza-pizzadb-p5",
+   "nameJa": "チキンティッカピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "chicken-tikka"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "カレー",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "bell-pepper",
+     "chicken-tikka",
+     "cilantro",
+     "mozzarella",
+     "onion"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.5,
+      "spanish-chorizo-pizza"
+     ],
+     [
+      0.43,
+      "bbq-chicken-pizza"
+     ],
+     [
+      0.38,
+      "PLANNED:baingan-bharta"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "frutti-di-mare-pizzadb-p11",
+   "nameJa": "フルッティディマーレ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [
+    "squid"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "clam",
+     "mussel",
+     "shrimp",
+     "squid",
+     "tomato-sauce"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.5,
+      "pescatore"
+     ],
+     [
+      0.14,
+      "salsiccia"
+     ],
+     [
+      0.14,
+      "pepperoni"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "jerusalem-mixed-grill-pizza-pizzadb-p1",
+   "nameJa": "エルサレムミックスグリルピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "cumin"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "その他",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "chicken",
+     "cumin",
+     "onion",
+     "parsley"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.33,
+      "curry-pizza-japan"
+     ],
+     [
+      0.29,
+      "bbq-chicken-pizza"
+     ],
+     [
+      0.17,
+      "fugazza"
+     ]
+    ],
+    "max_jaccard": 0.33
+   }
+  },
+  {
+   "evidenceId": "nashville-hot-chicken-pizza-pizzadb-p6",
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "honey"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "ホットソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "chicken",
+     "honey",
+     "mozzarella",
+     "pickles"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.33,
+      "pesto-pollo"
+     ],
+     [
+      0.33,
+      "jamaican-jerk-chicken-pizza"
+     ],
+     [
+      0.33,
+      "frango-catupiry"
+     ]
+    ],
+    "max_jaccard": 0.33
+   }
+  },
+  {
+   "evidenceId": "nduja-pizza-pizzadb-p14",
+   "nameJa": "ンドゥイヤピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "honey"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "ホットソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "honey",
+     "mozzarella",
+     "sausage"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [
+     "salsiccia",
+     "salsiccia-e-friarielli"
+    ],
+    "top3_jaccard": [
+     [
+      0.5,
+      "salsiccia-e-friarielli"
+     ],
+     [
+      0.5,
+      "salsiccia"
+     ],
+     [
+      0.4,
+      "spanish-chorizo-pizza"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "peruvian-aji-amarillo-pizzadb-p12",
+   "nameJa": "ペルーアヒアマリージョピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "aji-amarillo"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "ホットソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "aji-amarillo",
+     "black-olive",
+     "chicken",
+     "mozzarella"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.4,
+      "palmito-pizza"
+     ],
+     [
+      0.33,
+      "pesto-pollo"
+     ],
+     [
+      0.33,
+      "jamaican-jerk-chicken-pizza"
+     ]
+    ],
+    "max_jaccard": 0.4
+   }
+  },
+  {
+   "evidenceId": "pizza-asparagi-limone-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "newIngredients": [
+    "asparagus"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "ノンソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "asparagus",
+     "lemon",
+     "mozzarella",
+     "olive-oil",
+     "parmigiano"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.43,
+      "quattro-formaggi"
+     ],
+     [
+      0.29,
+      "shirasu-pizza"
+     ],
+     [
+      0.29,
+      "pizza-bianca-ricotta"
+     ]
+    ],
+    "max_jaccard": 0.43
+   }
+  },
+  {
+   "evidenceId": "pizza-baiana",
+   "nameJa": "ピッツァ・バイアーナ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "chili-oil"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "唐辛子",
+     "chili-oil"
+    ]
+   ],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "chili-oil",
+     "egg",
+     "mozzarella",
+     "onion",
+     "sausage"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.5,
+      "spanish-chorizo-pizza"
+     ],
+     [
+      0.5,
+      "polish-kielbasa"
+     ],
+     [
+      0.5,
+      "aussie"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "pizza-chilena-pizzadb-p8",
+   "nameJa": "ピッツァ・チレーナ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "ground-beef"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "ひき肉",
+     "ground-beef"
+    ]
+   ],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "black-olive",
+     "egg",
+     "ground-beef",
+     "mozzarella",
+     "onion"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.57,
+      "pizza-portuguesa"
+     ],
+     [
+      0.5,
+      "bacalhau"
+     ],
+     [
+      0.5,
+      "aussie"
+     ]
+    ],
+    "max_jaccard": 0.57
+   }
+  },
+  {
+   "evidenceId": "south-african-boerewors-pizzadb-p14",
+   "nameJa": "南アフリカボアヴォースピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "chutney"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "甘辛だれ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "chutney",
+     "mozzarella",
+     "onion",
+     "sausage"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [
+     "polish-kielbasa",
+     "spanish-chorizo-pizza"
+    ],
+    "top3_jaccard": [
+     [
+      0.6,
+      "spanish-chorizo-pizza"
+     ],
+     [
+      0.6,
+      "polish-kielbasa"
+     ],
+     [
+      0.4,
+      "salsiccia-e-friarielli"
+     ]
+    ],
+    "max_jaccard": 0.6
+   }
+  },
+  {
+   "evidenceId": "apple-cinnamon-dessert-pizzadb",
+   "nameJa": "アップルシナモンデザートピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "apple",
+    "walnut"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "デザートソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "apple",
+     "cinnamon",
+     "cream-cheese",
+     "walnut"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.14,
+      "pesto-salmone"
+     ],
+     [
+      0.14,
+      "jalapeno-popper-pizza"
+     ],
+     [
+      0.14,
+      "ikura-salmon-pizza"
+     ]
+    ],
+    "max_jaccard": 0.14
+   }
+  },
+  {
+   "evidenceId": "buffalo-cauliflower-pizza-pizzadb-p6",
+   "nameJa": "バッファローカリフラワーピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "blue-cheese-dressing",
+    "cauliflower"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "ホットソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "blue-cheese-dressing",
+     "cauliflower",
+     "mozzarella"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.2,
+      "salsiccia-e-friarielli"
+     ],
+     [
+      0.2,
+      "salsiccia"
+     ],
+     [
+      0.2,
+      "porchetta-pizza"
+     ]
+    ],
+    "max_jaccard": 0.2
+   }
+  },
+  {
+   "evidenceId": "diavola-pizza-pizzadb-p5",
+   "nameJa": "ディアボラ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "chili-oil",
+    "spicy-salami"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "唐辛子",
+     "chili-oil"
+    ]
+   ],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "chili-oil",
+     "mozzarella",
+     "spicy-salami"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.2,
+      "salsiccia-e-friarielli"
+     ],
+     [
+      0.2,
+      "salsiccia"
+     ],
+     [
+      0.2,
+      "porchetta-pizza"
+     ]
+    ],
+    "max_jaccard": 0.2
+   }
+  },
+  {
+   "evidenceId": "keema-pizza-pizzadb-p2",
+   "nameJa": "キーマピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "chili-oil",
+    "ground-beef"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "ひき肉",
+     "ground-beef"
+    ],
+    [
+     "青唐辛子",
+     "chili-oil"
+    ]
+   ],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "カレー",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "chili-oil",
+     "ground-beef",
+     "mozzarella",
+     "onion"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.33,
+      "tonno-e-cipolla"
+     ],
+     [
+      0.33,
+      "spanish-chorizo-pizza"
+     ],
+     [
+      0.33,
+      "rendang-pizza"
+     ]
+    ],
+    "max_jaccard": 0.33
+   }
+  },
+  {
+   "evidenceId": "mentaiko-mochi-pizza",
+   "nameJa": "明太子もちピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "mentaiko",
+    "mochi"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "ホワイトソース",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "mayo",
+     "mentaiko",
+     "mochi",
+     "nori",
+     "shiso"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.25,
+      "tarako-cream-pizza"
+     ],
+     [
+      0.12,
+      "yuzu-shrimp-pizza"
+     ],
+     [
+      0.12,
+      "ume-shiso-pizza"
+     ]
+    ],
+    "max_jaccard": 0.25
+   }
+  },
+  {
+   "evidenceId": "pizza-finocchi-salad-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "newIngredients": [
+    "fennel",
+    "orange"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "ノンソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "black-olive",
+     "fennel",
+     "mint",
+     "mozzarella",
+     "olive-oil",
+     "orange"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.29,
+      "palmito-pizza"
+     ],
+     [
+      0.25,
+      "pizza-bianca-ricotta"
+     ],
+     [
+      0.25,
+      "grandma-pizza"
+     ]
+    ],
+    "max_jaccard": 0.29
+   }
+  },
+  {
+   "evidenceId": "speck-e-brie-pizzadb-p4",
+   "nameJa": "スペックエブリー",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [
+    "brie",
+    "walnut"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "チーズ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "brie",
+     "mozzarella",
+     "prosciutto-crudo",
+     "walnut"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.33,
+      "prosciutto-funghi"
+     ],
+     [
+      0.33,
+      "pinsa-romana"
+     ],
+     [
+      0.33,
+      "jamon-serrano-pizza"
+     ]
+    ],
+    "max_jaccard": 0.33
+   }
+  },
+  {
+   "evidenceId": "swedish-kebab-pizza-pizzadb-p4",
+   "nameJa": "スウェディッシュケバブピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "kebab-sauce",
+    "lettuce"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "ホットソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "kebab-sauce",
+     "lettuce",
+     "mozzarella"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.2,
+      "salsiccia-e-friarielli"
+     ],
+     [
+      0.2,
+      "salsiccia"
+     ],
+     [
+      0.2,
+      "porchetta-pizza"
+     ]
+    ],
+    "max_jaccard": 0.2
+   }
+  },
+  {
+   "evidenceId": "thai-chicken-pizza-pizzadb-p4",
+   "nameJa": "タイチキンピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "chili-oil",
+    "peanut-sauce"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "赤唐辛子",
+     "chili-oil"
+    ]
+   ],
+   "sauceStatus": "listed",
+   "sauceFamily": "その他",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "chicken",
+     "chili-oil",
+     "cilantro",
+     "mozzarella",
+     "peanut-sauce"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.43,
+      "bbq-chicken-pizza"
+     ],
+     [
+      0.38,
+      "PLANNED:reina-pepiada"
+     ],
+     [
+      0.29,
+      "pesto-pollo"
+     ]
+    ],
+    "max_jaccard": 0.43
+   }
+  },
+  {
+   "evidenceId": "banh-mi-pizza-pizzadb-p6",
+   "nameJa": "バインミーピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "carrot",
+    "daikon",
+    "liver-pate"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "その他",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "carrot",
+     "cilantro",
+     "daikon",
+     "ham",
+     "liver-pate",
+     "mozzarella"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.25,
+      "hawaiian"
+     ],
+     [
+      0.25,
+      "bambino"
+     ],
+     [
+      0.22,
+      "bbq-chicken-pizza"
+     ]
+    ],
+    "max_jaccard": 0.25
+   }
+  },
+  {
+   "evidenceId": "mexican-elote-pizza-pizzadb-p13",
+   "nameJa": "メキシカンエロテピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "chili-powder",
+    "cotija",
+    "lime"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "ホワイトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "chili-powder",
+     "corn",
+     "cotija",
+     "lime",
+     "mayo"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.25,
+      "potato-mayo-pizza"
+     ],
+     [
+      0.14,
+      "brazilian-catupiry-corn-pizza"
+     ],
+     [
+      0.12,
+      "bambino"
+     ]
+    ],
+    "max_jaccard": 0.25
+   }
+  },
+  {
+   "evidenceId": "peking-duck-pizza",
+   "nameJa": "北京ダックピザ",
+   "status": "READY_WITH_REVIEW",
+   "requiredCapabilities": [],
+   "blockers": [],
+   "newIngredients": [
+    "cucumber",
+    "peking-duck",
+    "sweet-bean-sauce"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "甘辛だれ",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "cucumber",
+     "green-onion",
+     "mozzarella",
+     "peking-duck",
+     "sweet-bean-sauce"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.25,
+      "sichuan-eggplant-pizza"
+     ],
+     [
+      0.14,
+      "salsiccia-e-friarielli"
+     ],
+     [
+      0.14,
+      "salsiccia"
+     ]
+    ],
+    "max_jaccard": 0.25
+   }
+  },
+  {
+   "evidenceId": "pizza-cavolo-carote-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "newIngredients": [
+    "carrot",
+    "red-cabbage",
+    "sunflower-seeds"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "ノンソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "carrot",
+     "lemon",
+     "mozzarella",
+     "olive-oil",
+     "red-cabbage",
+     "sunflower-seeds"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.25,
+      "shirasu-pizza"
+     ],
+     [
+      0.25,
+      "pizza-bianca-ricotta"
+     ],
+     [
+      0.25,
+      "grandma-pizza"
+     ]
+    ],
+    "max_jaccard": 0.25
+   }
+  },
+  {
+   "evidenceId": "taco-pizza-pizzadb",
+   "nameJa": "タコピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [],
+   "blockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "newIngredients": [
+    "cheddar",
+    "ground-beef",
+    "lettuce",
+    "salsa",
+    "tortilla-chips"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "サルサ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "cheddar",
+     "fresh-tomato",
+     "ground-beef",
+     "lettuce",
+     "salsa",
+     "tortilla-chips"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.12,
+      "chilean-napolitana"
+     ],
+     [
+      0.11,
+      "pesto-trapanese"
+     ],
+     [
+      0.11,
+      "pesto-pollo"
+     ]
+    ],
+    "max_jaccard": 0.12
+   }
+  },
+  {
+   "evidenceId": "argentine-napolitana-pizzadb-p1",
+   "nameJa": "アルゼンチン風ナポリターナ",
+   "status": "READY_WITH_REVIEW",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "チーズ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "fresh-tomato",
+     "garlic",
+     "mozzarella",
+     "oregano",
+     "parmigiano"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [
+     "chilean-napolitana"
+    ],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.6,
+      "chilean-napolitana"
+     ],
+     [
+      0.33,
+      "marinara"
+     ],
+     [
+      0.29,
+      "porcini-pizza"
+     ]
+    ],
+    "max_jaccard": 0.6
+   }
+  },
+  {
+   "evidenceId": "calzone-pizzadb",
+   "nameJa": "カルツォーネ（PIZZA DB版）",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "ENCLOSE"
+   ],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella",
+     "ricotta",
+     "salami",
+     "tomato-sauce"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.5,
+      "calabresa-argentina"
+     ],
+     [
+      0.4,
+      "salsiccia"
+     ],
+     [
+      0.4,
+      "pepperoni"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "colorado-mountain-pie-pizzadb-p3",
+   "nameJa": "コロラドマウンテンパイ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "EVIDENCE_GAP"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella"
+    ],
+    "size": 1,
+    "exact": [],
+    "cand_subset_of": [
+     "margherita",
+     "quattro-formaggi",
+     "genovese",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "pesto-caprese",
+     "pesto-patate",
+     "pesto-pollo",
+     "pesto-vegetariana",
+     "aussie",
+     "prosciutto-funghi",
+     "veggie-supreme-pizza",
+     "jamon-serrano-pizza",
+     "calabresa-argentina",
+     "bacalhau",
+     "full-english-pizza",
+     "palmito-pizza",
+     "polish-kielbasa",
+     "porchetta-pizza",
+     "salsiccia-e-friarielli",
+     "brazilian-catupiry-corn-pizza",
+     "jalapeno-popper-pizza",
+     "pizza-moscow",
+     "pizza-bianca-ricotta",
+     "pizza-overload",
+     "spinach-artichoke-pizza",
+     "new-zealand-lamb-pizza",
+     "chilean-napolitana",
+     "spanish-chorizo-pizza",
+     "frango-catupiry",
+     "shirasu-pizza",
+     "sichuan-eggplant-pizza",
+     "grandma-pizza",
+     "curry-pizza-japan",
+     "rendang-pizza",
+     "tandoori-paneer-pizza",
+     "currywurst",
+     "boscaiola",
+     "porcini-pizza",
+     "pescatore",
+     "jamaican-jerk-chicken-pizza",
+     "potato-mayo-pizza",
+     "nigerian-suya-pizza",
+     "ume-shiso-pizza",
+     "yuzu-shrimp-pizza",
+     "eggplant-dengaku-pizza",
+     "bbq-chicken-pizza",
+     "wasabi-beef-pizza",
+     "tarako-cream-pizza",
+     "pinsa-romana",
+     "PLANNED:baingan-bharta",
+     "PLANNED:reina-pepiada"
+    ],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.33,
+      "salsiccia-e-friarielli"
+     ],
+     [
+      0.33,
+      "salsiccia"
+     ],
+     [
+      0.33,
+      "porchetta-pizza"
+     ]
+    ],
+    "max_jaccard": 0.33
+   }
+  },
+  {
+   "evidenceId": "fugazzetta-pizzadb-p10",
+   "nameJa": "フガゼッタ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "DISCOVERY_COLLISION"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "チーズ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella",
+     "onion",
+     "oregano"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [
+     "fugazza",
+     "chilean-napolitana"
+    ],
+    "top3_jaccard": [
+     [
+      0.5,
+      "fugazza"
+     ],
+     [
+      0.5,
+      "chilean-napolitana"
+     ],
+     [
+      0.4,
+      "tonno-e-cipolla"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "ny-style-pizzadb",
+   "nameJa": "ニューヨークスタイルピザ（PIZZA DB版）",
+   "status": "READY_WITH_REVIEW",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella",
+     "tomato-sauce"
+    ],
+    "size": 2,
+    "exact": [],
+    "cand_subset_of": [
+     "margherita",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "prosciutto-funghi",
+     "veggie-supreme-pizza",
+     "jamon-serrano-pizza",
+     "calabresa-argentina",
+     "pizza-overload",
+     "grandma-pizza",
+     "pescatore",
+     "pinsa-romana"
+    ],
+    "cand_superset_of": [],
+    "add_remove_1": [
+     "margherita",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni"
+    ],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.67,
+      "salsiccia"
+     ],
+     [
+      0.67,
+      "pepperoni"
+     ],
+     [
+      0.67,
+      "margherita"
+     ]
+    ],
+    "max_jaccard": 0.67
+   }
+  },
+  {
+   "evidenceId": "palmitos-salsa-golf-pizzadb-p7",
+   "nameJa": "パルミートス・イ・サルサ・ゴルフ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "その他",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "ham",
+     "mozzarella",
+     "oregano",
+     "palm-heart"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.43,
+      "capricciosa"
+     ],
+     [
+      0.4,
+      "palmito-pizza"
+     ],
+     [
+      0.4,
+      "chilean-napolitana"
+     ]
+    ],
+    "max_jaccard": 0.43
+   }
+  },
+  {
+   "evidenceId": "piadina-romagnola-pizzadb-p7",
+   "nameJa": "ピアディーナ・ロマニョーラ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "ノンソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "arugula",
+     "cream-cheese",
+     "prosciutto-crudo"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.4,
+      "rucola-e-grana"
+     ],
+     [
+      0.4,
+      "pinsa-romana"
+     ],
+     [
+      0.4,
+      "jamon-serrano-pizza"
+     ]
+    ],
+    "max_jaccard": 0.4
+   }
+  },
+  {
+   "evidenceId": "pizza-fritta-pizzadb-p9",
+   "nameJa": "ピッツァフリッタ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "FRY_COOK"
+   ],
+   "blockers": [],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella",
+     "pork",
+     "ricotta",
+     "tomato-sauce"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.4,
+      "salsiccia"
+     ],
+     [
+      0.4,
+      "porchetta-pizza"
+     ],
+     [
+      0.4,
+      "pepperoni"
+     ]
+    ],
+    "max_jaccard": 0.4
+   }
+  },
+  {
+   "evidenceId": "pizza-romana-pizzadb-p9",
+   "nameJa": "ピッツァ・ロマーナ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "anchovy",
+     "capers",
+     "mozzarella",
+     "oregano",
+     "tomato-sauce"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [
+     "napoletana"
+    ],
+    "add_remove_1": [
+     "napoletana"
+    ],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.8,
+      "napoletana"
+     ],
+     [
+      0.43,
+      "puttanesca-pizza"
+     ],
+     [
+      0.43,
+      "calabresa-argentina"
+     ]
+    ],
+    "max_jaccard": 0.8
+   }
+  },
+  {
+   "evidenceId": "quad-cities-style-pizza-pizzadb-p2",
+   "nameJa": "クアッドシティーズスタイルピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "スパイシーソーセージ",
+     "sausage"
+    ]
+   ],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella",
+     "sausage"
+    ],
+    "size": 2,
+    "exact": [],
+    "cand_subset_of": [
+     "salsiccia",
+     "meat-lovers",
+     "full-english-pizza",
+     "polish-kielbasa",
+     "salsiccia-e-friarielli",
+     "spanish-chorizo-pizza",
+     "boscaiola"
+    ],
+    "cand_superset_of": [],
+    "add_remove_1": [
+     "salsiccia",
+     "salsiccia-e-friarielli"
+    ],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.67,
+      "salsiccia-e-friarielli"
+     ],
+     [
+      0.67,
+      "salsiccia"
+     ],
+     [
+      0.5,
+      "spanish-chorizo-pizza"
+     ]
+    ],
+    "max_jaccard": 0.67
+   }
+  },
+  {
+   "evidenceId": "quattro-stagioni-pizzadb",
+   "nameJa": "クアトロスタジオーニ（PIZZA DB版）",
+   "status": "READY",
+   "requiredCapabilities": [
+    "ZONED_PLACEMENT"
+   ],
+   "blockers": [],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "artichoke",
+     "black-olive",
+     "ham",
+     "mozzarella",
+     "mushroom",
+     "tomato-sauce"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [
+     "funghi"
+    ],
+    "add_remove_1": [],
+    "swap_1": [
+     "capricciosa"
+    ],
+    "top3_jaccard": [
+     [
+      0.71,
+      "capricciosa"
+     ],
+     [
+      0.5,
+      "pizza-portuguesa"
+     ],
+     [
+      0.5,
+      "funghi"
+     ]
+    ],
+    "max_jaccard": 0.71
+   }
+  },
+  {
+   "evidenceId": "sfincione-pizzadb",
+   "nameJa": "スフィンチョーネ",
+   "status": "READY_WITH_REVIEW",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "anchovy",
+     "olive-oil",
+     "onion",
+     "oregano",
+     "tomato-sauce"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [
+     "fugazza"
+    ],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.6,
+      "fugazza"
+     ],
+     [
+      0.5,
+      "napoletana"
+     ],
+     [
+      0.43,
+      "brazilian-calabresa"
+     ]
+    ],
+    "max_jaccard": 0.6
+   }
+  },
+  {
+   "evidenceId": "teriyaki-chicken-pizza-pizzadb-p14",
+   "nameJa": "照り焼きチキンピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "甘辛だれ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "chicken",
+     "mayo",
+     "nori",
+     "onion"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.33,
+      "curry-pizza-japan"
+     ],
+     [
+      0.29,
+      "bbq-chicken-pizza"
+     ],
+     [
+      0.25,
+      "PLANNED:reina-pepiada"
+     ]
+    ],
+    "max_jaccard": 0.33
+   }
+  },
+  {
+   "evidenceId": "trenton-tomato-pie-pizzadb",
+   "nameJa": "トレントントマトパイ",
+   "status": "READY_WITH_REVIEW",
+   "requiredCapabilities": [
+    "STEP_ORDER"
+   ],
+   "blockers": [],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella",
+     "tomato-sauce"
+    ],
+    "size": 2,
+    "exact": [],
+    "cand_subset_of": [
+     "margherita",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni",
+     "napoletana",
+     "tonno-e-cipolla",
+     "breakfast-pizza",
+     "capricciosa",
+     "meat-lovers",
+     "melanzane-pizza",
+     "parmigiana-pizza",
+     "bambino",
+     "hawaiian",
+     "pizza-portuguesa",
+     "prosciutto-funghi",
+     "veggie-supreme-pizza",
+     "jamon-serrano-pizza",
+     "calabresa-argentina",
+     "pizza-overload",
+     "grandma-pizza",
+     "pescatore",
+     "pinsa-romana"
+    ],
+    "cand_superset_of": [],
+    "add_remove_1": [
+     "margherita",
+     "bismarck",
+     "funghi",
+     "salsiccia",
+     "pepperoni"
+    ],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.67,
+      "salsiccia"
+     ],
+     [
+      0.67,
+      "pepperoni"
+     ],
+     [
+      0.67,
+      "margherita"
+     ]
+    ],
+    "max_jaccard": 0.67
+   }
+  },
+  {
+   "evidenceId": "black-truffle-pizza-pizzadb-p14",
+   "nameJa": "黒トリュフピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [
+    "truffle"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "チーズ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella",
+     "parmigiano",
+     "truffle"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.33,
+      "spinach-artichoke-pizza"
+     ],
+     [
+      0.33,
+      "quattro-formaggi"
+     ],
+     [
+      0.33,
+      "parmigiana-pizza"
+     ]
+    ],
+    "max_jaccard": 0.33
+   }
+  },
+  {
+   "evidenceId": "burrata-pizza-pizzadb-p10",
+   "nameJa": "ブラータピザ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [],
+   "newIngredients": [
+    "burrata"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "basil",
+     "burrata",
+     "olive-oil",
+     "tomato-sauce"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.4,
+      "margherita"
+     ],
+     [
+      0.33,
+      "pizza-alla-norma"
+     ],
+     [
+      0.33,
+      "melanzane-pizza"
+     ]
+    ],
+    "max_jaccard": 0.4
+   }
+  },
+  {
+   "evidenceId": "focaccia-genovese-pizzadb-p10",
+   "nameJa": "フォカッチャジェノヴェーゼ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "SCOPE_QUESTION"
+   ],
+   "newIngredients": [
+    "rock-salt"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "オイル",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "olive-oil",
+     "rock-salt",
+     "rosemary"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [
+     "pizza-bianca"
+    ],
+    "add_remove_1": [
+     "pizza-bianca"
+    ],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.67,
+      "pizza-bianca"
+     ],
+     [
+      0.4,
+      "pizza-bianca-ricotta"
+     ],
+     [
+      0.2,
+      "porchetta-pizza"
+     ]
+    ],
+    "max_jaccard": 0.67
+   }
+  },
+  {
+   "evidenceId": "hot-honey-pepperoni-pizzadb-p12",
+   "nameJa": "ホットハニーペパロニピザ",
+   "status": "READY_WITH_REVIEW",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [],
+   "newIngredients": [
+    "honey"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "honey",
+     "mozzarella",
+     "pepperoni",
+     "tomato-sauce"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [
+     "pepperoni"
+    ],
+    "add_remove_1": [
+     "pepperoni"
+    ],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.75,
+      "pepperoni"
+     ],
+     [
+      0.43,
+      "meat-lovers"
+     ],
+     [
+      0.4,
+      "salsiccia"
+     ]
+    ],
+    "max_jaccard": 0.75
+   }
+  },
+  {
+   "evidenceId": "kimchi-pizza-pizzadb-p2",
+   "nameJa": "キムチピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "PREP_STEP"
+   ],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "kimchi"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "ホットソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "green-onion",
+     "kimchi",
+     "mozzarella",
+     "pork"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.4,
+      "porchetta-pizza"
+     ],
+     [
+      0.29,
+      "sichuan-eggplant-pizza"
+     ],
+     [
+      0.17,
+      "salsiccia-e-friarielli"
+     ]
+    ],
+    "max_jaccard": 0.4
+   }
+  },
+  {
+   "evidenceId": "pesto-burrata-pizzadb-p12",
+   "nameJa": "ペストブラータピザ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [],
+   "newIngredients": [
+    "burrata"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "バジル",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "burrata",
+     "fresh-tomato",
+     "olive-oil",
+     "pesto"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.33,
+      "pesto-trapanese"
+     ],
+     [
+      0.33,
+      "pesto-pollo"
+     ],
+     [
+      0.33,
+      "pesto-gamberi"
+     ]
+    ],
+    "max_jaccard": 0.33
+   }
+  },
+  {
+   "evidenceId": "pizza-alla-crudaiola-pizzadb-p8",
+   "nameJa": "ピッツァ・アッラ・クルダイオーラ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [],
+   "newIngredients": [
+    "burrata"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "arugula",
+     "burrata",
+     "fresh-tomato",
+     "mozzarella",
+     "olive-oil",
+     "tomato-sauce"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.43,
+      "pinsa-romana"
+     ],
+     [
+      0.43,
+      "jamon-serrano-pizza"
+     ],
+     [
+      0.43,
+      "grandma-pizza"
+     ]
+    ],
+    "max_jaccard": 0.43
+   }
+  },
+  {
+   "evidenceId": "pizza-carciofi-salad-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・カルチョーフィ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "newIngredients": [
+    "celery"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "ノンソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "artichoke",
+     "celery",
+     "lemon",
+     "mozzarella",
+     "olive-oil",
+     "parmigiano"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.38,
+      "spinach-artichoke-pizza"
+     ],
+     [
+      0.38,
+      "quattro-formaggi"
+     ],
+     [
+      0.25,
+      "shirasu-pizza"
+     ]
+    ],
+    "max_jaccard": 0.38
+   }
+  },
+  {
+   "evidenceId": "pizza-puntarelle-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・プンタレッレ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "newIngredients": [
+    "puntarelle"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "ノンソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "anchovy",
+     "lemon",
+     "mozzarella",
+     "olive-oil",
+     "puntarelle"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.29,
+      "shirasu-pizza"
+     ],
+     [
+      0.29,
+      "pizza-bianca-ricotta"
+     ],
+     [
+      0.29,
+      "napoletana"
+     ]
+    ],
+    "max_jaccard": 0.29
+   }
+  },
+  {
+   "evidenceId": "scacciata-ragusana-pizzadb-p4",
+   "nameJa": "スカッチャラグザーナ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "ENCLOSE"
+   ],
+   "blockers": [],
+   "newIngredients": [
+    "caciocavallo"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "caciocavallo",
+     "sausage",
+     "tomato-sauce"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [
+     "salsiccia"
+    ],
+    "top3_jaccard": [
+     [
+      0.5,
+      "salsiccia"
+     ],
+     [
+      0.33,
+      "brazilian-calabresa"
+     ],
+     [
+      0.29,
+      "meat-lovers"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "st-louis-style-pizza-pizzadb-p4",
+   "nameJa": "セントルイススタイルピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "provolone"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "プロヴェルチーズ",
+     "provolone"
+    ]
+   ],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "pepperoni",
+     "provolone"
+    ],
+    "size": 2,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.25,
+      "pepperoni"
+     ],
+     [
+      0.14,
+      "meat-lovers"
+     ],
+     [
+      0.12,
+      "supreme-pizza"
+     ]
+    ],
+    "max_jaccard": 0.25
+   }
+  },
+  {
+   "evidenceId": "yakiniku-pizza",
+   "nameJa": "焼肉ピザ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "PREP_STEP"
+   ],
+   "blockers": [],
+   "newIngredients": [
+    "yakiniku-sauce"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "甘辛だれ",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "beef",
+     "mozzarella",
+     "onion",
+     "white-sesame",
+     "yakiniku-sauce"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.5,
+      "rendang-pizza"
+     ],
+     [
+      0.5,
+      "nigerian-suya-pizza"
+     ],
+     [
+      0.43,
+      "wasabi-beef-pizza"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "eel-pizza-pizzadb-p1",
+   "nameJa": "うなぎピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "MECHANIC_INTERPRETATION"
+   ],
+   "newIngredients": [
+    "eel",
+    "sansho-pepper"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "甘辛だれ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "eel",
+     "green-onion",
+     "mozzarella",
+     "sansho-pepper"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.29,
+      "sichuan-eggplant-pizza"
+     ],
+     [
+      0.17,
+      "salsiccia-e-friarielli"
+     ],
+     [
+      0.17,
+      "salsiccia"
+     ]
+    ],
+    "max_jaccard": 0.29
+   }
+  },
+  {
+   "evidenceId": "manakish",
+   "nameJa": "マナキーシュ",
+   "status": "READY_WITH_REVIEW",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [],
+   "newIngredients": [
+    "halloumi",
+    "zaatar"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "オイル",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "halloumi",
+     "olive-oil",
+     "zaatar"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.25,
+      "pizza-bianca"
+     ],
+     [
+      0.2,
+      "fugazza"
+     ],
+     [
+      0.17,
+      "vongole"
+     ]
+    ],
+    "max_jaccard": 0.25
+   }
+  },
+  {
+   "evidenceId": "natto-pizza",
+   "nameJa": "納豆ピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "natto",
+    "okra"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "その他",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "green-onion",
+     "mozzarella",
+     "natto",
+     "nori",
+     "okra"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.25,
+      "tarako-cream-pizza"
+     ],
+     [
+      0.25,
+      "sichuan-eggplant-pizza"
+     ],
+     [
+      0.14,
+      "salsiccia-e-friarielli"
+     ]
+    ],
+    "max_jaccard": 0.25
+   }
+  },
+  {
+   "evidenceId": "pesto-noci-pizzadb-p12",
+   "nameJa": "ペストノーチピザ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [],
+   "newIngredients": [
+    "honey",
+    "walnut"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "バジル",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "gorgonzola",
+     "honey",
+     "pesto",
+     "walnut"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.17,
+      "genovese"
+     ],
+     [
+      0.14,
+      "pesto-trapanese"
+     ],
+     [
+      0.14,
+      "pesto-tonno"
+     ]
+    ],
+    "max_jaccard": 0.17
+   }
+  },
+  {
+   "evidenceId": "fruit-dessert-pizza-pizzadb-p11",
+   "nameJa": "フルーツデザートピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "blueberry",
+    "kiwi",
+    "strawberry"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "デザートソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "blueberry",
+     "cream-cheese",
+     "kiwi",
+     "strawberry"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.14,
+      "pesto-salmone"
+     ],
+     [
+      0.14,
+      "jalapeno-popper-pizza"
+     ],
+     [
+      0.14,
+      "ikura-salmon-pizza"
+     ]
+    ],
+    "max_jaccard": 0.14
+   }
+  },
+  {
+   "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
+   "nameJa": "お好み焼き風ピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "bonito-flakes",
+    "cabbage",
+    "okonomiyaki-sauce"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "青のり",
+     "nori"
+    ]
+   ],
+   "sauceStatus": "listed",
+   "sauceFamily": "甘辛だれ",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "bonito-flakes",
+     "cabbage",
+     "mayo",
+     "nori",
+     "okonomiyaki-sauce",
+     "pork"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.12,
+      "porchetta-pizza"
+     ],
+     [
+      0.1,
+      "tarako-cream-pizza"
+     ],
+     [
+      0.1,
+      "potato-mayo-pizza"
+     ]
+    ],
+    "max_jaccard": 0.12
+   }
+  },
+  {
+   "evidenceId": "pizza-cicoria-limone-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・チコリア・エ・リモーネ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [
+    "MECHANIC_INTERPRETATION",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "chicory",
+    "chili-oil",
+    "pecorino"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "唐辛子",
+     "chili-oil"
+    ]
+   ],
+   "sauceStatus": "none",
+   "sauceFamily": "ノンソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "chicory",
+     "chili-oil",
+     "garlic",
+     "lemon",
+     "olive-oil",
+     "pecorino"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.25,
+      "vongole"
+     ],
+     [
+      0.25,
+      "new-haven-apizza"
+     ],
+     [
+      0.25,
+      "grandma-pizza"
+     ]
+    ],
+    "max_jaccard": 0.25
+   }
+  },
+  {
+   "evidenceId": "pizza-radicchio-noci-pizzadb-p8",
+   "nameJa": "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "newIngredients": [
+    "balsamic-vinegar",
+    "radicchio",
+    "walnut"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "ノンソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "balsamic-vinegar",
+     "mozzarella",
+     "olive-oil",
+     "radicchio",
+     "walnut"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.29,
+      "pizza-bianca-ricotta"
+     ],
+     [
+      0.29,
+      "grandma-pizza"
+     ],
+     [
+      0.29,
+      "boscaiola"
+     ]
+    ],
+    "max_jaccard": 0.29
+   }
+  },
+  {
+   "evidenceId": "pizza-salad-pizzadb-p7",
+   "nameJa": "ピザサラダ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [],
+   "newIngredients": [
+    "cucumber",
+    "lettuce",
+    "yogurt-sauce"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "corn",
+     "cucumber",
+     "lettuce",
+     "mozzarella",
+     "tomato-sauce",
+     "yogurt-sauce"
+    ],
+    "size": 6,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.43,
+      "bambino"
+     ],
+     [
+      0.29,
+      "salsiccia"
+     ],
+     [
+      0.29,
+      "pepperoni"
+     ]
+    ],
+    "max_jaccard": 0.43
+   }
+  },
+  {
+   "evidenceId": "poutine-pizza-pizzadb-p10",
+   "nameJa": "プーティンピザ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT"
+   ],
+   "blockers": [],
+   "newIngredients": [
+    "cheese-curd",
+    "french-fries",
+    "gravy-sauce"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "その他",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "cheese-curd",
+     "french-fries",
+     "gravy-sauce",
+     "mozzarella"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.17,
+      "salsiccia-e-friarielli"
+     ],
+     [
+      0.17,
+      "salsiccia"
+     ],
+     [
+      0.17,
+      "porchetta-pizza"
+     ]
+    ],
+    "max_jaccard": 0.17
+   }
+  },
+  {
+   "evidenceId": "smore-dessert-pizza-pizzadb-p4",
+   "nameJa": "スモアデザートピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "chocolate",
+    "graham-cracker",
+    "marshmallow"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "デザートソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "chocolate",
+     "graham-cracker",
+     "marshmallow"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.0,
+      "yuzu-shrimp-pizza"
+     ],
+     [
+      0.0,
+      "wasabi-beef-pizza"
+     ],
+     [
+      0.0,
+      "vongole"
+     ]
+    ],
+    "max_jaccard": 0.0
+   }
+  },
+  {
+   "evidenceId": "nutella-dessert-pizza-pizzadb-p6",
+   "nameJa": "ヌテラデザートピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "LATE_ADDITION"
+   ],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "banana",
+    "nutella-spread",
+    "powdered-sugar",
+    "walnut"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "ナッツ",
+     "walnut"
+    ]
+   ],
+   "sauceStatus": "listed",
+   "sauceFamily": "デザートソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "banana",
+     "nutella-spread",
+     "powdered-sugar",
+     "walnut"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.0,
+      "yuzu-shrimp-pizza"
+     ],
+     [
+      0.0,
+      "wasabi-beef-pizza"
+     ],
+     [
+      0.0,
+      "vongole"
+     ]
+    ],
+    "max_jaccard": 0.0
+   }
+  },
+  {
+   "evidenceId": "chicago-deep-dish-pizzadb",
+   "nameJa": "シカゴディープディッシュ（PIZZA DB版）",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "STEP_ORDER",
+    "PAN_BAKE"
+   ],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella",
+     "pepperoni",
+     "sausage",
+     "tomato-sauce"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [
+     "meat-lovers"
+    ],
+    "cand_superset_of": [
+     "salsiccia",
+     "pepperoni"
+    ],
+    "add_remove_1": [
+     "salsiccia",
+     "pepperoni"
+    ],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.75,
+      "salsiccia"
+     ],
+     [
+      0.75,
+      "pepperoni"
+     ],
+     [
+      0.67,
+      "meat-lovers"
+     ]
+    ],
+    "max_jaccard": 0.75
+   }
+  },
+  {
+   "evidenceId": "fugazzeta-rellena",
+   "nameJa": "フガゼッタ・レジェーナ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT",
+    "ENCLOSE"
+   ],
+   "blockers": [],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "チーズ",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "ham",
+     "mozzarella",
+     "onion",
+     "oregano"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.43,
+      "pizza-portuguesa"
+     ],
+     [
+      0.43,
+      "capricciosa"
+     ],
+     [
+      0.4,
+      "fugazza"
+     ]
+    ],
+    "max_jaccard": 0.43
+   }
+  },
+  {
+   "evidenceId": "greek-style-pizzadb",
+   "nameJa": "グリークスタイルピザ（PIZZA DB版）",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "black-olive",
+     "feta",
+     "mozzarella",
+     "tomato-sauce"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.5,
+      "calabresa-argentina"
+     ],
+     [
+      0.43,
+      "pizza-portuguesa"
+     ],
+     [
+      0.43,
+      "capricciosa"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "montreal-style-pizza-pizzadb-p13",
+   "nameJa": "モントリオールスタイルピザ",
+   "status": "READY",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE"
+   ],
+   "blockers": [],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella",
+     "mushroom",
+     "pepperoni",
+     "tomato-sauce"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [
+     "funghi",
+     "pepperoni"
+    ],
+    "add_remove_1": [
+     "funghi",
+     "pepperoni"
+    ],
+    "swap_1": [
+     "prosciutto-funghi"
+    ],
+    "top3_jaccard": [
+     [
+      0.75,
+      "pepperoni"
+     ],
+     [
+      0.75,
+      "funghi"
+     ],
+     [
+      0.6,
+      "prosciutto-funghi"
+     ]
+    ],
+    "max_jaccard": 0.75
+   }
+  },
+  {
+   "evidenceId": "pizza-a-caballo",
+   "nameJa": "ピッツァ・ア・カバージョ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT",
+    "ENCLOSE"
+   ],
+   "blockers": [
+    "EVIDENCE_GAP"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "none",
+   "sauceFamily": "チーズ",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "black-olive",
+     "mozzarella",
+     "oregano"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [
+     "capricciosa",
+     "calabresa-argentina"
+    ],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [
+     "palmito-pizza",
+     "chilean-napolitana"
+    ],
+    "top3_jaccard": [
+     [
+      0.6,
+      "calabresa-argentina"
+     ],
+     [
+      0.5,
+      "palmito-pizza"
+     ],
+     [
+      0.5,
+      "chilean-napolitana"
+     ]
+    ],
+    "max_jaccard": 0.6
+   }
+  },
+  {
+   "evidenceId": "pizza-de-cancha",
+   "nameJa": "ピッツァ・デ・カンチャ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT",
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "chili-oil"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "唐辛子",
+     "chili-oil"
+    ]
+   ],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "chili-oil",
+     "garlic",
+     "olive-oil",
+     "oregano"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.4,
+      "marinara"
+     ],
+     [
+      0.4,
+      "fugazza"
+     ],
+     [
+      0.33,
+      "vongole"
+     ]
+    ],
+    "max_jaccard": 0.4
+   }
+  },
+  {
+   "evidenceId": "pizza-de-lomo-saltado",
+   "nameJa": "ロモ・サルタード・ピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "PREP_STEP",
+    "LATE_ADDITION"
+   ],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "newIngredients": [
+    "french-fries"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "その他",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "beef",
+     "french-fries",
+     "fresh-tomato",
+     "mozzarella",
+     "onion"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.5,
+      "rendang-pizza"
+     ],
+     [
+      0.5,
+      "nigerian-suya-pizza"
+     ],
+     [
+      0.43,
+      "wasabi-beef-pizza"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "turkish-pide-pizzadb-p5",
+   "nameJa": "トルコピデ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "ground-beef"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "ひき肉",
+     "ground-beef"
+    ],
+    [
+     "チーズ",
+     "mozzarella"
+    ]
+   ],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "fresh-tomato",
+     "ground-beef",
+     "mozzarella",
+     "parsley"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.4,
+      "chilean-napolitana"
+     ],
+     [
+      0.33,
+      "porcini-pizza"
+     ],
+     [
+      0.33,
+      "pesto-pollo"
+     ]
+    ],
+    "max_jaccard": 0.4
+   }
+  },
+  {
+   "evidenceId": "buffalo-chicken-pizzadb",
+   "nameJa": "バッファローチキンピザ（PIZZA DB版）",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER",
+    "LATE_ADDITION"
+   ],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [
+    "blue-cheese-dressing",
+    "buffalo-sauce"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "ホットソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "blue-cheese-dressing",
+     "buffalo-sauce",
+     "chicken",
+     "mozzarella"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.33,
+      "pesto-pollo"
+     ],
+     [
+      0.33,
+      "jamaican-jerk-chicken-pizza"
+     ],
+     [
+      0.33,
+      "frango-catupiry"
+     ]
+    ],
+    "max_jaccard": 0.33
+   }
+  },
+  {
+   "evidenceId": "lahmacun",
+   "nameJa": "ラフマジュン",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT",
+    "MULTI_SPREAD_LAYER"
+   ],
+   "blockers": [
+    "MECHANIC_INTERPRETATION",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "chili-oil",
+    "ground-beef"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "ひき肉",
+     "ground-beef"
+    ],
+    [
+     "唐辛子",
+     "chili-oil"
+    ]
+   ],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "individual_profile_page",
+   "measure": {
+    "set": [
+     "bell-pepper",
+     "chili-oil",
+     "fresh-tomato",
+     "ground-beef",
+     "parsley"
+    ],
+    "size": 5,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.14,
+      "chilean-napolitana"
+     ],
+     [
+      0.12,
+      "vongole"
+     ],
+     [
+      0.12,
+      "vegan-cashew-cheese-pizza"
+     ]
+    ],
+    "max_jaccard": 0.14
+   }
+  },
+  {
+   "evidenceId": "feteer-meshaltet-pizzadb-p10",
+   "nameJa": "フェテイールメシャルテル",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "MULTI_SPREAD_LAYER",
+    "LAMINATE"
+   ],
+   "blockers": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "SCOPE_QUESTION",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [
+    "condensed-milk",
+    "ground-beef",
+    "honey",
+    "melted-butter"
+   ],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "ひき肉",
+     "ground-beef"
+    ]
+   ],
+   "sauceStatus": "unspecified",
+   "sauceFamily": "デザートソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "condensed-milk",
+     "ground-beef",
+     "honey",
+     "melted-butter"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.0,
+      "yuzu-shrimp-pizza"
+     ],
+     [
+      0.0,
+      "wasabi-beef-pizza"
+     ],
+     [
+      0.0,
+      "vongole"
+     ]
+    ],
+    "max_jaccard": 0.0
+   }
+  },
+  {
+   "evidenceId": "old-forge-style-pizza-pizzadb-p1",
+   "nameJa": "オールドフォージスタイルピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "blockers": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [
+    [
+     "チーズ",
+     "mozzarella"
+    ]
+   ],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "mozzarella",
+     "onion"
+    ],
+    "size": 2,
+    "exact": [],
+    "cand_subset_of": [
+     "tonno-e-cipolla",
+     "pizza-portuguesa",
+     "aussie",
+     "veggie-supreme-pizza",
+     "bacalhau",
+     "polish-kielbasa",
+     "pizza-moscow",
+     "spanish-chorizo-pizza",
+     "curry-pizza-japan",
+     "rendang-pizza",
+     "tandoori-paneer-pizza",
+     "nigerian-suya-pizza",
+     "bbq-chicken-pizza",
+     "wasabi-beef-pizza",
+     "PLANNED:baingan-bharta"
+    ],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [],
+    "top3_jaccard": [
+     [
+      0.5,
+      "tonno-e-cipolla"
+     ],
+     [
+      0.5,
+      "spanish-chorizo-pizza"
+     ],
+     [
+      0.5,
+      "rendang-pizza"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  },
+  {
+   "evidenceId": "siciliana-pizzadb",
+   "nameJa": "シチリアンピザ（PIZZA DB版）",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "listed",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "anchovy",
+     "mozzarella",
+     "onion",
+     "tomato-sauce"
+    ],
+    "size": 4,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [
+     "napoletana",
+     "tonno-e-cipolla"
+    ],
+    "top3_jaccard": [
+     [
+      0.6,
+      "tonno-e-cipolla"
+     ],
+     [
+      0.6,
+      "napoletana"
+     ],
+     [
+      0.43,
+      "pizza-portuguesa"
+     ]
+    ],
+    "max_jaccard": 0.6
+   }
+  },
+  {
+   "evidenceId": "detroit-style-pizza-pizzadb-p5",
+   "nameJa": "デトロイトスタイルピザ",
+   "status": "BLOCKED_PRODUCT_DECISION",
+   "requiredCapabilities": [
+    "DOUGH_VARIANT",
+    "LATE_ADDITION",
+    "PAN_BAKE",
+    "DOUGH_SHAPE_TARGET"
+   ],
+   "blockers": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "newIngredients": [
+    "brick-cheese"
+   ],
+   "unresolvedMappedBySingleRelatedId": [],
+   "sauceStatus": "family_derived",
+   "sauceFamily": "トマトソース",
+   "evidenceOrigin": "comparison_table_sample",
+   "measure": {
+    "set": [
+     "brick-cheese",
+     "pepperoni",
+     "tomato-sauce"
+    ],
+    "size": 3,
+    "exact": [],
+    "cand_subset_of": [],
+    "cand_superset_of": [],
+    "add_remove_1": [],
+    "swap_1": [
+     "pepperoni"
+    ],
+    "top3_jaccard": [
+     [
+      0.5,
+      "pepperoni"
+     ],
+     [
+      0.29,
+      "meat-lovers"
+     ],
+     [
+      0.25,
+      "supreme-pizza"
+     ]
+    ],
+    "max_jaccard": 0.5
+   }
+  }
+ ],
+ "shortlistVariants": {
+  "jerusalem-mixed-grill [no sauce, no cheese]": {
+   "set": [
+    "chicken",
+    "cumin",
+    "onion",
+    "parsley"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.33,
+     "curry-pizza-japan"
+    ],
+    [
+     0.29,
+     "bbq-chicken-pizza"
+    ],
+    [
+     0.17,
+     "fugazza"
+    ]
+   ],
+   "max_jaccard": 0.33
+  },
+  "jerusalem-mixed-grill [+tahini]": {
+   "set": [
+    "chicken",
+    "cumin",
+    "onion",
+    "parsley",
+    "tahini"
+   ],
+   "size": 5,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.29,
+     "eggplant-tahini-pizza"
+    ],
+    [
+     0.29,
+     "curry-pizza-japan"
+    ],
+    [
+     0.25,
+     "bbq-chicken-pizza"
+    ]
+   ],
+   "max_jaccard": 0.29
+  },
+  "jerusalem-mixed-grill [+tahini +mozzarella (not in source)]": {
+   "set": [
+    "chicken",
+    "cumin",
+    "mozzarella",
+    "onion",
+    "parsley",
+    "tahini"
+   ],
+   "size": 6,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.43,
+     "curry-pizza-japan"
+    ],
+    [
+     0.38,
+     "bbq-chicken-pizza"
+    ],
+    [
+     0.25,
+     "tonno-e-cipolla"
+    ]
+   ],
+   "max_jaccard": 0.43
+  },
+  "frutti-di-mare [matrix set + squid]": {
+   "set": [
+    "clam",
+    "mussel",
+    "shrimp",
+    "squid",
+    "tomato-sauce"
+   ],
+   "size": 5,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.5,
+     "pescatore"
+    ],
+    [
+     0.14,
+     "salsiccia"
+    ],
+    [
+     0.14,
+     "pepperoni"
+    ]
+   ],
+   "max_jaccard": 0.5
+  },
+  "nashville-hot-chicken [honey as topping, NO_SAUCE]": {
+   "set": [
+    "chicken",
+    "honey",
+    "mozzarella",
+    "pickles"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.33,
+     "pesto-pollo"
+    ],
+    [
+     0.33,
+     "jamaican-jerk-chicken-pizza"
+    ],
+    [
+     0.33,
+     "frango-catupiry"
+    ]
+   ],
+   "max_jaccard": 0.33
+  },
+  "nduja [honey, NO_SAUCE]": {
+   "set": [
+    "honey",
+    "mozzarella",
+    "sausage"
+   ],
+   "size": 3,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [
+    "salsiccia",
+    "salsiccia-e-friarielli"
+   ],
+   "top3_jaccard": [
+    [
+     0.5,
+     "salsiccia-e-friarielli"
+    ],
+    [
+     0.5,
+     "salsiccia"
+    ],
+    [
+     0.4,
+     "spanish-chorizo-pizza"
+    ]
+   ],
+   "max_jaccard": 0.5
+  },
+  "hot-honey-pepperoni": {
+   "set": [
+    "honey",
+    "mozzarella",
+    "pepperoni",
+    "tomato-sauce"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [
+    "pepperoni"
+   ],
+   "add_remove_1": [
+    "pepperoni"
+   ],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.75,
+     "pepperoni"
+    ],
+    [
+     0.43,
+     "meat-lovers"
+    ],
+    [
+     0.4,
+     "salsiccia"
+    ]
+   ],
+   "max_jaccard": 0.75
+  },
+  "pesto-noci [matrix set]": {
+   "set": [
+    "gorgonzola",
+    "honey",
+    "pesto",
+    "walnut"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.17,
+     "genovese"
+    ],
+    [
+     0.14,
+     "pesto-trapanese"
+    ],
+    [
+     0.14,
+     "pesto-tonno"
+    ]
+   ],
+   "max_jaccard": 0.17
+  },
+  "chicken-tikka [curry-ketchup substitute]": {
+   "set": [
+    "bell-pepper",
+    "chicken-tikka",
+    "cilantro",
+    "curry-ketchup",
+    "mozzarella",
+    "onion"
+   ],
+   "size": 6,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.5,
+     "PLANNED:baingan-bharta"
+    ],
+    [
+     0.43,
+     "spanish-chorizo-pizza"
+    ],
+    [
+     0.43,
+     "rendang-pizza"
+    ]
+   ],
+   "max_jaccard": 0.5
+  },
+  "chicken-tikka [aliased to chicken, curry-ketchup]": {
+   "set": [
+    "bell-pepper",
+    "chicken",
+    "cilantro",
+    "curry-ketchup",
+    "mozzarella",
+    "onion"
+   ],
+   "size": 6,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [
+    "curry-pizza-japan"
+   ],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.67,
+     "curry-pizza-japan"
+    ],
+    [
+     0.57,
+     "bbq-chicken-pizza"
+    ],
+    [
+     0.5,
+     "PLANNED:baingan-bharta"
+    ]
+   ],
+   "max_jaccard": 0.67
+  },
+  "thai-chicken [peanut-sauce, red chili omitted]": {
+   "set": [
+    "chicken",
+    "cilantro",
+    "mozzarella",
+    "peanut-sauce"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.5,
+     "bbq-chicken-pizza"
+    ],
+    [
+     0.43,
+     "PLANNED:reina-pepiada"
+    ],
+    [
+     0.33,
+     "pesto-pollo"
+    ]
+   ],
+   "max_jaccard": 0.5
+  },
+  "caponata [+tomato-sauce]": {
+   "set": [
+    "black-olive",
+    "capers",
+    "eggplant",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "size": 5,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.5,
+     "melanzane-pizza"
+    ],
+    [
+     0.43,
+     "puttanesca-pizza"
+    ],
+    [
+     0.43,
+     "parmigiana-pizza"
+    ]
+   ],
+   "max_jaccard": 0.5
+  },
+  "caponata [NO_SAUCE]": {
+   "set": [
+    "black-olive",
+    "capers",
+    "eggplant",
+    "mozzarella"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.4,
+     "palmito-pizza"
+    ],
+    [
+     0.33,
+     "melanzane-pizza"
+    ],
+    [
+     0.33,
+     "eggplant-dengaku-pizza"
+    ]
+   ],
+   "max_jaccard": 0.4
+  },
+  "tsukimi": {
+   "set": [
+    "bacon",
+    "egg",
+    "green-onion",
+    "mozzarella"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [
+    "breakfast-pizza",
+    "aussie"
+   ],
+   "top3_jaccard": [
+    [
+     0.6,
+     "breakfast-pizza"
+    ],
+    [
+     0.6,
+     "aussie"
+    ],
+    [
+     0.5,
+     "full-english-pizza"
+    ]
+   ],
+   "max_jaccard": 0.6
+  },
+  "hokkaido-cheese [チーズ=mozzarella]": {
+   "set": [
+    "bacon",
+    "corn",
+    "mozzarella",
+    "potato"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [
+    "potato-mayo-pizza"
+   ],
+   "cand_superset_of": [],
+   "add_remove_1": [
+    "potato-mayo-pizza"
+   ],
+   "swap_1": [
+    "pesto-patate"
+   ],
+   "top3_jaccard": [
+    [
+     0.8,
+     "potato-mayo-pizza"
+    ],
+    [
+     0.6,
+     "pesto-patate"
+    ],
+    [
+     0.4,
+     "brazilian-catupiry-corn-pizza"
+    ]
+   ],
+   "max_jaccard": 0.8
+  },
+  "philly-cheesesteak [チーズソース=mozzarella]": {
+   "set": [
+    "beef",
+    "green-pepper",
+    "mozzarella",
+    "onion"
+   ],
+   "size": 4,
+   "exact": [
+    "nigerian-suya-pizza"
+   ],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [
+    "rendang-pizza"
+   ],
+   "top3_jaccard": [
+    [
+     1.0,
+     "nigerian-suya-pizza"
+    ],
+    [
+     0.6,
+     "rendang-pizza"
+    ],
+    [
+     0.5,
+     "wasabi-beef-pizza"
+    ]
+   ],
+   "max_jaccard": 1.0
+  },
+  "trenton-tomato-pie": {
+   "set": [
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "size": 2,
+   "exact": [],
+   "cand_subset_of": [
+    "margherita",
+    "bismarck",
+    "funghi",
+    "salsiccia",
+    "pepperoni",
+    "napoletana",
+    "tonno-e-cipolla",
+    "breakfast-pizza",
+    "capricciosa",
+    "meat-lovers",
+    "melanzane-pizza",
+    "parmigiana-pizza",
+    "bambino",
+    "hawaiian",
+    "pizza-portuguesa",
+    "prosciutto-funghi",
+    "veggie-supreme-pizza",
+    "jamon-serrano-pizza",
+    "calabresa-argentina",
+    "pizza-overload",
+    "grandma-pizza",
+    "pescatore",
+    "pinsa-romana"
+   ],
+   "cand_superset_of": [],
+   "add_remove_1": [
+    "margherita",
+    "bismarck",
+    "funghi",
+    "salsiccia",
+    "pepperoni"
+   ],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.67,
+     "salsiccia"
+    ],
+    [
+     0.67,
+     "pepperoni"
+    ],
+    [
+     0.67,
+     "margherita"
+    ]
+   ],
+   "max_jaccard": 0.67
+  },
+  "keema [ひき肉=beef]": {
+   "set": [
+    "beef",
+    "mozzarella",
+    "onion"
+   ],
+   "size": 3,
+   "exact": [],
+   "cand_subset_of": [
+    "rendang-pizza",
+    "nigerian-suya-pizza",
+    "wasabi-beef-pizza"
+   ],
+   "cand_superset_of": [],
+   "add_remove_1": [
+    "rendang-pizza",
+    "nigerian-suya-pizza"
+   ],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.75,
+     "rendang-pizza"
+    ],
+    [
+     0.75,
+     "nigerian-suya-pizza"
+    ],
+    [
+     0.6,
+     "wasabi-beef-pizza"
+    ]
+   ],
+   "max_jaccard": 0.75
+  },
+  "burrata-pizza [matrix set]": {
+   "set": [
+    "basil",
+    "burrata",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.4,
+     "margherita"
+    ],
+    [
+     0.33,
+     "pizza-alla-norma"
+    ],
+    [
+     0.33,
+     "melanzane-pizza"
+    ]
+   ],
+   "max_jaccard": 0.4
+  },
+  "pesto-burrata [matrix set]": {
+   "set": [
+    "burrata",
+    "fresh-tomato",
+    "olive-oil",
+    "pesto"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.33,
+     "pesto-trapanese"
+    ],
+    [
+     0.33,
+     "pesto-pollo"
+    ],
+    [
+     0.33,
+     "pesto-gamberi"
+    ]
+   ],
+   "max_jaccard": 0.33
+  },
+  "pizza-alla-crudaiola [matrix set]": {
+   "set": [
+    "arugula",
+    "burrata",
+    "fresh-tomato",
+    "mozzarella",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "size": 6,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.43,
+     "pinsa-romana"
+    ],
+    [
+     0.43,
+     "jamon-serrano-pizza"
+    ],
+    [
+     0.43,
+     "grandma-pizza"
+    ]
+   ],
+   "max_jaccard": 0.43
+  },
+  "palmitos-salsa-golf [NO_SAUCE]": {
+   "set": [
+    "ham",
+    "mozzarella",
+    "oregano",
+    "palm-heart"
+   ],
+   "size": 4,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.43,
+     "capricciosa"
+    ],
+    [
+     0.4,
+     "palmito-pizza"
+    ],
+    [
+     0.4,
+     "chilean-napolitana"
+    ]
+   ],
+   "max_jaccard": 0.43
+  },
+  "peking-duck": {
+   "set": [
+    "cucumber",
+    "green-onion",
+    "mozzarella",
+    "peking-duck",
+    "sweet-bean-sauce"
+   ],
+   "size": 5,
+   "exact": [],
+   "cand_subset_of": [],
+   "cand_superset_of": [],
+   "add_remove_1": [],
+   "swap_1": [],
+   "top3_jaccard": [
+    [
+     0.25,
+     "sichuan-eggplant-pizza"
+    ],
+    [
+     0.14,
+     "salsiccia-e-friarielli"
+    ],
+    [
+     0.14,
+     "salsiccia"
+    ]
+   ],
+   "max_jaccard": 0.25
+  }
+ },
+ "newIngredientReuse": {
+  "aji-amarillo": [
+   "peruvian-aji-amarillo-pizzadb-p12"
+  ],
+  "apple": [
+   "apple-cinnamon-dessert-pizzadb"
+  ],
+  "asparagus": [
+   "pizza-asparagi-limone-pizzadb-p8"
+  ],
+  "balsamic-vinegar": [
+   "pizza-radicchio-noci-pizzadb-p8"
+  ],
+  "banana": [
+   "nutella-dessert-pizza-pizzadb-p6"
+  ],
+  "blue-cheese-dressing": [
+   "buffalo-cauliflower-pizza-pizzadb-p6",
+   "buffalo-chicken-pizzadb"
+  ],
+  "blueberry": [
+   "fruit-dessert-pizza-pizzadb-p11"
+  ],
+  "bonito-flakes": [
+   "okonomiyaki-style-pizza-pizzadb-p1"
+  ],
+  "brick-cheese": [
+   "detroit-style-pizza-pizzadb-p5"
+  ],
+  "brie": [
+   "speck-e-brie-pizzadb-p4"
+  ],
+  "buffalo-sauce": [
+   "buffalo-chicken-pizzadb"
+  ],
+  "burrata": [
+   "burrata-pizza-pizzadb-p10",
+   "pesto-burrata-pizzadb-p12",
+   "pizza-alla-crudaiola-pizzadb-p8"
+  ],
+  "cabbage": [
+   "okonomiyaki-style-pizza-pizzadb-p1"
+  ],
+  "caciocavallo": [
+   "scacciata-ragusana-pizzadb-p4"
+  ],
+  "carrot": [
+   "banh-mi-pizza-pizzadb-p6",
+   "pizza-cavolo-carote-pizzadb-p8"
+  ],
+  "cauliflower": [
+   "buffalo-cauliflower-pizza-pizzadb-p6"
+  ],
+  "celery": [
+   "pizza-carciofi-salad-pizzadb-p8"
+  ],
+  "cheddar": [
+   "taco-pizza-pizzadb"
+  ],
+  "cheese-curd": [
+   "poutine-pizza-pizzadb-p10"
+  ],
+  "chicken-tikka": [
+   "chicken-tikka-pizza-pizzadb-p5"
+  ],
+  "chicory": [
+   "pizza-cicoria-limone-pizzadb-p8"
+  ],
+  "chili-oil": [
+   "diavola-pizza-pizzadb-p5",
+   "keema-pizza-pizzadb-p2",
+   "lahmacun",
+   "pizza-baiana",
+   "pizza-cicoria-limone-pizzadb-p8",
+   "pizza-de-cancha",
+   "thai-chicken-pizza-pizzadb-p4"
+  ],
+  "chili-powder": [
+   "mexican-elote-pizza-pizzadb-p13"
+  ],
+  "chocolate": [
+   "smore-dessert-pizza-pizzadb-p4"
+  ],
+  "chutney": [
+   "south-african-boerewors-pizzadb-p14"
+  ],
+  "condensed-milk": [
+   "feteer-meshaltet-pizzadb-p10"
+  ],
+  "cotija": [
+   "mexican-elote-pizza-pizzadb-p13"
+  ],
+  "cucumber": [
+   "peking-duck-pizza",
+   "pizza-salad-pizzadb-p7"
+  ],
+  "cumin": [
+   "jerusalem-mixed-grill-pizza-pizzadb-p1"
+  ],
+  "daikon": [
+   "banh-mi-pizza-pizzadb-p6"
+  ],
+  "eel": [
+   "eel-pizza-pizzadb-p1"
+  ],
+  "fennel": [
+   "pizza-finocchi-salad-pizzadb-p8"
+  ],
+  "french-fries": [
+   "pizza-de-lomo-saltado",
+   "poutine-pizza-pizzadb-p10"
+  ],
+  "graham-cracker": [
+   "smore-dessert-pizza-pizzadb-p4"
+  ],
+  "gravy-sauce": [
+   "poutine-pizza-pizzadb-p10"
+  ],
+  "ground-beef": [
+   "feteer-meshaltet-pizzadb-p10",
+   "keema-pizza-pizzadb-p2",
+   "lahmacun",
+   "pizza-chilena-pizzadb-p8",
+   "taco-pizza-pizzadb",
+   "turkish-pide-pizzadb-p5"
+  ],
+  "halloumi": [
+   "manakish"
+  ],
+  "honey": [
+   "feteer-meshaltet-pizzadb-p10",
+   "hot-honey-pepperoni-pizzadb-p12",
+   "nashville-hot-chicken-pizza-pizzadb-p6",
+   "nduja-pizza-pizzadb-p14",
+   "pesto-noci-pizzadb-p12"
+  ],
+  "kebab-sauce": [
+   "swedish-kebab-pizza-pizzadb-p4"
+  ],
+  "kimchi": [
+   "kimchi-pizza-pizzadb-p2"
+  ],
+  "kiwi": [
+   "fruit-dessert-pizza-pizzadb-p11"
+  ],
+  "lettuce": [
+   "pizza-salad-pizzadb-p7",
+   "swedish-kebab-pizza-pizzadb-p4",
+   "taco-pizza-pizzadb"
+  ],
+  "lime": [
+   "mexican-elote-pizza-pizzadb-p13"
+  ],
+  "liver-pate": [
+   "banh-mi-pizza-pizzadb-p6"
+  ],
+  "marshmallow": [
+   "smore-dessert-pizza-pizzadb-p4"
+  ],
+  "melted-butter": [
+   "feteer-meshaltet-pizzadb-p10"
+  ],
+  "mentaiko": [
+   "mentaiko-mochi-pizza"
+  ],
+  "mochi": [
+   "mentaiko-mochi-pizza"
+  ],
+  "natto": [
+   "natto-pizza"
+  ],
+  "nutella-spread": [
+   "nutella-dessert-pizza-pizzadb-p6"
+  ],
+  "okonomiyaki-sauce": [
+   "okonomiyaki-style-pizza-pizzadb-p1"
+  ],
+  "okra": [
+   "natto-pizza"
+  ],
+  "orange": [
+   "pizza-finocchi-salad-pizzadb-p8"
+  ],
+  "peanut-sauce": [
+   "thai-chicken-pizza-pizzadb-p4"
+  ],
+  "pecorino": [
+   "pizza-cicoria-limone-pizzadb-p8"
+  ],
+  "peking-duck": [
+   "peking-duck-pizza"
+  ],
+  "powdered-sugar": [
+   "nutella-dessert-pizza-pizzadb-p6"
+  ],
+  "provolone": [
+   "st-louis-style-pizza-pizzadb-p4"
+  ],
+  "puntarelle": [
+   "pizza-puntarelle-pizzadb-p8"
+  ],
+  "radicchio": [
+   "pizza-radicchio-noci-pizzadb-p8"
+  ],
+  "red-cabbage": [
+   "pizza-cavolo-carote-pizzadb-p8"
+  ],
+  "rock-salt": [
+   "focaccia-genovese-pizzadb-p10"
+  ],
+  "salsa": [
+   "taco-pizza-pizzadb"
+  ],
+  "sansho-pepper": [
+   "eel-pizza-pizzadb-p1"
+  ],
+  "spicy-salami": [
+   "diavola-pizza-pizzadb-p5"
+  ],
+  "squid": [
+   "frutti-di-mare-pizzadb-p11"
+  ],
+  "strawberry": [
+   "fruit-dessert-pizza-pizzadb-p11"
+  ],
+  "sunflower-seeds": [
+   "pizza-cavolo-carote-pizzadb-p8"
+  ],
+  "sweet-bean-sauce": [
+   "peking-duck-pizza"
+  ],
+  "tortilla-chips": [
+   "taco-pizza-pizzadb"
+  ],
+  "truffle": [
+   "black-truffle-pizza-pizzadb-p14"
+  ],
+  "walnut": [
+   "apple-cinnamon-dessert-pizzadb",
+   "nutella-dessert-pizza-pizzadb-p6",
+   "pesto-noci-pizzadb-p12",
+   "pizza-radicchio-noci-pizzadb-p8",
+   "speck-e-brie-pizzadb-p4"
+  ],
+  "yakiniku-sauce": [
+   "yakiniku-pizza"
+  ],
+  "yogurt-sauce": [
+   "pizza-salad-pizzadb-p7"
+  ],
+  "zaatar": [
+   "manakish"
+  ]
+ }
+}

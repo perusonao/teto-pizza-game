@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+"""Post-B18 recipe-candidate pre-audit: reproducible measurements (stdlib only, read-only).
+
+Usage (from the repo root, on main c69cb2b or later):
+    python3 docs/reports/data/TETO_RECIPE-EXPANSION_POST-B18-CANDIDATES_measure.py.txt > out.json
+(The file carries a .txt suffix so it is documentation, not tooling; run it with `python3 <path>`.)
+
+Reads src/data/recipes.ts, src/data/lateCatalog.ts, src/data/ingredients.ts (regex, not a TS parser) and the 172 matrix JSON.
+It does NOT run any Vitest gate (DH4 / Hint 5.0 / privacy / Research letters): those need node_modules and a scratch copy.
+"""
+import json, re, sys, collections
+R = "./"
+
+def parse_recipes(path):
+    s = open(R + path, encoding="utf-8").read(); out = {}
+    for m in re.finditer(r'\n\s{2,4}id: "([a-z0-9-]+)",\n\s+nameJa: "([^"]*)"', s):
+        j = s.find("requiredIngredients: [", m.end()); k = s.find("],", j)
+        reqs = [(r.group(1), int(r.group(2)), bool(r.group(3))) for r in re.finditer(
+            r'ingredientId: "([a-z0-9-]+)", minCount: (\d+)(, applicationPhase: "POST_BAKE")?', s[j:k])]
+        if reqs and m.group(1) not in out: out[m.group(1)] = (m.group(2), reqs)
+    return out
+
+def parse_ings(path):
+    s = open(R + path, encoding="utf-8").read()
+    return {m.group(1): m.group(3) for m in re.finditer(
+        r'\n\s{2,4}id: "([a-z0-9-]+)",\n\s+(?:nameJa: "([^"]*)",\n\s+)?category: "(\w+)"', s)}
+
+rec = parse_recipes("src/data/recipes.ts"); late = parse_recipes("src/data/lateCatalog.ts")
+ing = parse_ings("src/data/ingredients.ts"); ing.update(parse_ings("src/data/lateCatalog.ts"))
+M = json.load(open(R + "docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json", encoding="utf-8"))
+rows = M["rows"]
+allrec = {**rec, **late}
+S = {k: frozenset(i for i, _, _ in v[1]) for k, v in allrec.items()}
+# Issue #748 (Batch 18) claimed recipes, with the Owner-decided substitute sauces (read from the B18 design audit):
+PLANNED = {
+    "PLANNED:baingan-bharta": frozenset("curry-ketchup eggplant fresh-tomato mozzarella onion cilantro".split()),
+    "PLANNED:reina-pepiada": frozenset("fromage-blanc-sauce avocado chicken cilantro mayo mozzarella".split()),
+}
+S.update(PLANNED)
+J = lambda a, b: len(a & b) / len(a | b)
+
+def measure(c):
+    c = frozenset(c); r = dict(exact=[], cand_subset_of=[], cand_superset_of=[], add_remove_1=[], swap_1=[]); top = []
+    for k, v in S.items():
+        if v == c: r["exact"].append(k)
+        elif c < v: r["cand_subset_of"].append(k)
+        elif v < c: r["cand_superset_of"].append(k)
+        if len(c ^ v) == 1: r["add_remove_1"].append(k)
+        if len(c) == len(v) and len(c ^ v) == 2: r["swap_1"].append(k)
+        top.append((round(J(c, v), 2), k))
+    top.sort(reverse=True)
+    return dict(set=sorted(c), size=len(c), **r, top3_jaccard=top[:3], max_jaccard=top[0][0])
+
+# ---- funnel -------------------------------------------------------------
+def idset(r):
+    i = r["ingredients"]; return frozenset(i["identityIngredientSet"] or i["canonicalIngredientIds"])
+shipped_rows, unshipped = [], []
+for r in rows:
+    s = idset(r)
+    (shipped_rows if (r["canonicalCandidateId"] in allrec or any(v == s for v in (S[k] for k in allrec))) else unshipped).append(r)
+DUPES = {"capricciosa-pizzadb", "quattro-formaggi-pizzadb", "margherita-pizzadb-row", "bismarck-pizza-pizzadb-p7",
+         "breakfast-pizza-pizzadb-p11", "pesto-genovese-pizza-pizzadb-p11", "marinara-pizza-pizzadb-p13",
+         "meat-lovers-pizza-pizzadb-p13", "fugazza-pizzadb-p10"}  # COMPOSITION_CONFLICT_SHIPPED: shipped under catalog ids
+CLAIMED = {"baingan-bharta-pizza-pizzadb-p6", "venezuelan-reina-pepiada-pizzadb-p12"}  # Issue #748
+own = set(ing)
+cands = []
+for r in unshipped:
+    e = r["evidenceId"]
+    if e in DUPES or e in CLAIMED: continue
+    i = r["ingredients"]; s = set(idset(r))
+    mapped = []
+    for u in i["unresolvedTokens"]:
+        if u.get("relatedIds") and len(u["relatedIds"]) == 1: s.add(u["relatedIds"][0]); mapped.append([u["token"], u["relatedIds"][0]])
+    m = measure(s)
+    cands.append(dict(evidenceId=e, nameJa=r["nameJa"], status=r["productDecisionStatus"],
+        requiredCapabilities=r["requiredCapabilities"], blockers=sorted({(b["type"] if isinstance(b, dict) else b) for b in r["blockers"]}),
+        newIngredients=sorted(x for x in s if x not in own), unresolvedMappedBySingleRelatedId=mapped,
+        sauceStatus=r["sauceBase"]["status"], sauceFamily=r["sauceBase"]["sauceFamily"],
+        evidenceOrigin=r["phase0"].get("evidenceOrigin"), measure=m))
+
+# ---- shortlist variants (hand-written game sets; assumptions are in the report) ---------------
+VARIANTS = {
+ "jerusalem-mixed-grill [no sauce, no cheese]": "chicken cumin onion parsley",
+ "jerusalem-mixed-grill [+tahini]": "chicken cumin onion parsley tahini",
+ "jerusalem-mixed-grill [+tahini +mozzarella (not in source)]": "chicken cumin mozzarella onion parsley tahini",
+ "frutti-di-mare [matrix set + squid]": "clam mussel shrimp squid tomato-sauce",
+ "nashville-hot-chicken [honey as topping, NO_SAUCE]": "chicken honey mozzarella pickles",
+ "nduja [honey, NO_SAUCE]": "honey mozzarella sausage",
+ "hot-honey-pepperoni": "honey mozzarella pepperoni tomato-sauce",
+ "pesto-noci [matrix set]": "gorgonzola honey pesto walnut",
+ "chicken-tikka [curry-ketchup substitute]": "bell-pepper chicken-tikka cilantro curry-ketchup mozzarella onion",
+ "chicken-tikka [aliased to chicken, curry-ketchup]": "bell-pepper chicken cilantro curry-ketchup mozzarella onion",
+ "thai-chicken [peanut-sauce, red chili omitted]": "chicken cilantro mozzarella peanut-sauce",
+ "caponata [+tomato-sauce]": "black-olive capers eggplant mozzarella tomato-sauce",
+ "caponata [NO_SAUCE]": "black-olive capers eggplant mozzarella",
+ "tsukimi": "bacon egg green-onion mozzarella",
+ "hokkaido-cheese [チーズ=mozzarella]": "bacon corn mozzarella potato",
+ "philly-cheesesteak [チーズソース=mozzarella]": "beef green-pepper mozzarella onion",
+ "trenton-tomato-pie": "mozzarella tomato-sauce",
+ "keema [ひき肉=beef]": "beef mozzarella onion",
+ "burrata-pizza [matrix set]": "basil burrata olive-oil tomato-sauce",
+ "pesto-burrata [matrix set]": "burrata fresh-tomato olive-oil pesto",
+ "pizza-alla-crudaiola [matrix set]": "arugula burrata fresh-tomato mozzarella olive-oil tomato-sauce",
+ "palmitos-salsa-golf [NO_SAUCE]": "ham mozzarella oregano palm-heart",
+ "peking-duck": "cucumber green-onion mozzarella peking-duck sweet-bean-sauce",
+}
+short = {k: measure(v.split()) for k, v in VARIANTS.items()}
+
+# reuse of not-yet-owned ingredients across the remaining candidates
+reuse = collections.defaultdict(list)
+for c in cands:
+    for x in c["newIngredients"]: reuse[x].append(c["evidenceId"])
+
+print(json.dumps(dict(
+    meta=dict(recipesOrdinaryParsed=len(rec), recipesLateParsed=len(late), ingredientIdsOwned=len(own),
+              plannedB18=sorted(PLANNED), matrixRows=len(rows), shippedMatched=len(shipped_rows), unshipped=len(unshipped),
+              excludedShippedDuplicates=sorted(DUPES), excludedClaimed748=sorted(CLAIMED), candidates=len(cands),
+              notMatchedRuntimeRecipes=sorted(k for k in allrec if not any(r["canonicalCandidateId"] == k or idset(r) == S[k] for r in rows))),
+    candidates=sorted(cands, key=lambda c: (len(c["requiredCapabilities"]), len(c["newIngredients"]), c["evidenceId"])),
+    shortlistVariants=short,
+    newIngredientReuse={k: sorted(v) for k, v in sorted(reuse.items())}), ensure_ascii=False, indent=1))
