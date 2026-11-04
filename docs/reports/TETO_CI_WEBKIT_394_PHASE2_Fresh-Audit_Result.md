@@ -92,7 +92,7 @@ Status: **Fresh Audit（読み取り専用の調査）の記録。** 調査時�
 
 ### 4.2 恒久策（最小）
 - `scripts/ci/webkit-shard-evidence.mjs` の `collect` が、Playwright の JSON から各テストの **`durationMs`・`timeoutMs`（JSON の `tests[].timeout`、Playwright 1.56.1 の json reporter が出力）・`workerIndex`・`startTime`** を `executed[key]` に**追加で**記録する（evidence の既存フィールド・判定は不変。`verify` は `status` / `expectedStatus` だけを見る）。
-- `verify`（WebKit Gate）が、**ゲートの判定には使わず**、(a) 余裕（`1 − duration/timeout`）が小さい上位 10 件、(b) shard ごとのテスト時間の合計、(c) 失敗テストの所要と枠を、**ジョブログ**（読み取れる場所）に出す。workflow の YAML は変更不要（既存の step の標準出力）。
+- **ゲートの判定には使わず**、(a) 余裕（`1 − duration/timeout`）が小さい上位 10 件、(b) shard ごとのテスト時間の合計、(c) 失敗テストの所要と枠を出す。出力先は 2 つ: **(1) 各 shard の `Record shard evidence` step の標準出力（= その shard のジョブログ。`get_job_logs` で読める）**、(2) `verify` の出力（全 shard の表）。(2) は `webkit-gate.sh` が **step summary（Actions の画面）にだけ**書き、ジョブログには書かない（PR #745 の CI で確認。調査時点では (2) をジョブログと誤認していた）。workflow の YAML は変更不要。
 - 現状の evidence は `status` / `expectedStatus` のみ（70 KB）。**JSON の結果ファイル自体（`RESULTS_JSON`）は artifact に上げていない**（`../webkit-results.json`、リポジトリ外）。HTML レポートの artifact には所要が入っているが、取得できる環境が要る（§6）。
 
 ## 5. WebKit shard 2/3 の負荷偏りの検証方法
