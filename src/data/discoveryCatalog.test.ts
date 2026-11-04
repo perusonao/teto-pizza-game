@@ -43,6 +43,9 @@ const BATCH16_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["ume-shiso-piz
 // Expansion Batch 17 (Issue #741): the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED: the source sauce field is 'その他'). Shipped with サワークリーム (sour-cream) read as the PAINT sauce, as a B17-ONLY Owner exception (2026-11-03);
 // it is NOT a general rule for unspecified sauce fields, and no other BASE_SAUCE_UNSPECIFIED row is exempted here. PROVISIONAL SPEC, original pizzadb.jp NOT confirmed. expansionBatch17.test.ts pins its exact ingredient set against the 172 matrix.
 const BATCH17_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["goulash-pizza"];
+// Expansion Batch 18 (Issue #748): the Phase-2 matrix classifies these two rows BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED: 'カレー' / 'ホワイトソース'). Shipped with the EXISTING curry-ketchup / fromage-blanc-sauce standing in for the unspecified base,
+// as RECIPE-SPECIFIC Owner decisions (2026-11-04; the same stand-ins as the Batch 10 curry recipes / moussaka-style-pizza); NOT NO_SAUCE and NOT a general rule, and no other BASE_SAUCE_UNSPECIFIED row is exempted here. PROVISIONAL SPEC, original pizzadb.jp NOT confirmed.
+const BATCH18_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["baingan-bharta-pizza", "reina-pepiada-pizza"];
 
 describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("has exactly one target per production recipe, in RECIPES order", () => {
@@ -65,6 +68,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       if (BATCH15_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (BATCH16_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (BATCH17_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (BATCH18_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (isLateRecipeId(t.recipeId)) continue; // E5: the late target has no Phase-2 row; lateCatalog.ikura.test.ts pins it
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);
       expect(expected, t.recipeId).toBeDefined();

@@ -150,7 +150,7 @@ describe("the Batch 16 differentiation (B16-only exception; the global 0.4 crite
 describe("ordinary step 67", () => {
   const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
   it("is appended after step 66 (steps 1-66 frozen): umeboshi-paste alone, no star gate, keyed to ume-shiso-pizza", () => {
-    expect(steps).toHaveLength(68); // Expansion Batch 17 appended the ordinary step 68 after it
+    expect(steps).toHaveLength(69); // Expansion Batch 18 appended the ordinary step 69; Expansion Batch 17 appended the ordinary step 68 after it
     expect(steps[65]).toMatchObject({ step: 66, ingredientIds: ["cinnamon"], keyRecipeId: "moussaka-style-pizza" });
     expect(steps[66]).toMatchObject({ step: 67, kind: "MATERIAL", ingredientIds: ["umeboshi-paste"], keyRecipeId: ID });
     expect(steps[66].starGates).toBeUndefined();

@@ -14,7 +14,9 @@ const NEW_MATERIALS: readonly string[] = ["curry-ketchup", "beef", "paneer", "pa
 // Expansion Batch 15 (Issue #728, Owner-approved 2026-11-02): nigerian-suya-pizza (non-credit) joins rendang-pizza's beef cohort, so rendang-pizza gains the letter "B" -- a deliberate, named change to a pre-existing Batch 10 label.
 // This file pins the Batch 10-era invariant ("the five Batch 10 recipes letter nothing"), so it is evaluated over the catalog WITHOUT that later recipe; the B15 change itself is pinned exactly (before / after, every other recipe unchanged)
 // in expansionBatch15.test.ts and as `acceptedLetterShifts` in B15_BATCH. Nothing else is excluded.
-const ORDINARY = ordinaryRecipes(RECIPES).filter((r) => r.id !== "nigerian-suya-pizza");
+// Expansion Batch 18 (Issue #748): baingan-bharta-pizza and reina-pepiada-pizza both unlock on `cilantro` (promoted from the late catalog), so they form a NEW lettered cohort (A / B) -- the same reason the B11 S1 porcini pair is evaluated on its own.
+// The Batch 10-era invariant is likewise evaluated WITHOUT them; the B18 cohort and the unchanged letters of every pre-existing recipe are pinned exactly in researchCohortLetter.batch18.test.ts and expansionBatch18.test.ts.
+const ORDINARY = ordinaryRecipes(RECIPES).filter((r) => r.id !== "nigerian-suya-pizza" && r.id !== "baingan-bharta-pizza" && r.id !== "reina-pepiada-pizza");
 const BEFORE = ORDINARY.filter((r) => !NEW_RECIPES.includes(r.id));
 const ladderMaterials = ordinaryLadderSteps(DISCOVERY_LADDER.steps).flatMap((s) => s.ingredientIds);
 

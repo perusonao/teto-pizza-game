@@ -114,7 +114,7 @@ describe("LAD-1: the W1 steps 1..24 are frozen", () => {
     // A full re-derivation would reorder the appended steps (pesto-gamberi before pesto-pollo; almond before
     // parsley); steps 1..54 are frozen, so they are fixed and only step 55 (New Sauces Phase A, #578) is derived. (Re-deriving from step 52 would sort flammkuchen's step ahead of the frozen
     // steps 53-54 on the rule's tie-breaks; the key-recipe rule is only ever applied to the newest step, as for every earlier batch.)
-    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 67) }; // steps 1-67 frozen; the rule derives only the newest step 68 (Expansion Batch 17; Expansion Batch 14 derived 66, Expansion Batch 16 derived 67) -- a full re-derivation would sort cinnamon ahead of ricotta-salata on the tie-breaks
+    const fixed47 = { ...W1_25_DISCOVERY_LADDER, steps: DISCOVERY_LADDER.steps.slice(0, 68) }; // steps 1-68 frozen; the rule derives only the newest step 69 (Expansion Batch 18: a full re-derivation would sort cilantro, which opens two recipes, ahead of sour-cream on the tie-breaks (more newly reachable recipes); Expansion Batch 17; Expansion Batch 14 derived 66, Expansion Batch 16 derived 67) -- a full re-derivation would sort cinnamon ahead of ricotta-salata on the tie-breaks
     // The frozen prefix (steps 1-54) keeps its authored Batch 6 `starGates` (pinned in discoveryLadder.test.ts); the derived step 55 (New Sauces Phase A) has none.
     // E5: the late step (ikura) is appended after every ordinary step (pinned in lateCatalog.ikura.test.ts); the rule is applied to the ordinary ladder.
     expect(ordinaryLadder(DISCOVERY_LADDER)).toEqual(buildAppendOnlyLadder(fixed47, PRODUCTION));

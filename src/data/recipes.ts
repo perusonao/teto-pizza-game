@@ -1558,6 +1558,45 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "baingan-bharta-pizza",
+    nameJa: "バインガンバルタピザ",
+    description: "カレーケチャップを塗った生地に、ナスとトマト、たまねぎ、パクチーとモッツァレラをのせた、インド風の一枚。",
+    // Expansion Batch 18 (Issue #748; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `baingan-bharta-pizza-pizzadb-p6` only (comparison table p6, relayed 2026-09-22, never independently re-fetched): ナス / 玉ねぎ / トマト / モッツァレラ / コリアンダー; sauce field 'カレー' (BASE_SAUCE_UNSPECIFIED, matrix BLOCKED_PRODUCT_DECISION, unchanged). コリアンダー is read as `cilantro` (the matrix's own `likely_alias`).
+    // OWNER DECISION (2026-11-04; this recipe only, NOT a NO_SAUCE exception and NOT a general rule): the existing `curry-ketchup` stands in for the unspecified curry base (the same stand-in as curry-pizza-japan / tandoori-paneer-pizza / rendang-pizza, Batch 10 D-B3). GAMEPLAY ASSUMPTION / CALIBRATION (not source): curry-ketchup 1 (PAINT) / mozzarella 2 / eggplant 2 / fresh-tomato 1 / onion 1 / cilantro 2 (non-sauce 8 pieces = the 8-slot ring; the cheese precedes the toppings, so the legacy Hint 2.0 H4 withholds the last topping = cilantro = the Rule W reserved ingredient), bake 58-78 (the generic Free Cooking window).
+    // EVERY piece is placed BEFORE the bake (Owner decision 2026-11-04; the source states no timing; no POST_BAKE, so no FINISH step; no prep / steam / sear step). Ladder-credited: the key of ordinary step 69 (cilantro, promoted from the late catalog). `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "curry-ketchup", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "eggplant", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 1 },
+      { ingredientId: "onion", minCount: 1 },
+      { ingredientId: "cilantro", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "reina-pepiada-pizza",
+    nameJa: "ベネズエラレイナペピアーダピザ",
+    description: "白いソースを塗った生地に、チキンとアボカド、マヨネーズ、パクチーとモッツァレラをのせた、ベネズエラ風の一枚。",
+    // Expansion Batch 18 (Issue #748; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `venezuelan-reina-pepiada-pizzadb-p12` only (comparison table p12, relayed 2026-09-22, never independently re-fetched): チキン / アボカド / マヨネーズ / モッツァレラ / コリアンダー; sauce field 'ホワイトソース' (ambiguous in the canonicalizer; BASE_SAUCE_UNSPECIFIED, matrix BLOCKED_PRODUCT_DECISION, unchanged). The matrix's two spread layers (white sauce + mayo) are modelled as ONE sauce + the existing mayo topping; the MULTI_SPREAD_LAYER mechanic is not used.
+    // OWNER DECISION (2026-11-04; this recipe only, NOT a NO_SAUCE exception and NOT a general rule): the existing `fromage-blanc-sauce` stands in for the white sauce (the same stand-in as moussaka-style-pizza, Batch 14); mayo is the existing squeeze topping (Batch 13). GAMEPLAY ASSUMPTION / CALIBRATION (not source): fromage-blanc-sauce 1 (PAINT) / mozzarella 2 / chicken 2 / avocado 1 / mayo 1 / cilantro 2 (non-sauce 8 pieces = the 8-slot ring; cilantro is last = the Rule W reserved ingredient), bake 58-78.
+    // EVERY piece is placed BEFORE the bake (Owner decision 2026-11-04; no POST_BAKE, so no FINISH step). NOT ladder-credited (`ladderCredit: false`, Owner decision 2026-11-04): ordinary step 69 (cilantro) is keyed by baingan-bharta-pizza and this recipe adds no material; it is makeable at step 69 and shares the cilantro cohort (so the two are lettered A / B in Research). `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "fromage-blanc-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "chicken", minCount: 2 },
+      { ingredientId: "avocado", minCount: 1 },
+      { ingredientId: "mayo", minCount: 1 },
+      { ingredientId: "cilantro", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+    ladderCredit: false,
+  },
 
 ] as const;
 

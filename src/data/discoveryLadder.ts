@@ -218,6 +218,8 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["umeboshi-paste"], keyRecipeId: "ume-shiso-pizza" },
   // Step 68 (Expansion Batch 17, #741, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `sour-cream`, key recipe `goulash-pizza` (it also needs beef, onion and paprika-powder from earlier steps). Steps 1-67 frozen. The fixed late floors of cod-roe / fresh-cream-sauce / nori are 68, so this step also makes the late tarako-cream recipes makeable (Owner-approved simultaneous unlock).
   { ingredientIds: ["sour-cream"], keyRecipeId: "goulash-pizza" },
+  // Step 69 (Expansion Batch 18, #748, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): `cilantro`, PROMOTED from the late catalog (same id; the BBQ late step now names only bbq-sauce), key recipe `baingan-bharta-pizza` (it also needs curry-ketchup, mozzarella, eggplant, fresh-tomato and onion from earlier steps / the starters). `reina-pepiada-pizza` (`ladderCredit: false`) is also makeable here and adds no step. Steps 1-68 frozen; the late derived numbers move +1 and `LATE_ENTITLEMENT_FLOORS` is unchanged.
+  { ingredientIds: ["cilantro"], keyRecipeId: "baingan-bharta-pizza" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since
