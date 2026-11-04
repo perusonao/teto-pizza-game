@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+<ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15"/>
+<path d="M6 34L20 27L34 33V49L20 56L6 49Z" fill="#7a2c24" stroke="#3a1410" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M20 38V56M34 33L20 38L6 34" fill="none" stroke="#3a1410" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M6 34L20 27L34 33L20 38Z" fill="#cf6a58" stroke="#3a1410" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M20 38L34 33V49L20 56Z" fill="#9a3a2e"/>
+<path d="M20 38L34 33V49L20 56Z" fill="none" stroke="#3a1410" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M12 33L20 30M26 33L30 34" stroke="#f6dccd" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+<path d="M24 46L30 43" stroke="#f1c9b8" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+<path d="M36 22L47 16L58 21V34L47 40L36 34Z" fill="#8a3329" stroke="#3a1410" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M36 22L47 27L58 21L47 16Z" fill="#cf6a58" stroke="#3a1410" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M47 27V40L58 34V21Z" fill="#a8402f" stroke="#3a1410" stroke-width="2.4" stroke-linejoin="round"/>
+<path d="M42 23L47 21M50 33L54 30" stroke="#f6dccd" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+</svg>
