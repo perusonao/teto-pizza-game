@@ -1,6 +1,6 @@
 # Steam S3 #738 — iPhone Safari HV runbook (preparation only)
 
-Date: 2026-11-04. Main at preparation: `0016222145c4c88253380d53d5df40607f58e655`. Target PR #738 HEAD `2bf56fa5d16941d1fafab7b8f722ae96fe303021`. This document is a separate docs-only branch; **not** a claim of actual iPhone testing.
+Date: 2026-11-04. Main at preparation: `0016222145c4c88253380d53d5df40607f58e655`. Target PR #738 HEAD `85b4a07` (full SHA: see the PR; was `2bf56fa5d16941d1fafab7b8f722ae96fe303021` before the pointerup/pointercancel fix, Owner-approved 2026-11-04). This document is a separate docs-only branch; **not** a claim of actual iPhone testing.
 
 ## Safety / entry
 - PR #738 is OPEN; `STEAM_EXPERIENCE_PRODUCTION=false`. Do not merge, update the shared Preview, or enable Production without Owner approval.
@@ -22,6 +22,8 @@ Date: 2026-11-04. Main at preparation: `0016222145c4c88253380d53d5df40607f58e655
 | H10 | Continue through bake and RESULT | Shellfish appearance and other techniques remain intact |
 | H11 | Compare steamed vs unsteamed ~24px shellfish | Difference readable on the real phone |
 | H12 | Confirm save isolation and Production OFF | No unintended save mutation or production change |
+| H13 | B: drag across the pot, lift the finger, then touch the far side of the pot and lift again (no sweep) | Steam does not grow from the re-touch alone (fix in `85b4a07`); a real sweep still builds steam |
+| H14 | B: while dragging, swipe in from the screen edge / trigger an OS gesture that cancels the touch | No back-navigation, no stuck state; steam in progress is dropped (pointercancel = INTERRUPT), screen stays usable |
 
 ## Decision sheet
 Record device/iOS/Safari, build SHA, viewport, date, video or screenshot references, and A/B results. For each variant score: clarity, fun, one-handed usability, fatigue, error rate, and visual feedback as PASS / NEEDS FIX / FAIL (with a concrete observation). Do not claim pass without real-device evidence.
