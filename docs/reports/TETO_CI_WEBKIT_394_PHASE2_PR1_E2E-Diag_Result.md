@@ -11,7 +11,7 @@ Branch `claude/issue-394-p2-e2e-diag` / 基準 `main` `5bb18403`（#742）。変
 | D1 | 診断部品（新規）: watchdog `watched()`、ページ生存確認 `probeMainThread()`、残り予算、ポインタ記録 `installPointerTrace()` / `readPointerTrace()`、CUT の確定確認 `reportCutCommit()`、`reloadApp()` / `reloadPage()`、`observePageLifecycle()` | `e2e/support/diag.ts` |
 | D2 | `page.mouse.move / down / up` を、操作名つきの診断付き呼び出し（`diagMouse`）に置き換え（`tap` / `squeeze` / `squeeze-path` / `dough` / `drag` / `cut` / `cut <角度>°`）。CUT は、ポインタ記録の開始と、3 本（または 1 本）の確定数の確認を追加 | `e2e/gestures.ts` |
 | D3 | `reloadApp(page, label)`（`page.reload()` + `waitForSelector(".app-frame")` と同一の 2 呼び出し）。まず `lunch-rush-r8-restore`（4 箇所）・`dinner-settlement-dm4-3`（1 箇所）に、`cooking-prep` は `reloadPage`（reload のみ、直後の待ちは従来のまま） | 該当 3 spec |
-| 検証 | 合成ページの回帰テスト 12 本 | `e2e/gestures-diag.spec.ts` |
+| 検証 | 合成ページの回帰テスト 18 本（Codex の指摘への対応で 12 → 18） | `e2e/gestures-diag.spec.ts` |
 
 ## 2. 診断専用であることの保証（通常時の挙動を変えない）
 
@@ -37,13 +37,20 @@ Branch `claude/issue-394-p2-e2e-diag` / 基準 `main` `5bb18403`（#742）。変
 
 | 検証 | 結果 |
 |---|---|
-| 合成ページの回帰（`gestures-diag.spec.ts`、Chromium 390×844 / 360×800） | **24/24 passed**（12 本 × 2）: 健全時は無音・同じ戻り値・同じ reject、`TETO_E2E_DIAG=0`、停止の報告と再報告（最大 3 回）と遅い完了の 1 回の記録、ページ状態の 3 判別（応答 / 沈黙 / 閉じている）、閉じるページの命名と通常終了時の無音、reload の健全時の無音と停止時の報告、**CUT: 旧ヘルパ本体との逐イベント比較で同一**（`pointerdown` / `pointermove` / `pointerup` の型と座標）と、ページが線を捨てたときの 1 行の報告 |
+| 合成ページの回帰（`gestures-diag.spec.ts`、Chromium 390×844 / 360×800） | **36/36 passed**（18 本 × 2）: 健全時は無音・同じ戻り値・同じ reject、`TETO_E2E_DIAG=0`、停止の報告と再報告（最大 3 回）と遅い完了の 1 回の記録、ページ状態の 3 判別（応答 / 沈黙 / 閉じている）、閉じるページの命名と通常終了時の無音、reload の健全時の無音と停止時の報告、**CUT: 旧ヘルパ本体との逐イベント比較で同一**（`pointerdown` / `pointermove` / `pointerup` の型と座標）と、ページが線を捨てたときの 1 行の報告 |
 | 既存 spec（影響確認） | `gestures-helper` / `lunch-rush-r8-restore` / `dinner-settlement-dm4-3` / `cooking-prep` / `pizza-cutting-phase4b` / `cut-home-leave-confirm` / `making-ui-1screen` / `finished-pizza-visual-2.0` / `dynamic-cooking-steps`（両 viewport、4 workers）: 114 passed / 12 skipped / 6 failed。**失敗はすべて 30 秒枠の spec**（G-4/5/6 と `making-ui-1screen:424`）で、この sandbox は過負荷（通過した G 系の所要の中央値が 29 秒、CI の健全時は約 16〜18 秒） |
 | 切り分け（基準 `5bb18403` と同一の e2e で、同じ spec・同じ条件・同じ回数） | 基準: 34 passed / 10 failed、PR 1: 33 passed / 11 failed。**同じテスト（G-4/5/6）が両方で落ち**、通過したテストの所要の中央値は 29.1 秒と 29.2 秒。残りの 1 件の差は 30 秒枠の境界でのばらつき |
 | 低負荷での所要の比較（1 worker、390×844、各 4 回、全件 pass） | G-1: 基準 平均 11.35 秒 / PR 1 10.95 秒。CUT を含む `pizza-cutting-phase4b` Scenario A: 11.03 秒 / 10.82 秒。**診断のオーバーヘッドは検出されない**。健全時の `[diag]` は両方 0 行 |
 | `[diag]` が実際に出た例（過負荷の sandbox） | `lunch-rush-r8: page.reload: took 3.1s (test budget left 2.8s)` ほか。reload は応答しているが遅く、残り予算がほぼ無い = **「応答停止」ではなく「枠の消費」** であることが、この診断で読み取れた |
 | 型 / lint | e2e の 6 ファイルを `tsc --strict` で確認（エラー 0）、`oxlint` は警告 0、`tsc -b` エラー 0 |
 | WebKit | **この環境では実行できない**。PR の CI（6 shard）で確認する |
+
+## 4.1 Codex レビュー（`4b69b13`、P2 が 2 件）への対応
+
+| 指摘 | 確認 | 対応 |
+|---|---|---|
+| ライフサイクル監視が `reloadApp()` にしか付かず、mouse だけの spec では、ページが閉じても行が出ない | **実在**（`diagMouse` / `watched` は `observePageLifecycle` を呼んでいなかった） | `watched()` の入口で `observePageLifecycle(page)` を呼ぶ（ページごとに 1 回、観察のみ）。イベント非対応のページ代役でも壊れないよう防御。テスト: `watched` だけで「呼び出しの最中に閉じたページ」が命名される、通常終了時の close は無音、crash がその場で出る、イベント非対応の代役でも動く |
+| CUT の診断の読み取り（`cutMarkCount`・`readPointerTrace`・`installPointerTrace`）に上限が無く、`mouse.up()` の後にページが応答しないと、診断が test の予算まで待つ | **実在**（`COMMIT_POLL_LIMIT_MS` は sleep だけを制限していた） | 3 つの読み取りを `bounded()` に通し、最大 2 秒（`TETO_E2E_DIAG_READ_MS`）で打ち切る（reject と無応答は「読めなかった」）。`reportCutCommit` は、読めなければ `the page did not answer a diagnostic read after the gesture` の 1 行を出して戻る（停止の説明になる）。テスト: 応答しないページで 3 つの読み取りが上限内に戻る、reject するページ、`reportCutCommit` が上限内に戻って 1 行出す、カウントだけ答えるページ |
 
 ## 5. 残る不確実性
 

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { cutThreeLines } from "./gestures";
-import { observePageLifecycle, probeMainThread, reloadApp, setDiagSink, watched } from "./support/diag";
+import { cutMarkCount, installPointerTrace, probeMainThread, readPointerTrace, reloadApp, reportCutCommit, setDiagSink, watched } from "./support/diag";
 
 /**
  * #394 Phase 2 (D1-D3): regression coverage for the diagnostics in `e2e/support/diag.ts`, on SYNTHETIC pages (no game): what the watchdog must do, and --
@@ -111,10 +111,10 @@ test.describe("watchdog: a stall is reported", () => {
     expect(lines[0]).toMatch(/^\[diag\] mouse\.up \(page not answering\): still pending after 0\.[2-9]s \(page closed: false; main thread silent for 200ms; test budget left ~?\d+\.\ds\)$/);
   });
 
-  test("a page that closes under a pending call is named with that call; a close at the end of a test stays silent", async ({ context }) => {
+  test("watched() itself attaches the lifecycle observer: a page that closes under a pending call is named with that call; a close at the end of a test stays silent", async ({ context }) => {
     const page = await context.newPage();
     await page.goto("about:blank");
-    observePageLifecycle(page);
+    // No explicit observer here: a gesture-only spec (mouse calls, no reloadApp) must get the close reporting from the watched path alone.
     const pending = watched(page, "mouse.move(10,10)", () => sleep(1200), { pendingMs: 5000 });
     await sleep(150);
     await page.close();
@@ -124,10 +124,78 @@ test.describe("watchdog: a stall is reported", () => {
 
     lines.length = 0;
     const idle = await context.newPage();
-    observePageLifecycle(idle);
+    await watched(idle, "quick", async () => undefined, { pendingMs: 5000 }); // attaches the observer; nothing is pending afterwards
     await idle.close();
     await sleep(100);
     expect(lines).toEqual([]);
+  });
+
+  test("a page crash is reported the moment it happens, from a watched call alone", async ({ context }) => {
+    const page = await context.newPage();
+    await page.goto("about:blank");
+    await watched(page, "quick", async () => undefined, { pendingMs: 5000 });
+    (page as unknown as { emit: (event: string, ...args: unknown[]) => boolean }).emit("crash", page); // what Playwright does when the renderer dies
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatch(/^\[diag\] page crashed \(test budget left /);
+    await page.close();
+  });
+
+  test("a page-like object without event support does not break watched()", async () => {
+    const bare = { isClosed: () => false, evaluate: async () => 1 } as unknown as Page;
+    expect(await watched(bare, "bare", async () => "ok", { pendingMs: 5000 })).toBe("ok");
+    expect(lines).toEqual([]);
+  });
+});
+
+test.describe("diagnostic reads are bounded", () => {
+  const hung = (extra: Record<string, unknown> = {}) =>
+    ({
+      isClosed: () => false,
+      evaluate: () => new Promise(() => undefined),
+      locator: () => ({ count: () => new Promise(() => undefined) }),
+      waitForTimeout: async () => undefined,
+      ...extra,
+    }) as unknown as Page;
+
+  test.beforeEach(() => {
+    process.env.TETO_E2E_DIAG_READ_MS = "300";
+  });
+  test.afterEach(() => {
+    delete process.env.TETO_E2E_DIAG_READ_MS;
+  });
+
+  test("a page that never answers: the mark count, the trace read and the trace install all return within the bound instead of waiting out the test", async () => {
+    const page = hung();
+    const started = Date.now();
+    expect(await cutMarkCount(page)).toBeNull();
+    expect(await readPointerTrace(page)).toEqual(["(pointer trace unreadable: the page did not answer a diagnostic read in time)"]);
+    await installPointerTrace(page); // resolves, does not hang
+    const took = Date.now() - started;
+    expect(took).toBeGreaterThanOrEqual(850); // three reads, each really waited the bound (it did not skip them)
+    expect(took).toBeLessThan(2500);
+  });
+
+  test("a rejecting page is also 'not answered' (never thrown)", async () => {
+    const page = hung({ evaluate: () => Promise.reject(new Error("Target closed")), locator: () => ({ count: () => Promise.reject(new Error("Target closed")) }) });
+    expect(await cutMarkCount(page)).toBeNull();
+    expect((await readPointerTrace(page))[0]).toContain("unreadable");
+    await installPointerTrace(page);
+  });
+
+  test("reportCutCommit on a page that stopped answering after the gesture returns within the bound and says so, once, without throwing", async () => {
+    const started = Date.now();
+    await reportCutCommit(hung(), "cutThreeLines", 0, 3);
+    expect(Date.now() - started).toBeLessThan(1500);
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatch(/^\[diag\] cutThreeLines: the page did not answer a diagnostic read after the gesture \(the mouse calls had returned; diagnostic only; test budget left /);
+  });
+
+  test("a page that answers the count but not the trace still gets its missing-commit line (with the unreadable trace noted)", async () => {
+    const page = hung({ locator: () => ({ count: async () => 0 }) });
+    await reportCutCommit(page, "cutThreeLines", 0, 1);
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toContain("0 of 1 cut line(s) committed (marks 0 -> 0;");
+    expect(lines[0]).toContain("pointer trace unreadable");
   });
 });
 

@@ -117,6 +117,7 @@ export async function watched<T>(page: Page, label: string, action: () => Promis
   const pendingMs = options.pendingMs ?? envMs("TETO_E2E_DIAG_PENDING_MS", 8000);
   const slowMs = options.slowMs ?? envMs("TETO_E2E_DIAG_SLOW_MS", 3000);
   const probeMs = options.probeMs ?? 2000;
+  observePageLifecycle(page); // every watched call (so every mouse gesture and every reload) gets the crash / close reporting; idempotent per page
   const started = Date.now();
   let finished = false;
   let reports = 0;
@@ -167,18 +168,38 @@ export function diagMouse(page: Page, gesture: string) {
   };
 }
 
+/**
+ * Every diagnostic read of the page (`installPointerTrace`, `readPointerTrace`, `cutMarkCount`) goes through this: it waits at most `readMs` (default 2 s,
+ * `TETO_E2E_DIAG_READ_MS`) and a read that rejects, or never answers, is "not done" -- so a page that stopped answering cannot make a DIAGNOSTIC wait out the
+ * test budget, and the diagnostic can say so instead. The late result of an abandoned read is swallowed (no unhandled rejection).
+ */
+function bounded<T>(work: Promise<T>, readMs = envMs("TETO_E2E_DIAG_READ_MS", 2000)): Promise<{ done: true; value: T } | { done: false }> {
+  let timer: NodeJS.Timeout | undefined;
+  const settled = work.then(
+    (value) => ({ done: true as const, value }),
+    () => ({ done: false as const }),
+  );
+  const expired = new Promise<{ done: false }>((resolve) => {
+    timer = setTimeout(() => resolve({ done: false }), readMs);
+    timer.unref?.();
+  });
+  return Promise.race([settled, expired]).finally(() => {
+    if (timer) clearTimeout(timer);
+  });
+}
+
 const TRACE_KEY = "__tetoPointerTrace";
 const TRACE_LIMIT = 200;
 
 /**
  * Starts recording `pointerdown / pointermove / pointerup / pointercancel / lostpointercapture` in the page (a ring of the last 200). The listeners are
  * passive, run in the capture phase and never stop an event, so the app sees exactly what it saw before. Idempotent per page load; a reload clears it.
- * Never throws.
+ * Never throws and waits at most the bounded read time (a page that does not answer is skipped).
  */
 export async function installPointerTrace(page: Page): Promise<void> {
   if (!diagEnabled()) return;
-  await page
-    .evaluate(
+  await bounded(
+    page.evaluate(
       ({ key, limit }) => {
         const w = window as unknown as Record<string, unknown>;
         if (w[key]) return;
@@ -195,28 +216,22 @@ export async function installPointerTrace(page: Page): Promise<void> {
         }
       },
       { key: TRACE_KEY, limit: TRACE_LIMIT },
-    )
-    .catch(() => undefined);
+    ),
+  );
 }
 
 /** The last `count` recorded pointer events as one compact line each (`t=1234ms pointermove #1 (310,420) buttons=1 .pizza-dough`), or a note why there are none. */
 export async function readPointerTrace(page: Page, count = 20): Promise<string[]> {
-  try {
-    const rows = await page.evaluate(({ key, n }) => ((window as unknown as Record<string, unknown>)[key] as unknown[][] | undefined)?.slice(-n) ?? null, { key: TRACE_KEY, n: count });
-    if (!rows) return ["(no pointer trace: not installed on this page load)"];
-    return rows.map((r) => `t=${r[0]}ms ${r[1]} #${r[2]} (${r[3]},${r[4]}) buttons=${r[5]} .${r[6]}`);
-  } catch (error) {
-    return [`(pointer trace unreadable: ${String((error as Error).message).split("\n")[0].slice(0, 100)})`];
-  }
+  const read = await bounded(page.evaluate(({ key, n }) => ((window as unknown as Record<string, unknown>)[key] as unknown[][] | undefined)?.slice(-n) ?? null, { key: TRACE_KEY, n: count }));
+  if (!read.done) return ["(pointer trace unreadable: the page did not answer a diagnostic read in time)"];
+  if (!read.value) return ["(no pointer trace: not installed on this page load)"];
+  return read.value.map((r) => `t=${r[0]}ms ${r[1]} #${r[2]} (${r[3]},${r[4]}) buttons=${r[5]} .${r[6]}`);
 }
 
-/** How many cut marks are on the pizza now (the CUT step's committed lines), or null when it cannot be read. */
+/** How many cut marks are on the pizza now (the CUT step's committed lines), or null when it cannot be read within the bounded read time. */
 export async function cutMarkCount(page: Page): Promise<number | null> {
-  try {
-    return await page.locator(".pizza-cut-mark").count();
-  } catch {
-    return null;
-  }
+  const read = await bounded(page.locator(".pizza-cut-mark").count());
+  return read.done ? read.value : null;
 }
 
 const COMMIT_POLL_MS = 100;
@@ -231,12 +246,16 @@ const COMMIT_POLL_LIMIT_MS = 1000;
 export async function reportCutCommit(page: Page, label: string, before: number | null, expected: number): Promise<void> {
   if (!diagEnabled() || before === null) return;
   try {
+    const unanswered = () =>
+      diagLog(`${label}: the page did not answer a diagnostic read after the gesture (the mouse calls had returned; diagnostic only; test budget left ${budgetText()})`);
     let after = await cutMarkCount(page);
-    for (let waited = 0; after !== null && after - before < expected && waited < COMMIT_POLL_LIMIT_MS; waited += COMMIT_POLL_MS) {
+    if (after === null) return unanswered();
+    for (let waited = 0; after - before < expected && waited < COMMIT_POLL_LIMIT_MS; waited += COMMIT_POLL_MS) {
       await page.waitForTimeout(COMMIT_POLL_MS);
       after = await cutMarkCount(page);
+      if (after === null) return unanswered();
     }
-    if (after === null || after - before >= expected) return;
+    if (after - before >= expected) return;
     const trace = await readPointerTrace(page, 20);
     diagLog(`${label}: ${after - before} of ${expected} cut line(s) committed (marks ${before} -> ${after}; diagnostic only, a full CUT limit also looks like this). Last pointer events:\n  ${trace.join("\n  ")}`);
   } catch {
@@ -256,13 +275,17 @@ const LIFECYCLE_SEEN = new WeakSet<Page>();
  * stays silent). Attached once per page; it only observes.
  */
 export function observePageLifecycle(page: Page): void {
-  if (!diagEnabled() || LIFECYCLE_SEEN.has(page)) return;
+  if (!diagEnabled() || LIFECYCLE_SEEN.has(page) || typeof page?.on !== "function") return;
   LIFECYCLE_SEEN.add(page);
-  page.on("crash", () => diagLog(`page crashed (test budget left ${budgetText()})`));
-  page.on("close", () => {
-    const running = [...(IN_FLIGHT.get(page) ?? [])];
-    if (running.length > 0) diagLog(`page closed while ${running.length} call(s) were pending: ${running.join(" | ")} (test budget left ${budgetText()})`);
-  });
+  try {
+    page.on("crash", () => diagLog(`page crashed (test budget left ${budgetText()})`));
+    page.on("close", () => {
+      const running = [...(IN_FLIGHT.get(page) ?? [])];
+      if (running.length > 0) diagLog(`page closed while ${running.length} call(s) were pending: ${running.join(" | ")} (test budget left ${budgetText()})`);
+    });
+  } catch {
+    // diagnostics only
+  }
 }
 
 /**
