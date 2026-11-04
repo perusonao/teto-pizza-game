@@ -17,6 +17,7 @@ import { budgetLeft, diagEnabled, diagLog, inFlightLabels } from "./diag";
  *  The screenshot is Playwright's own (`screenshot: "only-on-failure"` in playwright.config.ts, unchanged). The files land in `test-results/`, which the
  *  existing "Upload failure artifacts" step already uploads on failure (workflow unchanged). No trace, no video.
  *
+ * The job-log block is written BEFORE the attachments and each attachment is isolated, so a storage failure cannot suppress the log.
  * It only READS: every page access is bounded (3 s) and swallowed, nothing here can change a test's status, and no assertion, timeout, retry or skip is
  * added. Opt in per spec by importing `test` from this file instead of "@playwright/test" (`expect` and everything else stay the same).
  * `TETO_E2E_DIAG=0` switches it off, like the rest of the diagnostics.
@@ -117,7 +118,11 @@ async function attachFile(info: TestInfo, name: string, content: string, content
     await writeFile(path, content);
     await info.attach(name, { path, contentType });
   } catch {
-    await info.attach(name, { body: content, contentType });
+    try {
+      await info.attach(name, { body: content, contentType });
+    } catch {
+      // storage unavailable: the job-log block above already carries the essentials
+    }
   }
 }
 
@@ -151,9 +156,7 @@ export async function collectFailureEvidence(page: Page, info: TestInfo): Promis
       dom: dom?.summary ?? null,
       errors,
     };
-    await attachFile(info, "failure-evidence.json", JSON.stringify(evidence, null, 2), "application/json");
-    if (dom) await attachFile(info, "failure-dom.html", dom.html, "text/plain");
-
+    // The job log goes FIRST and on its own: it is the channel that still works when artifact storage does not.
     const first = errors[0];
     diagLog(
       `failure-evidence ${info.project.name} "${info.title}" ${info.status}: ${first?.message ?? "(no error message)"}` +
@@ -162,6 +165,9 @@ export async function collectFailureEvidence(page: Page, info: TestInfo): Promis
         `\n[diag]   page: closed=${closed} url=${evidence.pageUrl ?? "-"} dom=${evidence.domRead} in-flight=${evidence.inFlight.join(" | ") || "-"} budget-left=${evidence.budgetLeftMs ?? "n/a"}ms` +
         (dom ? `\n[diag]   dom: ${JSON.stringify({ ...dom.summary, bodyText: undefined })} text="${dom.summary.bodyText.slice(0, 160)}"` : ""),
     );
+
+    await attachFile(info, "failure-evidence.json", JSON.stringify(evidence, null, 2), "application/json");
+    if (dom) await attachFile(info, "failure-dom.html", dom.html, "text/plain");
   } catch {
     // evidence only: a failure here must never change the test's outcome
   }

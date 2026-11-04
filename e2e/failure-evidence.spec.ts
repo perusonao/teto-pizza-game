@@ -88,10 +88,22 @@ test.describe("failure evidence", () => {
     expect(JSON.parse(attached[0].body).domRead).toBe("no answer within 3s");
   });
 
-  test("an attach that throws never escapes", async ({ page }) => {
+  test("an attach that always throws never escapes and never suppresses the job-log block", async ({ page }) => {
+    await page.setContent(`<div class="app-frame"></div>`);
     const { info } = fakeInfo(page, [ERROR]);
     (info as unknown as { attach: () => Promise<never> }).attach = () => Promise.reject(new Error("disk full"));
     await expect(collectFailureEvidence(page, info)).resolves.toBeUndefined();
+    expect(lines.join("\n")).toContain("failure-evidence webkit-390x844");
+    expect(lines.join("\n")).toContain("waiting at: e2e/some.spec.ts:171:5");
+  });
+
+  test("an unwritable output path falls back to a body attachment and the log is still written", async ({ page }) => {
+    await page.setContent("<p>x</p>");
+    const { info, attached } = fakeInfo(page, [ERROR]);
+    (info as unknown as { outputPath: () => string }).outputPath = () => "/nonexistent-dir/x/evidence.json";
+    await collectFailureEvidence(page, info);
+    expect(attached.map((a) => a.name)).toContain("failure-evidence.json");
+    expect(lines.join("\n")).toContain("failure-evidence webkit-390x844");
   });
 
   test("TETO_E2E_DIAG=0 switches it off", async ({ page }) => {
