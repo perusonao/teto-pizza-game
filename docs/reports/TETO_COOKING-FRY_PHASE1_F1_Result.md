@@ -67,7 +67,7 @@ F1 は新規ファイルだけで完了した。どこからも import されず
 | 項目 | 結果 |
 |---|---|
 | fry 専用（8 ファイル） | 75 tests pass |
-| 全 Vitest | 下記 §5.1 |
+| 全 Vitest | 11,441 pass、失敗 0（§5.1） |
 | `tsc -b` | エラーなし |
 | `oxlint` | fry ファイルへの警告 0（既存の警告のみ） |
 | `npm run build` | 成功。`dist/` に fry の文字列なし |
@@ -75,7 +75,7 @@ F1 は新規ファイルだけで完了した。どこからも import されず
 | 他セッションの範囲 | Steam #738 / #747、DRIZZLE #746、Batch 18 #748 のファイルに触れていない（F1 は新規ファイルのみ。`ingredients.ts` / `recipes.ts` / `gameReducer.ts` / `GameScreen.tsx` / `PizzaStage.tsx` / `App.tsx` は無変更） |
 
 ### 5.1 全 Vitest
-（下記に記入）
+617 files pass / 1 skipped（618）、**11,441 tests pass**、13 skipped・2 todo（既存）、失敗 0。既存の炒め・炙り・蒸すの architecture test も無修正で通過。E2E は UI 未実装のため対象外（Playwright は未実行）。
 
 ## 6. F2 への依存関係（HOLD 中）
 - F2（reducer `FRY_INGREDIENT`、`gameReducer.ts` は HOT）は **#738（Steam S3）の merge 後**に限る。#738 は `PizzaStage` / `GameScreen` / `App` / `main` を追加編集しており、F3 も同じ 3 ファイルに触る。
