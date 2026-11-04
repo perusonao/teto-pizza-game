@@ -94,6 +94,20 @@ describe("cancel / interrupt / junk", () => {
     const sunk = run(SUNK);
     expect(fryDragReducer(sunk, { type: "TAP_UP", now: 500 })).toBe(sunk); // before the last input
   });
+  it("RELEASE obeys the same clock checks and records its time (a later input from a backwards clock is refused)", () => {
+    const grabbed = run([...SUNK, { type: "GRAB", now: 4000, depth: 0.9 }]);
+    expect(fryDragReducer(grabbed, { type: "RELEASE", now: NaN })).toBe(grabbed); // junk time: still grabbed
+    expect(fryDragReducer(grabbed, { type: "RELEASE", now: 3000 })).toBe(grabbed); // before the grab: refused
+    const carrying = run([{ type: "GRAB", now: 100, depth: 0.1 }]);
+    expect(fryDragReducer(carrying, { type: "RELEASE", now: NaN })).toBe(carrying);
+    expect(fryDragReducer(carrying, { type: "RELEASE", now: 50 })).toBe(carrying);
+    // the reported path: in at 1000, released at 5000, then a clock that ran back to 2000 must not lift it with 1000 ms
+    const released = run([{ type: "TAP_DOWN", now: 1000 }, { type: "GRAB", now: 4000, depth: 0.9 }, { type: "RELEASE", now: 5000 }]);
+    expect(released).toMatchObject({ status: "frying", grabbed: false, lastAt: 5000 });
+    expect(fryDragReducer(released, { type: "TAP_UP", now: 2000 })).toBe(released);
+    expect(fryDragReducer(released, { type: "GRAB", now: 2000, depth: 0.9 })).toBe(released);
+    expect(fryDragReducer(released, { type: "TAP_UP", now: 6000 }).status).toBe("lifted");
+  });
   it("depth is clamped to 0..1", () => {
     expect(fryDragReducer(FRY_DRAG_IDLE, { type: "GRAB", now: 0, depth: -4 })).toMatchObject({ depth: 0 });
     expect(run([{ type: "GRAB", now: 0, depth: 0 }, { type: "MOVE", now: 1, depth: 9 }])).toMatchObject({ status: "frying", depth: 1 });

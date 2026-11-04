@@ -77,8 +77,10 @@ export function fryDragReducer(state: FryDrag, action: FryDragAction): FryDrag {
       return state;
     }
     case "RELEASE": {
-      if (state.status === "carrying") return FRY_DRAG_IDLE; // let go above the oil: nothing went in
-      if (state.status === "frying" && state.grabbed) return { ...state, grabbed: false };
+      // Same clock checks as every other timed input, and the release is an input: it moves `lastAt`, so a later action from a clock that ran backwards is refused.
+      if (!okTime(action.now)) return state;
+      if (state.status === "carrying") return action.now >= state.lastAt ? FRY_DRAG_IDLE : state; // let go above the oil: nothing went in
+      if (state.status === "frying" && state.grabbed) return action.now >= state.lastAt ? { ...state, grabbed: false, lastAt: action.now } : state;
       return state;
     }
     case "TAP_DOWN":

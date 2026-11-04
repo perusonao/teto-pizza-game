@@ -49,6 +49,41 @@ describe("the fry is read only where it is owned", () => {
   });
 });
 
+/** Every relative specifier a file pulls in (import / export ... from, side-effect imports, dynamic import(), CSS @import), resolved to a src-relative path without extension. */
+export function relativeTargets(file: string, text: string): string[] {
+  const specs = [
+    ...text.matchAll(/(?:^|[\s;])(?:import|export)\s[^"';]*?from\s*["']([^"']+)["']/g),
+    ...text.matchAll(/(?:^|[\s;])import\s*["']([^"']+)["']/g),
+    ...text.matchAll(/\bimport\s*\(\s*["']([^"']+)["']\s*\)/g),
+    ...text.matchAll(/@import\s+(?:url\()?["']([^"']+)["']/g),
+  ].map((m) => m[1]);
+  return specs
+    .filter((s) => s.startsWith("."))
+    .map((s) => path.posix.normalize(path.posix.join(path.posix.dirname(file), s)).replace(/\.(tsx?|css)$/, ""));
+}
+const isFryTarget = (t: string) => /^logic\/fry(\/|$)/.test(t) || /^data\/fry[A-Za-z]*$/.test(t) || /^preview\/fry[A-Za-z]*$/.test(t);
+
+describe("a relative import cannot connect to the fry (resolved from the importing file, not name-matched)", () => {
+  it("the resolver sees the paths a name scan would miss", () => {
+    expect(relativeTargets("logic/scoringV2.ts", 'import { fryResultOf } from "./fry/fryPot";').map(isFryTarget)).toEqual([true]);
+    expect(relativeTargets("logic/prep/prepX.ts", 'import { x } from "../fry/fryTap";').map(isFryTarget)).toEqual([true]);
+    expect(relativeTargets("state/gameReducer.ts", 'export * from "../logic/fry/friedLook.ts";').map(isFryTarget)).toEqual([true]);
+    expect(relativeTargets("components/A.tsx", 'const m = await import("../data/fryIngredients");').map(isFryTarget)).toEqual([true]);
+    expect(relativeTargets("components/A.tsx", 'import "../preview/fryPreview";').map(isFryTarget)).toEqual([true]);
+    expect(relativeTargets("components/A.css", '@import "../logic/fry/x.css";').map(isFryTarget)).toEqual([true]);
+    expect(relativeTargets("logic/a.ts", 'import { fryish } from "./fryish-unrelated-dir/x"; import y from "react";').map(isFryTarget)).toEqual([false]);
+  });
+  it("no source file outside the fry's own files imports anything the fry owns", () => {
+    const offenders = all.filter((f) => !OWN(f) && !LATER_SLICES.has(f)).filter((f) => relativeTargets(f, read(f)).some(isFryTarget));
+    expect(offenders).toEqual([]);
+  });
+  it("test files outside the fry's own files do not import it either (only the fry's own tests and the Result's gates may)", () => {
+    const tests = walk(SRC).map(rel).filter((f) => /\.test\.tsx?$/.test(f) && !OWN(f) && !/^data\/fryIngredients\.test\.ts$/.test(f) && !/^preview\/fryPreview\.test\.ts$/.test(f));
+    const offenders = tests.filter((f) => relativeTargets(f, read(f)).some(isFryTarget));
+    expect(offenders).toEqual([]);
+  });
+});
+
 describe("independent of the 炒める prep, the 炙り sear and the 蒸す steam (both directions)", () => {
   const OTHER_NAMES =
     /preparedIngredientIds|preparedLook|PREP_INGREDIENT|prepExperienceGate|prepIngredients|searedLook|SEAR_INGREDIENT|searExperienceGate|searIngredients|logic\/sear|logic\/prep|searPreview|cookPrep|cookSear|steamedLook|STEAM_INGREDIENT|steamExperienceGate|steamPreview|steamIngredients|logic\/steam|cookSteam/;

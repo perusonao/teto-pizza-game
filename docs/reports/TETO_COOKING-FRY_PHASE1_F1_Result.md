@@ -66,7 +66,7 @@ F1 は新規ファイルだけで完了した。どこからも import されず
 ## 5. 検証結果
 | 項目 | 結果 |
 |---|---|
-| fry 専用（8 ファイル） | 75 tests pass |
+| fry 専用（8 ファイル） | 79 tests pass（Codex 指摘の修正後、§5.2） |
 | 全 Vitest | 11,441 pass、失敗 0（§5.1） |
 | `tsc -b` | エラーなし |
 | `oxlint` | fry ファイルへの警告 0（既存の警告のみ） |
@@ -87,3 +87,7 @@ F1 は新規ファイルだけで完了した。どこからも import されず
 2. 時間境界（3.5 秒で crisp、8.5 秒で over）と時間スケール 3 段が HV の出発点でよいか。
 3. F2 の着手条件（#738 merge 後でよいか）。
 4. 技法（Technique）として Dex に出すか（Phase 1 は出さない前提のまま）。
+
+### 5.2 Codex レビュー対応（head `dac0076` への P2 × 2、ともに妥当と確認して修正）
+1. **`fryDrag.ts` の `RELEASE`** だけが時刻を検証せず `lastAt` も更新しなかった。再現: 1000ms に TAP_DOWN → 5000ms に RELEASE → 時計が 2000ms に逆行して TAP_UP すると、逆行を拒否せず経過 1000ms の結果を確定した。`now` の有限性と単調性を他の入力と同じに検査し、有効な RELEASE で `lastAt` を更新するよう修正。回帰テストを追加（修正前のコードでは失敗することを確認）。
+2. **architecture test が名前一致のみ**で、`./fry/fryPot` のような相対 import（例: `scoringV2` から）を検出できなかった。import 元から相対パスを解決して fry 所有ファイルへの依存を検査する方式（import / export from / 副作用 import / 動的 import / CSS `@import`）に変更し、他ファイルのテストからの import も禁止。解決器の単体テストと、実在ファイル（`pitzReward.ts`）に一時的に fry を import して検査が落ちることを変異テストで確認（その後に復元、差分なし）。
