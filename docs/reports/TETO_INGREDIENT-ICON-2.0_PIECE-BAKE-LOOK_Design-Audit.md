@@ -1,8 +1,23 @@
 # Ingredient Icons 2.0 — Tray / Raw / Baked 3 層ビジュアル Design Audit
 
-Status: **設計案（docs-only）。Owner 承認までランタイム実装なし。** 既存の SVG 化作業（Style Lock V2 のバッチ移行）は継続し、
-**データ構造の大きな変更だけ保留**する。
-Base: `main` `0016222`（2026-11-04）。Refs #417、Style Lock V2、#438。
+Status: **方針 GO（Owner 判断 2026-11-04、下の §0）。ランタイム実装 L0 は Steam #738 の merge 後まで HOLD。** 既存の SVG 化作業
+（Style Lock V2 のバッチ移行）は継続し、データ構造の大きな変更だけ保留する。
+Base: 初版は `main` `0016222`。現在の main は `c69cb2b`（Fry #750 merge 後）。本書の調査対象ファイル（`PizzaStage.tsx` /
+`IngredientGlyph.tsx` / `ingredients.ts` / `App.tsx`）は `0016222`→`c69cb2b` で差分なしを確認済み（§1・§3 の記述は有効）。
+Refs #417、Style Lock V2、#438。Fry の食材状態ビジュアルは Draft PR #751（本書への補足。第 2 の描画系は作らない）を参照。
+
+## 0. Owner 判断（2026-11-04）
+
+| # | 項目 | 判断 |
+|---|---|---|
+| ① | 描画方式 | 同一 SVG + CSS 変数 |
+| ② | Pilot | shrimp → bacon → pepperoni（eggplant を含めるかは #751 の件として Owner 判断待ち） |
+| ③ | `pizzaVisual` | 必要になるまで追加しない |
+| ④ | サムネイル / Reference | 生の見た目を維持 |
+| ⑤ | 新旧描画の混在 | 段階移行として許容 |
+| ⑥ | L0 着手 | **Steam #738 の merge 後**（#738 は OPEN。実機 HV の残項目と merge 判断が必要） |
+
+追加の受入条件は §6 の末尾（6b / 6c）に記載した。
 
 ## 1. 現在の描画構造（調査結果）
 
@@ -136,6 +151,28 @@ Base: `main` `0016222`（2026-11-04）。Refs #417、Style Lock V2、#438。
 - 390×844 / 360×800。Tray チップの寸法・タップ領域は不変。
 - Steam / Fry / DRIZZLE / Batch 18 のファイルに触らない（§8）。
 
+### 6b. 調理法（蒸す・炙る・炒める・揚げる）との合成テスト（追加条件）
+
+焼成ルックは、既存・将来の調理法ルックと**干渉しない**ことをテストで固定する。
+
+- 変数の名前空間を分離する: 焼成 `--bake-*`、炙り `--sear-*`、炒め `--beef-*`、蒸し `Steam.css` の変数、揚げ（Fry）は #751 の定義に従う。
+  同じ SVG 部位に 2 系統が同時に `fill` を当てる場合の**優先順位を表で固定**し、テストで検証する。
+- 組み合わせテスト（最低限）: 生 / 焼成のみ / 調理法のみ / 調理法 + 焼成。対象は sausage（炙り）、beef（炒め）、clam・mussel（蒸し）、
+  eggplant（揚げ。Pilot 入りの場合）。**各ルックを単独で適用した結果と、合成結果が互いを打ち消さない**こと。
+- 基準 `toppingVisualFrame` の `filter` は、ルック付き具材で弱める規則を 1 箇所に集約（二重適用がないことをテスト）。
+- 後乗せ（`stage:"post"`）は、どの調理法の変数も `--bake-*` も持たない。
+- `CheesePoolCanvas` 経由の mozzarella、CSS 形状チーズに `--bake-*` が付かない。
+- 合成の規則は Fry #751 と本書で**同じ表**を参照し、片方だけ更新しない。
+
+### 6c. 判別性の受入条件（追加条件）
+
+- **20〜24px 相当で判別できること**を合格の必須条件にする。拡大した SVG 単体の見栄えだけでは合格にしない。
+- 検証は**実際のピザ上**（390×844 / 360×800、PREPARE・BAKE 途中・焼成完了・CUT・RESULT の各状態）の画像と動画で行う。
+- 焼成前後の差が実ピザ上で見えること（生 / 適正 / 焦げの 3 点を同一構図で並べて比較）。差が見えない変化は不採用。
+- Tray / Shop / Dex / Research / Hint / Notebook / RESULT 一覧は焼成変化を反映しない（常に生の Tray Visual）ことを確認。
+- 似た食材との識別（pepperoni ↔ salami ↔ sausage ↔ hot-dog、bacon ↔ ham）が焼成後も保たれること。
+- iPhone Safari 実機の HV は Owner 待ちとして分けて記録する（自動検証では代替しない）。
+
 ## 7. 97 食材への展開計画（現状: SVG 35 / 絵文字 62）
 
 Baked ルックは **SVG がある食材だけ**が対象。SVG 化（既存レーン）とは独立に進め、先にルックが要る食材から追加する。
@@ -180,12 +217,19 @@ Baked ルックは **SVG がある食材だけ**が対象。SVG 化（既存レ�
 | フェーズ | 内容 | Owner 判断 |
 |---|---|---|
 | P0（本書） | 設計監査 | **設計全体の承認**（特に §3 の「`Ingredient` を変えずレジストリ方式」） |
-| P1 | L0: レジストリ・CSS・no-op テスト | #738 merge 後に着手してよいか |
+| P1 | L0: レジストリ・CSS・no-op テスト | **HOLD（#738 merge 後。Owner 判断 ⑥）** |
 | P2 | Pilot shrimp（Preview / HV） | 実機 iPhone Safari HV の方式（V1-LAN） |
 | P3 | Pilot bacon / pepperoni | Style Lock 承認済み SVG の移植順（Batch 2 と同時か） |
 | P4 | 展開（L3〜L5） | Pilot HV PASS 後にバッチ範囲を決定 |
 
-### Owner に決めてほしい点
+### 現在の待機条件と並行してよい作業（2026-11-04 時点）
+
+- **待機**: Steam #738 の Final Gate と merge（OPEN。操作方式は A 選択済み、実機 HV の残項目あり）。それまで L0（ランタイム）は着手しない。
+- **並行してよい**: 既存の食材 SVG 化レーン（新しい Owner 承認の実装 Issue がある範囲）、docs、アセットのみの比較画像。
+  Batch 18（#748）の claim と衝突する `ingredients.ts` / `IngredientGlyph.tsx` の変更は、claim を確認してから。
+- **別件（Owner 判断）**: Fry の eggplant を Pilot に含めるか（Draft PR #751）。
+
+### 当初の Owner に決めてほしい点（§0 で回答済み。経緯として残す）
 
 1. **方式**: 「同一 SVG + CSS 変数」（推奨）か、「Raw / Baked の SVG 2 枚をクロスフェード」か。
 2. **Pilot 3 種**: shrimp → bacon → pepperoni（推奨）でよいか。mushroom は新デザインが要るため Style Lock の対象に加えるか。
