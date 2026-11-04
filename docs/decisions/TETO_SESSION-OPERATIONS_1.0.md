@@ -179,18 +179,24 @@ Reduces repeated audits, reports and Owner questions without relaxing any gate. 
    each other or with fresh repo state.
 4. **Settled spec**: proceed investigation → implementation → related tests → PR without intermediate stops. Fold docs /
    Result Report into the implementation PR. Do not add new audit documents, duplicate Result Reports or docs-only PRs
-   unless the change is docs-only by nature.
+   unless the change is docs-only by nature. Do not split investigation and implementation into separate sessions/PRs
+   unless the work is genuinely independent or needs a different approval.
 5. **Owner-approval waits** (Preview deploy, HV, merge, Production) HOLD only the work that needs them; independent,
-   already-approved work continues. Report the wait as the blocker.
+   already-approved work continues. Report the wait as the blocker. Split independent tasks out early (own branch/PR/session)
+   so they do not queue behind a wait.
 6. **Tests** scale with the change (focused locally). CI follows the existing CI conditions: required gates are never
    skipped or relaxed, and jobs the rules skip (e.g. WebKit for docs-only changes) are not forced to run. Do not re-run on an
-   unchanged head; a rerun is for a failed job only and needs the §2 failure record.
+   unchanged head; a rerun is for a failed job only and needs the §2 failure record. Do not build wait/poll loops: use
+   event notifications (PR/CI/Codex events) and read the CI result once it is delivered; re-verifying the same head is
+   not needed.
 7. **Codex** review covers the current head only (§2); a receipt for an older head is never reused.
 8. **HV** uses the existing Owner iPhone procedure (§3, HV Policy). A new verification method needs Owner approval.
 9. Unchanged: safety gates, Production/Preview separation (§5), Firebase protection. At merge, the target PR's latest head
    is verified to match the reviewed head; if the head changed, stop. This does not depend on any specific API parameter name.
 10. Unchanged: no merge / Production publish / shared-Preview update without Owner approval.
-11. **Status reports** use four items: 完了 / 未完了 / ブロッカー / 次の行動 — state each fact once. This does not replace
+11. **Owner questions** that cannot be avoided are collected and presented once, together, each with a recommendation
+    (not asked one at a time, not re-asked once recorded).
+12. **Status reports** use four items: 完了 / 未完了 / ブロッカー / 次の行動 — state each fact once. This does not replace
     the Result Report required by the HV Policy §10.
 
 ## 9. Changelog
@@ -200,3 +206,4 @@ Reduces repeated audits, reports and Owner questions without relaxing any gate. 
   hides blockers, strict Codex receipt/summary reading with `CODEX_ERROR`, fail-closed fetching, Markdown sanitising,
   directory claims, tolerant `Depends-on`, fenced claim examples ignored.
 - 2026-10-24: Added §8 Efficient flow (Owner-approved); Changelog moved from §8 to §9.
+- 2026-11-04: §8 clarified: no wait loops (event/CI-driven), early split of independent tasks, no needless investigation/implementation split, batched Owner questions. No gate relaxed.
