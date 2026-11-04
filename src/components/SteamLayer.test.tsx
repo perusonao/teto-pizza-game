@@ -268,6 +268,31 @@ describe("operation B: shake the pot", () => {
     expect(openCount()).toBeLessThan(reached);
   });
 
+  it("a finger that leaves the pot and lands on the far side is not a stroke (the steam is kept, the sweep is forgotten)", () => {
+    setup({}, query);
+    openScreen();
+    drag([0, 100]); // one stroke, ends at the far side
+    const level = () => Number(getComputedStyle(steam()!).getPropertyValue("--steam-heat"));
+    const held = level();
+    expect(held).toBeGreaterThan(0);
+    stamped("pointerup", now(), pot(), { buttons: 0, clientX: 100 });
+    stamped("pointerdown", now(), pot(), { buttons: 1, clientX: 0 });
+    advance(40);
+    stamped("pointermove", now(), pot(), { buttons: 1, clientX: 0 });
+    expect(level()).toBe(held);
+  });
+
+  it("pointercancel (an OS gesture took the finger) drops the steam in progress, like a blur; nothing is dispatched", () => {
+    const { onSteam } = setup({}, query);
+    openScreen();
+    drag([0, 100, 0, 100]);
+    expect(steam()).toHaveAttribute("data-mode", "steaming");
+    stamped("pointercancel", now(), pot());
+    expect(steam()).toHaveAttribute("data-mode", "idle");
+    expect(openButton()).toBeDisabled();
+    expect(onSteam).not.toHaveBeenCalled();
+  });
+
   it("the tap alternative alone can open every shell and keep it", () => {
     const { onSteam } = setup({}, query);
     openScreen();

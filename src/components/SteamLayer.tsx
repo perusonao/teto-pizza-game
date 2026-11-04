@@ -304,6 +304,9 @@ function SteamOffer(props: SteamLayerProps & { offered: string; done: boolean })
       /* a pointer that is already gone: nothing more arrives and pointercancel (if any) just ends the drag */
     }
   };
+  // The finger left the pot: the next touch starts a new sweep (a jump to another spot is not a stroke). A cancelled pointer (an OS gesture took it) drops the steam, like a blur.
+  const onPotPointerUp = () => dispatchShake({ type: "LIFT" });
+  const onPotPointerCancel = () => dispatchShake({ type: "INTERRUPT" });
   const onPotPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (variant !== "shake" || finished || event.buttons === 0) return;
     const rect = event.currentTarget.getBoundingClientRect();
@@ -353,6 +356,8 @@ function SteamOffer(props: SteamLayerProps & { offered: string; done: boolean })
         aria-label={variant === "shake" ? "鍋。左右になぞるか左右の矢印キーでゆすれます" : "鍋"}
         onPointerDown={variant === "shake" ? onPotPointerDown : undefined}
         onPointerMove={variant === "shake" ? onPotPointerMove : undefined}
+        onPointerUp={variant === "shake" ? onPotPointerUp : undefined}
+        onPointerCancel={variant === "shake" ? onPotPointerCancel : undefined}
         onKeyDown={variant === "shake" ? onPotKeyDown : undefined}
         onContextMenu={(event) => event.preventDefault()}
       >
