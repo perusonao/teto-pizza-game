@@ -3,6 +3,7 @@ import { useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MARGHERITA_REFERENCE } from "../data/referencePizza";
+import { sauceTargetForPan } from "../logic/pan/squareReference";
 import { ReferencePreview } from "./ReferencePreview";
 
 /**
@@ -80,5 +81,29 @@ describe("ReferencePreview visual consistency (Issue #32 Phase 1)", () => {
     render(<Harness />);
     fireEvent.click(screen.getByRole("presentation"));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+});
+
+describe("ReferencePreview follows the pan (Square Dough E-1)", () => {
+  const barWidths = (dialog: HTMLElement) =>
+    Array.from(dialog.querySelectorAll<HTMLElement>(".reference-preview__bar-fill")).map((el) => el.style.width);
+
+  it("round (absent / 'round') is unchanged: no square modifier, the Reference's own bars", () => {
+    const { rerender } = render(
+      <ReferencePreview reference={MARGHERITA_REFERENCE} recipeNameJa="マルゲリータ" isOpen onOpenChange={() => {}} />,
+    );
+    const absent = barWidths(screen.getByRole("dialog"));
+    expect(screen.getByRole("dialog").querySelector(".reference-mini-pizza--square")).toBeNull();
+    expect(absent).toEqual([`${MARGHERITA_REFERENCE.sauce!.quantity * 100}%`, `${MARGHERITA_REFERENCE.sauce!.coverage * 100}%`]);
+    rerender(<ReferencePreview reference={MARGHERITA_REFERENCE} recipeNameJa="マルゲリータ" isOpen onOpenChange={() => {}} pan="round" />);
+    expect(barWidths(screen.getByRole("dialog"))).toEqual(absent);
+  });
+
+  it("square marks the tile and shows the square sauce targets that Scoring 2.0 now measures against", () => {
+    render(<ReferencePreview reference={MARGHERITA_REFERENCE} recipeNameJa="マルゲリータ" isOpen onOpenChange={() => {}} pan="square" />);
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.querySelector(".reference-mini-pizza.reference-mini-pizza--square")).not.toBeNull();
+    const target = sauceTargetForPan("square", MARGHERITA_REFERENCE.sauce!);
+    expect(barWidths(dialog)).toEqual([`${target.quantity * 100}%`, `${target.coverage * 100}%`]);
   });
 });

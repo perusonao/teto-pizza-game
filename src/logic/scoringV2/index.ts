@@ -20,7 +20,8 @@ import type { Recipe } from "../../data/recipes";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { sauceOwnDeposits } from "../../state/sauceLedger";
 import { REFERENCE_SLOT_MAX_RADIUS } from "../pizzaReferenceLayout";
-import { computeSauceMetrics } from "../sauceField";
+import { effectivePanShape } from "../pan/effectivePan";
+import { sauceMetricsForPan, sauceTargetForPan } from "../pan/squareReference";
 import { scoreBakeComponentV2 } from "./bakeComponent";
 import { scoreSauceComponentV2 } from "./sauceComponent";
 import { scorePiecesComponentV2 } from "./piecesComponent";
@@ -344,6 +345,7 @@ export function computeScoringV2(
   // TQ-1B: a Reference without a sauce has no sauce target to compare against -- the component
   // does not apply (never a fabricated 0 or 100), and the NO_SAUCE profile below drops its weight.
   const referenceSauce = reference.sauce;
+  const pan = effectivePanShape(recipe, safePizza);
   const sauce =
     referenceSauce === null
       ? ({ available: false, reason: NO_SAUCE_NOT_APPLICABLE_REASON } as const)
@@ -351,8 +353,9 @@ export function computeScoringV2(
           // Sauce B1: judged by the reference sauce's OWN deposits (every deposit when the pizza carries one sauce kind,
           // so a single-source pizza -- a wrong sauce included -- scores exactly as before). Another sauce on the pizza
           // never adds to this component; it shows up in the Recipe component's purity as an extra type instead.
-          computeSauceMetrics(sauceOwnDeposits(safePizza, referenceSauce.ingredientId)),
-          referenceSauce,
+          // Square Dough E-1: a tray cook is measured on the square pan against the square Reference (same formulas, D4); round is unchanged.
+          sauceMetricsForPan(pan, sauceOwnDeposits(safePizza, referenceSauce.ingredientId)),
+          sauceTargetForPan(pan, referenceSauce),
         );
   const profile = SCORING_V2_WEIGHT_PROFILES[referenceSauce === null ? "NO_SAUCE" : "STANDARD"];
   const pieces = scorePiecesComponentV2(safePizza.toppings, reference.pieceGroups);

@@ -133,6 +133,10 @@ async function paintSauceRing(
 // confirming is enough to reach RESULT without perturbing any of this suite's own assertions.
 // Mirrors App.test.tsx's own `completeCutStepIfPresent` helper.
 async function completeCutStepIfPresent(user: ReturnType<typeof userEvent.setup>) {
+  // E5: a Free Cooking round (Production: FINISH on) lands on its FINISH step after 取り出す！; 完成 with nothing placed (zero additional
+  // elapsed time at the mocked `now`; FINISH is not Cooking Time) is the single pass these tests have always assumed.
+  const finish = screen.queryByRole("button", { name: "完成" });
+  if (finish) await user.click(finish);
   if (!screen.queryByRole("button", { name: /切り終わる/ })) return;
   const dough = document.querySelector<HTMLElement>('[data-pizza-drop-target="true"]');
   if (!dough) throw new Error("Pizza dough missing");

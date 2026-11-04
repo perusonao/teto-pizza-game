@@ -224,3 +224,22 @@ export function evaluateGate(input) {
     requiredChecks: "UNKNOWN (branch protection / rulesets are not inspected)",
   };
 }
+
+/**
+ * Repository-level data gaps (claims, overlap, an unreadable PR) are facts the Gate could not read. They are
+ * not tied to one PR's row, so they can hide an overlapping claim from any of them: no PR may be READY while
+ * one exists. Only READY is downgraded; every other state already is a blocker of its own.
+ */
+export function applyRepoGaps(results, repoGaps = []) {
+  if (!repoGaps.length) return results;
+  return results.map((r) =>
+    r.state !== READY
+      ? r
+      : {
+          ...r,
+          state: "FACTS_INCOMPLETE",
+          blockers: [...r.blockers, `FACTS_INCOMPLETE: repository-level data gaps (${repoGaps.length}); see "Data gaps" in the report`],
+          nextAction: NEXT.FACTS_INCOMPLETE,
+        },
+  );
+}

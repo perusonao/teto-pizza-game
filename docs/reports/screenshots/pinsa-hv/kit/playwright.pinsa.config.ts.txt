@@ -1,0 +1,4 @@
+import { defineConfig, devices } from "@playwright/test";
+export default defineConfig({ testDir: "./pinsaspec", workers: 1, reporter: [["list"]], outputDir: "./out/pw-pinsa",
+  use: { baseURL: `http://${process.env.HVHOST ?? "127.0.0.1"}:${process.env.HVPORT ?? "4176"}/teto-pizza-game/`, video: "off" },
+  projects: [{ name: "p", use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 }, launchOptions: { executablePath: "/opt/pw-browsers/chromium-1243/chrome-linux64/chrome" } } }] });

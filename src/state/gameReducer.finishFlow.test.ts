@@ -6,6 +6,7 @@ import { gameReducer, type GameState } from "./gameReducer";
 import { createGuidedInitialState } from "./testSupport/guidedRound";
 import { FINISH_FIXTURE_RECIPE as FX, preBakePizza } from "./testSupport/finishFixture";
 import { atBake, bakeValueFor } from "./testSupport/confirmBakeMatrix";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * FINISH FIN-D (Issue #294): the whole Guided round PREPARE -> BAKE -> FINISH -> RESULT -> DISCOVERED through the real reducer, with the
@@ -119,8 +120,8 @@ describe("FIN-D: cooking time during FINISH", () => {
 });
 
 describe("FIN-D: shipped recipes are unaffected", () => {
-  it("every shipped recipe leaves BAKE without FINISH and holds no bake value", () => {
-    for (const recipe of RECIPES) {
+  it("every shipped ordinary recipe leaves BAKE without FINISH and holds no bake value", () => {
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       const state = gameReducer(atBake("guided", recipe.id), { type: "CONFIRM_BAKE", value: bakeValueFor("guided", atBake("guided", recipe.id), "good"), now: 5 });
       expect(state.makingStep === "FINISH", recipe.id).toBe(false);
       expect(state.bakeValue, recipe.id).toBeNull();

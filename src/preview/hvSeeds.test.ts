@@ -121,7 +121,7 @@ describe("PR-4b-B scenarios: the first production pool of 2, and the key-free re
       unlockedForShopIngredientIds: snapshot.unlockedForShopIngredientIds ?? [],
       inventory: snapshot.inventory,
     };
-    expect(snapshot.dex).toHaveLength(27); // 25 W1 recipes + the non-credit aussie (TQ-1D) + chilean-napolitana (Batch 8a), so calabresa is the lone one left
+    expect(snapshot.dex).toHaveLength(28); // 25 W1 recipes + the non-credit aussie (TQ-1D) + chilean-napolitana (Batch 8a) + grandma-pizza (Square Dough E-2), so calabresa is the lone one left
     expect(selectHintTarget(inputs)).toEqual({ kind: "TARGET", recipeId: "brazilian-calabresa", source: "auto" });
     expect(buildHint5Ladder("brazilian-calabresa")!.rungs.map((r) => r.kind)).toEqual(["SAUCE", "STRUCTURE", "SUB_CLASS", "SUB_CLASS", "SUB_CLASS", "SUB_CLASS"]);
   });

@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { applyPreviewHvSeed } from './preview/hvSeeds'
+import { activateCookPrepHv } from './preview/cookPrepHv'
+import { activateCookSearHv } from './preview/cookSearHv'
 
 // Discovery Progression Inspector: a DEV / Preview only, read-only developer screen, opened with
 // `?inspector=discovery`. Both env checks are replaced statically by Vite, so a production build
@@ -29,6 +31,15 @@ const postLayerBenchRequested =
 // Discovery Hint 5.0 H5-5: Preview builds only. `?hv=<scenario>` seeds the Preview save before the
 // app loads it. `import.meta.env.VITE_PREVIEW_MODE` is set only by the Preview build pipeline and is
 // replaced statically, so a production build drops this call and ./preview/hvSeeds.ts with it.
+// Cooking Prep HV entry (`?cookPrepHv=1`): DEV / Preview only, same static gate; swaps in a disposable in-memory save, never touching the real one.
+if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
+  try {
+    // The two HV entries are exclusive: the 炒める one wins when both are asked for.
+    if (!activateCookPrepHv(window)) activateCookSearHv(window)
+  } catch {
+    // A failing entry must never stop the game from starting.
+  }
+}
 if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
   try {
     applyPreviewHvSeed(window.location.search, window.localStorage)

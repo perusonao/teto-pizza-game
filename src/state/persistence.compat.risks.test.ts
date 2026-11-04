@@ -18,7 +18,7 @@ import { memoryStorage } from "./testSupport/memoryStorage";
  *
  * 1. "CURRENT BEHAVIOUR (known risk)" -- characterization. They pin what this build does TODAY so a later change is a
  *    visible, deliberate diff. Several of them describe DATA LOSS. That is NOT the desired spec: each names the Issue
- *    that owns the fix (#282 for R2, #559 for R4/R5) and is expected to be INVERTED, not preserved, when that fix
+ *    that owns the fix (#282 for R2; R4/R5 were fixed by #668 and now assert the desired behaviour below) and is expected to be INVERTED, not preserved, when that fix
  *    lands. Do not "fix" production code to keep one of them green. (R1 and R3, #560, were fixed in Phase B PR-1 and
  *    now assert the desired behaviour below.)
  * 2. "SAFETY REQUIREMENT (not implemented)" -- `it.todo`. The requirement a fix must satisfy. Todos do not fail CI.
@@ -76,7 +76,7 @@ describe("KNOWN RISK R2 (#282): a stale tab's write rolls back what another tab 
     return { tabA, tabB, hydratedA, hydratedB };
   }
 
-  it("CURRENT BEHAVIOUR (known risk): a Dex entry saved by tab B is erased by tab A's later write", () => {
+  it("a Dex entry saved by tab B survives tab A's later write (#668: stored entries are kept); Pitz is still last-writer-wins", () => {
     const { tabA, tabB, hydratedA, hydratedB } = twoTabs();
     persistProgress(snapshotOf(hydratedB, { dex: [...hydratedB.dex, FUGAZZA], pitzBalance: 300 }), tabB); // B discovers fugazza
     expect(loadSave(tabA).dex.map((e) => e.recipeId)).toEqual(["margherita", "fugazza"]);
@@ -84,7 +84,7 @@ describe("KNOWN RISK R2 (#282): a stale tab's write rolls back what another tab 
     persistProgress(snapshotOf(hydratedA, { pitzBalance: 150 }), tabA); // A never saw it and saves its own Pitz
 
     const after = loadSave(tabA);
-    expect(after.dex.map((e) => e.recipeId)).toEqual(["margherita"]); // fugazza is gone (known id: nothing keeps it)
+    expect(after.dex.map((e) => e.recipeId)).toEqual(["margherita", "fugazza"]); // #668: a stored entry `next` lacks is appended, not erased
     expect(after.pitzBalance).toBe(150); // B's 300 is overwritten (last writer wins, as #282 describes)
   });
 
@@ -150,14 +150,13 @@ describe("Dex entry boundaries (R4)", () => {
     expect(loadSave(memoryStorage({ [SAVE_STORAGE_KEY]: stored([MARGHERITA, entry({ bestScore: 10 })]) })).dex).toEqual([MARGHERITA]);
   });
 
-  it("CURRENT BEHAVIOUR (known risk): an out-of-range entry for a KNOWN recipe is erased from storage by the next write", () => {
-    const storage = memoryStorage({ [SAVE_STORAGE_KEY]: stored([entry({ bestScore: 120 }), FUGAZZA]) });
+  it("#668 (R4): an out-of-range entry for a KNOWN recipe is NOT loaded, and is kept verbatim by the next write", () => {
+    const wide = entry({ bestScore: 120 });
+    const storage = memoryStorage({ [SAVE_STORAGE_KEY]: stored([wide, FUGAZZA]) });
     persistProgress(snapshotOf(loadSave(storage), { pitzBalance: 5 }), storage);
-    const ids = (rawSave(storage).dex as DexEntry[]).map((e) => e.recipeId);
-    expect(ids).toEqual(["fugazza"]); // margherita's record (possibly valid under a newer build's range) is gone
+    expect(loadSave(storage).dex.map((e) => e.recipeId)).toEqual(["fugazza"]); // gameplay still never sees it
+    expect(rawSave(storage).dex).toEqual([FUGAZZA, wide]); // an entry a newer build wrote with a wider range is not erased
   });
-
-  it.todo("SAFETY REQUIREMENT (not implemented, #559 follow-up): an entry a newer build wrote with a wider valid range is not erased by this build's write");
 });
 
 describe("Unknown fields (R5)", () => {
@@ -187,13 +186,14 @@ describe("Unknown fields (R5)", () => {
     expect(Object.prototype.hasOwnProperty.call(rawSave(storage), "polluted")).toBe(false);
   });
 
-  it("CURRENT BEHAVIOUR (known risk): an unknown field inside a KNOWN Dex entry is dropped on load and erased by the next write", () => {
+  it("#668 (R5): an unknown field inside a KNOWN Dex entry is dropped on load (never reaches gameplay) but survives the next write", () => {
     const raw = JSON.stringify({ schemaVersion: 2, dex: [{ ...MARGHERITA, bestBakeLevel: 3 }], pitzBalance: 0, ownedIngredientIds: [], missionBest: {}, inventory: {} });
     const storage = memoryStorage({ [SAVE_STORAGE_KEY]: raw });
     const loaded = loadSave(storage);
     expect(loaded.dex[0]).toEqual(MARGHERITA);
     persistProgress(snapshotOf(loaded, { pitzBalance: 1 }), storage);
-    expect((rawSave(storage).dex as Record<string, unknown>[])[0]).not.toHaveProperty("bestBakeLevel");
+    expect((rawSave(storage).dex as Record<string, unknown>[])[0]).toEqual({ ...MARGHERITA, bestBakeLevel: 3 });
+    expect(loadSave(storage).dex[0]).toEqual(MARGHERITA);
   });
 
   it("CURRENT BEHAVIOUR (known risk): a non-integer Mission BEST is dropped on load (a future float score would be lost)", () => {
@@ -201,7 +201,7 @@ describe("Unknown fields (R5)", () => {
     expect(loadSave(memoryStorage({ [SAVE_STORAGE_KEY]: raw })).missionBest).toEqual({ "lunch-rush-v2": 800 });
   });
 
-  it.todo("SAFETY REQUIREMENT (not implemented, #559 follow-up): unknown sub-fields of a known Dex entry survive a write by an older build");
+  // The matrix for the Dex fix (A-F, limits, size, idempotence, reset) is persistence.dexRaw.test.ts.
 });
 
 describe("Pitz and inventory sanitizing", () => {

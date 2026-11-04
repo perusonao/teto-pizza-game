@@ -23,7 +23,7 @@ const FREE_BAKE = { start: 58, end: 78 };
 const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 
-const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie", "chilean-napolitana"].filter((id) => id !== "pesto-gamberi");
+const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza"].filter((id) => id !== "pesto-gamberi");
 const OWNED_BEFORE = materialsUpTo(25);
 const UNLOCKED = materialsUpTo(26);
 
@@ -96,7 +96,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
     await open(page, saveJson());
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`29/${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`30/${CATALOG_COUNTS.recipes}`));
     await hold(page);
 
     // 1. Shop: shrimp is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
@@ -106,7 +106,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await expect(shrimp).toHaveCount(1);
     await expect(shrimp).toHaveAttribute("data-shop-state", "NEW");
     await expect(shrimp).toContainText("エビ");
-    await expect(shrimp).toContainText("🦐");
+    await expect(shrimp.locator('svg[data-ingredient-visual="shrimp-curl"]')).toHaveCount(1); // peeled-shrimp art (was 🦐)
     await expect(shrimp).toContainText("10ピザ分（30個）");
     await expect(shrimp).toContainText(/初回 .*100 Pitz/);
     await shrimp.scrollIntoViewIfNeeded();
@@ -121,13 +121,13 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await page.locator(".shop-overlay__panel").getByRole("button", { name: "閉じる" }).click();
     await expect(page.locator(".shop-overlay__panel")).toHaveCount(0);
 
-    // 2. Inventory: shrimp is listed as an individual ingredient (🦐), seafood shelf.
+    // 2. Inventory: shrimp is listed as an individual ingredient (peeled-shrimp art), seafood shelf.
     await page.getByRole("button", { name: /材料/ }).click();
     await page.waitForSelector(".inventory-overlay__panel");
     const invRow = page.locator(".inventory-overlay__panel").getByText("エビ").first();
     await invRow.scrollIntoViewIfNeeded();
     await expect(invRow).toBeVisible();
-    await expect(page.locator(".inventory-overlay__panel")).toContainText("🦐");
+    await expect(page.locator(".inventory-overlay__panel").locator('svg[data-ingredient-visual="shrimp-curl"]').first()).toBeVisible();
     await noOverflow(page, "inventory");
     await capture(page, "exp1-inventory-shrimp", project);
     await hold(page, 2200);
@@ -217,11 +217,11 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`30\\s*/\\s*${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`31\\s*/\\s*${CATALOG_COUNTS.recipes}`));
     const card = page.locator(".dex-card").filter({ hasText: "ペストガンベリピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.12");
-    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("13/18");
+    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("13/19"); // (Expansion Batch 12: + supreme-pizza in chapter 3)
     await card.scrollIntoViewIfNeeded();
     await noOverflow(page, "Dex");
     await capture(page, "exp1-dex-no12", project);

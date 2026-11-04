@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG, RECIPE_DISCOVERY_TARGET_IDS } from "./discoveryCatalog";
 import { RECIPES, type BaseRecipeId } from "./recipes";
 import { getReferencePizza } from "./referencePizza";
-import { createEmptyPizza } from "../state/pizzaState";
+import { isLateRecipeId, referencePizzaWithLateStage } from "../logic/catalog/testSupport/lateIds";
 import { evaluateDiscovery, matchDiscovery } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
 import {
@@ -13,10 +13,36 @@ import {
   type Phase2Profile,
 } from "../logic/discovery/testSupport/phase2Matrix";
 import { noSauceRecipeIds } from "./recipeSauceProfiles";
+import { LATE_DISCOVERY_TARGET_IDS } from "./lateCatalog";
 
 function signatureKey(t: { items: readonly string[]; identityDimensions: unknown }): string {
   return JSON.stringify([[...t.items].sort(), t.identityDimensions]);
 }
+
+const BATCH10_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["curry-pizza-japan", "rendang-pizza", "tandoori-paneer-pizza"];
+// B11 S1 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the Phase-2 matrix classifies these two rows BLOCKED_PRODUCT_DECISION (COMPOSITION_CONFLICT_CANDIDATE), so they have no SHIPPED_KEEP target; the Owner approval of B11 S1 ships them.
+// expansionBatch11.s1.test.ts pins their exact ingredient sets.
+const B11_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["boscaiola", "porcini-pizza"];
+// Expansion Batch 12 (Issue #707, PROVISIONAL SPEC, original NOT confirmed): supreme-pizza and pizza-alla-norma are Phase-2 BLOCKED_PRODUCT_DECISION rows (COMPOSITION_CONFLICT_CANDIDATE vs an unshipped catalog candidate) adopted with the PIZZA DB composition.
+// OWNER APPROVAL PENDING (the PR is not merged without it); expansionBatch12.test.ts pins their exact ingredient sets against the 172 matrix.
+const BATCH12_PHASE2_BLOCKED_OWNER_APPROVAL_PENDING: readonly string[] = ["supreme-pizza", "pizza-alla-norma"];
+// B12 (Issue #706): the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED: the source sauce field is 'その他'). It is implemented as NO_SAUCE
+// as a GAMEPLAY ASSUMPTION and is NOT yet Owner-approved: the Owner's decision on that assumption is a merge condition of the B12 PR (not a precedent for later batches).
+const B12_PHASE2_BLOCKED_PENDING_OWNER: readonly string[] = ["jamaican-jerk-chicken-pizza"];
+// Expansion Batch 13 (Issue #708): the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED); shipped as NO_SAUCE for this one row only (Owner decision 2026-10-30), PROVISIONAL SPEC, original NOT confirmed.
+const BATCH13_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["potato-mayo-pizza"];
+// Expansion Batch 14: the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (UNRESOLVED_INGREDIENT: the sauce field 'ホワイトソース' is ambiguous; its only related id is fromage-blanc-sauce). Owner decision: the existing
+// fromage-blanc-sauce stands in for it, for this one recipe only (an Owner-approved exception to the Phase-2 composition; NOT a NO_SAUCE exception). PROVISIONAL SPEC, original NOT confirmed. The matrix itself is unchanged.
+const BATCH14_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["moussaka-style-pizza"];
+// Expansion Batch 15 (Issue #728): the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED: the source sauce field is 'その他'). Shipped as NO_SAUCE as a SUYA-ONLY Owner exception (2026-11-02);
+// it is NOT a general rule for unspecified sauce fields, and no other BASE_SAUCE_UNSPECIFIED row is exempted here. PROVISIONAL SPEC, original pizzadb.jp NOT confirmed. expansionBatch15.test.ts pins its exact ingredient set against the 172 matrix.
+const BATCH15_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["nigerian-suya-pizza"];
+// Expansion Batch 16 (Issue #736): the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED: the source sauce field is 'その他'). Shipped with 梅肉 (umeboshi-paste) read as the PAINT sauce, as a B16-ONLY Owner exception (2026-11-03);
+// it is NOT a general rule for unspecified sauce fields, and no other BASE_SAUCE_UNSPECIFIED row is exempted here. PROVISIONAL SPEC, original pizzadb.jp NOT confirmed. expansionBatch16.test.ts pins its exact ingredient set against the 172 matrix.
+const BATCH16_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["ume-shiso-pizza"];
+// Expansion Batch 17 (Issue #741): the Phase-2 matrix classifies this row BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED: the source sauce field is 'その他'). Shipped with サワークリーム (sour-cream) read as the PAINT sauce, as a B17-ONLY Owner exception (2026-11-03);
+// it is NOT a general rule for unspecified sauce fields, and no other BASE_SAUCE_UNSPECIFIED row is exempted here. PROVISIONAL SPEC, original pizzadb.jp NOT confirmed. expansionBatch17.test.ts pins its exact ingredient set against the 172 matrix.
+const BATCH17_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["goulash-pizza"];
 
 describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("has exactly one target per production recipe, in RECIPES order", () => {
@@ -28,11 +54,38 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
     const phase2 = new Map(phase2Targets("SHIPPED_KEEP").map((t) => [t.targetId, t]));
     for (const t of RECIPE_DISCOVERY_CATALOG) {
       if (t.recipeId === "brazilian-calabresa") continue; // PR-4b-B: production-only (no Phase-2 row)
+      // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md): the Phase-2 design matrix classifies these three rows BLOCKED_EVIDENCE (the curry base sauce is unresolved / unspecified there);
+      // the Owner's approval (curry-ketchup as the base, D-B3) supersedes it, so they have no SHIPPED_KEEP target. expansionBatch10.pr1.test.ts pins their exact ingredient sets.
+      if (BATCH10_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (B11_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (BATCH12_PHASE2_BLOCKED_OWNER_APPROVAL_PENDING.includes(t.recipeId)) continue;
+      if (B12_PHASE2_BLOCKED_PENDING_OWNER.includes(t.recipeId)) continue;
+      if (BATCH13_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (BATCH14_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (BATCH15_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (BATCH16_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (BATCH17_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (isLateRecipeId(t.recipeId)) continue; // E5: the late target has no Phase-2 row; lateCatalog.ikura.test.ts pins it
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);
       expect(expected, t.recipeId).toBeDefined();
-      expect(t.items).toEqual([...expected!.items].sort());
-      expect(t.capabilities).toEqual(expected!.capabilities);
-      expect(t.identityDimensions).toEqual(expected!.identityDimensions);
+      // Square Dough E-2: the Phase-2 row of grandma-pizza lists MULTI_SPREAD_LAYER and `spreadLayers: [olive-oil, tomato-sauce]`, but no capability of that name is runtime-supported (a target that requires one is unmatchable)
+      // and the runtime does not observe `spreadLayers` (null, like every other target); the two-sauce engine (B1 / B2) needs neither, and the two sauces are already in \`items\` / \`sauceBase\`. Its identity instead declares
+      // \`pan: "tray"\` (Owner decision 2026-10-17/18, F1: the pan axis is OBSERVED). Everything else about the target stays checked.
+      const grandma = t.recipeId === "grandma-pizza";
+      // B11 S1, the ONLY Owner-approved deviation from a SHIPPED_KEEP target (Owner decision 2026-10-28, option A; GAMEPLAY ASSUMPTION, original NOT confirmed): pescatore omits the matrix's olive-oil (a single tomato-sauce, no MULTI_SPREAD_LAYER).
+      // Exactly three differences are allowed and each is asserted below: items without olive-oil, no capability, `spreadLayers: null`. Every other item / dimension is still compared with the matrix, which is unchanged.
+      const pescatore = t.recipeId === "pescatore";
+      const expectedItems = pescatore ? expected!.items.filter((i) => i !== "olive-oil") : expected!.items;
+      if (pescatore) {
+        expect(expected!.items).toContain("olive-oil");
+        expect(expected!.capabilities).toEqual(["MULTI_SPREAD_LAYER"]);
+        expect(expected!.identityDimensions.spreadLayers).toEqual(["tomato-sauce", "olive-oil"]);
+      }
+      expect(t.items).toEqual([...expectedItems].sort());
+      expect(t.capabilities).toEqual(grandma || pescatore ? [] : expected!.capabilities);
+      expect(t.identityDimensions).toEqual(
+        grandma ? { ...expected!.identityDimensions, spreadLayers: null, pan: "tray" } : pescatore ? { ...expected!.identityDimensions, spreadLayers: null } : expected!.identityDimensions,
+      );
       expect(t.eligibility).toEqual({ status: "ELIGIBLE" });
     }
   });
@@ -66,17 +119,12 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
   it("12. every shipped recipe's own reference pizza is discovered as that recipe, and only it", () => {
     for (const recipe of RECIPES) {
       const reference = getReferencePizza(recipe.id)!;
-      const pizza = {
-        ...createEmptyPizza(),
-        sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
-        toppings: reference.pieceGroups.flatMap((g, gi) =>
-          g.positions.map((p, i) => ({ id: `${gi}-${i}`, ingredientId: g.ingredientId, ...p })),
-        ),
-      };
+      const pizza = referencePizzaWithLateStage(recipe, reference);
+      // E5: the late recipe's FINISH pieces carry `stage: "post"` (referencePizzaWithLateStage).
       expect(evaluateDiscovery(signatureOfPizza(pizza), RECIPE_DISCOVERY_CATALOG, [])).toEqual({
         kind: "NEW_DISCOVERY",
         recipeId: recipe.id,
-        targetId: RECIPE_DISCOVERY_TARGET_IDS[recipe.id as BaseRecipeId],
+        targetId: RECIPE_DISCOVERY_TARGET_IDS[recipe.id as BaseRecipeId] ?? LATE_DISCOVERY_TARGET_IDS[recipe.id],
       });
     }
   });

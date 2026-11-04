@@ -235,3 +235,43 @@ describe("PizzaStage: a topping a cut slices shows its part in the neighbouring 
     expect(copiesIn(container)).toBe(1);
   });
 });
+
+describe("PizzaStage cut pieces: a squeezed mayo stroke (Expansion Batch 13)", () => {
+  /** A long mayo stroke across the pizza, anchored on its right half. A margherita fixture + the mayo piece appended (the stage draws what the pizza holds). */
+  const base = bakedMargheritaAtCut();
+  const trail = [{ x: 40, y: 40 }, { x: 50, y: 40 }, { x: 60, y: 40 }, { x: 70, y: 40 }, { x: 80, y: 40 }];
+  const withMayo: GameState = { ...base, pizza: { ...base.pizza, toppings: [...base.pizza.toppings, { id: "mayo-1", ingredientId: "mayo", x: 60, y: 40, trail }] } };
+
+  it("is drawn in every piece it crosses (each through its own clip), not only the piece round its anchor", () => {
+    const { container } = render(stage(withMayo, [through(90)], "CUT")); // a vertical cut at x = 50
+    const pieces = [...container.querySelectorAll<HTMLElement>(".pizza-piece")];
+    expect(pieces).toHaveLength(2);
+    const drawnIn = pieces.map((piece) => piece.querySelectorAll('svg.pizza-squeeze-trail[data-squeeze-trail-for="mayo-1"]').length);
+    expect(drawnIn).toEqual([1, 1]); // left AND right
+  });
+
+  it("a stroke that stays on one side is drawn in that piece only", () => {
+    const left = [{ x: 20, y: 40 }, { x: 30, y: 40 }, { x: 40, y: 40 }];
+    const oneSide: GameState = { ...withMayo, pizza: { ...withMayo.pizza, toppings: [...base.pizza.toppings, { id: "mayo-2", ingredientId: "mayo", x: 30, y: 40, trail: left }] } };
+    const { container } = render(stage(oneSide, [through(90)], "CUT"));
+    const pieces = [...container.querySelectorAll<HTMLElement>(".pizza-piece")];
+    const drawnIn = pieces.map((piece) => piece.querySelectorAll("svg.pizza-squeeze-trail").length);
+    expect(drawnIn.reduce((a, b) => a + b, 0)).toBe(1);
+  });
+
+  it("a straight stroke of two far-apart samples is drawn in EVERY piece its segment crosses (not only the pieces round its two ends)", () => {
+    const straight = [{ x: 21.2, y: 40 }, { x: 78.8, y: 40 }];
+    const state2: GameState = { ...base, pizza: { ...base.pizza, toppings: [...base.pizza.toppings, { id: "mayo-3", ingredientId: "mayo", x: 50, y: 40, trail: straight }] } };
+    const cuts = [30, 40, 60, 70].map((x) => ({ start: { x, y: 2 }, end: { x, y: 98 }, path: [{ x, y: 2 }, { x, y: 98 }] }) as CutLine);
+    const { container } = render(stage(state2, cuts, "CUT"));
+    const pieces = [...container.querySelectorAll<HTMLElement>(".pizza-piece")];
+    expect(pieces).toHaveLength(5);
+    const drawnIn = pieces.map((piece) => piece.querySelectorAll('svg.pizza-squeeze-trail[data-squeeze-trail-for="mayo-3"]').length);
+    expect(drawnIn).toEqual([1, 1, 1, 1, 1]);
+  });
+
+  it("an uncut pizza draws it once, as before", () => {
+    const { container } = render(stage(withMayo, [], "CUT"));
+    expect(container.querySelectorAll("svg.pizza-squeeze-trail")).toHaveLength(1);
+  });
+});

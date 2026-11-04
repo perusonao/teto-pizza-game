@@ -48,6 +48,8 @@ import { recipeDiscoveryState } from "../../state/recipeDiscoveryState";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { legacyResultNearMiss as resultNearMiss } from "../../state/resultNearMiss";
+import { answerVariantOf, placeFinishPieces } from "./lateFinishSim";
+import { trayPanForIds } from "./requiredSauces";
 
 export type HintPrices = readonly [h1: number, h2: number, h3: number, h4: number];
 
@@ -184,7 +186,7 @@ function pizzaOf(ids: readonly string[]): PizzaState {
       n += 1;
     }
   }
-  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce).slice(0, 1), toppings, bakeResult: BAKE_VALUE };
+  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce), toppings, bakeResult: BAKE_VALUE };
 }
 
 /** What the revealed hint lines tell the player (read from the lines themselves). */
@@ -251,10 +253,12 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
   };
 
   /** One Free Cooking round with `ids`; returns the RESULT->DISCOVERED state. */
-  function bakeRaw(ids: readonly string[]): GameState {
+  function bakeRaw(ids: readonly string[], recipeId?: string): GameState {
     const before = s.inventory;
-    s = { ...act(s, { type: "START_FREE_COOK" }), pizza: pizzaOf(ids) };
+    const { post, dough } = answerVariantOf(ids, recipeId); // E5: the late recipe's post-bake part is placed in FINISH; Pinsa (#577): and its dough is chosen
+    s = { ...act(s, { type: "START_FREE_COOK" }), pizza: { ...pizzaOf(ids.filter((id) => !post.includes(id))), ...trayPanForIds(ids), ...(dough ? { dough } : {}) } };
     s = act(s, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: BAKE_VALUE });
+    s = placeFinishPieces(s, post, piecesOf);
     for (let i = 0; i < 6 && s.phase !== "RESULT"; i += 1) s = act(s, { type: "CONFIRM_MAKING_STEP" });
     if (s.phase !== "RESULT") throw new Error(`bake did not reach RESULT (${ids.join("+")})`);
     if (s.score) s = { ...s, score: { ...s.score, total: qualityTotal, stars: starsFromTotal(qualityTotal) } };
@@ -422,7 +426,7 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
       if (!pick) throw new Error(`Dex ${dexCount}: OPEN_POOL without a candidate`);
       const answer = [...new Set(pick.requiredIngredients.map((r) => r.ingredientId))];
       ensureStock(answer);
-      bakeRaw(answer);
+      bakeRaw(answer, pick.id);
       acc.experimental += 1;
       if (s.lastDiscovery?.kind !== "NEW_DISCOVERY") throw new Error(`Dex ${dexCount}: pool candidate ${pick.id} not discovered`);
       const reward = creditOf(s);
@@ -583,7 +587,7 @@ export function simulateHintEconomy(options: SimOptions): SimResult {
       // The search model gave up: bake the answer (counted as an exhausted stage, not a deadlock).
       const answer = [...new Set(target.requiredIngredients.map((r) => r.ingredientId))];
       ensureStock(answer);
-      bakeRaw(answer);
+      bakeRaw(answer, target.id);
       acc.experimental += 1;
       discoveryReward = creditOf(s);
     }

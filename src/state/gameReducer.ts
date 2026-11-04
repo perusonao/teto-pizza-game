@@ -101,6 +101,7 @@ import { isValidDoughShape, type DoughShape } from "../logic/doughShape";
 import { isValidSquareDough, type SquareDough } from "../logic/pan/squareDough";
 import { activePanShape } from "../preview/panShapePreview";
 import { getPanGeometry } from "../logic/pan/panGeometry";
+import { anchorCandidates, isSqueezeIngredientId, normalizeTrail, shiftTrail, trailAnchor } from "../logic/squeeze";
 import { cookingProfileForPan } from "../logic/pan/panProfile";
 import { effectivePanShape } from "../logic/pan/effectivePan";
 import type { PanShape } from "../logic/pan/panShape";
@@ -109,6 +110,12 @@ import { doughSwitchOffered, pizzaWithDough, startingPizzaFor } from "./doughSel
 import type { DoughKind } from "../logic/dough/doughKind";
 import { findOpenSpotOnPan } from "../logic/pan/panPlacement";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
+import { canPrepIngredient } from "../data/prepIngredients";
+import { canSearIngredient } from "../data/searIngredients";
+import { searExperienceEnabled } from "../data/searExperienceGate";
+import { canSteamIngredient } from "../data/steamIngredients";
+import { steamExperienceEnabled } from "../data/steamExperienceGate";
+import { prepExperienceEnabled } from "../data/prepExperienceGate";
 import {
   isOnboardingHintSession,
   purchaseSelectableHintFact,
@@ -332,6 +339,20 @@ export interface GameState {
   justGotNewBest: boolean;
   hint: DialogueLine | null;
   placement: PlacementFeedback | null;
+  /** Cooking Prep Phase 1 (PR-A): ingredient ids the player has prepped (炒めた) this round. Transient and ingredient-level: absent = none.
+   *  Display-only -- scoring, identification, inventory, completion, the Dex and every save read `pizza` / `recipe` only, never this.
+   *  Never persisted; RESET_PIZZA removes the property itself. See ../data/prepIngredients.ts, ../data/prepExperienceGate.ts. */
+  preparedIngredientIds?: readonly string[];
+  /** Cooking Prep Phase 1B: how far into the pan time each prepped ingredient was taken out (0..1, `PREP_INGREDIENT`'s `progress`). Transient, display-only,
+   *  same life as `preparedIngredientIds`: never persisted, removed by RESET_PIZZA, read by nothing but the piece colour. Absent = the cooked look. */
+  preparedLook?: Readonly<Record<string, number>>;
+  /** Cooking Sear Phase 1 (Issue #724): how far each long-press-seared ingredient was seared (0..1, `SEAR_INGREDIENT`'s `amount`). Transient and display-only:
+   *  never persisted, removed by RESET_PIZZA, read by nothing but the piece colour. Its keys are the seared ingredients. Absent = none. Independent of the 炒める prep. */
+  searedLook?: Readonly<Record<string, number>>;
+  /** Cooking Steam Phase 1 (Issue #726, S2): how far each steamed ingredient (clam / mussel) was steamed (`STEAM_INGREDIENT`'s `amount`, the number `steamResultOf` keeps, 0..1).
+   *  Transient and display-only, same life as `searedLook`: never persisted, removed by RESET_PIZZA, read by nothing but the piece look. Its keys are the steamed
+   *  ingredients. Absent = none. Independent of the 炒める prep and the 炙り sear. */
+  steamedLook?: Readonly<Record<string, number>>;
   /** Issue #38 E-P1/E-P2: canonical transient RESULT/DISCOVERED display snapshot for the
    *  per-pizza Pitz credit `REGISTER_TO_DEX` just applied (../logic/pitzReward.ts) -- the display
    *  layer reads these five numbers rather than recomputing any of them (same discipline
@@ -470,10 +491,19 @@ export type GameAction =
   // reflect a stroke the player didn't actually finish. The reducer validates the ingredient
   // against the current recipe's shared sauce profile for both FREE and Lunch Rush.
   | { type: "COMMIT_SAUCE_DISPENSE"; ingredientId: string; deposits: SauceDeposit[] }
-  | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number }
+  | { type: "PLACE_TOPPING"; ingredientId: string; x: number; y: number; trail?: readonly { x: number; y: number }[] }
   // Cooking Steps 2.0 Phase 1 (Issue #449 / #270): takes back the piece placed last in the current CHEESE / TOPPING
   // step. No payload; see ./undoPlacement.ts for the rule (PREPARE only, never Lunch Rush, never a confirmed step).
   | { type: "UNDO_LAST_PLACEMENT" }
+  // Cooking Prep Phase 1 (PR-A): marks one prep-able ingredient (beef) as prepped for this round. TOPPING step of a GUIDED / FREE_COOK round only,
+  // behind PREP_EXPERIENCE_PRODUCTION / the Preview opt-in. Optional: nothing requires it and nothing can fail.
+  | { type: "PREP_INGREDIENT"; ingredientId: string; progress?: number }
+  // Cooking Sear Phase 1 (Issue #724): marks one sear-able ingredient (sausage) as seared for this round, at the amount the player's long press reached.
+  // TOPPING step of a GUIDED / FREE_COOK round only, behind SEAR_EXPERIENCE_PRODUCTION / the Preview opt-in. Optional: nothing requires it and nothing can fail.
+  | { type: "SEAR_INGREDIENT"; ingredientId: string; amount: number }
+  // Cooking Steam Phase 1 (Issue #726, S2): marks one steam-able ingredient (clam / mussel) as steamed for this round at the amount the steam pot kept. TOPPING step of a
+  // GUIDED / FREE_COOK round only, behind STEAM_EXPERIENCE_PRODUCTION (fixed OFF) / the Preview opt-in. Optional: nothing requires it and nothing can see it but the piece look.
+  | { type: "STEAM_INGREDIENT"; ingredientId: string; amount: number }
   // Issue #33 D1: commits one complete DOUGH radial-stretch gesture's final shape as a
   // single atomic replacement of `pizza.doughShape` -- mirrors COMMIT_SAUCE_DISPENSE's own
   // "PizzaStage buffers locally, dispatches once at a successful pointerup" contract
@@ -1062,7 +1092,12 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (!Number.isFinite(action.x) || !Number.isFinite(action.y)) return state;
       // Square-Pan Dough D1-b: the drop must lie on this round's pan (the round pan's `contains` is `isInsideDough` itself).
       const pan = getPanGeometry(effectivePanShape(state.recipe, state.pizza));
-      if (!pan.contains(action.x, action.y)) return state;
+      // Expansion Batch 13 (#708, "案A"): a squeezable topping (mayo) may arrive with its stroke. The reducer is the boundary: it keeps the stroke only
+      // for such an ingredient in a pre-bake round, thins and caps it (60% of the dough's diameter), clamps every point onto the pan, and anchors the
+      // piece at the stroke's midpoint. Anything that is not a clean stroke is placed as the ordinary single drop at (x, y).
+      const rawTrail = !inFinish && isSqueezeIngredientId(action.ingredientId) ? normalizeTrail(action.trail, (px, py) => pan.clamp(px, py)) : null;
+      const anchor = rawTrail ? trailAnchor(rawTrail) : { x: action.x, y: action.y };
+      if (!pan.contains(anchor.x, anchor.y)) return state;
       // Same ownership boundary as APPLY_SAUCE above.
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       // Issue #32 Phase 2: PLACE_TOPPING is shared by both CHEESE and TOPPING ingredients
@@ -1102,10 +1137,25 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           },
         };
       }
-      const spot =
+      const openSpotNear = (px: number, py: number) =>
         pan.shape === "round"
-          ? findOpenSpot(state.pizza.toppings, action.x, action.y)
-          : findOpenSpotOnPan(pan, state.pizza.toppings, action.x, action.y, MIN_TOPPING_DISTANCE);
+          ? findOpenSpot(state.pizza.toppings, px, py)
+          : findOpenSpotOnPan(pan, state.pizza.toppings, px, py, MIN_TOPPING_DISTANCE);
+      let spot = openSpotNear(anchor.x, anchor.y);
+      // A stroke whose midpoint is taken keeps its drawn line EXACTLY (what the finger drew is what stays) and slides its piece along that line to the
+      // first free point (midpoint outward to both ends); only when no point of the line is free is the whole stroke nudged with the piece, as before.
+      let slidOnLine = false;
+      // (also when the search around the midpoint found nothing: `findOpenSpot` only looks ~22% around it, while the stroke may reach 58% across)
+      if (rawTrail && (!spot || spot.x !== anchor.x || spot.y !== anchor.y)) {
+        for (const candidate of anchorCandidates(rawTrail)) {
+          const free = openSpotNear(candidate.x, candidate.y);
+          if (free && free.x === candidate.x && free.y === candidate.y) {
+            spot = free;
+            slidOnLine = true;
+            break;
+          }
+        }
+      }
       placementTokenCounter += 1;
 
       if (!spot) {
@@ -1131,10 +1181,12 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             x: spot.x,
             y: spot.y,
             ...(inFinish ? { stage: "post" as const } : {}),
+            // The stroke moves with the piece when the open-spot search nudged its anchor.
+            ...(rawTrail ? { trail: slidOnLine ? rawTrail : shiftTrail(rawTrail, spot.x - anchor.x, spot.y - anchor.y, (px, py) => pan.clamp(px, py)) } : {}),
           },
         ],
       };
-      const wasAdjusted = spot.x !== action.x || spot.y !== action.y;
+      const wasAdjusted = !slidOnLine && (spot.x !== anchor.x || spot.y !== anchor.y);
       return {
         ...state,
         pizza,
@@ -1147,6 +1199,50 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           token: placementTokenCounter,
         },
       };
+    }
+
+    case "PREP_INGREDIENT": {
+      // Every refusal returns the SAME state reference. The reducer is the backstop (the UI will only offer the prep when this would pass):
+      // flag OFF, Lunch Rush / Dinner (ranking fairness; Dinner has no fixed recipe until START_BAKE), any step but TOPPING, a non-target
+      // ingredient (or one without its dedicated visual), an ingredient the player does not own, or one already prepped.
+      // Nothing is consumed and nothing but `preparedIngredientIds` changes, so pizza / score / completion / inventory are untouched.
+      if (!prepExperienceEnabled()) return state;
+      if (state.phase !== "PREPARE" || state.makingStep !== "TOPPING") return state;
+      if (state.roundKind !== "GUIDED" && state.roundKind !== "FREE_COOK") return state;
+      if (!canPrepIngredient(action.ingredientId)) return state;
+      if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      if (state.preparedIngredientIds?.includes(action.ingredientId)) return state;
+      // Phase 1B: an optional `progress` (how long the player pan-fried it). A value that is not a finite number is refused outright (same state).
+      if (action.progress !== undefined && !Number.isFinite(action.progress)) return state;
+      const prepared = { ...state, preparedIngredientIds: [...(state.preparedIngredientIds ?? []), action.ingredientId] };
+      if (action.progress === undefined) return prepared;
+      return { ...prepared, preparedLook: { ...(state.preparedLook ?? {}), [action.ingredientId]: Math.min(1, Math.max(0, action.progress)) } };
+    }
+
+    case "SEAR_INGREDIENT": {
+      // Every refusal returns the SAME state reference (the UI only offers it when this would pass). Nothing is consumed and nothing but `searedLook`
+      // changes, so pizza / score / completion / inventory are untouched.
+      if (!searExperienceEnabled()) return state;
+      if (state.phase !== "PREPARE" || state.makingStep !== "TOPPING") return state;
+      if (state.roundKind !== "GUIDED" && state.roundKind !== "FREE_COOK") return state;
+      if (!canSearIngredient(action.ingredientId)) return state;
+      if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      if (state.searedLook?.[action.ingredientId] !== undefined) return state;
+      if (!Number.isFinite(action.amount)) return state;
+      return { ...state, searedLook: { ...(state.searedLook ?? {}), [action.ingredientId]: Math.min(1, Math.max(0, action.amount)) } };
+    }
+
+    case "STEAM_INGREDIENT": {
+      // Same shape as SEAR_INGREDIENT, its own key: every refusal returns the SAME state reference; nothing is consumed and nothing but `steamedLook` changes.
+      // The amount is only clamped here -- what it means (open / over) lives in ../logic/steam/steamPot.ts.
+      if (!steamExperienceEnabled()) return state;
+      if (state.phase !== "PREPARE" || state.makingStep !== "TOPPING") return state;
+      if (state.roundKind !== "GUIDED" && state.roundKind !== "FREE_COOK") return state;
+      if (!canSteamIngredient(action.ingredientId)) return state;
+      if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      if (state.steamedLook?.[action.ingredientId] !== undefined) return state;
+      if (!Number.isFinite(action.amount)) return state;
+      return { ...state, steamedLook: { ...(state.steamedLook ?? {}), [action.ingredientId]: Math.min(1, Math.max(0, action.amount)) } };
     }
 
     case "UNDO_LAST_PLACEMENT": {
@@ -1189,8 +1285,10 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
               const cookingProfile = roundCookingProfile(state.roundKind, state.recipe, effectivePanShape(state.recipe, pizza));
               return { cookingProfile, cutState: createCutState(cookingProfile.cutConfig) };
             })();
+      // Cooking Prep Phase 1: a discarded pizza takes its prep with it -- the property is removed, never set to `undefined`.
+      const { preparedIngredientIds: _discardedPrep, preparedLook: _discardedLook, searedLook: _discardedSear, steamedLook: _discardedSteam, ...stateWithoutPrep } = state;
       return {
-        ...state,
+        ...stateWithoutPrep,
         ...panReset,
         pizza,
         makingStep: "DOUGH",

@@ -60,7 +60,8 @@ export function finishedPizza(recipe: Recipe, pizza: PizzaState): PizzaState {
   for (const req of recipe.requiredIngredients) {
     if (getIngredient(req.ingredientId)?.category === "sauce") continue;
     for (let i = 0; i < req.minCount; i += 1) {
-      toppings.push({ id: `t${n}`, ingredientId: req.ingredientId, x: 20 + (n % 6) * 12, y: 25 + Math.floor(n / 6) * 14 });
+      // A POST_BAKE requirement (a late recipe, e.g. yuzu-shrimp-pizza's shiso) is a piece placed in FINISH (`stage: "post"`); every ordinary recipe has none, so its pizza is unchanged.
+      toppings.push({ id: `t${n}`, ingredientId: req.ingredientId, x: 20 + (n % 6) * 12, y: 25 + Math.floor(n / 6) * 14, ...(req.applicationPhase === "POST_BAKE" ? { stage: "post" as const } : {}) });
       n += 1;
     }
   }

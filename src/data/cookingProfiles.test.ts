@@ -12,6 +12,7 @@ import {
 import { RECIPES, type BaseRecipeId, type RecipeId } from "./recipes";
 import { noSauceRecipeIds } from "./recipeSauceProfiles";
 import type { MakingStep } from "../state/gameReducer";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Recipe Cooking Steps 1.0 Phase 1A / Pizza Cutting 1.0 Phase 4B (Full Recipe Expansion, see
@@ -58,7 +59,7 @@ const EXPECTED_CUT_ELIGIBLE: readonly RecipeId[] = [
 
 /** REC-02: a production recipe that deliberately has no CUT (no dough evidence; a default round is
  *  not evidence). */
-const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "aussie", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone", "bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli", "brazilian-catupiry-corn-pizza", "jalapeno-popper-pizza", "pizza-feta-eliniki", "pizza-moscow", "pizza-bianca-ricotta", "pizza-overload", "california-style-pizza", "spinach-artichoke-pizza", "eggplant-ricotta-pizza", "new-zealand-lamb-pizza", "chilean-napolitana", "spanish-chorizo-pizza", "frango-catupiry", "shirasu-pizza", "flammkuchen", "sichuan-eggplant-pizza"];
+const EXPECTED_NOT_CUT_ELIGIBLE: readonly RecipeId[] = ["new-haven-apizza", "brazilian-calabresa", "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "aussie", "pesto-trapanese", "baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone", "bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli", "brazilian-catupiry-corn-pizza", "jalapeno-popper-pizza", "pizza-feta-eliniki", "pizza-moscow", "pizza-bianca-ricotta", "pizza-overload", "california-style-pizza", "spinach-artichoke-pizza", "eggplant-ricotta-pizza", "new-zealand-lamb-pizza", "chilean-napolitana", "spanish-chorizo-pizza", "frango-catupiry", "shirasu-pizza", "flammkuchen", "sichuan-eggplant-pizza", "grandma-pizza", "curry-pizza-japan", "rendang-pizza", "currywurst", "tandoori-paneer-pizza", "cuban-pizza", "boscaiola", "porcini-pizza", "pescatore", "jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza"];
 
 /**
  * Gameplay UX / Scoring 3.0 PR-A (Dynamic Cooking Steps, see
@@ -150,8 +151,34 @@ const RECIPE_STEP_MATRIX: Record<BaseRecipeId, readonly MakingStep[]> = {
   "shirasu-pizza": ["DOUGH", "CHEESE", "TOPPING"],
   flammkuchen: ["DOUGH", "SAUCE", "TOPPING"],
   "sichuan-eggplant-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "curry-pizza-japan": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "rendang-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  currywurst: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "tandoori-paneer-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "cuban-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  // B11 S1: boscaiola / pescatore have one sauce; porcini-pizza is NO_SAUCE (no SAUCE step).
+  boscaiola: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "porcini-pizza": ["DOUGH", "CHEESE", "TOPPING"],
+  pescatore: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  // B12 (Issue #706): NO_SAUCE (no SAUCE step).
+  "jamaican-jerk-chicken-pizza": ["DOUGH", "CHEESE", "TOPPING"],
+  // Expansion Batch 12: supreme-pizza has no cheese-category ingredient (no mozzarella in the PIZZA DB set); pizza-alla-norma's ricotta-salata is a cheese.
+  "supreme-pizza": ["DOUGH", "SAUCE", "TOPPING"],
+  "pizza-alla-norma": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  // Expansion Batch 13 (#708): NO_SAUCE (no SAUCE step); mozzarella is a cheese-category ingredient.
+  "potato-mayo-pizza": ["DOUGH", "CHEESE", "TOPPING"],
+  // Expansion Batch 14: fromage-blanc-sauce is a sauce (PAINT); feta is a cheese-category ingredient.
+  "moussaka-style-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  // Expansion Batch 15 (#728): NO_SAUCE (a suya-only Owner exception; no SAUCE step); mozzarella is a cheese-category ingredient; no CUT.
+  "nigerian-suya-pizza": ["DOUGH", "CHEESE", "TOPPING"],
+  // Expansion Batch 16 (#736): umeboshi-paste is a sauce (PAINT) and mozzarella a cheese-category ingredient; every piece is placed before the bake, so there is no FINISH step; no CUT.
+  "ume-shiso-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  // Expansion Batch 17 (#741): sour-cream is a sauce (PAINT) and the recipe has no cheese; every piece is placed before the bake, so there is no FINISH step; no CUT.
+  "goulash-pizza": ["DOUGH", "SAUCE", "TOPPING"],
   // TQ-1D: the first no-sauce recipe has no SAUCE step (mozzarella = cheese, bacon / egg / onion = toppings); no CUT.
   aussie: ["DOUGH", "CHEESE", "TOPPING"],
+  // Multi-Sauce S3 / Square Dough E-2: grandma-pizza paints both its sauces (tomato-sauce, olive-oil) in the one SAUCE step; no CUT (square pan).
+  "grandma-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
 };
 
 /** No-CHEESE recipes (Fresh-confirmed, see `RECIPE_STEP_MATRIX` above). */
@@ -168,7 +195,8 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
   it("(A) every current production recipe has an explicit eligibility decision", () => {
     // RECIPES ⊆ EXPECTED_CUT_ELIGIBLE ∪ (nothing else) -- every real recipe id is accounted for
     // by this test file, not silently skipped.
-    const recipeIds = RECIPES.map((r) => r.id);
+    // E5: the late recipe has its own profile pins (lateCatalog.ikura.test.ts); this table covers the ordinary catalog.
+    const recipeIds = ordinaryRecipes(RECIPES).map((r) => r.id);
     expect(new Set(recipeIds)).toEqual(new Set([...EXPECTED_CUT_ELIGIBLE, ...EXPECTED_NOT_CUT_ELIGIBLE]));
     for (const recipeId of recipeIds) {
       // Calling isCutEligible/getCookingProfile must not throw and must return a defined,
@@ -187,7 +215,7 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
   });
 
   it("every RECIPES entry is CUT-eligible except the REC-02 no-CUT recipe (New Haven Apizza)", () => {
-    for (const recipe of RECIPES) {
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       const expected = !EXPECTED_NOT_CUT_ELIGIBLE.includes(recipe.id);
       expect(isCutEligible(recipe.id), `${recipe.id} CUT eligibility`).toBe(expected);
     }
@@ -233,7 +261,7 @@ describe("CookingProfile lookup (Recipe Cooking Steps 1.0 / Pizza Cutting 1.0 Ph
 
   describe("(H) dynamic step derivation (Gameplay UX / Scoring 3.0 PR-A)", () => {
     it("every RECIPES entry's derived profile matches RECIPE_STEP_MATRIX exactly, not just a step count", () => {
-      for (const recipe of RECIPES) {
+      for (const recipe of ordinaryRecipes(RECIPES)) {
         const profile = getCookingProfile(recipe.id);
         expect(preBakeSteps(profile), recipe.id).toEqual(RECIPE_STEP_MATRIX[recipe.id as BaseRecipeId]);
       }

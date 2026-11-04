@@ -9,6 +9,8 @@ import { roundRunsFinish } from "./finishEngine";
 import { createInitialGameState, gameReducer, type GamePhase, type MakingStep } from "./gameReducer";
 import { finishStepAvailable, renderedPostBakeStep, selectPostBakeStep } from "../screens/postBakeView";
 import { atBake, ROUND_MODES } from "./testSupport/confirmBakeMatrix";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
+import { FREE_COOK_FINISH_PRODUCTION } from "../data/freeCookFinishGate";
 
 /**
  * FINISH D2-0 (Issue #294): the pure selection / render-class / hint helpers exist, but nothing in Production turns
@@ -20,9 +22,11 @@ const STEPS: readonly MakingStep[] = ["DOUGH", "SAUCE", "CHEESE", "TOPPING", "FO
 const ALL_IDS = INGREDIENTS.map((i) => i.id);
 
 describe("FINISH stays inert in Production (D2-0)", () => {
-  it("no RECIPES entry gets FINISH in Guided, Lunch Rush or Dinner, and the selector never offers it", () => {
-    for (const mode of ROUND_MODES) {
-      for (const recipe of RECIPES) {
+  it("no ordinary RECIPES entry gets FINISH in Guided, Lunch Rush or Dinner, and the selector never offers it", () => {
+    // E5: the late recipe (ikura) is the one that has FINISH in Guided; it is pinned in lateCatalog.ikura.test.ts / gameReducer.finishFlow.test.ts.
+    // E5: a Free Cooking round runs FINISH (UD-B, gate ON); that is the next test and gameReducer.finishFreeCook.test.ts.
+    for (const mode of ROUND_MODES.filter((m) => m !== "free")) {
+      for (const recipe of ordinaryRecipes(RECIPES)) {
         const state = atBake(mode, recipe.id);
         const label = `${mode}/${recipe.id}`;
         expect(state.cookingProfile.steps, label).not.toContain("FINISH");
@@ -38,11 +42,12 @@ describe("FINISH stays inert in Production (D2-0)", () => {
     }
   });
 
-  it("the Free Cooking round (incl. Research) has no FINISH, runs no FINISH, and the selector never offers it", () => {
+  it("the Free Cooking round (incl. Research) has the FINISH step exactly when the Free Cooking FINISH gate is on (E5: Production ON)", () => {
     const free = gameReducer(createInitialGameState(EMPTY_DEX, ALL_IDS, 0, {}), { type: "START_FREE_COOK" });
-    expect(free.cookingProfile.steps).not.toContain("FINISH");
-    expect(roundRunsFinish(free)).toBe(false);
-    expect(finishStepAvailable(free, free.cookingProfile.steps)).toBe(false);
+    const on = FREE_COOK_FINISH_PRODUCTION;
+    expect(free.cookingProfile.steps.includes("FINISH")).toBe(on);
+    expect(roundRunsFinish(free)).toBe(on);
+    expect(finishStepAvailable(free, free.cookingProfile.steps)).toBe(on);
   });
 
   it("Lunch Rush and Dinner rounds never run FINISH even when a profile carries it", () => {

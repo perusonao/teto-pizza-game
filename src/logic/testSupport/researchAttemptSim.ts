@@ -28,6 +28,9 @@
  *  permutation per stage (sensitivity runs). Never place a remembered ×.
  *  final build: once nothing is unknown (or STRUCTURE's total equals the known-positive count) the pizza is exactly the
  *  known-positive set.
+ *  second sauce (Multi-Sauce S3): if that final build did not discover anything, the player adds ONE more owned sauce it has not
+ *  seen yet (a recipe such as grandma-pizza needs two); a remembered × is never placed again. A one-sauce target is discovered by
+ *  its first final build, so this step is never reached for it.
  * Quantity: every topping is placed `piecesOf(id)` times (the Shop's pack unit, as the Hint 5.0 harness), so quantity
  * is never the bottleneck (optimistic) and stock drains at the Shop's designed rate.
  * Shop / Pitz: new materials are bought as soon as they unlock; a refill is bought just before an attempt that needs
@@ -44,6 +47,15 @@ import { hint5SheetView, researchEntryViews, researchableEntryIds } from "../../
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
 import { notebookView } from "../discovery/trialNotebook";
+import { isDoughAffordanceOpen } from "../techniques/doughSwitch";
+import { answerVariantOf, placeFinishPieces } from "./lateFinishSim";
+
+/** How a player varies the SAME ingredients once the exact set has failed: the dough chosen in the DOUGH step and the ingredients placed after the bake in FINISH. */
+interface MakeVariant {
+  dough?: "material-multigrain-long-ferment";
+  post: readonly string[];
+}
+import { trayPanForIds } from "./requiredSauces";
 
 /** NONE buys nothing; RUNG1..RUNG3 buy the first n ladder rungs (SAUCE, CHEESE, KEY_TOPPING) of every target before its
  *  first attempt; FIXED4 buys rungs 1-4 (+ STRUCTURE); FULL buys every rung. NONE / FIXED4 / FULL are the Hint 5.0
@@ -151,7 +163,7 @@ function pizzaOf(ids: readonly string[], singles: ReadonlySet<string> = new Set(
       n += 1;
     }
   }
-  return { ...createEmptyPizza(), sauceIds: ids.filter((id) => cat(id) === "sauce").slice(0, 1), toppings, bakeResult: BAKE_VALUE };
+  return { ...createEmptyPizza(), sauceIds: ids.filter((id) => cat(id) === "sauce"), toppings, bakeResult: BAKE_VALUE };
 }
 
 /** A small deterministic PRNG (mulberry32) for the seeded tray orders. */
@@ -181,6 +193,8 @@ interface Knowledge {
   negative: Set<string>;
   cheeseSettled: boolean;
   total: number | null;
+  /** The previous attempt was the final build (exactly the known positives) and discovered nothing. */
+  finalFailed?: boolean;
 }
 
 export interface AttemptPlan {
@@ -207,7 +221,11 @@ export function chooseAttempt(
   const unknownToppings = ordered("topping");
   const totalKnownEnough = k.total !== null && k.positive.length >= k.total;
   const hasUnknown = unknownSauces.length + unknownCheeses.length + unknownToppings.length > 0;
-  if (!hasUnknown || totalKnownEnough) return { ids: [...k.positive], unknownIds: [], unknownTested: 0, final: true };
+  if (!hasUnknown || totalKnownEnough) {
+    const extraSauce = k.finalFailed ? ordered("sauce")[0] : undefined;
+    if (extraSauce) return { ids: [...k.positive, extraSauce], unknownIds: [extraSauce], unknownTested: 1, final: false };
+    return { ids: [...k.positive], unknownIds: [], unknownTested: 0, final: true };
+  }
   const ids = [...k.positive];
   if (unknownSauces.length > 0) ids.push(unknownSauces[0]);
   ids.push(...unknownCheeses);
@@ -256,9 +274,13 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
     return c ? c.earnedPitz + c.discoveryBonusPitz + (state.lastEfficiencyCredit?.bonusPitz ?? 0) : 0;
   };
 
-  function finishBake(ids: readonly string[], singles: ReadonlySet<string> = new Set()) {
-    s = { ...s, pizza: pizzaOf(ids, singles) };
+  function finishBake(ids: readonly string[], singles: ReadonlySet<string> = new Set(), variant?: MakeVariant) {
+    // E5: the late recipe's post-bake part is placed in FINISH (the answer of the first recipe with this ingredient set). Pinsa (#577): a `variant` is how a player varies the
+    // SAME set -- the dough chip and which ingredient goes on after the bake -- once the plain set has failed.
+    const { post, dough } = variant ? { post: [...variant.post], dough: variant.dough } : answerVariantOf(ids);
+    s = { ...s, pizza: { ...pizzaOf(ids.filter((id) => !post.includes(id)), singles), ...trayPanForIds(ids), ...(dough ? { dough } : {}) } };
     s = act(s, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: BAKE_VALUE });
+    s = placeFinishPieces(s, post, (id) => (singles.has(id) ? 1 : piecesOf(id)));
     for (let i = 0; i < 6 && s.phase !== "RESULT"; i += 1) s = act(s, { type: "CONFIRM_MAKING_STEP" });
     if (s.phase !== "RESULT") throw new Error(`bake did not reach RESULT (${ids.join("+")})`);
     if (s.score) s = { ...s, score: { ...s.score, total: qualityTotal, stars: starsFromTotal(qualityTotal) } };
@@ -395,7 +417,8 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
     if (JSON.stringify(s.discoveryHintFacts).includes("×")) violations.push(`${tag}: × in the save ledger`);
   }
 
-  for (let stageGuard = 0; stageGuard < 80; stageGuard += 1) {
+  // One stage per recipe (plus the Margherita onboarding and the final completion check); the bound follows the catalog, so a batch never exhausts it (it was a fixed 80, which the 80th recipe reached).
+  for (let stageGuard = 0; stageGuard < RECIPES.length + 20; stageGuard += 1) {
   // Batch 6 PR-2: replay for the star gates once their step is reached (a real player must; see starGateReplay.ts).
   s = replayForGateStars(s);
     const dexIds = discoveredRecipeIds(s.dex);
@@ -461,16 +484,31 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
     let noInfo = 0;
     let discoveredNow: string[] = [];
     let hintsDone = false;
+    let finalFailed = false;
+    // Pinsa (#577): a target that fixes a dough kind shares its ingredients with another recipe, so the plain exact set does not find it. The player then varies HOW it is made, in the
+    // order the two Dex riddles point to: the other dough alone (only when the chip is offered: the dough technique's own derived affordance), the other dough with one ingredient
+    // after the bake, then the standard dough with one ingredient after the bake. Each is a real attempt through the reducer.
+    const targetDough = (getRecipe(target as RecipeId) as { doughKind?: string } | undefined)?.doughKind === "material-multigrain-long-ferment" ? ("material-multigrain-long-ferment" as const) : undefined;
+    let variantQueue: MakeVariant[] | null = null;
 
     for (let attemptGuard = 0; attemptGuard < 120; attemptGuard += 1) {
       startValid(target);
       if (!hintsDone && profile !== "NONE" && dexIds.length >= 1) buyRungs(target);
       hintsDone = true;
-      const plan = chooseAttempt(s.ownedIngredientIds, knowledgeOf(target, negative), {
+      const plan = chooseAttempt(s.ownedIngredientIds, { ...knowledgeOf(target, negative), finalFailed }, {
         orderSeed,
         salt: stageGuard,
         toppingCap: Math.max(1, 3 - noInfo),
       });
+      let variant: MakeVariant | undefined;
+      if (finalFailed && targetDough && plan.final) {
+        if (variantQueue === null) {
+          const withDough = isDoughAffordanceOpen(s.dex) ? [{ dough: targetDough, post: [] }, ...plan.ids.map((id) => ({ dough: targetDough, post: [id] }))] : [];
+          variantQueue = [...withDough, ...plan.ids.map((id) => ({ post: [id] }))];
+        }
+        variant = variantQueue.shift();
+        if (!variant) throw new Error(`Dex ${dexIds.length}: ${target} not found by varying the dough / the moment of ${plan.ids.join("+")}`);
+      }
       const singles = new Set(options.explorePieces === "ONE" ? plan.unknownIds.filter((id) => cat(id) === "topping") : []);
       ensureStock(plan.ids, singles);
       // A refill may have been paid by Margherita replays (which end this round): start the research round again.
@@ -478,7 +516,7 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
       const factsBefore = [...(s.discoveryHintFacts[target] ?? [])];
       const knownBefore = knowledgeOf(target, negative).positive;
       const dexBefore = discoveredRecipeIds(s.dex);
-      finishBake(plan.ids, singles);
+      finishBake(plan.ids, singles, variant);
       acc.attempts += 1;
       totalAttempts += 1;
       checkInvariants(target, plan.ids, factsBefore, knownBefore);
@@ -489,9 +527,10 @@ export function simulateResearchAttempts(options: ResearchSimOptions): ResearchS
         if (s.lastResearchRows && s.lastResearchRows.rows.length > 0) acc.attemptsWithRows += 1;
         break;
       }
+      finalFailed = plan.final;
       const rows = s.lastResearchRows?.rows ?? [];
-      if (rows.length === 0) noInfo += 1;
-      else acc.attemptsWithRows += 1;
+      if (rows.length === 0 && !variant) noInfo += 1; // (a variant attempt of the same set returns no rows by construction: it is the player's next idea, not a lack of information)
+      else if (rows.length > 0) acc.attemptsWithRows += 1;
       for (const r of rows) if (r.verdict === "NEGATIVE") negative.add(r.ingredientId);
       if (noInfo > 8) throw new Error(`Dex ${dexIds.length}: ${target} stuck (no information) after ${acc.attempts} attempts`);
     }

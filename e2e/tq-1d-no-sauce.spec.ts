@@ -206,7 +206,7 @@ test.describe("TQ-1D: Aussie and the Technique 「ソースなし」", () => {
     await expect(card).toContainText("No.11");
     await expect(card.locator(".dex-card__ingredient")).toHaveCount(4);
     await expect(card.locator(".dex-card__ingredient").filter({ hasText: /ソース|オイル/ })).toHaveCount(0);
-    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第2章" })).toContainText("/11"); // chapter 2 now has 11 slots
+    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第2章" })).toContainText("/12"); // chapter 2 now has 12 slots (Square Dough E-2: + grandma-pizza)
     await card.scrollIntoViewIfNeeded();
     await noOverflow(page, "Dex after");
     await capture(page, "tq1d-05-dex-technique-and-aussie", project);

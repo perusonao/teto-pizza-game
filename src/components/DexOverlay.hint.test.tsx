@@ -96,7 +96,8 @@ afterEach(() => cleanup());
 /** The two non-credit recipes makeable from the onion step on: brazilian-calabresa and (TQ-1D) the no-sauce aussie. */
 const NON_CREDIT_FOUND = ["brazilian-calabresa", "aussie"];
 /** Batch 8a: the non-credit chilean-napolitana (fresh-tomato, Dex 20+) joins them; spanish-chorizo (bell-pepper, step 28) and frango-catupiry (step 44) are beyond this 25-ladder. */
-const nonCreditFound = (count: number): string[] => (count >= 20 ? [...NON_CREDIT_FOUND, "chilean-napolitana"] : NON_CREDIT_FOUND);
+/** Square Dough E-2: the non-credit grandma-pizza (olive-oil 13 + garlic 14, Dex 14+) joins them too. */
+const nonCreditFound = (count: number): string[] => [...NON_CREDIT_FOUND, ...(count >= 14 ? ["grandma-pizza"] : []), ...(count >= 20 ? ["chilean-napolitana"] : [])];
 
 describe("which cards get 「💡 ヒントを見る」", () => {
   // Pool-size aware (Discovery 3.0 PR-4a / PR-4b-A / PR-4b-B): a W1 step's key recipe is always
@@ -110,7 +111,7 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     renderDex(inputs, { onShowHint });
     const expected = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").map((r) => r.id);
     expect(expected).toContain(LADDER_ORDER[count]);
-    expect(expected.length).toBe(count >= 20 ? 4 : count >= 12 ? 3 : 1); // the key recipe + the non-credit calabresa + (TQ-1D) aussie + (Batch 8a, Dex 20+) chilean-napolitana
+    expect(expected.length).toBe(count >= 20 ? 5 : count >= 14 ? 4 : count >= 12 ? 3 : 1); // the key recipe + the non-credit calabresa + (TQ-1D) aussie + (E-2, Dex 14+) grandma-pizza + (Batch 8a, Dex 20+) chilean-napolitana
     if (expected.length > 1) {
       expect(hintButtons()).toHaveLength(0);
       expect(document.querySelectorAll("[data-dex-aggregated]")).toHaveLength(0); // #346 S4: all are Research Entries

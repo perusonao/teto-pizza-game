@@ -3,6 +3,8 @@ import { RECIPES, type Recipe } from "../data/recipes";
 import { SHIPPED_15_DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { EMPTY_DEX, registerScoreToDex } from "./dex";
 import { buildRecipeChapters, chapterProgress, isChapterCleared, recipeChapter, recipeChapterSlot, recipeKeyStep } from "./recipeChapters";
+import { isLateRecipeId } from "../logic/catalog/testSupport/lateIds";
+import { pinsaEnabled } from "../data/pinsaGate";
 
 /** OD-DISC-9: chapters = ladder price tier of each recipe's key step, 6 / 9 / 10 at the 25 credited recipes; PR-4b-B's calabresa (key step 12, T2) makes it 6 / 10 / 10; No.27 pesto-pollo (key step 25, T3) makes it 6 / 10 / 11; Expansion Slice 1 pesto-gamberi (key step 26, T3) makes it 6 / 10 / 12 (Chapter 3 No.12). */
 describe("recipeChapters (OD-DISC-9)", () => {
@@ -11,12 +13,13 @@ describe("recipeChapters (OD-DISC-9)", () => {
     expect(chapters.map((c) => c.titleJa)).toEqual(["第1章", "第2章", "第3章", "第4章"]);
     const expected = [
       ["margherita", "bismarck", "funghi", "breakfast-pizza", "melanzane-pizza", "parmigiana-pizza"],
-      ["marinara", "fugazza", "salsiccia", "pepperoni", "capricciosa", "meat-lovers", "bambino", "hawaiian", "pizza-portuguesa", "brazilian-calabresa", "aussie"],
+      ["marinara", "fugazza", "salsiccia", "pepperoni", "capricciosa", "meat-lovers", "bambino", "hawaiian", "pizza-portuguesa", "brazilian-calabresa", "aussie", "grandma-pizza"],
       [
         "quattro-formaggi", "genovese", "napoletana", "tonno-e-cipolla", "pizza-bianca",
         "pesto-tonno", "new-haven-apizza", "pesto-caprese", "pesto-patate", "puttanesca-pizza",
         "pesto-pollo", "pesto-gamberi", "vongole", "pesto-vegetariana", "ratatouille-pizza", "pesto-trapanese",
         "chilean-napolitana", "spanish-chorizo-pizza", // Batch 8a: non-credit, key steps 20 / 28 (Chapter 3)
+        "supreme-pizza", // Expansion Batch 12: non-credit, key step 28 (bell-pepper; Chapter 3, slot 19)
       ],
       ["baba-ganoush-pizza", "prosciutto-funghi", "veggie-supreme-pizza", "jamon-serrano-pizza", "calabresa-argentina", "rucola-e-grana", "vegan-cashew-cheese-pizza", "pesto-salmone", "bacalhau", "full-english-pizza", "palmito-pizza", "polish-kielbasa", "porchetta-pizza", "salsiccia-e-friarielli", "brazilian-catupiry-corn-pizza", "jalapeno-popper-pizza", "pizza-feta-eliniki", "pizza-moscow", "pizza-bianca-ricotta", "pizza-overload", "california-style-pizza", "spinach-artichoke-pizza"],
     ].map((ids) => [...ids].sort((a, b) => RECIPES.findIndex((r) => r.id === a) - RECIPES.findIndex((r) => r.id === b)));
@@ -56,8 +59,8 @@ describe("recipeChapters (OD-DISC-9)", () => {
     }
     const [c1, c2, c3] = buildRecipeChapters();
     expect(chapterProgress(c1, dex)).toEqual({ discovered: 2, total: 6 });
-    expect(chapterProgress(c2, dex)).toEqual({ discovered: 1, total: 11 });
-    expect(chapterProgress(c3, dex)).toEqual({ discovered: 0, total: 18 });
+    expect(chapterProgress(c2, dex)).toEqual({ discovered: 1, total: 12 });
+    expect(chapterProgress(c3, dex)).toEqual({ discovered: 0, total: 19 }); // (Expansion Batch 12: + supreme-pizza)
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "margherita")!)).toBe(1);
     expect(recipeChapterSlot(RECIPES.find((r) => r.id === "marinara")!)).toBe(1);
   });
@@ -74,7 +77,11 @@ describe("isChapterCleared (K2)", () => {
       (dex, id) => registerScoreToDex(dex, id, { matchScore: 100, ingredientScore: 100, placementScore: 100, bakeScore: 100, total: 60, stars: 3 }).dex,
       EMPTY_DEX,
     );
-  const chapter4 = () => buildRecipeChapters().find((c) => c.chapter === 4)!;
+  // E5: with the late catalog on, the real chapter 4 already holds the late recipe; these tests start from its ordinary recipes and add the late one themselves.
+  const chapter4 = () => {
+    const c = buildRecipeChapters().find((x) => x.chapter === 4)!;
+    return { ...c, recipes: c.recipes.filter((r) => !isLateRecipeId(r.id)) };
+  };
   const lateClone = (id: string) => ({ ...chapter4().recipes[0], id }) as Recipe;
   const withLate = (id: string) => ({ ...chapter4(), recipes: [...chapter4().recipes, lateClone(id)] });
 
@@ -87,6 +94,20 @@ describe("isChapterCleared (K2)", () => {
       const p = chapterProgress(chapter, discoverAll(ids));
       expect(p.discovered === p.total).toBe(isChapterCleared(chapter, discoverAll(ids)));
     }
+  });
+
+  it("E5 (late catalog on in Production): the real chapter 4 holds the late recipe, and a player who finished the ordinary chapter keeps the mark", () => {
+    const real = buildRecipeChapters().find((c) => c.chapter === 4)!;
+    expect(real.recipes.some((r) => r.id === "ikura-salmon-pizza")).toBe(true);
+    expect(real.recipes.some((r) => r.id === "yuzu-shrimp-pizza")).toBe(true); // New Sauces Phase B U1: its key step (yuzu-kosho) is a T4 step, so chapter 4
+    expect(real.recipes.some((r) => r.id === "eggplant-dengaku-pizza")).toBe(true); // New Sauces Phase B U2: its key step (miso-sauce / white-sesame) is a T4 step, so chapter 4
+    const ordinary = real.recipes.filter((r) => !isLateRecipeId(r.id)).map((r) => r.id);
+    expect(isChapterCleared(real, discoverAll(ordinary))).toBe(true);
+    // every late recipe in the chapter adds to the displayed total and none is required for the mark (ikura, yuzu-shrimp-pizza and eggplant-dengaku-pizza; with the Pinsa gate open, pinsa-romana too: its key step is arugula's, in chapter 4)
+    const lateInChapter = real.recipes.length - ordinary.length;
+    expect(real.recipes.some((r) => r.id === "eggplant-tahini-pizza")).toBe(true); // New Sauces Phase B U3: its key step (tahini / pomegranate) is a T4 step, so chapter 4
+    expect(lateInChapter).toBe(pinsaEnabled() ? 8 : 7); // BBQ Chicken (#611): + bbq-chicken-pizza (its key step bbq-sauce / cilantro is a T4 step, so chapter 4); PR-2 late4: + wasabi-beef-pizza and tarako-cream-pizza (T4 steps too)
+    expect(chapterProgress(real, discoverAll(ordinary))).toEqual({ discovered: ordinary.length, total: ordinary.length + lateInChapter });
   });
 
   it("late catalog ON: a finished chapter keeps its mark while the displayed count grows (26/27 ✓), and the late recipe is not required", () => {

@@ -1,0 +1,56 @@
+import { expect, type Page, type BrowserContext } from "@playwright/test";
+import { INGREDIENTS } from "../src/data/ingredients";
+import { completeDoughStep, enterBakePaused, landNeedleAndTakeOut, tapDoughPercent } from "../e2e/gestures";
+import { startTargetlessFreeCook } from "../e2e/support/startFreeCook";
+
+export const KEY = "teto-pizza-preview-save-v1";
+export const baseSave = (extra: object = {}) => ({ schemaVersion: 2, dex: [], pitzBalance: 0, ownedIngredientIds: INGREDIENTS.map((i) => i.id), missionBest: {}, inventory: Object.fromEntries(INGREDIENTS.map((i) => [i.id, 9])), starterGrantClaimedRecipeIds: [], ...extra });
+
+export async function guardNetwork(context: BrowserContext) {
+  const external: string[] = [];
+  await context.route("**/*", (route) => {
+    const u = new URL(route.request().url());
+    if (u.hostname !== "127.0.0.1") { external.push(route.request().url()); return route.abort(); }
+    return route.continue();
+  });
+  return external;
+}
+
+/** Safety conditions 1+2 evaluated at runtime; throws (= stop) if they do not hold. */
+export async function safetyPreflight(page: Page) {
+  await page.goto("icons/icon-16.png");
+  const s = await page.evaluate(() => ({ origin: location.origin, host: location.hostname, ls: localStorage.length, ss: sessionStorage.length }));
+  if (s.host !== "127.0.0.1" || s.origin.includes("perusonao.github.io") || s.ls !== 0) throw new Error("V1 STOP: " + JSON.stringify(s));
+  return s;
+}
+
+export async function boot(page: Page, save: object) {
+  await page.evaluate(([k, v]) => localStorage.setItem(k, v), [KEY, JSON.stringify(save)] as const);
+  await page.goto("./");
+  await page.waitForSelector(".app-frame");
+  await startTargetlessFreeCook(page);
+  await page.waitForSelector(".pizza-stage");
+}
+
+/** click a tray chip by (partial) Japanese name, paging if needed; returns false if never found. */
+export async function pickChip(page: Page, name: RegExp): Promise<boolean> {
+  const tray = page.locator(".ingredient-tray");
+  for (let guard = 0; guard < 12; guard += 1) {
+    const chip = tray.locator(".ingredient-chip", { hasText: name }).first();
+    if (await chip.count()) { await chip.click(); return true; }
+    const pager = page.getByRole("group", { name: "素材ページ切り替え" });
+    if (!(await pager.count())) return false;
+    const next = pager.getByRole("button").last();
+    if (await next.isDisabled()) {
+      // wrap to first page
+      const first = pager.getByRole("button").first();
+      if (await first.isDisabled()) return false;
+      for (let i = 0; i < 12 && !(await first.isDisabled()); i += 1) await first.click();
+      if (guard > 6) return false;
+      continue;
+    }
+    await next.click();
+  }
+  return false;
+}
+export { completeDoughStep, enterBakePaused, landNeedleAndTakeOut, tapDoughPercent };

@@ -8,6 +8,7 @@ import { appendLadderSteps, validateLadderProgression } from "../logic/discovery
 import { productionCatalogView, validateCatalogTables, validateFinishCatalog } from "../logic/catalog/testSupport/recipeBatchValidator";
 import type { RecipeId } from "./recipes";
 import { lateCatalogEnabled, LATE_DISCOVERY_TARGET_IDS, LATE_INGREDIENTS, LATE_LADDER_STEPS, LATE_ORDERS, LATE_RECIPES, LATE_TAXONOMY_ROWS, LATE_TOPPING_SIZE_CLASS, mergeLate, validateLateCatalog, type LateCatalogInput } from "./lateCatalog";
+import { pinsaEnabled } from "./pinsaGate";
 
 /**
  * FIN-E4 foundation (Owner D-3 = 案 1): the late catalog's single merge point. The real late arrays are EMPTY (the data is a later PR),
@@ -53,11 +54,11 @@ const validInput: LateCatalogInput = {
 const BASE = { recipeIds: ["margherita"], ingredientIds: ["tomato-sauce", "mozzarella", "chicken"] };
 
 describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
-  it("holds exactly ikura-salmon-pizza and salmon-roe, and the production switch stays OFF", () => {
-    expect(lateCatalogEnabled()).toBe(false);
-    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza"]);
-    expect(LATE_INGREDIENTS.map((i) => i.id)).toEqual(["salmon-roe"]);
-    expect(Object.keys(LATE_DISCOVERY_TARGET_IDS)).toEqual(["ikura-salmon-pizza"]);
+  it("holds exactly ikura-salmon-pizza, yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza, bbq-chicken-pizza, wasabi-beef-pizza, tarako-cream-pizza and their late materials, and the production switch is ON (E5; the OFF build is covered by the loaders below)", () => {
+    expect(lateCatalogEnabled()).toBe(true);
+    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // Pinsa Romana (#577 P3-b) joins only while its own gate is open; yuzu-shrimp-pizza: New Sauces Phase B U1, eggplant-dengaku-pizza: U2 (#578)
+    expect(LATE_INGREDIENTS.map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate", "bbq-sauce", "cilantro", "soy-sauce", "wasabi", "cod-roe", "fresh-cream-sauce", "nori"]);
+    expect(Object.keys(LATE_DISCOVERY_TARGET_IDS)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
     expect(LATE_DISCOVERY_TARGET_IDS["ikura-salmon-pizza"]).toBe("ikura-salmon-pizza-pizzadb-p1");
   });
   it("only the roe and the shiso are post-bake; salmon and cream cheese are the provisional pre-bake default; counts and window as authored", () => {
@@ -68,14 +69,22 @@ describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
     expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
     expect(recipe.lunchRush).toBe(false);
   });
-  it("the late ladder step is keyed to ikura, carries no number and no star gate", () => {
-    expect(LATE_LADDER_STEPS).toEqual([{ ingredientIds: ["salmon-roe"], keyRecipeId: "ikura-salmon-pizza" }]);
+  it("the late ladder steps are keyed to ikura, yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza, bbq-chicken-pizza, wasabi-beef-pizza and tarako-cream-pizza (in that order), carry no number and no star gate", () => {
+    expect(LATE_LADDER_STEPS).toEqual([
+      { ingredientIds: ["salmon-roe"], keyRecipeId: "ikura-salmon-pizza" },
+      { ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" },
+      { ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" },
+      { ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" },
+      { ingredientIds: ["bbq-sauce", "cilantro"], keyRecipeId: "bbq-chicken-pizza" },
+      { ingredientIds: ["soy-sauce", "wasabi"], keyRecipeId: "wasabi-beef-pizza" },
+      { ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: "tarako-cream-pizza" },
+    ]);
   });
   it("the late ingredient is ladder-gated (never a Starter) and its order, taxonomy row and size class ride the same switch", () => {
-    expect(LATE_INGREDIENTS[0].unlockCondition).toBeDefined();
-    expect(LATE_ORDERS.map((o) => o.recipeId)).toEqual(["ikura-salmon-pizza"]);
-    expect(LATE_TAXONOMY_ROWS).toEqual([["salmon-roe", "seafood"]]);
-    expect(LATE_TOPPING_SIZE_CLASS).toEqual({ "salmon-roe": "xs" });
+    expect(LATE_INGREDIENTS.every((i) => i.unlockCondition !== undefined)).toBe(true); // every late ingredient, the roe and the (taxonomy-free) yuzu-kosho sauce alike
+    expect(LATE_ORDERS.map((o) => o.recipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
+    expect(LATE_TAXONOMY_ROWS).toEqual([["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["cilantro", "herb"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"]]); // yuzu-kosho / miso-sauce / tahini are sauces: no topping family, no size class
+    expect(LATE_TOPPING_SIZE_CLASS).toEqual({ "salmon-roe": "xs", "white-sesame": "xs", pomegranate: "xs", cilantro: "xs", wasabi: "xs", "cod-roe": "xs", nori: "xs" });
   });
 });
 
@@ -261,7 +270,12 @@ async function loadCatalog(enabled: boolean, lateContentPresentButDisabled = fal
       LATE_DISCOVERY_TARGET_IDS: { [SYNTH_RECIPE_ID]: SYNTH_TARGET_ID },
     }));
   } else {
-    vi.doUnmock("./lateCatalog");
+    // E5: Production has the late catalog ON, so the OFF build (the rollback state) is the real content with the switch mocked OFF.
+    vi.doMock("./lateCatalog", async (importOriginal) => ({
+      ...(await importOriginal<typeof import("./lateCatalog")>()),
+      LATE_CATALOG_PRODUCTION: false,
+      lateCatalogEnabled: () => false,
+    }));
   }
   // Sequential on purpose: concurrent imports would run the mock factory twice and hand modules different `lateCatalog` instances.
   await import("./lateCatalog");

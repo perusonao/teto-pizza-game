@@ -21,7 +21,7 @@ const ladderOwned = (step: number) => [
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 function single(stock = 10): GameState {
   const owned = ladderOwned(25);
-  const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie"]), owned, 1000);
+  const base = createInitialGameState(discoveredDex([...keysBefore(25), "brazilian-calabresa", "aussie", "grandma-pizza"]), owned, 1000);
   return { ...base, inventory: Object.fromEntries(owned.map((id) => [id, stock])) };
 }
 const T = "pesto-pollo";

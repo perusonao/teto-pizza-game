@@ -2,6 +2,7 @@ import { CheesePoolCanvas, cheesePoolReachPercent } from "./CheesePoolCanvas";
 import { cheesePoolBakeParams } from "../logic/cheesePoolBake";
 import { CHEESE_RENDER_MODE } from "../preview/cheeseRenderMode";
 import {
+  Fragment,
   useEffect,
   useLayoutEffect,
   useState,
@@ -11,12 +12,16 @@ import {
   useReducer as useReactReducer,
   useRef,
   type CSSProperties,
+  type ReactNode,
   type MouseEvent as ReactMouseEvent,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { getIngredient, type Ingredient } from "../data/ingredients";
+import { SQUEEZE_MAX_LENGTH, SQUEEZE_MIN_LENGTH, SQUEEZE_MIN_STEP, capTrailLength, densifyTrail, isSqueezeIngredientId, trailAnchor, trailLength, trailPathD, type TrailPoint } from "../logic/squeeze";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
+import { preparedPieceVisual } from "../logic/prep/beefDoneness";
+import { searedPieceVisual } from "../logic/sear/sausageSear";
 import { PostBakePiece } from "./PostBakePiece";
 import { activeToppingRankScale } from "../preview/toppingScalePreview";
 import { toppingPhaseScale } from "../preview/resultScalePreview";
@@ -39,6 +44,7 @@ import type { SquareDoughRamp } from "../logic/pan/squareDoughView";
 import { getPanGeometry } from "../logic/pan/panGeometry";
 import { effectivePanShape } from "../logic/pan/effectivePan";
 import type { PanShape } from "../logic/pan/panShape";
+import { doughOutlineOf } from "../logic/dough/doughOutline";
 import { SquareTargetGuide } from "./square/SquareTargetGuide";
 import { squareCheesePoolClipPath } from "./square/squarePanStage";
 import "./square/squarePanStage.css";
@@ -138,6 +144,12 @@ interface PizzaStageProps {
    *  stretch gesture (its pointer events stop in the layer); absent, nothing below changes. */
   squareDough?: { dough: SquareDough; onCommit: (dough: SquareDough) => void; ramp?: SquareDoughRamp };
   onTap: (xPercent: number, yPercent: number) => void;
+  /** Expansion Batch 13 (#708, "案A"): fired once, at a successful pointerup, with the stroke (dough percent, already capped at 60% of the dough's
+   *  diameter) of a squeezable topping (mayo) in the TOPPING step -- one stroke = one piece. A tap still goes to `onTap` (the single droplet). */
+  onPlaceTrail?: (points: readonly TrailPoint[]) => void;
+  /** Whether one more piece of the selected ingredient may be placed (the Stock Gate). `false` makes a squeeze press an ordinary tap, so the
+   *  reducer's refusal mark shows at once instead of a line being drawn and then vanishing on release. Default true. */
+  activeIngredientPlaceable?: boolean;
   /** Phase 4A-1A (Post-Codex-Fix): fired with the *entire* accumulated-so-far deposit array
    *  for the in-progress dispense session on every tick, and with `[]` the instant that
    *  session ends for any reason (commit or discard) -- lets the Prototype Metrics panel
@@ -192,6 +204,17 @@ interface PizzaStageProps {
    *  blind percentage. Never combined with `roomy`/`compact` (GameScreen.tsx only ever sets one
    *  of the three, gated on FREE's own `isFreeResultScreen`). */
   resultCompact?: boolean;
+  /** Cooking Prep Phase 1 PR-B: ingredient ids the player prepped this round (`GameState.preparedIngredientIds`). Placed pieces of those draw their prepped
+   *  look (colour only; ../logic/prep/beefDoneness.ts). Absent = today's drawing, byte for byte. */
+  preparedIngredientIds?: readonly string[];
+  /** Cooking Prep Phase 1B: how far into the pan time each prepped ingredient was taken out (`GameState.preparedLook`); picks the piece colour. */
+  preparedLook?: Readonly<Record<string, number>>;
+  /** Cooking Prep Phase 1 PR-B: an element rendered inside the stage after the dough (the "炒める" pill / pan screen, ./CookingPrepLayer.tsx). */
+  overlay?: ReactNode;
+  /** Cooking Sear Phase 1 (#724): how far each long-press-seared ingredient was seared (`GameState.searedLook`); picks the piece colour. Absent = today's drawing. */
+  searedLook?: Readonly<Record<string, number>>;
+  /** Cooking Sear Phase 1 (#724): an element rendered inside the stage after `overlay` (the "炙る" pill / sear screen, ./SearLayer.tsx). */
+  searOverlay?: ReactNode;
 }
 
 interface GestureState {
@@ -207,6 +230,9 @@ interface GestureState {
   cutStart: DoughPoint | null;
   /** Issue #418: the straight cut currently shown -- exactly what release commits. */
   cutPath: readonly [DoughPoint, DoughPoint] | null;
+  /** Expansion Batch 13 (#708): the squeeze stroke so far (dough percent) and whether it already reached the length cap. */
+  squeezePoints: TrailPoint[];
+  squeezeFull: boolean;
 }
 
 function createGestureState(): GestureState {
@@ -221,6 +247,8 @@ function createGestureState(): GestureState {
     lastInsideDough: null,
     cutStart: null,
     cutPath: null,
+    squeezePoints: [],
+    squeezeFull: false,
   };
 }
 
@@ -257,6 +285,8 @@ export function PizzaStage({
   onDoughElementChange,
   squareDough,
   onTap,
+  onPlaceTrail,
+  activeIngredientPlaceable = true,
   onDispenseProgress,
   onDispenseCommit,
   cutState,
@@ -264,6 +294,11 @@ export function PizzaStage({
   roomy = false,
   compact = false,
   resultCompact = false,
+  preparedIngredientIds,
+  preparedLook: preparedLookByIngredient,
+  overlay,
+  searedLook: searedLookByIngredient,
+  searOverlay,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   // Square-Pan Dough D2-a2 (#537): the pan this round is cooked on, for every step DOUGH..RESULT -- the Preview / DEV override or the recipe's own pan,
@@ -274,6 +309,11 @@ export function PizzaStage({
   const panProp = panShape === "square" ? ({ pan: panShape } as const) : {};
   const pan = getPanGeometry(panShape);
   const squarePan = panShape === "square";
+  // Pinsa Romana (#577): the dough kind's outline. An oval is the same circular dough-percent space drawn in a wider-than-tall box (../logic/dough/doughOutline.ts), so every
+  // rule below -- hit test, clamp, sauce, placement, scoring -- is the round pizza's own; only the box (CSS `.pizza-dough--oval`) and the viewBox-based overlays differ. A
+  // square tray stays square. `preserveAspectRatio="none"` makes those overlays follow the box (a no-op in a square box, so it is only passed for an oval).
+  const oval = !squarePan && doughOutlineOf(pizza, recipe) === "oval";
+  const ovalSvgProps = oval ? ({ preserveAspectRatio: "none" } as const) : {};
   const pathRef = useRef<SVGPathElement>(null);
   const gestureRef = useRef<GestureState>(createGestureState());
   const fadeTimeoutRef = useRef<number | null>(null);
@@ -301,6 +341,9 @@ export function PizzaStage({
   // independently rather than assuming that.
   const isDoughStep = makingStep === "DOUGH";
   const isPaintMode = activeIngredient?.placement === "spread";
+  // Expansion Batch 13 (#708, "案A"): a squeezable topping (mayo) selected in the TOPPING step -- one stroke across the dough places ONE piece.
+  const isSqueezeMode =
+    interactive && makingStep === "TOPPING" && !!onPlaceTrail && activeIngredientPlaceable && isSqueezeIngredientId(activeIngredient?.id);
   // Pizza Cutting 1.0 Phase 2 (design doc §2.2): gates the CUT edge-to-edge drag gesture branch
   // below, mirroring isDoughStep's own role -- mutually exclusive with sauce/dough gestures in
   // practice (CUT only ever becomes the active `makingStep` during POST_BAKE, after PREPARE/BAKE
@@ -540,7 +583,8 @@ export function PizzaStage({
     const newId = activeIngredient?.id ?? null;
     if (activeIngredientIdRef.current === newId) return;
     activeIngredientIdRef.current = newId;
-    if (activeSessionRef.current) abortActiveGesture();
+    // a squeeze stroke in progress belongs to the ingredient it started with: switching away discards it (nothing is placed)
+    if (activeSessionRef.current || gestureRef.current.squeezePoints.length > 0) abortActiveGesture();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIngredient]);
 
@@ -610,6 +654,19 @@ export function PizzaStage({
       path.setAttribute("d", "");
       path.classList.remove("pizza-paint-trail__stroke--fade");
     }
+  }
+
+  /** Expansion Batch 13 (#708): extends the squeeze stroke with one point; points off the dough are ignored and the stroke stops growing at the length cap. */
+  function appendSqueezePoint(point: DoughPoint) {
+    const g = gestureRef.current;
+    if (g.squeezeFull || !pan.contains(point.x, point.y)) return;
+    const last = g.squeezePoints[g.squeezePoints.length - 1];
+    if (last && Math.hypot(point.x - last.x, point.y - last.y) < SQUEEZE_MIN_STEP / 3) return;
+    const next = [...g.squeezePoints, { x: point.x, y: point.y }];
+    const capped = capTrailLength(next);
+    g.squeezePoints = capped;
+    if (trailLength(next) > SQUEEZE_MAX_LENGTH) g.squeezeFull = true;
+    pathRef.current?.setAttribute("d", trailPathD(capped));
   }
 
   function appendTrailPoint(x: number, y: number) {
@@ -693,6 +750,8 @@ export function PizzaStage({
       lastInsideDough: dough,
       cutStart: isCutStep ? dough : null,
       cutPath: null,
+      squeezePoints: isSqueezeMode ? [dough] : [],
+      squeezeFull: false,
     };
 
     // MUST FIX 9: prevents this press from also producing a compatibility mouse event, a
@@ -810,6 +869,7 @@ export function PizzaStage({
 
     if (pan.contains(dough.x, dough.y)) g.lastInsideDough = dough;
     if (isPaintMode) appendTrailPoint(dough.x, dough.y);
+    if (isSqueezeMode) appendSqueezePoint(dough);
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
@@ -905,6 +965,20 @@ export function PizzaStage({
     if (!g.dragging) {
       // Tap: unchanged Phase 2C one-tap behavior.
       onTap(g.startDough.x, g.startDough.y);
+      gestureRef.current = createGestureState();
+      return;
+    }
+
+    if (isSqueezeMode) {
+      // Expansion Batch 13 (#708, "案A"): a stroke places ONE piece along the path (capped at 60% of the dough's diameter); one that never really moved is a tap.
+      const points = g.squeezePoints;
+      if (points.length >= 2 && trailLength(points) >= SQUEEZE_MIN_LENGTH) {
+        onPlaceTrail?.(points);
+      } else {
+        const anchor = points.length > 0 ? trailAnchor(points) : g.startDough;
+        if (pan.contains(anchor.x, anchor.y)) onTap(anchor.x, anchor.y);
+      }
+      clearTrail();
       gestureRef.current = createGestureState();
       return;
     }
@@ -1172,7 +1246,17 @@ export function PizzaStage({
           t.ingredientId === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas"
             ? Math.max(TOPPING_REACH, cheesePoolReachPercent(Math.round(CHEESE_RENDER_MODE.sizePx * activeToppingRankScale(t.ingredientId)), doughPx))
             : toppingFootprintRadiusPercent(activeToppingRankScale(t.ingredientId) * toppingPhaseScale(t.ingredientId, resultCompact), doughPx);
-        return [t.id, placeTopping(pieceLayout, t.x, t.y, reach)] as const;
+        const own = placeTopping(pieceLayout, t.x, t.y, reach);
+        if (!t.trail || t.trail.length < 2) return [t.id, own] as const;
+        // A squeezed stroke is long: it belongs to EVERY piece it crosses (not only the ones round its anchor), and each piece draws it through its own clip.
+        const crossed = new Set<number>(own.halves);
+        for (const point of densifyTrail(t.trail)) {
+          const here = placeTopping(pieceLayout, point.x, point.y, reach);
+          crossed.add(here.home);
+          for (const half of here.halves) crossed.add(half);
+        }
+        crossed.delete(own.home);
+        return [t.id, { home: own.home, halves: [...crossed] }] as const;
       }),
     );
   }, [pieceLayout, pizza.toppings, doughPx, resultCompact]);
@@ -1359,9 +1443,16 @@ export function PizzaStage({
         // #514: the RESULT-only multiplier (production 0.75; 1 off the RESULT and for the exempt mozzarella: the var is then not set at all)
         const phaseScale = toppingPhaseScale(t.ingredientId, resultCompact);
         return (
+          <Fragment key={t.id}>
+          {t.trail && t.trail.length >= 2 && (
+            // Expansion Batch 13 (#708, "案A"): a squeezed stroke is ONE piece drawn as a line, in the same percent frame as the pieces (the dough's padding box).
+            <svg className="pizza-squeeze-trail" viewBox="0 0 100 100" {...ovalSvgProps} aria-hidden="true" data-squeeze-trail-for={t.id}>
+              <path className="pizza-squeeze-trail__outline" d={trailPathD(t.trail)} />
+              <path className="pizza-squeeze-trail__body" d={trailPathD(t.trail)} />
+            </svg>
+          )}
           <span
-            key={t.id}
-            className={half ? "pizza-topping-half" : `pizza-topping pizza-topping--${ingredient.id}`}
+            className={half ? "pizza-topping-half" : `pizza-topping pizza-topping--${ingredient.id}${t.trail ? " pizza-topping--trail" : ""}`}
             data-topping-id={t.id}
             style={{
               left: `${t.x}%`,
@@ -1379,11 +1470,22 @@ export function PizzaStage({
                 melt/spread/toast/char); every other ingredient gets its own dedicated
                 `toppingPieceStyle` curve instead of `cheeseStyle` reused as-is -- see that
                 variable's own comment above for why. */}
-            {(() => {
+            {t.trail ? null : (() => {
+              const preparedLook = preparedIngredientIds?.includes(ingredient.id) ? preparedPieceVisual(ingredient.id, preparedLookByIngredient?.[ingredient.id]) : null;
+              const searLook = searedPieceVisual(ingredient.id, searedLookByIngredient?.[ingredient.id]);
               const m1Piece = (
                 <IngredientPieceVisual
                   ingredient={ingredient}
-                  style={ingredient.category === "cheese" ? cheeseStyle : toppingPieceStyle(ingredient)}
+                  className={preparedLook?.className ?? searLook?.className}
+                  style={
+                    ingredient.category === "cheese"
+                      ? cheeseStyle
+                      : preparedLook
+                        ? { ...toppingPieceStyle(ingredient), ...preparedLook.style }
+                        : searLook
+                          ? { ...toppingPieceStyle(ingredient), ...searLook.style }
+                          : toppingPieceStyle(ingredient)
+                  }
                 />
               );
               if (!(ingredient.id === "mozzarella" && CHEESE_RENDER_MODE.kind === "canvas")) return m1Piece;
@@ -1418,6 +1520,7 @@ export function PizzaStage({
               );
             })()}
           </span>
+          </Fragment>
         );
       })}
       {piece === undefined && placement?.status === "rejected" && (
@@ -1561,7 +1664,7 @@ export function PizzaStage({
         aria-label={isKeyboardPlaceable ? "ピザ。選択中の素材を置くにはEnterまたはスペース" : "ピザ"}
         className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
           bakeState ? `pizza-dough--${bakeState}` : ""
-        } ${showDoughShape && !squarePan ? "pizza-dough--has-shape-layer" : ""}${squarePan ? " pizza-dough--square-pan" : ""}`}
+        } ${showDoughShape && !squarePan ? "pizza-dough--has-shape-layer" : ""}${squarePan ? " pizza-dough--square-pan" : ""}${oval ? " pizza-dough--oval" : ""}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -1635,7 +1738,7 @@ export function PizzaStage({
           />
         )}
         {isDoughStep && interactive && !showSquareDough && !squarePan && (
-          <svg className="dough-target-guide" viewBox="0 0 100 100" aria-hidden="true">
+          <svg className="dough-target-guide" viewBox="0 0 100 100" {...ovalSvgProps} aria-hidden="true">
             <circle cx="50" cy="50" r={DOUGH_RADIUS} />
           </svg>
         )}
@@ -1648,7 +1751,7 @@ export function PizzaStage({
             player can actually paint (referenceModeEnabled + interactive), never during
             BAKE/RESULT or behind the Reference popover. */}
         {referenceModeEnabled && interactive && !squarePan && (
-          <svg className="sauce-target-guide" viewBox="0 0 100 100" aria-hidden="true">
+          <svg className="sauce-target-guide" viewBox="0 0 100 100" {...ovalSvgProps} aria-hidden="true">
             <circle cx="50" cy="50" r={SAUCE_TARGET_RADIUS} />
           </svg>
         )}
@@ -1660,8 +1763,8 @@ export function PizzaStage({
         {/* Issue #418: CUT's capture zone reaches past the pizza so a stroke can start outside it. */}
         {isCutStep && interactive && <div className="pizza-cut-hit-zone" aria-hidden="true" />}
         {!separatePostLayer && cutToolLayer}
-        <svg className="pizza-paint-trail" viewBox="0 0 100 100" aria-hidden="true">
-          <path ref={pathRef} className="pizza-paint-trail__stroke" style={trailStrokeStyle} />
+        <svg className="pizza-paint-trail" viewBox="0 0 100 100" {...ovalSvgProps} aria-hidden="true">
+          <path ref={pathRef} className={isSqueezeMode ? "pizza-paint-trail__stroke pizza-paint-trail__stroke--squeeze" : "pizza-paint-trail__stroke"} style={trailStrokeStyle} />
         </svg>
       </div>
       {separatePostLayer && (
@@ -1707,6 +1810,8 @@ export function PizzaStage({
           />
         </div>
       )}
+      {overlay}
+      {searOverlay}
     </div>
   );
 }

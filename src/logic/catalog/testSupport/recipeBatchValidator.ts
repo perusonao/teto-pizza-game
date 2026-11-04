@@ -34,6 +34,7 @@ import { isKeyFreeHintRoles } from "../../discovery/hint5Ladder";
 import { researchCohortLetters } from "../../discovery/researchEntry";
 import { RUNTIME_SUPPORTED_CAPABILITIES } from "../../discovery/signature";
 import { validateDiscoveryLadder } from "../../discoveryLadder";
+import { LATE_INGREDIENTS, LATE_RECIPES } from "../../../data/lateCatalog";
 
 /**
  * Making steps the runtime actually wires (FOLD / SEAL / EDGE_FILL have no recipe or reducer wiring). FINISH is wired since
@@ -84,6 +85,23 @@ export function productionCatalogView(): CatalogView {
       if (!reference) return null;
       return reference.pieceGroups.filter((g) => g.ingredientId === ingredientId).reduce((n, g) => n + g.positions.length, 0);
     },
+  };
+}
+
+/**
+ * E5: `productionCatalogView()` without the late-addition content (the late recipe, its material, its ladder step). A recipe BATCH is an
+ * ordinary-catalog event (its recipes are the tail of the ordinary catalog, its steps the tail of the ordinary ladder); the late tail
+ * sits after every ordinary entry and is validated by `validateLateCatalog` (../../../data/lateCatalog.ts).
+ */
+export function ordinaryCatalogView(): CatalogView {
+  const full = productionCatalogView();
+  const lateRecipes = new Set<string>(LATE_RECIPES.map((r) => r.id));
+  const lateIngredients = new Set<string>(LATE_INGREDIENTS.map((i) => i.id));
+  return {
+    ...full,
+    recipes: full.recipes.filter((r) => !lateRecipes.has(r.id)),
+    ingredients: full.ingredients.filter((i) => !lateIngredients.has(i.id)),
+    ladder: { ...full.ladder, steps: full.ladder.steps.filter((s) => !lateRecipes.has(s.keyRecipeId)) },
   };
 }
 
@@ -186,6 +204,9 @@ export interface BatchRecipe {
 }
 
 export interface RecipeBatchManifest {
+  /** Recipes appended AFTER this batch outside the material-batch model (no new key material, e.g. `grandma-pizza`): named so the
+   *  tail stays pinned exactly. The batch's own identity checks run on the catalog as it stood when the batch landed (without them). */
+  followedBy?: readonly string[];
   batchId: string;
   status: "planned" | "landed";
   /** The recipe this batch is appended after (the last recipe of the previous catalog). Names the base without a count pin. */
@@ -204,7 +225,11 @@ export function validateBatchManifest(manifest: RecipeBatchManifest, view: Catal
   const ids = manifest.recipes.map((r) => r.recipeId);
   const keyIds = manifest.recipes.map((r) => r.keyIngredientId);
   for (const id of new Set(dupes(ids))) problems.push(`MANIFEST_RECIPE_DUPLICATE: ${id}`);
-  for (const id of new Set(dupes(keyIds))) problems.push(`MANIFEST_KEY_INGREDIENT_DUPLICATE: ${id}`);
+  // Two batch recipes may share a key material only when every one but the first declares `ladderCredit: false`: a non-credit recipe (B11 S1's porcini-pizza) has no step of its own and rides its credited sibling's step.
+  for (const id of new Set(dupes(keyIds))) {
+    const sharers = manifest.recipes.filter((r) => r.keyIngredientId === id);
+    if (sharers.filter((r) => r.ladderCredit !== false).length > 1) problems.push(`MANIFEST_KEY_INGREDIENT_DUPLICATE: ${id}`);
+  }
 
   const recipeIds = view.recipes.map((r) => r.id as string);
   const base = recipeIds.indexOf(manifest.afterRecipeId) + 1;
@@ -221,13 +246,18 @@ export function validateBatchManifest(manifest: RecipeBatchManifest, view: Catal
   }
 
   // LANDED: the recipes are the tail of RECIPES, in manifest order (No. identity).
+  const followedBy = manifest.followedBy ?? [];
   const tail = recipeIds.slice(base);
-  if (JSON.stringify(tail) !== JSON.stringify(ids)) problems.push(`NO_IDENTITY: tail after ${manifest.afterRecipeId} is [${tail}], manifest [${ids}]`);
+  if (JSON.stringify(tail) !== JSON.stringify([...ids, ...followedBy])) problems.push(`NO_IDENTITY: tail after ${manifest.afterRecipeId} is [${tail}], manifest [${[...ids, ...followedBy]}]`);
+  const landedRecipes = view.recipes.filter((r) => !followedBy.includes(r.id));
 
   // Append-only ladder: the batch adds steps after the base's, one per recipe, in manifest order.
-  const baseSteps = view.ladder.steps.filter((s) => !ids.includes(s.keyRecipeId));
+  // A recipe that follows this batch (`followedBy`) may carry its own late ladder step AFTER this batch's (New Sauces Phase B U2: eggplant-dengaku-pizza after yuzu-shrimp-pizza): those steps are neither
+  // the base nor this batch's, so they are set aside before the frozen prefix is checked.
+  const followerSteps = view.ladder.steps.filter((s) => followedBy.includes(s.keyRecipeId));
+  const baseSteps = view.ladder.steps.filter((s) => !ids.includes(s.keyRecipeId) && !followedBy.includes(s.keyRecipeId));
   const addedSteps = view.ladder.steps.filter((s) => ids.includes(s.keyRecipeId));
-  const baseStepCount = view.ladder.steps.length - addedSteps.length;
+  const baseStepCount = view.ladder.steps.length - addedSteps.length - followerSteps.length;
   if (view.ladder.steps.slice(0, baseStepCount).some((s) => ids.includes(s.keyRecipeId))) problems.push("LADDER_NOT_APPENDED: a batch step sits inside the frozen prefix");
   const wantCredited = manifest.recipes.filter((r) => r.ladderCredit !== false && !r.creditedWithoutStep);
   for (const r of manifest.recipes.filter((m) => m.creditedWithoutStep)) {
@@ -245,14 +275,14 @@ export function validateBatchManifest(manifest: RecipeBatchManifest, view: Catal
   const oldRecipes = view.recipes.slice(0, base);
   const materialsOf = (steps: readonly { ingredientIds: readonly string[] }[]) => [...view.starterIds, ...steps.flatMap((s) => s.ingredientIds)];
   const lettersBefore = researchCohortLetters(materialsOf(baseSteps), oldRecipes);
-  const lettersAfter = researchCohortLetters(materialsOf(view.ladder.steps), view.recipes);
+  const lettersAfter = researchCohortLetters(materialsOf(view.ladder.steps), landedRecipes);
   for (const r of oldRecipes) {
     const shift = `${lettersBefore.get(r.id) ?? "-"}->${lettersAfter.get(r.id) ?? "-"}`;
     const accepted = manifest.acceptedLetterShifts?.[r.id];
     if (lettersBefore.get(r.id) !== lettersAfter.get(r.id) && accepted !== shift) problems.push(`COHORT_LETTER_SHIFT: ${r.id} ${lettersBefore.get(r.id) ?? "-"} -> ${lettersAfter.get(r.id) ?? "-"}`);
     if (accepted !== undefined && lettersBefore.get(r.id) === lettersAfter.get(r.id)) problems.push(`ACCEPTED_LETTER_SHIFT_NOT_OBSERVED: ${r.id}`);
     const before = [recipeChapter(r, { populationId: "base", steps: baseSteps }), recipeChapterSlot(r, oldRecipes, { populationId: "base", steps: baseSteps })];
-    const after = [recipeChapter(r, view.ladder), recipeChapterSlot(r, view.recipes, view.ladder)];
+    const after = [recipeChapter(r, view.ladder), recipeChapterSlot(r, landedRecipes, view.ladder)];
     if (before.join() !== after.join()) problems.push(`CHAPTER_IDENTITY: ${r.id} chapter/No ${before.join("/")} -> ${after.join("/")}`);
   }
   for (const id of Object.keys(manifest.acceptedLetterShifts ?? {})) if (!oldRecipes.some((r) => r.id === id)) problems.push(`ACCEPTED_LETTER_SHIFT_UNKNOWN_RECIPE: ${id}`);

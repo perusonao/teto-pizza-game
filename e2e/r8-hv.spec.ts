@@ -68,7 +68,7 @@ test("R8 HV story", async ({ page }) => {
   }, SAVE_KEY);
   await enterBakePaused(page);
   await page.clock.runFor(100);
-  await landNeedleAndTakeOut(page, { start: 60, end: 80 });
+  await landNeedleAndTakeOut(page, { start: 60, end: 80 }, { finish: false });
   const alert = page.locator('[data-round-notice="save-failure"]');
   await expect(alert).toBeVisible();
   // the needle holds where the player took it out while the failure is on screen

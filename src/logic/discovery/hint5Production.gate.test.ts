@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { HINT_CLASS_DISPLAY } from "../../data/hintClassDisplay";
@@ -25,6 +25,8 @@ import {
 import { buildSelectableHintModel } from "./selectableHint";
 import { ladderTargets } from "./testSupport/deductionInversion";
 import { KEY_FREE_RECIPES } from "../testSupport/hintRoles";
+import { DOUGH_PINSA_ROMANA_RECIPE_IDS, LATE_ADDITION_RECIPE_IDS, PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
+import { MULTI_SAUCE_RECIPE_IDS, requiredSauceIds } from "../testSupport/requiredSauces";
 
 /**
  * Discovery Hint 5.0 (Issue #292), H5-1 / H5-4: the production gate on the real 25-recipe catalog
@@ -142,16 +144,40 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
 
   it("P1 / P2: a family with a single catalog member is still shown as its classification (narrowing to one candidate = PASS)", () => {
     const singletons = INGREDIENTS.filter((i) => i.category === "topping" && INGREDIENTS.filter((j) => ingredientAttributeFamily(j.id) === ingredientAttributeFamily(i.id)).length === 1).map((i) => i.id);
-    expect(singletons.sort()).toEqual(["capers"]); // Expansion Batch 2: lemon joins pineapple in the fruit family
+    // New Sauces Phase B U2 (#578, Owner 2026-10-25): white-sesame joins capers in the spice family, so the real catalog has NO single-member family any more (it was `["capers"]`). The check is NOT removed: every singleton the
+    // real catalog has (today none) keeps its classification here, and the same property is held on a SYNTHETIC catalog that restores the old shape (spice = capers alone) in the next test.
+    expect(singletons.sort()).toEqual([]);
+    for (const id of singletons) expect(subToppingClass(id), id).toBe(ingredientAttributeFamily(id));
     for (const [recipeId, sub] of [["breakfast-pizza", "egg"], ["pizza-portuguesa", "egg"]] as const) {
       const final = purchaseStates(recipeId, 5).pop()!.view;
       const entry = final.board.find((e) => e.kind === "SUB_CLASS" && "classView" in e && e.classView.family === ingredientAttributeFamily(sub));
       expect(entry, recipeId).toBeDefined();
       expect(stringValues(entry).join("|")).not.toContain(getIngredient(sub)!.nameJa);
     }
-    // capers (the spice singleton) is a puttanesca sub-topping; its classification exists even while
+    // capers (a spice) is a puttanesca sub-topping; its classification exists even while
     // puttanesca waits on P4.
     expect(subToppingClass("capers")).toBe("spice");
+    expect(subToppingClass("white-sesame")).toBe("spice");
+  });
+
+  it("P1 / P2 on a SYNTHETIC catalog: a family with exactly one catalog member (spice = capers alone, as before New Sauces U2 Batch 10 PR-1's paprika-powder and PR-2 late4's wasabi and Expansion Batch 13's mayo and Expansion Batch 14's cinnamon) is still classified, and its sub-topping is shown as that class", async () => {
+    vi.resetModules();
+    vi.doMock("../../data/ingredientTaxonomy", async (importOriginal) => {
+      const real = await importOriginal<typeof import("../../data/ingredientTaxonomy")>();
+      return { ...real, ingredientAttributeFamily: (id: unknown) => (id === "white-sesame" || id === "paprika-powder" || id === "wasabi" || id === "mayo" || id === "cinnamon" ? "herb" : real.ingredientAttributeFamily(id)) };
+    });
+    try {
+      const synth = await import("../../data/ingredientTaxonomy");
+      const { subToppingClass: synthClass } = await import("./hint5Ladder");
+      const toppings = INGREDIENTS.filter((i) => i.category === "topping");
+      const singletons = toppings.filter((i) => toppings.filter((j) => synth.ingredientAttributeFamily(j.id) === synth.ingredientAttributeFamily(i.id)).length === 1).map((i) => i.id);
+      expect(singletons.sort()).toEqual(["capers"]); // the synthetic shape: the old real catalog's only singleton
+      for (const id of singletons) expect(synthClass(id), id).toBe("spice");
+      expect(synthClass("white-sesame")).toBe("herb"); // the synthetic reassignments (white-sesame, paprika-powder, wasabi, mayo, cinnamon) are what make capers alone
+    } finally {
+      vi.doUnmock("../../data/ingredientTaxonomy");
+      vi.resetModules();
+    }
   });
 });
 
@@ -319,16 +345,19 @@ describe("Cooking Techniques tripwire (TQ-1D, §12) — G7", () => {
     const noSauce = [...noSauceRecipeIds()].sort();
     expect(noSauce.length).toBeGreaterThan(0);
     const requiring = RECIPE_DISCOVERY_CATALOG.filter((t) => requiredTechniquesOf(t).length > 0).map((t) => t.recipeId);
-    // Square Dough F2: the technique-requiring set is the named allowlist NO_SAUCE + pan "tray" (empty until E, #521). A tray
+    // Square Dough F2: the technique-requiring set is the named allowlist NO_SAUCE + pan "tray" (shared PAN_TRAY_RECIPE_IDS, empty until E, #521). A tray
     // recipe has sauces, so the sauce-shape assertions below stay on the NO_SAUCE set and the tray recipe is asserted
     // to have no technique term in any rung by the privacy sweep in the next test.
-    const PAN_TRAY_RECIPE_IDS: readonly string[] = [];
-    // Dough Kind P1 (#577): the dough technique's own named allowlist, empty until P3 (HOLD) adds pinsa-romana.
-    const DOUGH_PINSA_ROMANA_RECIPE_IDS: readonly string[] = [];
-    expect(requiring.sort(), "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual([...noSauce, ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS].sort());
+    // Dough Kind (#577 P3-b-3): the dough technique's named allowlist (shared, ../testSupport/techniqueAllowlists.ts): empty while PINSA_PRODUCTION is false.
+    expect(requiring.sort(), "a new Technique recipe must re-audit Hint 5.0 privacy before shipping").toEqual([...noSauce, ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS, ...LATE_ADDITION_RECIPE_IDS].sort());
     const sauceRung = (id: string) => buildHint5Ladder(id)!.rungs.filter((r) => r.kind === "SAUCE");
     const notSingleSauce = RECIPES.filter((r) => sauceRung(r.id).length !== 1 || sauceRung(r.id)[0].subjectIds.length !== 1).map((r) => r.id);
-    expect(notSingleSauce.sort(), "a new sauceless / multi-sauce recipe must re-audit Hint 5.0 privacy before shipping").toEqual(noSauce);
+    expect(notSingleSauce.sort(), "a new sauceless / multi-sauce recipe must re-audit Hint 5.0 privacy before shipping").toEqual([...noSauce, ...MULTI_SAUCE_RECIPE_IDS].sort());
+    // Multi-Sauce S3: a two-sauce recipe has ONE SAUCE rung that names both of its sauces (the SAUCE rung is "every sauce"; Design Lock §5.2).
+    for (const id of MULTI_SAUCE_RECIPE_IDS) {
+      expect(sauceRung(id), id).toHaveLength(1);
+      expect([...sauceRung(id)[0].subjectIds].sort(), id).toEqual(requiredSauceIds(id).sort());
+    }
     // Every NO_SAUCE recipe: no SAUCE rung at all (not an empty / RESERVED one), no KEY_TOPPING, the first rung is CHEESE,
     // then STRUCTURE and one SUB_CLASS per topping, indexed 1..n.
     for (const id of noSauce) {

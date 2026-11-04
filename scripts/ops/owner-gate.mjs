@@ -8,7 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createApi, collectRepoFacts } from "./collect-facts.mjs";
-import { evaluateGate } from "./lib/gate-state.mjs";
+import { applyRepoGaps, evaluateGate } from "./lib/gate-state.mjs";
 import { findOverlaps } from "./lib/overlap.mjs";
 import { renderMarkdown } from "./lib/render.mjs";
 
@@ -25,7 +25,7 @@ function parseArgs(argv) {
 
 export function buildReport({ prFacts, prFiles, claims, repo, now, repoGaps = [] }) {
   const hotFiles = JSON.parse(fs.readFileSync(path.join(here, "hot-files.json"), "utf8")).hotFiles;
-  const results = prFacts.map((f) => evaluateGate(f));
+  const results = applyRepoGaps(prFacts.map((f) => evaluateGate(f)), repoGaps);
   const overlaps = findOverlaps({ prs: prFiles, claims: claims.active, hotFiles });
   const md = renderMarkdown({ results, overlaps, claims, repo, generatedAt: new Date(now).toISOString(), repoGaps, dryRun: true });
   return { results, overlaps, claims, md };

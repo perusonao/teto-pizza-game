@@ -28,10 +28,34 @@ export type DedicatedIngredientVisual =
   | "feta-cubes"
   | "sausage-slices"
   | "hot-dog-slices"
+  | "pickle-slices"
+  | "wurstel-links"
+  | "paprika-powder-pile"
   | "shiso-leaf"
+  | "arugula-leaves"
   | "whitebait-school"
   | "salmon-roe-grains"
-  | "green-onion-slices";
+  | "green-onion-slices"
+  | "shrimp-curl"
+  | "sesame-seeds"
+  | "pomegranate-aril"
+  | "cilantro-leaf"
+  | "beef-slices"
+  | "wasabi-dab"
+  | "cod-roe-mass"
+  | "nori-strips"
+  | "porcini-slice"
+  | "mussel-shell"
+  | "ricotta-salata-shavings"
+  | "mayo-drop"
+  | "cinnamon-powder-pile"
+  | "green-pepper-strips"
+  | "bell-pepper-quarter"
+  | "pineapple-wedges"
+  | "salmon-fillet"
+  | "cream-cheese-block"
+  | "umeboshi-paste-dab"
+  | "sour-cream-dab";
 
 export interface Ingredient {
   id: string;
@@ -488,7 +512,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
    *   entitlement. They become reachable when the W1 recipes and their ladder ship together.
    * - Visuals are the W1 Human Visual Gate authority (7/7 HUMAN_PASS): capers / clam /
    *   fresh-tomato draw their dedicated `pieceVisual` (their `emoji` is only the required text
-   *   fallback and is never drawn); corn / eggplant / pineapple / potato use their emoji.
+   *   fallback and is never drawn); corn / eggplant / potato use their emoji (pineapple moved to a dedicated visual in Pilot E, #715).
    * - `fresh-tomato` is its own id (a slice), never an alias of `cherry-tomato` or `tomato-sauce`.
    */
   {
@@ -547,6 +571,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F34D}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "pineapple-wedges", // Ingredient Icons 2.0 Pilot E (#715): two wedges of cut flesh instead of the whole-fruit 🍍 (🍍 is only the text fallback)
   },
   {
     id: "potato",
@@ -579,7 +604,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
    * -- unlocked at appended ladder step 26 (T3: first purchase 100 / refill 50 Pitz, pack 30 from
    * k = 3 x pack-pizzas), sold only by the material Shop, so no legacy `pricePitz` /
    * `restockQuantity` / `starterGrantOnly`. Family `seafood` lives in ./ingredientTaxonomy.ts.
-   * 🦐 is the ingredient glyph; the seafood Hint class symbol is 🌊 (hintClassDisplay.ts, G18).
+   * Drawn by the dedicated `shrimp-curl` visual (a peeled shrimp: a slim C-curl, pale-pink flesh, orange outline, no eyes / feelers / legs; Owner-approved over the shelled 🦐);
+   * 🦐 is only the required text fallback; the seafood Hint class symbol is 🌊 (hintClassDisplay.ts, G18).
    */
   {
     id: "shrimp",
@@ -587,6 +613,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "エビ",
     color: "#f08a6b",
     emoji: "\u{1F990}",
+    pieceVisual: "shrimp-curl",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
@@ -614,6 +641,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1FAD1}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "bell-pepper-quarter", // Ingredient Icons 2.0 Pilot E (#715): a red quarter (🫑 is only the text fallback)
   },
   {
     id: "zucchini",
@@ -668,8 +696,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
   },
   /**
    * Expansion Batch 1 (veggie-supreme-pizza): finite ladder material, step 32 (T4). Family `vegetable`. Its own
-   * ingredient, never `bell-pepper` (パプリカ 🫑): 🌶️ is a different glyph, and the Japanese names differ
-   * (ピーマン / パプリカ), so the two cannot be confused in the tray, Shop or Dex.
+   * ingredient, never `bell-pepper` (パプリカ): the Japanese names differ (ピーマン / パプリカ) and, since Pilot E (#715), green strips vs a red quarter are drawn by dedicated visuals
+   * (the 🌶️ / 🫑 emoji are only text fallbacks), so the two cannot be confused in the tray, Shop or Dex.
    */
   {
     id: "green-pepper",
@@ -679,6 +707,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F336}\u{FE0F}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "green-pepper-strips", // Ingredient Icons 2.0 Pilot E (#715): green strips instead of the red chilli 🌶️ (🌶️ is only the text fallback)
   },
   /** Expansion Batch 2: finite ladder material, step 33 (T4). Cheese category like every cheese (shared 🧀 convention, told apart by name / colour). */
   {
@@ -700,13 +729,14 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
-  /** Expansion Batch 2: finite ladder material, step 35 (T4). Family `vegetable`. 🥗 (not the vegetable class symbol 🥬) is distinct from every herb glyph. */
+  /** Expansion Batch 2: finite ladder material, step 35 (T4). Family `vegetable`. Drawn by the dedicated `arugula-leaves` visual (a sprig of lobed leaves, Owner-approved on iPhone); `emoji` (🥗, not the vegetable class symbol 🥬, so it stays distinct from every herb glyph) is only the required text fallback. */
   {
     id: "arugula",
     category: "topping",
     nameJa: "ルッコラ",
     color: "#4f8a3a",
     emoji: "\u{1F957}",
+    pieceVisual: "arugula-leaves",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
@@ -729,6 +759,9 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9C0}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    // Ingredient Icons 2.0 Pilot D (#623, Style Lock §1b A): a foil-wrapped block SVG. A cheese with a `pieceVisual` draws it inside the `.pizza-cheese` wrapper
+    // (Style Lock §0-6 / §4.4), so the generic white CSS circle is no longer used for it.
+    pieceVisual: "cream-cheese-block",
   },
   /** Expansion Batch 2: finite ladder material, step 37 (T4). Family `fruit`. 🍋 is distinct from `pineapple` 🍍. */
   {
@@ -749,6 +782,9 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F363}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    // Ingredient Icons 2.0 Pilot D (#623, Style Lock §1b A): a dedicated fillet SVG (orange body, white fat stripes, silver skin) replaces the 🍣 sushi emoji.
+    // `emoji` stays as the text fallback (never drawn while `pieceVisual` is set).
+    pieceVisual: "salmon-fillet",
   },
   /** Expansion Batch 3: finite ladder material, step 38 (T4). Family `seafood`. 🐡 distinct from `anchovy` 🐟 / `tuna` 🐠 / `salmon` 🍣 / `shrimp` 🦐 / `clam` 🦪 and the seafood class symbol 🌊 (G18). */
   {
@@ -999,6 +1035,194 @@ const BASE_INGREDIENTS: Ingredient[] = [
     unlockCondition: { minTotalStars: 0 },
     bakeRoastResistant: true,
   },
+  /** Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md): finite ladder material, step 57 (T4, no star gate), the sole material of curry-pizza-japan's step. A NEW spread sauce painted in the SAUCE step (the existing PAINT gesture). Colour #d9892b is Owner-approved but PROVISIONAL (confirmed on a real device in HV). The base of all four curry recipes (curry-pizza-japan listed in the matrix; rendang / tandoori-paneer are a GAMEPLAY ASSUMPTION, D-B3). */
+  {
+    id: "curry-ketchup",
+    category: "sauce",
+    nameJa: "カレーケチャップ",
+    color: "#d9892b",
+    emoji: "\u{1F35B}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 58 (T4), the sole material of rendang-pizza's step (introduces beef on the ordinary side). Family `meat`. Provisional name. Drawn by the dedicated `beef-slices` visual (PR-2 late4, provisional adoption; the final adoption is the 390x844 / 360x800 HV); `emoji` is only the required, never-displayed text fallback. */
+  {
+    id: "beef",
+    category: "topping",
+    nameJa: "牛肉",
+    color: "#8c3a2e",
+    emoji: "\u{1F404}",
+    pieceVisual: "beef-slices",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 59 (T4), first of currywurst's two materials. Family `spice`. Provisional name. Drawn by the dedicated `paprika-powder-pile` visual (a small red powder mound, Ingredient Visual V1, provisional adoption; the final adoption is the 390x844 / 360x800 HV); `emoji` is only the required, never-displayed text fallback. */
+  {
+    id: "paprika-powder",
+    category: "topping",
+    nameJa: "パプリカパウダー",
+    color: "#c2411f",
+    emoji: "\u{1F7E7}",
+    pieceVisual: "paprika-powder-pile",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 59 (T4), the last material of currywurst's step (= its Research cohort key). Family `meat`. Provisional name. Drawn by the dedicated `wurstel-links` visual (two scored, pale-orange sausages, Ingredient Visual V1, provisional adoption; the final adoption is the HV); `emoji` is only the required, never-displayed text fallback. */
+  {
+    id: "wurstel",
+    category: "topping",
+    nameJa: "ヴルステル",
+    color: "#b8553f",
+    emoji: "\u{1F32F}",
+    pieceVisual: "wurstel-links",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 60 (T4), the sole material of tandoori-paneer-pizza's step. Cheese category (shared cheese convention, no family). Provisional name. */
+  {
+    id: "paneer",
+    category: "cheese",
+    nameJa: "パニール",
+    color: "#f6f1de",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 61 (T4), first of cuban-pizza's three materials. A NEW spread sauce (Owner: `sauce`, PAINT). Colour is PROVISIONAL (a yellow-brown close to curry-ketchup, dE ~27; compared in HV). */
+  {
+    id: "mustard",
+    category: "sauce",
+    nameJa: "マスタード",
+    color: "#d4b020",
+    emoji: "\u{1F7E1}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 61 (T4). Family `vegetable` (Owner). Drawn by the dedicated `pickle-slices` visual (a wavy-cut round slice and a whole gherkin, Ingredient Visual V1, provisional adoption; the final adoption is the HV); `emoji` is only the required, never-displayed text fallback. */
+  {
+    id: "pickles",
+    category: "topping",
+    nameJa: "ピクルス",
+    color: "#7a8f2a",
+    emoji: "\u{1F348}",
+    pieceVisual: "pickle-slices",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /** Batch 10 PR-1: finite ladder material, step 61 (T4), the last material of cuban-pizza's step (= its Research cohort key). Cheese category (shared cheese convention, no family). Provisional name. */
+  {
+    id: "swiss-cheese",
+    category: "cheese",
+    nameJa: "スイスチーズ",
+    color: "#f1dfa0",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * B11 S1 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, step 62 (T4, no star gate), the sole material of boscaiola's step (key recipe; porcini-pizza shares it, REC-04 tie-break by recipe id). Family `vegetable` (L1 only).
+   * Drawn by the dedicated `porcini-slice` visual (a lengthwise slice: a brown cap over a thick pale stem; provisional adoption, the final adoption is the 390x844 / 360x800 HV), kept apart from the plain `mushroom`; `emoji` is only the required, never-displayed text fallback (G18 keeps it unique).
+   */
+  {
+    id: "porcini",
+    category: "topping",
+    nameJa: "ポルチーニ",
+    color: "#9a6b3f",
+    emoji: "\u{1FAB5}",
+    pieceVisual: "porcini-slice",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * B11 S1 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, step 63 (T4, no star gate), the sole material of pescatore's step. Family `seafood` (L1 only).
+   * Drawn by the dedicated `mussel-shell` visual (an elongated dark shell with an orange body; provisional adoption, the final adoption is the HV), kept apart from the round pale `clam`; `emoji` is only the required, never-displayed text fallback (G18 keeps it unique).
+   */
+  {
+    id: "mussel",
+    category: "topping",
+    nameJa: "ムール貝",
+    color: "#2f3a52",
+    emoji: "\u{1F41A}",
+    pieceVisual: "mussel-shell",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * Expansion Batch 12 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, step 64 (T4, no star gate), the sole material of pizza-alla-norma's step. Cheese category like every cheese (shared 🧀 convention; no cheese subdivision, so no topping family row).
+   * Drawn by the dedicated `ricotta-salata-shavings` visual (thin curled white shavings with a dry grated look), kept apart from the round `ricotta` mound and the boxy `feta` cubes; `color` is PROVISIONAL until the 390x844 / 360x800 HV.
+   */
+  {
+    id: "ricotta-salata",
+    category: "cheese",
+    nameJa: "リコッタサラータ",
+    color: "#f1ecdc",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "ricotta-salata-shavings",
+  },
+  /**
+   * Expansion Batch 13 (Issue #708; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, step 65 (T4, no star gate), the sole material of potato-mayo-pizza's step. Owner decision 2026-10-30: a topping (scatter) -- not a sauce -- family `spice`, size class `s`.
+   * Drawn by the dedicated `mayo-drop` visual (a cream teardrop; iPhone HV 2026-10-31 found the first zigzag read as the letter M, Owner decision \"案A\"). In the TOPPING step it is placed by one stroke across the dough = one piece (../logic/squeeze.ts); a tap places the single droplet. `color` is PROVISIONAL until the 390x844 / 360x800 HV.
+   */
+  {
+    id: "mayo",
+    category: "topping",
+    nameJa: "マヨネーズ",
+    color: "#fff6dc",
+    emoji: "\u{1F9F4}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "mayo-drop",
+  },
+  /**
+   * Expansion Batch 14 (Issue: none, Owner-directed; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, step 66 (T4, no star gate), the sole material of moussaka-style-pizza's step.
+   * Owner decision: a topping (scatter) -- not a sauce -- family `spice`, size class `s`, colour `#b9733a` (PROVISIONAL until the 390x844 / 360x800 HV), drawn as a powder pile (`cinnamon-powder-pile`, the `paprika-powder-pile` grammar in a lighter, flatter brown).
+   * `emoji` 🍪 is only the required, never-displayed text fallback (G18: not the spice family symbol 🧂, and no other ingredient uses it). When the cinnamon is added (before or after the bake) is NOT confirmed against the original; it is placed in the TOPPING step.
+   */
+  {
+    id: "cinnamon",
+    category: "topping",
+    nameJa: "シナモン",
+    color: "#b9733a",
+    emoji: "\u{1F36A}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "cinnamon-powder-pile",
+  },  /**
+   * Expansion Batch 16 (Issue #736; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, ordinary step 67 (T4, no star gate), the sole material of ume-shiso-pizza's step.
+   * Owner decision (2026-11-03): a spread SAUCE painted in the SAUCE step (the existing PAINT gesture) -- the matrix names 梅肉 (plum flesh; the canonicalizer's id `umeboshi-paste`) and leaves the sauce field 'その他' unspecified, and reading 梅肉 as
+   * the sauce is a B16-only provisional exception. A sauce carries no topping family (so no ingredientTaxonomy row; 梅肉 is not meat: `false_friend_not_meat`). Colour `#b8405a` and the emoji 🍑 (a sauce shows its emoji; G18: no other ingredient uses it)
+   * are PROVISIONAL until the 390x844 / 360x800 HV.
+   */
+  {
+    id: "umeboshi-paste",
+    category: "sauce",
+    nameJa: "梅肉",
+    color: "#b8405a",
+    emoji: "\u{1F351}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+    // Issue #739 (Owner P1, 2026-11): a paste dab with a plum blossom instead of the 🍑 (which read as a peach on the 390x844 / 360x800 HV). `emoji` stays only as the required text fallback (G18 keeps it unique). Presentation only.
+    pieceVisual: "umeboshi-paste-dab",
+  },  /**
+   * Expansion Batch 17 (Issue #741; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, ordinary step 68 (T4, no star gate), the sole material of goulash-pizza's step.
+   * Owner decision (2026-11-03): a spread SAUCE painted in the SAUCE step (the existing PAINT gesture) -- the matrix names サワークリーム and leaves the sauce field 'その他' unspecified, and reading it as the sauce is a B17-only provisional exception.
+   * A sauce carries no topping family (no ingredientTaxonomy row). Colour `#f1ecdc` is PROVISIONAL (a white sauce cannot reach DeltaE 20 against fromage-blanc-sauce `#fffdf8`, so the chip is told apart by its dedicated dab, plan A: a swirl with a peak, and the label).
+   * `emoji` 🍦 is only the required text fallback (G18: not 🥣, which tahini uses; no other ingredient uses it).
+   */
+  {
+    id: "sour-cream",
+    category: "sauce",
+    nameJa: "サワークリーム",
+    color: "#f1ecdc",
+    emoji: "\u{1F366}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "sour-cream-dab",
+  },
+
+
 ];
 
 /**

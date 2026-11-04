@@ -11,6 +11,8 @@ import {
   type TechniqueRuntimeContext,
 } from "./runtime";
 import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
+import { lateCatalogEnabled } from "../../data/lateCatalog";
+import { DOUGH_PINSA_ROMANA_RECIPE_IDS, LATE_ADDITION_RECIPE_IDS, PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 
 /**
  * Cooking Techniques 1.0 TQ-1C (Issue #287): the pure per-round technique step
@@ -104,7 +106,8 @@ describe("resolveRoundTechniques", () => {
   it("T16 / INV-TQ-4 (TQ-1D): with the production context only the NO_SAUCE recipes' no-sauce is recorded (aussie shown; the set is derived from the sauce-profile authority), and only by their own paths", () => {
     const production = productionTechniqueContext();
     expect(production.catalog).toBe(RECIPE_DISCOVERY_CATALOG);
-    const others = RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId)).map((t) => t.recipeId);
+    // (the technique-free recipes: neither NO_SAUCE nor the tray recipe grandma-pizza of Square Dough E-2, which has its own tray test)
+    const others = RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId) && !PAN_TRAY_RECIPE_IDS.includes(t.recipeId) && !DOUGH_PINSA_ROMANA_RECIPE_IDS.includes(t.recipeId) && !LATE_ADDITION_RECIPE_IDS.includes(t.recipeId)).map((t) => t.recipeId);
     const withoutAussie = dex(others);
     const withAussie = dex([...others, "aussie"]);
     for (const eligibility of ["FREE_COOK", "FREE_GUIDED"] as const) {
@@ -136,12 +139,15 @@ describe("T19: initialTechniqueLedger (INV-TQ-1 at load)", () => {
   });
 
   it("is a no-op for every production save without aussie; a save with aussie is backfilled (INV-TQ-1)", () => {
-    const others = dex(RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId)).map((t) => t.recipeId));
+    const others = dex(RECIPE_DISCOVERY_CATALOG.filter((t) => !(noSauceRecipeIds() as readonly string[]).includes(t.recipeId) && !PAN_TRAY_RECIPE_IDS.includes(t.recipeId) && !DOUGH_PINSA_ROMANA_RECIPE_IDS.includes(t.recipeId) && !LATE_ADDITION_RECIPE_IDS.includes(t.recipeId)).map((t) => t.recipeId));
     expect(initialTechniqueLedger([], others)).toEqual([]);
     expect(initialTechniqueLedger(["no-sauce"], others)).toEqual(["no-sauce"]);
     const everything = dex(RECIPE_DISCOVERY_CATALOG.map((t) => t.recipeId));
-    expect(initialTechniqueLedger([], everything)).toEqual(["no-sauce"]);
-    expect(initialTechniqueLedger(["no-sauce"], everything)).toEqual(["no-sauce"]);
+    // E5: with the late catalog on, a save that holds every recipe (the late one included) is also backfilled with 後乗せ.
+    // Square Dough E-2: grandma-pizza requires the tray, so a save holding it is backfilled with 天板焼き too.
+    const all = ["no-sauce", "tray", ...(DOUGH_PINSA_ROMANA_RECIPE_IDS.length > 0 ? ["dough-pinsa-romana"] : []), ...(lateCatalogEnabled() ? ["late-addition"] : [])]; // (registry order; Pinsa Romana adds the dough technique only while its gate is open)
+    expect(initialTechniqueLedger([], everything)).toEqual(all);
+    expect(initialTechniqueLedger(["no-sauce"], everything)).toEqual(all);
   });
 });
 

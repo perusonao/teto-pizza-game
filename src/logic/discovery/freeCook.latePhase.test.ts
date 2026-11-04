@@ -7,6 +7,7 @@ import { FINISH_FIXTURE_RECIPE, finishedPizza, piece, preBakePizza } from "../..
 import { resolveFreeCookPizza, withFreeCookBakeWindow } from "./freeCook";
 import { DEFAULT_IDENTITY_DIMENSIONS } from "./signature";
 import type { RecipeDiscoveryTarget } from "./matcher";
+import { ordinaryRecipes } from "../catalog/testSupport/lateIds";
 
 /**
  * FIN-E4 (E3b independent review, low finding): Free Cooking identification and the FINAL cooking pass share one phase contract.
@@ -55,8 +56,8 @@ describe("FIN-E4: Free identification honours the late-requirement phase contrac
     expect(r.kind === "ORIGINAL" && r.outcome.kind).toBe("INCOMPLETE_MATCH");
   });
 
-  it("every shipped recipe is untouched: no late requirement, same pizza object", () => {
-    for (const recipe of RECIPES) {
+  it("every shipped ordinary recipe is untouched: no late requirement, same pizza object", () => {
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       expect((recipe.requiredIngredients as readonly { applicationPhase?: string }[]).some((q) => q.applicationPhase === "POST_BAKE")).toBe(false);
       const p = baked(preBakePizza());
       expect(pizzaForFinalEvaluation(recipe, p)).toBe(p);

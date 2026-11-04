@@ -392,8 +392,9 @@ describe("DH4-2B x T1a (purchase timing) through the real reducer", () => {
 });
 
 describe("DH4-PROD x Cooking Techniques (TQ-1C runtime)", () => {
-  it("the technique ledger never changes the hint view or a 構成 / 特徴 / 材料 result", () => {
-    for (const id of TARGETS) {
+  // One `it` per target (was one `it` looping over every target, which grew with the catalog past the 5 s default: it fails alone on an unmodified main at 6.8 s; the same class of fix as #682 / #689). Assertions unchanged; no timeout is raised.
+  it.each([...TARGETS])("the technique ledger never changes the hint view or a 構成 / 特徴 / 材料 result: %s", (id) => {
+    {
       const s = sheetOn(id, 100);
       const withTech = { ...s, discoveredTechniqueIds: ["no-sauce"] as const, lastTechniqueDiscovery: ["no-sauce"] as const } as GameState;
       expect(hintSheetView(withTech)).toEqual(hintSheetView(s));

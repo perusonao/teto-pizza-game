@@ -4,6 +4,7 @@ import { INGREDIENTS } from "../data/ingredients";
 import { RECIPES } from "../data/recipes";
 import type { DiscoveryOutcome } from "../logic/discovery/matcher";
 import { ORIGINAL_LEAD_COPY, originalResultKind } from "./originalResultCopy";
+import { targetIdentityKey } from "../logic/catalog/testSupport/identityKeys";
 
 describe("P2-A: the kind of ORIGINAL is distinguished internally", () => {
   const cases: [DiscoveryOutcome | null | undefined, string][] = [
@@ -45,7 +46,7 @@ describe("OD-P2-1 = A: the neutral lead discloses nothing", () => {
   });
 
   it("canary: production has no identity collision, so AMBIGUOUS is unreachable in production", () => {
-    const keys = RECIPE_DISCOVERY_CATALOG.map((t) => JSON.stringify([[...t.items].sort(), [...(t.sauceBase ?? [])].sort()]));
+    const keys = RECIPE_DISCOVERY_CATALOG.map((t) => targetIdentityKey(t)); // Pinsa (#577): the identity dimensions (dough, late) are part of the identity the matcher judges
     expect(new Set(keys).size).toBe(keys.length);
     // Adding a colliding recipe fails this test: OD-P2-1 must be RE-DECIDED before a collision recipe ships.
   });

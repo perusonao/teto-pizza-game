@@ -212,11 +212,13 @@ describe("Pizza Select A′: the one anonymous prompt card", () => {
 describe("Pizza Select A′: nothing about an undiscovered recipe reaches the DOM", () => {
   const keyOrder = ["margherita", ...DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
 
-  it.each([
+  // One `it` per Dex count and state (was one 10 s `it` per state that rendered the screen once per ladder step, so every recipe batch pushed it toward its timeout: the same class of fix as #682 / #689).
+  // Every assertion, the walk order and the rendered states are unchanged; no timeout is raised.
+  for (const [label, bought] of [
     ["A (material arrived, not bought)", false],
     ["B (material bought, stock 30)", true],
-  ] as const)("every ladder Dex, state %s", (_label, bought) => {
-    for (let n = 0; n <= keyOrder.length; n++) {
+  ] as const) {
+    it.each(Array.from({ length: keyOrder.length + 1 }, (_, n) => n))(`every ladder Dex, state ${label}: Dex %i`, (n) => {
       const dex = dexDiscovering(keyOrder.slice(0, n));
       const unlocked = materialIdsOfSteps(DISCOVERY_LADDER.steps.filter((s) => s.step <= n));
       const owned = bought ? unlocked : materialIdsOfSteps(DISCOVERY_LADDER.steps.filter((s) => s.step < n));
@@ -240,8 +242,8 @@ describe("Pizza Select A′: nothing about an undiscovered recipe reaches the DO
       // OD-DISC-5: no EP1 display.
       expect(everything).not.toMatch(/を1枚完成させると解禁|あと★|未解放/);
       cleanup();
-    }
-  }, 10_000); // explicit timeout: this walk renders the screen 26 times and ran 3.7-4.0 s alone, close to the 5 s default under a full-suite load
+    });
+  }
 });
 
 describe("PizzaSelectScreen scalability (mocked catalog)", () => {

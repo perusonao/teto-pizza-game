@@ -50,9 +50,10 @@ import { ingredientCategory } from "./ingredientCategoryIndex";
 import { ingredientAttributeFamily, ingredientAttributeGroup } from "../../data/ingredientTaxonomy";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import {
-  attributeAnswerForReserve,
+  attributeAnswerForCleanOwned,
   INGREDIENT_TOTAL_FACT_ID,
   MIN_ATTRIBUTE_CANDIDATES,
+  ownedCatalogIds,
   structureTotalFact,
   type AttributeContext,
   type ReserveAttributeAnswer,
@@ -77,8 +78,15 @@ export interface ReserveParts {
 
 const CATALOG_ORDER = new Map(INGREDIENTS.map((ingredient, index) => [ingredient.id, index]));
 
+const CATALOG_IDS = INGREDIENTS.map((ingredient) => ingredient.id);
+
 function byCatalogOrder(ids: Iterable<string>): string[] {
-  return [...new Set(ids)].sort((a, b) => (CATALOG_ORDER.get(a) ?? 0) - (CATALOG_ORDER.get(b) ?? 0));
+  const distinct = new Set(ids);
+  // Catalog order = filter the catalog's own id list by membership (no sort, no Map lookups). The result is the same list the sort below gives
+  // whenever every id is a catalog id exactly once; anything else (an id outside the catalog, a duplicated catalog id) takes the original path.
+  const inCatalogOrder = CATALOG_IDS.filter((id) => distinct.has(id));
+  if (inCatalogOrder.length === distinct.size) return inCatalogOrder;
+  return [...distinct].sort((a, b) => (CATALOG_ORDER.get(a) ?? 0) - (CATALOG_ORDER.get(b) ?? 0));
 }
 
 function categoryOf(id: string): string | null {
@@ -206,7 +214,29 @@ export function hypotheticalReserves(parts: ReserveParts): string[] {
 
 /** The key step one ingredient alone gives (`recipeKeyStep`, the rule behind the free key). */
 function ingredientKeyStep(id: string): number {
+  return keyStepTable().get(id) ?? computeIngredientKeyStep(id);
+}
+
+function computeIngredientKeyStep(id: string): number {
   return recipeKeyStep({ requiredIngredients: [{ ingredientId: id }] } as unknown as Recipe);
+}
+
+/**
+ * Every catalog ingredient's key step, computed once. A pure function of the catalog and the ladder (never of a caller's input, never a
+ * guard result), rebuilt whenever `INGREDIENTS` changes length -- the same rule as ./ingredientCategoryIndex.ts. An id outside the catalog is not
+ * in the table and is computed on the spot, so the table cannot grow with untrusted input.
+ */
+let keyStepIndex: ReadonlyMap<string, number> | null = null;
+let keyStepIndexedLength = -1;
+
+function keyStepTable(): ReadonlyMap<string, number> {
+  if (keyStepIndex === null || keyStepIndexedLength !== INGREDIENTS.length) {
+    const built = new Map<string, number>();
+    for (const ingredient of INGREDIENTS) if (!built.has(ingredient.id)) built.set(ingredient.id, computeIngredientKeyStep(ingredient.id));
+    keyStepIndex = built;
+    keyStepIndexedLength = INGREDIENTS.length;
+  }
+  return keyStepIndex;
 }
 
 /** W, the strict answer's universe: the same set as H (kept as its own name for the audit). */
@@ -230,11 +260,12 @@ export function hypotheticalParts(parts: ReserveParts, x: string): ReserveParts 
 
 function dh41Answer(parts: ReserveParts): ReserveAttributeAnswer | null {
   // T1a: the DH4-1 decoys come from the same makeable prefix as H, never from later purchases.
-  return dh41AnswerOver(parts, makeablePrefix(parts) ?? []);
+  return dh41AnswerOver(parts, ownedCatalogIds(makeablePrefix(parts) ?? []));
 }
 
-function dh41AnswerOver(parts: ReserveParts, prefix: readonly string[]): ReserveAttributeAnswer | null {
-  return attributeAnswerForReserve({ recipeIngredientIds: parts.recipeIngredientIds, reserveId: parts.reserveId, ownedIngredientIds: prefix });
+/** `cleanPrefix` is already `ownedCatalogIds(prefix)`; the caller validates the list once instead of once per hypothesis. */
+function dh41AnswerOver(parts: ReserveParts, cleanPrefix: readonly string[]): ReserveAttributeAnswer | null {
+  return attributeAnswerForCleanOwned({ recipeIngredientIds: parts.recipeIngredientIds, reserveId: parts.reserveId, ownedIngredientIds: cleanPrefix });
 }
 
 type StrictLevel = "family" | "group" | "category";
@@ -287,7 +318,7 @@ export function partitionAllowsDh41(parts: ReserveParts): boolean {
   const sizes = new Map<string, number>();
   // Every hypothesis shares the known part (H excludes it) and the owned list, so the makeable prefix
   // is the same for all of them: computed once per call, never kept between calls.
-  const prefix = makeablePrefix(parts) ?? [];
+  const prefix = ownedCatalogIds(makeablePrefix(parts) ?? []);
   for (const x of h) {
     const answer = dh41AnswerOver(hypotheticalParts(parts, x), prefix);
     const key = `${categoryOf(x)}|${answer ? answer.factId : "none"}`;

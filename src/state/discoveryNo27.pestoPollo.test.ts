@@ -33,6 +33,7 @@ import { activeRows } from "../logic/catalog/testSupport/lateIds";
 const ID = "pesto-pollo";
 const CAL = "brazilian-calabresa";
 const AUS = "aussie"; // TQ-1D: the second non-credit onion-step recipe
+const GRA = "grandma-pizza"; // Square Dough E-2: the non-credit tray recipe (olive-oil + garlic, step 14); found here for the same reason as CHI
 const CHI = "chilean-napolitana"; // Batch 8a: the third non-credit branch (fresh-tomato, step 20); found in these cases so the step-25 pool stays what the case names
 const recipe = getRecipe(ID as RecipeId)!;
 
@@ -137,19 +138,19 @@ describe("No.27 ladder: step 25 unlocks chicken; steps 1..24 unchanged", () => {
 describe("No.27 step-25 pool (production functions)", () => {
   it("Case A (calabresa undiscovered, aussie found): before chicken purchase pool = calabresa only; after purchase pool = calabresa + pesto-pollo -> OPEN_POOL", () => {
     // (TQ-1D: the no-sauce aussie is a second non-credit onion-step recipe; with it undiscovered the pool is 2 already.)
-    expect(pool(stateAfter(W1_DONE, { chickenBought: false })).sort()).toEqual([AUS, CAL, CHI].sort());
-    const before = stateAfter([...W1_DONE, AUS, CHI], { chickenBought: false });
+    expect(pool(stateAfter(W1_DONE, { chickenBought: false })).sort()).toEqual([AUS, CAL, CHI, GRA].sort());
+    const before = stateAfter([...W1_DONE, AUS, CHI, GRA], { chickenBought: false });
     expect(pool(before)).toEqual([CAL]);
     expect(target(before)).toBe(`TARGET:${CAL}`);
     expect(recipeDiscoveryState(recipe as Recipe, before)).toBe("KNOWN_BUT_MISSING_MATERIAL");
-    const after = stateAfter([...W1_DONE, AUS, CHI], { chickenBought: true });
+    const after = stateAfter([...W1_DONE, AUS, CHI, GRA], { chickenBought: true });
     expect(pool(after).sort()).toEqual([CAL, ID].sort());
     expect(target(after)).toBe("OPEN_POOL");
     expect(hintSheetView(hintState(after))).toEqual({ kind: "CHOOSE_RESEARCH" }); // #353: 2 registered entries; names no candidate
   });
 
   it("Case B (calabresa and aussie discovered): after chicken purchase pool = pesto-pollo only -> auto target", () => {
-    const found = [...W1_DONE, CAL, AUS, CHI];
+    const found = [...W1_DONE, CAL, AUS, CHI, GRA];
     expect(pool(stateAfter(found, { chickenBought: false }))).toEqual([]);
     expect(target(stateAfter(found, { chickenBought: false }))).toBe("SHOP_NEW");
     const after = stateAfter(found, { chickenBought: true });
@@ -158,11 +159,11 @@ describe("No.27 step-25 pool (production functions)", () => {
   });
 
   it("after the discovery: pesto-pollo is DISCOVERED; COMPLETE once calabresa and aussie are found too", () => {
-    const done = stateAfter([...W1_DONE, CAL, AUS, CHI, ID], { chickenBought: true });
+    const done = stateAfter([...W1_DONE, CAL, AUS, CHI, GRA, ID], { chickenBought: true });
     expect(pool(done)).toEqual([]);
     // Expansion Slice 1: pesto-gamberi (shrimp, step 26) is now the next undiscovered recipe.
     expect(target(done)).toBe("SHOP_NEW");
-    const calOnly = stateAfter([...W1_DONE, AUS, CHI, ID], { chickenBought: true });
+    const calOnly = stateAfter([...W1_DONE, AUS, CHI, GRA, ID], { chickenBought: true });
     expect(pool(calOnly)).toEqual([CAL]);
   });
 });

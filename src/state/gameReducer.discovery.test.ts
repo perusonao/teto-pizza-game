@@ -5,7 +5,8 @@ import { EMPTY_DEX, getDexEntry, registerScoreToDex, type DexState } from "./dex
 import { getRecipe, RECIPES, type RecipeId } from "../data/recipes";
 import { findOrderForRecipe } from "../data/orders";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
-import { buildIdealSauceFixture, getReferencePizza } from "../data/referencePizza";
+import { getReferencePizza } from "../data/referencePizza";
+import { idealSauceDepositsFor, panFieldsFor, requiredSauceIds } from "../logic/testSupport/requiredSauces";
 import { createEmptyPizza, type PizzaState, type PlacedTopping } from "./pizzaState";
 import { getCookingProfile } from "../data/cookingProfiles";
 import { createCutState } from "../logic/cut/state";
@@ -21,6 +22,7 @@ import { evaluateDiscovery } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
 import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { starsFromTotal } from "../logic/scoring";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 
 /**
@@ -42,8 +44,9 @@ function referencePieces(recipeId: RecipeId): PlacedTopping[] {
 function idealPizzaFor(recipeId: RecipeId, bakeResult = BAKE): PizzaState {
   return {
     ...createEmptyPizza(),
-    sauceIds: ((sauce) => (sauce ? [sauce.ingredientId] : []))(getReferencePizza(recipeId)!.sauce),
-    sauceDeposits: buildIdealSauceFixture(),
+    sauceIds: requiredSauceIds(recipeId),
+    ...panFieldsFor(recipeId), // Square Dough E-2: grandma-pizza is only itself cooked on the tray
+    sauceDeposits: idealSauceDepositsFor(recipeId),
     toppings: referencePieces(recipeId),
     bakeResult,
   };
@@ -238,7 +241,8 @@ describe("REGISTER_TO_DEX discovery integration (P3-1)", () => {
   });
 
   it("12. every shipped recipe's reference pizza: Free Cooking discovers exactly that recipe and Dex/★/Pitz equal the legacy result", () => {
-    for (const recipe of RECIPES) {
+    // E5: the late recipe's pizza is finished in FINISH (post-bake pieces), covered end to end in lateCatalog.ikura.test.ts.
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       // Issue #482 (OD-B6 F1): Free Cooking judges by the generic window its gauge shows, so the bake is the middle
       // of the part of the recipe's own window that the generic window covers (every recipe overlaps it).
       const bake = Math.round(

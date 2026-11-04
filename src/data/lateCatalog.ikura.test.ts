@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { TECHNIQUES } from "./techniques";
 import { LATE_RECIPES, lateCatalogEnabled } from "./lateCatalog";
+import { pinsaEnabled } from "./pinsaGate";
 
 /**
  * FIN-E4b-ikura (Issue #621): the real late content (`ikura-salmon-pizza` + `salmon-roe`) with the build-time switch mocked ON,
@@ -10,15 +11,12 @@ import { LATE_RECIPES, lateCatalogEnabled } from "./lateCatalog";
 
 async function load(enabled: boolean) {
   vi.resetModules();
-  if (enabled) {
-    vi.doMock("./lateCatalog", async (importOriginal) => ({
-      ...(await importOriginal<typeof import("./lateCatalog")>()),
-      LATE_CATALOG_PRODUCTION: true,
-      lateCatalogEnabled: () => true,
-    }));
-  } else {
-    vi.doUnmock("./lateCatalog");
-  }
+  // E5: Production has the switch ON, so both states are mocked explicitly (OFF = the rollback state, ON = what ships).
+  vi.doMock("./lateCatalog", async (importOriginal) => ({
+    ...(await importOriginal<typeof import("./lateCatalog")>()),
+    LATE_CATALOG_PRODUCTION: enabled,
+    lateCatalogEnabled: () => enabled,
+  }));
   // Sequential on purpose: concurrent imports would run the mock factory twice.
   await import("./lateCatalog");
   const recipes = await import("./recipes");
@@ -48,9 +46,12 @@ function pizzaOf(pre: readonly string[], post: readonly string[]): PizzaState {
   return { ...createEmptyPizza(), sauceIds: [], toppings: [...pre.map((id, i) => piece(id, i)), ...post.map((id, i) => piece(id, i, "post"))], bakeResult: 70 };
 }
 
-describe("OFF (Production) is untouched by the ikura content", () => {
-  it("the switch is OFF, and no OFF catalog, order, taxonomy row or size class mentions ikura / salmon-roe", async () => {
-    expect(lateCatalogEnabled()).toBe(false);
+describe("OFF (the rollback state) is untouched by the ikura content", () => {
+  it("E5: Production ships with the switch ON, and the real modules hold ikura last", () => {
+    expect(lateCatalogEnabled()).toBe(true);
+  });
+
+  it("with the switch OFF, no catalog, order, taxonomy row or size class mentions ikura / salmon-roe", async () => {
     const off = await load(false);
     expect(off.recipes.RECIPES.some((r) => (r.id as string) === IKURA)).toBe(false);
     expect(off.recipes.RECIPES.some((r) => r.requiredIngredients.some((q) => "applicationPhase" in q))).toBe(false); // no POST_BAKE anywhere
@@ -68,25 +69,36 @@ describe("ON: the ordinary catalog followed by the ikura content", () => {
   it("recipe, ingredient, order, taxonomy row and size class join; every ordinary entry is unchanged", async () => {
     const off = await load(false);
     const on = await load(true);
-    expect(on.recipes.RECIPES.map((r) => r.id)).toEqual([...off.recipes.RECIPES.map((r) => r.id), IKURA]);
+    // (New Sauces Phase B U1: yuzu-shrimp-pizza follows ikura, before pinsa-romana, so Pinsa stays the last late recipe; asserted on its own in lateCatalog.yuzu.test.ts)
+    expect(on.recipes.RECIPES.map((r) => r.id)).toEqual([...off.recipes.RECIPES.map((r) => r.id), IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
     expect(JSON.stringify(on.recipes.RECIPES.slice(0, off.recipes.RECIPES.length))).toBe(JSON.stringify(off.recipes.RECIPES));
-    expect(on.ingredients.INGREDIENTS.at(-1)?.id).toBe("salmon-roe");
+    expect(on.ingredients.INGREDIENTS.slice(off.ingredients.INGREDIENTS.length).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate", "bbq-sauce", "cilantro", "soy-sauce", "wasabi", "cod-roe", "fresh-cream-sauce", "nori"]); // the late ingredients, in authored order
     expect(on.ingredients.STARTER_INGREDIENT_IDS).toEqual(off.ingredients.STARTER_INGREDIENT_IDS);
-    expect(on.orders.ORDERS.at(-1)?.recipeId).toBe(IKURA);
+    expect(on.orders.ORDERS.slice(off.orders.ORDERS.length).map((o) => o.recipeId)).toEqual([IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // (pinsa-romana follows them while its own gate is open)
     expect(on.taxonomy.ingredientAttributeFamily("salmon-roe")).toBe("seafood");
     expect(on.sizes.TOPPING_SIZE_CLASS_BY_ID["salmon-roe"]).toBe("xs");
   });
 
-  it("the late step is appended after every ordinary step, keyed to ikura, with no star gate; the OFF ladder is an exact prefix", async () => {
+  it("the late steps are appended after every ordinary step (ikura's first, then yuzu's, then dengaku's, then tahini's, then bbq's, then wasabi-beef's and tarako-cream's), with no star gate; the OFF ladder is an exact prefix", async () => {
     const off = await load(false);
     const on = await load(true);
     const offSteps = off.ladder.DISCOVERY_LADDER.steps;
     const onSteps = on.ladder.DISCOVERY_LADDER.steps;
-    expect(onSteps).toHaveLength(offSteps.length + 1);
+    expect(onSteps).toHaveLength(offSteps.length + 7); // PR-2 late4: + the soy-sauce / wasabi and cod-roe / fresh-cream-sauce / nori late steps; New BBQ Chicken (#611): + the bbq-sauce / cilantro late step;  Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step
     expect(JSON.stringify(onSteps.slice(0, offSteps.length))).toBe(JSON.stringify(offSteps));
     const late = onSteps[offSteps.length];
     expect(late).toMatchObject({ ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });
     expect(late.starGates).toBeUndefined();
+    expect(onSteps[offSteps.length + 1]).toMatchObject({ ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" });
+    expect(onSteps[offSteps.length + 1].starGates).toBeUndefined();
+    expect(onSteps[offSteps.length + 2]).toMatchObject({ ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" });
+    expect(onSteps[offSteps.length + 2].starGates).toBeUndefined();
+    expect(onSteps[offSteps.length + 3]).toMatchObject({ ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" });
+    expect(onSteps[offSteps.length + 3].starGates).toBeUndefined();
+    expect(onSteps[offSteps.length + 4]).toMatchObject({ ingredientIds: ["bbq-sauce", "cilantro"], keyRecipeId: "bbq-chicken-pizza" });
+    expect(onSteps[offSteps.length + 4].starGates).toBeUndefined();
+    expect(onSteps[offSteps.length + 5]).toMatchObject({ ingredientIds: ["soy-sauce", "wasabi"], keyRecipeId: "wasabi-beef-pizza" });
+    expect(onSteps[offSteps.length + 6]).toMatchObject({ ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: "tarako-cream-pizza" });
     expect(on.ladderLogic.validateAppendOnlyExtension(off.ladder.DISCOVERY_LADDER, on.ladder.DISCOVERY_LADDER)).toEqual([]);
     expect(on.ladderLogic.validateDiscoveryLadder(on.ladder.DISCOVERY_LADDER)).toEqual([]);
     // shiso (the other material) is an ordinary step, earlier than the late one: the recipe is makeable once the late step is reached.
@@ -96,25 +108,26 @@ describe("ON: the ordinary catalog followed by the ikura content", () => {
   it("an ordinary batch appended later moves only the late step's NUMBER; its key, materials and order are unchanged, and nothing already reached moves", async () => {
     const on = await load(true);
     const steps = on.ladder.DISCOVERY_LADDER.steps;
-    const ordinary = steps.slice(0, -1);
-    const lateStep = steps[steps.length - 1];
+    const lateSteps = steps.slice(-3); // ikura's, then yuzu's, then dengaku's
+    const ordinary = steps.slice(0, -3);
     // An ordinary step appended after the current ordinary tail (a stand-in material): rebuild the ON ladder as ordinary + new + late.
     const withNewOrdinary = on.ladderLogic.appendLadderSteps(
       on.ladderLogic.appendLadderSteps(
         { ...on.ladder.DISCOVERY_LADDER, steps: ordinary },
         [{ ingredientIds: ["synthetic-new"], keyRecipeId: "synthetic-key" }],
       ),
-      [{ ingredientIds: lateStep.ingredientIds, keyRecipeId: lateStep.keyRecipeId }],
+      lateSteps.map((s) => ({ ingredientIds: s.ingredientIds, keyRecipeId: s.keyRecipeId })),
     );
     const after = withNewOrdinary.steps;
     expect(after).toHaveLength(steps.length + 1);
     // Every step that existed before the batch keeps its number and content.
     expect(JSON.stringify(after.slice(0, ordinary.length))).toBe(JSON.stringify(ordinary));
-    // The late step is still last, with the same key and material; only its number moved by exactly +1.
-    const moved = after[after.length - 1];
-    expect(moved.ingredientIds).toEqual(lateStep.ingredientIds);
-    expect(moved.keyRecipeId).toBe(lateStep.keyRecipeId);
-    expect(moved.step).toBe(lateStep.step + 1);
+    // The late steps are still last, in order, with the same keys and materials; only their numbers moved by exactly +1.
+    after.slice(-3).forEach((moved, i) => {
+      expect(moved.ingredientIds).toEqual(lateSteps[i].ingredientIds);
+      expect(moved.keyRecipeId).toBe(lateSteps[i].keyRecipeId);
+      expect(moved.step).toBe(lateSteps[i].step + 1);
+    });
   });
 
   it("passes the structural validators (late catalog, ladder progression) on the real data", async () => {
@@ -174,7 +187,10 @@ describe("ON: identification (the roe and the shiso must be placed after the bak
       const late = new Set<string>(recipe.requiredIngredients.filter((q) => "applicationPhase" in q).map((q) => q.ingredientId));
       const pizza = {
         ...createEmptyPizza(),
-        sauceIds: reference.sauce ? [reference.sauce.ingredientId] : [],
+        // every required sauce (a two-sauce recipe needs both), and the tray for a square-pan recipe (Square Dough E-2)
+        sauceIds: reference.sauce ? recipe.requiredIngredients.map((q) => q.ingredientId).filter((id) => on.ingredients.getIngredient(id)?.category === "sauce") : [],
+        ...("panShape" in recipe && recipe.panShape === "square" ? { pan: "tray" as const } : {}),
+        ...("doughKind" in recipe ? { dough: recipe.doughKind } : {}), // Pinsa (#577): a recipe that fixes its dough is only itself on that dough
         toppings: reference.pieceGroups.flatMap((g, gi) =>
           g.positions.map((p, i) => ({ id: `${gi}-${i}`, ingredientId: g.ingredientId, ...p, ...(late.has(g.ingredientId) ? { stage: "post" as const } : {}) })),
         ),

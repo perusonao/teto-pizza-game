@@ -23,6 +23,8 @@
  */
 import { getIngredient, type Ingredient } from "./ingredients";
 import type { Recipe, RecipeId } from "./recipes";
+import { activePanShape } from "../preview/panShapePreview";
+import { getSquareReferenceSlots } from "../logic/pan/squareReference";
 import { assignReferenceSlots } from "../logic/pizzaReferenceLayout";
 
 export interface PlayerReferencePieceGroup {
@@ -34,6 +36,13 @@ export interface PlayerPizzaReference {
   recipeId: RecipeId;
   sauceIngredientId: string | null;
   pieceGroups: readonly PlayerReferencePieceGroup[];
+}
+
+/** Consecutive square-grid slots over the groups in order (the square counterpart of `assignReferenceSlots` for the 1-per-slot case). */
+function assignSquareSlots(groups: readonly { ingredientId: string; count: number }[]): PlayerReferencePieceGroup[] {
+  const slots = getSquareReferenceSlots(groups.reduce((sum, g) => sum + g.count, 0));
+  let next = 0;
+  return groups.map((g) => ({ ingredientId: g.ingredientId, positions: slots.slice(next, (next += g.count)) }));
 }
 
 /**
@@ -54,7 +63,8 @@ export function getPlayerReferencePizza(recipe: Recipe): PlayerPizzaReference {
     if (!ingredient || ingredient.category === "sauce") continue;
     groups.push({ ingredientId: ingredient.id, count: req.minCount });
   }
-  const pieceGroups: PlayerReferencePieceGroup[] = assignReferenceSlots(groups);
+  // Square Dough E-1: a recipe cooked on the square pan lays its guide on the square grid; every other recipe keeps the ring layout.
+  const pieceGroups: PlayerReferencePieceGroup[] = activePanShape(recipe) === "square" ? assignSquareSlots(groups) : assignReferenceSlots(groups);
 
   return {
     recipeId: recipe.id,

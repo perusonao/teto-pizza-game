@@ -21,6 +21,8 @@ import {
   UNMATCHED_FREE_PIZZAS,
   type RoundMode,
 } from "./testSupport/confirmBakeMatrix";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
+import { roundRunsFinish } from "./finishEngine";
 
 /**
  * Cooking Steps 2.0 CS-1b (Issue #294, PR-C): `finalizeRound` was extracted from CONFIRM_BAKE with no
@@ -72,6 +74,19 @@ function legacyFinalize(state: GameState, value: number) {
   };
 }
 
+/**
+ * E5: a Free Cooking round runs FINISH (UD-B, gate ON in Production), so its CONFIRM_BAKE only defers the identification to the FINISH
+ * confirmation (gameReducer.finishFreeCook.test.ts pins that). The single pass this suite compares with the pre-extraction oracle is the bake
+ * followed by an empty-handed 「完成」 -- exactly the round that had no FINISH step. Every other round is CONFIRM_BAKE itself.
+ */
+function confirmBakeAndFinish(state: GameState, value: number): GameState {
+  const baked = confirmBake(state, value);
+  if (state.freeCook && baked.phase === "POST_BAKE" && baked.makingStep === "FINISH") {
+    return gameReducer(baked, { type: "CONFIRM_MAKING_STEP", now: 40_000 });
+  }
+  return baked;
+}
+
 function inputOf(state: GameState, bakeValue: number): FinalizeRoundInput {
   return {
     recipe: state.recipe,
@@ -86,15 +101,16 @@ function inputOf(state: GameState, bakeValue: number): FinalizeRoundInput {
 }
 
 describe("finalizeRound == the pre-extraction CONFIRM_BAKE, for every recipe x mode x bake", () => {
-  it("covers every recipe in RECIPES (derived, not pinned) in all four modes", () => {
-    expect(RECIPES.length).toBeGreaterThan(0);
+  it("covers every ordinary recipe in RECIPES (derived, not pinned) in all four modes", () => {
+    // E5: the oracle predates FINISH; the late recipe (post-bake pieces) is covered by lateCatalog.ikura.test.ts / gameReducer.finishFlow.test.ts.
+    expect(ordinaryRecipes(RECIPES).length).toBeGreaterThan(0);
     expect(ROUND_MODES).toHaveLength(4);
     expect(BAKE_LEVELS).toHaveLength(3);
   });
 
   for (const mode of ROUND_MODES) {
     it(`${mode}: finalizeRound and the reducer agree with the oracle on every recipe and bake`, () => {
-      const cases = RECIPES.flatMap((recipe) =>
+      const cases = ordinaryRecipes(RECIPES).flatMap((recipe) =>
         PIZZA_VARIANTS.flatMap((variant) => BAKE_LEVELS.map((level) => ({ recipe, variant, level }))),
       );
       for (const { recipe, variant, level } of cases) {
@@ -117,7 +133,7 @@ describe("finalizeRound == the pre-extraction CONFIRM_BAKE, for every recipe x m
         }
 
         // The reducer applies exactly that finalization (Dinner clears score / completion by design).
-        const after = confirmBake(before, value);
+        const after = confirmBakeAndFinish(before, value);
         expect(after.inventory, label).toEqual(expected.inventory);
         expect(after.pizza.bakeResult, label).toBe(value);
         if (mode === "dinner") {
@@ -133,7 +149,7 @@ describe("finalizeRound == the pre-extraction CONFIRM_BAKE, for every recipe x m
   }
 
   it("a short order passes the 'recipe' policy but fails Lunch Rush's 'order' policy (the mode wiring is real)", () => {
-    const multi = RECIPES.filter((r) => r.requiredIngredients.some((q) => q.minCount > 1));
+    const multi = ordinaryRecipes(RECIPES).filter((r) => r.requiredIngredients.some((q) => q.minCount > 1));
     expect(multi.length).toBeGreaterThan(0);
     const recipe = multi[0];
     const guided = atBake("guided", recipe.id, "partial");
@@ -162,7 +178,7 @@ describe("Free Cooking pizzas the matcher does not resolve (the non-MATCHED bran
         expect(finalized.bakeState).toEqual(expected.bakeState);
         if (finalized.kind === "UNMATCHED_FREE_COOK") {
           // The reducer keeps the sentinel recipe, leaves the round unscored, and ends it at RESULT.
-          const after = confirmBake(before, value);
+          const after = confirmBakeAndFinish(before, value);
           expect([after.score, after.scoringV2Result, after.phase]).toEqual([null, null, "RESULT"]);
           expect(after.recipe).toBe(before.recipe);
           expect(after.inventory).toEqual(finalized.inventory);
@@ -192,7 +208,8 @@ describe("what stays in CONFIRM_BAKE (phase, CUT skip, exactly-once, purity)", (
         for (const level of BAKE_LEVELS) {
           const before = atBake(mode, recipe.id);
           const after = confirmBake(before, bakeValueFor(mode, before, level));
-          const steps = postBakeSteps(before.cookingProfile);
+          // FINISH is entered only by a round that runs it (Guided); a Lunch Rush round carrying the profile skips it (E5: ikura in Lunch Rush).
+          const steps = postBakeSteps(before.cookingProfile).filter((step) => step !== "FINISH" || roundRunsFinish(before));
           const skipped = bakeCompletionFailure(after.completion!) !== null;
           const label = `${mode} / ${recipe.id} / ${level}`;
           if (skipped || steps.length === 0) {

@@ -34,7 +34,7 @@ function save(step: number, extraDiscovered: readonly string[], stock: (id: stri
   return { ...base, inventory: Object.fromEntries(finiteOf(owned).map((id) => [id, stock(id)])) };
 }
 /** One entry (pesto-pollo); every material stocked except the ones in `zero`. */
-const single = (zero: readonly string[] = []) => save(25, ["brazilian-calabresa", "aussie", "chilean-napolitana"], (id) => (zero.includes(id) ? 0 : 10));
+const single = (zero: readonly string[] = []) => save(25, ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza"], (id) => (zero.includes(id) ? 0 : 10));
 /** Step 12: three entries (pizza-portuguesa + brazilian-calabresa + aussie). */
 const multi = (stock: (id: string) => number) => save(12, [], stock);
 

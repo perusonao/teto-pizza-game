@@ -200,9 +200,9 @@ describe("DISCOVERED keeps the same completedMs the round just produced", () => 
     state = gameReducer(state, { type: "PLACE_TOPPING", ingredientId: "basil", x: 35, y: 65 });
     state = gameReducer(state, { type: "START_BAKE", now: 15_000 });
     state = gameReducer(state, { type: "CONFIRM_BAKE", value: 70 });
-    expect(state.completion?.status).toBe("PASS");
     expect(state.cookingTiming?.completedMs).toBe(15_000);
-    state = walkPostBakeToResult(state);
+    state = walkPostBakeToResult(state); // E5: a Free round's FINISH (Production: on) identifies the pizza at 「完成」
+    expect(state.completion?.status).toBe("PASS");
     state = gameReducer(state, { type: "REGISTER_TO_DEX" });
     expect(state.phase).toBe("DISCOVERED");
     expect(state.cookingTiming?.completedMs).toBe(15_000);

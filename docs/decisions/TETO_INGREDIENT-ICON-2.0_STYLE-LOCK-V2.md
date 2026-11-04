@@ -52,7 +52,7 @@ Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.
 |---|---|---|---|---|---|
 | `fontina` | フォンティーナ | cheese | A | `fontina.svg` | 穴あきの黄色い扇形 + 橙の皮 |
 | `cashew-cheese` | カシューチーズ | cheese | A | `cashew-cheese.svg` | 小さな丸塊 + カシュー 2 粒 |
-| `cream-cheese` | クリームチーズ | cheese | A | `cream-cheese.svg` | 青みのある銀紙包みの角丸ブロック |
+| `cream-cheese` | クリームチーズ | cheese | **C1（2026-10-30 に A から差し替え）** | `cream-cheese.svg`（A 案の旧参照。現行の描画は `IngredientGlyph.tsx` の `CreamCheeseBlock`） | 温かい白の本体＋**下半分だけ銀紙**で包んだブロック（旧 A 案の「青みのある銀紙包みの角丸ブロック」は金属の缶に見えたため廃止） |
 | `catupiry` | カトゥピリ | cheese | A | `catupiry.svg` | 渦巻き状に盛った滑らかなクリーム |
 | `pepperoni` | ペパロニ | meat | A | `pepperoni.svg` | 明るい赤橙の円 2 枚 + 脂の斑点 |
 | `bacon` | ベーコン | meat | A | `bacon.svg` | 赤 + クリーム縞の波打つ帯 2 本 |
@@ -64,7 +64,7 @@ Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.
 | `anchovy` | アンチョビ | seafood | A | `anchovy.svg` | 細い S 字の茶色いフィレ 2 本 |
 | `sardine` | イワシ | seafood | **B** | `sardine.svg` | 青背の銀魚 1 匹 |
 | `tuna` | ツナ | seafood | A | `tuna.svg` | 赤身ブロック（白い筋目） |
-| `shrimp` | エビ | seafood | A | `shrimp.svg` | 橙の丸まった海老（節・尾・目） |
+| `shrimp` | エビ | seafood | A → **§1d で変更（むきエビ）** | `shrimp.svg`（参照のみ。実装は `shrimp-curl` = むきエビ版） | 橙の丸まった海老（節・尾・目）→ 淡ピンクの身・橙の輪郭の細身 C 字（§1d） |
 | `salmon` | サーモン | seafood | A | `salmon.svg` | 橙 + 白い脂の縞 + 銀の皮 |
 | `salt-cod` | 塩ダラ | seafood | **B** | `salt-cod.svg` | 白い切り身 + 粗塩の結晶 |
 
@@ -101,6 +101,35 @@ Related: [`TETO_HUMAN-VERIFICATION-POLICY.md`](./TETO_HUMAN-VERIFICATION-POLICY.
 3. （参考・比較シートで指摘済み）anchovy ↔ bacon のグレースケール近似、pepperoni ↔ salami の色頼りの差。
 
 HV で問題が出た場合も、Style Lock 済みデザインの変更は Owner の明示承認を要する。
+
+## 1d. 2026-10-25 Owner 決定 — `shrimp` を「むきエビ」に変更（`shrimp-curl`）
+
+| 項目 | 内容 |
+|---|---|
+| 理由 | OS 絵文字・§1b 採用案（A）はどちらも**殻付きの赤橙の海老**に見える。レシピ側の意図は「殻と背わたを取ったえび」（`yuzu-shrimp-pizza`、`lateCatalog.ts`）で、PIZZA DB の説明とも合わない。Owner が比較試作で案1（細身 C 字）を採用 |
+| 採用 | 比較試作 `shrimp-p1`（細身 C 字・淡ピンクの身・橙の輪郭）。案2（太め・節線）は不採用（28px でチーズ寄りに見え、20px で細部が潰れる） |
+| `pieceVisual` | `"shrimp-curl"`（64×64） |
+| Lock（§1b A 案）との**差分** | ① 色: 殻の橙〜赤（`#f8905e` / `#d9532c`、輪郭 `#8a2f1c`）→ 淡ピンク `#fdd9d0` ＋ 節 `#f2a99b`、輪郭は橙 `#e8793f` ② **削除**: 目（円）・触角・足 ③ 尾: 足つきの尾 → 小さな扇（`#f9b98f`）④ 白いハイライトを追加 ⑤ 構図（C 字の曲線 `M42 14C58 18 60 44 38 48 26 50 14 44 14 34`・64×64・床影）は維持 |
+| 原典との関係 | 原典（PIZZA DB）の説明は「殻・背わたを取ったエビ」。むきエビ表現は原典に近づく方向。ただしアイコン指定は原典にないため提案の範囲（Owner 承認済み） |
+| サイズ補正 | `.ingredient-glyph--shrimp-curl` を 1.2em / margin -0.1em（shiso 等と同じグループ）。クラスは `m` のまま |
+| 影響レシピ | `pesto-gamberi`、`yuzu-shrimp-pizza`（描画のみ。判定・スコア・材料ID・レシピ・セーブ形式は不変） |
+| 視認性 | 28px: 橙の輪郭でチーズ（クリーム〜白の楕円）と区別できる。20px: C 字の形が残る。焼成後（生地・チーズが黄色寄り）は淡色のコントラストがやや下がるが輪郭で判別可。**実機 HV で確認** |
+| §2 の規約 | `id` / gradient / `<defs>` なし、`aria-hidden`、描画は `pieceVisual` のみを読む。いずれも維持 |
+
+## 1e. 2026-10-28 Owner 決定 — Batch 10 の 3 食材（`pickles` / `wurstel` / `paprika-powder`）を専用 SVG に（Ingredient Visual V1、PR #690）
+
+| 項目 | 内容 |
+|---|---|
+| 理由 | #686（Batch 10 PR-1）で入った 3 食材は絵文字の暫定表示（🍈 / 🌯 / 🟧）で、メロン・ブリトー・オレンジ色の四角に見えた（Fresh Visual Audit） |
+| 採用 | `pickles` = `pickle-slices`（緑のガーキン + 波刃の輪切り）、`wurstel` = `wurstel-links`（切れ目入りの淡橙のソーセージ 2 本）、`paprika-powder` = `paprika-powder-pile`（赤い粉の小山）。Audit の候補をそのまま採用 |
+| 採用の経緯 | 2026-10-27 Owner が暫定採用 → 2026-10-28 Owner の画像 HV（390×844 の焼成後の比較画像）で **A ピクルス / B ヴルステル / C パプリカパウダー すべて PASS**。サイズ補正 1.2em を維持 |
+| `pieceVisual` | `"pickle-slices"` / `"wurstel-links"` / `"paprika-powder-pile"`（いずれも 64×64）。参照 SVG は `docs/design/references/ingredient-icons-2.0/` の `pickles.svg` / `wurstel.svg` / `paprika-powder.svg` |
+| Lock（§1 / §1b）との関係 | Lock の 26 種の外にある新規 3 種。語彙は既存と同じ（2.4 基調の輪郭、2 トーン、足元の影楕円、`id` / gradient / `<defs>` なし）。Lock の既存 26 種は変更しない |
+| サイズ補正 | `.ingredient-glyph--pickle-slices` / `--wurstel-links` / `--paprika-powder-pile` を 1.2em / margin -0.1em（**独立ルール**。shiso 等のグループには足していない） |
+| 不変 | 食材 ID・`nameJa`・`emoji`（テキストフォールバック）・`color`・`placement`・family・サイズクラス・在庫・採点・DH4・レシピ・ladder・セーブ形式（描画のみ。`lateCatalog.offSurface.json` の再生成も不要） |
+| HV の範囲 | 390×844 の焼成後の比較画像（Owner、2026-10-28）= PASS。360×800 は既存の撮影結果（`docs/reports/screenshots/ingredient-visual-v1/`、3 状態）を維持。**Safari 実機での動作確認は未実施** |
+| §2 の規約 | `id` / gradient / `<defs>` なし、`aria-hidden`、描画は `pieceVisual` のみを読む。いずれも維持 |
+| 既知の懸念（記録） | **360×800 のパプリカパウダー**は、トマトソース上の盤面で赤どうしになり小さく見えて目立ちにくい（トレイでは識別できる）。Owner 判断（2026-10-28）で描画変更は行わず、懸念として記録のみ（画像 HV は PASS、Safari 実機は未実施） |
 
 ## 2. 共通仕様（確定方針の再掲）
 
@@ -190,6 +219,8 @@ Pilot A は共通基盤（型・viewBox 表・チーズ分岐変更・テスト�
 
 **2026-10-22 追記: Pilot D = `salmon`, `cream-cheese`（Owner 優先、§0-7 / §10.3）。** 実施順は **D → B → C**。D は #621 の merge 後に着手（同じファイルに触れるため）。**B は #438 の Owner HV 結果が記録されるまで HOLD。** B / C の対象は変更しない。
 
+**2026-10-31 追記: Pilot E = `green-pepper`, `bell-pepper`, `pineapple`（26 種の外、§11）。** 既存の B / C の対象と順序は変更しない（B は HOLD のまま）。E の着手は #709 → #708 の merge 後（ファイルが重なるため）。計画: [`TETO_INGREDIENT-ICON-2.0_PILOT-E_IMPLEMENTATION-PLAN.md`](../design/TETO_INGREDIENT-ICON-2.0_PILOT-E_IMPLEMENTATION-PLAN.md)。
+
 ## 6. 最小テスト（各 Pilot 共通）
 
 `src/components/IngredientGlyph.test.tsx` を更新・追加する（新規テストファイルは作らない）。
@@ -259,6 +290,14 @@ Lock 由来ではなく **OD-B8-2 追記（Batch 8b / 8c）で認可された専
 - サイズ補正: shiso / whitebait は `.ingredient-glyph--<visual>` の 1.2em（§3 追記）。クラス倍率は shiso = xs、whitebait = s。RESULT では ×0.75 も重なり、shiso の描画箱は約 17.6px。20px 未満での識別性は未計測。
 - 色の住み分け: salmon-roe（橙の丸粒）と salmon（桃橙の切り身）は同系色。**形で区別する**（丸粒の山 vs 縞のある楕円）。焼けた生地（橙）に対する明度コントラストは低く、識別は暗い輪郭と形に依存する。
 
+### 10.3b 2026-10-30 Owner 決定 — cream-cheese を C1 へ（Pilot D2、Issue #703）
+
+実機画像で、A 案のクリームチーズが銀色の金属の箱・缶に見えたため、Owner が **C1 最終案**を承認した（形・色の変更。§1c の「Owner の明示承認」に当たる）。サーモンは変更しない。
+- 本体: 前面 `#fff4e2`（承認案は `#fff1d2` だったが、焼成後のチーズ用フィルタ（brightness 1.06 / saturate 1.12 / sepia .14）で黄緑寄りのレモン色になりバターに見えたため、実装時に調整）、上面 `#fffcf4`、輪郭 `#7a6548`（2.4）、上面のハイライト `#f6e6bd`、前面の切り口の線 `#ecd9aa`。
+- 銀紙: 前面の下約半分だけ。ぎざぎざの上端、`#d3d9df`、輪郭 `#6b7380`（2.2）、ハイライト `#f1f4f7`。
+- 64×64、影楕円、`id` / gradient / `<defs>` なし。`pieceVisual` `cream-cheese-block`、食材 id、保存・レシピ・採点・在庫は不変。個別の 1.2em 補正（§0-7(c)）も維持。
+- 比較資料: `docs/reports/TETO_INGREDIENT-VISUAL_PILOT-D2_Result.md`。
+
 ### 10.3 Pilot D = `salmon`, `cream-cheese`
 
 決定は §0-7(c)(d)。ここには設計規則だけを置く。
@@ -305,3 +344,92 @@ Cooking Steps の FINISH（`stage: "post"`）で置かれる piece の規則。*
 ### 10.8 本版で直していないもの
 
 - `docs/PROJECT_HANDOFF.md` の「Ingredient Icon 2.0」節（「Implementation has not started」ほか）は古いが、**HOT file のため本 PR では触れない**。別の docs-only PR（#621 / #584 の扱いが決まった後）で更新する。
+
+## 11. Pilot E-0 追補（2026-10-31 Owner 決定、Issue #712）
+
+Base: `main` `d044719`。**本節は Owner 決定の記録（docs-only）。** runtime・既存 SVG・ゲーム挙動は変更しない。§1b の既存承認（特に `chicken` = A 案ドラムスティック）は**一切変更しない**。比較の根拠と画像: [`TETO_PILOT-E0_ROUND2_Result.md`](../reports/TETO_PILOT-E0_ROUND2_Result.md)、候補 SVG: [`candidates/ingredient-icons-2.0-pilot-e0/`](../design/candidates/ingredient-icons-2.0-pilot-e0/)。
+
+### 11.1 Owner 決定（2026-10-31）
+
+| 項目 | 決定 |
+|---|---|
+| ピーマン `green-pepper` | **GP-A2（緑の細切り）を採用** |
+| パプリカ `bell-pepper` | **BP-B2（赤の四つ割り）を条件付き採用。** 補正 **1.65em を起点**にサイズを確認する（20〜24px で小さくなる点が確認項目） |
+| パイナップル `pineapple` | **PA-A2（外皮を弱めたくさび形）を採用。** **実機で「果肉としての識別性」を確認** |
+| チキン `chicken` | **既存の承認（§1b A = ドラムスティック）を維持。** 骨なし候補 CH-B1 / CH-B2 は比較資料にとどめ、Owner の承認なしに変更しない |
+| 焼成後の表現 | **保留**（#421 / PR #468 の方針確認まで実装しない） |
+| NO_SAUCE の共通案内 | **N-A「塗らずに 次へ 進んでもOK」を条件付き採用。** INV-D4 / INV-D7 の追加検証が必要（本書の対象外。§11.7） |
+
+### 11.2 追加対象（26 種の外。§10.2 と同じ扱い）
+
+| ingredient id | 日本語名 | `pieceVisual`（案） | 候補 SVG（`candidates/ingredient-icons-2.0-pilot-e0/svg/`） | 識別の要点 | 状態 |
+|---|---|---|---|---|---|
+| `green-pepper` | ピーマン | `green-pepper-strips` | `green-pepper-a2-strips.svg` | 緑の弧状の細切り 3 本（先端に薄緑の断面） | **実装済み**（PR #718、main `87dc5c9`）。Owner の iPhone Safari 実機 HV 合格（2026-11-01）。補正値は 11.3a で確定 |
+| `bell-pepper` | パプリカ | `bell-pepper-quarter` | `bell-pepper-b2-quarter.svg` | ヘタ付きの赤の四つ割り（薄橙の空洞と種） | **実装済み**（PR #718、main `87dc5c9`）。サイズ確認の条件は Owner の iPhone Safari 実機 HV 合格により解消（2026-11-01）。補正値は 11.3a で確定 |
+| `pineapple` | パイナップル | `pineapple-wedges` | `pineapple-a2-wedges.svg` | 輪切りを切り分けたくさび形 2 個（外皮の淡い帯と点、繊維の筋） | **実装済み**（PR #718、main `87dc5c9`）。実機での識別性は Owner の iPhone Safari 実機 HV 合格（2026-11-01）。補正値は 11.3a で確定 |
+
+- `pieceVisual` 名は PR #718 で**確定**（`green-pepper-strips` / `bell-pepper-quarter` / `pineapple-wedges`。id と独立の原則は不変）。
+- **参照 SVG への昇格は PR #718 で完了**（`references/ingredient-icons-2.0/green-pepper.svg` / `bell-pepper.svg` / `pineapple.svg`）。
+- 作図仕様は §2 に適合（64×64、透明背景、線幅 2.4、接地影、`id` / gradient / `<defs>` / `url(#` なし、文字なし）。**11 点の候補 SVG すべてで機械的に確認済み。**
+- 食材 id・`emoji`・`color`・保存・採点・レシピ・在庫・Dex は変更しない。
+
+### 11.3 サイズ補正（§3 の個別補正の延長。起点は下表、実装値は 11.3a）
+
+| 食材 | 起点 | 備考 |
+|---|---|---|
+| `green-pepper` | 1.45em + 負マージン（`-(em-1)/2`） | 仮合成で青ねぎ・ハラペーニョと釣り合った |
+| `pineapple` | 1.45em | 同上 |
+| `bell-pepper` | **1.65em** | 余白を増やして約 62% に縮めた絵のため。ピザ上では GP-A2 と釣り合うが、20〜24px では小さな赤い点になる。**小サイズでの読みやすさが条件** |
+
+- 前例: 1.2em（shiso 等）、arugula 1.75em / `-0.375em`（`App.css`）。トレイ chip では別規則（arugula の例）が要るかを実装時に確認する。
+- 補正値は、390×844 / 360×800 の実画面で、チップの高さ・幅・タップ領域を悪化させないことが条件。
+
+### 11.3a 補正値（PR #718 の実装値で確定、Owner 決定 2026-11-01）
+
+| 食材 | ピザ上・RESULT 等 | トレイ chip |
+|---|---|---|
+| `green-pepper` | 1.45em + 負マージン | 同左 |
+| `pineapple` | 1.45em | 同左 |
+| `bell-pepper` | 1.65em | **1.35em**（chip のみ。chip のアイコン枠は固定 26px で、1.65em では溢れるため。arugula の前例） |
+
+- 値の出典は `src/App.css` の Pilot E ブロック。**同ブロックのコメントは「PROVISIONAL」のままで、本書の確定を受けた更新は src / CSS を触る別の変更になる**（本 PR は docs-only のため行わない。Owner が要否を判断する）。
+- chip 寸法は before / after とも 118×64 / 108×64（390 / 360）、タップ領域 64px、glyph は chip 内、横スクロールなし（PR #718 の Chromium E2E）。
+- **Owner が 2026-11-01 に、iPhone Safari 実機 HV 合格を受けて上表を確定値とした**（PR #718 本文の「暫定」を解く）。変更する場合は Owner の承認と本書の改訂が要る。
+
+### 11.4 既存承認との整合（確認結果）
+
+| 確認 | 結果 |
+|---|---|
+| §1b の `chicken` = A 案ドラムスティック | **変更なし。** 骨なし化は、§1d / §10.3b と同じ手順（Owner の明示承認 → 本書に改訂を記録）が別途必要 |
+| §1 / §1b の 25 種と、§10.2 の追加対象 | **変更なし。** 本節の 3 食材は 26 種の外（§10.2 と同じ追加扱い） |
+| 色・形の衝突 | ピーマン↔青ねぎ（採用済み）は形で区別（細切り vs 輪の房）。ただし**緑同士で色は近く**（ΔE 14〜15）、識別は形に頼る。パイナップル↔フェタ（採用済み）は形・色とも別（形 0.26 / ΔE 62）。最近傍はフォンティーナ（形 0.42 / ΔE 14）で、外皮の濃い帯の有無で区別 |
+| G18（グリフ一意性） | `emoji` フィールドは変更しない（🌶️ / 🫑 / 🍍 はテキストのフォールバックとして残る）ため影響なし |
+| §7（実装は最新 main から。実装 Issue は Owner が起票） | 本節は実装を開始しない。Pilot E の実装 Issue は Owner が起票する（#712 は docs-only の追跡先） |
+| 既存テストの意図 | `ingredients.test.ts` の EMOJI_ROWS と `IngredientGlyph.test.tsx` の「approved emoji」から **pineapple を外した**（PR #718、意図的な pin の更新）。ゴールデン `lateCatalog.offSurface.json` の差分は `pieceVisual` 3 件のみ |
+
+### 11.5 識別確認項目（Human Verification。PR #718 の iPhone Safari 実機 HV は Owner が合格、2026-11-01。以下は確認観点の記録。未検証の項目は 11.7a）
+- ピーマン: 青ねぎ・ハラペーニョ（🟩）・パクチー・大葉・ピクルスと、32 / 28 / 24 / 20px で形が区別できるか。
+- パプリカ: ピーマン（GP-A2）と並べて区別できるか。ペパロニ（赤い丸、色差 ΔE 16）と取り違えないか。トマト（`tomato-slice`）との比較は**未実施**（実装時に確認）。
+- パイナップル: **実機（iPhone Safari）で「果肉」と認識できるか。** 葉つきの絵文字より離れて見たときに分かりにくくなる点を、トレイ chip（名前つき）・ピザ上・RESULT で確認。フェタ・コーン・フォンティーナ・カシューとの識別。
+- 全体: Chromium / WebKit の 390×844 と 360×800、焼成前・焼成後（heat 適正）、RESULT、Dex、Shop、Research、Hint / Notebook。焼け過ぎ（heat 2.0）での見え方は未確認のため、実装時に確認。
+
+### 11.6 保留
+- **焼成後の表現**（焼き色・チーズとのなじみ・立体感）: #421 / PR #468（HOLD）の方針確認まで保留。本 Pilot では行わない。
+- **チキンの骨なし候補**: 比較資料としてのみ保持。承認なしに変更しない。磨き込みも Owner の指示後。
+
+### 11.7 NO_SAUCE（参照のみ。本書は決定の記録だけを置く）
+N-A を条件付きで採用。契約（Anti-Oracle Contract 2.1 の INV-D4 / INV-D7）の追加検証が必要で、**実装はまだ行わない**。検討・検証計画: [`TETO_NO-SAUCE_COMMON-GUIDANCE_PROPOSAL.md`](../design/TETO_NO-SAUCE_COMMON-GUIDANCE_PROPOSAL.md)。実装 Issue は Owner が起票する。
+
+### 11.7a 実装後の状態と後続課題（2026-11-01）
+- 実装: PR #718（squash、main `87dc5c9`）。Owner の iPhone Safari 実機 HV は合格。補正値は 11.3a で確定。
+- main の CI（run 41293511361）: WebKit 6 shard・`WebKit Gate`・`Layout Contract Gate`・`layout-chromium` すべて success。Production の Pages deploy（run 41293511434）も success。
+- `chicken` は変更なし（§1b A のまま）。
+- **未検証・後続課題（Owner 決定 2026-11-01。いずれも本節の確定を妨げない）:**
+  1. 焼け過ぎ（heat 2.0）での黄・緑の濁り: **未検証**。
+  2. パプリカとトマト（`tomato-slice`）の厳密な比較: **未検証**。
+  3. 接地影の改善: 後続課題。
+  - 着手する場合は新しい Issue を Owner が起票する（Issue #715 の範囲外）。
+- Issue #715 は本書の PR の merge 後にクローズする。
+
+### 11.8 編集権限
+本節は docs-only の PR で変更する。Pilot E の実装 PR（`src` / CSS）に混ぜない（SL-8 と同じ扱い）。

@@ -1,6 +1,7 @@
 import { expect, type Page } from "@playwright/test";
 import { JUST_HALF_WIDTH_PT } from "../src/logic/bake";
 import { BAKE_SPEED_PCT_PER_S } from "../src/logic/bakeProgress";
+import { cutMarkCount, diagMouse, installPointerTrace, reportCutCommit } from "./support/diag";
 
 /**
  * Real-mouse (not synthetic PointerEvent dispatch) gesture helpers for driving a FREE round
@@ -62,9 +63,28 @@ const BAKE_NEEDLE_SPEED_PCT_PER_S = BAKE_SPEED_PCT_PER_S;
  *    pause round trip actually cost on a given run. Confirmed landing within ~1 point of the
  *    exact target center across repeated runs at 10x CPU throttle.
  */
-export async function bakeToTarget(page: Page, target: { start: number; end: number }) {
+export async function bakeToTarget(page: Page, target: { start: number; end: number }, options: TakeOutOptions = {}) {
   await enterBakePaused(page);
-  await landNeedleAndTakeOut(page, target);
+  await landNeedleAndTakeOut(page, target, options);
+}
+
+/**
+ * E5 (Free Cooking FINISH is ON in Production): a Free Cooking round does not end at 取り出す！ -- it waits in the FINISH step until 完成 is
+ * pressed, and the pizza is identified there. By default the take-out helpers therefore press 完成 with nothing placed when the round
+ * is in FINISH, which is the single "bake, then see the RESULT" step every Free Cooking spec below the FINISH specs was written for.
+ * A spec about the FINISH step itself (or R8's mid-FINISH quit) passes `{ finish: false }` and drives 完成 itself.
+ */
+export interface TakeOutOptions {
+  finish?: boolean;
+}
+
+/** Presses 完成 (nothing placed) when the round is in the FINISH step; a no-op for a round that is not (Guided, Lunch Rush, Dinner, failed bake). */
+export async function completeEmptyFinishIfOffered(page: Page) {
+  // 取り出す！ unmounts the bake overlay; after that the next screen is either the FINISH step or the RESULT / CUT one.
+  // (A take-out that did not go through -- e.g. R8's save failure keeps the round at BAKE -- leaves the overlay; do not wait for it.)
+  await page.locator(".bake-gauge__needle").waitFor({ state: "detached", timeout: 3_000 }).catch(() => undefined);
+  const complete = page.getByTestId("finish-complete");
+  if (await complete.count()) await complete.click();
 }
 
 /**
@@ -137,7 +157,7 @@ async function flushReactCommit(page: Page) {
  * the click; a miss re-plans from where the needle really is (bounded by
  * `NEEDLE_LANDING_MAX_ATTEMPTS`, then an explicit error rather than a silent bad take-out).
  */
-export async function landNeedleAndTakeOut(page: Page, target: { start: number; end: number }) {
+export async function landNeedleAndTakeOut(page: Page, target: { start: number; end: number }, options: TakeOutOptions = {}) {
   const center = (target.start + target.end) / 2;
   // The take-out is judged on the JUST band (center +- JUST_HALF_WIDTH_PT, src/logic/bake.ts), not on the whole
   // window: a stop inside the window but outside that band reads 惜しい. Accepting the half-window (+-10 on the
@@ -172,6 +192,7 @@ export async function landNeedleAndTakeOut(page: Page, target: { start: number; 
     if (landed(position)) {
       await page.getByRole("button", { name: "取り出す！" }).click();
       await page.clock.resume();
+      if (options.finish !== false) await completeEmptyFinishIfOffered(page);
       return;
     }
   }
@@ -235,25 +256,69 @@ async function doughBox(page: Page) {
 }
 
 export async function tapDoughPercent(page: Page, xPercent: number, yPercent: number) {
+  const mouse = diagMouse(page, "tap");
   const { box } = await doughBox(page);
   const x = box.x + (xPercent / 100) * box.width;
   const y = box.y + (yPercent / 100) * box.height;
   await waitUntilDoughReady(page, { x, y });
-  await page.mouse.move(x, y);
-  await page.mouse.down();
-  await page.mouse.up();
+  await mouse.move(x, y);
+  await mouse.down();
+  await mouse.up();
+}
+
+/**
+ * Expansion Batch 13 (#708, Owner 案A): one stroke of a squeezable topping (mayo) across the dough -- press at `from`, drag to `to` in several moves, release.
+ * Both points are dough percent of the dough's box; one stroke places ONE piece.
+ */
+export async function squeezeDoughStroke(page: Page, from: [number, number], to: [number, number], steps = 10) {
+  const mouse = diagMouse(page, "squeeze");
+  const { box } = await doughBox(page);
+  const at = (p: [number, number]) => ({ x: box.x + (p[0] / 100) * box.width, y: box.y + (p[1] / 100) * box.height });
+  const a = at(from);
+  const b = at(to);
+  await waitUntilDoughReady(page, a);
+  await mouse.move(a.x, a.y);
+  await mouse.down();
+  for (let i = 1; i <= steps; i += 1) {
+    await mouse.move(a.x + ((b.x - a.x) * i) / steps, a.y + ((b.y - a.y) * i) / steps);
+    if (process.env.HV_VIDEO) await page.waitForTimeout(60); // a human-speed stroke on the review video
+  }
+  await mouse.up();
+}
+
+/** Like `squeezeDoughStroke`, through any number of dough-percent waypoints (a wavy stroke), `stepsPerLeg` moves between each pair. */
+export async function squeezeDoughPath(page: Page, waypoints: readonly [number, number][], stepsPerLeg = 6) {
+  const mouse = diagMouse(page, "squeeze-path");
+  const { box } = await doughBox(page);
+  const at = (p: [number, number]) => ({ x: box.x + (p[0] / 100) * box.width, y: box.y + (p[1] / 100) * box.height });
+  const first = at(waypoints[0]);
+  await waitUntilDoughReady(page, first);
+  await mouse.move(first.x, first.y);
+  await mouse.down();
+  for (let leg = 1; leg < waypoints.length; leg += 1) {
+    const a = at(waypoints[leg - 1]);
+    const b = at(waypoints[leg]);
+    for (let i = 1; i <= stepsPerLeg; i += 1) {
+      await mouse.move(a.x + ((b.x - a.x) * i) / stepsPerLeg, a.y + ((b.y - a.y) * i) / stepsPerLeg);
+      if (process.env.HV_VIDEO) await page.waitForTimeout(45); // a human-speed stroke on the review video
+    }
+  }
+  await mouse.up();
 }
 
 export async function completeDoughStep(page: Page) {
-  const { cx, cy, r } = await doughBox(page);
+  const mouse = diagMouse(page, "dough");
+  const { cx, cy, r, box } = await doughBox(page);
+  // An oval dough (3:2) keeps the circular percent space, so the ring is an ellipse with the box's own aspect; a round dough has ry === r.
+  const ry = r * (box.height / box.width);
   for (let i = 0; i < 8; i += 1) {
     const angle = (i / 8) * Math.PI * 2;
     const x = cx + Math.cos(angle) * r;
-    const y = cy + Math.sin(angle) * r;
+    const y = cy + Math.sin(angle) * ry;
     await waitUntilDoughReady(page, { x, y });
-    await page.mouse.move(x, y);
-    await page.mouse.down();
-    await page.mouse.up();
+    await mouse.move(x, y);
+    await mouse.down();
+    await mouse.up();
   }
 }
 
@@ -279,6 +344,7 @@ export async function physicalDragToDough(
   xPercent: number,
   yPercent: number,
 ) {
+  const mouse = diagMouse(page, "drag");
   const chip = page.getByRole("button", { name: chipNameRegex });
   const chipBox = await chip.boundingBox();
   if (!chipBox) throw new Error("Draggable chip missing");
@@ -288,42 +354,51 @@ export async function physicalDragToDough(
   const targetX = box.x + (xPercent / 100) * box.width;
   const targetY = box.y + (yPercent / 100) * box.height;
   await waitUntilDoughReady(page, { x: targetX, y: targetY });
-  await page.mouse.move(startX, startY);
-  await page.mouse.down();
-  await page.mouse.move(startX + 2, startY - 10, { steps: 3 });
+  await mouse.move(startX, startY);
+  await mouse.down();
+  await mouse.move(startX + 2, startY - 10, { steps: 3 });
   const steps = 10;
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
-    await page.mouse.move(startX + (targetX - startX) * t, startY - 10 + (targetY - (startY - 10)) * t);
+    await mouse.move(startX + (targetX - startX) * t, startY - 10 + (targetY - (startY - 10)) * t);
   }
-  await page.mouse.up();
+  await mouse.up();
 }
 
 export async function cutThreeLines(page: Page) {
   const { cx, cy, r } = await doughBox(page);
+  const mouse = diagMouse(page, "cut");
+  // #394 Phase 2 (diagnostics only): pointer recording and a mark count before / after. Neither waits or fails; the mouse sequence below is unchanged.
+  await installPointerTrace(page);
+  const marksBefore = await cutMarkCount(page);
   for (const angleDeg of [0, 60, 120]) {
     const angle = (angleDeg * Math.PI) / 180;
     const dx = Math.cos(angle) * r;
     const dy = Math.sin(angle) * r;
     await waitUntilDoughReady(page, { x: cx - dx, y: cy - dy });
-    await page.mouse.move(cx - dx, cy - dy);
-    await page.mouse.down();
-    await page.mouse.move(cx + dx, cy + dy, { steps: 5 });
-    await page.mouse.up();
+    await mouse.move(cx - dx, cy - dy);
+    await mouse.down();
+    await mouse.move(cx + dx, cy + dy, { steps: 5 });
+    await mouse.up();
   }
+  await reportCutCommit(page, "cutThreeLines", marksBefore, 3);
 }
 
 /** One rim-to-rim cut through the dough's centre at `angleDeg` (the same drag `cutThreeLines` makes, at any angle). */
 export async function cutThroughCentre(page: Page, angleDeg: number) {
   const { cx, cy, r } = await doughBox(page);
+  const mouse = diagMouse(page, `cut ${angleDeg}°`);
+  await installPointerTrace(page);
+  const marksBefore = await cutMarkCount(page);
   const angle = (angleDeg * Math.PI) / 180;
   const dx = Math.cos(angle) * r;
   const dy = Math.sin(angle) * r;
   await waitUntilDoughReady(page, { x: cx - dx, y: cy - dy });
-  await page.mouse.move(cx - dx, cy - dy);
-  await page.mouse.down();
-  await page.mouse.move(cx + dx, cy + dy, { steps: 5 });
-  await page.mouse.up();
+  await mouse.move(cx - dx, cy - dy);
+  await mouse.down();
+  await mouse.move(cx + dx, cy + dy, { steps: 5 });
+  await mouse.up();
+  await reportCutCommit(page, `cutThroughCentre(${angleDeg}°)`, marksBefore, 1);
 }
 
 /** HOME -> Pizza Select -> margherita -> PREPARE (a guided round).

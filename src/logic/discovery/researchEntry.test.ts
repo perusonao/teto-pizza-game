@@ -143,7 +143,7 @@ describe("public projection shape", () => {
 
 describe("single entry: pesto-pollo + chicken (ladder step 25)", () => {
   // (the non-credit calabresa and, since TQ-1D, the non-credit aussie are already found: both are makeable from step 12 on)
-  const play = () => ladderPlay(25, ["brazilian-calabresa", "aussie", "chilean-napolitana"]);
+  const play = () => ladderPlay(25, ["brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza"]);
 
   it("lone entry: chicken is the known fact; RESEARCHING once targeted or a fact is bought", () => {
     const entries = deriveResearchEntries(play()).entries;
@@ -202,9 +202,10 @@ describe("stable anonymous ordering", () => {
     const entries = deriveResearchEntries(ladderPlay(25)).entries.map((e) => e.recipeId);
     // The onion pair (calabresa and, since TQ-1D, aussie) registered at step 12, before the chicken at step 25.
     expect(entries.slice(0, 2).sort()).toEqual(["aussie", "brazilian-calabresa"]);
-    expect(entries[2]).toBe("chilean-napolitana"); // Batch 8a: registered at step 20 (fresh-tomato)
-    expect(entries[3]).toBe("pesto-pollo");
-    expect(entries).toHaveLength(4);
+    expect(entries[2]).toBe("grandma-pizza"); // Square Dough E-2: registered at step 14 (olive-oil 13 + garlic 14)
+    expect(entries[3]).toBe("chilean-napolitana"); // Batch 8a: registered at step 20 (fresh-tomato)
+    expect(entries[4]).toBe("pesto-pollo");
+    expect(entries).toHaveLength(5);
   });
 
   it("ties are not ordered by ingredient count or catalog position", () => {

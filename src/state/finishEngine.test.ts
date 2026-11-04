@@ -13,6 +13,8 @@ import type { RoundKind } from "./roundKind";
 import { undoablePlacementIndex } from "./undoPlacement";
 import { atBake, atBakeFreeWith, bakeValueFor, UNMATCHED_FREE_PIZZAS, ROUND_MODES } from "./testSupport/confirmBakeMatrix";
 import { FINISH_FIXTURE_RECIPE as FX, finishedPizza, piece, preBakePizza } from "./testSupport/finishFixture";
+import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
+import { FREE_COOK_FINISH_PRODUCTION } from "../data/freeCookFinishGate";
 
 const STOCK: InventoryState = Object.fromEntries(INGREDIENTS.filter((i) => i.unlockCondition).map((i) => [i.id, 9]));
 
@@ -21,17 +23,18 @@ function input(recipe: Recipe, pizza = preBakePizza(), over: Partial<FinalizeRou
 }
 
 describe("Production stays inert (D1a)", () => {
-  it("no RECIPES requirement is applied after the bake, and no shipped profile has FINISH", () => {
-    for (const recipe of RECIPES) {
+  it("no ordinary RECIPES requirement is applied after the bake, and no shipped ordinary profile has FINISH", () => {
+    // E5: the late recipe (ikura) is the deliberate exception (pinned in lateCatalog.ikura.test.ts).
+    for (const recipe of ordinaryRecipes(RECIPES)) {
       expect(recipe.requiredIngredients.every((r) => (r as RecipeRequirement).applicationPhase === undefined), recipe.id).toBe(true);
       expect(hasPostBakeRequirement(recipe), recipe.id).toBe(false);
       expect(getCookingProfile(recipe.id).steps, recipe.id).not.toContain("FINISH");
     }
   });
 
-  it("the Free Cooking round has no FINISH step", () => {
+  it("the Free Cooking round has the FINISH step exactly when the Free Cooking FINISH gate is on (E5: Production ON)", () => {
     const free = gameReducer(createInitialGameState(EMPTY_DEX, INGREDIENTS.map((i) => i.id), 0, STOCK), { type: "START_FREE_COOK" });
-    expect(free.cookingProfile.steps).not.toContain("FINISH");
+    expect(free.cookingProfile.steps.includes("FINISH")).toBe(FREE_COOK_FINISH_PRODUCTION);
   });
 
   it("deriveCoreSteps equals the pre-FINISH derivation for every RECIPES entry (oracle)", () => {
@@ -43,11 +46,11 @@ describe("Production stays inert (D1a)", () => {
       }
       return ["DOUGH", ...(categories.has("sauce") ? ["SAUCE"] : []), ...(categories.has("cheese") ? ["CHEESE"] : []), ...(categories.has("topping") ? ["TOPPING"] : [])];
     };
-    for (const recipe of RECIPES) expect(deriveCoreSteps(recipe), recipe.id).toEqual(legacy(recipe));
+    for (const recipe of ordinaryRecipes(RECIPES)) expect(deriveCoreSteps(recipe), recipe.id).toEqual(legacy(recipe));
   });
 
-  it("withoutPostBakeRequirements returns the very same recipe object for every RECIPES entry", () => {
-    for (const recipe of RECIPES) expect(withoutPostBakeRequirements(recipe)).toBe(recipe);
+  it("withoutPostBakeRequirements returns the very same recipe object for every ordinary RECIPES entry", () => {
+    for (const recipe of ordinaryRecipes(RECIPES)) expect(withoutPostBakeRequirements(recipe)).toBe(recipe);
   });
 
   it("Lunch Rush and Dinner are excluded from FINISH (fail-closed until UD-I)", () => {

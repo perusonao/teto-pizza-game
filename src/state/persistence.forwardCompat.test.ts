@@ -241,7 +241,7 @@ describe("save forward-compat (Phase 3-4B)", () => {
     expect(storage.getItem(SAVE_STORAGE_KEY)).toBe(original);
   });
 
-  it("drops malformed unknown data: bad ids, negative/NaN/fractional stock, invalid Dex shapes", () => {
+  it("drops malformed unknown data: bad ids, negative/NaN/fractional stock; well-formed ids with invalid Dex fields are kept verbatim (#668)", () => {
     const corrupt = {
       ...createDefaultSave(),
       dex: [
@@ -290,12 +290,19 @@ describe("save forward-compat (Phase 3-4B)", () => {
     const storage2 = fakeStorage({ [SAVE_STORAGE_KEY]: corruptJson });
     playOneRound(storage2);
     const raw = storage2.raw() as Record<string, unknown>;
+    // #668: an entry with a well-formed id this build rejects (bad fields) is a "foreign" entry -- kept as stored, after the
+    // entries this build wrote; only entries that cannot be carried at all (bad id, not an object) are dropped.
     expect((raw.dex as DexEntry[]).map((e) => e.recipeId)).toEqual([
       "margherita",
       "marinara",
+      "bad-stars",
+      "bad-score",
+      "bad-times",
+      "bad-discovered",
       FUTURE_RECIPE,
     ]);
-    expect((raw.dex as DexEntry[])[2]).toEqual(futureEntry);
+    expect((raw.dex as DexEntry[])[2]).toEqual({ ...futureEntry, recipeId: "bad-stars", bestStars: 9 });
+    expect((raw.dex as DexEntry[])[6]).toEqual(futureEntry);
     expect(raw.ownedIngredientIds).toEqual([...STARTER_INGREDIENT_IDS, FUTURE_INGREDIENT]);
     expect(raw.inventory).toEqual({ [FUTURE_INGREDIENT]: 10 });
     expect(raw.starterGrantClaimedRecipeIds).toEqual([FUTURE_RECIPE]);

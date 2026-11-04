@@ -120,6 +120,15 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     },
     ready: "きのこの香りがいい感じ！そろそろ焼いてみよう。",
   },
+  // Multi-Sauce S3 / Square Dough E-2: two required sauces. The first (tomato-sauce) uses empty / emptyHint, the second (olive-oil) uses missing["olive-oil"].
+  "grandma-pizza": {
+    empty: "指でなぞってトマトソースを塗ろう！",
+    emptyHint: "指でくるくるなぞると塗れるよ。ふちの近くまで広げてみて！",
+    missing: {
+      "olive-oil": "オリーブオイルも塗ってみよう！",
+    },
+    ready: "いい感じ！「焼く！」を押してみよう。",
+  },
 };
 
 export function buildHintLine(

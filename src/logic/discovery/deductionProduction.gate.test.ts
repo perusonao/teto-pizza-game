@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
+import { DISCOVERY_LADDER, W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../../data/ingredients";
 import { RECIPES } from "../../data/recipes";
 import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
@@ -14,6 +14,10 @@ import { guardedAnswerForParts, hypotheticalReserves, reserveInHypotheses, targe
 import { deductionKnownLines, requestDeductionHint, type DeductionFamily } from "./deductionRequest";
 import { attackStateOf, endgameAttack, type GuardUnderAttack } from "./testSupport/deductionAttacker";
 import { ALL_INGREDIENT_IDS, inversionCandidates, observeGuardedWithClause, sweepStates } from "./testSupport/deductionInversion";
+import { DOUGH_PINSA_ROMANA_RECIPE_IDS, LATE_ADDITION_RECIPE_IDS, PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
+import { MULTI_SAUCE_RECIPE_IDS } from "../testSupport/requiredSauces";
+import { ordinaryLadderSteps } from "../catalog/testSupport/lateIds";
+import { lateCatalogEnabled } from "../../data/lateCatalog";
 
 /**
  * Discovery Hint 4.0 (Issue #253), DH4 Production Enablement Fresh Gate (OD-DH4-PROD-1): what must
@@ -123,21 +127,19 @@ describe("DH4-PROD gate: the production switch and price (OD-DH4-PROD-1)", () =>
 /**
  * Square Dough F2: the named allowlists of the technique-requiring set. A recipe may require a technique only if it is
  * listed here; adding one is a deliberate act that re-runs this whole gate (see docs/reports/TETO_SQUARE-DOUGH_F_RESEARCH-AUDIT.md §7).
- * `PAN_TRAY_RECIPE_IDS` is empty until Square Dough E (#521) adds the first tray recipe.
+ * `PAN_TRAY_RECIPE_IDS` (shared, ../testSupport/techniqueAllowlists.ts) is empty until Square Dough E (#521) adds the first tray recipe.
  */
-const PAN_TRAY_RECIPE_IDS: readonly string[] = [];
-/** Dough Kind P1 (#577): empty until P3 (HOLD) adds `pinsa-romana`; adding one re-runs this whole gate (DH4, `dough` states included). */
-const DOUGH_PINSA_ROMANA_RECIPE_IDS: readonly string[] = [];
-const TECHNIQUE_REQUIRING_RECIPE_IDS = (): string[] => [...noSauceRecipeIds(), ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS].sort();
+const TECHNIQUE_REQUIRING_RECIPE_IDS = (): string[] => [...noSauceRecipeIds(), ...PAN_TRAY_RECIPE_IDS, ...DOUGH_PINSA_ROMANA_RECIPE_IDS, ...LATE_ADDITION_RECIPE_IDS].sort();
 
 describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes (TQ-1D contract)", () => {
-  it("every production recipe has exactly one sauce except the NO_SAUCE (Technique) recipes of the sauce-profile authority", () => {
+  it("every production recipe has exactly one sauce except the NO_SAUCE (Technique) recipes of the sauce-profile authority and the allowlisted two-sauce recipes", () => {
     const noSauce = [...noSauceRecipeIds()].sort();
     expect(noSauce.length).toBeGreaterThan(0);
     const breaking = RECIPES.filter((r) => sauceCount(r.id) !== 1).map((r) => r.id);
-    // If this fails, a Technique recipe reached production outside the NO_SAUCE authority: re-run the DH4 Production
-    // gate and the DH4 privacy sweeps with it (TQ-1D contract) before shipping it.
-    expect(breaking.sort(), "re-run the DH4 privacy gate for Technique recipes (TQ-1D)").toEqual(noSauce);
+    // If this fails, a Technique or multi-sauce recipe reached production outside its authority / allowlist: re-run the DH4 Production
+    // gate and the DH4 privacy sweeps with it (TQ-1D contract, Multi-Sauce S3) before shipping it.
+    expect(breaking.sort(), "re-run the DH4 privacy gate for Technique / multi-sauce recipes").toEqual([...noSauce, ...MULTI_SAUCE_RECIPE_IDS].sort());
+    for (const id of MULTI_SAUCE_RECIPE_IDS) expect(sauceCount(id), id).toBe(2);
     for (const id of noSauce) expect(sauceCount(id), id).toBe(0);
   });
   it("no request, stored id or line ever carries Technique information", () => {
@@ -167,9 +169,12 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
     expect(techniqueAffordanceStep("no-sauce", catalog, materialStep)).toBe(12);
     expect(techniqueAffordanceStep("tray", catalog, materialStep) === null).toBe(PAN_TRAY_RECIPE_IDS.length === 0);
     expect(techniqueAffordanceStep("dough-pinsa-romana", catalog, materialStep) === null).toBe(DOUGH_PINSA_ROMANA_RECIPE_IDS.length === 0);
-    // FIN-E2 (#604): late-addition is registered but no production recipe requires it, so its affordance never opens. E4 (the first late
-    // recipe) must re-run this whole gate and the privacy sweeps with that recipe and then move this line.
-    expect(techniqueAffordanceStep("late-addition", catalog, materialStep)).toBeNull();
+    // FIN-E2 (#604): late-addition opens only if a production recipe requires it. E5: the first late recipe (ikura) is in the catalog, so it opens at
+    // that recipe's own derived ladder step ("ordinary length + 1"), never an authored number; with the late catalog off it never opens.
+    // (The privacy sweeps in this file ran with that recipe in the catalog: this gate is the E4 re-run.)
+    // Pinsa (#577 P3-b, gate PINSA_PRODUCTION open): it also requires late-addition, and its key material (arugula) is an ordinary step, so the riddle opens EARLIER, at that step (D3).
+    const lateStep = lateCatalogEnabled() ? ordinaryLadderSteps(DISCOVERY_LADDER.steps).length + 1 : null;
+    expect(techniqueAffordanceStep("late-addition", catalog, materialStep)).toBe(DOUGH_PINSA_ROMANA_RECIPE_IDS.length > 0 ? materialStep("arugula") : lateStep);
     for (const t of TECHNIQUES) expect(["no-sauce", "tray", "dough-pinsa-romana", "late-addition"], t.id).toContain(t.id);
   });
   it("the hint path never reads Technique state: no technique import or ledger field in the hint / deduction modules", () => {
@@ -180,6 +185,11 @@ describe("DH4-PROD gate: Cooking Techniques privacy on the 32 production recipes
     expect(Object.keys(sources).length).toBeGreaterThanOrEqual(10);
     for (const [path, text] of Object.entries(sources)) {
       expect(text, path).not.toMatch(/techniques\/|data\/techniques|discoveredTechniqueIds|lastTechniqueDiscovery|TechniqueId/);
+      // Square Dough E-2 (OD-544-2): a hint is a function of the recipe, the owned ingredients and the Dex depth only -- never of the pan (○ round / □ tray), so the sweeps below
+      // hold for both pan states by construction: no hint / deduction module reads `PizzaState.pan`, the tray or the pan shape.
+      expect(text, path).not.toMatch(/\.pan\b|panShape|effectivePan|"tray"/);
+      // Pinsa (#577 P3-b, D3 / T3): likewise a hint is never a function of the dough kind or of the post-bake (late) state, so the sweeps hold for every dough x late state by construction.
+      expect(text, path).not.toMatch(/\.dough\b|doughKind|resolveDoughKind|applicationPhase|POST_BAKE|stage === "post"|\.late\b/);
     }
   });
   it("構成 counts ingredients only: the total is the recipe's distinct ingredient count", () => {
@@ -229,7 +239,10 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
     expect(checked).toBeGreaterThan(1000);
     expect(failClosed).toBeGreaterThan(0);
     // Measured snapshot of the Hint 3.0 public model (every state's guard assertions above held): Expansion Batch 2 added pesto-caprese (a new material shrank one of its candidate sets to a single candidate); Expansion Batch 3's six new materials widen that candidate set again, so it leaves the list (existence / no-clause stays asserted for every member).
-    expect([...preExistingPublic].sort()).toEqual(["melanzane-pizza", "parmigiana-pizza"]);
+    // Expansion Batch 12: the seeded sample is a SUBSET of the exhaustive fixed list (SINGLE_CANDIDATE_RECIPES in the next describe, which is the exact pin): the sample draws different states once the catalog grows, so pesto-caprese (already in the fixed list) can now appear in it. Every member keeps existence / no-clause, asserted above.
+    const SAMPLE_UNIVERSE = ["melanzane-pizza", "parmigiana-pizza", "pesto-caprese", "pizza-alla-norma"];
+    expect([...preExistingPublic].every((id) => SAMPLE_UNIVERSE.includes(id))).toBe(true);
+    expect([...preExistingPublic]).toEqual(expect.arrayContaining(["melanzane-pizza", "parmigiana-pizza"]));
   }, SWEEP_TIMEOUT_MS);
 
   it("an independent attacker (no access to the guard's hypothesis set) names the reserve in 0 states", () => {
@@ -330,6 +343,87 @@ describe("DH4-PROD gate: privacy on real data (ladder + random acquisition order
         if (poor.outcome === "REJECTED" && poor.reason === "NOT_A_TARGET") continue;
         expect(poor).toEqual({ outcome: "REJECTED", reason: "INSUFFICIENT_PITZ" });
       }
+    }
+  }, SWEEP_TIMEOUT_MS);
+});
+
+/**
+ * DH4 `preExistingPublic`, the DETERMINISTIC counterpart of the seeded sweep above (design: docs/design/TETO_DH4-PREEXISTING-PUBLIC_PIN-DESIGN_2026-10-27.md).
+ *
+ * The seeded sweep finds the recipes whose hypothetical reserve set H is already a single candidate (Hint 3.0 Rule W + a fully known 材料 part), but WHICH of them
+ * land in its 40 random orders moves with the number of ingredients (the shuffle changes), so it is a sample, not a definition. H is
+ *   { id in prefix : id not in known, id != key, rank(id) >= floor, keyStep(id) <= keyStep }
+ * where `known` / `floor` / `keyStep` are fixed by the recipe and only `prefix` (the owned order up to the point the recipe is makeable) depends on the order; H grows with the
+ * prefix, so its minimum is reached by the smallest prefix: the starters, then the recipe's own non-starter ingredients in some order. That set of prefixes is small and is
+ * enumerated EXHAUSTIVELY here (every permutation, both Dex depths), with no randomness. Nothing above is weakened: the seeded sweep and its exact set stay as they are.
+ */
+function permutations<T>(items: T[]): T[][] {
+  if (items.length <= 1) return [items];
+  return items.flatMap((x, i) => permutations([...items.slice(0, i), ...items.slice(i + 1)]).map((p) => [x, ...p]));
+}
+const MAX_PERMUTED = 7; // 7! = 5040 orders per recipe and Dex depth: the enumeration is exhaustive only while every recipe stays within it (asserted below)
+const DEX_DEPTHS = [5, 24];
+
+interface MinimalPrefixResult {
+  minH: number;
+  states: GateState[];
+}
+function minimalPrefixResults(): Map<string, MinimalPrefixResult> {
+  const starters = [...STARTER_INGREDIENT_IDS];
+  const out = new Map<string, MinimalPrefixResult>();
+  for (const recipe of RECIPES) {
+    if (recipe.id === "margherita") continue;
+    const need = [...new Set(recipe.requiredIngredients.map((q) => q.ingredientId))].filter((id) => !starters.includes(id));
+    expect(need.length, `${recipe.id}: more than ${MAX_PERMUTED} non-starter ingredients, so the enumeration below is no longer exhaustive`).toBeLessThanOrEqual(MAX_PERMUTED);
+    let best: MinimalPrefixResult | null = null;
+    for (const order of permutations(need)) {
+      for (const discoveredCount of DEX_DEPTHS) {
+        const state: GateState = { recipeId: recipe.id, owned: [...starters, ...order], discoveredCount };
+        const parts = targetReserveParts(state.recipeId, ctxOf(state));
+        if (!parts || !reserveInHypotheses(parts)) continue;
+        const size = hypotheticalReserves(parts).length;
+        if (best === null || size < best.minH) best = { minH: size, states: [state] };
+        else if (size === best.minH) best.states.push(state);
+      }
+    }
+    if (best) out.set(recipe.id, best);
+  }
+  return out;
+}
+
+describe("DH4-PROD gate: exhaustive minimal-prefix states (deterministic, independent of the seeded shuffle)", () => {
+  const results = minimalPrefixResults();
+  /** The recipes whose reserve is already a single public candidate in their smallest possible prefix. A change here is a structural change (a recipe's ingredients or Rule W). */
+  // Expansion Batch 12 (PROVISIONAL SPEC): + pizza-alla-norma (tomato-sauce / eggplant / basil share the melanzane / parmigiana public candidates once ricotta-salata's cheese family is the only cheese). Fail-closed for it too (existence, no topping clause: asserted for every member just below).
+  const SINGLE_CANDIDATE_RECIPES = ["melanzane-pizza", "parmigiana-pizza", "pesto-caprese", "pizza-alla-norma"];
+
+  it("the recipes whose H can be a single candidate are exactly the fixed list (not a function of the seeded orders)", () => {
+    const single = [...results.entries()].filter(([, r]) => r.minH < MIN_ATTRIBUTE_CANDIDATES).map(([id]) => id).sort();
+    expect(single).toEqual(SINGLE_CANDIDATE_RECIPES);
+  });
+
+  it("every state in the minimal-H class is answered fail-closed (existence, no topping clause), and the others keep the k >= 2 inversion bound", () => {
+    for (const [recipeId, result] of results) {
+      for (const s of result.states) {
+        const parts = targetReserveParts(s.recipeId, ctxOf(s))!;
+        if (result.minH < MIN_ATTRIBUTE_CANDIDATES) {
+          expect(guardedAnswerForParts(parts)!.level, `${recipeId} @${s.owned.length}`).toBe("existence");
+          expect(toppingClauseAllowedForParts(parts), `${recipeId} @${s.owned.length}`).toBe(false);
+        } else {
+          expect(inversionCandidates(parts, observeGuardedWithClause).length, `${recipeId} @${s.owned.length}`).toBeGreaterThanOrEqual(MIN_ATTRIBUTE_CANDIDATES);
+        }
+      }
+    }
+  }, SWEEP_TIMEOUT_MS);
+
+  it("every seeded-sweep state's H is at least its recipe's exhaustive minimum, and a sampled single-candidate recipe is always in the fixed list (the sample is a subset)", () => {
+    for (const s of GATE_STATES) {
+      const parts = targetReserveParts(s.recipeId, ctxOf(s));
+      if (!parts || !reserveInHypotheses(parts)) continue;
+      const size = hypotheticalReserves(parts).length;
+      const min = results.get(s.recipeId)!.minH;
+      expect(size, `${s.recipeId} @${s.owned.length}`).toBeGreaterThanOrEqual(min);
+      if (size < MIN_ATTRIBUTE_CANDIDATES) expect(SINGLE_CANDIDATE_RECIPES, `${s.recipeId} @${s.owned.length}`).toContain(s.recipeId);
     }
   }, SWEEP_TIMEOUT_MS);
 });

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { cookDinnerPizza, DM_A, dinnerSave, nextDinnerPizza, openDinnerDetail, openWithSave, readSave } from "./support/dinner";
+import { reloadApp } from "./support/diag";
 
 /**
  * Dinner Mission DM-4-3: the CLEAR settlement, end to end in a real browser, with the SHIPPED
@@ -41,8 +42,7 @@ test("a CLEAR is recorded with its settlement (0 Pitz under the untuned table); 
   expect(first.inventory.egg).toBe(before.inventory.egg - 2); // the same write carried the consumption
 
   // The CLEAR overlay being shown again / a reload settles nothing.
-  await page.reload();
-  await page.waitForSelector(".app-frame");
+  await reloadApp(page, "dinner-dm4-3");
   const reloaded = await readSave(page);
   expect(reloaded.dinnerMissionRecords).toEqual(first.dinnerMissionRecords);
   expect(reloaded.pitzBalance).toBe(first.pitzBalance);

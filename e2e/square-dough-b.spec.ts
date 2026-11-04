@@ -77,18 +77,41 @@ test.describe("#535 B2 square dough: tap / hold", () => {
     expect(await evenness(page)).toBe(released);
   });
 
-  test("a finger that drifts past the slop while held stops spreading (no smearing)", async ({ page }) => {
+  test("a finger that drifts past the slop while held stops spreading (no smearing)", async ({ page }, testInfo) => {
     await start(page);
-    const p = await at(page, 58, 48);
-    await page.mouse.move(p.x, p.y);
-    await page.mouse.down();
-    await page.clock.runFor(500);
-    await page.mouse.move(p.x + 40, p.y, { steps: 4 });
-    const atDrift = await evenness(page);
-    await page.clock.runFor(800);
-    await page.mouse.move(p.x + 80, p.y + 10, { steps: 4 });
-    await page.mouse.up();
-    expect(await evenness(page)).toBe(atDrift);
+    // What the layer showed at each step (attached to the report on failure, #394): says whether the drift had reached the gesture when evenness was read.
+    const trail: Record<string, string | number | undefined>[] = [];
+    const snap = async (label: string) => {
+      const shown = await layer(page).evaluate((el) => ({
+        dragging: el.getAttribute("data-dragging") ?? undefined,
+        pressing: el.getAttribute("data-pressing") ?? undefined,
+        evenness: el.getAttribute("data-evenness") ?? undefined,
+        clock: Math.round(performance.now()),
+      }));
+      trail.push({ label, ...shown });
+    };
+    try {
+      const p = await at(page, 58, 48);
+      await page.mouse.move(p.x, p.y);
+      await page.mouse.down();
+      await page.clock.runFor(500);
+      await page.mouse.move(p.x + 40, p.y, { steps: 4 });
+      // 40 px is past the 24 px drag distance, so the layer accounts for the hold up to now and drags. `data-dragging` and `data-evenness` come from the
+      // same state update, so `data-dragging="true"` means the drift is on screen; read evenness only then.
+      await expect(layer(page), "the drift reached the gesture and was drawn").toHaveAttribute("data-dragging", "true");
+      await snap("drifted");
+      const atDrift = await evenness(page);
+      await page.clock.runFor(800);
+      await page.mouse.move(p.x + 80, p.y + 10, { steps: 4 });
+      await page.mouse.up();
+      await expect(layer(page), "the release ended the gesture").toHaveAttribute("data-dragging", "false");
+      await snap("released");
+      expect(await evenness(page)).toBe(atDrift);
+    } catch (error) {
+      await snap("at failure").catch(() => undefined);
+      await testInfo.attach("square-dough-drift-trail.json", { body: JSON.stringify(trail, null, 2), contentType: "application/json" });
+      throw error;
+    }
   });
 
   test("a cancelled gesture (pointercancel) is discarded entirely", async ({ page }) => {

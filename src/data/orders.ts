@@ -390,6 +390,108 @@ const BASE_ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "ナスとピリ辛のピザ、青ねぎがのっておいしそう！食べてみたいな！",
   },
+  {
+    id: "order-grandma-pizza",
+    recipeId: "grandma-pizza",
+    requestedBy: "mito",
+    lineJa: "トマトとオリーブオイルのシンプルなグランマピザ、食べてみたいな！",
+  },
+  {
+    id: "order-curry-pizza-japan",
+    recipeId: "curry-pizza-japan",
+    requestedBy: "mito",
+    lineJa: "チキンとたまねぎのカレーピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-rendang-pizza",
+    recipeId: "rendang-pizza",
+    requestedBy: "mito",
+    lineJa: "牛肉とスパイスのピザ、ぴりっとおいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-currywurst",
+    recipeId: "currywurst",
+    requestedBy: "mito",
+    lineJa: "ソーセージにカレーソースのピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-tandoori-paneer-pizza",
+    recipeId: "tandoori-paneer-pizza",
+    requestedBy: "mito",
+    lineJa: "チーズとピーマンのカレーピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-cuban-pizza",
+    recipeId: "cuban-pizza",
+    requestedBy: "mito",
+    lineJa: "ハムとお肉にピクルスのピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-boscaiola",
+    recipeId: "boscaiola",
+    requestedBy: "mito",
+    lineJa: "ソーセージときのこのピザ、森のかおりでおいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-porcini-pizza",
+    recipeId: "porcini-pizza",
+    requestedBy: "mito",
+    lineJa: "きのこたっぷりのピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-pescatore",
+    recipeId: "pescatore",
+    requestedBy: "mito",
+    lineJa: "魚介たっぷりのトマトのピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-jamaican-jerk-chicken-pizza",
+    recipeId: "jamaican-jerk-chicken-pizza",
+    requestedBy: "mito",
+    lineJa: "パイナップルののったチキンのピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-supreme-pizza",
+    recipeId: "supreme-pizza",
+    requestedBy: "mito",
+    lineJa: "具だくさんのトマトのピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-pizza-alla-norma",
+    recipeId: "pizza-alla-norma",
+    requestedBy: "mito",
+    lineJa: "ナスとチーズのシチリア風ピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-potato-mayo-pizza",
+    recipeId: "potato-mayo-pizza",
+    requestedBy: "mito",
+    lineJa: "ほくほくのじゃがいものピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-moussaka-style-pizza",
+    recipeId: "moussaka-style-pizza",
+    requestedBy: "mito",
+    lineJa: "ナスとラム肉の、ギリシャ風のピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-nigerian-suya-pizza",
+    recipeId: "nigerian-suya-pizza",
+    requestedBy: "mito",
+    lineJa: "牛肉とピーマンののったソースなしのピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-ume-shiso-pizza",
+    recipeId: "ume-shiso-pizza",
+    requestedBy: "mito",
+    lineJa: "梅のさわやかなピザ、おいしそう！食べてみたいな！",
+  },  {
+    id: "order-goulash-pizza",
+    recipeId: "goulash-pizza",
+    requestedBy: "mito",
+    lineJa: "ハンガリーの煮込み風ピザ、食べてみたいな！",
+  },
+
 ];
 
 /** Every order the running build knows: `BASE_ORDERS`, plus the late-catalog orders when enabled (otherwise `BASE_ORDERS` itself). */

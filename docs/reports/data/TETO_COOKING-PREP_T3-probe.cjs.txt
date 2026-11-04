@@ -1,0 +1,79 @@
+const { chromium } = require('playwright');
+const fs = require('fs');
+const OUT = __dirname;
+const SAVE_KEY = 'teto-pizza-save-v1';
+const ids = JSON.parse(fs.readFileSync('/tmp/claude-0/-home-user/02435336-5e4b-5f1f-9499-27b7fa480ca8/scratchpad/allids.json','utf8'));
+const save = { schemaVersion: 2, dex: [], pitzBalance: 0, ownedIngredientIds: ids, missionBest: {}, inventory: Object.fromEntries(ids.map(i=>[i,9])), starterGrantClaimedRecipeIds: [] };
+const rect = (page, sel) => page.evaluate((s)=>{const e=document.querySelector(s); if(!e) return null; const r=e.getBoundingClientRect(); return {t:+r.top.toFixed(1),b:+r.bottom.toFixed(1),l:+r.left.toFixed(1),r:+r.right.toFixed(1),w:+r.width.toFixed(1),h:+r.height.toFixed(1)}}, sel);
+(async () => {
+  const browser = await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1243/chrome-linux64/chrome'});
+  const result = {};
+  for (const [w,h] of [[390,844],[360,800]]) {
+    const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2 });
+    const page = await ctx.newPage();
+    const errors = []; page.on('pageerror', e=>errors.push(String(e)));
+    await page.goto('http://localhost:5183/teto-pizza-game/icons/icon-16.png');
+    await page.evaluate(([k,v])=>{localStorage.clear(); localStorage.setItem(k,v);},[SAVE_KEY, JSON.stringify(save)]);
+    await page.goto('http://localhost:5183/teto-pizza-game/');
+    await page.waitForSelector('.app-frame');
+    await page.evaluate(()=>globalThis.__tetoTest.startTargetlessFreeCook());
+    await page.waitForSelector('.pizza-stage');
+    // dough step
+    const box = await page.locator('.pizza-dough').boundingBox();
+    const cx=box.x+box.width/2, cy=box.y+box.height/2, r=box.width*0.46; await page.waitForTimeout(800);
+    for (let i=0;i<8;i++){const a=i/8*Math.PI*2; await page.mouse.move(cx+Math.cos(a)*r, cy+Math.sin(a)*r); await page.mouse.down(); await page.mouse.up();}
+    for (let i=0;i<3;i++) await page.getByRole('button',{name:/次へ/}).click();
+    await page.waitForTimeout(300);
+    const tabsSel = '.making-step-tabs';
+    const out = { viewport: `${w}x${h}` };
+    out.tabs = await rect(page, tabsSel);
+    out.tabCount = await page.locator('.making-step-tabs > *').count();
+    // find beef chip
+    const chip = page.locator('.ingredient-chip').filter({hasText:'牛肉'}).first();
+    for (let i=0;i<16 && !(await chip.isVisible()); i++){ const n=page.getByRole('button',{name:'次のページ'}); if(!(await n.isEnabled().catch(()=>false))) break; await n.click(); }
+    out.beefChipVisible = await chip.isVisible();
+    out.chipRect = await chip.boundingBox();
+    await chip.click();
+    const spots=[[40,50],[60,50],[50,30]];
+    for (const [px,py] of spots){ const b=await page.locator('.pizza-dough').boundingBox(); await page.mouse.move(b.x+px/100*b.width,b.y+py/100*b.height); await page.mouse.down(); await page.mouse.up(); }
+    out.beefPieces = await page.locator('.pizza-topping--beef').count();
+    out.stage = await rect(page,'.pizza-stage'); out.dough = await rect(page,'.pizza-dough');
+    out.dock = await rect(page,'.prepare-dock'); out.bar = await rect(page,'.prepare-bake-bar');
+    out.pageOverflowY = await page.evaluate(()=>document.documentElement.scrollHeight - innerHeight);
+    out.spareBelowBar = h - out.bar.b;
+    await page.locator('.pizza-stage').screenshot({ path: `${OUT}/stage-${w}-base.png` });
+    // overlay injection: sibling of .pizza-dough inside .pizza-stage
+    await page.evaluate(()=>{
+      const st=document.querySelector('.pizza-stage'); const o=document.createElement('div'); o.id='probe-overlay';
+      o.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(40,20,10,.78);border-radius:12px;z-index:20;color:#fff';
+      o.innerHTML='<div>🍳 炒めよう</div><button id="po-tap" style="min-width:120px;min-height:48px">タップ</button><button id="po-x" style="min-width:44px;min-height:44px">×</button>';
+      st.appendChild(o);
+    });
+    out.stageAfter = await rect(page,'.pizza-stage'); out.dockAfter = await rect(page,'.prepare-dock'); out.barAfter = await rect(page,'.prepare-bake-bar');
+    out.overlayRect = await rect(page,'#probe-overlay');
+    out.poTap = await rect(page,'#po-tap'); out.poX = await rect(page,'#po-x');
+    await page.locator('.pizza-stage').screenshot({ path: `${OUT}/stage-${w}-overlay.png` });
+    // click overlay button over dough: must not place a piece
+    const before = await page.locator('.pizza-topping--beef').count();
+    await page.locator('#po-tap').click(); await page.locator('#po-tap').click(); await page.locator('#po-tap').click();
+    out.piecesAfterOverlayTaps = [before, await page.locator('.pizza-topping--beef').count()];
+    await page.evaluate(()=>document.getElementById('probe-overlay').remove());
+    // visual variants on beef pieces
+    const variants = {
+      base: '',
+      preparedPre: 'brightness(0.86) saturate(1.2) sepia(0.28) contrast(1.08) drop-shadow(0 2px 2px rgba(0,0,0,.3))',
+      bakedPerfectDefault: 'brightness(0.97) saturate(1.04) sepia(0.08) drop-shadow(0 2px 2px rgba(0,0,0,.3))',
+      bakedPerfectPrepared: 'brightness(0.81) saturate(0.83) sepia(0.185) drop-shadow(0 2px 2px rgba(0,0,0,.3))',
+    };
+    for (const [name,f] of Object.entries(variants)) {
+      await page.evaluate((f)=>{document.querySelectorAll('.pizza-topping--beef').forEach(e=>{ e.style.filter=f; e.querySelectorAll('*').forEach(c=>{c.style.filter=''}); });}, f);
+      await page.locator('.pizza-dough').screenshot({ path: `${OUT}/beef-${w}-${name}.png` });
+    }
+    out.errors = errors;
+    result[`${w}x${h}`] = out;
+    await ctx.close();
+  }
+  fs.writeFileSync(`${OUT}/probe1.json`, JSON.stringify(result,null,1));
+  console.log(JSON.stringify(result,null,1));
+  await browser.close();
+})().catch(e=>{console.error(e); process.exit(1)});

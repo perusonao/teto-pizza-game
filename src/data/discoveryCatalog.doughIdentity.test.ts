@@ -12,6 +12,7 @@ import { productionTechniqueContext, type TechniqueCatalogEntry, type TechniqueR
 import { ingredientUnlockStep } from "../state/materialEntitlement";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { discoveredDex } from "../state/testSupport/guidedRound";
+import { isLateRecipeId, ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * P3-a2 (#577): `discoveryIdentityOf` reads a recipe's `doughKind`, so a target can declare the `dough` axis (and DOUGH_VARIANT) the same way a late
@@ -52,15 +53,26 @@ const PINSA_TARGET = targetOf("pinsa-romana", L1_PINSA_RECIPE);
 
 describe("discoveryIdentityOf", () => {
   it("every shipped recipe keeps the SAME default dimensions object and no capability (the production catalog is unchanged)", () => {
-    for (const recipe of RECIPES) {
+    // E5: the late recipe (ikura) is the one that declares a late value and the late-addition capability (pinned in lateCatalog.ikura.test.ts).
+    // Square Dough E-2: grandma-pizza (panShape "square") is the one ordinary recipe that declares `pan: "tray"` (and nothing else); pinned in its own test below.
+    for (const recipe of ordinaryRecipes(RECIPES).filter((r) => (r as { panShape?: string }).panShape !== "square")) {
       const out = discoveryIdentityOf(recipe);
       expect(out.identityDimensions).toBe(DEFAULT_IDENTITY_DIMENSIONS);
       expect(out.capabilities).toEqual([]);
     }
-    for (const target of RECIPE_DISCOVERY_CATALOG) {
+    for (const target of RECIPE_DISCOVERY_CATALOG.filter((t) => !isLateRecipeId(t.recipeId) && t.recipeId !== "grandma-pizza")) {
       expect(target.identityDimensions).toBe(DEFAULT_IDENTITY_DIMENSIONS);
       expect(target.capabilities).toEqual([]);
     }
+  });
+
+  it("a square-pan recipe declares exactly pan: tray on top of the defaults, and no capability (Square Dough E-2)", () => {
+    const out = discoveryIdentityOf({ requiredIngredients: [{ ingredientId: "tomato-sauce", minCount: 1 }], panShape: "square" });
+    expect(out.identityDimensions).toEqual({ ...DEFAULT_IDENTITY_DIMENSIONS, pan: "tray" });
+    expect(out.capabilities).toEqual([]);
+    expect(RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === "grandma-pizza")?.identityDimensions).toEqual({ ...DEFAULT_IDENTITY_DIMENSIONS, pan: "tray" });
+    // any other panShape (round / absent / unknown) keeps the default object
+    expect(discoveryIdentityOf({ requiredIngredients: [], panShape: "round" }).identityDimensions).toBe(DEFAULT_IDENTITY_DIMENSIONS);
   });
 
   it("an unknown or standard doughKind is the default, as is a recipe with no doughKind", () => {
@@ -124,8 +136,10 @@ function pizzaOf(dough: DoughChoice, late: LateChoice, pan: PanChoice): PizzaSta
     ...(pan === "tray" ? { pan: "tray" as const } : {}),
   } as PizzaState;
 }
-const PRODUCTION: readonly RecipeDiscoveryTarget[] = RECIPE_DISCOVERY_CATALOG;
-const WITH_PINSA: readonly RecipeDiscoveryTarget[] = [...RECIPE_DISCOVERY_CATALOG, PINSA_TARGET];
+// The catalog without the real Pinsa row (present only while PINSA_PRODUCTION is open; the real row is pinned in lateCatalog.pinsa.test.ts): these tables
+// compare "no Pinsa" with a SYNTHETIC Pinsa built by the same function the data uses, so both runs of the suite (gate closed / open) read the same fixtures.
+const PRODUCTION: readonly RecipeDiscoveryTarget[] = RECIPE_DISCOVERY_CATALOG.filter((t) => t.recipeId !== "pinsa-romana");
+const WITH_PINSA: readonly RecipeDiscoveryTarget[] = [...PRODUCTION, PINSA_TARGET];
 const label = (o: DiscoveryOutcome): string => (o.kind === "NEW_DISCOVERY" || o.kind === "ALREADY_DISCOVERED" ? `${o.kind}:${o.recipeId}` : o.kind);
 const run = (p: PizzaState, catalog: readonly RecipeDiscoveryTarget[], discovered: readonly string[] = []): string => label(evaluateDiscovery(signatureOfPizza(p), catalog, discovered));
 
@@ -186,7 +200,7 @@ const IKURA_TARGET = targetOf("ikura-salmon-pizza", LATE_RECIPES.find((r) => r.i
 const IKURA_LATE_STEP = 56;
 const materialStep = (id: string): number | null => (id === "salmon-roe" ? IKURA_LATE_STEP : ingredientUnlockStep(id));
 function context(extra: readonly RecipeDiscoveryTarget[]): TechniqueRuntimeContext {
-  return { ...productionTechniqueContext(), catalog: [...RECIPE_DISCOVERY_CATALOG, ...extra] as readonly TechniqueCatalogEntry[], materialStep };
+  return { ...productionTechniqueContext(), catalog: [...RECIPE_DISCOVERY_CATALOG.filter((t) => !isLateRecipeId(t.recipeId)), ...extra] as readonly TechniqueCatalogEntry[], materialStep };
 }
 const FORBIDDEN = /ピンサ|ロマーナ|ハモン|ルッコラ|生ハム|焼成|焼き上|pinsa|romana|arugula|prosciutto|dough-pinsa|late-addition/i;
 

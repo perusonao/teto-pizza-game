@@ -83,6 +83,7 @@ import { SquareDoughGauge } from "../components/SquareDoughGauge";
 import { SquareDoughNext, SquareDoughSteps } from "../components/SquareDoughGuide";
 import { createLumpySquareDough } from "../logic/pan/squareDoughFixtures";
 import { wantsLumpySquareStart } from "../preview/panShapePreview";
+import { doughOutlineOf } from "../logic/dough/doughOutline";
 import { effectivePanShape } from "../logic/pan/effectivePan";
 import { panSwitchOffered, type PanChoice } from "../state/panSelection";
 import { isDinnerRound } from "../state/roundKind";
@@ -93,8 +94,10 @@ import { doughSwitchOffered } from "../state/doughSelection";
 import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot } from "../state/recipeChapters";
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import { canUndoPlacement } from "../state/undoPlacement";
-import { canPlacePostBakeIngredient } from "../state/inventory";
+import { canPlaceIngredient, canPlacePostBakeIngredient } from "../state/inventory";
 import { isLunchRushRound } from "../state/roundKind";
+import { CookingPrepLayer } from "../components/CookingPrepLayer";
+import { SearLayer } from "../components/SearLayer";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -170,6 +173,10 @@ interface GameScreenProps {
   onResetPizza: () => void;
   /** Cooking Steps 2.0 Phase 1 (Issue #449): "1つ戻す" -- dispatches UNDO_LAST_PLACEMENT. */
   onUndoPlacement: () => void;
+  /** Cooking Prep Phase 1 PR-B: dispatches PREP_INGREDIENT (the optional 炒める prep). Absent = the prep UI is never offered. */
+  onPrepIngredient?: (ingredientId: string, progress: number) => void;
+  /** Cooking Sear Phase 1 (#724): dispatches SEAR_INGREDIENT (the optional 炙る long press). Absent = the sear UI is never offered. */
+  onSearIngredient?: (ingredientId: string, amount: number) => void;
   onConfirmMakingStep: () => void;
   onStartBake: () => void;
   onShowHint: () => void;
@@ -189,6 +196,8 @@ interface GameScreenProps {
   /** Clears the tray selection (IngredientTray's page switch hides the selected chip). */
   onClearIngredientSelection?: () => void;
   onTapPizza: (x: number, y: number) => void;
+  /** Expansion Batch 13 (#708, "案A"): one stroke of a squeezable topping (mayo) = one piece (dough percent points). */
+  onPlaceTrail?: (points: readonly { x: number; y: number }[]) => void;
   onBakeTick: (value: number) => void;
   onConfirmBake: (value: number) => void | boolean;
   /** R8 (#617): why the last bake / post-BAKE step was not saved (the round did not move on). Optional. */
@@ -283,6 +292,8 @@ export function GameScreen({
   onBeginPrepare,
   onResetPizza,
   onUndoPlacement,
+  onPrepIngredient,
+  onSearIngredient,
   onConfirmMakingStep,
   onStartBake,
   onShowHint,
@@ -295,6 +306,7 @@ export function GameScreen({
   onSelectIngredient,
   onClearIngredientSelection,
   onTapPizza,
+  onPlaceTrail,
   onBakeTick,
   onConfirmBake,
   roundNotices = null,
@@ -484,6 +496,8 @@ export function GameScreen({
 
   const prepareNotebookVisible = prepareNotebookOpen && state.phase === "PREPARE" && researchResult !== null;
   const cookingInputPaused = isGlobalOverlayOpen || prepareNotebookVisible;
+  // Cooking Prep Phase 1 PR-B: true while the pan screen (and the short input guard after it) is up -- the dock is inert meanwhile (AC-9).
+  const [prepBusy, setPrepBusy] = useState(false);
   // Leaving the eligible screen (step change, round end, HOME) drops the open flag so the sheet can never
   // re-open by itself later (adjusted during render, React's "derive from previous state" pattern).
   if (prepareNotebookOpen && !prepareNotebookVisible) setPrepareNotebookOpen(false);
@@ -513,12 +527,21 @@ export function GameScreen({
   // profile carries FINISH. No shipped profile does, so Production is unchanged (finishD2Inert.test.ts pins it).
   const postBakeStep = selectPostBakeStep(state.phase, state.makingStep, finishStepAvailable(state, state.cookingProfile.steps));
   const postBakeStepRendered = postBakeStep !== null;
+  // Whether the stage may take input at all. Cooking Prep keeps TWO separate questions apart: the pan screen is OFFERED while this is true
+  // (`CookingPrepLayer`'s `active`), and the dough stops taking pointer AND keyboard input while the pan screen / its short guard is up
+  // (`interactive` = this && !prepBusy). Tying the layer to `interactive` itself would discard the pan screen the moment it opened.
+  const stageInputActive =
+    (state.phase === "PREPARE" || postBakeStepRendered) && !isReferencePopoverOpen && !cookingInputPaused && !state.dinner?.abandonRequested;
   const isCutStep = postBakeStep === "CUT";
   const isFinishStep = postBakeStep === "FINISH";
   // FINISH FIN-B: FINISH carries the tray, so its stage is the compact one (PREPARE's), not CUT's roomy one.
   const roomyStage = state.phase === "BAKE" || (postBakeStepRendered && !isFinishStep);
   const finishTray = isFinishStep ? finishTrayIngredients(state.recipe, state.ownedIngredientIds) : [];
   const finishTrayCount = finishTray.length;
+  // Mayo squeeze (#708): the Stock Gate for the selected ingredient, so a squeeze press with no stock left is an ordinary tap (the refusal mark shows at
+  // once; no line is drawn and then lost). Pre-bake only: FINISH keeps its own selection rule below and never squeezes.
+  const selectedIngredientForGate = selectedIngredientId ? getIngredient(selectedIngredientId) : undefined;
+  const selectedIngredientPlaceable = !selectedIngredientForGate || isFinishStep || canPlaceIngredient(selectedIngredientForGate, state.inventory, state.pizza);
 
   // FIN-B carry-over: once the stock of the selected late ingredient is used up (or after an ingredient that FINISH does
   // not offer was left selected), release the selection so a tap on the pizza cannot act on a disabled chip.
@@ -638,7 +661,7 @@ export function GameScreen({
   return (
     <>
     <div
-      className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}`}
+      className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}${prepBusy ? " game-screen--prep-busy" : ""}`}
       // Research UX Phase 1: while the PREPARE 試作ノート is open nothing behind it can take focus or a keypress
       // (Shift+Tab / Enter would otherwise reset the pizza, advance a step or bake). The sheet itself is rendered
       // beside this root, below, so it is not inert. Same pattern as the Hint sheet's own notebook.
@@ -806,6 +829,7 @@ export function GameScreen({
                   referencePizza ? (referencePizza.sauce?.ingredientId ?? null) : playerReference.sauceIngredientId
                 }
                 pieceGroups={referencePizza ? referencePizza.pieceGroups : playerReference.pieceGroups}
+                oval={effectivePanShape(state.recipe, state.pizza) !== "square" && doughOutlineOf(state.pizza, state.recipe) === "oval"}
               />
             </span>
             <span className="mini-reference__label">見本</span>
@@ -814,6 +838,7 @@ export function GameScreen({
             <ReferencePreview
               reference={referencePizza}
               recipeNameJa={state.recipe.nameJa}
+              pan={effectivePanShape(state.recipe, state.pizza)}
               isOpen={isReferencePopoverOpen}
               onOpenChange={onReferencePopoverChange}
               renderTrigger={false}
@@ -876,12 +901,7 @@ export function GameScreen({
       <PizzaStage
         pizza={state.pizza}
         recipe={stageRecipe}
-        interactive={
-          (state.phase === "PREPARE" || postBakeStepRendered) &&
-          !isReferencePopoverOpen &&
-          !cookingInputPaused &&
-          !state.dinner?.abandonRequested
-        }
+        interactive={stageInputActive && !prepBusy}
         activeIngredient={selectedIngredientId ? (getIngredient(selectedIngredientId) ?? null) : null}
         bakeProgress={bakeProgress}
         placement={state.placement}
@@ -893,6 +913,8 @@ export function GameScreen({
         showDoughShape={showDoughShape}
         onDoughElementChange={onDoughElementChange}
         onTap={onTapPizza}
+        onPlaceTrail={onPlaceTrail}
+        activeIngredientPlaceable={selectedIngredientPlaceable}
         onDispenseProgress={onDispenseProgress}
         onDispenseCommit={onDispenseCommit}
         onDoughStretchProgress={onDoughStretchProgress}
@@ -907,6 +929,43 @@ export function GameScreen({
         roomy={roomyStage}
         compact={state.phase === "PREPARE" || isFinishStep}
         resultCompact={isFreeResultScreen || isDinnerResult}
+        preparedIngredientIds={state.preparedIngredientIds}
+        preparedLook={state.preparedLook}
+        searedLook={state.searedLook}
+        searOverlay={
+          onSearIngredient ? (
+            <SearLayer
+              phase={state.phase}
+              makingStep={state.makingStep}
+              roundKind={state.roundKind}
+              active={stageInputActive}
+              selectedIngredientId={selectedIngredientId}
+              ownedIngredientIds={state.ownedIngredientIds}
+              searedLook={state.searedLook}
+              makingStepToken={state.makingStepToken}
+              resetToken={pizzaResetToken}
+              onSear={onSearIngredient}
+              onBusyChange={setPrepBusy}
+            />
+          ) : undefined
+        }
+        overlay={
+          onPrepIngredient ? (
+            <CookingPrepLayer
+              phase={state.phase}
+              makingStep={state.makingStep}
+              roundKind={state.roundKind}
+              active={stageInputActive}
+              selectedIngredientId={selectedIngredientId}
+              ownedIngredientIds={state.ownedIngredientIds}
+              preparedIngredientIds={state.preparedIngredientIds}
+              makingStepToken={state.makingStepToken}
+              resetToken={pizzaResetToken}
+              onPrep={onPrepIngredient}
+              onBusyChange={setPrepBusy}
+            />
+          ) : undefined
+        }
       />
 
       {/* Pizza Cutting 1.0 Phase 2 (design doc §8.1/§8.4): progress readout + the CUT step's own
@@ -1022,6 +1081,7 @@ export function GameScreen({
           <div
             className={`prepare-dock${dockReserve.pager ? "" : " prepare-dock--no-pager"}${familyAbove ? " prepare-dock--family-above" : ""}`}
             data-testid="prepare-dock"
+            inert={prepBusy ? true : undefined}
             style={
               {
                 "--dock-sauce-rows": dockReserve.sauceRows,
@@ -1140,7 +1200,8 @@ export function GameScreen({
               additionally disabled until `doughShapeComplete` (the task's own "size-only"
               completion gate) -- the only step whose CTA is ever disabled; SAUCE/CHEESE's has
               never been (no reducer-side completion gate exists for them either, by design). */}
-          <div className={`action-row prepare-bake-bar${showUndoButton ? " prepare-bake-bar--undo" : ""}`}>
+          {/* Cooking Prep: with the pan screen up, やり直す / 焼く！/ 次へ must not be reachable behind it (touch, keyboard, screen reader). */}
+          <div className={`action-row prepare-bake-bar${showUndoButton ? " prepare-bake-bar--undo" : ""}`} inert={prepBusy ? true : undefined}>
             <button type="button" className="secondary-button" onClick={handleResetPizza}>
               やり直す
             </button>

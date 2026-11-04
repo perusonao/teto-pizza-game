@@ -96,7 +96,7 @@ function freeLeakViolations(present: (m: SelectableHintModel) => unknown): strin
     const json = JSON.stringify(p);
     for (const key of allKeys(p)) if (key !== "paidCount" && FORBIDDEN_KEY.test(key)) violations.push(`${recipe.id}: field ${key}`);
     const hidden = [m.reservedIngredientId, ...ids(m.purchasableFacts)].filter((id): id is string => !!id);
-    for (const id of hidden) if (json.includes(`"${id}"`) || json.includes(`ing:${id}`)) violations.push(`${recipe.id}: hidden ${id}`);
+    for (const id of hidden) if (json.includes(`"${id}"`) || json.includes(`"ing:${id}"`)) violations.push(`${recipe.id}: hidden ${id}`);
     const s = structureWithoutKey(p);
     structures.set(s, [...(structures.get(s) ?? []), recipe.id]);
   }
@@ -408,7 +408,9 @@ describe("ESC_PARITY pricing (OD-H3-4 / OD-H3-15)", () => {
         expect(selectableHintNextPrice(m, paid), `${recipe.id} paid ${paid}`).toBe(uncapped[paid]);
       }
     }
-    expect(capBinds).toEqual(["veggie-supreme-pizza"]);
+    // B11 S1 (Owner decision 3, PROVISIONAL SPEC): pescatore (7 distinct ingredients: tomato-sauce / mozzarella / shrimp / clam / mussel / garlic / parsley) is the second documented exception, the same rule as veggie-supreme-pizza.
+    // Expansion Batch 12 (PROVISIONAL SPEC; OWNER ACCEPTANCE PENDING): supreme-pizza (7 distinct ingredients: tomato-sauce / pepperoni / sausage / mushroom / onion / bell-pepper / black-olive) is the third documented exception, the same rule and the same 5th-fact zeroing as the two above.
+    expect(capBinds).toEqual(["veggie-supreme-pizza", "pescatore", "supreme-pizza"]);
   });
 
   it("measurement: the 24 paid targets' full unlock total (not asserted to 1480, not an economy authority)", () => {

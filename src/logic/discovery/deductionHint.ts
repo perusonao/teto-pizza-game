@@ -153,7 +153,7 @@ export interface ReserveAttributeInput {
   ownedIngredientIds: readonly unknown[] | unknown;
 }
 
-function levelsForReserve(input: ReserveAttributeInput): ReserveLevels | null {
+function levelsForReserve(input: ReserveAttributeInput, ownedIsClean = false): ReserveLevels | null {
   const reserve = input.reserveId;
   const category = ingredientCategory(reserve);
   if (!category) return null;
@@ -172,7 +172,7 @@ function levelsForReserve(input: ReserveAttributeInput): ReserveLevels | null {
     });
   }
   levels.push({ answer: { level: "category", category, factId: `attr:category:${category}` }, matches: sameCategory });
-  return { reserve, recipeIds: new Set(input.recipeIngredientIds), owned: ownedCatalogIds(input.ownedIngredientIds), levels };
+  return { reserve, recipeIds: new Set(input.recipeIngredientIds), owned: ownedIsClean ? (input.ownedIngredientIds as string[]) : ownedCatalogIds(input.ownedIngredientIds), levels };
 }
 
 function reserveLevels(recipeId: unknown, context: AttributeContext, recipes: readonly Recipe[]): ReserveLevels | null {
@@ -226,6 +226,16 @@ export function reserveAttributeAnswer(
  */
 export function attributeAnswerForReserve(input: ReserveAttributeInput): ReserveAttributeAnswer | null {
   const levels = levelsForReserve(input);
+  return levels ? firstPassingLevel(levels) : null;
+}
+
+/**
+ * `attributeAnswerForReserve` for an owned list that is ALREADY the output of `ownedCatalogIds` (catalog ids only, no duplicates).
+ * The result is identical; it only skips re-validating the same list. The DH4-2 guard calls it once per hypothesis over one shared
+ * list (./deductionGuard.ts `partitionAllowsDh41`), so the validation is done once per call there. Nothing is kept between calls.
+ */
+export function attributeAnswerForCleanOwned(input: ReserveAttributeInput): ReserveAttributeAnswer | null {
+  const levels = levelsForReserve(input, true);
   return levels ? firstPassingLevel(levels) : null;
 }
 

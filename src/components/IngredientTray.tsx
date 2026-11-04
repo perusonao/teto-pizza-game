@@ -18,6 +18,7 @@ import type { DoughPoint } from "../logic/pizzaCoordinates";
 import { hasPieceDragIntent } from "../logic/pieceDrag";
 import type { Recipe } from "../data/recipes";
 import { canPlaceIngredient, canPlacePostBakeIngredient, remainingStock, type InventoryState } from "../state/inventory";
+import { trayStockDisplay } from "../logic/trayStockDisplay";
 import type { PizzaState } from "../state/pizzaState";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { ShelfChipRow } from "./ShelfChipRow";
@@ -496,6 +497,9 @@ export function IngredientTray({
   // player a doomed placement attempt).
   function renderChip(ingredient: Ingredient) {
     const stock = remainingStock(ingredient, inventory);
+    // Before the bake the chip reads "stock - pieces already placed" (../logic/trayStockDisplay.ts: display only, follows 「1つ戻す」, 0 exactly when the gate refuses).
+    // FINISH keeps its own `あと a/b` below, which is built from the persisted stock; an unlimited ingredient is unchanged.
+    const shownStock = finish ? stock : trayStockDisplay(ingredient, inventory, pizza);
     const placeable = finish ? canPlacePostBakeIngredient(ingredient, inventory, pizza) : canPlaceIngredient(ingredient, inventory, pizza);
     // FINISH: the stock is the post-bake stock and only FINISH pieces count against it, so "あと" is what is still placeable.
     const placeableLeft =
@@ -539,7 +543,7 @@ export function IngredientTray({
             {`あと${placeableLeft}/${stock}`}
           </span>
         ) : (
-          renderStockBadge(stock)
+          renderStockBadge(shownStock)
         )}
       </button>
     );

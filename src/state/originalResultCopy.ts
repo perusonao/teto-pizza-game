@@ -52,6 +52,14 @@ export function duplicateTrialNoticeJa(number: unknown): string | null {
 /** OD-P2-1 = A: shared by ORDINARY and AMBIGUOUS. OD-P2-5: no next action in the lead. */
 const NEUTRAL_LEAD = "図鑑にはまだ載っていないピザ！";
 
+/**
+ * Issue #676 (C3, Owner 2026-10-27): the note under a targetless Free Cook ORIGINAL card. One fixed sentence for every
+ * original kind (ORDINARY / AMBIGUOUS / INCOMPLETE_MATCH) and every player: it names no recipe, ingredient, count or
+ * fact, and promises no verdict (a targetless round shows no ○×). It points at the 「💡 ヒントを見る」 row right above it.
+ * It replaces the old Dex-match explanation; the Research note (`RESEARCH_UX_COPY.resultNote`) is unchanged.
+ */
+export const TARGETLESS_ORIGINAL_NOTE = "ヒントを見ながら、次に試す材料を考えてみよう。";
+
 export const ORIGINAL_LEAD_COPY: Readonly<Record<OriginalResultKind, string>> = {
   ORDINARY: NEUTRAL_LEAD,
   AMBIGUOUS: NEUTRAL_LEAD,

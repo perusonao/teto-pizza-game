@@ -121,6 +121,39 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   flammkuchen: { keyFree: true },
   // New Sauces Phase B-1 (#578): permanently key-free.
   "sichuan-eggplant-pizza": { keyFree: true },
+  // Expansion Batch 10 PR-1: permanently key-free.
+  "curry-pizza-japan": { keyFree: true },
+  "rendang-pizza": { keyFree: true },
+  currywurst: { keyFree: true },
+  "tandoori-paneer-pizza": { keyFree: true },
+  "cuban-pizza": { keyFree: true },
+  // B11 S1: permanently key-free.
+  boscaiola: { keyFree: true },
+  "porcini-pizza": { keyFree: true },
+  pescatore: { keyFree: true },
+  // B12 (Issue #706): permanently key-free.
+  "jamaican-jerk-chicken-pizza": { keyFree: true },
+  // Expansion Batch 12: permanently key-free.
+  "supreme-pizza": { keyFree: true },
+  "pizza-alla-norma": { keyFree: true },
+  // Expansion Batch 13 (#708): permanently key-free.
+  "potato-mayo-pizza": { keyFree: true },
+  // Expansion Batch 14: permanently key-free.
+  "moussaka-style-pizza": { keyFree: true },
+  "nigerian-suya-pizza": { keyFree: true },
+  "ume-shiso-pizza": { keyFree: true },
+  "goulash-pizza": { keyFree: true },
+  // Multi-Sauce S3 / Square Dough E-2: permanently key-free.
+  "grandma-pizza": { keyFree: true },
   // FIN-E4b-ikura (#621, late catalog): permanently key-free.
   "ikura-salmon-pizza": { keyFree: true },
+  // New Sauces Phase B U1 (late catalog): permanently key-free, like ikura-salmon-pizza.
+  "yuzu-shrimp-pizza": { keyFree: true },
+  "eggplant-dengaku-pizza": { keyFree: true },
+  "eggplant-tahini-pizza": { keyFree: true },
+  "bbq-chicken-pizza": { keyFree: true },
+  "wasabi-beef-pizza": { keyFree: true },
+  "tarako-cream-pizza": { keyFree: true },
+  // Pinsa Romana (#577 P3-b-1, late catalog): permanently key-free, like jamon-serrano-pizza.
+  "pinsa-romana": { keyFree: true },
 };

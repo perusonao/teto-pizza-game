@@ -24,7 +24,7 @@ const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.fi
 
 const saveJson = (step: number, bought: readonly string[] = []) => {
   // Batch 8a: the non-credit step-20 / step-28 recipes are settled
-  const discovered = [...keysBefore(step), "brazilian-calabresa", "aussie", "chilean-napolitana", ...(step >= 28 ? ["spanish-chorizo-pizza"] : [])];
+  const discovered = [...keysBefore(step), "brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza", ...(step >= 28 ? ["spanish-chorizo-pizza", "supreme-pizza"] : [])]; // (Expansion Batch 12: supreme-pizza, the non-credit step-28 recipe, is closed like spanish-chorizo-pizza)
   const owned = [...materialsUpTo(step - 1), ...bought];
   return JSON.stringify({
     schemaVersion: 2,
@@ -96,12 +96,13 @@ async function cookPrepared(page: Page, { sauce, cheese, toppings, bake }: Cook)
 }
 
 /** Shop: the material row is NEW with its glyph, T3 first pack 100 Pitz / 20 pieces, then bought. */
-async function buyInShop(page: Page, project: string, id: string, glyph: string, nameJa: string, shot: string) {
+async function buyInShop(page: Page, project: string, id: string, glyph: string | { visual: string }, nameJa: string, shot: string) {
   const row = page.locator(`.shop-item[data-ingredient-id="${id}"]`);
   await expect(row).toHaveCount(1);
   await expect(row).toHaveAttribute("data-shop-state", "NEW");
   await expect(row).toContainText(nameJa);
-  await expect(row).toContainText(glyph);
+  if (typeof glyph === "string") await expect(row).toContainText(glyph);
+  else await expect(row.locator(`.shop-item__emoji svg.ingredient-glyph--${glyph.visual}[data-ingredient-visual="${glyph.visual}"]`)).toBeVisible(); // Pilot E: dedicated SVG instead of the emoji
   await expect(row).toContainText("10ピザ分（20個）");
   await expect(row).toContainText(/初回 .*100 Pitz/);
   await row.scrollIntoViewIfNeeded();
@@ -138,9 +139,9 @@ test.describe("Expansion Wave 2", () => {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
-    const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie", "chilean-napolitana"];
+    const DISCOVERED = [...keysBefore(27), "brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza"];
     await open(page, saveJson(27));
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`30/${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`31/${CATALOG_COUNTS.recipes}`));
     await hold(page);
 
     // 1. Shop: parsley ☘️ is NEW, then bought (finite T3 material, 20 pieces).
@@ -238,7 +239,7 @@ test.describe("Expansion Wave 2", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`31\\s*/\\s*${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`32\\s*/\\s*${CATALOG_COUNTS.recipes}`));
     const card = page.locator(".dex-card").filter({ hasText: "ヴォンゴレピザ" });
     await expect(card).toHaveCount(1);
     await expect(card).toContainText("No.13");
@@ -257,15 +258,15 @@ test.describe("Expansion Wave 2", () => {
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(String(e)));
     const project = testInfo.project.name;
-    const found = [...keysBefore(28), "brazilian-calabresa", "aussie", "chilean-napolitana", "spanish-chorizo-pizza"];
+    const found = [...keysBefore(28), "brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza", "spanish-chorizo-pizza", "supreme-pizza"];
     await open(page, saveJson(28));
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`32/${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`34/${CATALOG_COUNTS.recipes}`));
     await hold(page);
 
     // 1. Shop: both materials are NEW at once, then bought.
     await page.getByRole("button", { name: /ショップ/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
-    await buyInShop(page, project, "bell-pepper", "🫑", "パプリカ", "exp2-shop-bell-pepper");
+    await buyInShop(page, project, "bell-pepper", { visual: "bell-pepper-quarter" }, "パプリカ", "exp2-shop-bell-pepper");
     await buyInShop(page, project, "zucchini", "🥒", "ズッキーニ", "exp2-shop-zucchini");
     await capture(page, "exp2-shop-step28-bought", project);
     await hold(page, 2200);
@@ -361,13 +362,13 @@ test.describe("Expansion Wave 2", () => {
     await page.getByRole("button", { name: /ホーム/ }).first().click();
     await page.getByRole("button", { name: /ピザ図鑑/ }).first().click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`34\\s*/\\s*${CATALOG_COUNTS.recipes}`));
+    await expect(page.locator(".dex-overlay")).toContainText(new RegExp(`36\\s*/\\s*${CATALOG_COUNTS.recipes}`)); // (Expansion Batch 12: + supreme-pizza in the save)
     for (const [name, no] of [["ペストベジタリアーナピザ", "No.14"], ["ラタトゥイユピザ", "No.15"]]) {
       const card = page.locator(".dex-card").filter({ hasText: name });
       await expect(card).toHaveCount(1);
       await expect(card).toContainText(no);
     }
-    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("17/18");
+    await expect(page.locator(".dex-overlay__chapter-title").filter({ hasText: "第3章" })).toContainText("18/19"); // (Expansion Batch 12: + supreme-pizza in chapter 3)
     await page.locator(".dex-card").filter({ hasText: "ラタトゥイユピザ" }).scrollIntoViewIfNeeded();
     await noOverflow(page, "Dex");
     await capture(page, "exp2-dex-no14-15", project);

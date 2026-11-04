@@ -42,6 +42,8 @@ import { hint5SheetView } from "../../state/discoveryHint";
 import { recipeDiscoveryState } from "../../state/recipeDiscoveryState";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../../state/pizzaState";
+import { answerVariantOf, placeFinishPieces } from "./lateFinishSim";
+import { trayPanForIds } from "./requiredSauces";
 
 export type Hint5Profile = "NONE" | "FIXED4" | "FULL";
 export const HINT5_PROFILES: readonly Hint5Profile[] = ["NONE", "FIXED4", "FULL"];
@@ -111,7 +113,7 @@ function pizzaOf(ids: readonly string[]): PizzaState {
       n += 1;
     }
   }
-  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce).slice(0, 1), toppings, bakeResult: BAKE_VALUE };
+  return { ...createEmptyPizza(), sauceIds: ids.filter(isSauce), toppings, bakeResult: BAKE_VALUE };
 }
 
 /** The P-C total of a target's whole ladder. Round 6: every rung is charged except a RESERVED (empty
@@ -156,9 +158,11 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
     return c ? c.earnedPitz + c.discoveryBonusPitz + (state.lastEfficiencyCredit?.bonusPitz ?? 0) : 0;
   };
 
-  function bakeRaw(ids: readonly string[]): GameState {
-    s = { ...act(s, { type: "START_FREE_COOK" }), pizza: pizzaOf(ids) };
+  function bakeRaw(ids: readonly string[], recipeId?: string): GameState {
+    const { post, dough } = answerVariantOf(ids, recipeId); // E5: the late recipe's post-bake part is placed in FINISH; Pinsa (#577): and its dough is chosen
+    s = { ...act(s, { type: "START_FREE_COOK" }), pizza: { ...pizzaOf(ids.filter((id) => !post.includes(id))), ...trayPanForIds(ids), ...(dough ? { dough } : {}) } };
     s = act(s, { type: "START_BAKE" }, { type: "CONFIRM_BAKE", value: BAKE_VALUE });
+    s = placeFinishPieces(s, post, piecesOf);
     for (let i = 0; i < 6 && s.phase !== "RESULT"; i += 1) s = act(s, { type: "CONFIRM_MAKING_STEP" });
     if (s.phase !== "RESULT") throw new Error(`bake did not reach RESULT (${ids.join("+")})`);
     if (s.score) s = { ...s, score: { ...s.score, total: qualityTotal, stars: starsFromTotal(qualityTotal) } };
@@ -248,7 +252,7 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
       if (!pick) throw new Error(`Dex ${dexCount}: OPEN_POOL without a candidate`);
       const answer = [...new Set(pick.requiredIngredients.map((r) => r.ingredientId))];
       ensureStock(answer);
-      bakeRaw(answer);
+      bakeRaw(answer, pick.id);
       if (discoveredRecipeIds(s.dex).length !== dexCount + 1) throw new Error(`Dex ${dexCount}: pool candidate ${pick.id} was not discovered`);
       stages.push({
         discovery: dexCount + 1,
@@ -277,7 +281,7 @@ export function simulateHint5Economy(options: { profile: Hint5Profile; qualityTo
     if (profile !== "NONE" && dexCount >= 1) buyRungs(target.id);
     ensureStock(ids);
     const before = discoveredRecipeIds(s.dex).length;
-    bakeRaw(ids);
+    bakeRaw(ids, target.id);
     if (discoveredRecipeIds(s.dex).length !== before + 1) throw new Error(`Dex ${dexCount}: ${target.id} was not discovered`);
     const ladder = buildHint5Ladder(target.id)!;
     stages.push({

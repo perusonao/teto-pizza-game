@@ -199,6 +199,25 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["fromage-blanc-sauce"], keyRecipeId: "flammkuchen" },
   // Step 56 (New Sauces Phase B-1, #578; T4, no star gate): `doubanjiang` + `green-onion`, key recipe `sichuan-eggplant-pizza` (it also needs eggplant, garlic and mozzarella from earlier steps / the starters). Steps 1-55 frozen. Cohort key: green-onion (the last material of the step). The number is DERIVED from the ladder (append order), not reserved.
   { ingredientIds: ["doubanjiang", "green-onion"], keyRecipeId: "sichuan-eggplant-pizza" },
+  // Steps 57-61 (Expansion Batch 10 PR-1, T4, no star gate; docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md): one step per recipe. Steps 1-56 frozen. Order = the REC-04 key-recipe rule over the five recipes (the 1-material steps first). Cohort keys: curry-ketchup, beef, paneer, wurstel, swiss-cheese (the last material of each step).
+  { ingredientIds: ["curry-ketchup"], keyRecipeId: "curry-pizza-japan" },
+  { ingredientIds: ["beef"], keyRecipeId: "rendang-pizza" },
+  { ingredientIds: ["paneer"], keyRecipeId: "tandoori-paneer-pizza" },
+  { ingredientIds: ["paprika-powder", "wurstel"], keyRecipeId: "currywurst" },
+  { ingredientIds: ["mustard", "pickles", "swiss-cheese"], keyRecipeId: "cuban-pizza" },
+  // Steps 62-63 (B11 S1, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): one step per new material. Steps 1-61 frozen. Step 62 `porcini`: key recipe `boscaiola` (porcini-pizza, `ladderCredit: false`, is also makeable here; REC-04 ties break by recipe id, so boscaiola stays the key). Step 63 `mussel`: key recipe `pescatore`. Cohort keys: porcini, mussel.
+  { ingredientIds: ["porcini"], keyRecipeId: "boscaiola" },
+  { ingredientIds: ["mussel"], keyRecipeId: "pescatore" },
+  // Step 64 (Expansion Batch 12, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `ricotta-salata`, key recipe `pizza-alla-norma`. Steps 1-63 frozen. `supreme-pizza` (`ladderCredit: false`) adds no step.
+  { ingredientIds: ["ricotta-salata"], keyRecipeId: "pizza-alla-norma" },
+  // Step 65 (Expansion Batch 13, #708, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `mayo`, key recipe `potato-mayo-pizza`. Steps 1-64 frozen.
+  { ingredientIds: ["mayo"], keyRecipeId: "potato-mayo-pizza" },
+  // Step 66 (Expansion Batch 14, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `cinnamon`, key recipe `moussaka-style-pizza` (it also needs fromage-blanc-sauce, eggplant, lamb and feta from earlier steps). Steps 1-65 frozen. Cohort key: cinnamon.
+  { ingredientIds: ["cinnamon"], keyRecipeId: "moussaka-style-pizza" },
+  // Step 67 (Expansion Batch 16, #736, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `umeboshi-paste`, key recipe `ume-shiso-pizza` (it also needs mozzarella, whitebait and shiso from earlier steps). Steps 1-66 frozen.
+  { ingredientIds: ["umeboshi-paste"], keyRecipeId: "ume-shiso-pizza" },
+  // Step 68 (Expansion Batch 17, #741, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `sour-cream`, key recipe `goulash-pizza` (it also needs beef, onion and paprika-powder from earlier steps). Steps 1-67 frozen. The fixed late floors of cod-roe / fresh-cream-sauce / nori are 68, so this step also makes the late tarako-cream recipes makeable (Owner-approved simultaneous unlock).
+  { ingredientIds: ["sour-cream"], keyRecipeId: "goulash-pizza" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

@@ -8,6 +8,7 @@ import { EMPTY_DEX, registerScoreToDex, type DexState } from "../../state/dex";
 import { researchEntryViews } from "../../state/discoveryHint";
 import { recipeChapter, recipeKeyStep } from "../../state/recipeChapters";
 import type { ScoreBreakdown } from "../scoring";
+import { ordinaryLadderSteps, ordinaryRecipes } from "../catalog/testSupport/lateIds";
 
 /**
  * Batch 8a (Owner-approved 2026-10-18): chilean-napolitana (key step 20, fresh-tomato), spanish-chorizo-pizza (28, bell-pepper) and frango-catupiry
@@ -22,7 +23,7 @@ const keysBefore = (step: number): string[] => ["margherita", ...DISCOVERY_LADDE
 /** Every earlier non-credit recipe found, so only the cohort under test is open. */
 const labelsAt = (step: number, found: readonly string[] = []): Record<string, string> =>
   Object.fromEntries(researchEntryViews({ dex: discover(...keysBefore(step), ...found), ownedIngredientIds: ladderOwned(step) }).map((v) => [v.recipeId, v.label]));
-const EARLIER_NON_CREDIT = ["brazilian-calabresa", "aussie"];
+const EARLIER_NON_CREDIT = ["brazilian-calabresa", "aussie", "grandma-pizza"]; // (Square Dough E-2: the non-credit grandma-pizza, registered at step 14, is found too)
 
 describe("Batch 8a: classification of the three recipes", () => {
   it("are the tail (No.58-60), non-credit (frango-catupiry credited since #561), Lunch Rush opt-out, key-free, no CUT", () => {
@@ -56,12 +57,13 @@ describe("Batch 8a: classification of the three recipes", () => {
 
 describe("Batch 8a: the existing 57 recipes keep their progression declarations", () => {
   it("credit / Lunch Rush opt-out / ladder keys of the earlier recipes are unchanged (credited 56 -- Issue #561 promoted frango-catupiry --, non-credit only calabresa, aussie, chilean, chorizo)", () => {
-    expect(RECIPES.filter((r) => !countsTowardLadder(r.id)).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", ...BATCH.filter((id) => id !== "frango-catupiry")]);
-    expect(RECIPES.filter((r) => countsTowardLadder(r.id))).toHaveLength(59); // 56 after Batch 8a; Batch 8b's shirasu-pizza, New Sauces Phase A's flammkuchen and Phase B-1's sichuan-eggplant-pizza are credited (+1 each)
-    expect(RECIPES.filter((r) => participatesInLunchRush(r.id))).toHaveLength(25);
-    expect(DISCOVERY_LADDER.steps).toHaveLength(56); // Batch 8a appended none (53); Batch 8b appended step 54; New Sauces Phase A appended step 55; Phase B-1 appended step 56
+    // E5: the late recipe (credited, appended after every ordinary one) is excluded; its progression is pinned in lateCatalog.ikura.test.ts.
+    expect(ordinaryRecipes(RECIPES).filter((r) => !countsTowardLadder(r.id)).map((r) => r.id)).toEqual(["brazilian-calabresa", "aussie", ...BATCH.filter((id) => id !== "frango-catupiry"), "grandma-pizza", "porcini-pizza", "jamaican-jerk-chicken-pizza", "supreme-pizza", "nigerian-suya-pizza"]); // (Expansion Batch 15 appends the non-credit nigerian-suya-pizza; Square Dough E-2 appends the non-credit grandma-pizza; B12 appends the non-credit jamaican-jerk-chicken-pizza; Expansion Batch 12 appends the non-credit supreme-pizza)
+    expect(ordinaryRecipes(RECIPES).filter((r) => countsTowardLadder(r.id))).toHaveLength(71); // (Expansion Batch 17 adds one credited recipe, goulash-pizza; Expansion Batch 16 adds one credited recipe, ume-shiso-pizza; Expansion Batch 14 adds one credited recipe, moussaka-style-pizza; Expansion Batch 13 adds one credited recipe, potato-mayo-pizza; Expansion Batch 12 adds one credited recipe, pizza-alla-norma; supreme-pizza is non-credit; grandma-pizza and B11 S1's porcini-pizza are non-credit; Expansion Batch 10 PR-1 adds five credited recipes, B11 S1 two) 56 after Batch 8a; Batch 8b's shirasu-pizza, New Sauces Phase A's flammkuchen and Phase B-1's sichuan-eggplant-pizza are credited (+1 each)
+    expect(ordinaryRecipes(RECIPES).filter((r) => participatesInLunchRush(r.id))).toHaveLength(25);
+    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps)).toHaveLength(68); // Expansion Batch 17 appended step 68; Expansion Batch 16 appended step 67; Expansion Batch 14 appended step 66; Expansion Batch 13 appended step 65; Expansion Batch 12 appended step 64; Batch 8a appended none (53); Batch 8b appended step 54; New Sauces Phase A appended step 55; Phase B-1 appended step 56; Expansion Batch 10 PR-1 appended steps 57-61
     expect(DISCOVERY_LADDER.steps.slice(0, 53).some((s) => (BATCH as readonly string[]).includes(s.keyRecipeId))).toBe(false);
-    expect(RECIPES).toHaveLength(63); // 60 after Batch 8a; + Batch 8b's shirasu-pizza + New Sauces Phase A's flammkuchen + Phase B-1's sichuan-eggplant-pizza
+    expect(ordinaryRecipes(RECIPES)).toHaveLength(80); // Expansion Batch 17 (+1: goulash-pizza); Expansion Batch 16 (+1: ume-shiso-pizza); Expansion Batch 15 (+1: nigerian-suya-pizza); Expansion Batch 14 (+1: moussaka-style-pizza); Expansion Batch 13 (+1: potato-mayo-pizza); B12 (+1: jamaican-jerk-chicken-pizza); + Expansion Batch 12 (supreme-pizza, pizza-alla-norma); 60 after Batch 8a; + B11 S1 (three: boscaiola, porcini-pizza, pescatore); + Expansion Batch 10 PR-1 (five); + Square Dough E-2's grandma-pizza; + Batch 8b's shirasu-pizza + New Sauces Phase A's flammkuchen + Phase B-1's sichuan-eggplant-pizza
   });
 });
 
@@ -72,16 +74,18 @@ describe("Batch 8a: Research labels (anonymous; the letter only)", () => {
     expect(Object.values(l).sort()).toEqual(["？？？ピザ A（トマト）", "？？？ピザ B（トマト）"]);
   });
 
-  it("step 28: spanish-chorizo is its own bell-pepper cohort (bare label); the zucchini pair keeps A / B", () => {
+  it("step 28: since Expansion Batch 12, spanish-chorizo shares its bell-pepper cohort with supreme-pizza (supreme-pizza A, spanish-chorizo B; before Batch 12: one bare entry); the zucchini pair keeps A / B", () => {
     const l = labelsAt(28, [...EARLIER_NON_CREDIT, "chilean-napolitana"]);
-    expect(l["spanish-chorizo-pizza"]).toBe("？？？ピザ（パプリカ）");
+    expect(l["supreme-pizza"]).toBe("？？？ピザ A（パプリカ）");
+    expect(l["spanish-chorizo-pizza"]).toBe("？？？ピザ B（パプリカ）"); // the accepted Research-letter shift of B12_BATCH (OWNER CONFIRMATION PENDING)
     expect(l["ratatouille-pizza"]).toBe("？？？ピザ A（ズッキーニ）");
     expect(l["pesto-vegetariana"]).toBe("？？？ピザ B（ズッキーニ）");
   });
 
   it("step 44: frango joins brazilian-catupiry-corn-pizza's cohort -> A / B", () => {
-    const found = [...keysBefore(44), "ratatouille-pizza", ...EARLIER_NON_CREDIT, ...BATCH.filter((id) => id !== "frango-catupiry")]; // ratatouille: the credited step-28 sibling (not a ladder key)
-    const l = Object.fromEntries(researchEntryViews({ dex: discover(...found), ownedIngredientIds: ladderOwned(44) }).map((v) => [v.recipeId, v.label]));
+    const found = [...keysBefore(44), "ratatouille-pizza", "supreme-pizza", ...EARLIER_NON_CREDIT, ...BATCH.filter((id) => id !== "frango-catupiry"), "jamaican-jerk-chicken-pizza"]; // (Expansion Batch 12: supreme-pizza, the non-credit step-28 recipe, is closed; B12: the non-credit jerk, cookable from step 32, is found too) // ratatouille: the credited step-28 sibling (not a ladder key)
+    // (pinsa-romana, present only while PINSA_PRODUCTION is open, is an entry of ARUGULA's cohort, not of this one: its letters are pinned in lateCatalog.pinsa.test.ts)
+    const l = Object.fromEntries(researchEntryViews({ dex: discover(...found), ownedIngredientIds: ladderOwned(44) }).filter((v) => (v.recipeId as string) !== "pinsa-romana").map((v) => [v.recipeId, v.label]));
     expect(Object.keys(l).sort()).toEqual(["brazilian-catupiry-corn-pizza", "frango-catupiry"]);
     expect(Object.values(l).sort()).toEqual(["？？？ピザ A（カトゥピリ）", "？？？ピザ B（カトゥピリ）"]);
   });

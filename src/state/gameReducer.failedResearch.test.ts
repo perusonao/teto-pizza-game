@@ -21,7 +21,7 @@ const owned = [
 ];
 const keysBefore = ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < 25).map((s) => s.keyRecipeId)];
 function single(): GameState {
-  const base = createInitialGameState(discoveredDex([...keysBefore, "brazilian-calabresa", "aussie"]), owned, 1000);
+  const base = createInitialGameState(discoveredDex([...keysBefore, "brazilian-calabresa", "aussie", "grandma-pizza"]), owned, 1000);
   return { ...base, inventory: Object.fromEntries(owned.map((id) => [id, 10])) };
 }
 const T = "pesto-pollo";

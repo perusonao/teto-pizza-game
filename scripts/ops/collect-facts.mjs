@@ -12,6 +12,21 @@ import { isHold } from "./lib/hold.mjs";
 
 export class TruncatedError extends Error {}
 
+/** Repo-wide comments of the claim window (newest first). 30 pages = 3000 comments; more than that is a recorded gap. */
+export const REPO_COMMENT_MAX_PAGES = 30;
+
+/** The same comment can appear on two pages when the list shifts while it is being read; claims need each once. */
+function dedupeById(items) {
+  const seen = new Set();
+  return items.filter((c) => {
+    const id = c?.id;
+    if (id === undefined || id === null) return true;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
 export function createApi({ token, fetchImpl = fetch, apiUrl = "https://api.github.com" }) {
   const headers = {
     Accept: "application/vnd.github+json",
@@ -25,16 +40,34 @@ export function createApi({ token, fetchImpl = fetch, apiUrl = "https://api.gith
     if (!res.ok) throw new Error(`GET ${path.split("?")[0]} -> ${res.status}`);
     return res.json();
   }
-  /** Reads every page; throws TruncatedError instead of returning a list that may be cut off. */
+  /**
+   * Reads every page; throws TruncatedError instead of returning a list that may be cut off. A failure on any
+   * page (HTTP error, unexpected shape, cap reached) rejects with `error.partial` = the items read so far, so a
+   * caller can still use what it has -- but only together with a recorded gap, never as a complete list.
+   */
   async function restAll(path, key, maxPages = 10) {
-    const sep = path.includes("?") ? "&" : "?";
     const all = [];
+    try {
+      return await readPages(path, key, maxPages, all);
+    } catch (e) {
+      e.partial = all;
+      throw e;
+    }
+  }
+  async function readPages(path, key, maxPages, all) {
+    const sep = path.includes("?") ? "&" : "?";
+    const itemsOf = (body) => {
+      const items = key ? body?.[key] : body;
+      if (!Array.isArray(items)) throw new Error(`${path.split("?")[0]}: unexpected response shape (not a list)`);
+      return items;
+    };
     for (let page = 1; page <= maxPages; page++) {
-      const body = await rest(`${path}${sep}per_page=100&page=${page}`);
-      const items = key ? body[key] : body;
+      const items = itemsOf(await rest(`${path}${sep}per_page=100&page=${page}`));
       all.push(...items);
       if (items.length < 100) return all;
     }
+    // The last allowed page was full: one more request tells a list of exactly maxPages * 100 items from a longer one.
+    if (itemsOf(await rest(`${path}${sep}per_page=100&page=${maxPages + 1}`)).length === 0) return all;
     throw new TruncatedError(`${path.split("?")[0]} has more than ${maxPages * 100} items`);
   }
   async function graphql(query, variables) {
@@ -203,7 +236,7 @@ function failedPrFacts(number, error) {
   return { pr: { number, title: "(could not be read)", headSha: "", state: "open" }, gaps: [`PR #${number}: ${error.message}`] };
 }
 
-export async function collectRepoFacts(api, repo, { only = null, now = Date.now(), sinceDays = 14 } = {}) {
+export async function collectRepoFacts(api, repo, { only = null, now = Date.now(), sinceDays = 14, commentMaxPages = REPO_COMMENT_MAX_PAGES } = {}) {
   const open = (await api.restAll(`/repos/${repo}/pulls?state=open`, null, 30)).map((p) => p.number);
   const targets = only ? open.filter((n) => n === only) : open;
   if (only && targets.length === 0) throw new Error(`PR #${only} is not open`);
@@ -212,9 +245,11 @@ export async function collectRepoFacts(api, repo, { only = null, now = Date.now(
   const since = new Date(now - sinceDays * 86400 * 1000).toISOString();
   let repoComments = [];
   try {
-    repoComments = await api.restAll(`/repos/${repo}/issues/comments?since=${encodeURIComponent(since)}&sort=created&direction=desc`, null, 5);
+    repoComments = dedupeById(await api.restAll(`/repos/${repo}/issues/comments?since=${encodeURIComponent(since)}&sort=created&direction=desc`, null, commentMaxPages));
   } catch (e) {
-    repoGaps.push(`claims: recent comments could not be read completely (${e.message}); older claims may be missing`);
+    // Keep what was read (the newest comments), but never present it as the whole list: "active 0" must not read as "no claims".
+    repoComments = dedupeById(Array.isArray(e.partial) ? e.partial : []);
+    repoGaps.push(`claims: recent comments could not be read completely (${e.message}); ${repoComments.length} newest comment(s) were read, older claims may be missing`);
   }
 
   const prFiles = [];

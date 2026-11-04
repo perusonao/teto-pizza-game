@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../../data/recipes";
-import { NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
+import { B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B15_BATCH, B16_BATCH, B17_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
 import {
+  ordinaryCatalogView,
   productionCatalogView,
   validateBatchManifest,
   validateCatalogTables,
@@ -18,19 +19,90 @@ describe("production catalog", () => {
     expect(validateCatalogTables(view)).toEqual([]);
   });
 
-  it("New Sauces Phase B-1 (sichuan-eggplant-pizza) is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
+  it("Expansion Batch 10 PR-1 (five ordinary recipes) is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations", () => {
     expect(RECIPE_BATCHES).toContain(NEXT_RECIPE_BATCH);
     expect(NEXT_RECIPE_BATCH.status).toBe("landed");
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["sichuan-eggplant-pizza"]);
-    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["green-onion"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.recipeId)).toEqual(["curry-pizza-japan", "rendang-pizza", "tandoori-paneer-pizza", "currywurst", "cuban-pizza"]);
+    expect(NEXT_RECIPE_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["curry-ketchup", "beef", "paneer", "wurstel", "swiss-cheese"]);
     expect(NEXT_RECIPE_BATCH.acceptedLetterShifts).toBeUndefined(); // a single-member cohort: no existing recipe changes its letter
-    expect(validateBatchManifest(NEXT_RECIPE_BATCH, view)).toEqual([]);
+    expect(validateBatchManifest(NEXT_RECIPE_BATCH, ordinaryCatalogView())).toEqual([]); // E5: a batch is an ordinary-catalog event
+  });
+
+  it("B11 S1 (boscaiola / porcini-pizza / pescatore) is LANDED and consistent: appended tail, append-only ladder, cohort / chapter identity, explicit declarations; no pre-existing recipe changes its Research letter", () => {
+    expect(RECIPE_BATCHES).toContain(B11_S1_BATCH);
+    expect(B11_S1_BATCH.status).toBe("landed");
+    expect(B11_S1_BATCH.recipes.map((r) => r.recipeId)).toEqual(["boscaiola", "porcini-pizza", "pescatore"]);
+    expect(B11_S1_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["porcini", "porcini", "mussel"]);
+    expect(B11_S1_BATCH.acceptedLetterShifts).toBeUndefined();
+    expect(validateBatchManifest(B11_S1_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("B12 (jamaican-jerk-chicken-pizza) is LANDED and consistent: appended tail, no ladder step of its own, shares green-pepper's cohort; the one named letter shift is veggie-supreme-pizza", () => {
+    expect(RECIPE_BATCHES).toContain(B12_BATCH);
+    expect(B12_BATCH.status).toBe("landed");
+    expect(B12_BATCH.recipes.map((r) => r.recipeId)).toEqual(["jamaican-jerk-chicken-pizza"]);
+    expect(B12_BATCH.acceptedLetterShifts).toEqual({ "veggie-supreme-pizza": "-->B" });
+    expect(validateBatchManifest(B12_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("Expansion Batch 12 (supreme-pizza non-credit + pizza-alla-norma credited) is LANDED and consistent: appended tail, append-only ladder, chapter identity; the one accepted Research-letter shift is spanish-chorizo-pizza (supreme-pizza joins its bell-pepper cohort)", () => {
+    expect(RECIPE_BATCHES).toContain(B12B_BATCH);
+    expect(B12B_BATCH.status).toBe("landed");
+    expect(B12B_BATCH.recipes.map((r) => r.recipeId)).toEqual(["supreme-pizza", "pizza-alla-norma"]);
+    expect(B12B_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["bell-pepper", "ricotta-salata"]);
+    expect(B12B_BATCH.acceptedLetterShifts).toEqual({ "spanish-chorizo-pizza": "-->B" });
+    expect(validateBatchManifest(B12B_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("Expansion Batch 13 (potato-mayo-pizza, credited, the key of ordinary step 65) is LANDED and consistent: appended tail, append-only ladder, chapter identity; no pre-existing recipe changes its Research letter", () => {
+    expect(RECIPE_BATCHES).toContain(B13_BATCH);
+    expect(B13_BATCH.status).toBe("landed");
+    expect(B13_BATCH.recipes.map((r) => r.recipeId)).toEqual(["potato-mayo-pizza"]);
+    expect(B13_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["mayo"]);
+    expect(B13_BATCH.acceptedLetterShifts).toBeUndefined();
+    expect(validateBatchManifest(B13_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("Expansion Batch 15 (nigerian-suya-pizza, non-credit, no step of its own) is LANDED and consistent: appended tail, append-only ladder, no new material; rendang-pizza is the single named Research-letter shift", () => {
+    expect(RECIPE_BATCHES).toContain(B15_BATCH);
+    expect(B15_BATCH.status).toBe("landed");
+    expect(B15_BATCH.recipes.map((r) => r.recipeId)).toEqual(["nigerian-suya-pizza"]);
+    expect(B15_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["beef"]);
+    expect(B15_BATCH.recipes[0].ladderCredit).toBe(false);
+    expect(B15_BATCH.acceptedLetterShifts).toEqual({ "rendang-pizza": "-->B" });
+    expect(validateBatchManifest(B15_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("Expansion Batch 16 (ume-shiso-pizza, credited, the key of ordinary step 67) is LANDED and consistent: appended tail, append-only ladder, chapter identity; no pre-existing recipe changes its Research letter", () => {
+    expect(RECIPE_BATCHES).toContain(B16_BATCH);
+    expect(B16_BATCH.status).toBe("landed");
+    expect(B16_BATCH.recipes.map((r) => r.recipeId)).toEqual(["ume-shiso-pizza"]);
+    expect(B16_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["umeboshi-paste"]);
+    expect(B16_BATCH.recipes[0].ladderCredit).toBe(true);
+    expect(B16_BATCH.acceptedLetterShifts).toBeUndefined();
+    expect(validateBatchManifest(B16_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("Expansion Batch 17 (goulash-pizza, credited, the key of ordinary step 68) is LANDED and consistent: appended tail, append-only ladder, chapter identity; no pre-existing recipe changes its Research letter", () => {
+    expect(RECIPE_BATCHES).toContain(B17_BATCH);
+    expect(B17_BATCH.status).toBe("landed");
+    expect(B17_BATCH.recipes.map((r) => r.recipeId)).toEqual(["goulash-pizza"]);
+    expect(B17_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["sour-cream"]);
+    expect(B17_BATCH.recipes[0].ladderCredit).toBe(true);
+    expect(B17_BATCH.acceptedLetterShifts).toBeUndefined();
+    expect(validateBatchManifest(B17_BATCH, ordinaryCatalogView())).toEqual([]);
   });
 });
 
 /** The validator must actually fire: each check against a synthetic break (so it is never a tautology). */
 describe("validator catches", () => {
   const withRecipes = (recipes: CatalogView["recipes"]): CatalogView => ({ ...view, recipes });
+
+  it("a shared key material is flagged between two credited recipes, and allowed only for a non-credit sibling (B11 S1: porcini-pizza rides boscaiola's step)", () => {
+    const credited = { ...B11_S1_BATCH, recipes: B11_S1_BATCH.recipes.map((r) => (r.recipeId === "porcini-pizza" ? { ...r, ladderCredit: true } : r)) };
+    expect(validateBatchManifest(credited, ordinaryCatalogView())).toContain("MANIFEST_KEY_INGREDIENT_DUPLICATE: porcini");
+    expect(validateBatchManifest(B11_S1_BATCH, ordinaryCatalogView()).filter((p) => p.startsWith("MANIFEST_KEY_INGREDIENT_DUPLICATE"))).toEqual([]);
+  });
   const last = RECIPES[RECIPES.length - 1];
   /** Batch 8a (the previous batch, landed: #557) as a fixture for the non-credit / creditedWithoutStep / letter-shift checks the Phase A manifest does not exercise. */
   const view8a: CatalogView = { ...view, recipes: RECIPES.slice(0, RECIPES.findIndex((r) => r.id === "frango-catupiry") + 1), ladder: { ...view.ladder, steps: view.ladder.steps.slice(0, 53) } };

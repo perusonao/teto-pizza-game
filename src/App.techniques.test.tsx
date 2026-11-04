@@ -84,6 +84,8 @@ async function playMargherita(user: ReturnType<typeof userEvent.setup>) {
   }
   await user.click(screen.getByRole("button", { name: "取り出す！" }));
   vi.unstubAllGlobals();
+  // E5: a Free Cooking round (Production: FINISH on) identifies the pizza when 完成 is pressed on the FINISH step (nothing placed here).
+  await user.click(await screen.findByRole("button", { name: "完成" }));
   await screen.findByText("NEW PIZZA! ✨");
 }
 

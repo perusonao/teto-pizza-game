@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import catalog62 from "../../../data/recipes/ingredient_master_catalog.json";
-import { INGREDIENTS } from "../../data/ingredients";
+import { getIngredient, INGREDIENTS } from "../../data/ingredients";
 import {
   auditShelfAuthority,
   filterByShelf,
@@ -50,7 +50,7 @@ describe("LC-R1: CatalogIngredient.shelf is copied from ingredientShelf (31 prod
     expect(catalog.every((i) => i.shelf !== null)).toBe(true);
   });
 
-  it("matches an independent recount: sauce 5 / derived cheese / derived topping and the family distribution", () => {
+  it("matches an independent recount: sauce 8 / derived cheese / derived topping and the family distribution", () => {
     const byCategory: Record<string, number> = {};
     const byShelf: Record<string, number> = {};
     for (const i of INGREDIENTS) {
@@ -58,7 +58,7 @@ describe("LC-R1: CatalogIngredient.shelf is copied from ingredientShelf (31 prod
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id) : i.category;
       byShelf[shelf!] = (byShelf[shelf!] ?? 0) + 1;
     }
-    expect(byCategory).toEqual({ sauce: 5, cheese: INGREDIENTS.filter((i) => i.category === "cheese").length, topping: CATALOG_COUNTS.toppings });
+    expect(byCategory).toEqual({ sauce: 15, cheese: INGREDIENTS.filter((i) => i.category === "cheese").length, topping: CATALOG_COUNTS.toppings });
     const seen: Record<string, number> = {};
     for (const i of catalog) seen[i.shelf!] = (seen[i.shelf!] ?? 0) + 1;
     expect(seen).toEqual(byShelf);
@@ -176,7 +176,12 @@ describe("LC-R1: 62 catalog (design target, not activated) is fail-closed", () =
     const production = new Set(INGREDIENTS.map((i) => i.id));
     const overlap = catalog.filter((i) => production.has(i.id));
     expect(overlap.length).toBeGreaterThan(0);
-    for (const item of overlap) expect(item.shelf).toBe(ingredientShelf(item.id));
+    // Expansion Batch 13 (#708; Owner decision 2026-10-30): the design catalog (data/recipes/ingredient_master_catalog.json) lists `mayo` as a sauce / spread, but production ships it as a topping (scatter, family `spice`).
+    // The production category is the authority, so that one row is the only declared divergence: pinned exactly, so a second one (or a drift of this one) fails.
+    const divergent = overlap.filter((i) => getIngredient(i.id)?.category !== i.category);
+    expect(divergent.map((i) => i.id)).toEqual(["mayo"]);
+    expect(ingredientShelf("mayo")).toBe("spice");
+    for (const item of overlap) if (!divergent.includes(item)) expect(item.shelf).toBe(ingredientShelf(item.id));
   });
 
   it("unclassified rows are visible with no shelf filter and never under any shelf filter", () => {

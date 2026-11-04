@@ -172,7 +172,7 @@ describe("T-20 25-ladder reachability: H4 + near-miss reach every target, with t
     const base = ladderInputs(count);
     const members = discoverableHintCandidates(base);
     expect(members.map((c) => c.id)).toContain(LADDER_ORDER[count]);
-    expect(members.length).toBe(count >= 20 ? 4 : count >= 12 ? 3 : 1); // Batch 8a: + chilean-napolitana from Dex 20
+    expect(members.length).toBe(count >= 20 ? 5 : count >= 14 ? 4 : count >= 12 ? 3 : 1); // Batch 8a: + chilean-napolitana from Dex 20; Square Dough E-2: + grandma-pizza from Dex 14
     for (const r of members) {
       const others = members.filter((c) => c.id !== r.id).map((c) => c.id);
       const inputs: RecipeDiscoveryInputs = { ...base, dex: discover([...LADDER_ORDER.slice(0, count), ...others]) };
@@ -184,7 +184,9 @@ describe("T-20 25-ladder reachability: H4 + near-miss reach every target, with t
       const named = steps.flatMap((s) => (s.namedIngredientId ? [s.namedIngredientId] : []));
       const notTomato = steps.some((s) => s.textJa === "ソースはトマトじゃないみたい");
       const discovered = discoveredRecipeIds(inputs.dex);
-      const outcome = (ids: readonly string[]) => evaluateDiscovery(signatureOfPizza(pizzaOf(ids)), RECIPE_DISCOVERY_CATALOG, discovered);
+      // Square Dough E-2: a square-pan recipe (grandma-pizza) is only reachable cooked on the tray, so its walk is the tray walk.
+      const onPan = (ids: readonly string[]) => ({ ...pizzaOf(ids), ...(r.panShape === "square" ? { pan: "tray" as const } : {}) });
+      const outcome = (ids: readonly string[]) => evaluateDiscovery(signatureOfPizza(onPan(ids)), RECIPE_DISCOVERY_CATALOG, discovered);
 
       if (count === 0) {
         // Onboarding: every ingredient is named, the named pizza is the discovery.
@@ -192,7 +194,7 @@ describe("T-20 25-ladder reachability: H4 + near-miss reach every target, with t
         continue;
       }
       // Everything but one is named: the named-only pizza is one step away, with a direction.
-      const first = classifyNearMiss(signatureOfPizza(pizzaOf(named)), candidates);
+      const first = classifyNearMiss(signatureOfPizza(onPan(named)), candidates);
       expect(first?.distance).toBe(1);
       expect(["ADD_ONE", "SAUCE_ONLY"]).toContain(first?.kind);
 
@@ -208,7 +210,7 @@ describe("T-20 25-ladder reachability: H4 + near-miss reach every target, with t
       expect(hits, r.id).toHaveLength(1);
       expect(pool.length).toBeLessThanOrEqual(inputs.ownedIngredientIds.length);
       for (const id of pool.filter((p) => !hits.includes(p))) {
-        expect(classifyNearMiss(signatureOfPizza(pizzaOf([...named, id])), candidates)?.kind).not.toBe("ADD_ONE");
+        expect(classifyNearMiss(signatureOfPizza(onPan([...named, id])), candidates)?.kind).not.toBe("ADD_ONE");
       }
     }
   });

@@ -111,6 +111,30 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   flammkuchen: "flammkuchen-pizzadb",
   // New Sauces Phase B-1 (#578): PIZZA DB evidence id from the 172 matrix.
   "sichuan-eggplant-pizza": "sichuan-eggplant-pizza",
+  // Expansion Batch 10 PR-1: PIZZA DB evidence ids from the 172 matrix.
+  "curry-pizza-japan": "curry-pizza-japan-pizzadb-p2",
+  "rendang-pizza": "rendang-pizza-pizzadb-p14",
+  currywurst: "currywurst-pizzadb",
+  "tandoori-paneer-pizza": "tandoori-paneer-pizza-pizzadb-p5",
+  "cuban-pizza": "cuban-pizza-pizzadb-p2",
+  // B11 S1: PIZZA DB evidence ids from the 172 matrix (PROVISIONAL SPEC, original NOT confirmed).
+  boscaiola: "boscaiola-pizzadb-p12",
+  "porcini-pizza": "porcini-pizza-pizzadb-p13",
+  pescatore: "pescatore-pizzadb-p11",
+  // B12 (Issue #706): PIZZA DB evidence ids from the 172 matrix (PROVISIONAL SPEC, original NOT confirmed).
+  "jamaican-jerk-chicken-pizza": "jamaican-jerk-chicken-pizza-pizzadb-p3",
+  // Expansion Batch 12: PIZZA DB evidence ids from the 172 matrix (PROVISIONAL SPEC, original NOT confirmed).
+  "supreme-pizza": "supreme-pizzadb",
+  "pizza-alla-norma": "pizza-alla-norma-pizzadb-p9",
+  // Expansion Batch 13 (#708): PIZZA DB evidence id from the 172 matrix (PROVISIONAL SPEC, original NOT confirmed).
+  "potato-mayo-pizza": "potato-mayo-pizza-pizzadb-p3",
+  // Expansion Batch 14: PIZZA DB evidence id from the 172 matrix (PROVISIONAL SPEC, original NOT confirmed).
+  "moussaka-style-pizza": "moussaka-style-pizza-pizzadb-p13",
+  "nigerian-suya-pizza": "nigerian-suya-pizza-pizzadb-p5",
+  "ume-shiso-pizza": "ume-shiso-pizza-pizzadb-p14",
+  "goulash-pizza": "goulash-pizza-pizzadb-p3",
+  // Multi-Sauce S3 / Square Dough E-2 (#521): PIZZA DB evidence id from the 172 matrix.
+  "grandma-pizza": "grandma-pizza-pizzadb",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).
   aussie: "aussie-pizzadb",
 };
@@ -142,16 +166,20 @@ function targetIdOf(recipeId: string): string {
  * recipe so the target can never disagree with the requirement it judges.
  */
 export function discoveryIdentityOf(
-  recipe: Pick<Recipe, "requiredIngredients"> & { readonly doughKind?: unknown },
+  recipe: Pick<Recipe, "requiredIngredients"> & { readonly doughKind?: unknown; readonly panShape?: unknown },
 ): Pick<RecipeDiscoveryTarget, "identityDimensions" | "capabilities"> {
   const lateIds = [...new Set(recipe.requiredIngredients.filter((r) => r.applicationPhase === "POST_BAKE").map((r) => r.ingredientId))].sort();
   // P3-a2 (#577): a recipe that fixes a non-standard dough kind declares it on the `dough` axis and requires `DOUGH_VARIANT`, the same way a late
   // requirement is declared on `late`. `resolveDoughKind` is the one reader (absent / unknown = standard), so every shipped recipe is unchanged.
   const dough = resolveDoughKind(recipe);
-  if (lateIds.length === 0 && dough === "standard") return { identityDimensions: DEFAULT_IDENTITY_DIMENSIONS, capabilities: [] };
+  // Square Dough E-2 (#521): a recipe whose own pan is square (`panShape: "square"`) declares the `pan: "tray"` identity (AC1: the recipe and its target travel together),
+  // so it is discovered only when cooked on the tray; no capability (the `pan` axis is OBSERVED, F1).
+  const tray = recipe.panShape === "square";
+  if (lateIds.length === 0 && dough === "standard" && !tray) return { identityDimensions: DEFAULT_IDENTITY_DIMENSIONS, capabilities: [] };
   return {
     identityDimensions: {
       ...DEFAULT_IDENTITY_DIMENSIONS,
+      ...(tray ? { pan: "tray" } : {}),
       ...(dough === "standard" ? {} : { dough }),
       ...(lateIds.length === 0 ? {} : { late: [["POST_BAKE", lateIds]] as IdentityDimensions["late"] }),
     },

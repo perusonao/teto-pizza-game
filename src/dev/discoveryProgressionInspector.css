@@ -27,6 +27,9 @@
 .dpi__warn { color: #b3261e; }
 .dpi__summary-box { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; margin: 8px 0; }
 .dpi__summary-box p { margin: 4px 0; font-size: 13px; }
+/* Collapsed by default so the summary stays one screen tall as recipes are appended (360x800 WebKit: step 1 fell below the fold); nothing is removed, the text is in the DOM and opens on tap. */
+.dpi__fold { margin: 4px 0; }
+.dpi__fold > summary { font-size: 13px; cursor: pointer; }
 .dpi__controls { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
 .dpi__filters { display: flex; flex-wrap: wrap; gap: 6px; }
 .dpi__filter { padding: 6px 10px; border: 1px solid #aaa; border-radius: 16px; background: #fff; font-size: 12px; }

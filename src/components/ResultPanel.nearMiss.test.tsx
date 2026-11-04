@@ -85,13 +85,13 @@ describe("ORIGINAL result", () => {
 });
 
 describe("other results", () => {
-  it("FAILED: no near-miss, no hint row", () => {
+  it("FAILED: never a near-miss line (the #676 hint row is the CTA only, no text)", () => {
     render(
       <ResultPanel
         {...props({ completion: { status: "FAILED", reason: "UNDERBAKED", failures: [{ reason: "UNDERBAKED" }] }, nearMiss: line("ADD_ONE") })}
       />,
     );
-    expect(row()).toBeNull();
+    expect(row()?.querySelector(".result-near-miss__text")).toBeNull();
     expect(screen.queryByText(NEAR_MISS_COPY.ADD_ONE)).not.toBeInTheDocument();
   });
 

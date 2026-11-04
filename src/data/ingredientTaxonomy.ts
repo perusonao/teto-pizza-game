@@ -115,6 +115,18 @@ const BASE_TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[
   ["whitebait", "seafood"],
   // New Sauces Phase B-1 (OD-B9-3, docs/decisions/TETO_EXPANSION-BATCH-9_OWNER-DECISIONS.md): Owner approval for this row only (L1 family; no L2). `doubanjiang` is a sauce and carries no topping family.
   ["green-onion", "herb"],
+  // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md): pickles = vegetable (Owner). beef / wurstel = meat, paprika-powder = spice (L1 only, no `other`). curry-ketchup / mustard are sauces and paneer / swiss-cheese cheeses: they carry no topping family.
+  ["beef", "meat"],
+  ["wurstel", "meat"],
+  ["paprika-powder", "spice"],
+  ["pickles", "vegetable"],
+  // B11 S1 (PROVISIONAL SPEC, GAMEPLAY ASSUMPTION): porcini = vegetable, mussel = seafood (L1 only, no `other`).
+  ["porcini", "vegetable"],
+  ["mussel", "seafood"],
+  // Expansion Batch 13 (#708; PROVISIONAL SPEC, GAMEPLAY ASSUMPTION; Owner decision 2026-10-30): mayo = spice (L1 only, no `other`).
+  ["mayo", "spice"],
+  // Expansion Batch 14 (PROVISIONAL SPEC, GAMEPLAY ASSUMPTION; Owner decision): cinnamon = spice (L1 only, no `other`).
+  ["cinnamon", "spice"],
 ];
 
 /** The base rows, plus the late-catalog ingredients' rows (./lateCatalog.ts) when that catalog is enabled; otherwise the base rows themselves. */

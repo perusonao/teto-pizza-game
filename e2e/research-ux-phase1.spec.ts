@@ -17,7 +17,7 @@ const SAVE_KEY = "teto-pizza-save-v1";
 const FREE_BAKE = { start: 58, end: 78 };
 const keysBefore = (step: number) => ["margherita", ...DISCOVERY_LADDER.steps.filter((s) => s.step < step).map((s) => s.keyRecipeId)];
 
-const discovered = [...keysBefore(25), "brazilian-calabresa", "aussie", "chilean-napolitana"];
+const discovered = [...keysBefore(25), "brazilian-calabresa", "aussie", "chilean-napolitana", "grandma-pizza"];
 const materials = materialsUpTo(25);
 const SAVE = {
   schemaVersion: 2,

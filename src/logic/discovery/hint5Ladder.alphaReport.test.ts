@@ -44,7 +44,8 @@ function assignments(recipe: Recipe): number {
 }
 
 describe("PR-B alpha metric, family-only baseline (report)", () => {
-  const withSubs = RECIPES.filter((r) => buildHint5Ladder(r.id)!.rungs.some((x) => x.kind === "SUB_CLASS"));
+  // (pinsa-romana, present only while PINSA_PRODUCTION is open, has jamon's ladder: outside this frozen report, like the 55-ladder golden)
+  const withSubs = RECIPES.filter((r) => (r.id as string) !== "pinsa-romana").filter((r) => buildHint5Ladder(r.id)!.rungs.some((x) => x.kind === "SUB_CLASS"));
   const report = Object.fromEntries(withSubs.map((r) => [r.id, assignments(r)]));
 
   it("matches the report golden", async () => {

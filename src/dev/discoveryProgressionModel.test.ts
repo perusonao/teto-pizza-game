@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+import { pinsaEnabled } from "../data/pinsaGate";
+import { LATE_ENTITLEMENT_FLOORS, lateCatalogEnabled } from "../data/lateCatalog";
 
 // Passthrough spies: the real production functions still run; the spies only prove the Inspector calls them.
 vi.mock("../state/recipeDiscoveryState", async (importOriginal) => {
@@ -60,7 +62,13 @@ describe("production authority reuse (no second DISCOVERABLE logic)", () => {
     DISCOVERY_LADDER.steps.forEach((l) => {
       const s = step(l.step);
       expect(s.unlocked.map((i) => i.id)).toEqual([...l.ingredientIds]);
-      expect(s.afterOwned.length - s.beforeOwned.length).toBe(l.ingredientIds.length);
+      // Expansion Batch 10 PR-1: the ordinary steps 57-61 are appended, so the late steps derive 5 later, but the FIXED late floors (LATE_ENTITLEMENT_FLOORS, shipped values 57-60) still grant each late material at its old
+      // count: at a floor step the shop gains the floor-granted late material(s) as well (and the late step itself, when it comes, adds nothing new for them).
+      const beforeIds = new Set(s.beforeOwned.map((i) => i.id));
+      const added = s.afterOwned.map((i) => i.id).filter((id) => !beforeIds.has(id));
+      const floorGrants = lateCatalogEnabled() ? Object.entries(LATE_ENTITLEMENT_FLOORS).filter(([, f]) => f === l.step).map(([id]) => id) : [];
+      for (const id of added) expect([...l.ingredientIds, ...floorGrants], `step ${l.step}: ${id}`).toContain(id);
+      for (const id of l.ingredientIds) expect(s.afterOwned.map((i) => i.id)).toContain(id);
       expect(s.afterOwned.map((i) => i.id)).toEqual(expect.arrayContaining([...l.ingredientIds]));
     });
   });
@@ -84,9 +92,9 @@ describe("cherry-tomato (step 18)", () => {
     expect(s.newlyDiscoverable[0].ladderCredit).toBe(true);
     expect(stepMatchesFilter(s, "multi")).toBe(false);
   });
-  it("the pool is genovese plus the carried-over non-credit brazilian-calabresa and aussie", () => {
-    expect(s.afterPool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "genovese"]);
-    expect(s.beforePool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa"]);
+  it("the pool is genovese plus the carried-over non-credit brazilian-calabresa, aussie and (Square Dough E-2) grandma-pizza", () => {
+    expect(s.afterPool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "genovese", "grandma-pizza"]);
+    expect(s.beforePool.map((m) => m.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "grandma-pizza"]);
     expect(s.classification).toBe("OPEN_POOL_POSSIBLE");
   });
 });
@@ -110,8 +118,12 @@ describe("onion (step 12)", () => {
 describe("multi-recipe unlock", () => {
   it("is exactly the steps whose newly-DISCOVERABLE count is 2+ (here: step 12, and Wave 2's step 28 = pesto-vegetariana + ratatouille-pizza, the intended Branching Discovery)", () => {
     expect(model.multiRecipeStepNumbers).toEqual(model.steps.filter((s) => s.newlyDiscoverable.length >= 2).map((s) => s.step)); // Batch 8a: + step 20 (chilean-napolitana beside pesto-caprese), step 44 (frango-catupiry beside catupiry-corn); step 28 gains chorizo
-    expect(model.multiRecipeStepNumbers).toEqual([12, 20, 28, 44]);
-    expect(model.steps.filter((s) => stepMatchesFilter(s, "multi")).map((s) => s.step)).toEqual([12, 20, 28, 44]);
+    // Square Dough E-2: step 14 (garlic) makes grandma-pizza discoverable beside marinara. Pinsa Romana (#577 P3-b), only while its gate is open: step 33 (arugula) opens jamon and pinsa-romana together
+    // Expansion Batch 10 PR-1: steps 57-60 are also multi-recipe steps while the late catalog is on: the FIXED late floors (57-60) open the late recipe (ikura / yuzu / dengaku / tahini) at the same count as the new ordinary step.
+    const multi = [...(pinsaEnabled() ? [12, 14, 20, 28, 32, 33, 44] : [12, 14, 20, 28, 32, 44]), ...(lateCatalogEnabled() ? [57, 58, 59, 60] : [58]), 62, ...(lateCatalogEnabled() ? [66, 67, 68] : [])]; // Expansion Batch 17: step 68 (sour-cream) opens goulash-pizza, and the FIXED late floor of cod-roe / fresh-cream-sauce / nori (68) opens tarako-cream-pizza at the same count (Owner-approved simultaneous unlock); Expansion Batch 16: step 67 (umeboshi-paste) opens ume-shiso-pizza, and the FIXED late floor of soy-sauce / wasabi (67) opens wasabi-beef-pizza at the same count; // Expansion Batch 14: step 66 (cinnamon) opens moussaka-style-pizza, and the FIXED late floor of bbq-sauce (66) opens bbq-chicken-pizza at the same count (verified in the Inspector row: ムサカ風ピザ + BBQチキンピザ).
+    // (B12: step 32 (green-pepper) opens veggie-supreme-pizza and the non-credit jamaican-jerk-chicken-pizza together; B11 S1: step 62 (porcini) opens boscaiola and the non-credit porcini-pizza together, an ordinary multi-recipe step)
+    expect(model.multiRecipeStepNumbers).toEqual(multi);
+    expect(model.steps.filter((s) => stepMatchesFilter(s, "multi")).map((s) => s.step)).toEqual(multi);
   });
 });
 
@@ -147,7 +159,7 @@ describe("ladderCredit:false (brazilian-calabresa and, since TQ-1D, aussie)", ()
   });
   it("is read from the production credit predicate, is in the pool from step 12 on, and never advances the ladder", () => {
     const calabresa = model.nonCreditRecipes.find((r) => r.recipeId === "brazilian-calabresa")!;
-    expect(model.nonCreditRecipes.map((r) => r.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "chilean-napolitana", "spanish-chorizo-pizza"]); // Batch 8a adds three non-credit recipes; Issue #561 promotes frango-catupiry to credited
+    expect(model.nonCreditRecipes.map((r) => r.recipeId).sort()).toEqual(["aussie", "brazilian-calabresa", "chilean-napolitana", "grandma-pizza", "jamaican-jerk-chicken-pizza", "nigerian-suya-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : []), "porcini-pizza", "spanish-chorizo-pizza", "supreme-pizza"]); // Expansion Batch 15: + nigerian-suya-pizza (non-credit); // Batch 8a adds three non-credit recipes (Square Dough E-2: + grandma-pizza); Issue #561 promotes frango-catupiry to credited
     expect(calabresa.advancesLadder).toBe(countsTowardLadder("brazilian-calabresa"));
     expect(calabresa.advancesLadder).toBe(false);
     expect(calabresa.lunchRush).toBe(participatesInLunchRush("brazilian-calabresa"));

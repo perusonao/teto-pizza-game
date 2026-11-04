@@ -1,0 +1,63 @@
+import { describe, expect, it } from "vitest";
+import { gameReducer, type GameState } from "./gameReducer";
+import { createGuidedInitialState } from "./testSupport/guidedRound";
+
+const strip = (s: GameState) => {
+  const { preparedIngredientIds: _p, ...rest } = s;
+  // module-level counters (topping ids, placement token) differ between two runs in one process: normalise them
+  return JSON.parse(JSON.stringify(rest).replace(/"topping-\d+"/g, '"topping-N"').replace(/"token":\d+/g, '"token":0'));
+};
+const confirm = (s: GameState) => gameReducer(s, { type: "CONFIRM_MAKING_STEP" });
+
+function toTopping(kind: "GUIDED" | "FREE_COOK" = "GUIDED") {
+  const init = createGuidedInitialState("margherita", { ownedIngredientIds: ["beef"], inventory: { beef: 9 } });
+  let s = kind === "GUIDED" ? gameReducer(init, { type: "BEGIN_PREPARE" }) : gameReducer(init, { type: "START_FREE_COOK" });
+  if (s.phase !== "PREPARE" || s.roundKind !== kind) throw new Error("setup " + s.phase + s.roundKind);
+  s = gameReducer(s, { type: "COMMIT_DOUGH_STRETCH", shape: { radii: Array(8).fill(48) } as never });
+  s = confirm(confirm(confirm(s)));
+  return s;
+}
+function play(s: GameState, withPrep: boolean): GameState {
+  if (withPrep) s = gameReducer(s, { type: "PREP_INGREDIENT", ingredientId: "beef" });
+  for (const [x, y] of [[40, 50], [60, 50], [50, 30]]) s = gameReducer(s, { type: "PLACE_TOPPING", ingredientId: "beef", x, y });
+  s = gameReducer(s, { type: "START_BAKE" });
+  return gameReducer(s, { type: "CONFIRM_BAKE", value: 70 });
+}
+
+describe("SPIKE: transient prep set leaves everything else byte-identical", () => {
+  it("guided + free: pizza / score / scoringV2 / completion / inventory identical with and without prep", () => {
+    for (const kind of ["GUIDED", "FREE_COOK"] as const) {
+      const base = toTopping(kind);
+      expect(base.makingStep).toBe("TOPPING");
+      const a = play(base, false);
+      const b = play(base, true);
+      expect(b.preparedIngredientIds).toEqual(["beef"]);
+      expect(a.preparedIngredientIds).toBeUndefined();
+      expect(strip(b)).toStrictEqual(strip(a));
+      expect(a.scoringV2Result ?? a.score ?? a.bakeValue).not.toBeNull();
+    }
+  });
+  it("only in TOPPING, only beef, idempotent, only Guided/Free", () => {
+    const s = toTopping();
+    const sauceStep = gameReducer(gameReducer(gameReducer(createGuidedInitialState("margherita", { ownedIngredientIds: ["beef"], inventory: { beef: 9 } }), { type: "BEGIN_PREPARE" }), { type: "COMMIT_DOUGH_STRETCH", shape: { radii: Array(8).fill(48) } as never }), { type: "CONFIRM_MAKING_STEP" });
+    expect(sauceStep.makingStep).toBe("SAUCE");
+    expect(gameReducer(sauceStep, { type: "PREP_INGREDIENT", ingredientId: "beef" })).toBe(sauceStep);
+    expect(gameReducer(s, { type: "PREP_INGREDIENT", ingredientId: "mozzarella" })).toBe(s);
+    expect(s.makingStep).toBe("TOPPING");
+    const once = gameReducer(s, { type: "PREP_INGREDIENT", ingredientId: "beef" });
+    expect(once.preparedIngredientIds).toEqual(["beef"]);
+    expect(gameReducer(once, { type: "PREP_INGREDIENT", ingredientId: "beef" })).toBe(once);
+    const lr = { ...s, roundKind: "LUNCH_RUSH" as const };
+    expect(gameReducer(lr, { type: "PREP_INGREDIENT", ingredientId: "beef" })).toBe(lr);
+    const dn = { ...s, roundKind: "DINNER" as const };
+    expect(gameReducer(dn, { type: "PREP_INGREDIENT", ingredientId: "beef" })).toBe(dn);
+  });
+  it("RESET_PIZZA clears the set (property removed); a fresh round never carries it", () => {
+    const once = gameReducer(toTopping(), { type: "PREP_INGREDIENT", ingredientId: "beef" });
+    const reset = gameReducer(once, { type: "RESET_PIZZA" });
+    expect("preparedIngredientIds" in reset).toBe(false);
+    const done = play(once, false);
+    expect("preparedIngredientIds" in gameReducer(done, { type: "PLAY_AGAIN" })).toBe(false);
+    expect("preparedIngredientIds" in gameReducer(done, { type: "RETRY_SAME_RECIPE" })).toBe(false);
+  });
+});

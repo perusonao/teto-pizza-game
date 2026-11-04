@@ -184,13 +184,15 @@ function Summary({ model }: { model: InspectorModel }) {
         <code>{model.populationId}</code> <b data-testid="dpi-step-count">{model.stepCount}</b> steps
       </p>
       <p>
-        複数recipe同時解禁: <b data-testid="dpi-multi-count">{model.multiRecipeStepNumbers.length}</b> step（{model.multiRecipeStepNumbers.join(", ") || "なし"}）
+        複数recipe同時解禁: <b data-testid="dpi-multi-count">{model.multiRecipeStepNumbers.length}</b> step（{stepRange(model.multiRecipeStepNumbers) || "なし"}）
       </p>
       <p>
         OPEN_POOL: step <b data-testid="dpi-open-pool">{model.openPoolStepNumbers.join(", ") || "なし"}</b> / OPEN_POOL POSSIBLE: step{" "}
-        <b data-testid="dpi-open-pool-possible">{model.openPoolPossibleStepNumbers.join(", ") || "なし"}</b>
+        <b data-testid="dpi-open-pool-possible">{stepRange(model.openPoolPossibleStepNumbers) || "なし"}</b>
       </p>
-      <p className="dpi__small">
+      <details className="dpi__fold" data-testid="dpi-noncredit-fold">
+        <summary>ladderCredit:false の recipe {model.nonCreditRecipes.length} 件（タップで展開）</summary>
+        <p className="dpi__small">
         ladderCredit:false（発見してもladder countは進まず、step1–{model.stepCount}の解禁はこれらに依存しない）。未発見の間は最初に作れるstepから以降のpoolに残る:
         {model.nonCreditRecipes.map((r) => (
           <span key={r.recipeId} data-testid={`dpi-noncredit-${r.recipeId}`}>
@@ -198,16 +200,20 @@ function Summary({ model }: { model: InspectorModel }) {
             <b>{r.nameJa}</b> <code>{r.recipeId}</code> step {r.firstDiscoverableStep ?? "—"}〜 (pool {stepRange(r.poolSteps)}, lunchRush: {String(r.lunchRush)});
           </span>
         ))}
-      </p>
-      <p className="dpi__small">
+        </p>
+      </details>
+      <details className="dpi__fold" data-testid="dpi-hint-target-fold">
+        <summary>Hint target の読み方（タップで展開）</summary>
+        <p className="dpi__small">
         Hint targetは production の <code>selectHintTarget</code> の結果。NORMAL = pool=1で自動target。OPEN_POOL = pool≥2で、前stepから残るrecipeが無い（維持できるtargetが無い）。OPEN_POOL
         POSSIBLE = pool≥2だが前から残るrecipeがあり、購入済み(sticky) targetがあればそれが維持される。
-      </p>
+        </p>
+      </details>
     </section>
   );
 }
 
-/** Collapses a contiguous run of step numbers to `a〜b` (display only): with five non-credit recipes (Batch 8a) the full list would push the step table out of the first screen. */
+/** Collapses a contiguous run of step numbers to `a〜b` (display only): with five non-credit recipes (Batch 8a) the full list would push the step table out of the first screen. Also used for the OPEN_POOL POSSIBLE / multi-recipe lists, which otherwise grow with every appended step (360x800 WebKit: step 1 fell below the fold). */
 function stepRange(steps: readonly number[]): string {
   const parts: string[] = [];
   for (let i = 0; i < steps.length; ) {

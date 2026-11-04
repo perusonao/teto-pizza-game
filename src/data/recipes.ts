@@ -1261,6 +1261,304 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "grandma-pizza",
+    nameJa: "グランマピザ",
+    description: "トマトソースとオリーブオイルに、モッツァレラとにんにくをのせた、シンプルな一枚。",
+    // Multi-Sauce S3 / Square Dough E-2 (Issue #521, Epic #532). SOURCE (PIZZA DB `grandma-pizza-pizzadb`, 172 matrix; the English page as relayed by the Owner 2026-10-24, NOT re-verified from this environment): origin Long Island (US); a thin rectangular
+    // sheet-pan dough; tomato-sauce / mozzarella / garlic / olive-oil; the pan is lightly oiled before the dough is stretched; the cheese/sauce order varies; an extra oil after the bake is not confirmed as required. Counts and bake are NOT in the source.
+    // GAME SIMPLIFICATIONS (Owner decision 2026-10-24, not source facts): (M-1) the pan is the existing SQUARE pan (`panShape: "square"`, `pan: "tray"` identity), not a new rectangle; (M-2) the olive-oil is the existing SAUCE-step layer (a pre-bake PAINT_TEMPORARY
+    // spread, like the other olive-oil recipes), not a separate pan-oiling step; the cheese/sauce order is the game's fixed flow. The description names no timing, origin or pan.
+    // The first recipe with TWO required sauces: tomato-sauce is the primary (RECIPE_SAUCE_PROFILES, Reference target); olive-oil is a secondary sauce scored by presence only.
+    // GAMEPLAY CALIBRATION (not source): counts tomato-sauce 1 / olive-oil 1 / mozzarella 3 / garlic 2, bake 56-76 (provisional); 5 non-sauce pieces. `ladderCredit: false` (no new material; makeable from ladder step 14, when garlic arrives); `lunchRush: false`; no CUT (square pan); permanently key-free (Hint).
+    panShape: "square",
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "garlic", minCount: 2 },
+    ],
+    bakeTarget: { start: 56, end: 76 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
+  {
+    id: "curry-pizza-japan",
+    nameJa: "カレーピザ",
+    description: "カレーケチャップを塗った生地に、チキンとたまねぎ、モッツァレラをのせた、日本風のカレーピザ。",
+    // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md; Owner 2026-10-27). SOURCE AUTHORITY: the 172 matrix row only (PIZZA DB original page NOT confirmed); the ingredient set and the base sauce come from the matrix.
+    // GAMEPLAY CALIBRATION (not source): the counts below make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled. Ladder-credited (own step); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "curry-ketchup", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "chicken", minCount: 3 },
+      { ingredientId: "onion", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "rendang-pizza",
+    nameJa: "ルンダンピザ",
+    description: "カレーケチャップを塗った生地に、牛肉とたまねぎ、モッツァレラをのせた、スパイシーな一枚。",
+    // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md; Owner 2026-10-27). SOURCE AUTHORITY: the 172 matrix row only (PIZZA DB original page NOT confirmed); the ingredient set and the base sauce come from the matrix (curry-ketchup is a GAMEPLAY ASSUMPTION for the unspecified curry base, D-B3).
+    // GAMEPLAY CALIBRATION (not source): the counts below make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled. Ladder-credited (own step); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "curry-ketchup", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "beef", minCount: 3 },
+      { ingredientId: "onion", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "tandoori-paneer-pizza",
+    nameJa: "タンドリーパニールピザ",
+    description: "カレーケチャップを塗った生地に、パニールとピーマン、たまねぎ、モッツァレラをのせた、インド風の一枚。",
+    // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md; Owner 2026-10-27). SOURCE AUTHORITY: the 172 matrix row only (PIZZA DB original page NOT confirmed); the ingredient set and the base sauce come from the matrix (curry-ketchup is a GAMEPLAY ASSUMPTION for the unspecified curry base, D-B3).
+    // GAMEPLAY CALIBRATION (not source): the counts below make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled. Ladder-credited (own step); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "curry-ketchup", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "paneer", minCount: 2 },
+      { ingredientId: "green-pepper", minCount: 2 },
+      { ingredientId: "onion", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "currywurst",
+    nameJa: "カリーヴルストピザ",
+    description: "カレーケチャップに、ヴルステルとパプリカパウダー、モッツァレラをのせた、ドイツ風の屋台の味。",
+    // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md; Owner 2026-10-27). SOURCE AUTHORITY: the 172 matrix row only (PIZZA DB original page NOT confirmed); the ingredient set and the base sauce come from the matrix.
+    // GAMEPLAY CALIBRATION (not source): the counts below make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled. Ladder-credited (own step); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "curry-ketchup", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "wurstel", minCount: 4 },
+      { ingredientId: "paprika-powder", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "cuban-pizza",
+    nameJa: "キューバンピザ",
+    description: "マスタードを塗った生地に、豚肉とハム、ピクルス、スイスチーズをのせた、キューバサンド風の一枚。",
+    // Expansion Batch 10 PR-1 (docs/decisions/TETO_EXPANSION-BATCH-10_PR1_OWNER-DECISIONS.md; Owner 2026-10-27). SOURCE AUTHORITY: the 172 matrix row only (PIZZA DB original page NOT confirmed); the ingredient set and the base sauce come from the matrix.
+    // GAMEPLAY CALIBRATION (not source): the counts below make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled. Ladder-credited (own step); `lunchRush: false`; no CUT; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "mustard", minCount: 1 },
+      { ingredientId: "swiss-cheese", minCount: 2 },
+      { ingredientId: "pork", minCount: 3 },
+      { ingredientId: "ham", minCount: 2 },
+      { ingredientId: "pickles", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "boscaiola",
+    nameJa: "ボスカイオーラ",
+    description: "オリーブオイルを塗った生地に、ポルチーニとソーセージ、モッツァレラをのせた、森のきのこの一枚。",
+    // B11 S1 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; docs/design/TETO_B11-S1_PRE-IMPLEMENTATION-PREP_2026-10-28.md). SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled; names and the SVG shapes are provisional. `lunchRush: false`; no CUT; permanently key-free (Hint).
+    // Ladder-credited: the key recipe of step 62 (porcini). The olive-oil is its own PAINT_TEMPORARY slot mapping (like vongole), the sauce is not a piece.
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "porcini", minCount: 3 },
+      { ingredientId: "sausage", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "porcini-pizza",
+    nameJa: "ポルチーニ茸のピザ",
+    description: "ソースを使わず、ポルチーニとモッツァレラ、にんにく、パセリをのせた、きのこの香りの一枚。",
+    // B11 S1 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; docs/design/TETO_B11-S1_PRE-IMPLEMENTATION-PREP_2026-10-28.md). SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled; names and the SVG shapes are provisional. `lunchRush: false`; no CUT; permanently key-free (Hint).
+    // NO_SAUCE (no sauce step), `ladderCredit: false` (Owner decision 1): it shares step 62 with boscaiola, whose recipe id sorts first, so boscaiola stays the key.
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "porcini", minCount: 3 },
+      { ingredientId: "garlic", minCount: 1 },
+      { ingredientId: "parsley", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
+  {
+    id: "pescatore",
+    nameJa: "ペスカトーレ",
+    description: "トマトソースの生地に、エビとあさり、ムール貝、モッツァレラをのせた、魚介たっぷりの一枚。",
+    // B11 S1 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; docs/design/TETO_B11-S1_PRE-IMPLEMENTATION-PREP_2026-10-28.md). SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking / post-bake step is modelled; names and the SVG shapes are provisional. `lunchRush: false`; no CUT; permanently key-free (Hint).
+    // Ladder-credited: the key recipe of step 63 (mussel). Tomato-sauce only: the olive-oil of the source ingredient set is OMITTED (GAMEPLAY ASSUMPTION, Owner decision 2). Seven distinct ingredients: the second Hint price-cap exception (Owner decision 3).
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "shrimp", minCount: 2 },
+      { ingredientId: "clam", minCount: 1 },
+      { ingredientId: "mussel", minCount: 1 },
+      { ingredientId: "garlic", minCount: 1 },
+      { ingredientId: "parsley", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "jamaican-jerk-chicken-pizza",
+    nameJa: "ジャマイカンジャークチキンピザ",
+    description: "ソースを使わず、チキンとピーマン、パイナップル、モッツァレラをのせた、甘みと香ばしさの一枚。",
+    // B12 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; Issue #706). SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the source sauce field is 'その他' (BASE_SAUCE_UNSPECIFIED), treated as NO_SAUCE pending an Owner decision; the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window).
+    // NO_SAUCE (no sauce step), `ladderCredit: false`: no new material, so no ladder step of its own (makeable once green-pepper, step 32, is owned). The jerk seasoning is not in the source ingredient list and is not modelled.
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "chicken", minCount: 3 },
+      { ingredientId: "green-pepper", minCount: 1 },
+      { ingredientId: "pineapple", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
+  {
+    id: "supreme-pizza",
+    nameJa: "スプリームピッツァ",
+    description: "トマトソースの生地に、ペパロニとソーセージ、パプリカ、きのこ、玉ねぎ、オリーブをのせた、具だくさんの一枚。",
+    // Expansion Batch 12 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; Issue #707. SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking or post-bake step is modelled; name (the source name スプリームピザ is a substring of the existing ベジースプリームピザ, so it ships as スプリームピッツァ) and description are provisional.)
+    // Non-credit (`ladderCredit: false`, no ladder step of its own): every material already exists, so it adds no Shop row. Source set has NO mozzarella (the catalog candidate `supreme` had it and was deferred for 7 non-sauce types, see the Batch 1B-C deferral note near the top of this list); this PIZZA DB set has 6 non-sauce types, the same as veggie-supreme-pizza. The id is `supreme-pizza`; no `supreme` id exists.
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "pepperoni", minCount: 2 },
+      { ingredientId: "sausage", minCount: 2 },
+      { ingredientId: "mushroom", minCount: 1 },
+      { ingredientId: "onion", minCount: 1 },
+      { ingredientId: "bell-pepper", minCount: 1 },
+      { ingredientId: "black-olive", minCount: 1 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
+  {
+    id: "pizza-alla-norma",
+    nameJa: "ピッツァ・アッラ・ノルマ",
+    description: "トマトソースの生地に、ナスとバジル、リコッタサラータをのせた、シチリア風の一枚。",
+    // Expansion Batch 12 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; Issue #707. SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking or post-bake step is modelled; name (the source name スプリームピザ is a substring of the existing ベジースプリームピザ, so it ships as スプリームピッツァ) and description are provisional.)
+    // Ladder-credited: the key recipe of step 64 (ricotta-salata, the one new material). No mozzarella (the PIZZA DB set; the catalog candidate `alla-norma` with mozzarella / olive-oil is NOT adopted, Owner exception pending).
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "eggplant", minCount: 3 },
+      { ingredientId: "ricotta-salata", minCount: 3 },
+      { ingredientId: "basil", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "potato-mayo-pizza",
+    nameJa: "じゃがマヨピザ",
+    description: "ソースを使わず、じゃがいもとベーコン、コーン、マヨネーズ、モッツァレラをのせた、ほくほくでコクのある一枚。",
+    // Expansion Batch 13 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; Issue #708). SOURCE AUTHORITY: the 172 matrix row only. GAMEPLAY ASSUMPTION / CALIBRATION (not source): the source sauce field is unspecified (BASE_SAUCE_UNSPECIFIED), treated as NO_SAUCE for this one row (Owner decision 2026-10-30); the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); no pre-cooking or post-bake step is modelled; name and description are provisional.
+    // NO_SAUCE (no sauce step), ladder-credited: the key recipe of step 65 (mayo, the one new material; a topping, not a sauce).
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "potato", minCount: 2 },
+      { ingredientId: "bacon", minCount: 1 },
+      { ingredientId: "corn", minCount: 1 },
+      { ingredientId: "mayo", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "moussaka-style-pizza",
+    nameJa: "ムサカ風ピザ",
+    description: "フロマージュブランの白いソースを塗った生地に、ナスとラム肉、フェタ、シナモンをのせた、ギリシャ風の一枚。",
+    // Expansion Batch 14 (PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `moussaka-style-pizza-pizzadb-p13` only (cinnamon / eggplant / feta / lamb + the sauce field 'ホワイトソース', which the canonicalizer leaves ambiguous; its only related id is fromage-blanc-sauce).
+    // OWNER DECISION (this recipe only; NOT a NO_SAUCE exception): the existing fromage-blanc-sauce stands in for the white sauce (PAINT, the SAUCE step). GAMEPLAY ASSUMPTION / CALIBRATION (not source): fromage-blanc-sauce 1 (PAINT) / feta 2 / eggplant 2 / lamb 2 / cinnamon 2 = 8 non-sauce pieces (the cheese precedes the toppings, so the legacy Hint 2.0 H4 withholds the last topping = the Rule W reserved ingredient) = the 8-slot ring;
+    // bake 58-78 (the generic Free Cooking window, so the median-derived FREE_COOK_BAKE_TARGET stays 58-78); no CUT (the matrix says the round CUT is optional; the CUT allowlist is unchanged); when the cinnamon is added (before or after the bake) is not confirmed -- it is placed in the TOPPING step; the matrix's thin dough is not reproduced.
+    // Ladder-credited: the key recipe of step 66 (cinnamon, the one new material; a topping, not a sauce). `lunchRush: false`; permanently key-free (Hint).
+    requiredIngredients: [
+      { ingredientId: "fromage-blanc-sauce", minCount: 1 },
+      { ingredientId: "feta", minCount: 2 },
+      { ingredientId: "eggplant", minCount: 2 },
+      { ingredientId: "lamb", minCount: 2 },
+      { ingredientId: "cinnamon", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "nigerian-suya-pizza",
+    nameJa: "ナイジェリアンスヤピザ",
+    description: "ソースを使わず、牛肉とピーマン、玉ねぎ、モッツァレラをのせた、香ばしい一枚。",
+    // Expansion Batch 15 (Issue #728; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `nigerian-suya-pizza-pizzadb-p5` only (comparison table p5, relayed 2026-09-22, never independently re-fetched): beef / onion / green-pepper / mozzarella; sauce field 'その他' (BASE_SAUCE_UNSPECIFIED).
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source): NO_SAUCE is a suya-only Owner exception (2026-11-02), NOT a general rule for unspecified sauce fields; the counts make 8 non-sauce pieces = the 8-slot ring; bake 58-78 (the generic Free Cooking window); every piece is placed BEFORE the bake (the source states no timing). The suya spice is not in the source ingredient list and is not modelled (no spice step is added).
+    // Non-credit (`ladderCredit: false`, no ladder step of its own): every material already exists (beef = ordinary step 58, the key of rendang-pizza, so both become makeable together; green-pepper step 32; onion step 12). No new material, no new technique.
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "beef", minCount: 3 },
+      { ingredientId: "green-pepper", minCount: 1 },
+      { ingredientId: "onion", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    ladderCredit: false,
+    lunchRush: false,
+  },
+  {
+    id: "ume-shiso-pizza",
+    nameJa: "梅しそピザ",
+    description: "梅のさわやかなソースに、しらすと大葉をそえた、和風の一枚。",
+    // Expansion Batch 16 (Issue #736; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `ume-shiso-pizza-pizzadb-p14` only (comparison table p14, relayed 2026-09-22, never independently re-fetched): 梅肉 / 大葉 / モッツァレラ / しらす; sauce field 'その他' (BASE_SAUCE_UNSPECIFIED, matrix BLOCKED_PRODUCT_DECISION).
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source; Owner-confirmed 2026-11-03): 梅肉 is painted as the SAUCE (a B16-only provisional exception, NOT a general rule for unspecified sauce fields); counts umeboshi-paste 1 (PAINT) / mozzarella 2 / whitebait 4 / shiso 2 = 8 non-sauce pieces; bake 58-78 (= the generic Free Cooking window, so the median-derived
+    // FREE_COOK_BAKE_TARGET stays 58-78, as for shirasu-pizza); EVERY piece is placed BEFORE the bake (the source states no timing; shiso before the bake like shirasu-pizza; no POST_BAKE, so no FINISH step -- the FINISH constraints are untouched). Its identity differs from shirasu-pizza by the sauce and the lemon (Jaccard 0.60, a B16-only Owner exception; the global 0.4 criterion is unchanged).
+    // Ladder-credited: the key of ordinary step 67 (umeboshi-paste, a single-member Research cohort: no existing recipe changes its label); `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "umeboshi-paste", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "whitebait", minCount: 4 },
+      { ingredientId: "shiso", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },  {
+    id: "goulash-pizza",
+    nameJa: "グヤーシュピザ",
+    description: "サワークリームのソースに、牛肉と玉ねぎとパプリカをのせた、ハンガリー風の一枚。",
+    // Expansion Batch 17 (Issue #741; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `goulash-pizza-pizzadb-p3` only (comparison table p3, relayed 2026-09-22, never independently re-fetched): 牛肉 / 玉ねぎ / パプリカパウダー / サワークリーム; sauce field 'その他' (BASE_SAUCE_UNSPECIFIED, matrix BLOCKED_PRODUCT_DECISION, unchanged).
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source; Owner-confirmed 2026-11-03): サワークリーム is painted as the SAUCE (a B17-only provisional exception, NOT a general rule for unspecified sauce fields); counts sour-cream 1 (PAINT) / beef 3 / onion 3 / paprika-powder 2 (non-sauce 8 pieces = the 8-slot ring), NO cheese (the matrix lists none; vongole / fugazza are the sauce-without-cheese precedent), bake 58-78 (the generic Free Cooking window).
+    // EVERY piece is placed BEFORE the bake (the source states no timing; no POST_BAKE, so no FINISH step; no prep / steam / sear step). Ladder-credited: the key of ordinary step 68 (sour-cream, a single-member Research cohort: no existing recipe changes its label); `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "sour-cream", minCount: 1 },
+      { ingredientId: "beef", minCount: 3 },
+      { ingredientId: "onion", minCount: 3 },
+      { ingredientId: "paprika-powder", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+
 ] as const;
 
 /**

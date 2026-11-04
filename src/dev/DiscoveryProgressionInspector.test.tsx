@@ -4,8 +4,13 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { INGREDIENTS } from "../data/ingredients";
+import { lateCatalogEnabled } from "../data/lateCatalog";
+import { pinsaEnabled } from "../data/pinsaGate";
 import { RECIPES } from "../data/recipes";
 import { DiscoveryProgressionInspector } from "./DiscoveryProgressionInspector";
+
+/** Expansion Batch 10 PR-1: with the late catalog on, the FIXED late floors open a late recipe at each of the ordinary steps 57-60, so those are multi-recipe steps too. */
+const LATE_FLOOR_MULTI = (lateCatalogEnabled() ? 7 : 0) + 1; // (Expansion Batch 17: step 68 (sour-cream) opens goulash-pizza, and the FIXED late floor of cod-roe / fresh-cream-sauce / nori (68) opens tarako-cream-pizza at the same count) // (Expansion Batch 16: step 67 (umeboshi-paste) opens ume-shiso-pizza, and the FIXED late floor of soy-sauce / wasabi (67) opens wasabi-beef-pizza at the same count) // (+ 1: B11 S1's step 62, porcini, opens boscaiola and the non-credit porcini-pizza together; Expansion Batch 14: the FIXED late floor of bbq-sauce (66) now coincides with the ordinary step 66 (cinnamon), so step 66 opens moussaka-style-pizza and bbq-chicken-pizza together)
 
 afterEach(() => {
   cleanup();
@@ -13,13 +18,24 @@ afterEach(() => {
 });
 
 describe("Discovery Progression Inspector screen", () => {
+  it("shows the OPEN_POOL POSSIBLE and multi-recipe step lists as ranges, so the summary height does not grow with every appended step", () => {
+    render(<DiscoveryProgressionInspector />);
+    expect(screen.getByTestId("dpi-open-pool-possible")).toHaveTextContent(`13〜${DISCOVERY_LADDER.steps.length}`);
+    expect(screen.getByTestId("dpi-open-pool-possible").textContent).not.toContain(",");
+    const multi = screen.getByTestId("dpi-multi-count").closest("p")!.textContent!;
+    const listed = (multi.match(/（([^）]*)）/)?.[1] ?? "").split(", ").filter((x) => /^\d+$/.test(x)).map(Number);
+    for (let i = 2; i < listed.length; i += 1) {
+      expect(listed[i] - listed[i - 2] === 2 && listed[i - 1] - listed[i - 2] === 1, `steps ${listed[i - 2]}, ${listed[i - 1]}, ${listed[i]} must be collapsed to a range`).toBe(false);
+    }
+  });
+
   it("lists every step with Step / Unlock / Newly Discoverable / Pool / Result from production data", () => {
     render(<DiscoveryProgressionInspector />);
     expect(screen.getByRole("heading", { name: "Discovery Progression Inspector" })).toBeInTheDocument();
     expect(screen.getByTestId("dpi-recipe-count")).toHaveTextContent(String(RECIPES.length));
     expect(screen.getByTestId("dpi-ingredient-count")).toHaveTextContent(String(INGREDIENTS.length));
     expect(screen.getByTestId("dpi-step-count")).toHaveTextContent(String(DISCOVERY_LADDER.steps.length));
-    expect(screen.getByTestId("dpi-multi-count")).toHaveTextContent("4"); // steps 12 / 20 / 28 / 44 (Batch 8a: the non-credit branches join steps 20 and 44; step 28 gains chorizo)
+    expect(screen.getByTestId("dpi-multi-count")).toHaveTextContent(String((pinsaEnabled() ? 7 : 6) + LATE_FLOOR_MULTI)); // (+ the late-floor steps 57-60 of Expansion Batch 10 PR-1) // (Pinsa Romana, only while its gate is open: step 33 = arugula opens jamon and pinsa-romana together) steps 12 / 14 / 20 / 28 / 44 (Batch 8a: the non-credit branches join steps 20 and 44; step 28 gains chorizo; Square Dough E-2: grandma-pizza joins step 14)
     const first = screen.getByTestId("dpi-row-1");
     expect(first).toHaveTextContent("🆕 たまご");
     expect(first).toHaveTextContent("Pool 1");
@@ -63,7 +79,7 @@ describe("Discovery Progression Inspector screen", () => {
     expect(screen.getByTestId("dpi-row-18")).toHaveTextContent("ジェノベーゼ");
 
     await user.click(screen.getByRole("button", { name: "複数recipe同時解禁" }));
-    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent(`4 / ${DISCOVERY_LADDER.steps.length}`); // steps 12 / 20 / 28 / 44
+    expect(screen.getByTestId("dpi-visible-count")).toHaveTextContent(`${(pinsaEnabled() ? 7 : 6) + LATE_FLOOR_MULTI} / ${DISCOVERY_LADDER.steps.length}`); // steps 12 / 14 / 20 / 28 / 44
     expect(screen.getByTestId("dpi-row-12")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "OPEN_POOL関連" }));

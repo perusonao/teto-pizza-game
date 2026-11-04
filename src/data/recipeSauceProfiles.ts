@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang";
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce" | "soy-sauce" | "fresh-cream-sauce" | "umeboshi-paste" | "sour-cream";
   interaction: SauceInteractionKind;
 }
 
@@ -309,8 +309,104 @@ export const RECIPE_SAUCE_PROFILES = {
     ingredientId: "doubanjiang",
     interaction: "PAINT",
   },
+  // Expansion Batch 10 PR-1: the existing PAINT gesture, no new interaction. rendang / tandoori-paneer use curry-ketchup as a GAMEPLAY ASSUMPTION (D-B3).
+  "curry-pizza-japan": {
+    recipeId: "curry-pizza-japan",
+    ingredientId: "curry-ketchup",
+    interaction: "PAINT",
+  },
+  "rendang-pizza": {
+    recipeId: "rendang-pizza",
+    ingredientId: "curry-ketchup",
+    interaction: "PAINT",
+  },
+  currywurst: {
+    recipeId: "currywurst",
+    ingredientId: "curry-ketchup",
+    interaction: "PAINT",
+  },
+  "tandoori-paneer-pizza": {
+    recipeId: "tandoori-paneer-pizza",
+    ingredientId: "curry-ketchup",
+    interaction: "PAINT",
+  },
+  "cuban-pizza": {
+    recipeId: "cuban-pizza",
+    ingredientId: "mustard",
+    interaction: "PAINT",
+  },
+  // B11 S1 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): boscaiola's olive-oil reuses vongole's own PAINT_TEMPORARY sauce-slot mapping (not a general rule); pescatore uses tomato-sauce only (the olive-oil of the source ingredient set is omitted by Owner decision, a single sauce);
+  // porcini-pizza is NO_SAUCE (the existing `null` mapping, like aussie).
+  boscaiola: {
+    recipeId: "boscaiola",
+    ingredientId: "olive-oil",
+    interaction: "PAINT_TEMPORARY",
+  },
+  "porcini-pizza": null,
+  // B12 (Issue #706; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): the source sauce field is 'その他' (unspecified); both are NO_SAUCE (the existing `null` mapping, like aussie) pending an Owner decision.
+  "jamaican-jerk-chicken-pizza": null,
+  // Expansion Batch 15 (Issue #728): NO_SAUCE is a suya-only Owner exception (2026-11-02), NOT a general rule for "source field = その他". Original (pizzadb.jp) NOT CONFIRMED.
+  "nigerian-suya-pizza": null,
+  // Expansion Batch 13 (#708; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): the source sauce field is unspecified (BASE_SAUCE_UNSPECIFIED); NO_SAUCE for this one row only (Owner decision 2026-10-30), the existing `null` mapping.
+  "potato-mayo-pizza": null,
+  // Expansion Batch 14 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): the source sauce field is 'ホワイトソース' (ambiguous in the canonicalizer; its only related id is fromage-blanc-sauce). Owner decision: the existing fromage-blanc-sauce stands in for it, for this one recipe only (the existing PAINT gesture; NOT a NO_SAUCE exception).
+  "moussaka-style-pizza": {
+    recipeId: "moussaka-style-pizza",
+    ingredientId: "fromage-blanc-sauce",
+    interaction: "PAINT",
+  },
+  pescatore: {
+    recipeId: "pescatore",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  // Expansion Batch 12 (PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; GAMEPLAY ASSUMPTION): both use the tomato-sauce PAINT like the other single-sauce tomato recipes.
+  "supreme-pizza": {
+    recipeId: "supreme-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  "pizza-alla-norma": {
+    recipeId: "pizza-alla-norma",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
+  // Multi-Sauce S3 / Square Dough E-2: the PRIMARY sauce only (tomato-sauce, the Reference target). The secondary olive-oil has no profile entry and is scored by presence (Design Lock §5.3).
+  "grandma-pizza": {
+    recipeId: "grandma-pizza",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
   // FIN-E4b-ikura (#621, late catalog): NO_SAUCE.
+  // Expansion Batch 16 (#736, PROVISIONAL, ORIGINAL NOT CONFIRMED): umeboshi-paste PAINT -- reading the source sauce field 'その他' as the 梅肉 sauce is a B16-only exception (not a general rule); the existing PAINT gesture, no new interaction.
+  "ume-shiso-pizza": { recipeId: "ume-shiso-pizza", ingredientId: "umeboshi-paste", interaction: "PAINT" },
+  // Expansion Batch 17 (#741, PROVISIONAL, ORIGINAL NOT CONFIRMED): sour-cream PAINT -- reading the source sauce field 'その他' as the sour-cream sauce is a B17-only exception (not a general rule); the existing PAINT gesture, no new interaction.
+  "goulash-pizza": { recipeId: "goulash-pizza", ingredientId: "sour-cream", interaction: "PAINT" },
   "ikura-salmon-pizza": null,
+  // New Sauces Phase B U1 (late catalog): yuzu-kosho painted before the bake (PROVISIONAL, not confirmed by the original).
+  "yuzu-shrimp-pizza": {
+    recipeId: "yuzu-shrimp-pizza",
+    ingredientId: "yuzu-kosho",
+    interaction: "PAINT",
+  },
+  // New Sauces Phase B U2 (late catalog): miso-sauce painted before the bake (GAMEPLAY ASSUMPTION, not confirmed by the original).
+  "eggplant-tahini-pizza": { recipeId: "eggplant-tahini-pizza", ingredientId: "tahini", interaction: "PAINT" },
+  // BBQ Chicken (late catalog): bbq-sauce painted before the bake (GAMEPLAY ASSUMPTION, not confirmed by the original).
+  "bbq-chicken-pizza": { recipeId: "bbq-chicken-pizza", ingredientId: "bbq-sauce", interaction: "PAINT" },
+  // PR-2 late4 (late catalog): the sauces are painted before the bake (GAMEPLAY ASSUMPTION, not confirmed by the original).
+  "wasabi-beef-pizza": { recipeId: "wasabi-beef-pizza", ingredientId: "soy-sauce", interaction: "PAINT" },
+  "tarako-cream-pizza": { recipeId: "tarako-cream-pizza", ingredientId: "fresh-cream-sauce", interaction: "PAINT" },
+  "eggplant-dengaku-pizza": {
+    recipeId: "eggplant-dengaku-pizza",
+    ingredientId: "miso-sauce",
+    interaction: "PAINT",
+  },
+  // Pinsa Romana (#577 P3-b-1, late catalog; exists only while PINSA_PRODUCTION): same sauce as jamon-serrano-pizza.
+  "pinsa-romana": {
+    recipeId: "pinsa-romana",
+    ingredientId: "tomato-sauce",
+    interaction: "PAINT",
+  },
 } as const satisfies Readonly<Record<RecipeId, RecipeSauceProfile | null>>;
 
 /** The recipes made without a spread sauce (their profile is `null`): derived from the table above. */

@@ -583,6 +583,13 @@
   transition: opacity 260ms ease;
 }
 
+.pizza-paint-trail__stroke--squeeze {
+  /* Expansion Batch 13 (#708): the live squeeze stroke -- a cream bead with a warm outline, as thick as the committed one. */
+  stroke-width: 3.2;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 0.6px #7a6548) drop-shadow(0 0 0.6px #7a6548);
+}
+
 .pizza-paint-trail__stroke--fade {
   opacity: 0;
 }
@@ -818,12 +825,85 @@
   margin: -0.075em;
 }
 
-/* Batch 8b / 8c / Phase B-1: the shiso leaf, the whitebait school, the salmon-roe grains and the green-onion slices are drawn inside a 64-box with generous margins, so they read smaller than the neighbouring emoji (which overfill
-   their 1em box). Same fix class as the tomato slice above; scoped to these four visuals only. */
+/* Batch 8b / 8c / Phase B-1 / U2 (+ shrimp-curl): the shiso leaf, the whitebait school, the salmon-roe grains, the green-onion slices, the peeled shrimp and the sesame seeds are drawn inside a 64-box with generous margins, so they read smaller than the neighbouring emoji (which overfill
+   their 1em box). Same fix class as the tomato slice above; scoped to these eight visuals only. */
 .ingredient-glyph--shiso-leaf,
 .ingredient-glyph--whitebait-school,
 .ingredient-glyph--salmon-roe-grains,
-.ingredient-glyph--green-onion-slices {
+.ingredient-glyph--green-onion-slices,
+.ingredient-glyph--shrimp-curl,
+.ingredient-glyph--sesame-seeds,
+.ingredient-glyph--pomegranate-aril,
+.ingredient-glyph--cilantro-leaf {
+  width: 1.2em;
+  height: 1.2em;
+  margin: -0.1em;
+}
+
+/* Issue #739 (Owner P1): the whitebait school is drawn with larger fish and a darker outline, and its box is 1.35em (was the shared 1.2em above), so the school reads on the baked dough. Its own rule: the shared group above stays untouched. The layout box stays 1em via the negative margin. */
+.ingredient-glyph--whitebait-school {
+  width: 1.35em;
+  height: 1.35em;
+  margin: -0.175em;
+}
+
+/* Issue #739 (Owner P1): the plum-paste dab of the 梅肉 sauce chip (shared by the B17 sour-cream dab, same grammar and box). A 64-box with margins, so it gets a boost (1.5em: the flat dab fills only the lower two thirds of its box) to match the neighbouring emoji chips; PROVISIONAL until the 390x844 / 360x800 HV. */
+.ingredient-glyph--sour-cream-dab,
+.ingredient-glyph--umeboshi-paste-dab {
+  width: 1.5em;
+  height: 1.5em;
+  margin: -0.25em;
+}
+
+/* Ingredient Visual V1 (pickles / wurstel / paprika-powder): drawn inside a 64-box with margins, so on the dough they read smaller than the emoji they replace (measured on 390x844 / 360x800).
+   Same fix class as the group above, kept as its own rule so later visuals append without touching it. */
+.ingredient-glyph--pickle-slices,
+.ingredient-glyph--wurstel-links,
+.ingredient-glyph--paprika-powder-pile {
+  width: 1.2em;
+  height: 1.2em;
+  margin: -0.1em;
+}
+
+/* PR-2 late4 (beef): same 64-box margin fix, its own rule so V1 stays untouched. */
+.ingredient-glyph--beef-slices {
+  width: 1.2em;
+  height: 1.2em;
+  margin: -0.1em;
+}
+
+/* Expansion Batch 14 (cinnamon): the same 64-box margin fix as the powder piles above, as its own rule so they stay untouched. PROVISIONAL, measured on 390x844 / 360x800 in HV. */
+.ingredient-glyph--cinnamon-powder-pile {
+  width: 1.2em;
+  height: 1.2em;
+  margin: -0.1em;
+}
+
+/* PR-2 late4 (wasabi / cod roe / nori), Owner HV 2026-10-28: the extra-small garnishes read too small on the dough, so they get a larger box than the 1.2em fix (wasabi most). */
+.ingredient-glyph--wasabi-dab {
+  width: 1.75em;
+  height: 1.75em;
+  margin: -0.375em;
+}
+.ingredient-glyph--cod-roe-mass,
+.ingredient-glyph--nori-strips {
+  width: 1.4em;
+  height: 1.4em;
+  margin: -0.2em;
+}
+
+/* B11 S1 (porcini / mussel): drawn inside a 64-box with margins, so they read smaller than the emoji they replace; own rule so earlier visuals stay untouched. PROVISIONAL, measured on 390x844 / 360x800 in HV. */
+.ingredient-glyph--porcini-slice,
+.ingredient-glyph--mussel-shell {
+  width: 1.3em;
+  height: 1.3em;
+  margin: -0.15em;
+}
+
+/* Pilot D (#623, Owner decision 2026-10-22): salmon fillet / cream-cheese block. Same 64-box margin fix as the groups above (individual class, own rule so the earlier
+   groups stay untouched). cream-cheese draws inside `.pizza-cheese--glyph`, whose box is unchanged. */
+.ingredient-glyph--salmon-fillet,
+.ingredient-glyph--cream-cheese-block {
   width: 1.2em;
   height: 1.2em;
   margin: -0.1em;
@@ -2158,6 +2238,14 @@
   flex-wrap: wrap;
   gap: 6px 8px;
   margin: 0;
+}
+
+/* Issue #676 (C1): the FAILED card of a Free Cook round carries the hint row above, 46px more than before. On WebKit 360x800 the
+   Research FAILED card (the tightest: the 3-button action bar is 168px) left 14px above the bar, under the 16px AC-L2 floor
+   (Chromium: 27.8px). The card's own flex gap is 10px; this tightens it to 6px for that card only (-4px per gap, 4 gaps in the
+   Research card). Only a Free Cook FAILED card with a hint handler has the modifier; every other result card keeps its 10px. */
+.result-panel--failed-hint {
+  gap: 6px;
 }
 
 .result-near-miss__text {
@@ -8148,4 +8236,125 @@ p.hint-sheet__step {
   font-size: 13px;
   line-height: 1.4;
   opacity: 0.75;
+}
+
+/* ---------- #577: the oval dough ----------
+   The source dish is an oval. The game keeps ONE circular dough-percent space for every rule (sauce, placement, scoring, the Reference); the oval is that space
+   drawn in a box that is wider than it is tall (src/logic/dough/doughOutline.ts). `.pizza-dough` keeps its width (every size modifier -- roomy / compact / result / the
+   cooking caps -- still sets it) and takes its height from the ratio, so a circle of radius 48% of the box is an ellipse with semi-axes 48% of the width and of the
+   height. The pointer math reads the box's own width and height per axis, so a finger on the drawn rim is on the logical rim. The selector is deliberately more
+   specific than the sizing rules above (they set `height` per modifier); round and square pizzas never carry the class. The ratio is pinned equal to
+   OVAL_DOUGH_ASPECT by doughOutline.test.ts. */
+.pizza-stage .pizza-dough.pizza-dough--oval,
+.game-screen--cooking .pizza-stage .pizza-dough.pizza-dough--oval {
+  height: auto;
+  aspect-ratio: 3 / 2;
+}
+
+/* The paint trail is clipped to the hit-test region: the circle(48%) of the square box is the ellipse of the oval one (an `ellipse` takes the box's own axes). */
+.pizza-dough--oval .pizza-paint-trail {
+  clip-path: ellipse(48% 48% at 50% 50%);
+}
+
+/* The same oval, scaled down, for the small pizzas that stand for an oval-dough recipe (Pizza Select card, 見本 thumbnail and popovers): each context keeps its own width and the height
+   follows the 3:2 ratio. The contextual size rules (.pizza-select-card, .mini-reference__thumb, ...) set both dimensions with up to three classes, so the modifier is repeated to out-rank them. */
+.pizza-thumbnail.pizza-thumbnail--oval.pizza-thumbnail--oval,
+.reference-thumbnail.reference-thumbnail--oval.reference-thumbnail--oval {
+  height: auto;
+  aspect-ratio: 3 / 2;
+  align-self: center;
+  margin-block: auto;
+}
+
+.reference-mini-pizza--oval,
+.player-reference-mini-pizza--oval {
+  height: calc(140px * 2 / 3);
+}
+
+/* Arugula: a sprig of lobed leaves drawn in a 64-box; its leaves are long and thin, so it is sized larger than the other dedicated leaf glyphs. */
+.ingredient-glyph--arugula-leaves {
+  width: 1.75em;
+  height: 1.75em;
+  margin: -0.375em;
+}
+
+/* The tray chip and thumbnails keep the sprig inside their own icon box. */
+.ingredient-chip .ingredient-glyph--arugula-leaves {
+  width: 1.25em;
+  height: 1.25em;
+  margin: -0.125em;
+  vertical-align: -0.2em;
+}
+
+/* P1-1 (#664): the held-journal discard dialog can carry up to three checks; keep it inside short viewports. */
+[data-held-discard-dialog] .settings-reset-confirm__panel {
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+}
+
+/* Expansion Batch 13 (#708, "案A"): one squeezed stroke = ONE piece, drawn as a line in the same percent frame as the pieces (the dough's padding box).
+   A stroke never takes pointer events and never receives the single-piece landing animation. */
+.pizza-squeeze-trail {
+  position: absolute;
+  /* The pointer math (and so the live stroke preview, .pizza-paint-trail) is percent of the dough's BORDER box, while a piece's own left / top is
+     percent of its padding box: drawn in the padding box the line would jump up to ~8px at release near the rim. Draw it in the border box, exactly
+     like .pizza-paint-trail / .pizza-cut-layer, so the committed line sits where the finger drew it. */
+  inset: calc(-1 * var(--dough-border-width, 10px));
+  width: calc(100% + 2 * var(--dough-border-width, 10px));
+  height: calc(100% + 2 * var(--dough-border-width, 10px));
+  pointer-events: none;
+  overflow: visible;
+}
+
+.pizza-squeeze-trail__outline,
+.pizza-squeeze-trail__body {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pizza-squeeze-trail__outline {
+  stroke: #7a6548;
+  stroke-width: 3.6;
+}
+
+.pizza-squeeze-trail__body {
+  stroke: #fff6dc;
+  stroke-width: 2.4;
+}
+
+.pizza-topping--trail {
+  animation: none;
+}
+
+/* Ingredient Icons 2.0 Pilot E (#715, Owner decision 2026-10-31 / 2026-11-01): green-pepper strips / bell-pepper quarter / pineapple wedges. Drawn inside a 64-box with margins, so they read smaller than the
+   emoji they replace; sized per ingredient with a negative margin of -(em-1)/2 so the layout box stays 1em. Values (1.45em / 1.65em / 1.45em) confirmed by the Owner iPhone Safari HV of 2026-11-01 (Style Lock v2 section 11.3a).
+   Its own block: the earlier groups stay untouched. */
+.ingredient-glyph--green-pepper-strips,
+.ingredient-glyph--pineapple-wedges {
+  width: 1.45em;
+  height: 1.45em;
+  margin: -0.225em;
+}
+.ingredient-glyph--bell-pepper-quarter {
+  width: 1.65em;
+  height: 1.65em;
+  margin: -0.325em;
+}
+/* The tray chip's icon box is a fixed 26px: the 1.65em quarter would overflow it (arugula's precedent above), so the chip draws it smaller. Confirmed by the same Owner HV (Style Lock v2 section 11.3a). */
+.ingredient-chip .ingredient-glyph--bell-pepper-quarter {
+  width: 1.35em;
+  height: 1.35em;
+  margin: -0.175em;
+}
+
+/* Pilot E ground shadow (#720, Owner decision 2026-11-01, Fresh Audit option 1): each of these three SVGs carries a baked ground-shadow ellipse at y=57 of the 64-box. Their bodies end well above it
+   (the bell-pepper quarter is drawn at .68 scale) and the glyphs are enlarged above, so on the dough the oval is left detached under the piece and the ingredient reads as floating.
+   On the pizza only -- a placed piece, CUT piece, RESULT and the Reference views all draw it inside `.ingredient-piece-visual__emoji` -- the ellipse is hidden; the wrapper's own `drop-shadow` (and the
+   bake `filter` that re-composes it) then supplies the contact shadow, hugging the body. The tray chip, Inventory, Shop, Dex and the drag preview do not use that wrapper, so they keep the ellipse.
+   Selector: the first-child ellipse directly under the glyph's top-level <g>; every other glyph and every other ellipse is untouched. */
+.ingredient-piece-visual__emoji .ingredient-glyph--green-pepper-strips > g > ellipse:first-child,
+.ingredient-piece-visual__emoji .ingredient-glyph--bell-pepper-quarter > g > ellipse:first-child,
+.ingredient-piece-visual__emoji .ingredient-glyph--pineapple-wedges > g > ellipse:first-child {
+  display: none;
 }
