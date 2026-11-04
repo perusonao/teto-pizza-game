@@ -1,5 +1,6 @@
 import { mkdirSync } from "node:fs";
-import { test, expect, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/failureEvidence"; // #394: DOM / waiting location on failure
 import { RECIPES } from "../src/data/recipes";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
