@@ -29,8 +29,11 @@
 //   node scripts/ci/webkit-shard-evidence.mjs verify --dir DIR --projects "P1 P2"
 //   node scripts/ci/webkit-shard-evidence.mjs --self-test
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const SCHEMA = "webkit-shard-evidence/v3"; // v3: + install_status / test_status (S2); v2: + runAttempt
 const ACCEPTED_SCHEMAS = new Set([SCHEMA, "webkit-shard-evidence/v2"]); // v2 = install_status "unknown"
@@ -43,7 +46,29 @@ export const FAIL_INFRA = "FAIL-INFRA";
 export const FAIL_TEST = "FAIL-TEST";
 export const FAIL_EVIDENCE = "FAIL-EVIDENCE"; // structure/coverage of the evidence itself, no infra cause found
 
-/** Flattens a Playwright JSON report into [{ key, name, status, expectedStatus }] for `project`. */
+/**
+ * #394 Phase 2 (D4): the timing facts of one Playwright JSON test -- all optional, informational, and never read by `verify`.
+ *  - `durationMs`: the sum of the test's results (retries are 0 in this repo, so one result);
+ *  - `timeoutMs`: the test's EFFECTIVE timeout. Playwright's JSON reporter writes `test.timeout`, which the runner overwrites with the `testInfo.timeout`
+ *    the worker reports when the test ends (playwright/lib/runner/dispatcher.js `test.timeout = params.timeout`), so an explicit
+ *    `test.setTimeout(N)` -- at file level OR inside the test body -- and `test.slow()` are already in it; nothing is guessed from the source;
+ *  - `workerIndex` and `startTime` of the run, to tell workers and the shard's wall time apart from the sum of test times.
+ * A value that is not a finite number is left out rather than guessed.
+ */
+export function timingOf(test) {
+  const results = Array.isArray(test?.results) ? test.results : [];
+  const out = {};
+  if (results.length > 0 && results.every((r) => Number.isFinite(r?.duration) && r.duration >= 0)) {
+    out.durationMs = Math.round(results.reduce((n, r) => n + r.duration, 0));
+  }
+  if (Number.isFinite(test?.timeout) && test.timeout > 0) out.timeoutMs = test.timeout;
+  const last = results[results.length - 1];
+  if (Number.isInteger(last?.workerIndex)) out.workerIndex = last.workerIndex;
+  if (typeof results[0]?.startTime === "string" && Number.isFinite(Date.parse(results[0].startTime))) out.startTime = results[0].startTime;
+  return out;
+}
+
+/** Flattens a Playwright JSON report into [{ key, name, status, expectedStatus, timing }] for `project`. */
 export function testsOf(report, project) {
   const out = [];
   const walk = (suite, titles) => {
@@ -59,6 +84,7 @@ export function testsOf(report, project) {
           name: `${spec.file}:${spec.line} › ${titlePath}`,
           status: test.status,
           expectedStatus: test.expectedStatus,
+          timing: timingOf(test),
         });
       }
     }
@@ -111,7 +137,7 @@ export function collect({ project, shard, total, runAttempt, listReport, results
   for (const t of listed) names[t.key] = t.name;
   if (resultsReport) {
     for (const t of testsOf(resultsReport, project)) {
-      executed[t.key] = { status: t.status, expectedStatus: t.expectedStatus };
+      executed[t.key] = { status: t.status, expectedStatus: t.expectedStatus, ...t.timing };
       names[t.key] ??= t.name;
     }
     const foreign = foreignProjects(resultsReport, project);
@@ -344,6 +370,117 @@ function findJsonFiles(dir) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Timing report (#394 Phase 2, D4). INFORMATIONAL: it is computed from the evidence AFTER `verify` has decided, printed below the verdict, and can neither
+// change the verdict, the exit code nor the `Classification:` line (webkit-gate.sh reads only those). A failure here prints one "unavailable" line.
+
+/** A test that used at least this share of its (effective) timeout is flagged: a runner ~1.5x slower (seen on 2026-11-03) would not leave it room. */
+export const LOW_MARGIN_RATIO = 0.8;
+
+const minutes = (ms) => `${(ms / 60000).toFixed(1)} min`;
+const secs = (ms) => `${(ms / 1000).toFixed(1)} s`;
+
+/**
+ * @param {object[]} evidences parsed evidence files (any schema; those without timing facts are counted but contribute nothing)
+ * @returns {{ available: boolean, shards: object[], projects: object[], margins: object[], lowMargin: number, timed: number, defaultTimeoutMs: number|null }}
+ */
+export function timingReport(evidences, { top = 10 } = {}) {
+  const usable = (evidences ?? []).filter((ev) => ACCEPTED_SCHEMAS.has(ev?.schema) && ev.executed && typeof ev.executed === "object");
+  const { selected } = selectLatestAttempt(usable.filter((ev) => Number.isInteger(ev.runAttempt) && ev.runAttempt >= 1));
+  const shards = [];
+  const all = [];
+  for (const ev of selected) {
+    const timed = [];
+    for (const [key, r] of Object.entries(ev.executed)) {
+      if (r?.status === "skipped" || !Number.isFinite(r?.durationMs)) continue;
+      timed.push({
+        project: ev.project,
+        shard: ev.shard,
+        key,
+        name: ev.names?.[key] ?? key,
+        status: r.status,
+        durationMs: r.durationMs,
+        timeoutMs: Number.isFinite(r.timeoutMs) ? r.timeoutMs : null,
+        workerIndex: Number.isInteger(r.workerIndex) ? r.workerIndex : null,
+        startMs: typeof r.startTime === "string" ? Date.parse(r.startTime) : NaN,
+      });
+    }
+    if (timed.length === 0) continue;
+    const sum = timed.reduce((n, x) => n + x.durationMs, 0);
+    const starts = timed.filter((x) => Number.isFinite(x.startMs));
+    const wallMs = starts.length > 0 ? Math.max(...starts.map((x) => x.startMs + x.durationMs)) - Math.min(...starts.map((x) => x.startMs)) : null;
+    const longest = timed.reduce((a, b) => (b.durationMs > a.durationMs ? b : a));
+    shards.push({
+      project: ev.project,
+      shard: ev.shard,
+      total: ev.total,
+      runAttempt: ev.runAttempt,
+      tests: timed.length,
+      sumMs: sum,
+      wallMs,
+      workers: new Set(timed.map((x) => x.workerIndex).filter((w) => w !== null)).size,
+      longest: { name: longest.name, durationMs: longest.durationMs, timeoutMs: longest.timeoutMs },
+    });
+    all.push(...timed);
+  }
+  shards.sort((a, b) => String(a.project).localeCompare(String(b.project)) || a.shard - b.shard);
+
+  const projects = [];
+  for (const project of [...new Set(shards.map((s) => s.project))]) {
+    const mine = shards.filter((s) => s.project === project);
+    const mean = mine.reduce((n, s) => n + s.sumMs, 0) / mine.length;
+    projects.push({ project, shards: mine.length, meanSumMs: mean, maxSumMs: Math.max(...mine.map((s) => s.sumMs)), maxOverMean: mean > 0 ? Math.max(...mine.map((s) => s.sumMs)) / mean : null });
+  }
+
+  // The effective timeout that most tests have is "the default"; any other value is an explicit override (setTimeout / slow) and is shown as such.
+  const counts = new Map();
+  for (const x of all) if (x.timeoutMs !== null) counts.set(x.timeoutMs, (counts.get(x.timeoutMs) ?? 0) + 1);
+  const defaultTimeoutMs = counts.size === 0 ? null : [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0];
+  const margins = all
+    .filter((x) => x.timeoutMs !== null)
+    .map((x) => ({ ...x, ratio: x.durationMs / x.timeoutMs, marginMs: x.timeoutMs - x.durationMs, override: x.timeoutMs !== defaultTimeoutMs }))
+    .sort((a, b) => b.ratio - a.ratio || a.name.localeCompare(b.name));
+  return {
+    available: all.length > 0,
+    shards,
+    projects,
+    margins: margins.slice(0, top),
+    lowMargin: margins.filter((m) => m.ratio >= LOW_MARGIN_RATIO).length,
+    timed: all.length,
+    withTimeout: margins.length,
+    defaultTimeoutMs,
+  };
+}
+
+export function formatTimingReport(report) {
+  if (!report?.available) {
+    return "Test timing: no timing data in this evidence (it was recorded before the timing fields existed, or no test produced a duration).";
+  }
+  const lines = [
+    "### Test timing (informational -- never part of the Gate verdict)",
+    "",
+    "| project | shard | attempt | tests timed | sum of test times | wall (first start to last end) | workers | longest test |",
+    "|---|---|---|---|---|---|---|---|",
+    ...report.shards.map(
+      (s) =>
+        `| ${s.project} | ${s.shard}/${s.total} | ${s.runAttempt} | ${s.tests} | ${minutes(s.sumMs)} | ${s.wallMs === null ? "n/a" : minutes(s.wallMs)} | ${s.workers || "n/a"} | ${secs(s.longest.durationMs)}${s.longest.timeoutMs ? ` of ${secs(s.longest.timeoutMs)}` : ""}: ${s.longest.name} |`,
+    ),
+    "",
+    `Shard balance (sum of test times, max / mean per project): ${report.projects.map((p) => `${p.project} ${p.maxOverMean === null ? "n/a" : p.maxOverMean.toFixed(2)} (max ${minutes(p.maxSumMs)}, mean ${minutes(p.meanSumMs)})`).join("; ")}.`,
+    "",
+    `Timeout margin: ${report.withTimeout} of ${report.timed} timed tests carry an effective timeout (default ${report.defaultTimeoutMs === null ? "n/a" : secs(report.defaultTimeoutMs)}; any other value is an explicit override and is marked \`override\`). ` +
+      `${report.lowMargin} used at least ${Math.round(LOW_MARGIN_RATIO * 100)}% of it. Highest use first:`,
+    "",
+    "| use of timeout | duration | effective timeout | margin | project / shard | test |",
+    "|---|---|---|---|---|---|",
+    ...report.margins.map(
+      (m) =>
+        `| ${(m.ratio * 100).toFixed(0)}%${m.ratio >= LOW_MARGIN_RATIO ? " LOW" : ""} | ${secs(m.durationMs)} | ${secs(m.timeoutMs)}${m.override ? " override" : ""} | ${secs(m.marginMs)} | ${m.project} ${m.shard} | ${m.name}${m.status === "expected" ? "" : ` (${m.status})`} |`,
+    ),
+  ];
+  return lines.join("\n");
+}
+
+// ---------------------------------------------------------------------------------------------
 // Self-test: synthetic Playwright reports / evidence covering every failure mode verify() guards.
 
 function fakeReport(project, entries) {
@@ -490,6 +627,180 @@ const CLASSIFICATION_CASES = [
   ["install ok but a listed test never ran -> FAIL-EVIDENCE (not infra, not green)", () => fullSuite(IDS, P, 2, (e) => { delete e[0].executed[K("t1")]; }), FAIL_EVIDENCE],
 ];
 
+/** A Playwright JSON report whose tests carry timing: entries are [id, status, durationMs, timeoutMs, workerIndex, startOffsetMs]. */
+function fakeTimedReport(project, entries) {
+  const base = Date.parse("2026-11-04T00:00:00Z");
+  return {
+    suites: [
+      {
+        title: "a.spec.ts",
+        file: "a.spec.ts",
+        specs: [],
+        suites: [
+          {
+            title: "group",
+            specs: entries.map(([id, status, durationMs, timeoutMs, workerIndex = 0, offset = 0]) => ({
+              id: `x-${id}`,
+              title: id,
+              file: "a.spec.ts",
+              line: 1,
+              tests: [
+                {
+                  projectName: project,
+                  status,
+                  expectedStatus: status === "skipped" ? "skipped" : "passed",
+                  timeout: timeoutMs,
+                  results: [{ duration: durationMs, workerIndex, startTime: new Date(base + offset).toISOString(), status }],
+                },
+              ],
+            })),
+          },
+        ],
+      },
+    ],
+  };
+}
+
+const stripTiming = (evidences) =>
+  evidences.map((ev) => ({ ...ev, executed: Object.fromEntries(Object.entries(ev.executed).map(([k, r]) => [k, { status: r.status, expectedStatus: r.expectedStatus }])) }));
+
+/** D4 checks: [name, ok]. The point of most of them is what timing must NOT do to the verdict. */
+function timingChecks() {
+  const out = [];
+  const check = (name, fn) => {
+    let ok = false;
+    try {
+      ok = fn() === true;
+    } catch {
+      ok = false;
+    }
+    out.push([name, ok]);
+  };
+  const evidenceFor = (project, shard, entries, total = 2, listIds = IDS) =>
+    collect({ project, shard, total, runAttempt: 1, listReport: fakeReport(project, listIds.map((id) => [id, "skipped"])), resultsReport: fakeTimedReport(project, entries) });
+  const suite = (timed) => {
+    const e = [];
+    for (const project of P) {
+      e.push(evidenceFor(project, 1, [["t1", "expected", timed.t1 ?? 1000, 30000, 0, 0], ["t3", "expected", 2000, 30000, 1, 500], ["t5", "expected", 3000, 30000, 0, 1500]]));
+      e.push(evidenceFor(project, 2, [["t2", "expected", 4000, 30000, 0, 0], ["t4", "expected", 5000, 30000, 1, 0]]));
+    }
+    return e;
+  };
+
+  check("collect records durationMs / timeoutMs / workerIndex / startTime per test", () => {
+    const ev = evidenceFor("p390", 1, [["t1", "expected", 1234.4, 30000, 1, 250]]);
+    const r = ev.executed[K("t1")];
+    return r.durationMs === 1234 && r.timeoutMs === 30000 && r.workerIndex === 1 && r.startTime === "2026-11-04T00:00:00.250Z" && r.status === "expected";
+  });
+  check("an explicit timeout override (setTimeout / slow) is used as the effective timeout, not the default", () => {
+    const ev = evidenceFor("p390", 1, [["t1", "expected", 27000, 30000], ["t2", "expected", 40000, 480000], ["t3", "expected", 20000, 77000], ["t4", "expected", 1000, 30000]], 1);
+    const rep = timingReport([ev], { top: 10 });
+    const byName = Object.fromEntries(rep.margins.map((m) => [m.name.split(" › ").pop(), m]));
+    return (
+      rep.defaultTimeoutMs === 30000 &&
+      byName.t1.ratio === 0.9 && byName.t1.override === false &&
+      byName.t2.override === true && byName.t2.marginMs === 440000 &&
+      byName.t3.override === true && byName.t3.marginMs === 57000 &&
+      rep.margins[0].name.endsWith("t1") && rep.lowMargin === 1
+    );
+  });
+  check("real Playwright 1.56.1 JSON (measured 2026-11-04): in-body setTimeout, slow(), describe configure and their combinations arrive as the effective timeout", () => {
+    // Values copied from a real `--reporter=json` run of a throwaway spec; the shape (test.timeout, results[].duration / workerIndex / startTime) is Playwright's own.
+    const real = (title, timeout, duration) => ({
+      title,
+      file: "probe.spec.ts",
+      line: 1,
+      tests: [{ projectName: "p390", status: "expected", expectedStatus: "passed", timeout, results: [{ duration, workerIndex: 1, parallelIndex: 1, retry: 0, status: "passed", startTime: "2026-11-04T01:26:18.328Z", errors: [], attachments: [] }] }],
+    });
+    const report = { suites: [{ title: "probe.spec.ts", file: "probe.spec.ts", specs: [], suites: [{ title: "g", specs: [
+      real("default timeout", 30000, 9), real("setTimeout in the body", 77000, 11), real("slow in the body", 90000, 1), real("setTimeout then slow in the body", 60000, 2),
+      real("inherits the describe timeout", 55000, 2), real("body override on top of describe", 66000, 6), real("inherits describe setTimeout", 45000, 2),
+    ] }] }] };
+    const ev = collect({ project: "p390", shard: 1, total: 1, runAttempt: 1, listReport: report, resultsReport: report });
+    const got = Object.values(ev.executed).map((r) => r.timeoutMs).join(",");
+    const rep = timingReport([ev]);
+    return got === "30000,77000,90000,60000,55000,66000,45000" && rep.defaultTimeoutMs === 30000 && rep.margins.filter((m) => m.override).length === 6;
+  });
+  check("an override is never measured against the default: 40 s of 480 s is not LOW although 40 s > 30 s", () => {
+    const rep = timingReport([evidenceFor("p390", 1, [["t1", "expected", 40000, 480000], ["t2", "expected", 1000, 30000]], 1)]);
+    return rep.lowMargin === 0 && rep.margins.find((m) => m.name.endsWith("t1")).ratio < 0.1;
+  });
+  check("skipped tests are not timed; a test without a timeout is timed but has no margin", () => {
+    const ev = evidenceFor("p390", 1, [["t1", "skipped", 0, 30000], ["t2", "expected", 5000, undefined]], 1);
+    const rep = timingReport([ev]);
+    return rep.timed === 1 && rep.withTimeout === 0 && rep.margins.length === 0;
+  });
+  check("shard balance: sum of test times per shard and max / mean per project", () => {
+    const e = [
+      evidenceFor("p390", 1, [["t1", "expected", 10 * 60000, 900000]], 2, ["t1", "t2"]),
+      evidenceFor("p390", 2, [["t2", "expected", 20 * 60000, 1800000]], 2, ["t1", "t2"]),
+    ];
+    const rep = timingReport(e);
+    const p = rep.projects[0];
+    return rep.shards.length === 2 && Math.abs(p.maxOverMean - 20 / 15) < 1e-9 && p.maxSumMs === 20 * 60000;
+  });
+  check("only the latest attempt of a shard is timed (a superseded attempt is ignored, as in verify)", () => {
+    const first = { ...evidenceFor("p390", 1, [["t1", "expected", 99000, 30000]], 1), runAttempt: 1 };
+    const second = { ...evidenceFor("p390", 1, [["t1", "expected", 1000, 30000]], 1), runAttempt: 2 };
+    const rep = timingReport([first, second]);
+    return rep.shards.length === 1 && rep.shards[0].runAttempt === 2 && rep.shards[0].sumMs === 1000;
+  });
+  check("evidence without timing fields: no timing data, and verify is unaffected", () => {
+    const old = stripTiming(suite({}));
+    return timingReport(old).available === false && formatTimingReport(timingReport(old)).includes("no timing data") && verify(old, P).ok === true;
+  });
+  check("malformed timing fields are ignored, never thrown on, and never change verify", () => {
+    const e = suite({});
+    e[0].executed[K("t1")].durationMs = "slow";
+    e[0].executed[K("t3")].timeoutMs = Number.NaN;
+    e[1].executed[K("t2")].startTime = "not a date";
+    e[1].executed[K("t4")].workerIndex = "w";
+    const rep = timingReport(e);
+    return rep.available === true && formatTimingReport(rep).length > 0 && verify(e, P).ok === true;
+  });
+  check("verify gives the SAME result with and without timing fields (ok, classification, problems, rows, totals) -- passing and failing evidence", () => {
+    const strip = (r) => JSON.stringify({ ok: r.ok, classification: r.classification, problems: r.problems, rows: r.rows, totals: r.totals, superseded: r.superseded });
+    const good = suite({});
+    const bad = suite({});
+    bad[0].executed[K("t1")].status = "unexpected";
+    bad[0].test_status = "failed";
+    return strip(verify(good, P)) === strip(verify(stripTiming(good), P)) && strip(verify(bad, P)) === strip(verify(stripTiming(bad), P)) && verify(bad, P).ok === false;
+  });
+  check("the formatted report is markdown with the shard table, the balance line and the margin table", () => {
+    const text = formatTimingReport(timingReport(suite({})));
+    return text.includes("### Test timing (informational") && text.includes("| project | shard | attempt |") && text.includes("Shard balance") && text.includes("| use of timeout |") && !text.includes("Classification:");
+  });
+  check("CLI verify: timing is printed below the verdict; exit code and the single Classification line are the verdict's, passing and failing", () => {
+    const dir = mkdtempSync(join(tmpdir(), "webkit-evidence-"));
+    try {
+      const self = fileURLToPath(import.meta.url);
+      const run = (evidences) => {
+        rmSync(dir, { recursive: true, force: true });
+        mkdirSync(dir, { recursive: true });
+        evidences.forEach((ev, i) => writeFileSync(join(dir, `e${i}.json`), JSON.stringify(ev)));
+        const r = spawnSync(process.execPath, [self, "verify", "--dir", dir, "--projects", P.join(" ")], { encoding: "utf8" });
+        return { code: r.status, out: r.stdout, cls: r.stdout.split("\n").filter((l) => l.startsWith("Classification: ")) };
+      };
+      const good = suite({});
+      const bad = suite({});
+      bad[0].executed[K("t1")].status = "unexpected";
+      bad[0].test_status = "failed";
+      const g = run(good);
+      const gOld = run(stripTiming(good));
+      const b = run(bad);
+      const bOld = run(stripTiming(bad));
+      return (
+        g.code === 0 && g.cls.length === 1 && g.cls[0] === "Classification: PASS" && g.out.includes("Test timing") && g.out.indexOf("Classification:") < g.out.indexOf("Test timing") &&
+        gOld.code === 0 && gOld.cls[0] === "Classification: PASS" && gOld.out.includes("no timing data") &&
+        b.code === 1 && b.cls.length === 1 && b.cls[0] === bOld.cls[0] && bOld.code === 1
+      );
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+  return out;
+}
+
 function selfTest() {
   let failed = 0;
   for (const [name, build, expected] of CLASSIFICATION_CASES) {
@@ -520,7 +831,12 @@ function selfTest() {
   const mixedOk = mixed.errors.length === 1;
   if (!mixedOk) failed++;
   console.log(`${mixedOk ? "PASS" : "FAIL"} collect flags foreign-project results`);
-  const count = SELF_TEST_CASES.length + CLASSIFICATION_CASES.length + 2;
+  const timing = timingChecks();
+  for (const [name, ok] of timing) {
+    if (!ok) failed++;
+    console.log(`${ok ? "PASS" : "FAIL"} timing: ${name}`);
+  }
+  const count = SELF_TEST_CASES.length + CLASSIFICATION_CASES.length + 2 + timing.length;
   console.log(`${count - failed}/${count} shard-evidence cases passed`);
   return failed === 0;
 }
@@ -592,9 +908,23 @@ if (isMain) {
     // unreadable evidence files are a pipeline problem, not a test result
     if (problems.length > 0) result.classification = result.classification === "PASS" ? FAIL_EVIDENCE : `${result.classification}+${FAIL_EVIDENCE}`;
     console.log(formatSummary(result));
+    // D4: timing is printed BELOW the verdict, after it was decided; any trouble here is one line, never an exit code or a classification.
+    try {
+      console.log("");
+      console.log(formatTimingReport(timingReport(evidences)));
+    } catch (error) {
+      console.log(`Test timing: unavailable (${String(error?.message ?? error).split("\n")[0].slice(0, 120)})`);
+    }
     process.exit(result.ok ? 0 : 1);
+  } else if (mode === "timing") {
+    // Offline analysis of downloaded evidence files: `timing --dir DIR [--top N]`. Prints only the timing report.
+    const files = findJsonFiles(arg("dir") ?? "");
+    const evidences = files.map((file) => readJson(file).value).filter(Boolean);
+    const top = Number.parseInt(arg("top") ?? "10", 10);
+    console.log(formatTimingReport(timingReport(evidences, { top: Number.isInteger(top) && top > 0 ? top : 10 })));
+    process.exit(0);
   } else {
-    console.error("usage: webkit-shard-evidence.mjs collect|verify ... | --self-test");
+    console.error("usage: webkit-shard-evidence.mjs collect|verify|timing ... | --self-test");
     process.exit(2);
   }
 }
