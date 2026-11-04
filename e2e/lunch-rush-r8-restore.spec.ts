@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, cutThreeLines, paintSauceRing, tapDoughPercent } from "./gestures";
+import { reloadApp } from "./support/diag";
 
 /**
  * Save R8 (Issue #617), Lunch Rush L-1 in a real browser (Chromium and WebKit, 390x844 and 360x800).
@@ -96,8 +97,7 @@ test.describe("Lunch Rush save/restore in the browser (R8 L-1)", () => {
     expect(timesMade(unserved), "nothing is registered before the serve").toBe(1);
     expect(unserved?.pendingRound, "Lunch Rush never writes a pendingRound journal").toBeUndefined();
 
-    await page.reload();
-    await page.waitForSelector(".app-frame");
+    await reloadApp(page, "lunch-rush-r8");
     const after = await readSave(page);
     expect(after?.inventory.mushroom).toBe(MUSHROOM_STOCK);
     expect(timesMade(after)).toBe(1);
@@ -116,8 +116,7 @@ test.describe("Lunch Rush save/restore in the browser (R8 L-1)", () => {
     expect(served?.inventory.mushroom ?? 0, "the served pizza's mushrooms is consumed").toBeLessThan(MUSHROOM_STOCK);
     expect(timesMade(served), "the served pizza is registered once").toBe(2);
 
-    await page.reload();
-    await page.waitForSelector(".app-frame");
+    await reloadApp(page, "lunch-rush-r8");
     const after = await readSave(page);
     expect(after?.inventory.mushroom, "a reload does not give a served pizza's stock back").toBe(served?.inventory.mushroom);
     expect(timesMade(after), "a reload does not register it twice").toBe(2);
@@ -137,8 +136,7 @@ test.describe("Lunch Rush save/restore in the browser (R8 L-1)", () => {
     await bakeToServePanel(page);
     expect((await readSave(page))?.inventory.mushroom, "the second, unserved pizza is not saved as consumed").toBe(servedStock);
 
-    await page.reload();
-    await page.waitForSelector(".app-frame");
+    await reloadApp(page, "lunch-rush-r8");
     const after = await readSave(page);
     expect(after?.inventory.mushroom, "only the unserved pizza is given back; the served one stays consumed").toBe(servedStock);
     expect(timesMade(after)).toBe(2);
@@ -163,8 +161,7 @@ test.describe("Lunch Rush save/restore in the browser (R8 L-1)", () => {
     expect(left?.pendingRound, "Lunch Rush never writes a pendingRound journal").toBeUndefined();
     await expect(page.locator('[data-round-notice="settled"]')).toHaveCount(0);
 
-    await page.reload();
-    await page.waitForSelector(".app-frame");
+    await reloadApp(page, "lunch-rush-r8");
     const after = await readSave(page);
     expect(after?.inventory.mushroom, "the leave and a reload agree").toBe(servedStock);
     expect(timesMade(after)).toBe(2);

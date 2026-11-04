@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { completeDoughStep, tapDoughPercent } from "./gestures";
 import { base, HAND_ON_OWNED, SAVE_KEY } from "./support/familyTray";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
+import { reloadPage } from "./support/diag";
 
 /**
  * Cooking Prep Phase 1 PR-B + Phase 1B #696 (下ごしらえ「炒める」, now a timing game): the optional beef prep in the TOPPING step, on both authority viewports (390x844, 360x800).
@@ -139,7 +140,7 @@ test.describe("Cooking Prep: HV entry (?cookPrepHv=1)", () => {
     await expect(pill(page)).toBeVisible({ timeout: 10_000 });
     await tapDoughPercent(page, 38, 48);
     expect(await beefPieces(page)).toBe(1);
-    await page.reload();
+    await reloadPage(page, "cooking-prep");
     await expect(pill(page)).toBeVisible({ timeout: 10_000 });
     expect(await beefPieces(page)).toBe(0);
   });
