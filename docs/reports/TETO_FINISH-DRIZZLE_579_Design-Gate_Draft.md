@@ -42,3 +42,21 @@ Status: DESIGN DRAFT / NO IMPLEMENTATION GO. Baseline main: `0016222145c4c882533
 
 ## 6. Gate
 DESIGN DRAFT ONLY. No source/test/CI/Preview/Production modifications. Next action: inspect the seven technical paths above on fresh main, report exact files/functions and compatibility implications, then request Owner's decisions. No PR or merge authorization implied.
+
+## 7. Fresh main code-path findings (read-only inspection, 2026-11-04)
+
+- `src/state/gameReducer.ts:1083-1126`: `PLACE_TOPPING` accepts FINISH only in POST_BAKE with `roundRunsFinish`, explicitly rejects all categories other than `topping` at line 1112. Its stock path calls `canPlacePostBakeIngredient`; ordinary sauce dispense is a separate `COMMIT_SAUCE_DISPENSE` path at ~1049-1074. A sauce cannot be enabled merely by adding a FINISH tray button.
+- `src/state/gameReducer.ts:1097-1101`: the mayo squeeze `trail` is normalized only when `!inFinish`, so the current squeeze gesture cannot be reused in FINISH without explicit redesign.
+- `src/state/finishEngine.ts:57-81`: `postBakePieces` and `pizzaForFinalEvaluation` filter `pizza.toppings` with `stage === "post"`; they do not phase-filter sauce deposits. A post-bake sauce written to the ordinary sauce ledger would bypass this phase separation.
+- `src/logic/discovery/signature.ts:133-146,157-184`: late axis is already `OBSERVED`, but `lateOf` reads only staged toppings; `sauceIds` contribute to `sauceBase` and `ingredientSet` independently. A post-bake sauce in `sauceIds` would be misidentified as pre-bake sauce unless identity rules change.
+- `src/logic/scoringV2/index.ts:250-274,333-363`: Reference validation separates sauce targets from piece groups; `sauceDeposits` is the canonical pre-bake paint log and sauce component evaluates deposits against the reference sauce. DRIZZLE is not a simple additive scoring extension. A dedicated post-bake role and Reference contract require Owner decision.
+- `src/data/recipeSauceProfiles.ts:1-18`: supported sauce interactions remain `PAINT | PAINT_TEMPORARY`; DRIZZLE is explicitly deferred.
+
+### Revised risk classification
+**BLOCKED ON DATA/IDENTITY DESIGN.** Existing sauce ledger reuse is NOT recommended as a default. A separate transient prototype is safe, but persistent FINISH liquid needs coordinated reducer, phase-aware scoring, Reference, signature, inventory and save compatibility design. The earlier preference for existing v2 representation remains only a hypothesis pending actual save serialization audit. Do not assert save compatibility or implement until that audit is complete.
+
+### Remaining investigation
+- Find `canPlacePostBakeIngredient` implementation and all inventory debit/undo call sites.
+- Inspect `PizzaState` persistence and schema v2 serialization/restore, including pendingRound.
+- Inspect `scoreRecipeComponentV2` and `finalizeRound` to determine post-bake sauce role and provisional scoring.
+- Confirm recipe data for a real first target and Free/Research gates. Verify latest main again.
