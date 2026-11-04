@@ -5,6 +5,7 @@ import App from './App.tsx'
 import { applyPreviewHvSeed } from './preview/hvSeeds'
 import { activateCookPrepHv } from './preview/cookPrepHv'
 import { activateCookSearHv } from './preview/cookSearHv'
+import { drizzleLabOptedIn } from './preview/drizzleLab'
 
 // Discovery Progression Inspector: a DEV / Preview only, read-only developer screen, opened with
 // `?inspector=discovery`. Both env checks are replaced statically by Vite, so a production build
@@ -27,12 +28,17 @@ const postLayerBenchRequested =
   (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) &&
   new URLSearchParams(window.location.search).get('dev') === 'postlayer'
 
+// #579 DRIZZLE Gesture Lab: a DEV / Preview only, standalone gesture experiment, opened with `?drizzleLab=on` (exactly once). Same static gate, so a
+// production build drops this branch and the lazily imported lab chunk. It replaces <App />: no player state is loaded, seeded or saved.
+const drizzleLabRequested =
+  (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && drizzleLabOptedIn()
+
 // An Inspector / DEV State Editor / post-layer bench request never seeds: both are read-only on open, and a seed would reset / write the Preview save.
 // Discovery Hint 5.0 H5-5: Preview builds only. `?hv=<scenario>` seeds the Preview save before the
 // app loads it. `import.meta.env.VITE_PREVIEW_MODE` is set only by the Preview build pipeline and is
 // replaced statically, so a production build drops this call and ./preview/hvSeeds.ts with it.
 // Cooking Prep HV entry (`?cookPrepHv=1`): DEV / Preview only, same static gate; swaps in a disposable in-memory save, never touching the real one.
-if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
+if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequested && !devStateRequested && !postLayerBenchRequested && !drizzleLabRequested) {
   try {
     // The two HV entries are exclusive: the 炒める one wins when both are asked for.
     if (!activateCookPrepHv(window)) activateCookSearHv(window)
@@ -40,7 +46,7 @@ if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequ
     // A failing entry must never stop the game from starting.
   }
 }
-if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
+if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested && !postLayerBenchRequested && !drizzleLabRequested) {
   try {
     applyPreviewHvSeed(window.location.search, window.localStorage)
   } catch {
@@ -50,7 +56,15 @@ if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequest
 
 const root = createRoot(document.getElementById('root')!)
 
-if (inspectorRequested) {
+if (drizzleLabRequested) {
+  void import('./preview/DrizzleLab').then(({ DrizzleLab }) => {
+    root.render(
+      <StrictMode>
+        <DrizzleLab />
+      </StrictMode>,
+    )
+  })
+} else if (inspectorRequested) {
   void import('./dev/DiscoveryProgressionInspector').then(({ DiscoveryProgressionInspector }) => {
     root.render(
       <StrictMode>
