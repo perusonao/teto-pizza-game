@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce" | "soy-sauce" | "fresh-cream-sauce" | "umeboshi-paste";
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce" | "soy-sauce" | "fresh-cream-sauce" | "umeboshi-paste" | "sour-cream";
   interaction: SauceInteractionKind;
 }
 
@@ -380,6 +380,8 @@ export const RECIPE_SAUCE_PROFILES = {
   // FIN-E4b-ikura (#621, late catalog): NO_SAUCE.
   // Expansion Batch 16 (#736, PROVISIONAL, ORIGINAL NOT CONFIRMED): umeboshi-paste PAINT -- reading the source sauce field 'その他' as the 梅肉 sauce is a B16-only exception (not a general rule); the existing PAINT gesture, no new interaction.
   "ume-shiso-pizza": { recipeId: "ume-shiso-pizza", ingredientId: "umeboshi-paste", interaction: "PAINT" },
+  // Expansion Batch 17 (#741, PROVISIONAL, ORIGINAL NOT CONFIRMED): sour-cream PAINT -- reading the source sauce field 'その他' as the sour-cream sauce is a B17-only exception (not a general rule); the existing PAINT gesture, no new interaction.
+  "goulash-pizza": { recipeId: "goulash-pizza", ingredientId: "sour-cream", interaction: "PAINT" },
   "ikura-salmon-pizza": null,
   // New Sauces Phase B U1 (late catalog): yuzu-kosho painted before the bake (PROVISIONAL, not confirmed by the original).
   "yuzu-shrimp-pizza": {

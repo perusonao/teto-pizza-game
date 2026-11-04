@@ -150,7 +150,7 @@ describe("the Batch 16 differentiation (B16-only exception; the global 0.4 crite
 describe("ordinary step 67", () => {
   const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
   it("is appended after step 66 (steps 1-66 frozen): umeboshi-paste alone, no star gate, keyed to ume-shiso-pizza", () => {
-    expect(steps).toHaveLength(67);
+    expect(steps).toHaveLength(68); // Expansion Batch 17 appended the ordinary step 68 after it
     expect(steps[65]).toMatchObject({ step: 66, ingredientIds: ["cinnamon"], keyRecipeId: "moussaka-style-pizza" });
     expect(steps[66]).toMatchObject({ step: 67, kind: "MATERIAL", ingredientIds: ["umeboshi-paste"], keyRecipeId: ID });
     expect(steps[66].starGates).toBeUndefined();
@@ -181,9 +181,9 @@ describe("the discovery target composes the matrix row's ingredients with the æ¢
     expect(target.identityDimensions.late).toEqual([]); // no late axis: every piece is before the bake
   });
 
-  it("the exception is not generalised: other unspecified-sauce HOLD / candidate rows are not shipped (caponata, tsukimi, pesto-genovese, goulash)", () => {
+  it("the exception is not generalised: other unspecified-sauce HOLD / candidate rows are not shipped (caponata, tsukimi, pesto-genovese; goulash-pizza was shipped later by its OWN Owner-approved Batch 17)", () => {
     const shipped = new Set(RECIPES.map((r) => r.id as string));
-    for (const held of ["caponata-pizza", "tsukimi-pizza", "pesto-genovese-pizza", "goulash-pizza"]) expect(shipped.has(held), held).toBe(false);
+    for (const held of ["caponata-pizza", "tsukimi-pizza", "pesto-genovese-pizza"]) expect(shipped.has(held), held).toBe(false);
   });
 });
 

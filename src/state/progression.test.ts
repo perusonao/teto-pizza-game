@@ -297,6 +297,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "flammkuchen",
         "frango-catupiry",
         "full-english-pizza",
+        "goulash-pizza",
         "grandma-pizza",
         "hawaiian",
         "jalapeno-popper-pizza",

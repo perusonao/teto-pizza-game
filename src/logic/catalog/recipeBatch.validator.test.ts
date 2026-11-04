@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../../data/recipes";
-import { B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B15_BATCH, B16_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
+import { B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B15_BATCH, B16_BATCH, B17_BATCH, NEXT_RECIPE_BATCH, RECIPE_BATCHES } from "./testSupport/recipeBatchManifest";
 import {
   ordinaryCatalogView,
   productionCatalogView,
@@ -81,6 +81,16 @@ describe("production catalog", () => {
     expect(B16_BATCH.recipes[0].ladderCredit).toBe(true);
     expect(B16_BATCH.acceptedLetterShifts).toBeUndefined();
     expect(validateBatchManifest(B16_BATCH, ordinaryCatalogView())).toEqual([]);
+  });
+
+  it("Expansion Batch 17 (goulash-pizza, credited, the key of ordinary step 68) is LANDED and consistent: appended tail, append-only ladder, chapter identity; no pre-existing recipe changes its Research letter", () => {
+    expect(RECIPE_BATCHES).toContain(B17_BATCH);
+    expect(B17_BATCH.status).toBe("landed");
+    expect(B17_BATCH.recipes.map((r) => r.recipeId)).toEqual(["goulash-pizza"]);
+    expect(B17_BATCH.recipes.map((r) => r.keyIngredientId)).toEqual(["sour-cream"]);
+    expect(B17_BATCH.recipes[0].ladderCredit).toBe(true);
+    expect(B17_BATCH.acceptedLetterShifts).toBeUndefined();
+    expect(validateBatchManifest(B17_BATCH, ordinaryCatalogView())).toEqual([]);
   });
 });
 

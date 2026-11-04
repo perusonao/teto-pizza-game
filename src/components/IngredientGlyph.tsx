@@ -60,6 +60,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "salmon-fillet": "0 0 64 64",
   "cream-cheese-block": "0 0 64 64",
   "umeboshi-paste-dab": "0 0 64 64",
+  "sour-cream-dab": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -107,6 +108,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "salmon-fillet" && <SalmonFillet />}
       {visual === "cream-cheese-block" && <CreamCheeseBlock />}
       {visual === "umeboshi-paste-dab" && <UmeboshiPasteDab />}
+      {visual === "sour-cream-dab" && <SourCreamDab />}
     </svg>
   );
 }
@@ -1038,6 +1040,18 @@ function UmeboshiPasteDab() {
         ))}
         <circle cx="32" cy="32" r="5" fill="#f6d36b" stroke="#8c2f4a" strokeWidth="1.5" />
       </g>
+    </g>
+  );
+}
+
+/* ---------- sour-cream (Expansion Batch 17, #741, Owner plan A): a dab of cream (the ingredient colour #f1ecdc) with a swirl and a small peak, so a white SAUCE chip is told apart from fromage-blanc-sauce by SHAPE (a white sauce cannot reach DeltaE 20 by colour). Same grammar as umeboshi-paste-dab / mayo-drop: contact-shadow ellipse, dark outline, no id / gradient / defs. PROVISIONAL until the 390x844 / 360x800 HV. ---------- */
+function SourCreamDab() {
+  return (
+    <g>
+      <ellipse cx="32" cy="55" rx="22" ry="3.5" fill="#000" opacity=".15" />
+      <path d="M10 44C8 30 20 18 34 20C50 20 58 32 54 44C50 54 16 54 10 44Z" fill="#f1ecdc" stroke="#6b6a52" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M20 38C26 30 36 30 42 36C47 40 40 44 33 42" fill="none" stroke="#b9b49c" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M30 30C32 24 36 24 36 28" fill="none" stroke="#b9b49c" strokeWidth="2.2" strokeLinecap="round" />
     </g>
   );
 }
