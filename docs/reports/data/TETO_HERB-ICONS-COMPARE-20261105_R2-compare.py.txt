@@ -1,0 +1,60 @@
+import json, sys, numpy as np
+from PIL import Image, ImageDraw, ImageFont
+CAP, OUT, VP = sys.argv[1:4]
+DSF=2; CELL=110
+FONT=ImageFont.truetype("/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",22)
+NAMES={'rosemary':'ローズマリー','artichoke':'アーティチョーク','oregano':'オレガノ','spinach':'ほうれん草'}
+# rows: (target, label, run)
+ROWS=[('rosemary','現行','none'),('rosemary','固定 B','L'),
+      ('artichoke','現行','none'),('artichoke','A（前回）','L'),('artichoke','A2 内縁','R2'),('artichoke','A3 内縁+明面','R3'),
+      ('oregano','現行','none'),('oregano','固定 B','L'),
+      ('spinach','現行','none'),('spinach','A（前回）','L'),('spinach','A2 内縁','R2'),('spinach','A3 内縁+明面','R3')]
+def lab_of(a):
+    a=a/255.; a=np.where(a>0.04045,((a+0.055)/1.055)**2.4,a/12.92)
+    m=np.array([[0.4124,0.3576,0.1805],[0.2126,0.7152,0.0722],[0.0193,0.1192,0.9505]])
+    x=a@m.T/np.array([0.95047,1,1.08883]); f=np.where(x>0.008856,np.cbrt(x),7.787*x+16/116)
+    return np.stack([116*f[...,1]-16,500*(f[...,0]-f[...,1]),200*(f[...,1]-f[...,2])],-1)
+def metr(lab,box):
+    x,y,w,h=[v*DSF for v in box]; x0,y0,x1,y1=int(x),int(y),int(x+w),int(y+h); H,W,_=lab.shape
+    r=3*DSF; X0,Y0,X1,Y1=max(0,x0-r),max(0,y0-r),min(W,x1+r),min(H,y1+r)
+    mask=np.ones((Y1-Y0,X1-X0),bool); mask[max(0,y0-Y0):y1-Y0,max(0,x0-X0):x1-X0]=False
+    bg=np.median(lab[Y0:Y1,X0:X1][mask],0); inner=lab[max(0,y0):y1,max(0,x0):x1].reshape(-1,3)
+    d=np.linalg.norm(inner-bg,axis=1); g=d>12
+    if not g.any(): return dict(area=0,dE=0,lum=0)
+    lum=(np.abs(inner[:,0]-bg[0])>15)&g
+    return dict(area=g.sum()/4,dE=float(d[g].mean()),lum=lum.sum()/4)
+def crop(img,box,pad=6):
+    x,y,w,h=[v*DSF for v in box]; c=max(w,h)/2+pad*DSF; cx,cy=x+w/2,y+h/2
+    return img.crop((int(cx-c),int(cy-c),int(cx+c),int(cy+c))).resize((CELL,CELL),Image.LANCZOS)
+cache={}
+def load(run):
+    if run not in cache: cache[run]=json.load(open(f'{CAP}/{run}-iphone-{VP}.json'))
+    return cache[run]
+metrics={}; rendered=[]
+for t,label,run in ROWS:
+    d=load(run); cb=d['chipBoxes'][t]; fam='herb' if cb[5]==0 else 'veg'
+    tray=Image.open(f'{CAP}/{run}-tray-{fam}-p{cb[4]}-iphone-{VP}.png').convert('RGB')
+    x,y,w,h=[v*DSF for v in cb[:4]]; tc=tray.crop((x,y,x+w,y+h)).resize((int(CELL*w/h),CELL),Image.LANCZOS)
+    cells=[]; m={}
+    for s,n in (('before','1topped'),('baked','2baked-finish'),('result','3result')):
+        im=Image.open(f'{CAP}/{run}-{n}-iphone-{VP}.png').convert('RGB'); lab=lab_of(np.asarray(im).astype(float))
+        ps=[p for p in d[s]['pieces'] if p['cls']==f'pizza-topping--{t}']
+        cells.append([crop(im,p['box']) for p in ps[:2]])
+        mm=[metr(lab,p['box']) for p in ps]
+        m[s]=dict(size=round(max(ps[0]['box'][2],ps[0]['box'][3]),1),area=round(min(q['area'] for q in mm)),dE=round(float(np.mean([q['dE'] for q in mm])),1),lum_area=round(min(q['lum'] for q in mm)))
+    metrics[f'{t}/{label}']=m; rendered.append((t,label,tc,cells))
+TW=int(CELL*118/64)+10; W=330+TW+3*(2*CELL+24)
+sheet=Image.new('RGB',(W,46+len(rendered)*(CELL+6)+3*14),'white'); dr=ImageDraw.Draw(sheet)
+for i,tt in enumerate(['トレイ','ピザ上（焼成前）','焼成後（仕上げ）','RESULT']): dr.text((330+(0 if i==0 else TW+(i-1)*(2*CELL+24)),10),tt,fill='black',font=FONT)
+y=46; prev=None
+for t,label,tc,cells in rendered:
+    if prev and t!=prev: y+=14
+    prev=t
+    dr.text((8,y+8),NAMES[t] if label=='現行' else '',fill='black',font=FONT); dr.text((8,y+44),label,fill='black',font=FONT)
+    sheet.paste(tc,(330,y))
+    for i,cs in enumerate(cells):
+        for j,c in enumerate(cs): sheet.paste(c,(330+TW+i*(2*CELL+24)+j*CELL,y))
+    y+=CELL+6
+sheet.save(f'{OUT}/herb-icons-compare-r2-{VP}.png',optimize=True)
+json.dump(metrics,open(f'{OUT}/herb-icons-metrics-r2-{VP}.json','w'),ensure_ascii=False,indent=1)
+for k,v in metrics.items(): print(k.ljust(22),' | '.join(f"{s[:3]} {v[s]['size']}px a{v[s]['area']} L{v[s]['lum_area']} dE{v[s]['dE']}" for s in v))

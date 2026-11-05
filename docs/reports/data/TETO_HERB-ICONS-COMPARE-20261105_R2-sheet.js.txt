@@ -1,0 +1,15 @@
+const { chromium } = require("playwright"); const fs = require("fs");
+const C = "/home/user/teto-pizza-game/docs/design/candidates/ingredient-icons-2.0-herbs";
+const ref = "/home/user/teto-pizza-game/docs/design/references/ingredient-icons-2.0";
+const svg = (f) => fs.readFileSync(f, "utf8").replace(/width="64" height="64"/, 'width="100%" height="100%"');
+const EM = 1.2; // glyph box = 1.2em (the in-game basis for the herb group); layout box stays 1em
+const rows = [["ローズマリー","🌱",[["現行",null],["固定 B","rosemary-B"]]],["アーティチョーク","🌱",[["現行",null],["A 前回","artichoke-A"],["A2 内縁","artichoke-A2"],["A3 内縁+明面","artichoke-A3"]]],["オレガノ","🍃",[["現行",null],["固定 B","oregano-B"]]],["ほうれん草","🍃",[["現行",null],["A 前回","spinach-A"],["A2 内縁","spinach-A2"],["A3 内縁+明面","spinach-A3"]]]];
+const BG = [["トレイ 48","#fffaf0",48,0],["トレイ 26","#fffaf0",26,0],["トマト 24","#c94a36",24,0],["焼成生地 24","#e2a85c",24,0],["溶けチーズ 20","#f6efe0",20,0],["グレー/トマト 20","#c94a36",20,1],["グレー/溶けチーズ 20","#f6efe0",20,1],["RESULT 18","#c94a36",18,0]];
+const cell = (inner, bg, px, gray, emoji) => { const s = emoji ? px : px * EM; return `<td style="background:${bg};padding:2px;text-align:center;filter:${gray ? "grayscale(1)" : "none"}"><div style="width:${px}px;height:${px}px;margin:6px auto;position:relative"><div style="position:absolute;left:${(px - s) / 2}px;top:${(px - s) / 2}px;width:${s}px;height:${s}px;font-size:${px}px;line-height:1">${inner}</div></div></td>`; };
+let html = `<html><head><meta charset="utf-8"><style>body{font-family:'IPAGothic',sans-serif;margin:12px;background:#fff}td,th{border:1px solid #ddd;font-size:12px}th{background:#f3f3f3;padding:2px 4px}</style></head><body><h3 style="margin:2px 0">ハーブ 4 食材 — 実寸（グリフ箱 1.2em 基準）／現行 vs 固定案 vs 改善案</h3><table style="border-collapse:collapse"><tr><th>食材</th><th>案</th>${BG.map(([n]) => `<th>${n}px</th>`).join("")}</tr>`;
+for (const [name, emoji, vs] of rows) for (const [label, file] of vs) html += `<tr><td>${label === "現行" ? name : ""}</td><td>${label}</td>${BG.map(([, bg, px, g]) => cell(file ? svg(`${C}/${file}.svg`) : emoji, bg, px, g, !file)).join("")}</tr>`;
+const nb = [["バジル","🌿"],["パセリ","☘️"],["ミント","🍀"],["大葉",svg(`${ref}/shiso.svg`)],["パクチー",svg(`${ref}/cilantro.svg`)],["青ねぎ",svg(`${ref}/green-onion.svg`)],["ルッコラ","🥗"],["フリアリエッリ","🥦"],["ローズB",svg(`${C}/rosemary-B.svg`)],["アーティA2",svg(`${C}/artichoke-A2.svg`)],["オレガノB",svg(`${C}/oregano-B.svg`)],["ほうれんA2",svg(`${C}/spinach-A2.svg`)]];
+html += `</table><h3 style="margin:10px 0 4px">近い系統との並び 24px（トマト／焼成生地／グレー）</h3><table style="border-collapse:collapse"><tr>${nb.map(([n]) => `<th style="width:64px">${n}</th>`).join("")}</tr>`;
+for (const [bg, g] of [["#c94a36",0],["#e2a85c",0],["#c94a36",1]]) html += "<tr>" + nb.map(([, i]) => cell(i, bg, 24, g, !i.startsWith("<svg"))).join("") + "</tr>";
+html += "</table></body></html>";
+(async () => { const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1100, height: 800 }, deviceScaleFactor: 2 }); await p.setContent(html); await p.screenshot({ path: process.argv[2], fullPage: true }); await b.close(); })();

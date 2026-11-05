@@ -1,0 +1,242 @@
+{
+ "rosemary/現行": {
+  "before": {
+   "size": 24.5,
+   "area": 200,
+   "dE": 63.2,
+   "lum_area": 34
+  },
+  "baked": {
+   "size": 24.5,
+   "area": 206,
+   "dE": 53.1,
+   "lum_area": 140
+  },
+  "result": {
+   "size": 18.3,
+   "area": 130,
+   "dE": 58.9,
+   "lum_area": 25
+  }
+ },
+ "rosemary/固定 B": {
+  "before": {
+   "size": 24,
+   "area": 324,
+   "dE": 47.9,
+   "lum_area": 184
+  },
+  "baked": {
+   "size": 24,
+   "area": 332,
+   "dE": 45.5,
+   "lum_area": 177
+  },
+  "result": {
+   "size": 18,
+   "area": 192,
+   "dE": 45.5,
+   "lum_area": 86
+  }
+ },
+ "artichoke/現行": {
+  "before": {
+   "size": 34.9,
+   "area": 386,
+   "dE": 65.8,
+   "lum_area": 318
+  },
+  "baked": {
+   "size": 34.9,
+   "area": 584,
+   "dE": 67.7,
+   "lum_area": 502
+  },
+  "result": {
+   "size": 26.2,
+   "area": 458,
+   "dE": 53.4,
+   "lum_area": 50
+  }
+ },
+ "artichoke/A（前回）": {
+  "before": {
+   "size": 34,
+   "area": 632,
+   "dE": 54.1,
+   "lum_area": 298
+  },
+  "baked": {
+   "size": 34,
+   "area": 730,
+   "dE": 61.3,
+   "lum_area": 386
+  },
+  "result": {
+   "size": 25,
+   "area": 438,
+   "dE": 44.4,
+   "lum_area": 266
+  }
+ },
+ "artichoke/A2 内縁": {
+  "before": {
+   "size": 34,
+   "area": 632,
+   "dE": 54.0,
+   "lum_area": 368
+  },
+  "baked": {
+   "size": 34,
+   "area": 730,
+   "dE": 61.1,
+   "lum_area": 459
+  },
+  "result": {
+   "size": 25,
+   "area": 438,
+   "dE": 43.3,
+   "lum_area": 262
+  }
+ },
+ "artichoke/A3 内縁+明面": {
+  "before": {
+   "size": 34,
+   "area": 632,
+   "dE": 54.5,
+   "lum_area": 438
+  },
+  "baked": {
+   "size": 34,
+   "area": 730,
+   "dE": 61.6,
+   "lum_area": 527
+  },
+  "result": {
+   "size": 25,
+   "area": 438,
+   "dE": 42.7,
+   "lum_area": 224
+  }
+ },
+ "oregano/現行": {
+  "before": {
+   "size": 24.5,
+   "area": 177,
+   "dE": 66.1,
+   "lum_area": 58
+  },
+  "baked": {
+   "size": 24.5,
+   "area": 351,
+   "dE": 60.8,
+   "lum_area": 212
+  },
+  "result": {
+   "size": 18.3,
+   "area": 103,
+   "dE": 46.6,
+   "lum_area": 48
+  }
+ },
+ "oregano/固定 B": {
+  "before": {
+   "size": 24,
+   "area": 206,
+   "dE": 54.3,
+   "lum_area": 112
+  },
+  "baked": {
+   "size": 24,
+   "area": 279,
+   "dE": 58.8,
+   "lum_area": 163
+  },
+  "result": {
+   "size": 18,
+   "area": 122,
+   "dE": 49.5,
+   "lum_area": 111
+  }
+ },
+ "spinach/現行": {
+  "before": {
+   "size": 45.4,
+   "area": 583,
+   "dE": 69.0,
+   "lum_area": 442
+  },
+  "baked": {
+   "size": 45.4,
+   "area": 591,
+   "dE": 61.8,
+   "lum_area": 446
+  },
+  "result": {
+   "size": 34.1,
+   "area": 463,
+   "dE": 56.3,
+   "lum_area": 294
+  }
+ },
+ "spinach/A（前回）": {
+  "before": {
+   "size": 44,
+   "area": 1022,
+   "dE": 67.4,
+   "lum_area": 361
+  },
+  "baked": {
+   "size": 44,
+   "area": 1046,
+   "dE": 58.6,
+   "lum_area": 238
+  },
+  "result": {
+   "size": 33,
+   "area": 622,
+   "dE": 56.8,
+   "lum_area": 164
+  }
+ },
+ "spinach/A2 内縁": {
+  "before": {
+   "size": 44,
+   "area": 1026,
+   "dE": 67.3,
+   "lum_area": 449
+  },
+  "baked": {
+   "size": 44,
+   "area": 1050,
+   "dE": 58.7,
+   "lum_area": 378
+  },
+  "result": {
+   "size": 33,
+   "area": 630,
+   "dE": 55.8,
+   "lum_area": 239
+  }
+ },
+ "spinach/A3 内縁+明面": {
+  "before": {
+   "size": 44,
+   "area": 1026,
+   "dE": 67.3,
+   "lum_area": 539
+  },
+  "baked": {
+   "size": 44,
+   "area": 1052,
+   "dE": 58.8,
+   "lum_area": 548
+  },
+  "result": {
+   "size": 33,
+   "area": 634,
+   "dE": 55.1,
+   "lum_area": 338
+  }
+ }
+}
