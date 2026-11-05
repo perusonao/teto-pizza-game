@@ -23,6 +23,8 @@ import {
 } from "../logic/pan/squareDough";
 import { HOLD_BRUSH_RADIUS_MAX, PRESS_BRUSH_RADIUS, holdBrushRadius } from "../logic/pan/squareDoughSpread";
 import { squareDoughGaugeStore } from "../logic/pan/squareDoughGaugeStore";
+import { isGapGuideActive, squareGapGuide } from "../logic/pan/squareDoughGaps";
+import { SquareGapGuideMarks } from "./square/SquareGapGuideMarks";
 import { CORNER_MARKS, changePoints, changedCells, cornerHint, thicknessFill, type SquareDoughRamp } from "../logic/pan/squareDoughView";
 import { DOUGH_CENTER, type DoughPoint } from "../logic/pizzaCoordinates";
 import { describeTarget, squareDoughDiag } from "../preview/squareDoughDiag"; // TEMPORARY on-device diagnostics (?diag=1)
@@ -419,6 +421,9 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
     [committedProgress.step, progress.corners, shown],
   );
 
+  // Gap guide (AB-min): all four corners reached, STEP 1 still open -> the bare cells and where to go (derived from the dough, never stored).
+  const gapGuide = useMemo(() => (isGapGuideActive(progress, committedProgress.step) ? squareGapGuide(shown) : null), [progress, committedProgress.step, shown]);
+
   const useCanvas = ramp === "ball" && !canvasFailed;
   /** Preview / DEV only (this layer is only reachable there): every cell's thickness, for the tests, which can no longer read it from SVG fills. */
   const thicknessData = useMemo(() => shown.thickness.map((v) => v.toFixed(3)).join(","), [shown]);
@@ -500,12 +505,15 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
         <g className="square-dough-layer__corners" data-testid="square-corner-marks">
           {CORNER_MARKS.map((mark, corner) => {
             const reached = progress.corners[corner];
+            // Reached while STEP 1 is open: an outlined ring (the corner is there), not the solid green of "STEP 1 is done" -- 4/4 corners is not the coverage bar.
+            const pending = reached && committedProgress.step === 1;
             return (
               <g
                 key={corner}
-                className={`square-dough-layer__corner${reached ? " square-dough-layer__corner--reached" : ""}`}
+                className={`square-dough-layer__corner${reached ? (pending ? " square-dough-layer__corner--reached-pending" : " square-dough-layer__corner--reached") : ""}`}
                 data-corner={["nw", "ne", "se", "sw"][corner]}
                 data-reached={reached ? "true" : "false"}
+                data-pending={pending ? "true" : "false"}
               >
                 <circle cx={mark.x} cy={mark.y} r={4.6} />
                 {reached && <path d={`M ${mark.x - 2.2} ${mark.y} L ${mark.x - 0.6} ${mark.y + 1.7} L ${mark.x + 2.4} ${mark.y - 1.8}`} />}
@@ -533,6 +541,8 @@ export function SquareDoughLayer({ dough, interactive, onCommit, resetToken = 0,
             })}
           </g>
         )}
+        {/* Gap guide (STEP 1, all four corners reached, no finger down): the bare cells tinted and an arrow into the largest gaps. */}
+        {!trail && !ring && gapGuide && gapGuide.bareCells.length > 0 && <SquareGapGuideMarks guide={gapGuide} />}
         {/* The live drag: where it started, the path so far, and the fingertip. */}
         {trail && trail.length > 0 && (
           <g className="square-dough-layer__trail" data-testid="square-drag-trail">
