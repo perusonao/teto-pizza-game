@@ -442,7 +442,7 @@ test.describe("Cooking Prep Phase 1B: timing game", () => {
       await discardPan(page);
     }
     expect(new Set(looks).size).toBe(3);
-    expect(looks[1]).toBe("rgb(122, 66, 38)"); // the middle of best is the cooked target
+    expect(looks[1]).toBe("rgb(138, 71, 41)"); // the middle of best is the cooked target
   });
 
   test("best: the result shows, then the pan closes itself, the pieces take the cooked look, the mark appears, saves are untouched, and the guard holds the dough", async ({ page }) => {
@@ -460,7 +460,7 @@ test.describe("Cooking Prep Phase 1B: timing game", () => {
     await page.clock.runFor(1);
     await expect(page.getByTestId("cooking-prep-done")).toHaveText("✓ 炒め済み");
     await expect(pan(page)).toHaveCount(0);
-    expect(await beefFill(page)).toBe("rgb(122, 66, 38)");
+    expect(await beefFill(page)).toBe("rgb(138, 71, 41)");
     expect(await beefPieces(page)).toBe(2);
     expect(await readSave(page)).toEqual(saveBefore);
     // the stage swallows taps for 300 ms, then placing works as always and the new piece is prepped too

@@ -24,10 +24,11 @@ export interface BeefColors {
  */
 export const BEEF_RAW_COLORS: BeefColors = { lean: "#c4473f", lean2: "#6a3220", fat: "#e57d74", fat2: "#e57d74", edge: "#3a160e" };
 /**
- * Prepped target (provisional until the iPhone HV). Issue #733: `lean` / `lean2` are the earlier provisional values; the core (`fat` / `fat2`, was the beige fat streak #d9b48a / #c79f78) and the
- * outline (`edge`, was #3d2314) are re-derived so every part still only gets darker from raw to cooked (the chunk's raw core is pink and its raw outline is darker than the ribbon's).
+ * Prepped target. Issue #733 Owner Decision OD-A (2026-11-05, comment 6657038390) adopted plan B′: a warmer cooked look than the earlier provisional one (#7a4226 / #5f331f / #9a5a3c / #2e1a10 read
+ * near-black at 20-28 px and its bright core read as a highlight). The core now sits just under the cut face, and every part still only gets darker from raw to cooked (the face keeps green <= raw).
+ * Final colour acceptance waits for the iPhone HV.
  */
-export const BEEF_COOKED_COLORS: BeefColors = { lean: "#7a4226", lean2: "#5f331f", fat: "#9a5a3c", fat2: "#9a5a3c", edge: "#2e1a10" };
+export const BEEF_COOKED_COLORS: BeefColors = { lean: "#8a4729", lean2: "#66361e", fat: "#7f4628", fat2: "#7f4628", edge: "#34190e" };
 
 /** Heat offset the prep adds to the bake curve (`toppingVisualFrame`). Owner decision P-7: 0 -- the difference is the SVG colour. `bakeVisual.ts` is untouched. */
 export const PREP_HEAT_OFFSET = 0;

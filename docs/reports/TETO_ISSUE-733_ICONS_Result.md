@@ -25,10 +25,33 @@ Owner 決定: Issue #733 comment 6650361079（2026-11-05）。OD-1 牛肉 = B �
 
 - CSS のセレクタを、角切りの `<rect>`（外側 = `--beef-lean-2` / `--beef-edge`、断面 = `--beef-lean`、芯 = `--beef-fat`）に向けた。
 - 生の色を新しい絵の色に変えた（`lean #c4473f` / `lean2 #6a3220` / `fat`・`fat2 #e57d74` / `edge #3a160e`）。「焼き加減 0 = 出荷中のアイコンと同じ」という不変条件は保たれる（テストで、実際の SVG から色を読んで固定している）。
-- 炒め済みの目標色のうち、断面と外側（`lean #7a4226` / `lean2 #5f331f`）は従来の暫定値のまま。芯（旧: 脂の筋 `#d9b48a`）と輪郭（旧: `#3d2314`）は、生から炒め済みへ向かって全部位が暗くなる（既存テストの単調性）ように、`#9a5a3c` と `#2e1a10` に再設定した。焦げの色は変えていない。
-- `e2e/cooking-prep.spec.ts` は、赤身の色を断面の `<rect>` から読むように変え、生の色の期待値を `rgb(196, 71, 63)` にした。炒め済み `rgb(122, 66, 38)` と焦げ `rgb(58, 34, 24)` の期待値は変えていない。
+- 炒め済みの目標色のうち、断面と外側（`lean #7a4226` / `lean2 #5f331f`）は従来の暫定値のまま。芯（旧: 脂の筋 `#d9b48a`）と輪郭（旧: `#3d2314`）は、生から炒め済みへ向かって全部位が暗くなる（既存テストの単調性）ように、`#9a5a3c` と `#2e1a10` に再設定した。焦げの色は変えていない。**→ この炒め済みの目標色は、後に OD-A で B′ に置き換えた（§2a）。**
+- `e2e/cooking-prep.spec.ts` は、赤身の色を断面の `<rect>` から読むように変え、生の色の期待値を `rgb(196, 71, 63)` にした。このときは、炒め済み `rgb(122, 66, 38)` と焦げ `rgb(58, 34, 24)` の期待値は変えていない（炒め済みは、OD-A で `rgb(138, 71, 41)` に更新した。§2a）。
 - #696 の claim は 2026-10-29 に解放済みで、これらのファイルに触れている open PR もない。#733 の claim を更新した（comment 6650986065）。
-- **Owner 判断（OD-A）:** 炒めの芯と輪郭の暫定色は、炒めの iPhone HV で確定する（§6）。
+- **Owner 判断（OD-A）:** 決定済み。B′ を採用した（§2a）。
+
+## 2a. OD-A: 炒め済みの牛肉の色を B′ に変更（Owner 決定 2026-11-05、Issue #733 comment 6657038390）
+
+経緯:
+- 視覚検証（`claude/pr-760-visual-verification-c3o4ol`、`docs/reports/TETO_PR-760_VISUAL-VERIFICATION_Result.md`）で、旧い暫定色が 20〜28px で黒に近く見えること、明るい芯がツヤやハイライトに見えることが分かった。
+- Owner の方針（comment 6656697974）に従って A/B 比較をした（同じブランチの `docs/reports/TETO_PR-760_COOKED-BEEF-AB_Result.md`）。B は既存の単調性テスト 2 件に違反したので、それを満たす B′ が採用された。
+
+| 部位（キー） | 旧暫定（A） | **採用（B′）** |
+|---|---|---|
+| 断面 `lean` | `#7a4226` | `#8a4729` |
+| 外側 `lean2` | `#5f331f` | `#66361e` |
+| 芯 `fat` / `fat2` | `#9a5a3c` | `#7f4628` |
+| 輪郭 `edge` | `#2e1a10` | `#34190e` |
+
+- 変更したのは、`src/logic/prep/beefDoneness.ts` の `BEEF_COOKED_COLORS` 1 行（とその直前のコメント）と、`e2e/cooking-prep.spec.ts` の炒め済みの断面の期待値 2 か所（`rgb(122, 66, 38)` → `rgb(138, 71, 41)`）だけ。
+- `BEEF_RAW_COLORS`・`BEEF_BURNT_COLORS`、牛肉・ピーマンの絵、`App.css`、`CookingPrep.css`、食材、保存、採点、Research、本番フラグは変えていない。既存のテストも緩めていない（単調性テスト 2 件はそのまま pass する）。
+- 検証（この変更を入れた HEAD）:
+  - 関連 Vitest（`beefDoneness` / `PizzaStage.CookingPrep` / `CookingPrepLayer`）: 56/56
+  - `e2e/cooking-prep.spec.ts`（Chromium 390×844 / 360×800）: 50/50
+  - `tsc -b` / `oxlint` / `npm run build`: exit 0 / exit 0（既存の warning のみ） / 成功
+  - CI（WebKit shard を含む）と Codex 再レビューは、PR の最新 HEAD で確認する（PR 本文・コメントに記録）
+- HV: スクリーンショット `09`〜`12`（§5）と動画 `pr760-bprime-final-390x844.mp4`（§5）。
+- iPhone Safari 実機 HV と最終的な色の承認は、まだ HOLD。
 
 ## 3. 識別テスト（OD-6）
 
@@ -79,18 +102,24 @@ Owner 決定: Issue #733 comment 6650361079（2026-11-05）。OD-1 牛肉 = B �
 | `06-lineup-topped-*` / `07-…-grayscale-*` | 牛肉・ベーコン・ハムと、ピーマン・青ねぎ・ズッキーニの並び（カラー / グレースケール） |
 | `08-lineup-baked-result-*` | 同じ並びの焼成後 |
 | `zoom-*.png` | 02 / 03 / 06 / 08 のピザ部分の拡大（before・after × 2 viewport） |
+| `09-cooked-beef-stages-*` | OD-A。炒め済みの牛肉の流れ（生 → フライパン 0.1 s / 2.3 s / 2.7 s / 3.15 s → 生地上 → 焼成後）。before（旧暫定色 `b0535b0`）と after（B′） |
+| `10-cooked-beef-actual-size-*` | OD-A。DPR 1 相当の実寸（生地上 約 28px、焼成後 約 20px）を画素 4 倍に拡大 |
+| `11-cooked-beef-dough-*` / `12-cooked-beef-full-*` | OD-A。生地全体（生 / 炒め済み / 焼成後）と全画面（炒め済みの生地 / 焼成後の結果） |
 
 ### 動画（Owner へ直接提出。リポジトリには入れていない）
 
 | Video | Viewport | Duration | Size | Verification |
 |---|---|---:|---:|---|
 | `issue-733-icons-390x844.mp4` | 390×844 | 54.5 s | 1.23 MB（1,225,899 B） | PASS |
+| `pr760-bprime-final-390x844.mp4`（OD-A B′） | 390×844 | 20.2 s | 0.49 MB（486,370 B） | PASS（h264 High / yuv420p / 30fps / 606 frames、全フレームをデコードできた、空白フレームなし） |
 
 Download: セッション内で直接提出した（`artifacts/review/` は gitignore 済み）。Codec H.264（yuv420p、30fps、1634 frames）。
 
 Video Verification: PASS。ffprobe で h264 / 390×844 / 54.5 s を確認し、全フレームを最後までデコードできた。1 秒ごとに見て空白フレームがないことも確認した（各テストの読み込み中の白画面は切り詰めた）。
 
-この動画で確認すること:
+`pr760-bprime-final-390x844.mp4` で確認すること: `?cookPrep=on`（Preview/DEV 限定）で牛肉 3 個を置く → 🍳 炒める → 実時間で約 3.1 s（best の中央）に取り出す → ✓ 炒め済み（B′ の色）→ 焼成 → 結果。
+
+`issue-733-icons-390x844.mp4` で確認すること:
 - 図鑑から研究に入り、具材ステップのトレイで牛肉 chip が角切りになっている
 - 牛肉 3・ピーマン 1・たまねぎ 2 を置くと、生地の上で角切りと輪切りになる
 - 焼成して NEW DISCOVERY（スヤピザ）になる。レシピと発見は変わらない
@@ -101,7 +130,7 @@ Video Verification: PASS。ffprobe で h264 / 390×844 / 54.5 s を確認し、�
 
 | # | 判断 | 推奨 |
 |---|---|---|
-| OD-A | 炒め（Preview 限定）の芯 `#9a5a3c` と輪郭 `#2e1a10` の暫定値。旧い「脂の筋」の色は、角切りでは単調に暗くならないので置き換えた | 炒めの次の iPhone HV で確定する。それまでは暫定 |
+| OD-A | **決定済み（2026-11-05、comment 6657038390）:** 炒め済みの色を B′（`#8a4729` / `#66361e` / `#7f4628` / `#34190e`）にした（§2a） | 最終的な色の承認は iPhone HV で行う |
 | OD-B | iPhone Safari 実機 HV（20〜26px の角切りが肉と読めるか、輪切りと青ねぎの区別、焼成後） | Owner が実施する |
 | OD-C | Style Lock V2（§11 の GP-A2 → R1 の改訂履歴、牛肉の採用記録）と、references（`beef.svg` を新規、`green-pepper.svg` を更新）・README の更新 | #753 の merge 後に docs-only で行う |
 | OD-D | visual ID と形の不一致（`beef-slices` は角切り、`green-pepper-strips` は輪切り）。技術的負債として記録する | 改名は #748 の claim が終わった後に、別の Gate で扱う |
