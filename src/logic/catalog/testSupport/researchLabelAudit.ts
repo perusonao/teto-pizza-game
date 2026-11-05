@@ -42,7 +42,8 @@ export function researchLetterChangesAcrossOrders(newIds: readonly string[], rec
       if (a === b) continue;
       const change = `${b ?? "-"}->${a ?? "-"}`;
       const list = out.get(r.id) ?? [];
-      if (!list.some((x) => x.change === change)) list.push({ change, example, canonical });
+      // Deduplicate by (change, canonical): a transition seen first in a non-canonical order must still be recorded when the canonical ladder order produces it too (Codex P2, PR #759).
+      if (!list.some((x) => x.change === change && x.canonical === canonical)) list.push({ change, example, canonical });
       out.set(r.id, list);
     }
   };
