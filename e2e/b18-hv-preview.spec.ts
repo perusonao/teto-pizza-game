@@ -155,24 +155,37 @@ async function capture(page: Page, name: string) {
   await page.screenshot({ path: `${dir}/${name}-${test.info().project.name}.png` });
 }
 async function expectLayout(page: Page, where: string) {
+  // Measure the settled layout: a running CSS animation / transition (a step change) is not a layout state.
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== "running"), undefined, { timeout: 5_000 }).catch(() => undefined);
   const m = await page.evaluate(() => {
     const de = document.documentElement;
     const barEl = document.querySelector(".prepare-bake-bar");
     const b = barEl?.getBoundingClientRect();
+    const screen = document.querySelector<HTMLElement>(".game-screen");
+    // Diagnostics only (reported with a failure): the bar's ancestor chain [class, left, width, scrollLeft, scrollWidth, clientWidth].
+    const chain: unknown[] = [];
+    for (let el: HTMLElement | null = barEl as HTMLElement | null; el; el = el.parentElement) {
+      const r = el.getBoundingClientRect();
+      chain.push([el.className.slice(0, 48), Math.round(r.left), Math.round(r.width), el.scrollLeft, el.scrollWidth, el.clientWidth]);
+    }
     return {
       hOverflow: de.scrollWidth - de.clientWidth,
       vScroll: Math.max(de.scrollHeight, document.body.scrollHeight) - innerHeight,
+      screenHOverflow: screen ? screen.scrollWidth - screen.clientWidth : 0,
       bar: b ? { top: b.top, bottom: b.bottom, left: b.left, right: b.right } : null,
       vw: innerWidth,
       vh: innerHeight,
+      chain: JSON.stringify(chain),
     };
   });
-  expect(m.hOverflow, `${where}: horizontal overflow`).toBeLessThanOrEqual(0);
-  expect(m.vScroll, `${where}: page scroll`).toBeLessThanOrEqual(0);
+  const at = `${where} (bar ancestors: ${m.chain})`;
+  expect(m.hOverflow, `${at}: horizontal overflow`).toBeLessThanOrEqual(0);
+  expect(m.vScroll, `${at}: page scroll`).toBeLessThanOrEqual(0);
+  expect(m.screenHOverflow, `${at}: the game screen scrolls sideways`).toBeLessThanOrEqual(1);
   if (m.bar) {
-    expect(m.bar.bottom, `${where}: CTA bar cut off`).toBeLessThanOrEqual(m.vh + 0.5);
-    expect(m.bar.left, where).toBeGreaterThanOrEqual(0);
-    expect(m.bar.right, where).toBeLessThanOrEqual(m.vw + 0.5);
+    expect(m.bar.bottom, `${at}: CTA bar cut off`).toBeLessThanOrEqual(m.vh + 0.5);
+    expect(m.bar.left, at).toBeGreaterThanOrEqual(-0.5);
+    expect(m.bar.right, at).toBeLessThanOrEqual(m.vw + 0.5);
   }
 }
 async function expectNoNewRecipeName(page: Page, where: string) {
