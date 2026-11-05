@@ -89,7 +89,12 @@ describe("Steam Gameplay Pilot #755 (no production wiring)", () => {
       { type: "SET_HEAT", heat: "high", now: T + 1000 },
       { type: "OPEN", now: T + 4000 },
     ];
-    expect(run(actions)).toEqual(liftAt(4000));
+    // Same outcome; the float accumulation order differs, so compare `over` with a tolerance.
+    const a = run(actions) as Extract<SteamGameState, { status: "released" }>;
+    const b = liftAt(4000) as Extract<SteamGameState, { status: "released" }>;
+    expect(a.result).toMatchObject({ outcome: b.result.outcome, openCount: b.result.openCount, elapsedMs: b.result.elapsedMs });
+    expect(a.result.level).toBeCloseTo(b.result.level, 9);
+    expect(a.result.over).toBeCloseTo(b.result.over, 9);
   });
 
   it("invalid or backwards timestamps are ignored (same state reference)", () => {
