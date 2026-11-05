@@ -28,7 +28,8 @@ async function bundleText(previewMode: boolean): Promise<string> {
   }
 }
 
-const LAB_ONLY = [STEAM_GAME_LAB_PARAM, STEAM_GAME_LAB_MARK, "蒸しミニゲーム", "sgl__", "sgl-scene"];
+// #755 V2 / V3 marks too: the whole Lab (every mode) must be absent from production and present in Preview.
+const LAB_ONLY = [STEAM_GAME_LAB_PARAM, STEAM_GAME_LAB_MARK, "蒸しミニゲーム", "sgl__", "sgl-scene", "steam-game-lab-v2", "steam-game-lab-v3", "sglv3__", "sgl-v3-scene"];
 let production = "";
 let preview = "";
 afterAll(() => {
