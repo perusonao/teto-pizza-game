@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SteamGameLab } from "./SteamGameLab";
 import v2Src from "./SteamGameLabV2.tsx?raw";
 import logicSrc from "../logic/steam/steamGameV2.ts?raw";
+import facadeSrc from "./steamGameLabRescue.ts?raw";
 
 let t = 10_000;
 const clock = () => t;
@@ -150,7 +151,7 @@ describe("Steam Gameplay Lab V2 #755", () => {
     fireEvent.click(button("ふたを開ける"));
     expect(setItem).not.toHaveBeenCalled();
     const withoutComments = (src: string) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-    for (const src of [v2Src, logicSrc].map(withoutComments)) {
+    for (const src of [v2Src, logicSrc, facadeSrc].map(withoutComments)) {
       expect(src).not.toMatch(/localStorage|sessionStorage|indexedDB|persistProgress|gameReducer|scoringV2|pendingRound/);
     }
   });

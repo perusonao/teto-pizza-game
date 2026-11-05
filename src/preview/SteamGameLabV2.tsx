@@ -7,7 +7,7 @@ import {
   type SteamV2Batch,
   type SteamV2Heat,
   type SteamV2ShellStatus,
-} from "../logic/steam/steamGameV2";
+} from "./steamGameLabRescue";
 import "./steamGameLab.css";
 import "./steamGameLabV2.css";
 

@@ -81,13 +81,23 @@ test("V2 opening shells demand active rescue; merely waiting awards zero", async
 });
 
 test("V2 larger mussels visibly open later; previous V1 route still works", async ({ page }) => {
+  // The boundary is checked on Playwright's virtual clock, not wall time: the clock is paused before the pot starts, so the start and
+  // the heat change share one instant and only runFor() moves the Lab's performance.now() / requestAnimationFrame. On high heat
+  // (0.22/s) the 特大 mussel (opensAt 0.94) opens at ~4.27 s and the 大ぶり one (0.77) at ~3.50 s; no CI scheduling delay can move that.
+  await page.clock.install();
   await openLab(page);
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
   await btn(page, "ムール貝・大粒").tap();
   await expect(page.locator(".sglv2")).toHaveAttribute("data-batch", "mussel");
   await btn(page, "ふたをして蒸す").tap();
   await btn(page, "強火").tap();
-  await page.waitForTimeout(3900);
+  await expect(page.getByTestId("sgl-v2-lid")).toHaveAttribute("data-heat", "high");
+  await page.clock.runFor(3900);
+  await expect(shell(page, 3)).toHaveAttribute("data-shell-state", "ready");
   await expect(shell(page, 4)).toHaveAttribute("data-shell-state", "closed");
+  await page.clock.runFor(600);
+  await expect(shell(page, 4)).toHaveAttribute("data-shell-state", "ready");
+  await page.clock.resume();
   await page.goto("/?steamGameLab=on");
   await expect(page.getByTestId("sgl-scene")).toBeVisible();
   await expect(scene(page)).toHaveCount(0);
