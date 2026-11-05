@@ -443,6 +443,9 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // ladder and the material prices (test-only; nothing in production imports them).
       "./catalog/testSupport/ladderReachability.ts",
       "./catalog/testSupport/ladderEconomyEstimate.ts",
+      // Expansion Batch 18 (Codex P2, PR #759): the Research label audit compares letters before / after a batch along ladder-derived acquisition orders
+      // (test-only; nothing in production imports it).
+      "./catalog/testSupport/researchLabelAudit.ts",
     ]);
     const bridges = [
       "../components/ShopOverlay.tsx",
