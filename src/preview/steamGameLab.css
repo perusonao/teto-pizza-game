@@ -20,7 +20,7 @@
 .sgl__btn--ghost { grid-column: 1 / -1; min-height: 44px; font-size: 15px; background: transparent; }
 
 .sgl__lid { transition: transform 280ms ease; transform-box: fill-box; transform-origin: center; }
-.sgl__lid[data-lid="off"] { transform: translate(78px, -64px) rotate(24deg); }
+.sgl__lid[data-lid="off"] { transform: translate(0px, -52px) rotate(-12deg); }
 .sgl__lid[data-heat="high"][data-lid="on"] { animation: sgl-rattle 160ms linear infinite; }
 .sgl__half { transition: transform 200ms ease; }
 .sgl__flesh { transition: fill 200ms linear; }

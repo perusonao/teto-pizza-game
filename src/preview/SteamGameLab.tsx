@@ -19,30 +19,29 @@ import "./steamGameLab.css";
  * It owns a tiny in-memory reducer and an animation clock; nothing is stored, dispatched to the game or scored. No numeric gauge or timer is shown:
  * the player reads the shells, the steam and the flesh.
  */
-const SHELL_X = [90, 120, 150, 180, 210];
-const SHELL_Y = 226;
+const SHELL_POS: ReadonlyArray<readonly [number, number]> = [[100, 192], [150, 192], [200, 192], [125, 230], [175, 230]];
 const RETRY_GUARD_MS = 400; // a double tap on 「ふたを開ける」 must not also hit the button that takes its place
 const WISP_X = [96, 134, 172, 210];
 
 function Flames({ heat }: { heat: SteamGameHeat }) {
   const n = heat === "high" ? 5 : 3;
-  const h = heat === "high" ? 36 : 17;
+  const h = heat === "high" ? 38 : 18;
   const xs = Array.from({ length: n }, (_, i) => 150 + (i - (n - 1) / 2) * (heat === "high" ? 30 : 28));
   return (
     <g data-testid="sgl-flames" data-heat={heat}>
       {xs.map((x, i) => (
-        <path key={i} className="sgl__flame" style={{ animationDelay: `${i * 70}ms` }} d={`M${x - 9} 274 Q${x - 11} ${274 - h * 0.5} ${x} ${274 - h} Q${x + 11} ${274 - h * 0.5} ${x + 9} 274 Z`} fill={heat === "high" ? "#ff7a1a" : "#5fb4ff"} />
+        <path key={i} className="sgl__flame" style={{ animationDelay: `${i * 70}ms` }} d={`M${x - 9} 292 Q${x - 11} ${292 - h * 0.5} ${x} ${292 - h} Q${x + 11} ${292 - h * 0.5} ${x + 9} 292 Z`} fill={heat === "high" ? "#ff7a1a" : "#5fb4ff"} />
       ))}
     </g>
   );
 }
 
 function Shell({ i, open, flesh, limp }: { i: number; open: number; flesh: { color: string; scale: number }; limp: number }) {
-  const cx = SHELL_X[i];
+  const [cx, cy] = SHELL_POS[i];
   const shellColor = `rgb(${Math.round(207 - 60 * limp)},${Math.round(143 - 30 * limp)},${Math.round(124 - 30 * limp)})`;
   const s = Math.max(0.2, flesh.scale) * open;
   return (
-    <g data-shell={i} data-open={open.toFixed(2)} transform={`translate(${cx} ${SHELL_Y})`}>
+    <g data-shell={i} data-open={open.toFixed(2)} transform={`translate(${cx} ${cy}) scale(1.35)`}>
       <path d="M-13 0 Q0 15 13 0 Z" fill={shellColor} stroke="#6b4033" strokeWidth="1.2" />
       <ellipse className="sgl__flesh" cx="0" cy="-1.5" rx={10 * s} ry={7 * s} fill={flesh.color} />
       <path className="sgl__half" d="M-13 0 Q0 -15 13 0 Z" fill={shellColor} stroke="#6b4033" strokeWidth="1.2" style={{ transform: `rotate(${-58 * open}deg)`, transformOrigin: "-13px 0px" }} />
@@ -118,13 +117,13 @@ export function SteamGameLab({ clock = () => performance.now() }: { clock?: () =
       </header>
 
       <div className="sgl__scene">
-        <svg className="sgl__svg" viewBox="0 0 300 300" role="img" aria-label="貝を蒸している鍋" data-testid="sgl-scene" data-outcome={outcome ?? "none"} data-open-count={snap.openCount}>
+        <svg className="sgl__svg" viewBox="10 -20 280 330" role="img" aria-label="貝を蒸している鍋" data-testid="sgl-scene" data-outcome={outcome ?? "none"} data-open-count={snap.openCount}>
           {cooking && <Flames heat={heat} />}
           <rect x="36" y="168" width="14" height="14" rx="5" fill="#9aa5ae" />
           <rect x="250" y="168" width="14" height="14" rx="5" fill="#9aa5ae" />
           <rect x="50" y="130" width="200" height="132" rx="16" fill="#5b6570" stroke="#c9d1d8" strokeWidth="2" />
           <rect x="62" y="146" width="176" height="98" rx="8" fill="#2a2622" />
-          {SHELL_X.map((_, i) => (
+          {SHELL_POS.map((_, i) => (
             <Shell key={i} i={i} open={openness[i]} flesh={flesh} limp={flesh.limp} />
           ))}
           <rect x="44" y="124" width="212" height="10" rx="5" fill="#aab4bd" />
