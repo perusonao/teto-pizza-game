@@ -112,13 +112,14 @@ async function shisoOverlap(page: Page) {
   });
 }
 /** The tray chip keeps its size, and the shiso glyph stays inside the chip. */
-async function expectChip(page: Page, project: string) {
+async function expectChip(page: Page) {
   const chip = await chipOnTrayOrPin(page, /大葉/);
   const c = await chip.boundingBox();
   const g = await chip.locator(".ingredient-glyph--shiso-leaf").boundingBox();
   expect(c && g, "tray chip + glyph").toBeTruthy();
   expect(Math.round(c!.height), "chip height").toBe(64);
-  expect(Math.round(c!.width), "chip width").toBe(project === "iphone-360x800" ? 108 : 118);
+  // The chip width follows the viewport (118 at 390, 108 at 360), on every project (Chromium iphone-* and WebKit webkit-*).
+  expect(Math.round(c!.width), "chip width").toBe(page.viewportSize()!.width <= 360 ? 108 : 118);
   expect(g!.x >= c!.x && g!.y >= c!.y && g!.x + g!.width <= c!.x + c!.width && g!.y + g!.height <= c!.y + c!.height, "glyph inside chip").toBe(true);
   measured["tray chip"] = { chip: [c!.width, c!.height], glyph: [g!.width, g!.height] };
 }
@@ -185,7 +186,7 @@ test.describe("Issue #758: the shiso leaf in a 1.35em box", () => {
     await tapDoughPercent(page, ...SPOTS[1]);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await expect(page.getByRole("tab", { name: "具材", selected: true })).toBeVisible();
-    await expectChip(page, project);
+    await expectChip(page);
     await noOverflow(page, "tray");
     await capture(page, "tray", project);
     await hold(page, 2000);
