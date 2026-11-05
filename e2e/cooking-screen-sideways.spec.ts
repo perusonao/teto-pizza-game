@@ -125,6 +125,8 @@ for (const [slug, sauce] of SAUCES) {
     await paintSauceRing(page, 25, 16);
     await expectNoSideways(page, `sauce (${slug} painted)`);
     await shot(page, `sideways-${slug}-sauce`);
+    // Visual evidence in the CI report (WebKit runs only in CI): the sauce tray with its longest names.
+    await test.info().attach(`sauce-${slug}`, { body: await page.screenshot(), contentType: "image/png" });
     await hold(page, 1800);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await expect(page.getByRole("tab", { name: "チーズ", selected: true })).toBeVisible();

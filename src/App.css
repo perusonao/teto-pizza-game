@@ -1485,7 +1485,11 @@
    change, no effect on the pager/drag logic above. */
 .ingredient-tray {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* Issue #764: `minmax(0, 1fr)`, not `1fr` (= `minmax(auto, 1fr)`). A `1fr` track grows to its chip's min-content width,
+     and with the no-wrap chip name that pushed the third column past the screen in WebKit 360x800 (「ジェノベーゼソース」:
+     chip 117px in a 108px track -> .game-screen--cooking scrollWidth 386 > 360, so the cooking screen slid sideways).
+     The tracks now stay one third each; a name that does not fit is ellipsized inside its chip (`.ingredient-chip__name`). */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-auto-rows: minmax(0, auto);
   /* PR-A (Issue #167 §5): 8px -> 6px. Phase 0's own Fresh Audit measured several PREPARE steps
      landing the fixed bottom CTA bar at *exactly* the viewport height (0px margin, both
@@ -1512,6 +1516,8 @@
      PR-A (Issue #167 §5): 68px -> 64px, still >44pt -- part of this pass's deliberate ~10px
      real-device safety slack, see `.ingredient-tray`'s own updated comment above. */
   min-height: 64px;
+  /* Issue #764: a grid item may shrink below its content to its track (see `.ingredient-tray`). */
+  min-width: 0;
   border-radius: 12px;
   border: 2px solid transparent;
   background: #fff8ea;
@@ -1647,6 +1653,11 @@
   color: #4a2e0a;
   font-weight: 600;
   white-space: nowrap;
+  /* Issue #764: stays inside its chip; only a name wider than the chip (WebKit / narrow screens) is ellipsized. The DOM text and
+     the button's accessible name keep the full name. */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Issue #86 (Inventory表示): finite ingredients show their remaining count ("×27"), unlimited
