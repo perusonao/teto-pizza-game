@@ -142,6 +142,57 @@ export const B17_BATCH: RecipeBatchManifest = {
 /** Owner #748 OD-B18-1: explicit acceptance of the actual entitlement-order Research label change, NOT a canonical-ladder validator exception. */
 export const B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS = { "bbq-chicken-pizza": "-->B" } as const;
 
+/**
+ * Codex P2 on PR #759 (2026-11-05): the audit `researchLetterChangesAcrossOrders` (testSupport/researchLabelAudit.ts) compares the catalog BEFORE and AFTER Batch 18 for
+ * many acquisition orders (the full late catalog included). In the CANONICAL ladder order no pre-existing letter changes. In NON-canonical orders (a shared material acquired
+ * last) these 39 pre-existing recipes can change their Research letter -- 24 of them can gain a letter where they had none. Only the bbq-chicken-pizza `-->B` change in the
+ * bbq-sauce -> cilantro order is Owner-approved (OD-B18-1, which was given on the premise that no other recipe changes; that premise was measured in ONE order only).
+ * THIS LIST IS NOT AN APPROVAL: it pins the measured scope so a later change cannot slip in silently, and is PENDING an Owner decision (PR #759 must not merge before it).
+ * The same audit on the already-merged Batch 17 (goulash-pizza) finds 18 such recipes and on Batch 16 (ume-shiso-pizza) 4: the behaviour follows from the Research 2.0 contract
+ * ("a catalog revision that adds a recipe to an existing cohort may change that cohort's letters", researchEntry.ts), it is not specific to Batch 18.
+ */
+export const B18_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER: readonly string[] = [
+  "aussie",
+  "baba-ganoush-pizza",
+  "bacalhau",
+  "bbq-chicken-pizza",
+  "brazilian-calabresa",
+  "california-style-pizza",
+  "chilean-napolitana",
+  "curry-pizza-japan",
+  "currywurst",
+  "eggplant-dengaku-pizza",
+  "eggplant-ricotta-pizza",
+  "eggplant-tahini-pizza",
+  "flammkuchen",
+  "frango-catupiry",
+  "fugazza",
+  "goulash-pizza",
+  "jamaican-jerk-chicken-pizza",
+  "melanzane-pizza",
+  "moussaka-style-pizza",
+  "parmigiana-pizza",
+  "pesto-caprese",
+  "pesto-gamberi",
+  "pesto-pollo",
+  "pesto-tonno",
+  "pesto-trapanese",
+  "pesto-vegetariana",
+  "pizza-feta-eliniki",
+  "pizza-moscow",
+  "pizza-portuguesa",
+  "polish-kielbasa",
+  "potato-mayo-pizza",
+  "rendang-pizza",
+  "sichuan-eggplant-pizza",
+  "spanish-chorizo-pizza",
+  "supreme-pizza",
+  "tandoori-paneer-pizza",
+  "tonno-e-cipolla",
+  "veggie-supreme-pizza",
+  "wasabi-beef-pizza",
+];
+
 export const B18_BATCH: RecipeBatchManifest = {
   batchId: "expansion-batch-18",
   status: "landed",

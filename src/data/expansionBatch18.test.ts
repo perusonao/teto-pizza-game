@@ -11,7 +11,8 @@ import { RECIPE_DISCOVERY_CATALOG } from "./discoveryCatalog";
 import { ingredientAttributeFamily } from "./ingredientTaxonomy";
 import { toppingSizeClass } from "./toppingSizeClass";
 import { ordinaryLadderSteps, ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
-import { B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS } from "../logic/catalog/testSupport/recipeBatchManifest";
+import { B18_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER, B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS } from "../logic/catalog/testSupport/recipeBatchManifest";
+import { researchLetterChangesAcrossOrders } from "../logic/catalog/testSupport/researchLabelAudit";
 import { getReferenceSlots } from "../logic/pizzaReferenceLayout";
 import { evaluatePizzaCompletion } from "../logic/completionGate";
 import { evaluateDiscovery, matchDiscovery } from "../logic/discovery/matcher";
@@ -254,7 +255,7 @@ describe.each([
   });
 });
 
-describe("Research: cilantro now unlocks a NEW lettered cohort of two; no pre-existing recipe changes its letter", () => {
+describe("Research: cilantro now unlocks a NEW lettered cohort of two; no pre-existing recipe changes its letter in the CANONICAL ladder order", () => {
   const ladderMaterials = ordinaryLadderSteps(DISCOVERY_LADDER.steps).flatMap((s) => s.ingredientIds);
   const withoutNew = ORDINARY.filter((r) => !NEW_IDS.includes(r.id));
 
@@ -305,7 +306,7 @@ describe("Research: cilantro now unlocks a NEW lettered cohort of two; no pre-ex
     expect(labelOf([...STARTER_INGREDIENT_IDS, ...allLadder])).toBe("？？？ピザ（バーベキューソース）");
   });
 
-  it("Owner OD-B18-1 APPROVED order-specific shift (not canonical acceptedLetterShifts): bbq-sauce THEN cilantro grants BBQ letter B, every other pre-existing letter stays unchanged", () => {
+  it("Owner OD-B18-1 APPROVED order-specific shift (not canonical acceptedLetterShifts): bbq-sauce THEN cilantro grants BBQ letter B; in THIS one order every other pre-existing letter stays unchanged (other orders: see the audit below)", () => {
     expect(B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS).toEqual({ [BBQ]: "-->B" });
     const allLadder = DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds);
     const floorOrder = [...STARTER_INGREDIENT_IDS, ...allLadder.filter((m) => m !== "cilantro" && m !== "bbq-sauce"), "bbq-sauce", "cilantro"];
@@ -319,4 +320,30 @@ describe("Research: cilantro now unlocks a NEW lettered cohort of two; no pre-ex
     const entry = deriveResearchEntries({ dex: [], ownedIngredientIds: floorOrder } as never).entries.find((e) => (e.recipeId as string) === BBQ)!;
     expect(researchEntryLabel(entry)).toBe("？？？ピザ B（パクチー）"); // was 「？？？ピザ（パクチー）」
   });
+});
+
+describe("Research labels BEFORE vs AFTER Batch 18 across acquisition orders (Codex P2, PR #759): measured scope, NOT an approval", () => {
+  const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as readonly Recipe[]);
+  const changed = [...changes.keys()].sort();
+
+  it("the canonical ladder order changes no pre-existing letter (the full late catalog included)", () => {
+    expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
+  });
+
+  it("in non-canonical orders exactly the pinned 39 pre-existing recipes can change their letter; only the BBQ -->B in the bbq-sauce -> cilantro order is Owner-approved, the rest is PENDING an Owner decision", () => {
+    expect(changed).toEqual([...B18_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER].sort());
+    expect(changes.get(BBQ)!.map((c) => c.change)).toContain(B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS[BBQ]);
+    expect(changed.filter((id) => changes.get(id)!.some((c) => c.change.startsWith("-->")))).toHaveLength(24); // 24 of them can GAIN a letter where they had none
+  });
+
+  it("reproduces the two Codex examples: every ladder material owned, mayo last -> potato-mayo-pizza gains B; avocado last -> california-style-pizza gains B", () => {
+    const allLadder = DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds as readonly string[]);
+    const last = (m: string) => [...STARTER_INGREDIENT_IDS, ...allLadder.filter((x) => x !== m), m];
+    const without = RECIPES.filter((r) => !NEW_IDS.includes(r.id));
+    for (const [m, id] of [["mayo", "potato-mayo-pizza"], ["avocado", "california-style-pizza"]] as const) {
+      expect(researchCohortLetters(last(m), without).get(id), `${id} before`).toBeUndefined();
+      expect(researchCohortLetters(last(m), RECIPES).get(id), `${id} after`).toBe("B");
+    }
+  });
+
 });

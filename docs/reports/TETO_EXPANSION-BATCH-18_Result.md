@@ -42,10 +42,10 @@
 ## 4. Owner承認済み: bbq-chicken-pizza のラベル変更（OD-B18-1）
 Research の匿名ラベルは「所持順で最後に入手した有限素材」で決まる（`researchEntry.ts`）。cilantro を 2 つの通常レシピも使うようになったため:
 1. **ladder 順（正準）**: cilantro(69) が bbq-sauce(74) より先 → bbq の解禁素材は bbq-sauce。**文字は付かない**が、ラベル文字列が「？？？ピザ（パクチー）」→「？？？ピザ（バーベキューソース）」に変わる。
-2. **bbq-sauce を先、cilantro を後に入手した順序**（entitlement floor が付与する順 = 現行セーブで最も典型的）: bbq の解禁素材は cilantro のまま。cilantro cohort が {reina, bbq-chicken, baingan} の 3 件になり、**bbq-chicken-pizza に文字が付く（「？？？ピザ（パクチー）」→「？？？ピザ B（パクチー）」、reina A / bbq B / baingan C）**。この順序で他の既存レシピの文字は**一切動かない**（実測、21 件一致）。影響は「bbq-chicken を未発見のまま、この順序で両素材を持つセーブ」の Research 表示のみ。ラベルは保存されず（`persistence.batch18.test.ts` で確認）、保存データ・採点・在庫は変わらない。
+2. **bbq-sauce を先、cilantro を後に入手した順序**（entitlement floor が付与する順 = 現行セーブで最も典型的）: bbq の解禁素材は cilantro のまま。cilantro cohort が {reina, bbq-chicken, baingan} の 3 件になり、**bbq-chicken-pizza に文字が付く（「？？？ピザ（パクチー）」→「？？？ピザ B（パクチー）」、reina A / bbq B / baingan C）**。この**1 つの順序では**他の既存レシピの文字は動かない（実測、21 件一致）。**ただし他の取得順では他の既存レシピも動く（§11、Codex P2 で判明、未承認）。**影響は「bbq-chicken を未発見のまま、この順序で両素材を持つセーブ」の Research 表示のみ。ラベルは保存されず（`persistence.batch18.test.ts` で確認）、保存データ・採点・在庫は変わらない。
 3. 既存の検証器（`validateBatchManifest` と各 cohort テスト）は ladder 順しか測らないため、2 は既存の枠組みでは検出されなかった（新テストで測定・固定）。
 
-**Owner は 2026-11-05 に案 A を明示承認しました。** canonical ladder 順では BBQ の文字シフトが発生しないため、検証器が本来の canonical-only 用に定義する `B18_BATCH.acceptedLetterShifts` に追加すると `ACCEPTED_LETTER_SHIFT_NOT_OBSERVED` で失敗します。検証器の条件は緩和せず、取得順ごとの承認を `B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS = { "bbq-chicken-pizza": "-->B" }` として宣言し、`expansionBatch18.test.ts` に「bbq-sauce → cilantro順でB、他の既存文字は動かない」を固定しています。保存への書き込みはありません。
+**Owner は 2026-11-05 に案 A を明示承認しました。** canonical ladder 順では BBQ の文字シフトが発生しないため、検証器が本来の canonical-only 用に定義する `B18_BATCH.acceptedLetterShifts` に追加すると `ACCEPTED_LETTER_SHIFT_NOT_OBSERVED` で失敗します。検証器の条件は緩和せず、取得順ごとの承認を `B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS = { "bbq-chicken-pizza": "-->B" }` として宣言し、`expansionBatch18.test.ts` に「bbq-sauce → cilantro順でB、その順序では他の既存文字は動かない」を固定しています。保存への書き込みはありません。
 
 ### 安全な代替案
 | 案 | 内容 | 評価 |
@@ -82,7 +82,7 @@ Research の匿名ラベルは「所持順で最後に入手した有限素材�
 ## 8. Owner 判断（3 件とも 2026-11-05 承認、Issue #748 コメント 6650593172）
 | # | 判断事項 | 推奨 | 理由 |
 |---|---|---|---|
-| 1 | **bbq-chicken-pizza の Research ラベル**: bbq-sauce → cilantro の順で持つ未発見セーブで「？？？ピザ（パクチー）」→「？？？ピザ B（パクチー）」、ladder 順では「？？？ピザ（バーベキューソース）」（§4、画面は §6） | **案 A: 明示承認し `B18_BATCH.acceptedLetterShifts = { "bbq-chicken-pizza": "-->B" }` を宣言** | 他の既存レシピの文字は動かない。保存・採点・在庫は不変で、表示のみ。先例（B12 / B12b / B15）と同じ扱い。B〜D はいずれも Owner 決定（昇格・原典の材料）を覆すか、範囲が広い |
+| 1 | **bbq-chicken-pizza の Research ラベル**: bbq-sauce → cilantro の順で持つ未発見セーブで「？？？ピザ（パクチー）」→「？？？ピザ B（パクチー）」、ladder 順では「？？？ピザ（バーベキューソース）」（§4、画面は §6） | **案 A: 明示承認し `B18_BATCH.acceptedLetterShifts = { "bbq-chicken-pizza": "-->B" }` を宣言** | （訂正 2026-11-05: 「他の既存レシピの文字は動かない」は bbq-sauce → cilantro の 1 順序だけの実測だった。他の順序の影響は §11 で未承認） 保存・採点・在庫は不変で、表示のみ。先例（B12 / B12b / B15）と同じ扱い。B〜D はいずれも Owner 決定（昇格・原典の材料）を覆すか、範囲が広い |
 | 2 | **cilantro の解禁タイミング**: floor 66 を残したため、cilantro は従来どおり credited 66 で付与され、baingan / reina も 66 から発見できる（step 69 は ladder 上の key 位置） | **floor 66 を維持（現状のまま）** | 既存セーブの解禁は一切変わらない。floor を外すと (a) 再ロック防止の固定テストを崩し、(b) 新規プレイヤーは bbq-sauce（66）→ cilantro（69）の順で必ず入手するため、判断 1 の文字付与が全員に起きる |
 | 3 | **baingan-bharta-pizza の類似度**: rendang-pizza / curry-pizza-japan と Jaccard 0.43（基準 0.4 超え）。原因は curry-ketchup の代用（共通 3 = curry-ketchup・mozzarella・onion） | **このレシピ限りの例外として承認**（B16 ume-shiso の 0.60 例外と同じ扱い。全体の 0.4 基準は変えない） | 同一・部分集合・上位集合は無く、発見判定は一意（テストで固定）。代用ソースを変えると Owner 決定に反する |
 
@@ -102,3 +102,78 @@ Research の匿名ラベルは「所持順で最後に入手した有限素材�
 
 承認証跡: https://github.com/perusonao/teto-pizza-game/issues/748#issuecomment-6650593172 。
 本記録は原典の独立確認を意味しません。WebKit/HV/Production/merge は別のOwner Gateです。
+
+## 11. Codex P2（PR #759）: 取得順による既存ラベルの変化の全数監査 — **Owner 判断待ち（OD-B18-4、未承認）**
+
+### 11.1 指摘と訂正
+Codex（HEAD `c23017a`）の指摘のとおり、OD-B18-1 の前提「BBQ 以外の既存レシピの文字は動かない」は **bbq-sauce → cilantro の 1 順序だけで測った結果**で、他の取得順では成り立たない。前提を報告したのは本セッションで、測定が不十分だった。
+
+### 11.2 方法（`src/logic/catalog/testSupport/researchLabelAudit.ts`、本番の `researchCohortLetters` をそのまま使用）
+Batch 18 の前（2 品を除いたカタログ）と後（late を含む全カタログ）を、同じ所持順で比較した。所持順は次のとおり。(1) 既存レシピと新レシピの共有素材ごとに、両者の素材だけを持ち共有素材を最後に入手した順。(2) (1) に他の ladder 素材を 1 つずつ足した順。(3) 全 ladder 素材を持ち共有素材を最後に入手した順。(4) 正準の ladder 順の全 prefix。(5) 固定 seed の乱数順 40 通りの全 prefix。予備測定（乱数順 600 通り）でも、影響を受けるレシピの集合は同じだった。
+
+### 11.3 結果
+| 観点 | 結果 |
+|---|---|
+| 正準の ladder 順 | 既存レシピの文字の変化 **0 件**（全 prefix、late を含む） |
+| 非正準の順序 | 既存レシピ **39 件**で文字が変わりうる。うち **24 件**は文字なし → 文字ありに変わりうる |
+| 承認済み | `bbq-chicken-pizza` の `-->B`（bbq-sauce → cilantro の順）のみ（OD-B18-1） |
+| 保存・採点・在庫 | 変化なし。ラベルは保存されず、所持順から毎回導出される |
+| 前例（同じ監査を merge 済みのバッチに適用） | B17 goulash-pizza: 18 件（文字なし→ありは 14）、B16 ume-shiso-pizza: 4 件（4）、B15 nigerian-suya-pizza: 19 件（15）。いずれも正準順の変化は 0 件。Research 2.0 の契約「カタログ改訂で既存 cohort に加わると、その cohort の文字は変わりうる」（`researchEntry.ts`）による性質で、B18 固有ではない |
+
+測定値は `B18_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER`（`recipeBatchManifest.ts`）と `expansionBatch18.test.ts` に固定した（範囲が黙って広がらないようにするための固定で、**承認ではない**）。Codex の 2 例も再現テストで固定した。すべての ladder 素材を持つ状態で、mayo を最後に入手すると `potato-mayo-pizza` が文字なし→B、avocado を最後に入手すると `california-style-pizza` が文字なし→B になる。
+
+### 11.4 影響を受ける既存レシピ（39 件）
+| 既存レシピ | 変化しうる条件（最後に入手した共有素材） | 変化の例（変更前→変更後、`-` = 文字なし） | 文字なし→文字あり |
+|---|---|---|---|
+| `aussie` | たまねぎ | -->A | あり |
+| `baba-ganoush-pizza` | ナス | K->L, B->C, C->D ほか | — |
+| `bacalhau` | たまねぎ | O->P, B->C, C->D ほか | あり |
+| `bbq-chicken-pizza` | チキン / パクチー | A->B, -->A, -->B | あり |
+| `brazilian-calabresa` | たまねぎ | G->H, -->B, A->B ほか | あり |
+| `california-style-pizza` | トマト | C->D, -->B, A->B ほか | あり |
+| `chilean-napolitana` | トマト | B->C, E->F, C->D ほか | あり |
+| `curry-pizza-japan` | チキン / カレーケチャップ / たまねぎ | B->C, Q->R, C->D ほか | あり |
+| `currywurst` | カレーケチャップ | B->C, -->B, A->B | あり |
+| `eggplant-dengaku-pizza` | ナス | D->E, B->C, C->D | — |
+| `eggplant-ricotta-pizza` | ナス | I->J, B->C, C->D ほか | — |
+| `eggplant-tahini-pizza` | ナス | H->I, B->C, C->D ほか | — |
+| `flammkuchen` | たまねぎ | I->J, B->C, -->B ほか | あり |
+| `frango-catupiry` | チキン | E->F, -->B, C->D ほか | あり |
+| `fugazza` | たまねぎ | -->B, A->B, B->C ほか | あり |
+| `goulash-pizza` | たまねぎ | L->M, B->C, C->D | — |
+| `jamaican-jerk-chicken-pizza` | チキン | B->C, -->B, A->B | あり |
+| `melanzane-pizza` | ナス | -->A | あり |
+| `moussaka-style-pizza` | ナス / フロマージュブランソース | G->H, B->C, C->D ほか | あり |
+| `parmigiana-pizza` | ナス | B->C, J->K, C->D ほか | — |
+| `pesto-caprese` | トマト | -->A | あり |
+| `pesto-gamberi` | トマト | B->C | — |
+| `pesto-pollo` | チキン / トマト | B->C, F->G, C->D ほか | あり |
+| `pesto-tonno` | たまねぎ | F->G, A->B, B->C ほか | — |
+| `pesto-trapanese` | トマト | D->E, C->D, B->C | — |
+| `pesto-vegetariana` | ナス | E->F, B->C, C->D ほか | — |
+| `pizza-feta-eliniki` | トマト | H->I, B->C, C->D ほか | — |
+| `pizza-moscow` | たまねぎ | T->U, B->C, C->D ほか | — |
+| `pizza-portuguesa` | たまねぎ | H->I, -->B, B->C ほか | あり |
+| `polish-kielbasa` | たまねぎ | -->A | あり |
+| `potato-mayo-pizza` | マヨネーズ | -->B | あり |
+| `rendang-pizza` | カレーケチャップ / たまねぎ | A->B, E->F, B->C ほか | あり |
+| `sichuan-eggplant-pizza` | ナス | F->G, B->C, C->D ほか | — |
+| `spanish-chorizo-pizza` | たまねぎ | R->S, B->C, -->B ほか | あり |
+| `supreme-pizza` | たまねぎ | K->L, A->B, B->C | — |
+| `tandoori-paneer-pizza` | カレーケチャップ / たまねぎ | M->N, A->B, C->D ほか | あり |
+| `tonno-e-cipolla` | たまねぎ | B->C, N->O, -->B ほか | あり |
+| `veggie-supreme-pizza` | トマト / たまねぎ | P->Q, G->H, -->B ほか | あり |
+| `wasabi-beef-pizza` | たまねぎ | S->T, B->C, C->D ほか | — |
+
+（変化の例は観測された遷移の先頭 3 件。条件の素材は、指定した順序で最後に入手したときに変化が出たもの）
+
+### 11.5 Owner 判断 OD-B18-4（未承認、推奨つき）
+| 案 | 内容 | 影響 |
+|---|---|---|
+| **A（推奨）** | B18 の非正準順の文字変化（上表 39 件）を、Research 2.0 の契約どおりの挙動として承認する。正準順の検証（変化 0）は従来どおり必須とする | 表示だけの変化で、保存・採点・在庫は変わらない。B15〜B17 で既に起きていた変化と同じ種類。実装は追加不要で、測定範囲はテストで固定済み |
+| B | Research の文字の振り方を変える（既存メンバーの文字を保ち、新メンバーを後ろに付ける。既存の単独 cohort は文字なしのまま）。別 Issue で設計・承認し、B18 はそれを待つ | 39 件の変化をなくせる。ただし Research 2.0 の規則（OD-R2-1〜4）の変更で、既存の全セーブの表示規則に関わるため、単独の設計 Gate が要る |
+| C | B18 を保留する | 変化は起きない。2 品は追加されない |
+
+推奨は A。理由: 正準順での変化はなく、保存データの意味も変わらない。同じ性質の変化は過去のバッチでも未監査のまま起きていた。B は、今後のバッチ全体の方針として別途検討する価値がある。
+
+**PR #759 は、OD-B18-4 の回答まで merge 不可（Draft のまま）。**
