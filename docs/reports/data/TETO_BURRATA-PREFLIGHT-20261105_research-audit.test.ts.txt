@@ -1,0 +1,42 @@
+import { it, vi } from "vitest";
+import { writeFileSync } from "node:fs";
+vi.mock("../data/ingredients", async (orig) => {
+  const m: any = await orig();
+  const burrata = { id: "burrata", category: "cheese", nameJa: "ブラータ", color: "#f7f3e8", emoji: "🧀", placement: "scatter", unlockCondition: { minTotalStars: 0 }, pricePitz: 120, restockQuantity: 3 };
+  const INGREDIENTS = [...m.INGREDIENTS, burrata];
+  return { ...m, INGREDIENTS, getIngredient: (id: string) => INGREDIENTS.find((i: any) => i.id === id) };
+});
+vi.mock("../data/discoveryLadder", async (orig) => {
+  const m: any = await orig();
+  const steps = [...m.DISCOVERY_LADDER.steps, { kind: "MATERIAL", ingredientIds: ["burrata"], keyRecipeId: "pesto-burrata" }];
+  return { ...m, DISCOVERY_LADDER: { ...m.DISCOVERY_LADDER, steps } };
+});
+import { RECIPES } from "../data/recipes";
+import { DISCOVERY_LADDER } from "../data/discoveryLadder";
+import { LATE_LADDER_STEPS, LATE_ENTITLEMENT_FLOORS } from "../data/lateCatalog";
+import { researchLetterChangesAcrossOrders } from "../logic/catalog/testSupport/researchLabelAudit";
+import { researchCohortLetters } from "../logic/discovery/researchEntry";
+import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
+const R = (id: string, ids: string[]) => ({ id, requiredIngredients: ids.map((ingredientId) => ({ ingredientId, minCount: 1 })) });
+const variants: Record<string, any[]> = {
+  "V1 pesto-burrata(pesto+oil) + crudaiola(oil only)": [R("pesto-burrata", ["pesto", "olive-oil", "burrata", "fresh-tomato"]), R("pizza-alla-crudaiola", ["olive-oil", "mozzarella", "burrata", "fresh-tomato", "arugula"])],
+  "V2 pesto-burrata(pesto+oil) + crudaiola(tomato+oil)": [R("pesto-burrata", ["pesto", "olive-oil", "burrata", "fresh-tomato"]), R("pizza-alla-crudaiola", ["tomato-sauce", "olive-oil", "mozzarella", "burrata", "fresh-tomato", "arugula"])],
+  "V3 pesto-burrata(pesto only) + crudaiola(oil only)": [R("pesto-burrata", ["pesto", "burrata", "fresh-tomato"]), R("pizza-alla-crudaiola", ["olive-oil", "mozzarella", "burrata", "fresh-tomato", "arugula"])],
+};
+it("audit", () => {
+  const out: any = { ladderSteps: DISCOVERY_LADDER.steps.length, lateSteps: LATE_LADDER_STEPS.length, floors: LATE_ENTITLEMENT_FLOORS, recipes: RECIPES.length };
+  const set = (r: any) => new Set(r.requiredIngredients.map((q: any) => q.ingredientId));
+  for (const [name, news] of Object.entries(variants)) {
+    const all = [...RECIPES, ...news];
+    const changes = researchLetterChangesAcrossOrders(news.map((n) => n.id), all as never, 40);
+    const jac = news.map((n) => {
+      const a = set(n);
+      const scored = RECIPES.map((r) => { const b = set(r); const i = [...a].filter((x) => b.has(x)).length; return { id: r.id, j: +(i / new Set([...a, ...b]).size).toFixed(3), sub: [...a].every((x) => b.has(x)) || [...b].every((x) => a.has(x)) }; }).sort((x, y) => y.j - x.j);
+      return { id: n.id, top: scored.slice(0, 4), subsets: scored.filter((s) => s.sub).map((s) => s.id) };
+    });
+    const canonOwned = [...STARTER_INGREDIENT_IDS, ...DISCOVERY_LADDER.steps.flatMap((s: any) => s.ingredientIds)];
+    const letters = researchCohortLetters(canonOwned, all as never);
+    out[name] = { jaccard: jac, letterChanges: Object.fromEntries([...changes].map(([k, v]) => [k, v.map((c) => `${c.change}${c.canonical ? " (canonical)" : ""}`)])), changedCount: changes.size, canonicalChanged: [...changes].filter(([, v]) => v.some((c) => c.canonical)).map(([k]) => k), newLetters: news.map((n) => `${n.id}:${letters.get(n.id) ?? "-"}`) };
+  }
+  writeFileSync(process.env.OUT!, JSON.stringify(out, null, 1));
+});

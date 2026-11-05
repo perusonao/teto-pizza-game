@@ -1,0 +1,741 @@
+{
+ "ladderSteps": 77,
+ "lateSteps": 7,
+ "floors": {
+  "salmon-roe": 57,
+  "yuzu-kosho": 58,
+  "miso-sauce": 59,
+  "white-sesame": 59,
+  "tahini": 60,
+  "pomegranate": 60,
+  "bbq-sauce": 66,
+  "cilantro": 66,
+  "soy-sauce": 67,
+  "wasabi": 67,
+  "cod-roe": 68,
+  "fresh-cream-sauce": 68,
+  "nori": 68
+ },
+ "recipes": 90,
+ "V1 pesto-burrata(pesto+oil) + crudaiola(oil only)": {
+  "jaccard": [
+   {
+    "id": "pesto-burrata",
+    "top": [
+     {
+      "id": "pesto-caprese",
+      "j": 0.333,
+      "sub": false
+     },
+     {
+      "id": "pesto-pollo",
+      "j": 0.333,
+      "sub": false
+     },
+     {
+      "id": "pesto-gamberi",
+      "j": 0.333,
+      "sub": false
+     },
+     {
+      "id": "pesto-trapanese",
+      "j": 0.333,
+      "sub": false
+     }
+    ],
+    "subsets": []
+   },
+   {
+    "id": "pizza-alla-crudaiola",
+    "top": [
+     {
+      "id": "chilean-napolitana",
+      "j": 0.333,
+      "sub": false
+     },
+     {
+      "id": "pesto-caprese",
+      "j": 0.286,
+      "sub": false
+     },
+     {
+      "id": "pesto-pollo",
+      "j": 0.286,
+      "sub": false
+     },
+     {
+      "id": "jamon-serrano-pizza",
+      "j": 0.286,
+      "sub": false
+     }
+    ],
+    "subsets": []
+   }
+  ],
+  "letterChanges": {
+   "quattro-formaggi": [
+    "-->A"
+   ],
+   "grandma-pizza": [
+    "B->C",
+    "F->H",
+    "C->D",
+    "B->D",
+    "A->B",
+    "A->C",
+    "-->B",
+    "-->C",
+    "E->G",
+    "C->E"
+   ],
+   "pizza-bianca": [
+    "B->C",
+    "C->E",
+    "A->B",
+    "-->B",
+    "-->C",
+    "A->C",
+    "B->D"
+   ],
+   "fugazza": [
+    "D->F",
+    "-->B",
+    "A->B",
+    "B->C",
+    "-->C",
+    "C->E"
+   ],
+   "vongole": [
+    "K->M",
+    "C->D",
+    "B->C",
+    "B->D",
+    "J->L",
+    "F->H"
+   ],
+   "baba-ganoush-pizza": [
+    "J->L",
+    "-->B",
+    "B->C",
+    "-->C",
+    "I->K",
+    "E->G",
+    "F->H"
+   ],
+   "pizza-feta-eliniki": [
+    "H->J",
+    "I->K",
+    "-->B",
+    "B->C",
+    "-->C",
+    "C->D",
+    "D->E",
+    "C->E",
+    "G->I",
+    "D->F",
+    "E->G"
+   ],
+   "pizza-bianca-ricotta": [
+    "I->K",
+    "B->C",
+    "C->D",
+    "B->D",
+    "H->J",
+    "E->G",
+    "D->E"
+   ],
+   "eggplant-ricotta-pizza": [
+    "G->I",
+    "-->B",
+    "B->C",
+    "-->C",
+    "F->H",
+    "D->F",
+    "C->D"
+   ],
+   "boscaiola": [
+    "E->G",
+    "-->B",
+    "A->B",
+    "B->C",
+    "-->C",
+    "B->D",
+    "D->F",
+    "C->E"
+   ],
+   "genovese": [
+    "B->C",
+    "C->D",
+    "G->H",
+    "F->G",
+    "E->F",
+    "D->E"
+   ],
+   "pesto-pollo": [
+    "B->C",
+    "F->G",
+    "C->D",
+    "G->I",
+    "B->D",
+    "C->E",
+    "E->F",
+    "D->F",
+    "E->G",
+    "F->H"
+   ],
+   "pesto-patate": [
+    "I->J",
+    "B->C",
+    "C->D",
+    "H->I",
+    "G->H",
+    "E->F",
+    "F->G"
+   ],
+   "pesto-trapanese": [
+    "E->F",
+    "E->G",
+    "C->D",
+    "C->E",
+    "B->C",
+    "B->D",
+    "D->E"
+   ],
+   "pesto-salmone": [
+    "H->I",
+    "B->C",
+    "C->D",
+    "G->H",
+    "F->G",
+    "D->E",
+    "E->F"
+   ],
+   "pesto-caprese": [
+    "-->A"
+   ],
+   "chilean-napolitana": [
+    "B->C",
+    "F->H",
+    "B->D",
+    "C->D",
+    "C->E",
+    "A->B",
+    "-->B",
+    "D->F"
+   ],
+   "veggie-supreme-pizza": [
+    "H->J",
+    "B->C",
+    "C->D",
+    "B->D",
+    "-->B",
+    "F->H"
+   ],
+   "california-style-pizza": [
+    "D->F",
+    "C->D",
+    "B->D",
+    "-->B",
+    "A->B",
+    "B->C"
+   ],
+   "jamon-serrano-pizza": [
+    "B->C",
+    "C->D",
+    "D->E"
+   ],
+   "pinsa-romana": [
+    "A->B",
+    "B->C"
+   ],
+   "rucola-e-grana": [
+    "A->B"
+   ],
+   "baingan-bharta-pizza": [
+    "-->A"
+   ]
+  },
+  "changedCount": 23,
+  "canonicalChanged": [],
+  "newLetters": [
+   "pesto-burrata:A",
+   "pizza-alla-crudaiola:B"
+  ]
+ },
+ "V2 pesto-burrata(pesto+oil) + crudaiola(tomato+oil)": {
+  "jaccard": [
+   {
+    "id": "pesto-burrata",
+    "top": [
+     {
+      "id": "pesto-caprese",
+      "j": 0.333,
+      "sub": false
+     },
+     {
+      "id": "pesto-pollo",
+      "j": 0.333,
+      "sub": false
+     },
+     {
+      "id": "pesto-gamberi",
+      "j": 0.333,
+      "sub": false
+     },
+     {
+      "id": "pesto-trapanese",
+      "j": 0.333,
+      "sub": false
+     }
+    ],
+    "subsets": []
+   },
+   {
+    "id": "pizza-alla-crudaiola",
+    "top": [
+     {
+      "id": "jamon-serrano-pizza",
+      "j": 0.429,
+      "sub": false
+     },
+     {
+      "id": "grandma-pizza",
+      "j": 0.429,
+      "sub": false
+     },
+     {
+      "id": "pinsa-romana",
+      "j": 0.429,
+      "sub": false
+     },
+     {
+      "id": "veggie-supreme-pizza",
+      "j": 0.3,
+      "sub": false
+     }
+    ],
+    "subsets": []
+   }
+  ],
+  "letterChanges": {
+   "quattro-formaggi": [
+    "-->A"
+   ],
+   "grandma-pizza": [
+    "B->C",
+    "F->H",
+    "C->D",
+    "B->D",
+    "A->B",
+    "A->C",
+    "-->B",
+    "-->C",
+    "E->G",
+    "C->E"
+   ],
+   "pizza-bianca": [
+    "B->C",
+    "C->E",
+    "A->B",
+    "-->B",
+    "-->C",
+    "A->C",
+    "B->D"
+   ],
+   "fugazza": [
+    "D->F",
+    "-->B",
+    "A->B",
+    "B->C",
+    "-->C",
+    "C->E"
+   ],
+   "vongole": [
+    "K->M",
+    "C->D",
+    "B->C",
+    "B->D",
+    "J->L",
+    "F->H"
+   ],
+   "baba-ganoush-pizza": [
+    "J->L",
+    "-->B",
+    "B->C",
+    "-->C",
+    "I->K",
+    "E->G",
+    "F->H"
+   ],
+   "pizza-feta-eliniki": [
+    "H->J",
+    "I->K",
+    "-->B",
+    "B->C",
+    "-->C",
+    "C->D",
+    "D->E",
+    "C->E",
+    "G->I",
+    "D->F",
+    "E->G"
+   ],
+   "pizza-bianca-ricotta": [
+    "I->K",
+    "B->C",
+    "C->D",
+    "B->D",
+    "H->J",
+    "E->G",
+    "D->E"
+   ],
+   "eggplant-ricotta-pizza": [
+    "G->I",
+    "-->B",
+    "B->C",
+    "-->C",
+    "F->H",
+    "D->F",
+    "C->D"
+   ],
+   "boscaiola": [
+    "E->G",
+    "-->B",
+    "A->B",
+    "B->C",
+    "-->C",
+    "B->D",
+    "D->F",
+    "C->E"
+   ],
+   "genovese": [
+    "B->C",
+    "C->D",
+    "G->H",
+    "F->G",
+    "E->F",
+    "D->E"
+   ],
+   "pesto-pollo": [
+    "B->C",
+    "F->G",
+    "C->D",
+    "G->I",
+    "B->D",
+    "C->E",
+    "E->F",
+    "D->F",
+    "E->G",
+    "F->H"
+   ],
+   "pesto-patate": [
+    "I->J",
+    "B->C",
+    "C->D",
+    "H->I",
+    "G->H",
+    "E->F",
+    "F->G"
+   ],
+   "pesto-trapanese": [
+    "E->F",
+    "E->G",
+    "C->D",
+    "C->E",
+    "B->C",
+    "B->D",
+    "D->E"
+   ],
+   "pesto-salmone": [
+    "H->I",
+    "B->C",
+    "C->D",
+    "G->H",
+    "F->G",
+    "D->E",
+    "E->F"
+   ],
+   "pesto-caprese": [
+    "-->A"
+   ],
+   "chilean-napolitana": [
+    "B->C",
+    "F->H",
+    "B->D",
+    "C->D",
+    "C->E",
+    "A->B",
+    "-->B",
+    "D->F"
+   ],
+   "veggie-supreme-pizza": [
+    "H->J",
+    "B->C",
+    "C->D",
+    "B->D",
+    "-->B",
+    "F->H"
+   ],
+   "california-style-pizza": [
+    "D->F",
+    "C->D",
+    "B->D",
+    "-->B",
+    "A->B",
+    "B->C"
+   ],
+   "jamon-serrano-pizza": [
+    "B->C",
+    "C->D",
+    "D->E"
+   ],
+   "pinsa-romana": [
+    "A->B",
+    "B->C"
+   ],
+   "rucola-e-grana": [
+    "A->B"
+   ],
+   "baingan-bharta-pizza": [
+    "-->A"
+   ]
+  },
+  "changedCount": 23,
+  "canonicalChanged": [],
+  "newLetters": [
+   "pesto-burrata:A",
+   "pizza-alla-crudaiola:B"
+  ]
+ },
+ "V3 pesto-burrata(pesto only) + crudaiola(oil only)": {
+  "jaccard": [
+   {
+    "id": "pesto-burrata",
+    "top": [
+     {
+      "id": "pesto-caprese",
+      "j": 0.4,
+      "sub": false
+     },
+     {
+      "id": "pesto-pollo",
+      "j": 0.4,
+      "sub": false
+     },
+     {
+      "id": "pesto-gamberi",
+      "j": 0.4,
+      "sub": false
+     },
+     {
+      "id": "pesto-trapanese",
+      "j": 0.4,
+      "sub": false
+     }
+    ],
+    "subsets": []
+   },
+   {
+    "id": "pizza-alla-crudaiola",
+    "top": [
+     {
+      "id": "chilean-napolitana",
+      "j": 0.333,
+      "sub": false
+     },
+     {
+      "id": "pesto-caprese",
+      "j": 0.286,
+      "sub": false
+     },
+     {
+      "id": "pesto-pollo",
+      "j": 0.286,
+      "sub": false
+     },
+     {
+      "id": "jamon-serrano-pizza",
+      "j": 0.286,
+      "sub": false
+     }
+    ],
+    "subsets": []
+   }
+  ],
+  "letterChanges": {
+   "quattro-formaggi": [
+    "-->A"
+   ],
+   "grandma-pizza": [
+    "B->C",
+    "F->G",
+    "C->D",
+    "A->B",
+    "-->B",
+    "E->F"
+   ],
+   "pesto-caprese": [
+    "-->A"
+   ],
+   "pizza-bianca": [
+    "B->C",
+    "C->D",
+    "A->B",
+    "-->B"
+   ],
+   "fugazza": [
+    "D->E",
+    "-->B",
+    "A->B",
+    "B->C",
+    "C->D"
+   ],
+   "vongole": [
+    "K->L",
+    "C->D",
+    "B->C",
+    "J->K",
+    "F->G"
+   ],
+   "baba-ganoush-pizza": [
+    "J->K",
+    "-->B",
+    "B->C",
+    "I->J",
+    "E->F",
+    "F->G"
+   ],
+   "pizza-feta-eliniki": [
+    "H->I",
+    "I->K",
+    "C->D",
+    "D->E",
+    "C->E",
+    "-->B",
+    "B->C",
+    "G->H",
+    "G->I",
+    "E->F"
+   ],
+   "pizza-bianca-ricotta": [
+    "I->J",
+    "B->C",
+    "C->D",
+    "H->I",
+    "E->F"
+   ],
+   "eggplant-ricotta-pizza": [
+    "G->H",
+    "-->B",
+    "B->C",
+    "F->G",
+    "D->E"
+   ],
+   "boscaiola": [
+    "E->F",
+    "-->B",
+    "A->B",
+    "B->C",
+    "D->E",
+    "C->D"
+   ],
+   "genovese": [
+    "B->C",
+    "C->D",
+    "G->H",
+    "F->G",
+    "E->F",
+    "D->E"
+   ],
+   "pesto-pollo": [
+    "B->C",
+    "F->G",
+    "C->D",
+    "G->I",
+    "B->D",
+    "C->E",
+    "E->F",
+    "D->F",
+    "E->G",
+    "F->H"
+   ],
+   "pesto-patate": [
+    "I->J",
+    "B->C",
+    "C->D",
+    "H->I",
+    "G->H",
+    "E->F",
+    "F->G",
+    "D->E"
+   ],
+   "pesto-trapanese": [
+    "E->F",
+    "E->G",
+    "C->D",
+    "C->E",
+    "B->C",
+    "B->D",
+    "D->E"
+   ],
+   "pesto-salmone": [
+    "H->I",
+    "B->C",
+    "C->D",
+    "G->H",
+    "F->G",
+    "D->E",
+    "E->F"
+   ],
+   "chilean-napolitana": [
+    "B->C",
+    "F->H",
+    "B->D",
+    "C->D",
+    "C->E",
+    "A->B",
+    "-->B",
+    "E->F",
+    "D->F"
+   ],
+   "veggie-supreme-pizza": [
+    "H->J",
+    "B->C",
+    "C->D",
+    "-->B",
+    "B->D",
+    "G->H",
+    "F->H"
+   ],
+   "california-style-pizza": [
+    "D->F",
+    "C->D",
+    "B->C",
+    "B->D",
+    "-->B",
+    "A->B"
+   ],
+   "jamon-serrano-pizza": [
+    "B->C",
+    "C->D",
+    "D->E"
+   ],
+   "pinsa-romana": [
+    "A->B",
+    "B->C"
+   ],
+   "rucola-e-grana": [
+    "A->B"
+   ],
+   "baingan-bharta-pizza": [
+    "-->A"
+   ]
+  },
+  "changedCount": 23,
+  "canonicalChanged": [],
+  "newLetters": [
+   "pesto-burrata:A",
+   "pizza-alla-crudaiola:B"
+  ]
+ }
+}

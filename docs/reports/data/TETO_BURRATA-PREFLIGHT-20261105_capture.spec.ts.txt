@@ -1,0 +1,63 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import { test, expect, type Page } from "@playwright/test";
+import { RECIPES } from "../src/data/recipes";
+import { INGREDIENTS } from "../src/data/ingredients";
+import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { chipOnTrayOrPin } from "./support/handPick";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
+/** INVESTIGATION ONLY (docs evidence for the burrata pre-implementation check; never committed as a spec). ricotta stands in for burrata (no burrata id exists). */
+const SAVE_KEY = "teto-pizza-save-v1";
+const DIR = process.env.CAP_DIR ?? "/tmp/cap";
+const owned = INGREDIENTS.map((i) => i.id);
+const save = JSON.stringify({ schemaVersion: 2, dex: RECIPES.map((r) => ({ recipeId: r.id, discovered: true, bestScore: 80, bestStars: 3, timesMade: 1 })), pitzBalance: 9999, ownedIngredientIds: owned, missionBest: {}, inventory: Object.fromEntries(owned.map((m) => [m, 99])), starterGrantClaimedRecipeIds: [], unlockedForShopIngredientIds: owned });
+const bar = (p: Page) => p.locator(".prepare-bake-bar");
+const nameRe = (n: string) => new RegExp(`(^|[^\\p{Script=Katakana}\\p{Script=Han}\\p{Script=Hiragana}ー・])${n}\\s*(×|∞|常備|あと|$)`, "u");
+const shot = async (p: Page, n: string, pr: string) => { mkdirSync(DIR, { recursive: true }); if (process.env.CAP_VIDEO) await p.waitForTimeout(1800); await p.screenshot({ path: `${DIR}/${n}-${pr}.png` }); };
+if (process.env.CAP_VIDEO) test.use({ video: { mode: "on", size: { width: 390, height: 844 } } });
+const CASES = [
+  { id: "pesto-burrata-standin", sauces: ["ジェノベーゼソース", "オリーブオイル"], cheese: [["リコッタ", [[40, 42], [60, 58], [62, 36]]]] as const, pre: [["トマト", [[35, 62], [64, 70]]]] as const, post: [] as const },
+  { id: "crudaiola-standin", sauces: ["オリーブオイル"], cheese: [["モッツァレラ", [[38, 38], [62, 62]]], ["リコッタ", [[50, 50], [66, 34]]]] as const, pre: [] as const, post: [["トマト", [[32, 60], [70, 52]]], ["ルッコラ", [[46, 28], [40, 72]]]] as const },
+];
+test.describe("burrata preflight evidence", () => {
+  test.setTimeout(240_000);
+  for (const c of CASES) test(c.id, async ({ page }, ti) => {
+    const pr = ti.project.name;
+    await page.goto("icons/icon-16.png");
+    await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, [SAVE_KEY, save] as const);
+    await page.goto("/"); await page.waitForSelector(".app-frame");
+    await startTargetlessFreeCook(page); await page.waitForSelector(".pizza-stage");
+    await completeDoughStep(page); await bar(page).getByRole("button", { name: /次へ/ }).click();
+    for (const s of c.sauces) { await (await chipOnTrayOrPin(page, nameRe(s))).click(); await paintSauceRing(page, 25, 16); await paintSauceRing(page, 12, 8); }
+    await shot(page, `${c.id}-1sauce`, pr);
+    await bar(page).getByRole("button", { name: /次へ/ }).click();
+    for (const [n, spots] of c.cheese) { await (await chipOnTrayOrPin(page, nameRe(n))).click(); for (const [x, y] of spots) await tapDoughPercent(page, x, y); }
+    await bar(page).getByRole("button", { name: /次へ/ }).click();
+    for (const [n, spots] of c.pre) { await (await chipOnTrayOrPin(page, nameRe(n))).click(); for (const [x, y] of spots) await tapDoughPercent(page, x, y); }
+    await page.waitForTimeout(800);
+    await shot(page, `${c.id}-2topped`, pr);
+    await bakeToTarget(page, { start: 62, end: 72 }, { finish: false });
+    await page.getByTestId("finish-complete").waitFor({ timeout: 10_000 });
+    await page.waitForTimeout(800);
+    // Evidence: the FINISH tray of a Free Cooking round lists every owned TOPPING and no cheese.
+    const names: string[] = [];
+    const next = page.getByRole("button", { name: "次のページ" });
+    for (let i = 0; i < 20; i += 1) {
+      names.push(...(await page.locator(".ingredient-chip__name").allTextContents()));
+      if (!(await next.isVisible().catch(() => false)) || !(await next.isEnabled())) break;
+      await next.click(); await page.waitForTimeout(200);
+    }
+    const prev = page.getByRole("button", { name: "前のページ" });
+    for (let i = 0; i < 20 && (await prev.isVisible().catch(() => false)) && (await prev.isEnabled()); i += 1) { await prev.click(); await page.waitForTimeout(150); }
+    const cheeseNames = INGREDIENTS.filter((i) => i.category === "cheese").map((i) => i.nameJa);
+    const toppingNames = INGREDIENTS.filter((i) => i.category === "topping").map((i) => i.nameJa);
+    writeFileSync(`${DIR}/${c.id}-finish-tray-${pr}.json`, JSON.stringify({ chips: names.length, cheeseInFinishTray: names.filter((n) => cheeseNames.includes(n)), toppingsListed: names.filter((n) => toppingNames.includes(n)).length, toppingsTotal: toppingNames.length }, null, 1));
+    await shot(page, `${c.id}-3finish-tray`, pr);
+    for (const [n, spots] of c.post) { await (await chipOnTrayOrPin(page, nameRe(n))).click(); for (const [x, y] of spots) await tapDoughPercent(page, x, y); }
+    await page.waitForTimeout(800);
+    await shot(page, `${c.id}-4finish-placed`, pr);
+    await page.getByTestId("finish-complete").click();
+    await page.waitForSelector(".result-panel"); await page.waitForTimeout(2500);
+    await shot(page, `${c.id}-5result`, pr);
+    expect(names.filter((n) => cheeseNames.includes(n))).toEqual([]);
+  });
+});
