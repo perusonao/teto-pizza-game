@@ -96,7 +96,7 @@ test.describe("BBQ Chicken (representative: the late step; bbq-sauce + cilantro 
     await expect(page.locator(".shop-overlay__panel")).toHaveCount(0);
 
     // 2. Dex -> the single Research Entry: only the cohort key is named. Expansion Batch 18 (#748): in this (ladder) ownership order the cilantro was owned before the sauce, so the unlock material is the sauce
-    //    (single-member cohort, no letter). The bbq-sauce -> cilantro order is covered in b18.spec.ts (PENDING OWNER APPROVAL).
+    //    (single-member cohort, no letter). The bbq-sauce -> cilantro order is covered in b18.spec.ts (Owner-approved OD-B18-1).
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
     await expect(page.locator(".dex-overlay__research")).toContainText("？？？ピザ（バーベキューソース）");

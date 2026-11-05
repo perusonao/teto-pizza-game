@@ -12,7 +12,7 @@ import { materialsUpTo, CATALOG_COUNTS } from "../src/logic/catalog/testSupport/
  * B18 representative E2E (Issue #748; PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): baingan-bharta-pizza (credited) and reina-pepiada-pizza (NOT credited) played end to end at 390x844 and 360x800.
  *  - `cilantro` is PROMOTED from the late catalog to the ordinary step 69 (same id / art); both recipes paint an EXISTING sauce as a recipe-specific Owner stand-in (curry-ketchup / fromage-blanc-sauce), not NO_SAUCE.
  *  - every piece (the cilantro included) is placed BEFORE the bake: there is no FINISH step. Counts and the generic 58-78 bake window are provisional. Step numbers are DERIVED from the ladder, never hard-coded.
- *  - the last test records the Research label of the late bbq-chicken-pizza in the bbq-sauce -> cilantro ownership order: PENDING OWNER APPROVAL (see docs/reports/TETO_EXPANSION-BATCH-18_Result.md section 4).
+ *  - the last test records the Research label of the late bbq-chicken-pizza in the bbq-sauce -> cilantro ownership order: Owner-approved OD-B18-1 / OD-B18-4 (see docs/reports/TETO_EXPANSION-BATCH-18_Result.md section 4).
  *
  * Optional output: HV_SCREENSHOT_DIR (screenshots), HV_VIDEO=1 (Playwright video, 390x844 project only).
  */
@@ -206,7 +206,7 @@ test.describe("B18 (baingan-bharta-pizza / reina-pepiada-pizza, played end to en
     });
   }
 
-  test("PENDING OWNER APPROVAL: bbq-chicken-pizza undiscovered, owning bbq-sauce THEN cilantro -> its Research label gains the cilantro cohort letter; owning cilantro THEN bbq-sauce -> no letter, named by the sauce", async ({ page }, testInfo) => {
+  test("Owner-approved (OD-B18-1): bbq-chicken-pizza undiscovered, owning bbq-sauce THEN cilantro -> its Research label gains the cilantro cohort letter; owning cilantro THEN bbq-sauce -> no letter, named by the sauce", async ({ page }, testInfo) => {
     const project = testInfo.project.name;
     const step = DISCOVERY_LADDER.steps.findIndex((s) => s.ingredientIds.includes("cilantro")) + 1;
     const discovered = ALL_IDS.filter((id) => id !== "bbq-chicken-pizza");

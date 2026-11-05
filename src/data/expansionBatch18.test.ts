@@ -11,7 +11,7 @@ import { RECIPE_DISCOVERY_CATALOG } from "./discoveryCatalog";
 import { ingredientAttributeFamily } from "./ingredientTaxonomy";
 import { toppingSizeClass } from "./toppingSizeClass";
 import { ordinaryLadderSteps, ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
-import { B18_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER, B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS } from "../logic/catalog/testSupport/recipeBatchManifest";
+import { B18_APPROVED_AUDITED_ALTERNATE_ORDER_LETTER_CHANGES, B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS } from "../logic/catalog/testSupport/recipeBatchManifest";
 import { researchLetterChangesAcrossOrders } from "../logic/catalog/testSupport/researchLabelAudit";
 import { getReferenceSlots } from "../logic/pizzaReferenceLayout";
 import { evaluatePizzaCompletion } from "../logic/completionGate";
@@ -322,7 +322,7 @@ describe("Research: cilantro now unlocks a NEW lettered cohort of two; no pre-ex
   });
 });
 
-describe("Research labels BEFORE vs AFTER Batch 18 across acquisition orders (Codex P2, PR #759): measured scope, NOT an approval", () => {
+describe("Research labels BEFORE vs AFTER Batch 18 across acquisition orders (Codex P2, PR #759): the exact Owner-approved audited scope (OD-B18-4)", () => {
   const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as readonly Recipe[]);
   const changed = [...changes.keys()].sort();
 
@@ -330,8 +330,8 @@ describe("Research labels BEFORE vs AFTER Batch 18 across acquisition orders (Co
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
   });
 
-  it("in non-canonical orders exactly the pinned 39 pre-existing recipes can change their letter; only the BBQ -->B in the bbq-sauce -> cilantro order is Owner-approved, the rest is PENDING an Owner decision", () => {
-    expect(changed).toEqual([...B18_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER].sort());
+  it("in non-canonical orders exactly the pinned 39 pre-existing recipes can change their letter; Owner OD-B18-1 (the BBQ -->B in the bbq-sauce -> cilantro order) and OD-B18-4 (this exact audited set) approve them as derived display changes; the set may not grow", () => {
+    expect(changed).toEqual([...B18_APPROVED_AUDITED_ALTERNATE_ORDER_LETTER_CHANGES].sort());
     expect(changes.get(BBQ)!.map((c) => c.change)).toContain(B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS[BBQ]);
     expect(changed.filter((id) => changes.get(id)!.some((c) => c.change.startsWith("-->")))).toHaveLength(24); // 24 of them can GAIN a letter where they had none
   });

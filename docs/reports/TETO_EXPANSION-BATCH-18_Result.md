@@ -99,11 +99,12 @@ Research の匿名ラベルは「所持順で最後に入手した有限素材�
 - **OD-B18-1 承認:** Research の取得順が bbq-sauce → cilantro の場合のみ既存 BBQ のラベルに `B` を付ける差分を容認。通常 ladder のコホート検証規約を緩めず、取得順別の承認定数と回帰テストで固定する。
 - **OD-B18-2 承認:** `LATE_ENTITLEMENT_FLOORS.cilantro = 66` を維持。新2品の nominal key step 69 と、実際に credited 66 から発見可能という差を明示して維持。
 - **OD-B18-3 承認:** `baingan-bharta-pizza` の Jaccard 0.43をこの1レシピに限って許容。全体の0.4閾値・同一/部分集合/上位集合禁止・Researchの規則は維持。
+- **OD-B18-4 承認（Issue #748 コメント 6651668675）:** §11.4 の監査範囲 39 件に限り、取得順による Research 表示ラベルの文字変化を許容。正準順での変化 0 件、保存・採点・在庫・entitlement・本番の Research 規則は不変（§11.5）。
 
 承認証跡: https://github.com/perusonao/teto-pizza-game/issues/748#issuecomment-6650593172 。
 本記録は原典の独立確認を意味しません。WebKit/HV/Production/merge は別のOwner Gateです。
 
-## 11. Codex P2（PR #759）: 取得順による既存ラベルの変化の全数監査 — **Owner 判断待ち（OD-B18-4、未承認）**
+## 11. Codex P2（PR #759）: 取得順による既存ラベルの変化の全数監査 — **OD-B18-4 で承認済み（2026-11-05、この監査範囲に限る）**
 
 ### 11.1 指摘と訂正
 Codex（HEAD `c23017a`）の指摘のとおり、OD-B18-1 の前提「BBQ 以外の既存レシピの文字は動かない」は **bbq-sauce → cilantro の 1 順序だけで測った結果**で、他の取得順では成り立たない。前提を報告したのは本セッションで、測定が不十分だった。
@@ -120,7 +121,7 @@ Batch 18 の前（2 品を除いたカタログ）と後（late を含む全カ�
 | 保存・採点・在庫 | 変化なし。ラベルは保存されず、所持順から毎回導出される |
 | 前例（同じ監査を merge 済みのバッチに適用） | B17 goulash-pizza: 18 件（文字なし→ありは 14）、B16 ume-shiso-pizza: 4 件（4）、B15 nigerian-suya-pizza: 19 件（15）。いずれも正準順の変化は 0 件。Research 2.0 の契約「カタログ改訂で既存 cohort に加わると、その cohort の文字は変わりうる」（`researchEntry.ts`）による性質で、B18 固有ではない |
 
-測定値は `B18_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER`（`recipeBatchManifest.ts`）と `expansionBatch18.test.ts` に固定した（範囲が黙って広がらないようにするための固定で、**承認ではない**）。Codex の 2 例も再現テストで固定した。すべての ladder 素材を持つ状態で、mayo を最後に入手すると `potato-mayo-pizza` が文字なし→B、avocado を最後に入手すると `california-style-pizza` が文字なし→B になる。
+測定値は `B18_APPROVED_AUDITED_ALTERNATE_ORDER_LETTER_CHANGES`（`recipeBatchManifest.ts`、旧名 `..._PENDING_OWNER`）と `expansionBatch18.test.ts` に固定した。範囲が黙って広がらないようにするための固定で、§11.5 の OD-B18-4 で、この範囲に限り承認された。Codex の 2 例も再現テストで固定した。すべての ladder 素材を持つ状態で、mayo を最後に入手すると `potato-mayo-pizza` が文字なし→B、avocado を最後に入手すると `california-style-pizza` が文字なし→B になる。
 
 ### 11.4 影響を受ける既存レシピ（39 件）
 | 既存レシピ | 変化しうる条件（最後に入手した共有素材） | 変化の例（変更前→変更後、`-` = 文字なし） | 文字なし→文字あり |
@@ -167,7 +168,7 @@ Batch 18 の前（2 品を除いたカタログ）と後（late を含む全カ�
 
 （変化の例は観測された遷移の先頭 3 件。条件の素材は、指定した順序で最後に入手したときに変化が出たもの）
 
-### 11.5 Owner 判断 OD-B18-4（未承認、推奨つき）
+### 11.5 Owner 判断 OD-B18-4（**2026-11-05 案 A を承認**、Issue #748 コメント 6651668675）
 | 案 | 内容 | 影響 |
 |---|---|---|
 | **A（推奨）** | B18 の非正準順の文字変化（上表 39 件）を、Research 2.0 の契約どおりの挙動として承認する。正準順の検証（変化 0）は従来どおり必須とする | 表示だけの変化で、保存・採点・在庫は変わらない。B15〜B17 で既に起きていた変化と同じ種類。実装は追加不要で、測定範囲はテストで固定済み |
@@ -176,4 +177,8 @@ Batch 18 の前（2 品を除いたカタログ）と後（late を含む全カ�
 
 推奨は A。理由: 正準順での変化はなく、保存データの意味も変わらない。同じ性質の変化は過去のバッチでも未監査のまま起きていた。B は、今後のバッチ全体の方針として別途検討する価値がある。
 
-**PR #759 は、OD-B18-4 の回答まで merge 不可（Draft のまま）。**
+**承認内容（Owner 記録の要約）**: §11.4 の 39 件（取得順によって変わりうる既存レシピの和集合で、すべてのセーブで同時に 39 件変わるわけではない）の文字変化を、B18 の監査範囲に限って承認する。承認の対象は導出される Research の表示ラベルだけで、保存・発見済みレシピ・採点・在庫・entitlement（floor 66）・レシピの識別・原典の前提・本番の Research 2.0 規則は変えない。正準 ladder 順での既存ラベルの変化は 0 件を維持する（全 prefix、ordinary / late を含む全カタログ、Pinsa ON / OFF）。範囲は固定で、今後のバッチで新たな既存レシピが影響を受ける場合は、改めて監査と Owner Gate が要る。Research 2.0 の文字を安定させる設計（案 B）は、B18 の要件ではなく、別 Issue で検討する。
+
+反映: 定数を `B18_APPROVED_AUDITED_ALTERNATE_ORDER_LETTER_CHANGES` に改名した（39 件の内容は変更なし）。テストの名称・コメントと e2e の名称を、承認済みの表現に改めた。正準順の検証（変化 0）と、前後比較・正準順の記録の回帰テストはそのまま残している。
+
+**PR #759 は Draft のまま。iPhone Safari HV と Owner の最終 merge 承認まで merge しない。Production ON と共有 Preview の更新も行わない。**
