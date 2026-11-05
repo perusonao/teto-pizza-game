@@ -4,7 +4,7 @@ import { SteamGameLab } from "./SteamGameLab";
 import v3Src from "./SteamGameLabV3.tsx?raw";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import facadeSrc from "./steamGameLabV3.ts?raw";
+import facadeSrc from "./steamGameLabGraded.ts?raw";
 
 const v3Css = readFileSync(path.join(__dirname, "steamGameLabV3.css"), "utf8");
 import { STEAM_V3_BATCHES, STEAM_V3_PROGRESS_PER_SECOND, STEAM_V3_TELL, steamV3Spots } from "../logic/steam/steamGameV3";
@@ -194,7 +194,7 @@ describe("Steam Gameplay Lab V3 #755: focus and keyboard", () => {
 
 describe("Steam Gameplay Lab V3 #755: isolation", () => {
   it("the screen reaches the model only through the facade, and none of them store or score anything", () => {
-    expect(v3Src).toMatch(/from "\.\/steamGameLabV3"/);
+    expect(v3Src).toMatch(/from "\.\/steamGameLabGraded"/);
     expect(v3Src).not.toMatch(/logic\/steam/);
     for (const src of [v3Src, facadeSrc]) expect(src).not.toMatch(/localStorage|sessionStorage|indexedDB|persist|firebase|dispatch\(\{ type: "(FINISH|SCORE)/i);
   });

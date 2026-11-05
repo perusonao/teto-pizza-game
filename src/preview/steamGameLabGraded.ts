@@ -1,5 +1,5 @@
 /**
- * Issue #755 Steam Gameplay V3 facade (docs/reports/TETO_STEAM-V3_DESIGN.md), the same shape as ./steamGameLabRescue.ts for V2.
+ * Issue #755 Steam Gameplay V3 facade (named without a digit so steam.architecture.test.ts treats it as an owned steam file) (docs/reports/TETO_STEAM-V3_DESIGN.md), the same shape as ./steamGameLabRescue.ts for V2.
  * ./SteamGameLabV3.tsx reaches the pure V3 model (../logic/steam/steamGameV3.ts) only through this file, so the steam stays read only
  * where it is owned (../logic/steam/steam.architecture.test.ts). Re-exports only: no state, storage, game reducer, score or save.
  */

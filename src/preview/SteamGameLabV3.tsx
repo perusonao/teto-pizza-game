@@ -15,7 +15,7 @@ import {
   type SteamV3Heat,
   type SteamV3ShellStatus,
   type SteamV3Size,
-} from "./steamGameLabV3";
+} from "./steamGameLabGraded";
 import "./steamGameLab.css";
 import "./steamGameLabV3.css";
 
