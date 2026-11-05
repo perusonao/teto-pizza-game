@@ -1,4 +1,5 @@
-import { test, expect, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/failureEvidence"; // #394: DOM / waiting location on failure
 import { bakeToTarget, completeDoughStep, cutThreeLines, paintSauceRing, tapDoughPercent } from "./gestures";
 import { reloadApp } from "./support/diag";
 
@@ -17,6 +18,14 @@ import { reloadApp } from "./support/diag";
 
 const SAVE_KEY = "teto-pizza-save-v1";
 const MUSHROOM_STOCK = 9;
+/**
+ * Sauce taps per pizza. G-5 and G-6 bake TWO pizzas inside one test, so they share a single 30 s budget (the default; NOT extended).
+ * On the WebKit 390x844 shard 2/3 CI runner (3 workers) one pizza costs ~14-15 s, and the two-pizza tests measured 27.4 s (G-5, 91%) and
+ * 30.3 s (G-6, 101% -> timeout, run 41860969123). The failure point moves between runs (waitForSelector / HOME click / reload evaluate, #680)
+ * because it is wherever the budget runs out. No assertion here reads the sauce coverage, so 8 taps around the ring replace 16
+ * (every other point of the same ring): ~8 fewer WebKit round trips per pizza, same spec assertions, same save/inventory behaviour.
+ */
+const SAUCE_TAPS = 8;
 
 const missionSave = () => ({
   schemaVersion: 2,
@@ -65,7 +74,7 @@ async function bakeToServePanel(page: Page) {
   await page.getByRole("button", { name: /次へ/ }).click();
 
   await page.getByRole("button", { name: /トマトソース/ }).click();
-  await paintSauceRing(page, 25, 16);
+  await paintSauceRing(page, 25, SAUCE_TAPS);
   await page.getByRole("button", { name: /次へ/ }).click();
 
   await page.getByRole("button", { name: /モッツァレラ/ }).click();
