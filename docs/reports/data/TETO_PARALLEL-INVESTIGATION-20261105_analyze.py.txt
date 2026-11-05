@@ -1,0 +1,78 @@
+"""Visibility metrics per on-pizza piece from the capture screenshots + DOM boxes.
+
+For each piece box (CSS px, DSF 2 screenshot): background = median Lab of a 3px ring just outside the box;
+glyph pixels = pixels inside the box with dE76 > 12 from that background. Reports
+  visible_area  = glyph pixel area in CSS px^2,
+  dE            = mean dE of glyph pixels vs background (colour contrast),
+  dL            = |mean L glyph - L background| (greyscale contrast),
+  size          = box max side in CSS px, and share of the dough width.
+"""
+import json, sys, glob, os
+import numpy as np
+from PIL import Image
+
+DSF = 2
+CAP = sys.argv[1]
+OUT = sys.argv[2]
+
+
+def srgb_to_lab(a):
+    a = a / 255.0
+    a = np.where(a > 0.04045, ((a + 0.055) / 1.055) ** 2.4, a / 12.92)
+    m = np.array([[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]])
+    xyz = a @ m.T / np.array([0.95047, 1.0, 1.08883])
+    f = np.where(xyz > 0.008856, np.cbrt(xyz), 7.787 * xyz + 16 / 116)
+    L = 116 * f[..., 1] - 16
+    A = 500 * (f[..., 0] - f[..., 1])
+    B = 200 * (f[..., 1] - f[..., 2])
+    return np.stack([L, A, B], -1)
+
+
+def metrics(lab, box):
+    x, y, w, h = [v * DSF for v in box]
+    x0, y0, x1, y1 = int(x), int(y), int(x + w), int(y + h)
+    H, W, _ = lab.shape
+    if x1 <= 0 or y1 <= 0 or x0 >= W or y0 >= H:
+        return None
+    r = 3 * DSF
+    X0, Y0, X1, Y1 = max(0, x0 - r), max(0, y0 - r), min(W, x1 + r), min(H, y1 + r)
+    outer = lab[Y0:Y1, X0:X1].reshape(-1, 3)
+    mask = np.ones((Y1 - Y0, X1 - X0), bool)
+    mask[max(0, y0 - Y0):y1 - Y0, max(0, x0 - X0):x1 - X0] = False
+    ringpx = lab[Y0:Y1, X0:X1][mask]
+    bg = np.median(ringpx, 0)
+    inner = lab[max(0, y0):y1, max(0, x0):x1].reshape(-1, 3)
+    d = np.linalg.norm(inner - bg, axis=1)
+    g = d > 12
+    if g.sum() == 0:
+        return dict(visible_area=0.0, dE=0.0, dL=0.0, bgL=round(float(bg[0]), 1))
+    return dict(
+        visible_area=round(float(g.sum()) / DSF / DSF, 1),
+        dE=round(float(d[g].mean()), 1),
+        dL=round(float(abs(inner[g][:, 0].mean() - bg[0])), 1),
+        bgL=round(float(bg[0]), 1),
+    )
+
+
+rows = []
+for jf in sorted(glob.glob(f"{CAP}/g*-iphone-*.json")):
+    base = os.path.basename(jf)[:-5]
+    g, project = base.split("-", 1)
+    data = json.load(open(jf))
+    for stage, png in (("before", "1topped"), ("baked", "2baked-finish"), ("result", "3result")):
+        snap = data.get(stage)
+        pf = f"{CAP}/{g}-{png}-{project}.png"
+        if not snap or not os.path.exists(pf):
+            continue
+        lab = srgb_to_lab(np.asarray(Image.open(pf).convert("RGB")).astype(float))
+        dough_w = snap["dough"][2] or 1
+        for p in snap["pieces"]:
+            ing = p["cls"].replace("pizza-topping--", "").replace("pizza-cheese--", "")
+            if ing == "mozzarella":
+                continue
+            m = metrics(lab, p["box"])
+            if not m:
+                continue
+            rows.append(dict(project=project, group=g, stage=stage, ing=ing, size=round(max(p["box"][2], p["box"][3]), 1), share=round(max(p["box"][2], p["box"][3]) / dough_w * 100, 1), **m))
+json.dump(rows, open(OUT, "w"), ensure_ascii=False, indent=0)
+print(len(rows), "rows")

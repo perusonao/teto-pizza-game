@@ -1,0 +1,222 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import { test, expect, type Page } from "@playwright/test";
+import { RECIPES } from "../src/data/recipes";
+import { INGREDIENTS } from "../src/data/ingredients";
+import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { chipOnTrayOrPin } from "./support/handPick";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
+
+/**
+ * INVESTIGATION ONLY (not a regression test, never committed as a spec): captures every scatter ingredient except
+ * beef / green-pepper / shiso (#733 / #758) at three stages -- tray chip, on the pizza before the bake, after the bake
+ * (FINISH stage = full size, RESULT = compact) -- at the project's viewport, and records each piece's on-screen box so
+ * the background contrast can be measured from the screenshot afterwards.
+ *
+ * Env: CAP_DIR (output dir, required), CAP_MODE = "groups" (default) | "recipes", CAP_RECIPES (comma ids, recipes mode).
+ */
+const SAVE_KEY = "teto-pizza-save-v1";
+const DIR = process.env.CAP_DIR ?? "";
+const MODE = process.env.CAP_MODE ?? "groups";
+const EXCLUDE = new Set(["beef", "green-pepper", "shiso", "mozzarella"]);
+const SCATTER = INGREDIENTS.filter((i) => i.placement === "scatter" && !EXCLUDE.has(i.id));
+const GROUP = 6;
+const GROUPS: (typeof SCATTER)[] = [];
+for (let i = 0; i < SCATTER.length; i += GROUP) GROUPS.push(SCATTER.slice(i, i + GROUP));
+const ring = (r: number, n: number, off = 0): [number, number][] =>
+  Array.from({ length: n }, (_, k) => {
+    const a = ((k + off) / n) * Math.PI * 2 - Math.PI / 2;
+    return [+(50 + Math.cos(a) * r).toFixed(1), +(50 + Math.sin(a) * r).toFixed(1)];
+  });
+const OUTER = ring(30, 6); // piece A of each ingredient
+const INNER = ring(13, 6, 0.5); // piece B of each ingredient (nearer the cheese)
+const CHEESE = ring(21, 4, 0.5);
+
+const saveJson = () => {
+  const owned = INGREDIENTS.map((i) => i.id);
+  return JSON.stringify({
+    schemaVersion: 2,
+    dex: RECIPES.map((r) => ({ recipeId: r.id, discovered: true, bestScore: 80, bestStars: 3, timesMade: 1 })),
+    pitzBalance: 9999,
+    ownedIngredientIds: owned,
+    missionBest: {},
+    inventory: Object.fromEntries(owned.map((m) => [m, 99])),
+    starterGrantClaimedRecipeIds: [],
+    unlockedForShopIngredientIds: owned,
+  });
+};
+const bar = (page: Page) => page.locator(".prepare-bake-bar");
+async function open(page: Page) {
+  await page.goto("icons/icon-16.png");
+  await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, [SAVE_KEY, saveJson()] as const);
+  await page.goto("/");
+  await page.waitForSelector(".app-frame");
+}
+if (process.env.CAP_VIDEO) test.use({ video: { mode: "on", size: { width: 390, height: 844 } } });
+const shot = async (page: Page, name: string, project: string) => {
+  mkdirSync(DIR, { recursive: true });
+  if (process.env.CAP_VIDEO) await page.waitForTimeout(1800);
+  return page.screenshot({ path: `${DIR}/${name}-${project}.png` });
+};
+/** Every on-pizza piece: ingredient id (from the class), box, and the dough box (same frame as the screenshot). */
+async function pieces(page: Page, scope: string) {
+  return page.evaluate((sel) => {
+    const root = document.querySelector(sel);
+    if (!root) return null;
+    const dough = root.querySelector(".pizza-dough") ?? root;
+    const d = dough.getBoundingClientRect();
+    const out = [...root.querySelectorAll(".pizza-topping, .pizza-cheese, [class*='pizza-cheese--']")].map((e) => {
+      const cls = [...e.classList].find((c) => c.startsWith("pizza-topping--") || c.startsWith("pizza-cheese--")) ?? e.className;
+      const g = (e.querySelector(".ingredient-glyph, svg, .ingredient-piece-visual, span") ?? e).getBoundingClientRect();
+      const r = e.getBoundingClientRect();
+      return { cls, box: [r.x, r.y, r.width, r.height].map((v) => +v.toFixed(1)), glyph: [g.x, g.y, g.width, g.height].map((v) => +v.toFixed(1)), font: parseFloat(getComputedStyle(e).fontSize) };
+    });
+    return { dough: [d.x, d.y, d.width, d.height].map((v) => +v.toFixed(1)), pieces: out };
+  }, scope);
+}
+const nameRe = (n: string) => new RegExp(`(^|[^\\p{Script=Katakana}\\p{Script=Han}\\p{Script=Hiragana}ー・])${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*(×|∞|常備|$)`, "u");
+const settle = (page: Page) => page.waitForTimeout(900);
+
+async function startRound(page: Page) {
+  await startTargetlessFreeCook(page);
+  await page.waitForSelector(".pizza-stage");
+  await completeDoughStep(page);
+  await bar(page).getByRole("button", { name: /次へ/ }).click();
+  await (await chipOnTrayOrPin(page, /トマトソース/)).click();
+  await paintSauceRing(page, 25, 16);
+  await paintSauceRing(page, 12, 8);
+  await bar(page).getByRole("button", { name: /次へ/ }).click();
+}
+
+test.describe("investigation: ingredient visibility / finished pizza look", () => {
+  test.setTimeout(Number(process.env.CAP_TIMEOUT ?? 1_800_000));
+
+  test("tray chips (all topping/cheese pages)", async ({ page }, ti) => {
+    test.skip(MODE !== "groups");
+    const project = ti.project.name;
+    await open(page);
+    await startRound(page);
+    // CHEESE tray
+    const data: Record<string, unknown> = {};
+    for (const step of ["cheese", "topping"]) {
+      if (step === "topping") await bar(page).getByRole("button", { name: /次へ/ }).click();
+      const prev = page.getByRole("button", { name: "前のページ" });
+      while (await prev.isVisible().catch(() => false) && await prev.isEnabled()) { await prev.click(); await page.waitForTimeout(250); }
+      for (let p = 1; p <= 20; p += 1) {
+        await page.waitForTimeout(400);
+        await shot(page, `tray-${step}-p${String(p).padStart(2, "0")}`, project);
+        data[`${step}-p${p}`] = await page.evaluate(() => [...document.querySelectorAll(".ingredient-chip")].map((c) => {
+          const g = c.querySelector(".ingredient-glyph, .ingredient-chip__emoji, .ingredient-chip__icon, svg");
+          const r = c.getBoundingClientRect();
+          const gr = g?.getBoundingClientRect();
+          return { name: c.querySelector(".ingredient-chip__name")?.textContent, chip: [r.x, r.y, r.width, r.height].map(Math.round), glyph: gr ? [gr.x, gr.y, gr.width, gr.height].map((v) => +v.toFixed(1)) : null, glyphCls: g?.getAttribute("class") };
+        }));
+        const next = page.getByRole("button", { name: "次のページ" });
+        if (!(await next.isVisible().catch(() => false)) || !(await next.isEnabled())) break;
+        await next.click();
+      }
+    }
+    writeFileSync(`${DIR}/tray-${project}.json`, JSON.stringify(data, null, 1));
+  });
+
+  for (let gi = 0; gi < GROUPS.length; gi += 1) {
+    test(`group ${gi + 1}: ${GROUPS[gi].map((i) => i.id).join(",")}`, async ({ page }, ti) => {
+      test.skip(MODE !== "groups");
+      const project = ti.project.name;
+      const g = String(gi + 1).padStart(2, "0");
+      await open(page);
+      await startRound(page);
+      await (await chipOnTrayOrPin(page, /モッツァレラ/)).click();
+      for (const [x, y] of CHEESE) await tapDoughPercent(page, x, y);
+      const cheeseIds = new Set(INGREDIENTS.filter((i) => i.category === "cheese").map((i) => i.id));
+      const esc = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      if (process.env.CAP_PROBE) { await bar(page).getByRole("button", { name: /次へ/ }).click(); console.log("CHIPS", JSON.stringify(await page.locator(".ingredient-chip").allTextContents())); }
+      const order = GROUPS[gi].map((ing, k) => ({ ing, k }));
+      for (const phase of ["cheese", "topping"]) {
+        if (phase === "topping") await bar(page).getByRole("button", { name: /次へ/ }).click();
+        for (const { ing, k } of order.filter((o) => cheeseIds.has(o.ing.id) === (phase === "cheese"))) {
+          await (await chipOnTrayOrPin(page, nameRe(ing.nameJa))).click();
+          await tapDoughPercent(page, ...OUTER[k]);
+          await tapDoughPercent(page, ...INNER[k]);
+        }
+      }
+      await settle(page);
+      await shot(page, `g${g}-1topped`, project);
+      const before = await pieces(page, ".pizza-stage");
+      await bakeToTarget(page, { start: 62, end: 72 }, { finish: false });
+      await page.getByTestId("finish-complete").waitFor({ timeout: 10_000 }).catch(() => undefined);
+      await settle(page);
+      await shot(page, `g${g}-2baked-finish`, project);
+      const baked = await pieces(page, ".pizza-stage");
+      const complete = page.getByTestId("finish-complete");
+      if (await complete.count()) await complete.click();
+      await page.waitForSelector(".result-panel");
+      await page.waitForTimeout(2500);
+      await shot(page, `g${g}-3result`, project);
+      const result = await pieces(page, ".pizza-stage--result");
+      if (process.env.CAP_HTML) writeFileSync(`${DIR}/probe.html`, await page.evaluate(() => document.querySelector(".pizza-stage")?.outerHTML ?? "none"));
+      writeFileSync(`${DIR}/g${g}-${project}.json`, JSON.stringify({ ids: GROUPS[gi].map((i) => i.id), before, baked, result }, null, 1));
+      expect(before?.pieces.length).toBeGreaterThan(0);
+    });
+  }
+
+  // Task 3: finished pizzas, one recipe composition each, pieces spread like a player would (outer ring, then inner).
+  const recipeIds = (process.env.CAP_RECIPES ?? "").split(",").filter(Boolean);
+  for (const rid of recipeIds) {
+    test(`recipe ${rid}`, async ({ page }, ti) => {
+      test.skip(MODE !== "recipes");
+      const project = ti.project.name;
+      const recipe = RECIPES.find((r) => r.id === rid)!;
+      expect(recipe, rid).toBeTruthy();
+      await open(page);
+      await startTargetlessFreeCook(page);
+      await page.waitForSelector(".pizza-stage");
+      await completeDoughStep(page);
+      await bar(page).getByRole("button", { name: /次へ/ }).click();
+      const req = recipe.requiredIngredients.filter((q) => !q.applicationPhase);
+      const byCat = (c: string) => req.filter((q) => INGREDIENTS.find((i) => i.id === q.ingredientId)!.category === c);
+      for (const q of byCat("sauce")) {
+        const ing = INGREDIENTS.find((i) => i.id === q.ingredientId)!;
+        await (await chipOnTrayOrPin(page, nameRe(ing.nameJa))).click();
+        await paintSauceRing(page, 25, 16);
+        await paintSauceRing(page, 12, 8);
+      }
+      await bar(page).getByRole("button", { name: /次へ/ }).click();
+      const cheeseSpots = ring(20, 8, 0.25).concat(ring(8, 3));
+      let cs = 0;
+      for (const q of byCat("cheese")) {
+        const ing = INGREDIENTS.find((i) => i.id === q.ingredientId)!;
+        await (await chipOnTrayOrPin(page, nameRe(ing.nameJa))).click();
+        for (let n = 0; n < q.minCount; n += 1) await tapDoughPercent(page, ...cheeseSpots[(cs++ * 3) % cheeseSpots.length]);
+      }
+      await bar(page).getByRole("button", { name: /次へ/ }).click();
+      const tops = byCat("topping");
+      const total = tops.reduce((s, q) => s + q.minCount, 0);
+      const spots = ring(30, Math.max(6, Math.ceil(total * 0.6))).concat(ring(14, Math.max(3, total - Math.ceil(total * 0.6)), 0.5));
+      let sp = 0;
+      for (const q of tops) {
+        const ing = INGREDIENTS.find((i) => i.id === q.ingredientId)!;
+        await (await chipOnTrayOrPin(page, nameRe(ing.nameJa))).click();
+        for (let n = 0; n < q.minCount; n += 1) {
+          const [x, y] = spots[sp++ % spots.length];
+          if (ing.id === "mayo") await page.mouse.click(0, 0).catch(() => undefined);
+          await tapDoughPercent(page, x, y);
+        }
+      }
+      await settle(page);
+      await shot(page, `r-${rid}-1topped`, project);
+      const before = await pieces(page, ".pizza-stage");
+      await bakeToTarget(page, { start: 62, end: 72 }, { finish: false });
+      await page.getByTestId("finish-complete").waitFor({ timeout: 10_000 }).catch(() => undefined);
+      await settle(page);
+      await shot(page, `r-${rid}-2baked-finish`, project);
+      const baked = await pieces(page, ".pizza-stage");
+      const complete = page.getByTestId("finish-complete");
+      if (await complete.count()) await complete.click();
+      await page.waitForSelector(".result-panel");
+      await page.waitForTimeout(2500);
+      await shot(page, `r-${rid}-3result`, project);
+      const result = await pieces(page, ".pizza-stage--result");
+      writeFileSync(`${DIR}/r-${rid}-${project}.json`, JSON.stringify({ rid, before, baked, result }, null, 1));
+    });
+  }
+});
