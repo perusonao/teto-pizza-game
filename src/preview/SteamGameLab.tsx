@@ -13,6 +13,7 @@ import {
   type SteamGameHeat,
 } from "./steamGameLab";
 import "./steamGameLab.css";
+import { SteamGameLabV2 } from "./SteamGameLabV2";
 
 /**
  * Issue #755 S5b: the Steam Gameplay Lab screen (Preview / DEV only, see ./steamGameLab.ts). Tap-only: 弱火 / 強火 / ふたを開ける / やり直す.
@@ -49,7 +50,7 @@ function Shell({ i, open, flesh, limp }: { i: number; open: number; flesh: { col
   );
 }
 
-export function SteamGameLab({ clock = () => performance.now() }: { clock?: () => number }) {
+function SteamGameLabV1({ clock = () => performance.now() }: { clock?: () => number }) {
   const [state, dispatch] = useReducer(steamGameReducer, STEAM_GAME_IDLE);
   const [now, setNow] = useState(() => clock());
   const releasedAt = useRef(0);
@@ -156,4 +157,13 @@ export function SteamGameLab({ clock = () => performance.now() }: { clock?: () =
       </div>
     </main>
   );
+}
+
+/** Keep the published V1 at ?steamGameLab=on. V2 is an explicitly opted-in sibling,
+ * not a replacement for the iPhone-evaluated build. main.tsx and #746 stay untouched. */
+export function SteamGameLab({ clock = () => performance.now() }: { clock?: () => number }) {
+  const args = typeof window === "undefined" ? [] : new URLSearchParams(window.location.search).getAll("steamGameMode");
+  return args.length === 1 && args[0] === "v2"
+    ? <SteamGameLabV2 clock={clock} />
+    : <SteamGameLabV1 clock={clock} />;
 }
