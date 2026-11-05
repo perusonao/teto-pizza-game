@@ -11,6 +11,7 @@ import { RECIPE_DISCOVERY_CATALOG } from "./discoveryCatalog";
 import { ingredientAttributeFamily } from "./ingredientTaxonomy";
 import { toppingSizeClass } from "./toppingSizeClass";
 import { ordinaryLadderSteps, ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
+import { B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS } from "../logic/catalog/testSupport/recipeBatchManifest";
 import { getReferenceSlots } from "../logic/pizzaReferenceLayout";
 import { evaluatePizzaCompletion } from "../logic/completionGate";
 import { evaluateDiscovery, matchDiscovery } from "../logic/discovery/matcher";
@@ -143,7 +144,7 @@ describe("differentiation (the global 0.4 Jaccard guideline is NOT changed; the 
       }
     }
   });
-  it("reina-pepiada-pizza is under the 0.4 criterion everywhere; baingan-bharta-pizza is above it only against the two other curry-ketchup recipes (0.43: rendang-pizza, curry-pizza-japan), a consequence of the Owner-approved curry stand-in", () => {
+  it("Owner OD-B18-3 APPROVED exception only for baingan-bharta-pizza: 0.43 vs two curry recipes; global Jaccard 0.4 guideline and unique ingredient identity remain unchanged", () => {
     const over = (r: Recipe) => ORDINARY.filter((o) => o.id !== r.id && jaccard(idsOf(r), idsOf(o)) >= 0.4).map((o) => o.id).sort();
     expect(over(reina)).toEqual([]);
     expect(over(baingan)).toEqual(["curry-pizza-japan", "rendang-pizza"]);
@@ -304,12 +305,15 @@ describe("Research: cilantro now unlocks a NEW lettered cohort of two; no pre-ex
     expect(labelOf([...STARTER_INGREDIENT_IDS, ...allLadder])).toBe("？？？ピザ（バーベキューソース）");
   });
 
-  it("PENDING OWNER APPROVAL (measured, NOT declared as acceptedLetterShifts): in an ownership order where the cilantro is bought AFTER the bbq-sauce (the entitlement-floor order: bbq-sauce, cilantro), bbq-chicken-pizza's unlock material is the cilantro, so it joins the cilantro cohort of three (reina A / bbq-chicken B / baingan C) and its label gains a letter; EVERY other pre-existing recipe keeps its letter in that order", () => {
+  it("Owner OD-B18-1 APPROVED order-specific shift (not canonical acceptedLetterShifts): bbq-sauce THEN cilantro grants BBQ letter B, every other pre-existing letter stays unchanged", () => {
+    expect(B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS).toEqual({ [BBQ]: "-->B" });
     const allLadder = DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds);
     const floorOrder = [...STARTER_INGREDIENT_IDS, ...allLadder.filter((m) => m !== "cilantro" && m !== "bbq-sauce"), "bbq-sauce", "cilantro"];
     const now = researchCohortLetters(floorOrder, RECIPES);
     const before = researchCohortLetters(floorOrder, RECIPES.filter((r) => !NEW_IDS.includes(r.id)));
     expect(before.has(BBQ)).toBe(false); // before Batch 18 the cilantro cohort was the BBQ chicken alone: no letter
+    const observedShift = `${before.get(BBQ) ?? "-"}->${now.get(BBQ) ?? "-"}`;
+    expect(observedShift).toBe(B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS[BBQ]);
     expect([now.get(REINA), now.get(BBQ), now.get(BAINGAN)]).toEqual(["A", "B", "C"]);
     expect([...now].filter(([id]) => id !== BBQ && !NEW_IDS.includes(id)).sort()).toEqual([...before].sort());
     const entry = deriveResearchEntries({ dex: [], ownedIngredientIds: floorOrder } as never).entries.find((e) => (e.recipeId as string) === BBQ)!;
