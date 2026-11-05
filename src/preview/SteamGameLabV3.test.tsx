@@ -146,6 +146,24 @@ describe("Steam Gameplay Lab V3 #755 — play", () => {
     expect(msg()).toContain("橙色の貝をタップ");
   });
 
+  it("U2: a rescue notice ends when the next shell of a pair opens, even though the ready count did not grow (Codex P2)", () => {
+    render(<SteamGameLab clock={clock} />);
+    fireEvent.click(button("ムール貝"));
+    fireEvent.click(button("強火"));
+    fireEvent.click(button("ふたをして蒸す"));
+    advance(1370); // shell 0 opens at 1.364 s, shell 1 at 1.409 s
+    expect(shell(0).getAttribute("data-shell-state")).toBe("ready");
+    expect(shell(1).getAttribute("data-shell-state")).toBe("closed");
+    fireEvent.click(shell(0));
+    expect(msg()).toContain("取り出した");
+    advance(60);
+    expect(shell(1).getAttribute("data-shell-state")).toBe("ready");
+    expect(msg()).toContain("橙色の貝をタップ");
+    advance(800); // shell 1 overcooks around 2.12 s: the old notice must not come back
+    expect(shell(1).getAttribute("data-shell-state")).toBe("over");
+    expect(msg()).not.toContain("取り出した");
+  });
+
   it("U5: the result tells rescued / overcooked / missed apart in colour, shape and words", () => {
     render(<SteamGameLab clock={clock} />);
     fireEvent.click(button("強火"));

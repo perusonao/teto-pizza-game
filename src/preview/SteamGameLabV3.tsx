@@ -46,6 +46,9 @@ const ADVICE: Record<SteamV3Advice, string> = {
   closed: "大きい貝はゆっくり開くよ。最後の貝が開くまで待とう",
 };
 
+/** 0 closed, 1 wobbling (about to open), 2 opened (ready / over / rescued): never decreases during a round. */
+const shellStage = (status: ShellView, wobbling: boolean): number => (status === "closed" ? (wobbling ? 1 : 0) : 2);
+
 const starText = (n: SteamV3Stars) => "★".repeat(n) + "☆".repeat(3 - n);
 const seconds = (ms: number) => `${(Math.round(ms / 100) / 10).toFixed(1)}秒`;
 
@@ -132,7 +135,7 @@ export function SteamGameLabV3({ clock = () => performance.now() }: { clock?: ()
   const [preHeat, setPreHeat] = useState<SteamV3Heat>("low");
   const [round, setRound] = useState(0);
   const [now, setNow] = useState(() => clock());
-  const [notice, setNotice] = useState<{ text: string; until: number; readyAt: number; wobbleAt: number } | null>(null);
+  const [notice, setNotice] = useState<{ text: string; until: number; stages: number[] } | null>(null);
   const [input, setInput] = useState<"pointer" | "keyboard">("pointer");
   const lastRelease = useRef(Number.NEGATIVE_INFINITY);
   const cooking = state.status === "cooking";
@@ -169,14 +172,15 @@ export function SteamGameLabV3({ clock = () => performance.now() }: { clock?: ()
   const heat: SteamV3Heat = cooking ? state.heat : preHeat;
   const result = snap.result;
 
-  // U2: a notice is transient. It ends after NOTICE_MS (read from the injected clock), or as soon as another shell becomes ready or more
-  // shells start wobbling, so the pre-open hint for a pair / trio is never hidden behind an old message.
-  const noticeText = cooking && notice && now < notice.until && snap.readyCount <= notice.readyAt && snap.wobbleCount <= notice.wobbleAt ? notice.text : "";
+  // U2: a notice is transient. It ends after NOTICE_MS (read from the injected clock), or for good as soon as ANY shell moves on
+  // (closed → wobbling → opened), so the hint for the next shell, pair or trio is never hidden behind an old message. A shell's stage
+  // only ever grows (a rescue counts as opened), so once a notice has given way it cannot come back.
+  const noticeText = cooking && notice && now < notice.until && snap.shells.every((st, i) => shellStage(st, snap.wobbling[i]) <= notice.stages[i]) ? notice.text : "";
   const say = (text: string) => {
     const at = clock();
     const current = steamV3Snapshot(state, at);
     setNow(at);
-    setNotice({ text, until: at + NOTICE_MS, readyAt: current.readyCount, wobbleAt: current.wobbleCount });
+    setNotice({ text, until: at + NOTICE_MS, stages: current.shells.map((st, i) => shellStage(st, current.wobbling[i])) });
   };
 
   const start = () => {
