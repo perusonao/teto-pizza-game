@@ -95,6 +95,26 @@ async function expectNoSideways(page: Page, where: string) {
   expect(m!.scrollLeft, detail).toBe(0);
 }
 
+const pagerLabel = (page: Page) => page.evaluate(() => document.querySelector(".ingredient-page-nav__label")?.textContent ?? null);
+
+/** Every page of the current tray, first to last: the cooking screen never scrolls sideways on any of them (a long name may sit on any page). */
+async function expectEveryTrayPage(page: Page, where: string) {
+  const next = page.getByRole("button", { name: "次のページ" });
+  const prev = page.getByRole("button", { name: "前のページ" });
+  for (let i = 0; i < 16 && (await prev.isVisible().catch(() => false)) && (await prev.isEnabled().catch(() => false)); i += 1) {
+    const before = await pagerLabel(page);
+    await prev.click();
+    await expect.poll(() => pagerLabel(page)).not.toBe(before);
+  }
+  for (let i = 0; i < 16; i += 1) {
+    await expectNoSideways(page, `${where} tray page ${(await pagerLabel(page)) ?? "1"}`);
+    if (!(await next.isVisible().catch(() => false)) || !(await next.isEnabled().catch(() => false))) break;
+    const before = await pagerLabel(page);
+    await next.click();
+    await expect.poll(() => pagerLabel(page)).not.toBe(before);
+  }
+}
+
 const SAUCES: readonly [string, RegExp][] = [
   ["tomato", /トマトソース/],
   ["curry-ketchup", /カレーケチャップ/],
@@ -120,6 +140,7 @@ for (const [slug, sauce] of SAUCES) {
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await expect(page.getByRole("tab", { name: "ソース", selected: true })).toBeVisible();
     await expectNoSideways(page, "sauce (arrival)");
+    await expectEveryTrayPage(page, "sauce");
     await (await chipOnTrayOrPin(page, sauce)).click();
     await expectNoSideways(page, `sauce (${slug} picked)`);
     await paintSauceRing(page, 25, 16);
@@ -130,6 +151,7 @@ for (const [slug, sauce] of SAUCES) {
     await hold(page, 1800);
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await expect(page.getByRole("tab", { name: "チーズ", selected: true })).toBeVisible();
+    await expectEveryTrayPage(page, "cheese");
     await (await chipOnTrayOrPin(page, /モッツァレラ/)).click();
     await tapDoughPercent(page, 50, 30);
     await tapDoughPercent(page, 50, 70);
@@ -138,6 +160,7 @@ for (const [slug, sauce] of SAUCES) {
     await bar(page).getByRole("button", { name: /次へ/ }).click();
     await expect(page.getByRole("tab", { name: "具材", selected: true })).toBeVisible();
     await expectNoSideways(page, "topping (arrival)");
+    await expectEveryTrayPage(page, "topping");
     await (await chipOnTrayOrPin(page, /バジル/)).click();
     await tapDoughPercent(page, 35, 45);
     await tapDoughPercent(page, 65, 55);

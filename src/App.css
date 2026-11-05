@@ -1485,11 +1485,7 @@
    change, no effect on the pager/drag logic above. */
 .ingredient-tray {
   display: grid;
-  /* Issue #764: `minmax(0, 1fr)`, not `1fr` (= `minmax(auto, 1fr)`). A `1fr` track grows to its chip's min-content width,
-     and with the no-wrap chip name that pushed the third column past the screen in WebKit 360x800 (「ジェノベーゼソース」:
-     chip 117px in a 108px track -> .game-screen--cooking scrollWidth 386 > 360, so the cooking screen slid sideways).
-     The tracks now stay one third each; a name that does not fit is ellipsized inside its chip (`.ingredient-chip__name`). */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   grid-auto-rows: minmax(0, auto);
   /* PR-A (Issue #167 §5): 8px -> 6px. Phase 0's own Fresh Audit measured several PREPARE steps
      landing the fixed bottom CTA bar at *exactly* the viewport height (0px margin, both
@@ -1516,8 +1512,6 @@
      PR-A (Issue #167 §5): 68px -> 64px, still >44pt -- part of this pass's deliberate ~10px
      real-device safety slack, see `.ingredient-tray`'s own updated comment above. */
   min-height: 64px;
-  /* Issue #764: a grid item may shrink below its content to its track (see `.ingredient-tray`). */
-  min-width: 0;
   border-radius: 12px;
   border: 2px solid transparent;
   background: #fff8ea;
@@ -1653,11 +1647,6 @@
   color: #4a2e0a;
   font-weight: 600;
   white-space: nowrap;
-  /* Issue #764: stays inside its chip; only a name wider than the chip (WebKit / narrow screens) is ellipsized. The DOM text and
-     the button's accessible name keep the full name. */
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* Issue #86 (Inventory表示): finite ingredients show their remaining count ("×27"), unlimited
@@ -5628,6 +5617,23 @@
     width: 40px;
     height: 40px;
     --piece-scale: 0.22;
+  }
+}
+
+/* Issue #764: on screens narrower than 390px the three-column tray can need more than its width. The tracks are
+   `1fr` (= `minmax(auto, 1fr)`), so a column grows to its chip's min-content (the name never wraps), and when the three
+   min-contents add up past the tray the cooking screen scrolls sideways: WebKit 360x800 measured the sauce tray at 386px
+   in a 360px screen (「ジェノベーゼソース」 chip 117px). Here the name is 1px smaller and the chip's side padding 3px
+   narrower, which keeps every name whole: WebKit-wide glyphs then need about 330px of the 336px tray. 390x844 is not
+   touched. e2e/cooking-screen-sideways.spec.ts checks every tray page at both viewports. */
+@media (max-width: 389px) {
+  .prepare-dock .ingredient-chip {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .prepare-dock .ingredient-chip__name {
+    font-size: 10px;
   }
 }
 
