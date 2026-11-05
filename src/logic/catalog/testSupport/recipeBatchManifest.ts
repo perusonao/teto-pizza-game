@@ -136,8 +136,12 @@ export const B17_BATCH: RecipeBatchManifest = {
 /**
  * Expansion Batch 18 (Issue #748, PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): baingan-bharta-pizza (credited; curry-ketchup stands in for the unspecified curry base; the key of ordinary step 69: `cilantro`, PROMOTED from the late catalog, not a new id)
  * and reina-pepiada-pizza (NOT credited, `ladderCredit: false`; fromage-blanc-sauce stands in for the white sauce; mayo is the existing topping). Both are recipe-specific Owner decisions, not NO_SAUCE exceptions. Research: cilantro now unlocks two recipes
- * (baingan / reina, a NEW lettered cohort); bbq-chicken-pizza (late) keeps a single-member cohort, now keyed by bbq-sauce (measured, see the Result Report). No existing LETTER moves, so no `acceptedLetterShifts`.
+ * (baingan / reina, a NEW lettered cohort). In the canonical ladder purchase order, bbq-chicken-pizza (late) is keyed by bbq-sauce, with no letter shift; in the actual entitlement order where cilantro arrives after bbq-sauce, BBQ gains B. Owner approved THAT ORDER-SPECIFIC visible shift on 2026-11-05 (#748).
+ * The validator's `acceptedLetterShifts` contract only applies to canonical ladder order, so declaring the alternative-order shift there would cause ACCEPTED_LETTER_SHIFT_NOT_OBSERVED. Keep that gate strict and pin the approved noncanonical shift in `B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS` + expansionBatch18.test.ts.
  */
+/** Owner #748 OD-B18-1: explicit acceptance of the actual entitlement-order Research label change, NOT a canonical-ladder validator exception. */
+export const B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS = { "bbq-chicken-pizza": "-->B" } as const;
+
 export const B18_BATCH: RecipeBatchManifest = {
   batchId: "expansion-batch-18",
   status: "landed",
