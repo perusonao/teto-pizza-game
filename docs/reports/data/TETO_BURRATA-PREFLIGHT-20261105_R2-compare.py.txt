@@ -1,0 +1,56 @@
+import json, sys, numpy as np
+from PIL import Image, ImageDraw, ImageFont
+CAP, OUT, VP = sys.argv[1:4]
+DSF=2; CELL=116
+FONT=ImageFont.truetype("/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",22)
+SC={'s1-pesto-oil-confusables':'S1 ペスト＋オイル（白いチーズ類と同居）','s2-tomato-oil-crudaiola':'S2 トマト＋オイル（crudaiola 構成）'}
+RUNS=[('none','現行（リコッタ表示）'),('A','A 丸ごと'),('B','B 断面'),('C','C 裂け口')]
+def lab_of(a):
+    a=a/255.; a=np.where(a>0.04045,((a+0.055)/1.055)**2.4,a/12.92)
+    m=np.array([[0.4124,0.3576,0.1805],[0.2126,0.7152,0.0722],[0.0193,0.1192,0.9505]])
+    x=a@m.T/np.array([0.95047,1,1.08883]); f=np.where(x>0.008856,np.cbrt(x),7.787*x+16/116)
+    return np.stack([116*f[...,1]-16,500*(f[...,0]-f[...,1]),200*(f[...,1]-f[...,2])],-1)
+def metr(lab,box):
+    x,y,w,h=[v*DSF for v in box]; x0,y0,x1,y1=int(x),int(y),int(x+w),int(y+h); H,W,_=lab.shape
+    r=3*DSF; X0,Y0,X1,Y1=max(0,x0-r),max(0,y0-r),min(W,x1+r),min(H,y1+r)
+    mask=np.ones((Y1-Y0,X1-X0),bool); mask[max(0,y0-Y0):y1-Y0,max(0,x0-X0):x1-X0]=False
+    bg=np.median(lab[Y0:Y1,X0:X1][mask],0); inner=lab[max(0,y0):y1,max(0,x0):x1].reshape(-1,3)
+    d=np.linalg.norm(inner-bg,axis=1); g=d>12
+    if not g.any(): return dict(area=0,dE=0,lum=0)
+    return dict(area=g.sum()/4,dE=float(d[g].mean()),lum=(((np.abs(inner[:,0]-bg[0])>15)&g).sum())/4)
+def crop(img,box,pad=8):
+    x,y,w,h=[v*DSF for v in box]; c=max(w,h)/2+pad*DSF; cx,cy=x+w/2,y+h/2
+    return img.crop((int(cx-c),int(cy-c),int(cx+c),int(cy+c))).resize((CELL,CELL),Image.LANCZOS)
+metrics={}
+for sc in SC:
+    for run,label in RUNS:
+        d=json.load(open(f'{CAP}/{run}-{sc}-iphone-{VP}.json'))
+        m={}
+        for s,n in (('before','2topped'),('baked','3baked-finish'),('result','4result')):
+            im=Image.open(f'{CAP}/{run}-{sc}-{n}-iphone-{VP}.png').convert('RGB'); lab=lab_of(np.asarray(im).astype(float))
+            ps=[p for p in d[s]['pieces'] if p['cls']=='pizza-topping--ricotta']
+            mm=[metr(lab,p['box']) for p in ps]
+            m[s]=dict(size=round(max(ps[0]['box'][2],ps[0]['box'][3]),1),area=round(min(q['area'] for q in mm)),dE=round(float(np.mean([q['dE'] for q in mm])),1),lum_area=round(min(q['lum'] for q in mm)))
+        metrics[f'{sc}/{run}']=m
+        print(sc[:3],run.ljust(5),' | '.join(f"{s[:3]} {m[s]['size']}px a{m[s]['area']} L{m[s]['lum_area']}" for s in m))
+json.dump(metrics,open(f'{OUT}/burrata-icons-metrics-{VP}.json','w'),ensure_ascii=False,indent=1)
+# sheet: per scenario, rows = candidates, cols = tray chip | before(2) | baked(2) | result(2)
+TW=int(CELL*118/64)+8; W=210+TW+3*(2*CELL+22)
+H=46+len(SC)*(len(RUNS)*(CELL+6)+30)
+sheet=Image.new('RGB',(W,H),'white'); dr=ImageDraw.Draw(sheet)
+for i,tt in enumerate(['トレイ（チーズ）','ピザ上（焼成前）','焼成後（仕上げ）','RESULT']): dr.text((210+(0 if i==0 else TW+(i-1)*(2*CELL+22)),10),tt,fill='black',font=FONT)
+y=46
+for sc,title in SC.items():
+    dr.text((8,y),title,fill=(60,60,60),font=FONT); y+=30
+    for run,label in RUNS:
+        d=json.load(open(f'{CAP}/{run}-{sc}-iphone-{VP}.json'))
+        tray=Image.open(f'{CAP}/{run}-{sc}-1tray-cheese-iphone-{VP}.png').convert('RGB'); cb=d['chip']['burrata']
+        x0,y0,w,h=[v*DSF for v in cb]; tc=tray.crop((int(x0),int(y0),int(x0+w),int(y0+h))).resize((int(CELL*w/h),CELL),Image.LANCZOS)
+        dr.text((8,y+44),label,fill='black',font=FONT); sheet.paste(tc,(210,y))
+        for i,(s,n) in enumerate((('before','2topped'),('baked','3baked-finish'),('result','4result'))):
+            im=Image.open(f'{CAP}/{run}-{sc}-{n}-iphone-{VP}.png').convert('RGB')
+            ps=[p for p in d[s]['pieces'] if p['cls']=='pizza-topping--ricotta'][:2]
+            for j,p in enumerate(ps): sheet.paste(crop(im,p['box']),(210+TW+i*(2*CELL+22)+j*CELL,y))
+        y+=CELL+6
+    y+=0
+sheet.save(f'{OUT}/burrata-icons-compare-{VP}.png',optimize=True)

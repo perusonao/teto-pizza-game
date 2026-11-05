@@ -1,0 +1,162 @@
+{
+ "s1-pesto-oil-confusables/none": {
+  "before": {
+   "size": 28,
+   "area": 401,
+   "dE": 36.2,
+   "lum_area": 303
+  },
+  "baked": {
+   "size": 28,
+   "area": 508,
+   "dE": 39.9,
+   "lum_area": 441
+  },
+  "result": {
+   "size": 28,
+   "area": 438,
+   "dE": 32.5,
+   "lum_area": 362
+  }
+ },
+ "s1-pesto-oil-confusables/A": {
+  "before": {
+   "size": 28,
+   "area": 398,
+   "dE": 41.4,
+   "lum_area": 349
+  },
+  "baked": {
+   "size": 28,
+   "area": 524,
+   "dE": 46.9,
+   "lum_area": 471
+  },
+  "result": {
+   "size": 28,
+   "area": 452,
+   "dE": 35.5,
+   "lum_area": 372
+  }
+ },
+ "s1-pesto-oil-confusables/B": {
+  "before": {
+   "size": 28,
+   "area": 386,
+   "dE": 36.6,
+   "lum_area": 325
+  },
+  "baked": {
+   "size": 28,
+   "area": 508,
+   "dE": 40.5,
+   "lum_area": 444
+  },
+  "result": {
+   "size": 28,
+   "area": 435,
+   "dE": 32.4,
+   "lum_area": 342
+  }
+ },
+ "s1-pesto-oil-confusables/C": {
+  "before": {
+   "size": 28,
+   "area": 399,
+   "dE": 39.8,
+   "lum_area": 360
+  },
+  "baked": {
+   "size": 28,
+   "area": 530,
+   "dE": 45.3,
+   "lum_area": 481
+  },
+  "result": {
+   "size": 28,
+   "area": 458,
+   "dE": 35.0,
+   "lum_area": 378
+  }
+ },
+ "s2-tomato-oil-crudaiola/none": {
+  "before": {
+   "size": 28,
+   "area": 398,
+   "dE": 36.3,
+   "lum_area": 340
+  },
+  "baked": {
+   "size": 28,
+   "area": 508,
+   "dE": 45.0,
+   "lum_area": 424
+  },
+  "result": {
+   "size": 28,
+   "area": 440,
+   "dE": 42.0,
+   "lum_area": 348
+  }
+ },
+ "s2-tomato-oil-crudaiola/A": {
+  "before": {
+   "size": 28,
+   "area": 395,
+   "dE": 40.5,
+   "lum_area": 349
+  },
+  "baked": {
+   "size": 28,
+   "area": 520,
+   "dE": 48.5,
+   "lum_area": 463
+  },
+  "result": {
+   "size": 28,
+   "area": 455,
+   "dE": 44.2,
+   "lum_area": 358
+  }
+ },
+ "s2-tomato-oil-crudaiola/B": {
+  "before": {
+   "size": 28,
+   "area": 384,
+   "dE": 35.6,
+   "lum_area": 328
+  },
+  "baked": {
+   "size": 28,
+   "area": 505,
+   "dE": 43.7,
+   "lum_area": 432
+  },
+  "result": {
+   "size": 28,
+   "area": 442,
+   "dE": 41.4,
+   "lum_area": 326
+  }
+ },
+ "s2-tomato-oil-crudaiola/C": {
+  "before": {
+   "size": 28,
+   "area": 397,
+   "dE": 39.5,
+   "lum_area": 355
+  },
+  "baked": {
+   "size": 28,
+   "area": 526,
+   "dE": 47.6,
+   "lum_area": 472
+  },
+  "result": {
+   "size": 28,
+   "area": 458,
+   "dE": 43.7,
+   "lum_area": 359
+  }
+ }
+}

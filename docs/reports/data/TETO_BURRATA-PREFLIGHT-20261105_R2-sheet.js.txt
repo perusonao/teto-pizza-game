@@ -1,0 +1,12 @@
+const { chromium } = require("playwright"); const fs = require("fs");
+const C = "/home/user/teto-pizza-game/docs/design/candidates/ingredient-icons-2.0-burrata";
+const R = "/home/user/teto-pizza-game/docs/design/references/ingredient-icons-2.0";
+const svg = (f) => fs.readFileSync(f, "utf8").replace(/width="64" height="64"/, 'width="100%" height="100%"');
+const disc = (c) => `<svg viewBox="0 0 64 64" width="100%" height="100%"><circle cx="32" cy="32" r="22" fill="${c}" stroke="#bdb59d" stroke-width="2"/></svg>`;
+const items = [["burrata A", svg(`${C}/burrata-A.svg`)], ["burrata B", svg(`${C}/burrata-B.svg`)], ["burrata C", svg(`${C}/burrata-C.svg`)], ["ricotta", svg(`${R}/ricotta.svg`)], ["feta", svg(`${R}/feta.svg`)], ["cream-cheese", svg(`${R}/cream-cheese.svg`)], ["mozzarella(球)", svg(`${R}/mozzarella.svg`)], ["catupiry", svg(`${R}/catupiry.svg`)], ["goat（CSS円）", disc("#f4f1e6")], ["paneer（CSS円）", disc("#f6f1de")]];
+const BG = [["トレイ 48", "#fffaf0", 48, 0], ["トレイ 26", "#fffaf0", 26, 0], ["ペスト 28", "#7f9a52", 28, 0], ["トマト 28", "#c94a36", 28, 0], ["焼成生地 28", "#e2a85c", 28, 0], ["溶けチーズ 28", "#f3ece0", 28, 0], ["グレー/トマト 28", "#c94a36", 28, 1], ["グレー/溶けチーズ 28", "#f3ece0", 28, 1], ["RESULT 21", "#c94a36", 21, 0]];
+const cell = (inner, bg, px, g) => `<td style="background:${bg};padding:2px;text-align:center;filter:${g ? "grayscale(1)" : "none"}"><div style="width:${px}px;height:${px}px;margin:6px auto">${inner}</div></td>`;
+let html = `<html><head><meta charset="utf-8"><style>body{font-family:'IPAGothic',sans-serif;margin:12px;background:#fff}td,th{border:1px solid #ddd;font-size:12px}th{background:#f3f3f3;padding:2px 4px}</style></head><body><h3 style="margin:2px 0">burrata 候補（A 丸ごと／B 断面）と白いチーズ類 — 実寸（チーズ glyph の 1em 箱）</h3><table style="border-collapse:collapse"><tr><th>食材</th>${BG.map(([n]) => `<th>${n}px</th>`).join("")}</tr>`;
+for (const [n, i] of items) html += `<tr><td>${n}</td>${BG.map(([, bg, px, g]) => cell(i, bg, px, g)).join("")}</tr>`;
+html += "</table></body></html>";
+(async () => { const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1050, height: 700 }, deviceScaleFactor: 2 }); await p.setContent(html); await p.screenshot({ path: process.argv[2], fullPage: true }); await b.close(); })();
