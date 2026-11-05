@@ -79,6 +79,11 @@ export function budgetLeftMs(): number | null {
 /** The labels of the watched calls that are running on each page right now (so a page that closes under them can say which). */
 const IN_FLIGHT = new WeakMap<Page, Set<string>>();
 
+/** What watched calls are running on `page` right now (empty when none). Read-only; used by the failure evidence. */
+export function inFlightLabels(page: Page): string[] {
+  return [...(IN_FLIGHT.get(page) ?? [])];
+}
+
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
 const budgetText = () => {
   const left = budgetLeft();
