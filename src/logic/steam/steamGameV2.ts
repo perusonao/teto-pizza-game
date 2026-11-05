@@ -186,7 +186,8 @@ export function steamV2Reducer(state: SteamV2State, action: SteamV2Action): Stea
       const s = steamV2Advance(state, action.now);
       const shells = STEAM_V2_BATCHES[s.batch].shells.map((_, i) => {
         const status = shellStatus(s, i);
-        return status === "closed" || status === "ready" ? "missed" : status;
+        // Keep an unopened shell visibly closed; an open but uncollected shell is missed.
+        return status === "ready" ? "missed" : status;
       }) as SteamV2ShellStatus[];
       const rescuedCount = shells.filter((x) => x === "rescued").length;
       return {
