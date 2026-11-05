@@ -14,6 +14,7 @@ import {
 } from "./steamGameLab";
 import "./steamGameLab.css";
 import { SteamGameLabV2 } from "./SteamGameLabV2";
+import { SteamGameLabV3 } from "./SteamGameLabV3";
 
 /**
  * Issue #755 S5b: the Steam Gameplay Lab screen (Preview / DEV only, see ./steamGameLab.ts). Tap-only: 弱火 / 強火 / ふたを開ける / やり直す.
@@ -163,7 +164,8 @@ function SteamGameLabV1({ clock = () => performance.now() }: { clock?: () => num
  * not a replacement for the iPhone-evaluated build. main.tsx and #746 stay untouched. */
 export function SteamGameLab({ clock = () => performance.now() }: { clock?: () => number }) {
   const args = typeof window === "undefined" ? [] : new URLSearchParams(window.location.search).getAll("steamGameMode");
-  return args.length === 1 && args[0] === "v2"
-    ? <SteamGameLabV2 clock={clock} />
-    : <SteamGameLabV1 clock={clock} />;
+  if (args.length === 1 && args[0] === "v2") return <SteamGameLabV2 clock={clock} />;
+  // V3 (#755, design docs/reports/TETO_STEAM-V3_DESIGN.md) is a third, explicitly opted-in sibling; V1 and V2 are unchanged.
+  if (args.length === 1 && args[0] === "v3") return <SteamGameLabV3 clock={clock} />;
+  return <SteamGameLabV1 clock={clock} />;
 }
