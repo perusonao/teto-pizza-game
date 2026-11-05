@@ -1,0 +1,242 @@
+{
+ "rosemary/none": {
+  "before": {
+   "size": 24.5,
+   "visible_area": 199.5,
+   "dE": 63.2,
+   "dL": 12.8
+  },
+  "baked": {
+   "size": 24.5,
+   "visible_area": 206.5,
+   "dE": 53.0,
+   "dL": 7.7
+  },
+  "result": {
+   "size": 18.3,
+   "visible_area": 129.8,
+   "dE": 58.9,
+   "dL": 15.8
+  }
+ },
+ "rosemary/A": {
+  "before": {
+   "size": 24,
+   "visible_area": 251.5,
+   "dE": 46.8,
+   "dL": 13.6
+  },
+  "baked": {
+   "size": 24,
+   "visible_area": 258.8,
+   "dE": 46.2,
+   "dL": 17.8
+  },
+  "result": {
+   "size": 18,
+   "visible_area": 152.8,
+   "dE": 44.5,
+   "dL": 18.8
+  }
+ },
+ "rosemary/B": {
+  "before": {
+   "size": 24,
+   "visible_area": 324.5,
+   "dE": 47.9,
+   "dL": 14.2
+  },
+  "baked": {
+   "size": 24,
+   "visible_area": 332.0,
+   "dE": 45.5,
+   "dL": 16.3
+  },
+  "result": {
+   "size": 18,
+   "visible_area": 192.5,
+   "dE": 45.5,
+   "dL": 21.1
+  }
+ },
+ "artichoke/none": {
+  "before": {
+   "size": 34.9,
+   "visible_area": 386.2,
+   "dE": 65.8,
+   "dL": 14.0
+  },
+  "baked": {
+   "size": 34.9,
+   "visible_area": 583.8,
+   "dE": 67.7,
+   "dL": 20.0
+  },
+  "result": {
+   "size": 26.2,
+   "visible_area": 457.5,
+   "dE": 53.4,
+   "dL": 11.7
+  }
+ },
+ "artichoke/A": {
+  "before": {
+   "size": 34,
+   "visible_area": 632.2,
+   "dE": 54.1,
+   "dL": 1.6
+  },
+  "baked": {
+   "size": 34,
+   "visible_area": 729.5,
+   "dE": 61.5,
+   "dL": 6.6
+  },
+  "result": {
+   "size": 25,
+   "visible_area": 437.5,
+   "dE": 44.3,
+   "dL": 10.7
+  }
+ },
+ "artichoke/B": {
+  "before": {
+   "size": 34,
+   "visible_area": 562.0,
+   "dE": 56.0,
+   "dL": 9.1
+  },
+  "baked": {
+   "size": 34,
+   "visible_area": 727.2,
+   "dE": 63.0,
+   "dL": 1.2
+  },
+  "result": {
+   "size": 25,
+   "visible_area": 376.0,
+   "dE": 49.0,
+   "dL": 17.4
+  }
+ },
+ "oregano/none": {
+  "before": {
+   "size": 24.5,
+   "visible_area": 177.0,
+   "dE": 66.2,
+   "dL": 15.9
+  },
+  "baked": {
+   "size": 24.5,
+   "visible_area": 351.2,
+   "dE": 60.9,
+   "dL": 23.1
+  },
+  "result": {
+   "size": 18.3,
+   "visible_area": 103.2,
+   "dE": 46.6,
+   "dL": 11.7
+  }
+ },
+ "oregano/A": {
+  "before": {
+   "size": 24,
+   "visible_area": 203.0,
+   "dE": 50.3,
+   "dL": 9.1
+  },
+  "baked": {
+   "size": 24,
+   "visible_area": 320.8,
+   "dE": 58.5,
+   "dL": 22.5
+  },
+  "result": {
+   "size": 18,
+   "visible_area": 129.2,
+   "dE": 44.0,
+   "dL": 32.0
+  }
+ },
+ "oregano/B": {
+  "before": {
+   "size": 24,
+   "visible_area": 206.2,
+   "dE": 54.3,
+   "dL": 13.5
+  },
+  "baked": {
+   "size": 24,
+   "visible_area": 279.0,
+   "dE": 58.8,
+   "dL": 18.9
+  },
+  "result": {
+   "size": 18,
+   "visible_area": 122.5,
+   "dE": 49.5,
+   "dL": 37.0
+  }
+ },
+ "spinach/none": {
+  "before": {
+   "size": 45.4,
+   "visible_area": 583.2,
+   "dE": 69.0,
+   "dL": 15.6
+  },
+  "baked": {
+   "size": 45.4,
+   "visible_area": 590.8,
+   "dE": 61.9,
+   "dL": 13.8
+  },
+  "result": {
+   "size": 34.1,
+   "visible_area": 463.8,
+   "dE": 56.2,
+   "dL": 14.7
+  }
+ },
+ "spinach/A": {
+  "before": {
+   "size": 44,
+   "visible_area": 1021.5,
+   "dE": 67.4,
+   "dL": 6.0
+  },
+  "baked": {
+   "size": 44,
+   "visible_area": 1044.2,
+   "dE": 58.6,
+   "dL": 2.8
+  },
+  "result": {
+   "size": 33,
+   "visible_area": 620.5,
+   "dE": 56.9,
+   "dL": 9.1
+  }
+ },
+ "spinach/B": {
+  "before": {
+   "size": 44,
+   "visible_area": 757.8,
+   "dE": 66.2,
+   "dL": 19.2
+  },
+  "baked": {
+   "size": 44,
+   "visible_area": 762.0,
+   "dE": 59.9,
+   "dL": 14.8
+  },
+  "result": {
+   "size": 33,
+   "visible_area": 513.5,
+   "dE": 60.3,
+   "dL": 22.6
+  }
+ }
+}
