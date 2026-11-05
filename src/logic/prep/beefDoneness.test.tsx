@@ -21,18 +21,21 @@ import { BEST_END_MS, BEST_START_MS, PAN_TOTAL_MS } from "./panDoneness";
 afterEach(cleanup);
 
 describe("beef doneness colours (S3)", () => {
-  it("doneness 0 is exactly the BeefSlices art as shipped (#691): the raw colours are read from the real SVG", () => {
+  it("doneness 0 is exactly the BeefSlices art as shipped (seared chunks since Issue #733): the raw colours are read from the real SVG", () => {
     const { container } = render(<IngredientGlyph ingredient={getIngredient("beef")!} />);
-    const paths = [...container.querySelectorAll("svg g > path")];
-    expect(paths).toHaveLength(4);
-    const attr = (i: number, name: string) => paths[i].getAttribute(name);
-    expect({ lean: attr(0, "fill"), edge: attr(0, "stroke"), fat: attr(1, "stroke"), lean2: attr(2, "fill"), fat2: attr(3, "stroke") }).toEqual({
-      lean: BEEF_RAW_COLORS.lean,
-      edge: BEEF_RAW_COLORS.edge,
-      fat: BEEF_RAW_COLORS.fat,
-      lean2: BEEF_RAW_COLORS.lean2,
-      fat2: BEEF_RAW_COLORS.fat2,
-    });
+    const chunks = [...container.querySelectorAll("svg > g > g")];
+    expect(chunks).toHaveLength(3);
+    for (const chunk of chunks) {
+      const rects = [...chunk.querySelectorAll(":scope > rect")];
+      expect(rects).toHaveLength(3);
+      expect({ lean2: rects[0].getAttribute("fill"), edge: rects[0].getAttribute("stroke"), lean: rects[1].getAttribute("fill"), fat: rects[2].getAttribute("fill") }).toEqual({
+        lean2: BEEF_RAW_COLORS.lean2,
+        edge: BEEF_RAW_COLORS.edge,
+        lean: BEEF_RAW_COLORS.lean,
+        fat: BEEF_RAW_COLORS.fat,
+      });
+    }
+    expect(BEEF_RAW_COLORS.fat2).toBe(BEEF_RAW_COLORS.fat);
     expect(beefDonenessColors(0)).toEqual(BEEF_RAW_COLORS);
   });
 

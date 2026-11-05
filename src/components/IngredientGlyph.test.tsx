@@ -1340,3 +1340,84 @@ describe("Issue #739: whitebait-school larger fish and darker outline", () => {
     expect(shiso).toContain('fill="#5aa84f"');
   });
 });
+
+/**
+ * Issue #733 (Owner decision 2026-11-05: OD-1 beef = plan B, OD-2 green-pepper = plan R1, OD-3 keep the visual ids, OD-6 discrimination tests).
+ * beef is drawn as seared chunks (a blocky silhouette, not the bacon-like ribbon with a fat streak); green-pepper as two hollow ring slices (not the bean / okra / zucchini-like arcs).
+ * These pin the shape vocabulary that tells each apart from its neighbours, not the exact path data.
+ */
+describe("Issue #733: beef chunks / green-pepper rings (shape discrimination)", () => {
+  const glyph = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+  const piece = (id: string) => renderToStaticMarkup(<IngredientPieceVisual ingredient={getIngredient(id)!} />);
+  const count = (html: string, needle: string) => html.split(needle).length - 1;
+
+  it("keeps the existing visual ids (OD-3: no ingredients.ts / golden change)", () => {
+    expect(getIngredient("beef")!.pieceVisual).toBe("beef-slices");
+    expect(getIngredient("green-pepper")!.pieceVisual).toBe("green-pepper-strips");
+  });
+
+  it.each(["beef", "green-pepper"])("%s draws the same art on the glyph and on the placed piece, with no emoji / id / url(#", (id) => {
+    for (const html of [glyph(id), piece(id)]) {
+      expect(html).toContain('viewBox="0 0 64 64"');
+      expect(html).not.toContain(getIngredient(id)!.emoji);
+      expect(html).not.toContain("id=");
+      expect(html).not.toContain("url(#");
+      expect(html).not.toContain("<defs");
+    }
+    const inner = (html: string) => html.slice(html.indexOf("<svg"), html.indexOf("</svg>"));
+    expect(inner(piece(id))).toBe(inner(glyph(id)));
+  });
+
+  it("beef: three seared chunks, each with an inner cut face; no ribbon and no pale fat streak (the bacon vocabulary)", () => {
+    const html = glyph("beef");
+    expect(count(html, "<rect")).toBe(9);
+    expect(count(html, 'fill="#6a3220"')).toBe(3); // seared crust
+    expect(count(html, 'fill="#c4473f"')).toBe(3); // red cut face
+    expect(html).not.toContain("<path");
+    expect(html).not.toContain("#f1d3c4");
+    expect(html).not.toContain("#e6c3b4");
+  });
+
+  it("beef: no other meat is drawn with the chunk crust, and the round meat slices carry no chunk", () => {
+    const meats = ["sausage", "hot-dog", "wurstel", "bacon", "ham", "salami", "pepperoni", "pork", "lamb", "prosciutto-crudo", "chicken"];
+    const beef = glyph("beef");
+    for (const id of meats) {
+      const html = glyph(id);
+      expect(html, id).not.toBe(beef);
+      expect(html, id).not.toContain("#6a3220");
+    }
+    // bacon / ham / salami / pepperoni / pork / lamb / prosciutto / chicken still print their emoji, so the beef SVG never shares their glyph.
+    for (const id of ["bacon", "ham", "salami", "pepperoni"]) expect(glyph(id)).toContain(getIngredient(id)!.emoji);
+  });
+
+  it("green-pepper: two hollow ring slices (even-odd fill) with a pale inner wall; no strip / arc strokes left", () => {
+    const html = glyph("green-pepper");
+    expect(count(html, 'fill-rule="evenodd"')).toBe(2);
+    expect(count(html, 'stroke="#d3ef9e"')).toBe(2);
+    expect(html).not.toContain('stroke-linecap="round"');
+    expect(html).not.toContain("#5fa83a");
+    expect(html).not.toContain("<circle");
+  });
+
+  it("green-pepper: no other green ingredient is drawn as a hollow ring, and none shares its markup", () => {
+    const greens = ["green-onion", "jalapeno", "zucchini", "pickles", "cilantro", "shiso", "arugula", "basil", "bell-pepper"];
+    const pepper = glyph("green-pepper");
+    for (const id of greens) {
+      const html = glyph(id);
+      expect(html, id).not.toBe(pepper);
+      expect(html, id).not.toContain("evenodd");
+    }
+  });
+
+  it("the ring geometry is deterministic and stays inside the 64-box", () => {
+    expect(glyph("green-pepper")).toBe(glyph("green-pepper"));
+    const coords = [...glyph("green-pepper").matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+    expect(coords.length).toBeGreaterThan(0);
+    for (const [x, y] of coords) {
+      expect(x).toBeGreaterThanOrEqual(0);
+      expect(x).toBeLessThanOrEqual(64);
+      expect(y).toBeGreaterThanOrEqual(0);
+      expect(y).toBeLessThanOrEqual(64);
+    }
+  });
+});

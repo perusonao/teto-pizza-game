@@ -92,8 +92,9 @@ const pill = (page: Page) => page.getByTestId("cooking-prep-pill");
 const pan = (page: Page) => page.getByTestId("cooking-prep-pan");
 const beefFill = (page: Page) =>
   page.evaluate(() => {
-    const path = document.querySelector(".pizza-dough .pizza-topping--beef svg path:nth-of-type(1)");
-    return path ? getComputedStyle(path).fill : null;
+    // Issue #733: the beef is three seared chunks; the lean colour (--beef-lean) is the red cut face, the 2nd <rect> of a chunk.
+    const face = document.querySelector(".pizza-dough .pizza-topping--beef svg g > g > rect:nth-of-type(2)");
+    return face ? getComputedStyle(face).fill : null;
   });
 const beefPieces = (page: Page) => page.locator(".pizza-dough .pizza-topping--beef").count();
 const readSave = (page: Page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? "null"), SAVE_KEY);
@@ -125,7 +126,7 @@ test.describe("Cooking Prep: HV entry (?cookPrepHv=1)", () => {
     // a placed piece starts raw, and the pan opens straight from here
     await tapDoughPercent(page, 38, 48);
     expect(await beefPieces(page)).toBe(1);
-    expect(await beefFill(page)).toBe("rgb(184, 71, 58)");
+    expect(await beefFill(page)).toBe("rgb(196, 71, 63)");
     await pill(page).click();
     await expect(pan(page)).toBeVisible();
     // another page of the same origin still sees the device's own save, byte for byte
@@ -319,7 +320,7 @@ test.describe("Cooking Prep: opt-in", () => {
     await tapDoughPercent(page, 40, 50);
     await tapDoughPercent(page, 60, 50);
     expect(await beefPieces(page)).toBe(2);
-    expect(await beefFill(page)).toBe("rgb(184, 71, 58)");
+    expect(await beefFill(page)).toBe("rgb(196, 71, 63)");
     await expect(pill(page)).toBeVisible();
   });
 });
@@ -433,9 +434,9 @@ test.describe("Cooking Prep Phase 1B: timing game", () => {
     const looks: string[] = [];
     for (const ms of [1000, 3150, 5500]) {
       await gradeAfter(page, ms);
-      const fill = await page.getByTestId("cooking-prep-beef").evaluate((el) => getComputedStyle(el.querySelector("svg path:nth-of-type(1)")!).fill);
+      const fill = await page.getByTestId("cooking-prep-beef").evaluate((el) => getComputedStyle(el.querySelector("svg g > g > rect:nth-of-type(2)")!).fill);
       await page.clock.runFor(200);
-      expect(await page.getByTestId("cooking-prep-beef").evaluate((el) => getComputedStyle(el.querySelector("svg path:nth-of-type(1)")!).fill)).toBe(fill);
+      expect(await page.getByTestId("cooking-prep-beef").evaluate((el) => getComputedStyle(el.querySelector("svg g > g > rect:nth-of-type(2)")!).fill)).toBe(fill);
       looks.push(fill);
       await shot(page, `1b-result-${ms}`);
       await discardPan(page);
@@ -447,7 +448,7 @@ test.describe("Cooking Prep Phase 1B: timing game", () => {
   test("best: the result shows, then the pan closes itself, the pieces take the cooked look, the mark appears, saves are untouched, and the guard holds the dough", async ({ page }) => {
     await toFrozenTopping(page, { place: [[38, 48], [62, 52]] });
     expect(await beefPieces(page)).toBe(2);
-    expect(await beefFill(page)).toBe("rgb(184, 71, 58)");
+    expect(await beefFill(page)).toBe("rgb(196, 71, 63)");
     const saveBefore = await readSave(page);
     await openPanByKeyboard(page);
     await page.clock.runFor(3150);
@@ -522,7 +523,7 @@ test.describe("Cooking Prep Phase 1B: timing game", () => {
     await page.clock.runFor(10_000);
     await expect(page.getByTestId("cooking-prep-done")).toHaveCount(0);
     expect(await page.locator(".ingredient-piece--prepared").count()).toBe(0);
-    expect(await beefFill(page)).toBe("rgb(184, 71, 58)");
+    expect(await beefFill(page)).toBe("rgb(196, 71, 63)");
   });
 
   test("layout: 「取り出す！」 is >= 56px tall, inside the stage, >= 16px from ×, the result buttons are tall too, and nothing scrolls", async ({ page }) => {
