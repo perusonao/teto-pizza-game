@@ -1,6 +1,6 @@
-# Expansion Batch 18 — Result（途中停止: Owner 承認待ち 1 件、Issue #748）
+# Expansion Batch 18 — Result（Owner 3 件承認済み・PR検証段階、Issue #748）
 
-基準 `origin/main` = `0016222`（#743）、**2026-11-05 に `d85b957` を merge 済み（競合なし、main 側の変更は fry ロジック・E2E 診断・docs で本バッチとファイルの重なりなし）**。**状態: 実装・単体検証までは完了。ただし Research ラベルの既存レシピ 1 件（bbq-chicken-pizza）への影響が測定で見つかったため、Owner 指示（既存データの意味が変わる場合は停止）に従い、PR は作成していません。** 共有 Preview・Production・merge は未実施。設計は `docs/reports/TETO_EXPANSION-BATCH-18_Design-Audit.md`。
+基準 `origin/main` = `0016222`（#743）、**2026-11-05 に `d85b957` を merge 済み（競合なし、main 側の変更は fry ロジック・E2E 診断・docs で本バッチとファイルの重なりなし）**。**状態: 実装・単体検証完了。Research ラベルの既存レシピ 1 件への影響を停止・報告後、2026-11-05 に Owner が OD-B18-1〜3 を承認した（Issue #748 コメント 6650593172）。承認に沿った最小限の反映を行い、PRの技術Gateに進む。** 共有 Preview・Production・merge は未実施。設計は `docs/reports/TETO_EXPANSION-BATCH-18_Design-Audit.md`。
 
 ## 0. 暫定仕様・原典未確認（GAMEPLAY ASSUMPTION）
 原典 pizzadb.jp は未確認。根拠は 172 マトリクスの 2 行（`baingan-bharta-pizza-pizzadb-p6` / `venezuelan-reina-pepiada-pizzadb-p12`、どちらも `BASE_SAUCE_UNSPECIFIED` のまま）。個数・焼成窓 58–78・cilantro を焼成前に置くこと・代用ソースはすべて暫定。Owner 決定（2026-11-04）: curry-ketchup / fromage-blanc-sauce は**レシピ限りの代用**で NO_SAUCE 例外は使わない。
@@ -39,13 +39,13 @@
 | 既存セーブ・Dex・在庫 | id 不変のため影響なし（`persistence.batch18.test.ts`: 旧順序・在庫 7・bbq の Dex エントリがバイト単位で保存） |
 | **bbq-chicken-pizza の Research ラベル** | **変化あり（下記 §4）** |
 
-## 4. 停止理由: bbq-chicken-pizza のラベル（Owner 判断が要る）
+## 4. Owner承認済み: bbq-chicken-pizza のラベル変更（OD-B18-1）
 Research の匿名ラベルは「所持順で最後に入手した有限素材」で決まる（`researchEntry.ts`）。cilantro を 2 つの通常レシピも使うようになったため:
 1. **ladder 順（正準）**: cilantro(69) が bbq-sauce(74) より先 → bbq の解禁素材は bbq-sauce。**文字は付かない**が、ラベル文字列が「？？？ピザ（パクチー）」→「？？？ピザ（バーベキューソース）」に変わる。
 2. **bbq-sauce を先、cilantro を後に入手した順序**（entitlement floor が付与する順 = 現行セーブで最も典型的）: bbq の解禁素材は cilantro のまま。cilantro cohort が {reina, bbq-chicken, baingan} の 3 件になり、**bbq-chicken-pizza に文字が付く（「？？？ピザ（パクチー）」→「？？？ピザ B（パクチー）」、reina A / bbq B / baingan C）**。この順序で他の既存レシピの文字は**一切動かない**（実測、21 件一致）。影響は「bbq-chicken を未発見のまま、この順序で両素材を持つセーブ」の Research 表示のみ。ラベルは保存されず（`persistence.batch18.test.ts` で確認）、保存データ・採点・在庫は変わらない。
 3. 既存の検証器（`validateBatchManifest` と各 cohort テスト）は ladder 順しか測らないため、2 は既存の枠組みでは検出されなかった（新テストで測定・固定）。
 
-**これは「既存の Research cohort の意味の変更」に当たると判断し、PR を作らず停止しました。** 実装は完了済みで、`PENDING OWNER APPROVAL` として新テストに測定値を固定してあります（`acceptedLetterShifts` は承認がないため宣言していません）。
+**Owner は 2026-11-05 に案 A を明示承認しました。** canonical ladder 順では BBQ の文字シフトが発生しないため、検証器が本来の canonical-only 用に定義する `B18_BATCH.acceptedLetterShifts` に追加すると `ACCEPTED_LETTER_SHIFT_NOT_OBSERVED` で失敗します。検証器の条件は緩和せず、取得順ごとの承認を `B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS = { "bbq-chicken-pizza": "-->B" }` として宣言し、`expansionBatch18.test.ts` に「bbq-sauce → cilantro順でB、他の既存文字は動かない」を固定しています。保存への書き込みはありません。
 
 ### 安全な代替案
 | 案 | 内容 | 評価 |
@@ -76,20 +76,29 @@ Research の匿名ラベルは「所持順で最後に入手した有限素材�
 - §4 の判断用: `b18-before-bbq-label-floor-order-*`（**変更前 = main**、「？？？ピザ（パクチー）」）と `b18-bbq-label-floor-order-*`（**変更後**、「？？？ピザ B（パクチー）」）、`b18-bbq-label-ladder-order-*`（変更後・ladder 順、「？？？ピザ（バーベキューソース）」）。
 - 目視での所見: curry-ketchup の塗りは既存色のまま見えている。長いレシピ名「ベネズエラレイナペピアーダピザ」は 360px の NEW RECIPE 画面でも 1 行に収まる。図鑑の章表示は「第4章 53/53」。
 
-## 7. 実施しなかったこと
-PR 作成、CI / Codex、共有 Preview 更新、Production ON、merge、#738 / #746 / #756 / #757（Steam・DRIZZLE）と食材アイコン作業（#753 ほか）のファイル変更（本ブランチはいずれとも変更ファイルが重ならない）、未承認の仕様変更（`acceptedLetterShifts` の宣言、floor の変更、Jaccard 例外の記録）、未承認の調理工程の追加。
+## 7. 安全境界
+共有 Preview 更新、Production ON、merge、#738 / #746 / #756 / #757（Steam・DRIZZLE）と食材アイコン作業（#753 ほか）のファイル変更、未承認の調理工程追加は行っていません。floor 66は維持し、Jaccard 0.43の例外はバインガンバルタだけです。CI・Codexと実機 HV は別Gateです。
 
-## 8. Owner 判断（3 件。推奨つき）
+## 8. Owner 判断（3 件とも 2026-11-05 承認、Issue #748 コメント 6650593172）
 | # | 判断事項 | 推奨 | 理由 |
 |---|---|---|---|
 | 1 | **bbq-chicken-pizza の Research ラベル**: bbq-sauce → cilantro の順で持つ未発見セーブで「？？？ピザ（パクチー）」→「？？？ピザ B（パクチー）」、ladder 順では「？？？ピザ（バーベキューソース）」（§4、画面は §6） | **案 A: 明示承認し `B18_BATCH.acceptedLetterShifts = { "bbq-chicken-pizza": "-->B" }` を宣言** | 他の既存レシピの文字は動かない。保存・採点・在庫は不変で、表示のみ。先例（B12 / B12b / B15）と同じ扱い。B〜D はいずれも Owner 決定（昇格・原典の材料）を覆すか、範囲が広い |
 | 2 | **cilantro の解禁タイミング**: floor 66 を残したため、cilantro は従来どおり credited 66 で付与され、baingan / reina も 66 から発見できる（step 69 は ladder 上の key 位置） | **floor 66 を維持（現状のまま）** | 既存セーブの解禁は一切変わらない。floor を外すと (a) 再ロック防止の固定テストを崩し、(b) 新規プレイヤーは bbq-sauce（66）→ cilantro（69）の順で必ず入手するため、判断 1 の文字付与が全員に起きる |
 | 3 | **baingan-bharta-pizza の類似度**: rendang-pizza / curry-pizza-japan と Jaccard 0.43（基準 0.4 超え）。原因は curry-ketchup の代用（共通 3 = curry-ketchup・mozzarella・onion） | **このレシピ限りの例外として承認**（B16 ume-shiso の 0.60 例外と同じ扱い。全体の 0.4 基準は変えない） | 同一・部分集合・上位集合は無く、発見判定は一意（テストで固定）。代用ソースを変えると Owner 決定に反する |
 
-## 9. PR 作成までの手順（承認後）
+## 9. 残る技術・Human Gate（承認後）
 1. 判断 1 が案 A なら: `B18_BATCH.acceptedLetterShifts` を宣言し、`expansionBatch18.test.ts` の `PENDING OWNER APPROVAL` テストを承認済みの記述に改める。判断 3 は `expansionBatch18.test.ts` の Jaccard テストと `recipes.ts` のコメントに「B18 限りの例外」と記録する。
 2. 最新 main を再度 merge し、Pinsa ON / OFF の全 Vitest・typecheck・lint・build・Chromium E2E を再実行。
 3. HV 動画（390×844、Owner へ直接送付・commit しない）を撮影。
 4. PR を作成（テンプレート準拠、本 Result Report を同梱、claim の `pr` を記入）。
 5. CI（WebKit 全シャード・WebKit Gate を含む）と最新 HEAD の Codex レビューを確認し、指摘に対応。
 6. Owner の iPhone Safari HV → merge 判断（merge・共有 Preview・Production は Owner 承認が前提）。
+
+## 10. Owner Decision Log（2026-11-05）
+
+- **OD-B18-1 承認:** Research の取得順が bbq-sauce → cilantro の場合のみ既存 BBQ のラベルに `B` を付ける差分を容認。通常 ladder のコホート検証規約を緩めず、取得順別の承認定数と回帰テストで固定する。
+- **OD-B18-2 承認:** `LATE_ENTITLEMENT_FLOORS.cilantro = 66` を維持。新2品の nominal key step 69 と、実際に credited 66 から発見可能という差を明示して維持。
+- **OD-B18-3 承認:** `baingan-bharta-pizza` の Jaccard 0.43をこの1レシピに限って許容。全体の0.4閾値・同一/部分集合/上位集合禁止・Researchの規則は維持。
+
+承認証跡: https://github.com/perusonao/teto-pizza-game/issues/748#issuecomment-6650593172 。
+本記録は原典の独立確認を意味しません。WebKit/HV/Production/merge は別のOwner Gateです。
