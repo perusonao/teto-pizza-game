@@ -280,3 +280,165 @@ Owner の優先順位（①新食材 ②新レシピ ③新調理工程）に対
 6. 実装直前に main・open PR・claim を再取得し、レシピ件数・step 70・Jaccard を**再計測**（実装時に再実施）。
 
 **Owner の明示承認までは実装しません。** 本書の判定は実装開始の許可ではありません。
+
+---
+
+# 追記 1 — Phase 0 ブロッカー解消準備（2026-11-06 13:31 UTC）
+
+**範囲:** コメント案・結果確認・Owner 判断表・docs 取り込み案の整理のみ。claim の投稿・解放、Issue／PR 作成、コード変更、merge、Preview 更新は行っていません。本節の GitHub 情報は 13:31 UTC 時点で取得。
+
+## A1. #748 の担当セッション宛て — claim 解放確認のコメント案（**未投稿**）
+
+**宛先の特定（#748 のコメント全 7 件を再確認、新規コメントなし）:** 有効な claim は 1 件。コメント 6650377722（2026-11-05T05:17:56Z）、`session_013m8Cb66Bu5f1XXHC2xCiLL`（B18 セッション A）、branch `claude/teto-pizza-game-content-9ctr2x`、`pr: null`、`expires 2026-11-19T00:00:00Z`。`released: true` の投稿はありません。PR #759 の merge（13:15:08Z）後も claim は有効のままです。
+**投稿方針:** claim の解放は担当セッションだけが行えます（SESSION-OPERATIONS §1：同じ `session` ＋ `issue` で `released: true` を投稿）。本案は**確認の依頼**で、**live な claim ブロックを含めません**（下の解放用ブロックはコードフェンス内で、運用規約上 live になりません）。Owner が投稿を承認した場合のみ、投稿してください。
+
+```markdown
+@B18 担当セッション向け（Batch 19 の実装前確認）
+
+PR #759（Batch 18）は 2026-11-06T13:15:08Z に squash merge されました（main `785d7956`）。
+#748 の最新 claim（コメント 6650377722、`session_013m8Cb66Bu5f1XXHC2xCiLL`、期限 2026-11-19T00:00Z）が
+`recipes.ts`・`ingredients.ts`・`lateCatalog.ts`・`discoveryLadder.ts`・`referencePizza.ts`・
+`ingredientTaxonomy.ts`・`toppingSizeClass.ts`・`__golden__/**` ほかを保持したままです。
+次の Expansion Batch 19（burrata＋2 レシピ、未着手・Owner の明示 GO 待ち）が同じ HOT ファイルを使うため、確認をお願いします。
+
+1. #759 の追加作業（B18 の follow-up、Production／Preview 関連を含む）で、上記ファイルを今後も編集する予定はありますか。
+2. 予定がなければ、claim の解放（`released: true`）をお願いします。予定がある場合は、対象ファイルと期限を更新してください。
+3. 担当が不在・不明な場合は、Owner の判断（失効宣言など）に委ねます。**この確認は claim を解放するものではありません。**
+
+（参考）解放の書式。担当セッション自身が投稿する場合のみ使用してください:
+<!-- teto-claim:v1 {"session":"session_013m8Cb66Bu5f1XXHC2xCiLL","issue":748,"pr":759,"branch":"claude/teto-pizza-game-content-9ctr2x","files":[],"released":true} -->
+（上の 1 行は、このコメント案ではフェンス内の例示です。投稿時に live にするかは担当セッションが決めます）
+
+Refs #748 #759
+```
+
+> 注: 上のコメント案の最後の `<!-- … -->` は、投稿する場合は**削除**して送るのが安全です（確認依頼と解放を混同しないため）。担当セッションが解放する際に自分で書き直します。
+
+## A2. main `785d7956` の WebKit E2E run 42223996134 — 最新結果（13:31 UTC）
+
+| ジョブ | 状態 |
+|---|---|
+| classify | success |
+| layout-chromium | success |
+| webkit-390x844 shard 1/3 | **success**（13:29:38Z 完了） |
+| webkit-390x844 shard 2/3 | **success**（13:29:38Z 完了） |
+| webkit-360x800 shard 1/3 | **success**（13:30:28Z 完了） |
+| webkit-390x844 shard 3/3 | **実行中**（13:16:55Z 開始） |
+| webkit-360x800 shard 2/3 | **実行中**（13:17:12Z 開始） |
+| webkit-360x800 shard 3/3 | **実行中**（13:17:01Z 開始） |
+| Layout Contract Gate | success（13:19:32Z。WebKit 完了前の評価で、WebKit Gate の代わりではない） |
+| WebKit Gate | **未実行／未確定** |
+| Deploy to GitHub Pages（run 42223996114） | success |
+
+**判定:** 完了 shard は 3/6 が success、3 shard が実行中（約 14 分経過。完了済み shard は約 13 分で終了しており、異常な長さではない）。**run 全体の結論は未確定**です。待機ループは行わず、最終結果は Owner／担当が確認するか、次回の確認時に再取得してください。赤になった場合は PASS 扱いにせず、#394・#680 の既知の間欠性と切り分けます。
+
+## A3. Owner 判断表（Prep Rev 4 × R2 決定記録 × #748 コメント）
+
+**証拠の凡例:** [GH]＝#748 の Owner コメントで確認（6663697601＝2026-11-05 16:45Z「Parallel Investigation」、6673566588＝2026-11-06 00:48Z「R2 preflight」）。[R2]＝R2 決定記録（未 merge ブランチ）。[Prep]＝Prep Rev 4 のみ。[B18]＝B18 の Owner コメント（6650593172・6651668675・6656496881）。**GitHub 上の Owner コメントで確認できたものだけを「承認済み（GH 確認）」とします。** Prep／R2 の記載は Owner 承認の*記録*だが GitHub 上の一次証拠がないものは「承認記録あり・GH 未確認」とし、私は検証できません。
+
+### A3.1 承認済み（GH で確認）
+
+| 項目 | 内容 | 証拠 |
+|---|---|---|
+| burrata の専用 SVG | **案 C**（上が裂けてクリームが見える）。ただし「実装時の見た目 HV 待ち」（pending real implementation visual HV） | [GH 6673566588][R2 D5] |
+| ハーブ 4 種 | rosemary B／oregano B／spinach A2／artichoke A2。初期 1.2em、実寸の焼成後・RESULT は実装 HV で検証。**デザイン候補の承認で、iPhone HV PASS や merge ではない** | [GH 6673566588][R2 D1–D4] |
+| pesto-burrata の構成 | pesto＋olive-oil | [GH 6673566588][R2 D8] |
+| crudaiola の Jaccard 例外 | **0.429、このレシピ限り**。近傍の根拠を文書化、同一／部分集合／上位集合なし。トマト＋オリーブオイルの構成を維持 | [GH 6673566588][R2 D6・D7] |
+| crudaiola の配置 | 全食材**焼成前**（未対応の後乗せはしない） | [GH 6673566588][R2 D7] |
+| FINISH のチーズ対応 | 別の将来タスク。B19 は依存しない | [GH 6673566588][R2 D9] |
+| 実装の順序条件 | #765・#759・#760 が**それぞれの Owner 承認つきで merge**され、**現在の claim が解消**されるまで実装しない。実装前に main・claim を更新し、**step・Research ラベル・Hint・重複ゲートを再検証** | [GH 6673566588]。#765・#760・#761・#759 は merge 済み（#759 は Owner〔perusonao〕が 13:15:08Z に merge）。**claim の解消は未了** |
+| 調査の範囲 | burrata と 2 レシピの preflight 調査 GO のみ（実装・PR は未許可）。#759 の merge 依存を尊重 | [GH 6663697601] |
+| 一般の運用制約 | merge・Production ON・共有 Preview 上書きは別途 Owner 承認 | [GH 6663697601・6673566588] |
+
+### A3.2 承認記録あり・GH で未確認（Prep／R2 の記載のみ）
+
+| 項目 | 内容 | 出典 | 扱い |
+|---|---|---|---|
+| Prep D1 | 食材名「**ブッラータ**」（matrix の「ブラータ」は検索エイリアス案） | [Prep] | **要確認**。R2 では未記載 |
+| Prep D3 | id `pesto-burrata-pizza`／`pizza-alla-crudaiola`、名称「ペスト・ブッラータピザ」「ピッツァ・アッラ・クルダイオーラ」（暫定） | [Prep] | **要確認**（暫定のまま） |
+| Prep D4 | 個数・窓・価格・色は暫定実装可、Preview HV で調整 | [Prep] | **要確認**。R2 にも明記なし |
+| Prep D7 | pesto-burrata のチーズは burrata のみ（mozzarella を足さない） | [Prep] | **要確認**。R2 では未記載 |
+| Prep D8 | 2 レシピとも維持 | [Prep]（#748 6663697601 は「2 レシピ」を調査対象としている） | 実質的に支持される。実装 GO で確認 |
+| Prep D9 | #759 merge 後の B19 Issue 起票の承認 | [Prep] | **要確認**（起票は GO 後） |
+| Prep D5 | ハーブ 4 種は別 PR・#759 merge 後 | [Prep]、[R2 §3] も「別 PR 維持」 | R2 に記録あり。GH 上は確認できず |
+| Prep Q1 | pesto-burrata 近傍（4 件目）の例外を C1〜C5 つき条件付き承認、AC-8b 追加 | [Prep] | **要確認** |
+| Prep Q2 | 正準順の既存ラベル変化 0 件、非正準は全件列挙＋個別承認 | [Prep]。B18 では OD-B18-4 が**セット承認**だった[B18]ため、B19 の「個別承認」は**より厳しい方針の Prep 記載** | **要確認** |
+| Prep Q3 | **Owner の明示 GO が実装の必須条件** | [Prep]、[R2 §2.2 3.] | 一貫（R2 に同記載）。GO 自体は未取得 |
+| Prep Q4 | #759 merge 前は実装しない（claim 期限と独立） | [Prep]、[GH 6673566588] の順序条件と整合 | 条件は充足済み |
+| Prep P1 | AC-8b の合格基準：SAUCE または CHEESE の有料ヒント 1 段 | [Prep] | **要確認** |
+| Prep P2 | 非正準差分は 1 件ごとに ID・レシピ・取得順・変更前後を報告、未承認は Gate HOLD | [Prep] | **要確認** |
+
+### A3.3 暫定仕様（Owner の承認対象ではなく、実装 PR で「暫定」と明記）
+
+原典（pizzadb.jp）未確認。個数（Prep §4.2 の仮置き：pesto-burrata＝pesto 1／olive-oil 1／burrata 2／fresh-tomato 2、crudaiola＝tomato-sauce 1／olive-oil 1／mozzarella 2／burrata 2／fresh-tomato 2／arugula 2）、焼成窓 58–78、価格（T4 の提案）、burrata のサイズクラス `l`、色・emoji（🧀 フォールバック）、`pieceVisual` の id（仮 `burrata-torn-ball`）、recipe id・日本語名、`lunchRush:false`、通常 step 70・`ladderCredit`（pesto-burrata のみ credited）、Research ラベル「？？？ピザ A／B（ブッラータ）」。**R2 は個数を決めていない**（Prep 自身も「仮置き」）。
+
+### A3.4 未承認・未回答（Owner の判断が要るもの）
+
+| # | 項目 | 備考 |
+|---|---|---|
+| U1 | **実装の明示 GO**（Q3） | 未取得。P0 完了後 |
+| U2 | **#748 の未解放 claim の扱い**（A1） | GH 6673566588 が「claims が解消されてから」を条件にしており、**現状は未充足** |
+| U3 | Prep 記載の決定（A3.2）を Owner が権威として承認、または #748 へ記録 | 要確認項目 11 件 |
+| U4 | 将来の `burrata-pizza`（matrix 行 117）追加時の扱い（crudaiola の近傍 5 件目になり例外 C2 に抵触、Jaccard 0.429） | 本監査（§4.4）の新発見 |
+| U5 | ハーブ 4 種 PR と B19 の順序（`IngredientGlyph.tsx`・`ingredients.ts` 共有） | Owner の優先順位に従えば B19 先 |
+| U6 | HV 用 seed の要否・方式（main に `src/preview/b18HvSeeds.ts` が既にあり、B18 の approach A が前例） | Phase 5 で別途提案 |
+| U7 | docs 取り込み PR の作成許可（A4）と、Prep／R2 の修正の承認 | 本追記では PR 未作成 |
+
+**矛盾の整理:** R2 と Prep で**番号は異なるが内容は一致**する項目：R2 D5＝burrata C／D6＝crudaiola 例外／D7＝crudaiola 2 層・焼成前／D8＝pesto-burrata 2 層／D9＝FINISH チーズ保留。Prep の D2＝crudaiola 例外、D7＝pesto-burrata に mozzarella なし、D9＝#759 後の Issue 起票。**内容の矛盾はなし**（番号の取り違えのみ。R2 D7 の「案 P」は late に入れない意で Prep §4.1 と一致）。
+
+## A4. docs-only 資料を main へ取り込む最小差分と修正案（**未実施**）
+
+### A4.1 最小差分（新規ファイルのみ、既存ファイルとの衝突なし）
+
+両ブランチとも**追加のみ**で main の既存ファイルを変更しません（`git diff --stat origin/main...` で確認：R2＝1 ファイル +69、Prep＝2 ファイル +831）。
+
+| # | ファイル | 出典ブランチ | 取り込み方針 |
+|---|---|---|---|
+| 1 | `docs/reports/TETO_EXPANSION-BATCH-19_Prep.md`（497 行） | `claude/teto-pizza-batch-19-prep-xvizrg` `9903b33f` | **修正して取り込む**（A4.2）。Rev 5 として |
+| 2 | `docs/reports/data/TETO_EXPANSION-BATCH-19_PREP_jaccard.json`（334 行） | 同上 | **無修正で取り込み可**。ただし B18 反映後の再計測値は本監査で同じ結果（§4）。再生成は不要 |
+| 3 | `docs/decisions/TETO_ICONS-HERBS-BURRATA_R2_OWNER-DECISIONS_2026-11-06.md`（69 行） | `claude/r2-owner-decisions-docs-8auzii` `2f29318f` | **修正して取り込む**（A4.2） |
+| 4 | `docs/reports/TETO_EXPANSION-BATCH-19_PreImplementation_Fresh-Audit.md`（本書） | 本ブランチ | そのまま |
+
+- **取り込まないもの:** ハーブ・burrata の候補 SVG と R2 Result Report（`claude/herb-icons-compare-docs-8auzii` `c9351e4`、`claude/burrata-preflight-docs-8auzii` `d39a680`、`docs/design/candidates/**`）。これらは**実装 PR で必要なファイルだけを移す**（Owner 2026-11-05 の指示）。参照はブランチ名とコミット SHA で残し、取り込みの対象外とする。
+- **ベース:** 4 ファイルは別々のブランチにある（Prep は `fa67c72`、R2 は `d85b9575` から分岐）。**推奨：`origin/main`（`785d7956`）から新しい docs ブランチを切り、3 ブランチのファイルを `git checkout <branch> -- <path>` で持ち込み、A4.2 の修正を 1 コミット**にする。ブランチをそのまま merge すると、旧 main のコミットが混ざるため避ける。
+- **CI への影響:** `docs/` のみの変更なので、WebKit の classify が docs-only と判定する見込み（過去の docs-only PR と同様。**この環境では未確認**）。`src/` の import／スキャンに影響するテストが docs を読む場合は取り込み前に Vitest の該当を確認（未実行）。
+- **PR の作成・merge は Owner の許可後**（U7）。本監査では作成していません。
+
+### A4.2 古い記述と D 番号の修正案
+
+**Prep Rev 4 → Rev 5（修正案）**
+
+| # | 箇所 | 現状 | 修正案 |
+|---|---|---|---|
+| P-1 | 先頭の「ブランチ」「入力」 | 準備ブランチと `fa67c72` ベースの説明 | 「main `785d7956`（#759 merge 後）に取り込み。出典コミット `9903b33f`」に更新 |
+| P-2 | §0 項目 6、§1.2、§7.0 S-1・S-3、§8.2 末尾 | 「#759 は Draft／HOLD・未 merge」「S-1 未充足」 | 「#759 は 2026-11-06T13:15:08Z に merge（`785d7956`）。**S-1 は充足**。S-3（claim 解消）は未充足（#748 の 6650377722 が有効）」 |
+| P-3 | §1 の表（「#759 merge 後（B18 報告の数値）」列） | #759 の Result Report の引用で「検証し直していない」 | 「**main `785d7956` で確認**（レシピ 90＝本監査の静的解析で一致）。credited・食材 id・ladder step 69・章サイズ 53 は #759 の Result Report の値で、**本監査では未再計測**」と区別 |
+| P-4 | §1.1 の「#758」行 | claim 有効（〜2026-11-08） | **release 済み**（#758 コメント 6679761024、2026-11-06T07:35:47Z） |
+| P-5 | §1.2 の #759 行 | HEAD `d9679e6`、WebKit shard 2/3 failure の記述 | 過去の時点の記録として「Rev 3 時点」と明記し、**最終 merge HEAD は `c533a4f1`**、現在の main の WebKit run は追記 1 A2 の状態、と追記 |
+| P-6 | D 番号の注記 | D1〜D9 が R2 と別内容 | 「**本書の D1〜D9 は R2 決定記録の D1〜D9 とは別の番号体系**。R2 の D5＝burrata C、D6＝crudaiola 例外 など。引用時は内容を併記する」を §0.1 の見出し直後に追加。**Prep の D 番号は変更しない**（既存の引用を壊さないため）。代わりに R2 側に対応表を追加 |
+| P-7 | §0.1 の根拠 | D1・D3・D4・D7・D9 の出典 | 「出典：Owner のチャット指示（#748 の GitHub コメントでは未記録）」と明記 |
+| P-8 | 付録 | 本監査の発見 | §4.4（burrata-pizza の将来リスク）と、crudaiola 例外 C2 に「burrata-pizza 追加も 5 件目に該当」を追記 |
+| P-9 | §9 | 「実施／未実施」 | Rev 5 では「docs 取り込み」「再計測（Jaccard、静的解析）」を追記 |
+
+**R2 決定記録（修正案）**
+
+| # | 箇所 | 現状 | 修正案 |
+|---|---|---|---|
+| R-1 | 冒頭 Status | 「実装は未着手・HOLD（開始条件の一部が完了、残りは §2）」 | 「#759 merge 済み。残りは claim の解消と Owner の明示 GO」 |
+| R-2 | §2.1 表 | #759「未完了（open・Draft／HOLD）」、main `c308a3f7` | #759「**完了**（`785d7956`、2026-11-06T13:15:08Z）」、main `785d7956`。#748 の claim「〜2026-11-18」は**「〜2026-11-19、`6650377722`、解放の投稿なし」**に訂正（期限日の誤記） |
+| R-3 | §2.2 | 3 条件（#759 merge、claims、GO） | 条件 1 を「**充足**」にし、残り 2 条件を維持 |
+| R-4 | §3 の「main（`c308a3f`）で変わった共有ファイル」 | #759 の変更ファイルは main 未反映と記載 | 「#759 の変更は main に取り込み済み（`recipes.ts`・`ingredients.ts`・`lateCatalog.ts`・`discoveryLadder.ts`・golden ほか）」 |
+| R-5 | 対応表の追加 | なし | Prep の D 番号との対応表（上の A3 の「矛盾の整理」）を §1 に追加 |
+
+**修正しないもの:** Owner 決定の内容（D1〜D9）。変更・解釈の追加は行わず、状態の更新と対応表だけにします。
+
+## A5. 実装開始に残るブロッカー
+
+1. **Owner の明示 GO**（Q3、必須）— 未取得。
+2. **#748 の未解放 claim**（`6650377722`、期限 11-19、主要カタログ・golden と重複）— GH 6673566588 の「claims 解消」条件が未了。担当セッションの解放、または Owner の判断が必要（A1）。
+3. **main `785d7956` の WebKit E2E の完了確認** — 3/6 shard は success、3 shard 実行中、WebKit Gate は未確定（A2）。
+4. **GitHub で確認できない Prep 記載の決定の承認**（D1・D3・D4・D7・D9、Q1・Q2・P1・P2：A3.2、U3）。
+5. **docs 取り込み（Prep／R2 の main 反映と陳腐化の修正）**— 開始の必須条件にするかは Owner 判断（U7、推奨は取り込み後に実装）。
+6. **実装直前の再計測**（step 70・件数・Jaccard・Research 監査・Hint）— 実装セッションの作業で、現時点の未了は仕様上のもの。
+
+**ブロッカーではないもの:** #759・#760・#761・#765 の merge（完了）、Jaccard・重複（再現済み・新たな違反なし）、他 open PR とのファイル競合（`src/data/*`・`IngredientGlyph.tsx`・`App.css` を触る open PR は確認範囲で無し）。
