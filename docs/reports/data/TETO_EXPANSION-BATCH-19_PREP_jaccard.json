@@ -246,5 +246,89 @@
     }
    ]
   }
- ]
+ ],
+ "d2Neighbours": [
+  {
+   "neighbour": "pinsa-romana",
+   "shared": [
+    "arugula",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "neighbourOnly": [
+    "prosciutto-crudo"
+   ],
+   "crudaiolaOnly": [
+    "burrata",
+    "fresh-tomato",
+    "olive-oil"
+   ],
+   "symmetricDifference": 4,
+   "jaccard": 0.4286,
+   "jaccardExcludingStarters": 0.2
+  },
+  {
+   "neighbour": "jamon-serrano-pizza",
+   "shared": [
+    "arugula",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "neighbourOnly": [
+    "prosciutto-crudo"
+   ],
+   "crudaiolaOnly": [
+    "burrata",
+    "fresh-tomato",
+    "olive-oil"
+   ],
+   "symmetricDifference": 4,
+   "jaccard": 0.4286,
+   "jaccardExcludingStarters": 0.2
+  },
+  {
+   "neighbour": "grandma-pizza",
+   "shared": [
+    "mozzarella",
+    "olive-oil",
+    "tomato-sauce"
+   ],
+   "neighbourOnly": [
+    "garlic"
+   ],
+   "crudaiolaOnly": [
+    "arugula",
+    "burrata",
+    "fresh-tomato"
+   ],
+   "symmetricDifference": 4,
+   "jaccard": 0.4286,
+   "jaccardExcludingStarters": 0.2
+  },
+  {
+   "neighbour": "pesto-burrata-pizza",
+   "shared": [
+    "burrata",
+    "fresh-tomato",
+    "olive-oil"
+   ],
+   "neighbourOnly": [
+    "pesto"
+   ],
+   "crudaiolaOnly": [
+    "arugula",
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "symmetricDifference": 4,
+   "jaccard": 0.4286,
+   "jaccardExcludingStarters": 0.6
+  }
+ ],
+ "starters": [
+  "basil",
+  "mozzarella",
+  "tomato-sauce"
+ ],
+ "revision": "2 (2026-11-06): added d2Neighbours"
 }
