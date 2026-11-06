@@ -59,3 +59,15 @@ S4 は 2 の先行検証までを担当し、結果は本書に追記する形�
 | **未実施** | 全 Vitest、build、Chromium E2E、WebKit 全 shard、Codex（#738 の CI は PR 側で別途） |
 
 「全体の取り込み後の検証」は未完了。残りは保有者の push（Owner 承認）後に PR の CI で確認する。
+
+## 7. 追記（Rev 4）— 新 HEAD `78de12a` の状況（旧 HEAD の検証は繰り返さない）
+
+| 項目 | 結果（2026-11-06 15:3x UTC 取得） |
+|---|---|
+| HEAD | `78de12a`（`Merge main (ed159e9)`。保有者が Owner の明示承認の下で fast-forward push。force なし） |
+| 実行コード | #738 自身のコードは `2ac9820` から**変更なし**（差分は main 側の取り込みのみ、PR コメント 6688465513） |
+| Codex | **`78de12a` をレビュー済み: 主要な指摘なし**（`chatgpt-codex-connector[bot]`、コメント 6688513577、15:29Z） |
+| CI | classify **success**。build・layout-chromium・WebKit 6 shard は**実行中**（run 42243113168／42243113244） |
+| mergeable_state | `unstable`（CI 実行中のため） |
+
+§6 の私のローカル検証（`2ac9820`＋`3a41bb6`）は、新 HEAD の CI で置き換わるため**追加の再実行はしない**。CI 完了後に結果だけを確認する。

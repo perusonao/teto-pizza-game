@@ -6,6 +6,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import {
   ArtichokeQuarter,
   OreganoPile,
+  OreganoPileB2,
+  OREGANO_B2_VISUAL_ID,
   RosemarySprigs,
   SpinachLeaves,
   ARTICHOKE_VISUAL_ID,
@@ -23,6 +25,7 @@ const HERBS = [
   ["oregano", OREGANO_VISUAL_ID, OreganoPile],
   ["spinach", SPINACH_VISUAL_ID, SpinachLeaves],
   ["artichoke", ARTICHOKE_VISUAL_ID, ArtichokeQuarter],
+  ["oregano-b2", OREGANO_B2_VISUAL_ID, OreganoPileB2],
 ] as const;
 
 const svg = (C: () => ReactElement) => renderToStaticMarkup(<svg viewBox="0 0 64 64">{C()}</svg>);
@@ -35,13 +38,13 @@ describe("herbGlyphs (unwired)", () => {
     expect(m).toMatch(/opacity="\.15"/); // ground shadow, like the other 64x64 glyphs
   });
 
-  it("the four drawings are all different", () => {
+  it("the five drawings (4 approved + oregano B2 candidate) are all different", () => {
     const set = new Set(HERBS.map(([, , C]) => svg(C)));
-    expect(set.size).toBe(4);
+    expect(set.size).toBe(5);
   });
 
   it("uses the Owner-approved candidate ids", () => {
-    expect(HERBS.map(([, id]) => id)).toEqual(["rosemary-b", "oregano-b", "spinach-a2", "artichoke-a2"]);
+    expect(HERBS.map(([, id]) => id)).toEqual(["rosemary-b", "oregano-b", "spinach-a2", "artichoke-a2", "oregano-b2"]);
   });
 
   it("is imported by nothing but its own test (wiring is a separate PR)", () => {
@@ -56,5 +59,14 @@ describe("herbGlyphs (unwired)", () => {
     };
     walk(root);
     expect(hits).toEqual([]);
+  });
+});
+
+describe("oregano B2 (26px legibility candidate)", () => {
+  it("has fewer, larger flakes and a heavier outline than B", () => {
+    const flakes = (m: string) => (m.match(/<path/g) ?? []).length - 1; // minus the mound
+    const b = svg(OreganoPile), b2 = svg(OreganoPileB2);
+    expect(flakes(b2)).toBeLessThan(flakes(b));
+    expect(b2).toMatch(/stroke-width="3.2"/);
   });
 });

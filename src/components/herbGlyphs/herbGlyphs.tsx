@@ -32,3 +32,14 @@ export function ArtichokeQuarter() {
     <g><g transform="translate(32 33) scale(1.12) translate(-32 -33)"><ellipse cx="32" cy="58" rx="19" ry="2.6" fill="#000" opacity=".15"/><path d="M32 54 C14 50 8 30 14 14 C24 8 40 8 50 14 C56 30 50 50 32 54 Z" fill="#8aa24e" stroke="#3d5020" strokeWidth="2.4" strokeLinejoin="round"/><path d="M32 51.2 C16.6 47.6 11 30.4 16 16.8 C24.6 12 39.4 12 48 16.8 C53 30.4 47.4 47.6 32 51.2 Z" fill="none" stroke="#e9efb4" strokeWidth="1.5" strokeLinejoin="round"/><path d="M32 50 C20 46 16 32 20 20 C27 16 37 16 44 20 C48 32 44 46 32 50 Z" fill="#b8c873" stroke="#55682c" strokeWidth="1.6"/><path d="M32 46 C25 42 23 32 25 24 C29 22 35 22 39 24 C41 32 39 42 32 46 Z" fill="#ecebb8" stroke="#8a8a4a" strokeWidth="1.2"/><path d="M26 24 C29 21 35 21 38 24" stroke="#8e5c8a" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M32 46 L32 56" stroke="#55682c" strokeWidth="3" strokeLinecap="round"/><path d="M18 18 L22 22 M46 18 L42 22 M14 30 L19 31 M50 30 L45 31" stroke="#3d5020" strokeWidth="1.3" strokeLinecap="round"/></g></g>
   );
 }
+
+/**
+ * Oregano B2 (2026-11-06, Owner direction: improve 26px legibility of the approved B "dried-flake mound"; NOT yet Owner-approved, Owner picks B or B2 by actual-size HV).
+ * Same idea as B, but 6 larger flakes instead of 14 small ones, a light/dark alternation that survives greyscale, a 3.2 outline and a wider mound filling the box.
+ */
+export const OREGANO_B2_VISUAL_ID = "oregano-b2" as const;
+export function OreganoPileB2() {
+  return (
+    <g><ellipse cx="32" cy="58" rx="28" ry="3.4" fill="#000" opacity=".15"/><path d="M4 57 C6 38 20 20 32 19 C44 20 58 38 60 57 Z" fill="#55732a" stroke="#22330d" strokeWidth="3.2" strokeLinejoin="round"/><path d="M13 52 L8 44 L16 38 L22 45 Z" fill="#c4dc84" stroke="#22330d" strokeWidth="2" strokeLinejoin="round"/><path d="M24 40 L30 30 L38 35 L33 44 Z" fill="#a9c766" stroke="#22330d" strokeWidth="2" strokeLinejoin="round"/><path d="M40 45 L46 36 L54 42 L48 50 Z" fill="#c4dc84" stroke="#22330d" strokeWidth="2" strokeLinejoin="round"/><path d="M20 56 L24 47 L33 50 L30 57 Z" fill="#a9c766" stroke="#22330d" strokeWidth="2" strokeLinejoin="round"/><path d="M35 56 L38 48 L47 52 L44 58 Z" fill="#dbe9a8" stroke="#22330d" strokeWidth="2" strokeLinejoin="round"/><path d="M27 27 L32 22 L37 27 L32 31 Z" fill="#dbe9a8" stroke="#22330d" strokeWidth="1.8" strokeLinejoin="round"/><g fill="#22330d"><circle cx="18" cy="49" r="1.8"/><circle cx="38" cy="41" r="1.8"/><circle cx="51" cy="54" r="1.8"/><circle cx="28" cy="36" r="1.6"/></g></g>
+  );
+}
