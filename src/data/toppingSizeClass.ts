@@ -79,6 +79,7 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   "sweet-potato": "m",
   mayo: "s",
   cinnamon: "s",
+  cilantro: "xs", // Expansion Batch 18 (#748): promoted from the late catalog (same class)
   // large
   mozzarella: "l",
   fontina: "l",

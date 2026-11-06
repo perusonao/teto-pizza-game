@@ -840,6 +840,28 @@
   margin: -0.1em;
 }
 
+/* Issue #739 (Owner P1): the whitebait school is drawn with larger fish and a darker outline, and its box is 1.35em (was the shared 1.2em above), so the school reads on the baked dough. Its own rule: the shared group above stays untouched. The layout box stays 1em via the negative margin. */
+.ingredient-glyph--whitebait-school {
+  width: 1.35em;
+  height: 1.35em;
+  margin: -0.175em;
+}
+
+/* Issue #758: the shiso leaf's box is 1.35em (was the shared 1.2em above; same value and method as the whitebait school), so the leaf reads on the pizza (23.5 -> 26.5px) and on the RESULT pizza (17.6 -> 19.8px). Its own rule: the shared group above stays untouched. The layout box stays 1em via the negative margin. Adopted: Owner iPhone Safari design HV PASS (2026-11-06). */
+.ingredient-glyph--shiso-leaf {
+  width: 1.35em;
+  height: 1.35em;
+  margin: -0.175em;
+}
+
+/* Issue #739 (Owner P1): the plum-paste dab of the 梅肉 sauce chip (shared by the B17 sour-cream dab, same grammar and box). A 64-box with margins, so it gets a boost (1.5em: the flat dab fills only the lower two thirds of its box) to match the neighbouring emoji chips; PROVISIONAL until the 390x844 / 360x800 HV. */
+.ingredient-glyph--sour-cream-dab,
+.ingredient-glyph--umeboshi-paste-dab {
+  width: 1.5em;
+  height: 1.5em;
+  margin: -0.25em;
+}
+
 /* Ingredient Visual V1 (pickles / wurstel / paprika-powder): drawn inside a 64-box with margins, so on the dough they read smaller than the emoji they replace (measured on 390x844 / 360x800).
    Same fix class as the group above, kept as its own rule so later visuals append without touching it. */
 .ingredient-glyph--pickle-slices,
@@ -5602,6 +5624,23 @@
     width: 40px;
     height: 40px;
     --piece-scale: 0.22;
+  }
+}
+
+/* Issue #764: on screens narrower than 390px the three-column tray can need more than its width. The tracks are
+   `1fr` (= `minmax(auto, 1fr)`), so a column grows to its chip's min-content (the name never wraps), and when the three
+   min-contents add up past the tray the cooking screen scrolls sideways: WebKit 360x800 measured the sauce tray at 386px
+   in a 360px screen (「ジェノベーゼソース」 chip 117px). Here the name is 1px smaller and the chip's side padding 3px
+   narrower, which keeps every name whole: WebKit-wide glyphs then need about 330px of the 336px tray. 390x844 is not
+   touched. e2e/cooking-screen-sideways.spec.ts checks every tray page at both viewports. */
+@media (max-width: 389px) {
+  .prepare-dock .ingredient-chip {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .prepare-dock .ingredient-chip__name {
+    font-size: 10px;
   }
 }
 

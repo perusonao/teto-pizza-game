@@ -443,6 +443,9 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // ladder and the material prices (test-only; nothing in production imports them).
       "./catalog/testSupport/ladderReachability.ts",
       "./catalog/testSupport/ladderEconomyEstimate.ts",
+      // Expansion Batch 18 (Codex P2, PR #759): the Research label audit compares letters before / after a batch along ladder-derived acquisition orders
+      // (test-only; nothing in production imports it).
+      "./catalog/testSupport/researchLabelAudit.ts",
     ]);
     const bridges = [
       "../components/ShopOverlay.tsx",
@@ -455,6 +458,10 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // reaches the editor only behind the DEV / Preview env check (dynamic import), and
       // ../preview/previewIsolation.gate.test.ts proves a production bundle has none of it.
       "../devtools/editorCatalog.ts",
+      // Expansion Batch 18 (#748, Owner approach A): the Preview-only B18 HV seeds read the ladder to find the materials before
+      // cilantro's step (read-only, no numbers of their own). Reached only from ../preview/hvSeeds.ts `applyPreviewHvSeed` (behind
+      // `import.meta.env.VITE_PREVIEW_MODE`); ../preview/previewIsolation.gate.test.ts proves a production bundle contains none of it.
+      "../preview/b18HvSeeds.ts",
       // Hint 5.0 H5-5: the Preview-only Human Verification seeds read the ladder to build a valid Dex and
       // material set for their target recipe (read-only, no numbers of their own). ../main.tsx calls
       // them only behind `import.meta.env.VITE_PREVIEW_MODE`, and ../preview/previewIsolation.gate.test.ts

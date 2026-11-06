@@ -108,6 +108,7 @@ const BASE_TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[
   ["spinach", "vegetable"],
   // Batch 7a (OD-B7-1, docs/decisions/TETO_EXPANSION-BATCH-7_OWNER-DECISIONS.md): batch-scoped Owner approval for these three rows only (L1 family; no L2).
   ["mint", "herb"],
+  ["cilantro", "herb"], // Expansion Batch 18 (#748): promoted from the late catalog (the row moved with it)
   ["lamb", "meat"],
   ["sweet-potato", "vegetable"],
   // Batch 8b (OD-B8-2, docs/decisions/TETO_EXPANSION-BATCH-8_OWNER-DECISIONS.md): batch-scoped Owner approval for these rows only (L1 family; no L2).

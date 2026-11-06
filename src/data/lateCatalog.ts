@@ -29,7 +29,11 @@ import { isDoughKind, type DoughKind } from "../logic/dough/doughKind";
 import { pinsaEnabled } from "./pinsaGate";
 import type { Ingredient } from "./ingredients";
 
-/** Build-time switch (Owner D-3 案 1). `false` in Production; a literal so a bundler drops the late branch. */
+/**
+ * Build-time switch (Owner D-3 案 1). **`true` in Production since E5 (#654, 2026-10-24)**; a literal so a bundler could drop the late branch. The prose above
+ * ("With it `false` (Production) ...") describes the OFF build, which tests still pin (`lateCatalog.offGolden.test.ts`); it is not the current Production state
+ * (Expansion Batch 18 comment correction, Owner-approved: the value and `FREE_COOK_FINISH_PRODUCTION` are both `true`).
+ */
 export const LATE_CATALOG_PRODUCTION = true;
 
 export function lateCatalogEnabled(): boolean {
@@ -167,7 +171,7 @@ const ALL_LATE_RECIPES = [
   // (the existing PAINT); chicken and onion are placed BEFORE the bake with no pre-cooking step (not modelled); mozzarella is the ordinary CHEESE.
   // GAMEPLAY CALIBRATION (provisional, not source): bbq-sauce 1 (PAINT) / mozzarella 2 / onion 1 / chicken 3 / cilantro 2 (POST_BAKE) = 8 non-sauce pieces (6 before the bake, 2 in FINISH), bake 58-78 (= the generic Free Cooking window).
   // The 8 pieces take the RT-01 reference layout consecutively in `requiredIngredients` order (see referencePizza.ts); no piece-count limit is defined or implied here.
-  // Late catalog (`bbq-sauce` and `cilantro` are late-only materials): ladder-credited (its own late step, after the tahini step), no star gate, no CUT, `lunchRush: false` (Lunch Rush and Dinner exclude FINISH), permanently key-free.
+  // Late catalog (`bbq-sauce` is a late-only material; `cilantro` was promoted to an ordinary material in Expansion Batch 18): ladder-credited (its own late step, after the tahini step), no star gate, no CUT, `lunchRush: false` (Lunch Rush and Dinner exclude FINISH), permanently key-free.
   // The description names no moment (Anti-Oracle: it is shown before the recipe is discovered). Listed before Pinsa so that Pinsa stays the tail while its gate is open.
   {
     id: "bbq-chicken-pizza",
@@ -416,22 +420,6 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
     unlockCondition: { minTotalStars: 0 },
   },
   /**
-   * BBQ Chicken (Issue #611): `cilantro`, a late-only finite ladder material (the same late step as `bbq-sauce`; the step's last material = the Research cohort key). Family `herb` (L1 only), size class `xs`, drawn by the
-   * dedicated `cilantro-leaf` visual (Owner Final Design Gate 2026-10-27, candidate A: a sprig of three rounded fan leaves); `emoji` is only the required, never-displayed text fallback (G18 keeps it unique).
-   * Placed AFTER the bake (POST_BAKE) is a GAMEPLAY ASSUMPTION (provisional game design), not confirmed by the original.
-   */
-  {
-    id: "cilantro",
-    category: "topping",
-    nameJa: "パクチー",
-    color: "#6cae3e",
-    emoji: "\u{1F33C}",
-    pieceVisual: "cilantro-leaf",
-    placement: "scatter",
-    bakeRoastResistant: true,
-    unlockCondition: { minTotalStars: 0 },
-  },
-  /**
    * PR-2 late4: `soy-sauce`, a late-only sauce material (the wasabi-beef step's first material). A spread sauce painted in the SAUCE step (the existing PAINT); sauces carry no topping family. `color` `#2a1a12` (a dark soy brown) is
    * PROVISIONAL until the Owner HV (design gate: nearest existing sauce dE 35.2; the held yakiniku-sauce would be 16.7 away). `emoji` is only the tray / shop chip fallback (G18 keeps it unique).
    */
@@ -501,10 +489,10 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
 ];
 
 /** Family rows of the late ingredients (OD-B8-2: `salmon-roe` is `seafood`, L1 only). Joined by ./ingredientTaxonomy.ts only when enabled, so an OFF build has no orphan row. */
-export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["cilantro", "herb"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"]] as const;
+export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"]] as const;
 
 /** Topping size class of the late ingredients (`salmon-roe` is extra small, like the other fine garnishes). Joined by ./toppingSizeClass.ts only when enabled. */
-export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "cilantro": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs" } as const;
+export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs" } as const;
 
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
@@ -531,8 +519,8 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
   { ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" },
   // New Sauces Phase B U3 (Issue #578): after the dengaku step (ordinary length + 4), key recipe `eggplant-tahini-pizza` (it also needs eggplant and parsley from earlier ordinary steps). Cohort key: pomegranate (the last material of the step). The number is DERIVED, never authored.
   { ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" },
-  // BBQ Chicken (Issue #611): after the tahini step (ordinary length + 5), key recipe `bbq-chicken-pizza` (it also needs mozzarella, onion and chicken from earlier steps / the starters). Cohort key: cilantro (the last material of the step). The number is derived (currently 66), never embedded.
-  { ingredientIds: ["bbq-sauce", "cilantro"], keyRecipeId: "bbq-chicken-pizza" },
+  // BBQ Chicken (Issue #611): after the tahini step (ordinary length + 5), key recipe `bbq-chicken-pizza` (it also needs mozzarella, onion, chicken and cilantro from earlier steps / the starters). Expansion Batch 18 (#748): `cilantro` moved to ordinary step 69, so this step now names only `bbq-sauce` (the cohort key is bbq-sauce; cilantro stays entitled by the fixed floor below). The number is derived, never embedded.
+  { ingredientIds: ["bbq-sauce"], keyRecipeId: "bbq-chicken-pizza" },
   // PR-2 late4 (Issue #578 / #611): after the BBQ step (ordinary length + 6); key recipes `wasabi-beef-pizza` (cohort key wasabi, the step's last material; it also needs beef from ordinary step 58) and `tarako-cream-pizza` (cohort key nori; it also needs shiso from ordinary step 54).
   // Numbers are DERIVED, never authored. bulgogi-pizza and yakiniku-pizza are HOLD (Owner 2026-10-28), so soy-sauce lives in the wasabi-beef step.
   { ingredientIds: ["soy-sauce", "wasabi"], keyRecipeId: "wasabi-beef-pizza" },
@@ -543,7 +531,7 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
  * Compatibility floor (Issue #578 U0, Owner OD-U0-7 = M3 / 7b / 7c): a late material's Shop entitlement never needs a LARGER credited-discovery count than the one it had
  * when the late catalog first shipped. Its ladder step number is derived (ordinary length + 1) and moves +1 per ordinary batch; the floor is a FIXED constant, so a
  * save that reached the E5-era step but had not launched since (its ledger has no entry yet) still gets the material. A floor only ever grants earlier; the ledger never re-locks.
- * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). `bbq-sauce` / `cilantro`: 66 = the 61 ordinary steps + 5 when they shipped (BBQ Chicken #611, after Expansion Batch 10 PR-1). `soy-sauce` / `wasabi`: 67 and `cod-roe` / `fresh-cream-sauce` / `nori`: 68 = the 61 ordinary steps + the 5 earlier late steps + 1..2 when PR-2 late4 shipped. RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
+ * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). `bbq-sauce` / `cilantro`: 66 = the 61 ordinary steps + 5 when they shipped (BBQ Chicken #611, after Expansion Batch 10 PR-1); `cilantro` is an ordinary material since Expansion Batch 18 (ordinary step 69) and KEEPS this floor on purpose: a floor only grants earlier and never re-locks, so a stale save at 66+ keeps the entitlement it had. `soy-sauce` / `wasabi`: 67 and `cod-roe` / `fresh-cream-sauce` / `nori`: 68 = the 61 ordinary steps + the 5 earlier late steps + 1..2 when PR-2 late4 shipped. RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
  */
 export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60, "bbq-sauce": 66, "cilantro": 66, "soy-sauce": 67, "wasabi": 67, "cod-roe": 68, "fresh-cream-sauce": 68, "nori": 68 };
 

@@ -57,8 +57,11 @@ describe("OFF (the rollback state) has no BBQ content", () => {
   it("with the late switch OFF, no recipe, ingredient, ladder step, discovery target or order mentions the BBQ content", async () => {
     const off = await loadOff();
     expect(off.recipes.RECIPES.some((r) => (r.id as string) === BBQ)).toBe(false);
-    expect(off.ingredients.INGREDIENTS.some((i) => i.id === SAUCE || i.id === CIL)).toBe(false);
-    expect(off.ladder.DISCOVERY_LADDER.steps.some((s) => s.ingredientIds.includes(SAUCE) || s.ingredientIds.includes(CIL))).toBe(false);
+    expect(off.ingredients.INGREDIENTS.some((i) => i.id === SAUCE)).toBe(false);
+    expect(off.ladder.DISCOVERY_LADDER.steps.some((s) => s.ingredientIds.includes(SAUCE))).toBe(false);
+    // Expansion Batch 18 (#748): `cilantro` is an ORDINARY material now, so it exists in the OFF build too (ordinary step 69), not as BBQ content.
+    expect(off.ingredients.INGREDIENTS.some((i) => i.id === CIL)).toBe(true);
+    expect(off.ladder.DISCOVERY_LADDER.steps.filter((s) => s.ingredientIds.includes(CIL)).map((s) => s.keyRecipeId)).toEqual(["baingan-bharta-pizza"]);
     expect(off.catalog.RECIPE_DISCOVERY_CATALOG.some((t) => (t.recipeId as string) === BBQ)).toBe(false);
     expect(off.orders.ORDERS.some((o) => (o.recipeId as string) === BBQ)).toBe(false);
   });
@@ -103,7 +106,7 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     expect(ingredientAttributeFamily(SAUCE)).toBeNull();
   });
 
-  it("cilantro: a late-only finite topping (scatter, ladder-gated), family herb, size class xs, its own sprig art (candidate A)", () => {
+  it("cilantro: an ORDINARY finite topping since Expansion Batch 18 (promoted from the late catalog; scatter, ladder-gated), family herb, size class xs, its own sprig art (candidate A), unchanged by the move", () => {
     const ingredient = getIngredient(CIL)!;
     expect(ingredient).toMatchObject({ category: "topping", placement: "scatter", nameJa: "パクチー", pieceVisual: "cilantro-leaf" });
     expect(ingredient.unlockCondition).toBeDefined();
@@ -118,10 +121,10 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     }
   });
 
-  it("catalog counts after PR-2 late4 (which follows this recipe): 86 recipes (85 with the Pinsa gate off), 95 ingredients, 73 ladder steps (7 late; B11 S1 added three recipes, two materials and ordinary steps 62-63; B12 added one recipe; Expansion Batch 12 added two recipes, one material and ordinary step 64; Expansion Batch 14 added one recipe, one material and ordinary step 66; Expansion Batch 15 added one recipe, no material and no step)", () => {
-    expect(RECIPES.length).toBe(pinsaEnabled() ? 86 : 85); // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
-    expect(INGREDIENTS.length).toBe(95);
-    expect(DISCOVERY_LADDER.steps.length).toBe(73);
+  it("catalog counts after PR-2 late4 (which follows this recipe): 90 recipes (89 with the Pinsa gate off), 97 ingredients, 76 ladder steps (7 late; Expansion Batch 18 added two recipes and ordinary step 69 with the promoted cilantro, no new ingredient id; B11 S1 added three recipes, two materials and ordinary steps 62-63; B12 added one recipe; Expansion Batch 12 added two recipes, one material and ordinary step 64; Expansion Batch 14 added one recipe, one material and ordinary step 66; Expansion Batch 15 added one recipe, no material and no step; Expansion Batch 16 added one recipe, one material and ordinary step 67; Expansion Batch 17 added one recipe, one material and ordinary step 68)", () => {
+    expect(RECIPES.length).toBe(pinsaEnabled() ? 90 : 89); // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
+    expect(INGREDIENTS.length).toBe(97);
+    expect(DISCOVERY_LADDER.steps.length).toBe(76);
     expect(LATE_LADDER_STEPS.length).toBe(7);
   });
 
@@ -154,11 +157,13 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
 describe("ladder, Shop, Research and the entitlement floor", () => {
   const stepOf = (ingredientId: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(ingredientId))!;
 
-  it("one late step carries both materials (the sauce first, the cilantro = the Research cohort key last), keyed to the recipe, after the tahini step, with no star gate, a derived number, as the tail", () => {
+  it("one late step carries the sauce alone (Expansion Batch 18: the cilantro moved to ordinary step 69; the sauce = the Research cohort key), keyed to the recipe, after the tahini step, with no star gate, a derived number, as the tail", () => {
     const steps = DISCOVERY_LADDER.steps;
     const mine = stepOf(SAUCE);
-    expect(mine).toMatchObject({ ingredientIds: [SAUCE, CIL], keyRecipeId: BBQ });
-    expect(stepOf(CIL)).toBe(mine);
+    expect(mine).toMatchObject({ ingredientIds: [SAUCE], keyRecipeId: BBQ });
+    expect(stepOf(CIL)).not.toBe(mine); // the promoted cilantro is an ORDINARY step now (keyed to baingan-bharta-pizza)
+    expect(stepOf(CIL)).toMatchObject({ ingredientIds: [CIL], keyRecipeId: "baingan-bharta-pizza" });
+    expect(stepOf(CIL).step).toBeLessThan(mine.step);
     expect(mine.starGates).toBeUndefined();
     expect(mine.step).toBe(stepOf("tahini").step + 1);
     expect(steps.at(-3)).toBe(mine); // (PR-2 late4: the wasabi-beef and tarako-cream late steps follow it)
@@ -166,7 +171,7 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", BBQ, "wasabi-beef-pizza", "tarako-cream-pizza"]);
   });
 
-  it("Shop: both materials are T4 (the sauce pack 120 / refill 60), from the BBQ late step", () => {
+  it("Shop: both materials are T4 (the sauce pack 120 / refill 60); the sauce from the BBQ late step, the cilantro from its ordinary step 69", () => {
     expect(materialOffer(getIngredient(SAUCE)!)!).toMatchObject({ tier: "T4", packPrice: 120, refillPrice: 60, step: stepOf(SAUCE).step });
     expect(materialOffer(getIngredient(CIL)!)!).toMatchObject({ tier: "T4", step: stepOf(CIL).step });
   });
@@ -183,7 +188,7 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(validateBatchManifest(BBQ_CHICKEN_BATCH, productionCatalogView())).toEqual([]);
   });
 
-  it("the compatibility floors are FIXED at 66 for both materials (never later than the step the ladder derives); the earlier floors are unchanged", () => {
+  it("the compatibility floors are FIXED at 66 for both materials (never later than the step the ladder derives; the cilantro keeps its floor on purpose after its Batch 18 promotion); the earlier floors are unchanged", () => {
     expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, [SAUCE]: 66, [CIL]: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 });
     for (const id of [SAUCE, CIL]) expect(LATE_ENTITLEMENT_FLOORS[id]).toBeLessThanOrEqual(stepOf(id).step);
   });

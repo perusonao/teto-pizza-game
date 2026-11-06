@@ -251,6 +251,13 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       ownerApproved.add("moussaka-style-pizza-pizzadb-p13");
       // Expansion Batch 15 (Issue #728): nigerian-suya-pizza is a BLOCKED_PRODUCT_DECISION row (BASE_SAUCE_UNSPECIFIED) shipped as NO_SAUCE as a SUYA-ONLY Owner exception (2026-11-02); no other unspecified-sauce row is approved by this.
       ownerApproved.add("nigerian-suya-pizza-pizzadb-p5");
+      // Expansion Batch 16 (Issue #736): ume-shiso-pizza is a BLOCKED_PRODUCT_DECISION row (BASE_SAUCE_UNSPECIFIED) shipped with 梅肉 as the PAINT sauce as a B16-ONLY Owner exception (2026-11-03); no other unspecified-sauce row is approved by this.
+      ownerApproved.add("ume-shiso-pizza-pizzadb-p14");
+      // Expansion Batch 17 (Issue #741): goulash-pizza is a BLOCKED_PRODUCT_DECISION row (BASE_SAUCE_UNSPECIFIED) shipped with サワークリーム as the PAINT sauce as a B17-ONLY Owner exception (2026-11-03); no other unspecified-sauce row is approved by this.
+      ownerApproved.add("goulash-pizza-pizzadb-p3");
+      // Expansion Batch 18 (Issue #748): baingan-bharta-pizza ('カレー') and reina-pepiada-pizza ('ホワイトソース') are BLOCKED_PRODUCT_DECISION rows (BASE_SAUCE_UNSPECIFIED) shipped with the existing curry-ketchup / fromage-blanc-sauce as the PAINT sauce, as RECIPE-SPECIFIC Owner decisions (2026-11-04); no other unspecified-sauce row is approved by this.
+      ownerApproved.add("baingan-bharta-pizza-pizzadb-p6");
+      ownerApproved.add("venezuelan-reina-pepiada-pizzadb-p12");
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(

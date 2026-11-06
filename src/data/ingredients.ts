@@ -53,7 +53,9 @@ export type DedicatedIngredientVisual =
   | "bell-pepper-quarter"
   | "pineapple-wedges"
   | "salmon-fillet"
-  | "cream-cheese-block";
+  | "cream-cheese-block"
+  | "umeboshi-paste-dab"
+  | "sour-cream-dab";
 
 export interface Ingredient {
   id: string;
@@ -1187,7 +1189,56 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pieceVisual: "cinnamon-powder-pile",
+  },  /**
+   * Expansion Batch 16 (Issue #736; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, ordinary step 67 (T4, no star gate), the sole material of ume-shiso-pizza's step.
+   * Owner decision (2026-11-03): a spread SAUCE painted in the SAUCE step (the existing PAINT gesture) -- the matrix names 梅肉 (plum flesh; the canonicalizer's id `umeboshi-paste`) and leaves the sauce field 'その他' unspecified, and reading 梅肉 as
+   * the sauce is a B16-only provisional exception. A sauce carries no topping family (so no ingredientTaxonomy row; 梅肉 is not meat: `false_friend_not_meat`). Colour `#b8405a` and the emoji 🍑 (a sauce shows its emoji; G18: no other ingredient uses it)
+   * are PROVISIONAL until the 390x844 / 360x800 HV.
+   */
+  {
+    id: "umeboshi-paste",
+    category: "sauce",
+    nameJa: "梅肉",
+    color: "#b8405a",
+    emoji: "\u{1F351}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+    // Issue #739 (Owner P1, 2026-11): a paste dab with a plum blossom instead of the 🍑 (which read as a peach on the 390x844 / 360x800 HV). `emoji` stays only as the required text fallback (G18 keeps it unique). Presentation only.
+    pieceVisual: "umeboshi-paste-dab",
+  },  /**
+   * Expansion Batch 17 (Issue #741; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; GAMEPLAY ASSUMPTION): finite ladder material, ordinary step 68 (T4, no star gate), the sole material of goulash-pizza's step.
+   * Owner decision (2026-11-03): a spread SAUCE painted in the SAUCE step (the existing PAINT gesture) -- the matrix names サワークリーム and leaves the sauce field 'その他' unspecified, and reading it as the sauce is a B17-only provisional exception.
+   * A sauce carries no topping family (no ingredientTaxonomy row). Colour `#f1ecdc` is PROVISIONAL (a white sauce cannot reach DeltaE 20 against fromage-blanc-sauce `#fffdf8`, so the chip is told apart by its dedicated dab, plan A: a swirl with a peak, and the label).
+   * `emoji` 🍦 is only the required text fallback (G18: not 🥣, which tahini uses; no other ingredient uses it).
+   */
+  {
+    id: "sour-cream",
+    category: "sauce",
+    nameJa: "サワークリーム",
+    color: "#f1ecdc",
+    emoji: "\u{1F366}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "sour-cream-dab",
   },
+  /**
+   * Expansion Batch 18 (Issue #748): `cilantro` PROMOTED from the late-only catalog (BBQ Chicken, #611 / #679) to an ordinary finite ladder material, ordinary step 69 (T4, no star gate). Same id, colour, emoji and dedicated `cilantro-leaf` visual
+   * (Owner Final Design Gate 2026-10-27); family `herb` (ingredientTaxonomy.ts) and size class `xs` (toppingSizeClass.ts) moved with it. Saved stock / Dex / entitlements keyed by the id are unaffected. `emoji` is only the required, never-displayed
+   * text fallback (G18 keeps it unique). Used BEFORE the bake by baingan-bharta-pizza and reina-pepiada-pizza (GAMEPLAY ASSUMPTION); bbq-chicken-pizza still sprinkles it AFTER the bake (POST_BAKE).
+   */
+  {
+    id: "cilantro",
+    category: "topping",
+    nameJa: "パクチー",
+    color: "#6cae3e",
+    emoji: "\u{1F33C}",
+    pieceVisual: "cilantro-leaf",
+    placement: "scatter",
+    bakeRoastResistant: true,
+    unlockCondition: { minTotalStars: 0 },
+  },
+
+
 ];
 
 /**

@@ -214,6 +214,12 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["mayo"], keyRecipeId: "potato-mayo-pizza" },
   // Step 66 (Expansion Batch 14, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `cinnamon`, key recipe `moussaka-style-pizza` (it also needs fromage-blanc-sauce, eggplant, lamb and feta from earlier steps). Steps 1-65 frozen. Cohort key: cinnamon.
   { ingredientIds: ["cinnamon"], keyRecipeId: "moussaka-style-pizza" },
+  // Step 67 (Expansion Batch 16, #736, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `umeboshi-paste`, key recipe `ume-shiso-pizza` (it also needs mozzarella, whitebait and shiso from earlier steps). Steps 1-66 frozen.
+  { ingredientIds: ["umeboshi-paste"], keyRecipeId: "ume-shiso-pizza" },
+  // Step 68 (Expansion Batch 17, #741, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `sour-cream`, key recipe `goulash-pizza` (it also needs beef, onion and paprika-powder from earlier steps). Steps 1-67 frozen. The fixed late floors of cod-roe / fresh-cream-sauce / nori are 68, so this step also makes the late tarako-cream recipes makeable (Owner-approved simultaneous unlock).
+  { ingredientIds: ["sour-cream"], keyRecipeId: "goulash-pizza" },
+  // Step 69 (Expansion Batch 18, #748, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): `cilantro`, PROMOTED from the late catalog (same id; the BBQ late step now names only bbq-sauce), key recipe `baingan-bharta-pizza` (it also needs curry-ketchup, mozzarella, eggplant, fresh-tomato and onion from earlier steps / the starters). `reina-pepiada-pizza` (`ladderCredit: false`) is also makeable here and adds no step. Steps 1-68 frozen; the late derived numbers move +1 and `LATE_ENTITLEMENT_FLOORS` is unchanged.
+  { ingredientIds: ["cilantro"], keyRecipeId: "baingan-bharta-pizza" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

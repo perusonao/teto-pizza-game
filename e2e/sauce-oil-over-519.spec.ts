@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/failureEvidence"; // #394: DOM / waiting location on failure
 import { bakeToTarget, completeDoughStep, tapDoughPercent } from "./gestures";
 import { base, openWith } from "./support/familyTray";
 import { startTargetlessFreeCook } from "./support/startFreeCook";

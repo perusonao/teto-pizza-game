@@ -57,6 +57,8 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "green-pepper-strips",
   "bell-pepper-quarter",
   "pineapple-wedges",
+  "umeboshi-paste-dab",
+  "sour-cream-dab",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -99,7 +101,9 @@ const B12_DEDICATED: Record<string, DedicatedIngredientVisual> = { "ricotta-sala
 /** Ingredient Icons 2.0 Pilot E (#715, Style Lock v2 §11): green-pepper / bell-pepper / pineapple dedicated art instead of 🌶️ / 🫑 / 🍍. */
 const PILOT_E_DEDICATED: Record<string, DedicatedIngredientVisual> = { "green-pepper": "green-pepper-strips", "bell-pepper": "bell-pepper-quarter", pineapple: "pineapple-wedges" };
 const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
+const ISSUE739_DEDICATED: Record<string, DedicatedIngredientVisual> = { "umeboshi-paste": "umeboshi-paste-dab" }; // Issue #739 (Owner P1): the 梅肉 sauce, drawn by a paste dab instead of the 🍑
+const B17_DEDICATED: Record<string, DedicatedIngredientVisual> = { "sour-cream": "sour-cream-dab" }; // Expansion Batch 17 (Owner plan A): the サワークリーム sauce, a swirl-and-peak dab; the 🍦 is only the text fallback
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -1219,5 +1223,201 @@ describe("Batch 14: cinnamon dedicated art (production row; a powder pile)", () 
     const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
     const all = ["cinnamon", "paprika-powder", "mayo", "feta", "ricotta-salata", "fromage-blanc-sauce"].map(html);
     expect(new Set(all).size).toBe(all.length);
+  });
+});
+
+/**
+ * Issue #739 (Owner P1): the 梅肉 sauce (`umeboshi-paste`) is drawn by a dedicated paste-dab SVG, and the whitebait school by larger fish with a darker outline.
+ * Presentation only: identity, colour (#b8405a), recipes, scoring and the save are untouched. The 🍑 stays only as the required text fallback (G18) and must never reach the DOM.
+ */
+describe("Issue #739: umeboshi-paste dedicated art (a SAUCE drawn through IngredientGlyph)", () => {
+  const visual = "umeboshi-paste-dab";
+  const ume = getIngredient("umeboshi-paste")!;
+
+  it("declares the visual and keeps its identity and colour (a spread sauce, #b8405a)", () => {
+    expect(ume).toMatchObject({ id: "umeboshi-paste", nameJa: "梅肉", category: "sauce", placement: "spread", color: "#b8405a", pieceVisual: visual });
+  });
+
+  it("draws an SVG on the glyph and on the piece visual (64x64, no id / gradient / defs) and never prints the 🍑", () => {
+    for (const node of [<IngredientGlyph key="g" ingredient={ume} />, <IngredientPieceVisual key="p" ingredient={ume} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      expect(container.innerHTML).not.toContain("<defs");
+      expect(container.innerHTML).not.toContain("gradient");
+      unmount();
+    }
+  });
+
+  it("draws the paste in the ingredient colour with a five-petal blossom, and differs from every other sauce / white art", () => {
+    const html = renderToStaticMarkup(<IngredientGlyph ingredient={ume} />);
+    expect(html).toContain('fill="#b8405a"');
+    expect(html.match(/<ellipse/g)!.length).toBe(1 + 5); // the contact shadow + five petals
+    const all = INGREDIENTS.filter((i) => i.category === "sauce" || i.id === "mayo").map((i) => renderToStaticMarkup(<IngredientGlyph ingredient={i} />));
+    expect(new Set(all).size).toBe(all.length);
+  });
+
+  it("keeps the 🍑 text fallback unique (G18)", () => {
+    expect(INGREDIENTS.filter((i) => i.emoji === ume.emoji).map((i) => i.id)).toEqual(["umeboshi-paste"]);
+  });
+});
+
+/**
+ * Expansion Batch 17 (Issue #741, Owner plan A): the サワークリーム sauce (`sour-cream`) is drawn by a dedicated swirl-and-peak dab. A white sauce cannot be told apart from fromage-blanc-sauce by colour (dE < 20), so the SHAPE does it.
+ * Presentation only: identity, colour (#f1ecdc), recipes, scoring and the save are untouched. The 🍦 stays only as the required text fallback (G18) and must never reach the DOM.
+ */
+describe("Expansion Batch 17: sour-cream dedicated art (a SAUCE drawn through IngredientGlyph)", () => {
+  const visual = "sour-cream-dab";
+  const cream = getIngredient("sour-cream")!;
+
+  it("declares the visual and keeps its identity and colour (a spread sauce, #f1ecdc)", () => {
+    expect(cream).toMatchObject({ id: "sour-cream", nameJa: "サワークリーム", category: "sauce", placement: "spread", color: "#f1ecdc", pieceVisual: visual });
+  });
+
+  it("draws an SVG on the glyph and on the piece visual (64x64, no id / gradient / defs) and never prints the 🍦", () => {
+    for (const node of [<IngredientGlyph key="g" ingredient={cream} />, <IngredientPieceVisual key="p" ingredient={cream} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      expect(container.innerHTML).not.toContain("<defs");
+      expect(container.innerHTML).not.toContain("gradient");
+      unmount();
+    }
+  });
+
+  it("draws the cream in the ingredient colour with a swirl and a peak, and differs from every other sauce / white art (the white fromage-blanc-sauce included)", () => {
+    const html = renderToStaticMarkup(<IngredientGlyph ingredient={cream} />);
+    expect(html).toContain('fill="#f1ecdc"');
+    expect(html.match(/<ellipse/g)!.length).toBe(1); // the contact shadow only
+    expect(html.match(/<path/g)!.length).toBe(3); // the dab + the swirl + the peak
+    const all = INGREDIENTS.filter((i) => i.category === "sauce" || i.id === "mayo").map((i) => renderToStaticMarkup(<IngredientGlyph ingredient={i} />));
+    expect(new Set(all).size).toBe(all.length);
+    expect(renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient("fromage-blanc-sauce")!} />)).not.toBe(html);
+  });
+
+  it("keeps the 🍦 text fallback unique (G18) and different from tahini's 🥣", () => {
+    expect(INGREDIENTS.filter((i) => i.emoji === cream.emoji).map((i) => i.id)).toEqual(["sour-cream"]);
+    expect(cream.emoji).not.toBe(getIngredient("tahini")?.emoji);
+  });
+
+  it("leaves the existing sauce art alone: umeboshi-paste keeps its plum dab and fromage-blanc-sauce still draws its emoji", () => {
+    expect(getIngredient("umeboshi-paste")!.pieceVisual).toBe("umeboshi-paste-dab");
+    expect(getIngredient("fromage-blanc-sauce")!.pieceVisual).toBeUndefined();
+  });
+});
+
+describe("Issue #739: whitebait-school larger fish and darker outline", () => {
+  const whitebait = getIngredient("whitebait")!;
+  const html = renderToStaticMarkup(<IngredientGlyph ingredient={whitebait} />);
+
+  it("keeps three fish, now at scale 1.5 with a #2e2a1d / 2.8 outline (was 1.3 and #4d4837 / 2.1)", () => {
+    expect(html.match(/scale\(1\.5\)/g)!.length).toBe(3);
+    expect(html).not.toContain("scale(1.3)");
+    expect(html).toContain('stroke="#2e2a1d"');
+    expect(html).toContain('stroke-width="2.8"');
+    expect(html).not.toContain("#4d4837");
+  });
+
+  it("stays a plain inline SVG (no id / gradient / defs)", () => {
+    expect(html).not.toContain("id=");
+    expect(html).not.toContain("url(#");
+    expect(html).not.toContain("<defs");
+  });
+
+  it("shiso (out of scope for #739) is unchanged", () => {
+    const shiso = renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient("shiso")!} />);
+    expect(shiso).toContain('stroke="#245f2c"');
+    expect(shiso).toContain('fill="#5aa84f"');
+  });
+});
+
+/**
+ * Issue #733 (Owner decision 2026-11-05: OD-1 beef = plan B, OD-2 green-pepper = plan R1, OD-3 keep the visual ids, OD-6 discrimination tests).
+ * beef is drawn as seared chunks (a blocky silhouette, not the bacon-like ribbon with a fat streak); green-pepper as two hollow ring slices (not the bean / okra / zucchini-like arcs).
+ * These pin the shape vocabulary that tells each apart from its neighbours, not the exact path data.
+ */
+describe("Issue #733: beef chunks / green-pepper rings (shape discrimination)", () => {
+  const glyph = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+  const piece = (id: string) => renderToStaticMarkup(<IngredientPieceVisual ingredient={getIngredient(id)!} />);
+  const count = (html: string, needle: string) => html.split(needle).length - 1;
+
+  it("keeps the existing visual ids (OD-3: no ingredients.ts / golden change)", () => {
+    expect(getIngredient("beef")!.pieceVisual).toBe("beef-slices");
+    expect(getIngredient("green-pepper")!.pieceVisual).toBe("green-pepper-strips");
+  });
+
+  it.each(["beef", "green-pepper"])("%s draws the same art on the glyph and on the placed piece, with no emoji / id / url(#", (id) => {
+    for (const html of [glyph(id), piece(id)]) {
+      expect(html).toContain('viewBox="0 0 64 64"');
+      expect(html).not.toContain(getIngredient(id)!.emoji);
+      expect(html).not.toContain("id=");
+      expect(html).not.toContain("url(#");
+      expect(html).not.toContain("<defs");
+    }
+    const inner = (html: string) => html.slice(html.indexOf("<svg"), html.indexOf("</svg>"));
+    expect(inner(piece(id))).toBe(inner(glyph(id)));
+  });
+
+  it("beef: three seared chunks, each with an inner cut face; no ribbon and no pale fat streak (the bacon vocabulary)", () => {
+    const html = glyph("beef");
+    expect(count(html, "<rect")).toBe(9);
+    expect(count(html, 'fill="#6a3220"')).toBe(3); // seared crust
+    expect(count(html, 'fill="#c4473f"')).toBe(3); // red cut face
+    expect(html).not.toContain("<path");
+    expect(html).not.toContain("#f1d3c4");
+    expect(html).not.toContain("#e6c3b4");
+  });
+
+  it("beef: no other meat is drawn with the chunk crust, and the round meat slices carry no chunk", () => {
+    const meats = ["sausage", "hot-dog", "wurstel", "bacon", "ham", "salami", "pepperoni", "pork", "lamb", "prosciutto-crudo", "chicken"];
+    const beef = glyph("beef");
+    for (const id of meats) {
+      const html = glyph(id);
+      expect(html, id).not.toBe(beef);
+      expect(html, id).not.toContain("#6a3220");
+    }
+    // bacon / ham / salami / pepperoni / pork / lamb / prosciutto / chicken still print their emoji, so the beef SVG never shares their glyph.
+    for (const id of ["bacon", "ham", "salami", "pepperoni"]) expect(glyph(id)).toContain(getIngredient(id)!.emoji);
+  });
+
+  it("green-pepper: two hollow ring slices (even-odd fill) with a pale inner wall; no strip / arc strokes left", () => {
+    const html = glyph("green-pepper");
+    expect(count(html, 'fill-rule="evenodd"')).toBe(2);
+    expect(count(html, 'stroke="#d3ef9e"')).toBe(2);
+    expect(html).not.toContain('stroke-linecap="round"');
+    expect(html).not.toContain("#5fa83a");
+    expect(html).not.toContain("<circle");
+  });
+
+  it("green-pepper: no other green ingredient is drawn as a hollow ring, and none shares its markup", () => {
+    const greens = ["green-onion", "jalapeno", "zucchini", "pickles", "cilantro", "shiso", "arugula", "basil", "bell-pepper"];
+    const pepper = glyph("green-pepper");
+    for (const id of greens) {
+      const html = glyph(id);
+      expect(html, id).not.toBe(pepper);
+      expect(html, id).not.toContain("evenodd");
+    }
+  });
+
+  it("the ring geometry is deterministic and stays inside the 64-box", () => {
+    expect(glyph("green-pepper")).toBe(glyph("green-pepper"));
+    const coords = [...glyph("green-pepper").matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+    expect(coords.length).toBeGreaterThan(0);
+    for (const [x, y] of coords) {
+      expect(x).toBeGreaterThanOrEqual(0);
+      expect(x).toBeLessThanOrEqual(64);
+      expect(y).toBeGreaterThanOrEqual(0);
+      expect(y).toBeLessThanOrEqual(64);
+    }
   });
 });

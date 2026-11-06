@@ -1524,6 +1524,81 @@ const BASE_RECIPES = [
     ladderCredit: false,
     lunchRush: false,
   },
+  {
+    id: "ume-shiso-pizza",
+    nameJa: "梅しそピザ",
+    description: "梅のさわやかなソースに、しらすと大葉をそえた、和風の一枚。",
+    // Expansion Batch 16 (Issue #736; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `ume-shiso-pizza-pizzadb-p14` only (comparison table p14, relayed 2026-09-22, never independently re-fetched): 梅肉 / 大葉 / モッツァレラ / しらす; sauce field 'その他' (BASE_SAUCE_UNSPECIFIED, matrix BLOCKED_PRODUCT_DECISION).
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source; Owner-confirmed 2026-11-03): 梅肉 is painted as the SAUCE (a B16-only provisional exception, NOT a general rule for unspecified sauce fields); counts umeboshi-paste 1 (PAINT) / mozzarella 2 / whitebait 4 / shiso 2 = 8 non-sauce pieces; bake 58-78 (= the generic Free Cooking window, so the median-derived
+    // FREE_COOK_BAKE_TARGET stays 58-78, as for shirasu-pizza); EVERY piece is placed BEFORE the bake (the source states no timing; shiso before the bake like shirasu-pizza; no POST_BAKE, so no FINISH step -- the FINISH constraints are untouched). Its identity differs from shirasu-pizza by the sauce and the lemon (Jaccard 0.60, a B16-only Owner exception; the global 0.4 criterion is unchanged).
+    // Ladder-credited: the key of ordinary step 67 (umeboshi-paste, a single-member Research cohort: no existing recipe changes its label); `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "umeboshi-paste", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "whitebait", minCount: 4 },
+      { ingredientId: "shiso", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },  {
+    id: "goulash-pizza",
+    nameJa: "グヤーシュピザ",
+    description: "サワークリームのソースに、牛肉と玉ねぎとパプリカをのせた、ハンガリー風の一枚。",
+    // Expansion Batch 17 (Issue #741; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `goulash-pizza-pizzadb-p3` only (comparison table p3, relayed 2026-09-22, never independently re-fetched): 牛肉 / 玉ねぎ / パプリカパウダー / サワークリーム; sauce field 'その他' (BASE_SAUCE_UNSPECIFIED, matrix BLOCKED_PRODUCT_DECISION, unchanged).
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source; Owner-confirmed 2026-11-03): サワークリーム is painted as the SAUCE (a B17-only provisional exception, NOT a general rule for unspecified sauce fields); counts sour-cream 1 (PAINT) / beef 3 / onion 3 / paprika-powder 2 (non-sauce 8 pieces = the 8-slot ring), NO cheese (the matrix lists none; vongole / fugazza are the sauce-without-cheese precedent), bake 58-78 (the generic Free Cooking window).
+    // EVERY piece is placed BEFORE the bake (the source states no timing; no POST_BAKE, so no FINISH step; no prep / steam / sear step). Ladder-credited: the key of ordinary step 68 (sour-cream, a single-member Research cohort: no existing recipe changes its label); `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "sour-cream", minCount: 1 },
+      { ingredientId: "beef", minCount: 3 },
+      { ingredientId: "onion", minCount: 3 },
+      { ingredientId: "paprika-powder", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "baingan-bharta-pizza",
+    nameJa: "バインガンバルタピザ",
+    description: "カレーケチャップを塗った生地に、ナスとトマト、たまねぎ、パクチーとモッツァレラをのせた、インド風の一枚。",
+    // Expansion Batch 18 (Issue #748; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `baingan-bharta-pizza-pizzadb-p6` only (comparison table p6, relayed 2026-09-22, never independently re-fetched): ナス / 玉ねぎ / トマト / モッツァレラ / コリアンダー; sauce field 'カレー' (BASE_SAUCE_UNSPECIFIED, matrix BLOCKED_PRODUCT_DECISION, unchanged). コリアンダー is read as `cilantro` (the matrix's own `likely_alias`).
+    // OWNER DECISION (2026-11-04; this recipe only, NOT a NO_SAUCE exception and NOT a general rule): the existing `curry-ketchup` stands in for the unspecified curry base (the same stand-in as curry-pizza-japan / tandoori-paneer-pizza / rendang-pizza, Batch 10 D-B3). GAMEPLAY ASSUMPTION / CALIBRATION (not source): curry-ketchup 1 (PAINT) / mozzarella 2 / eggplant 2 / fresh-tomato 1 / onion 1 / cilantro 2 (non-sauce 8 pieces = the 8-slot ring; the cheese precedes the toppings, so the legacy Hint 2.0 H4 withholds the last topping = cilantro = the Rule W reserved ingredient), bake 58-78 (the generic Free Cooking window).
+    // OWNER OD-B18-3 (2026-11-05): B18-ONLY Jaccard 0.43 exception vs rendang-pizza and curry-pizza-japan from the curry-ketchup stand-in; signature remains unique and the GLOBAL 0.4 guideline is unchanged. OD-B18-2: cilantro retains compatibility floor 66, so this pizza can be discovered before its nominal step 69 key.
+    // EVERY piece is placed BEFORE the bake (Owner decision 2026-11-04; the source states no timing; no POST_BAKE, so no FINISH step; no prep / steam / sear step). Ladder-credited: the key of ordinary step 69 (cilantro, promoted from the late catalog). `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "curry-ketchup", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "eggplant", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 1 },
+      { ingredientId: "onion", minCount: 1 },
+      { ingredientId: "cilantro", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "reina-pepiada-pizza",
+    nameJa: "ベネズエラレイナペピアーダピザ",
+    description: "白いソースを塗った生地に、チキンとアボカド、マヨネーズ、パクチーとモッツァレラをのせた、ベネズエラ風の一枚。",
+    // Expansion Batch 18 (Issue #748; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED). SOURCE AUTHORITY: the 172 matrix row `venezuelan-reina-pepiada-pizzadb-p12` only (comparison table p12, relayed 2026-09-22, never independently re-fetched): チキン / アボカド / マヨネーズ / モッツァレラ / コリアンダー; sauce field 'ホワイトソース' (ambiguous in the canonicalizer; BASE_SAUCE_UNSPECIFIED, matrix BLOCKED_PRODUCT_DECISION, unchanged). The matrix's two spread layers (white sauce + mayo) are modelled as ONE sauce + the existing mayo topping; the MULTI_SPREAD_LAYER mechanic is not used.
+    // OWNER DECISION (2026-11-04; this recipe only, NOT a NO_SAUCE exception and NOT a general rule): the existing `fromage-blanc-sauce` stands in for the white sauce (the same stand-in as moussaka-style-pizza, Batch 14); mayo is the existing squeeze topping (Batch 13). GAMEPLAY ASSUMPTION / CALIBRATION (not source): fromage-blanc-sauce 1 (PAINT) / mozzarella 2 / chicken 2 / avocado 1 / mayo 1 / cilantro 2 (non-sauce 8 pieces = the 8-slot ring; cilantro is last = the Rule W reserved ingredient), bake 58-78.
+    // EVERY piece is placed BEFORE the bake (Owner decision 2026-11-04; no POST_BAKE, so no FINISH step). NOT ladder-credited (`ladderCredit: false`, Owner decision 2026-11-04): ordinary step 69 (cilantro) is keyed by baingan-bharta-pizza and this recipe adds no material; it is makeable at step 69 and shares the cilantro cohort (so the two are lettered A / B in Research). `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "fromage-blanc-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "chicken", minCount: 2 },
+      { ingredientId: "avocado", minCount: 1 },
+      { ingredientId: "mayo", minCount: 1 },
+      { ingredientId: "cilantro", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+    ladderCredit: false,
+  },
+
 ] as const;
 
 /**

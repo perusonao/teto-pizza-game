@@ -56,7 +56,7 @@ async function noOverflow(page: Page, where: string) {
 test.describe("BBQ Chicken (representative: the late step; bbq-sauce + cilantro -> bbq-chicken-pizza)", () => {
   test.setTimeout(300_000);
 
-  test("Shop NEW sauce + cilantro -> purchase -> Research (no leak) -> paint the bbq-sauce, mozzarella, onion, chicken -> bake -> cilantro in FINISH -> NEW DISCOVERY -> Dex", async ({ page }, testInfo) => {
+  test("Shop NEW sauce (cilantro already owned since ordinary step 69) -> purchase -> Research (no leak) -> paint the bbq-sauce, mozzarella, onion, chicken -> bake -> cilantro in FINISH -> NEW DISCOVERY -> Dex", async ({ page }, testInfo) => {
     const errors: string[] = [];
     // Only the browser's own probe of the server root `/favicon.ico` is ignored: the page declares its icons in index.html (the repo ships no favicon.ico), so that 404 is no game asset. An app-scoped URL or any other error still fails the test.
     page.on("console", (m) => m.type() === "error" && !isRootFaviconProbe(m.location().url) && errors.push(m.text()));
@@ -84,28 +84,27 @@ test.describe("BBQ Chicken (representative: the late step; bbq-sauce + cilantro 
     await expect(row).toContainText("バーベキューソース");
     await expect(row).toContainText("10ピザ分");
     await expect(row).toContainText(/初回 .*120 Pitz/);
-    await expect(pomRow).toHaveAttribute("data-shop-state", "NEW");
+    // Expansion Batch 18 (#748): the cilantro is an ORDINARY material now (step 69, before this late step), so this save already owns it; only the sauce is NEW here.
+    await expect(pomRow).toHaveAttribute("data-shop-state", "OWNED");
     await expect(pomRow).toContainText("パクチー");
     await noOverflow(page, "shop NEW");
     await capture(page, "new-bbq-shop-new", project);
     await hold(page, 2200);
     await row.locator(".shop-item__buy-button").click();
     await expect(row).not.toHaveAttribute("data-shop-state", "NEW");
-    await pomRow.scrollIntoViewIfNeeded();
-    await pomRow.locator(".shop-item__buy-button").click();
-    await expect(pomRow).not.toHaveAttribute("data-shop-state", "NEW");
     await page.locator(".shop-overlay__panel").getByRole("button", { name: "閉じる" }).click();
     await expect(page.locator(".shop-overlay__panel")).toHaveCount(0);
 
-    // 2. Dex -> the single Research Entry: only the cohort key (the sauce) is named.
+    // 2. Dex -> the single Research Entry: only the cohort key is named. Expansion Batch 18 (#748): in this (ladder) ownership order the cilantro was owned before the sauce, so the unlock material is the sauce
+    //    (single-member cohort, no letter). The bbq-sauce -> cilantro order is covered in b18.spec.ts (Owner-approved OD-B18-1).
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();
     await page.waitForSelector(".dex-overlay");
-    await expect(page.locator(".dex-overlay__research")).toContainText("？？？ピザ（パクチー）");
+    await expect(page.locator(".dex-overlay__research")).toContainText("？？？ピザ（バーベキューソース）");
     await expectNoUndiscoveredIdentity(page, discovered, "Dex Research Entry");
     await noOverflow(page, "Dex Research Entry");
     await capture(page, "new-bbq-research-entry", project);
     await hold(page, 2000);
-    await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（パクチー）を研究する$/ }).click();
+    await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ（バーベキューソース）を研究する$/ }).click();
     await expectResearchLead(page, "？？？ピザ");
     await expectNoUndiscoveredIdentity(page, discovered, "Research PREPARE");
 

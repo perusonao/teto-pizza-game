@@ -59,6 +59,8 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "pineapple-wedges": "0 0 64 64",
   "salmon-fillet": "0 0 64 64",
   "cream-cheese-block": "0 0 64 64",
+  "umeboshi-paste-dab": "0 0 64 64",
+  "sour-cream-dab": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -105,6 +107,8 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "pineapple-wedges" && <PineappleWedges />}
       {visual === "salmon-fillet" && <SalmonFillet />}
       {visual === "cream-cheese-block" && <CreamCheeseBlock />}
+      {visual === "umeboshi-paste-dab" && <UmeboshiPasteDab />}
+      {visual === "sour-cream-dab" && <SourCreamDab />}
     </svg>
   );
 }
@@ -456,7 +460,7 @@ function ShisoLeaf() {
   );
 }
 
-/* ---------- whitebait (Batch 8b, OD-B8-2 amended): three small white fish (reference art: docs/design/references/ingredient-icons-2.0/whitebait.svg) ---------- */
+/* ---------- whitebait (Batch 8b, OD-B8-2 amended; Issue #739 Owner P1 "plan D": fish scale 1.3 -> 1.5 and a darker, thicker outline #4d4837 / 2.1 -> #2e2a1d / 2.8, because on the baked dough the pale fish read as a small grey-white smear): three small white fish (reference art: docs/design/references/ingredient-icons-2.0/whitebait.svg) ---------- */
 const WHITEBAIT_FISH: readonly { x: number; y: number; rotate: number }[] = [
   { x: 28, y: 16, rotate: -10 },
   { x: 38, y: 31, rotate: 8 },
@@ -468,8 +472,8 @@ function WhitebaitSchool() {
     <g>
       <ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15" />
       {WHITEBAIT_FISH.map((fish) => (
-        <g key={fish.y} transform={`translate(${fish.x} ${fish.y}) rotate(${fish.rotate}) scale(1.3)`}>
-          <path d="M-12 0C-8-7 3-7 8-1.4L15-7V7L8 1.4C3 7-8 7-12 0Z" fill="#fbf9f1" stroke="#4d4837" strokeWidth="2.1" strokeLinejoin="round" />
+        <g key={fish.y} transform={`translate(${fish.x} ${fish.y}) rotate(${fish.rotate}) scale(1.5)`}>
+          <path d="M-12 0C-8-7 3-7 8-1.4L15-7V7L8 1.4C3 7-8 7-12 0Z" fill="#fbf9f1" stroke="#2e2a1d" strokeWidth="2.8" strokeLinejoin="round" />
           <path d="M-9-3C-5-5.2 1-5 5-2.2" stroke="#8fa7b3" strokeWidth="2" strokeLinecap="round" fill="none" />
           <circle cx="-7" cy="-1.6" r="1.8" fill="#2b2b2b" />
         </g>
@@ -690,15 +694,28 @@ function CilantroLeaf() {
 }
 
 /* ---------- PR-2 late4 (Issue #578 / #611): beef, wasabi, cod roe and nori. PROVISIONAL art in the Style Lock v2 vocabulary (2.4 outline, two tones, a ground shadow, no ids / gradients / defs, deterministic); the final adoption is the Owner HV on 390x844 / 360x800.
-   beef-slices: two thin red-brown ribbons with a pale fat streak (a different silhouette from the round dark salami / sausage slices and the pink ham). wasabi-dab: a pale-green mound with a swirl. cod-roe-mass: a coral clump of fine grains. nori-strips: dark green strips. ---------- */
+   beef-slices: (redrawn by Issue #733 as seared chunks, see the comment above BeefSlices). wasabi-dab: a pale-green mound with a swirl. cod-roe-mass: a coral clump of fine grains. nori-strips: dark green strips. ---------- */
+/* Issue #733 (Owner decision 2026-11-05, OD-1 = plan B): the beef is drawn as three seared chunks with a red cut face, replacing the two red-brown ribbons with a pale fat streak, which used the
+   same vocabulary as the bacon emoji. A blocky silhouette, distinct from the ribbon (bacon), the disc (salami / pepperoni) and the round slices (sausage / hot-dog). The visual id `beef-slices` is kept on
+   purpose (OD-3: no ingredients.ts / golden change while #748 holds its claim); the name no longer describes the shape. Ported from
+   docs/design/candidates/ingredient-icons-2.0-733-739/svg/beef-b-seared-chunks.svg (64x64, no id / gradient / defs). */
+const BEEF_CHUNKS: readonly { x: number; y: number; w: number; h: number; rotate: number }[] = [
+  { x: 6, y: 14, w: 25, h: 21, rotate: -8 },
+  { x: 34, y: 10, w: 23, h: 20, rotate: 10 },
+  { x: 18, y: 34, w: 27, h: 19, rotate: -3 },
+];
+
 function BeefSlices() {
   return (
     <g>
       <ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15" />
-      <path d="M6 28c2-9 13-14 25-10 9 3 16 2 24 6 3 8-4 14-14 12-9-2-16 3-26 2-6-1-10-5-9-10z" fill="#b8473a" stroke="#4a1a14" strokeWidth="2.4" strokeLinejoin="round" />
-      <path d="M12 27c7-5 16-4 24 0 6 3 11 3 15 3" fill="none" stroke="#f1d3c4" strokeWidth="2.4" strokeLinecap="round" />
-      <path d="M12 44c3-6 15-4 25 0 8 3 15 2 21 4-1 7-11 9-21 7-9-2-17 1-24-1-3-2-3-6-1-10z" fill="#8f3a30" stroke="#4a1a14" strokeWidth="2.4" strokeLinejoin="round" />
-      <path d="M19 47c8-3 17 1 27 3" fill="none" stroke="#e6c3b4" strokeWidth="2.4" strokeLinecap="round" />
+      {BEEF_CHUNKS.map(({ x, y, w, h, rotate }) => (
+        <g key={`${x}-${y}`} transform={`rotate(${rotate} ${(x + w / 2).toFixed(1)} ${(y + h / 2).toFixed(1)})`}>
+          <rect x={x} y={y} width={w} height={h} rx="6" fill="#6a3220" stroke="#3a160e" strokeWidth="2.4" />
+          <rect x={x + 4} y={y + 4} width={w - 8} height={h - 8} rx="4" fill="#c4473f" />
+          <rect x={x + 7.5} y={y + 7} width={w - 15} height={h - 14} rx="3" fill="#e57d74" />
+        </g>
+      ))}
     </g>
   );
 }
@@ -857,23 +874,41 @@ function MayoDrop() {
   );
 }
 
-/* ---------- Ingredient Icons 2.0 Pilot E (#715, Style Lock v2 §11; Owner decision 2026-10-31 / 2026-11-01): green pepper: three green strips (GP-A2). Ported as-is from docs/design/candidates/ingredient-icons-2.0-pilot-e0/svg/green-pepper-a2-strips.svg (64x64, no id / gradient / defs). ---------- */
+/* ---------- green pepper. Issue #733 (Owner decision 2026-11-05, OD-2 = plan R1, an approved revision of the Pilot E GP-A2 strips that passed the 2026-11-01 iPhone HV): two overlapping ring slices
+   with four bulges and a hollow centre (the dough shows through), because the three green arcs read as green beans / okra / zucchini. The visual id `green-pepper-strips` is kept on purpose (OD-3);
+   the name no longer describes the shape (recorded as technical debt). Geometry follows docs/design/candidates/ingredient-icons-2.0-733-739/svg/green-pepper-r1-rings.svg (same formula, 64x64,
+   no id / gradient / defs, deterministic: computed once at module load). ---------- */
+function lobedRing(cx: number, cy: number, radius: number, amp: number, rot: number): string {
+  const points: string[] = [];
+  for (let i = 0; i < 72; i += 1) {
+    const t = (2 * Math.PI * i) / 72;
+    const r = radius * (1 + amp * Math.cos(4 * (t + rot)));
+    points.push(`${(cx + r * Math.cos(t)).toFixed(1)} ${(cy + r * Math.sin(t) * 0.92).toFixed(1)}`);
+  }
+  return `M${points.join(" L")}Z`;
+}
+
+const GREEN_PEPPER_RINGS = [
+  { cx: 24, cy: 24, radius: 17, rot: 0.3 },
+  { cx: 41, cy: 39, radius: 15.5, rot: 0 },
+].map(({ cx, cy, radius, rot }) => ({
+  key: `${cx}-${cy}`,
+  outer: lobedRing(cx, cy, radius, 0.11, rot),
+  wall: lobedRing(cx, cy, radius * 0.7, 0.12, rot),
+  hole: lobedRing(cx, cy, radius * 0.62, 0.13, rot),
+}));
+
 function GreenPepperStrips() {
   return (
     <g>
-      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
-      <path d="M10 21Q27 9 50 18" stroke="#2c5a1c" strokeWidth="12.6" strokeLinecap="round" fill="none" />
-      <path d="M10 21Q27 9 50 18" stroke="#5fa83a" strokeWidth="8.6" strokeLinecap="round" fill="none" />
-      <path transform="translate(-1.4 -1.1)" d="M10 21Q27 9 50 18" stroke="#c4e892" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-      <path d="M12 35Q30 24 55 32" stroke="#2c5a1c" strokeWidth="12.6" strokeLinecap="round" fill="none" />
-      <path d="M12 35Q30 24 55 32" stroke="#5fa83a" strokeWidth="8.6" strokeLinecap="round" fill="none" />
-      <path transform="translate(-1.4 -1.1)" d="M12 35Q30 24 55 32" stroke="#c4e892" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-      <path d="M10 49Q27 40 49 46" stroke="#2c5a1c" strokeWidth="12.6" strokeLinecap="round" fill="none" />
-      <path d="M10 49Q27 40 49 46" stroke="#5fa83a" strokeWidth="8.6" strokeLinecap="round" fill="none" />
-      <path transform="translate(-1.4 -1.1)" d="M10 49Q27 40 49 46" stroke="#c4e892" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-      <circle cx="49.6" cy="18.1" r="2.3" fill="#e4f3c0" stroke="#4f8a35" strokeWidth="1.1" />
-      <circle cx="54.6" cy="32.1" r="2.3" fill="#e4f3c0" stroke="#4f8a35" strokeWidth="1.1" />
-      <circle cx="48.6" cy="46.1" r="2.3" fill="#e4f3c0" stroke="#4f8a35" strokeWidth="1.1" />
+      <ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15" />
+      {GREEN_PEPPER_RINGS.map((ring) => (
+        <g key={ring.key}>
+          <path d={`${ring.outer} ${ring.hole}`} fill="#4f9a33" fillRule="evenodd" stroke="#244d17" strokeWidth="2.4" strokeLinejoin="round" />
+          <path d={ring.wall} fill="none" stroke="#d3ef9e" strokeWidth="2.2" />
+          <path d={ring.hole} fill="none" stroke="#244d17" strokeWidth="2" />
+        </g>
+      ))}
     </g>
   );
 }
@@ -1018,6 +1053,36 @@ function CinnamonPowderPile() {
         <circle cx="8.8" cy="29.9" r="1" />
         <circle cx="25.4" cy="57" r="1.4" />
       </g>
+    </g>
+  );
+}
+
+/* ---------- umeboshi-paste (Issue #739, Owner P1): a dab of plum-pink paste (the ingredient colour #b8405a) stamped with a five-petal plum blossom, so a SAUCE chip reads as "plum paste", not a peach. Same grammar as mayo-drop / wasabi-dab: contact-shadow ellipse, dark outline, no id / gradient / defs. Reference art: docs/design/references/ingredient-icons-2.0/umeboshi-paste.svg. ---------- */
+const UME_PETAL_ROTATIONS = [0, 72, 144, 216, 288] as const;
+
+function UmeboshiPasteDab() {
+  return (
+    <g>
+      <ellipse cx="32" cy="55" rx="22" ry="3.5" fill="#000" opacity=".15" />
+      <path d="M10 44C8 30 20 18 34 20C50 20 58 32 54 44C50 54 16 54 10 44Z" fill="#b8405a" stroke="#6e1f35" strokeWidth="2.4" strokeLinejoin="round" />
+      <g transform="translate(32 33) scale(.42) translate(-32 -32)">
+        {UME_PETAL_ROTATIONS.map((angle) => (
+          <ellipse key={angle} cx="32" cy="15" rx="9" ry="11" fill="#fde6ec" stroke="#8c2f4a" strokeWidth="2" transform={`rotate(${angle} 32 32)`} />
+        ))}
+        <circle cx="32" cy="32" r="5" fill="#f6d36b" stroke="#8c2f4a" strokeWidth="1.5" />
+      </g>
+    </g>
+  );
+}
+
+/* ---------- sour-cream (Expansion Batch 17, #741, Owner plan A): a dab of cream (the ingredient colour #f1ecdc) with a swirl and a small peak, so a white SAUCE chip is told apart from fromage-blanc-sauce by SHAPE (a white sauce cannot reach DeltaE 20 by colour). Same grammar as umeboshi-paste-dab / mayo-drop: contact-shadow ellipse, dark outline, no id / gradient / defs. PROVISIONAL until the 390x844 / 360x800 HV. ---------- */
+function SourCreamDab() {
+  return (
+    <g>
+      <ellipse cx="32" cy="55" rx="22" ry="3.5" fill="#000" opacity=".15" />
+      <path d="M10 44C8 30 20 18 34 20C50 20 58 32 54 44C50 54 16 54 10 44Z" fill="#f1ecdc" stroke="#6b6a52" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M20 38C26 30 36 30 42 36C47 40 40 44 33 42" fill="none" stroke="#b9b49c" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M30 30C32 24 36 24 36 28" fill="none" stroke="#b9b49c" strokeWidth="2.2" strokeLinecap="round" />
     </g>
   );
 }

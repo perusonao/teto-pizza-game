@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce" | "soy-sauce" | "fresh-cream-sauce";
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce" | "soy-sauce" | "fresh-cream-sauce" | "umeboshi-paste" | "sour-cream";
   interaction: SauceInteractionKind;
 }
 
@@ -378,6 +378,14 @@ export const RECIPE_SAUCE_PROFILES = {
     interaction: "PAINT",
   },
   // FIN-E4b-ikura (#621, late catalog): NO_SAUCE.
+  // Expansion Batch 16 (#736, PROVISIONAL, ORIGINAL NOT CONFIRMED): umeboshi-paste PAINT -- reading the source sauce field 'その他' as the 梅肉 sauce is a B16-only exception (not a general rule); the existing PAINT gesture, no new interaction.
+  "ume-shiso-pizza": { recipeId: "ume-shiso-pizza", ingredientId: "umeboshi-paste", interaction: "PAINT" },
+  // Expansion Batch 17 (#741, PROVISIONAL, ORIGINAL NOT CONFIRMED): sour-cream PAINT -- reading the source sauce field 'その他' as the sour-cream sauce is a B17-only exception (not a general rule); the existing PAINT gesture, no new interaction.
+  "goulash-pizza": { recipeId: "goulash-pizza", ingredientId: "sour-cream", interaction: "PAINT" },
+  // Expansion Batch 18 (#748, PROVISIONAL, ORIGINAL NOT CONFIRMED): the existing curry-ketchup PAINT stands in for the unspecified curry base (a recipe-specific Owner decision, as curry-pizza-japan / tandoori-paneer-pizza / rendang-pizza); NOT NO_SAUCE.
+  "baingan-bharta-pizza": { recipeId: "baingan-bharta-pizza", ingredientId: "curry-ketchup", interaction: "PAINT" },
+  // Expansion Batch 18 (#748, PROVISIONAL, ORIGINAL NOT CONFIRMED): the existing fromage-blanc-sauce PAINT stands in for the white sauce (a recipe-specific Owner decision, as moussaka-style-pizza); NOT NO_SAUCE. mayo is the existing squeeze topping.
+  "reina-pepiada-pizza": { recipeId: "reina-pepiada-pizza", ingredientId: "fromage-blanc-sauce", interaction: "PAINT" },
   "ikura-salmon-pizza": null,
   // New Sauces Phase B U1 (late catalog): yuzu-kosho painted before the bake (PROVISIONAL, not confirmed by the original).
   "yuzu-shrimp-pizza": {

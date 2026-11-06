@@ -1,5 +1,6 @@
 import { mkdirSync } from "node:fs";
-import { test, expect, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/failureEvidence"; // #394: DOM / waiting location on failure
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { PROFILES, ProfileDriver } from "./support/layoutProfiles";
 import { runOnlyOnWidth } from "./support/projectGuard";

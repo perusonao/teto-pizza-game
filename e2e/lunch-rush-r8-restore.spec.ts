@@ -1,5 +1,7 @@
-import { test, expect, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
+import { test } from "./support/failureEvidence"; // #394: DOM / waiting location on failure
 import { bakeToTarget, completeDoughStep, cutThreeLines, paintSauceRing, tapDoughPercent } from "./gestures";
+import { reloadApp } from "./support/diag";
 
 /**
  * Save R8 (Issue #617), Lunch Rush L-1 in a real browser (Chromium and WebKit, 390x844 and 360x800).
@@ -16,6 +18,14 @@ import { bakeToTarget, completeDoughStep, cutThreeLines, paintSauceRing, tapDoug
 
 const SAVE_KEY = "teto-pizza-save-v1";
 const MUSHROOM_STOCK = 9;
+/**
+ * Sauce taps per pizza. G-5 and G-6 bake TWO pizzas inside one test, so they share a single 30 s budget (the default; NOT extended).
+ * On the WebKit 390x844 shard 2/3 CI runner (3 workers) one pizza costs ~14-15 s, and the two-pizza tests measured 27.4 s (G-5, 91%) and
+ * 30.3 s (G-6, 101% -> timeout, run 41860969123). The failure point moves between runs (waitForSelector / HOME click / reload evaluate, #680)
+ * because it is wherever the budget runs out. No assertion here reads the sauce coverage, so 8 taps around the ring replace 16
+ * (every other point of the same ring): ~8 fewer WebKit round trips per pizza, same spec assertions, same save/inventory behaviour.
+ */
+const SAUCE_TAPS = 8;
 
 const missionSave = () => ({
   schemaVersion: 2,
@@ -64,7 +74,7 @@ async function bakeToServePanel(page: Page) {
   await page.getByRole("button", { name: /次へ/ }).click();
 
   await page.getByRole("button", { name: /トマトソース/ }).click();
-  await paintSauceRing(page, 25, 16);
+  await paintSauceRing(page, 25, SAUCE_TAPS);
   await page.getByRole("button", { name: /次へ/ }).click();
 
   await page.getByRole("button", { name: /モッツァレラ/ }).click();
@@ -96,8 +106,7 @@ test.describe("Lunch Rush save/restore in the browser (R8 L-1)", () => {
     expect(timesMade(unserved), "nothing is registered before the serve").toBe(1);
     expect(unserved?.pendingRound, "Lunch Rush never writes a pendingRound journal").toBeUndefined();
 
-    await page.reload();
-    await page.waitForSelector(".app-frame");
+    await reloadApp(page, "lunch-rush-r8");
     const after = await readSave(page);
     expect(after?.inventory.mushroom).toBe(MUSHROOM_STOCK);
     expect(timesMade(after)).toBe(1);
@@ -116,8 +125,7 @@ test.describe("Lunch Rush save/restore in the browser (R8 L-1)", () => {
     expect(served?.inventory.mushroom ?? 0, "the served pizza's mushrooms is consumed").toBeLessThan(MUSHROOM_STOCK);
     expect(timesMade(served), "the served pizza is registered once").toBe(2);
 
-    await page.reload();
-    await page.waitForSelector(".app-frame");
+    await reloadApp(page, "lunch-rush-r8");
     const after = await readSave(page);
     expect(after?.inventory.mushroom, "a reload does not give a served pizza's stock back").toBe(served?.inventory.mushroom);
     expect(timesMade(after), "a reload does not register it twice").toBe(2);
@@ -137,8 +145,7 @@ test.describe("Lunch Rush save/restore in the browser (R8 L-1)", () => {
     await bakeToServePanel(page);
     expect((await readSave(page))?.inventory.mushroom, "the second, unserved pizza is not saved as consumed").toBe(servedStock);
 
-    await page.reload();
-    await page.waitForSelector(".app-frame");
+    await reloadApp(page, "lunch-rush-r8");
     const after = await readSave(page);
     expect(after?.inventory.mushroom, "only the unserved pizza is given back; the served one stays consumed").toBe(servedStock);
     expect(timesMade(after)).toBe(2);
@@ -163,8 +170,7 @@ test.describe("Lunch Rush save/restore in the browser (R8 L-1)", () => {
     expect(left?.pendingRound, "Lunch Rush never writes a pendingRound journal").toBeUndefined();
     await expect(page.locator('[data-round-notice="settled"]')).toHaveCount(0);
 
-    await page.reload();
-    await page.waitForSelector(".app-frame");
+    await reloadApp(page, "lunch-rush-r8");
     const after = await readSave(page);
     expect(after?.inventory.mushroom, "the leave and a reload agree").toBe(servedStock);
     expect(timesMade(after)).toBe(2);
