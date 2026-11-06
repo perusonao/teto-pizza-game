@@ -75,3 +75,44 @@
 ## 8. 検証
 
 コードを変更していないため、テスト・typecheck・build は未実行（`node_modules` も未導入）。HV（動画・スクリーンショット）は UI/ゲームプレイ変更がないため対象外。
+
+---
+
+## 9. 再開時の照合（2026-11-07、main `06cfc066`）
+
+**最新 main:** `06cfc066`（#778 ハーブ 4 種の配線を squash merge）。上記 §1〜§8 の数値・静的測定は `5eade46` 時点で、#778 は描画のみのため catalog・ladder の判定は変わらない（`ingredients.ts` の id 集合は不変、実測は未再実行）。
+
+### 9.1 claim の照合（#774・#780 のコメント、すべて Owner アカウント投稿）
+
+| claim | 保持セッション | 範囲 | 本ブランチとの関係 |
+|---|---|---|---|
+| #774 T1（コメント 6691358861。GO は 6691439274 で維持） | `session_016YrGi37oV1zQLYSQserkSG` | Batch 19 実装: `ingredients.ts`・`recipes.ts`・`discoveryLadder.ts`・`IngredientGlyph.tsx`・`App.css`・`catalogLedger.test.ts`・`recipeBatchManifest.ts`・golden・Batch 19 の Result／e2e。branch `claude/b19-burrata-774` | **重なりなし**。本セッション（`session_016YrGi4BCurwdvYZFnYeftN`）は Batch 19 を実装しない・これらのファイルに触れない。branch は origin にまだ無く、PR も無い（実装の進捗は未確認＝**未着手または未 push**） |
+| #780 T2（コメント 6691363845） | 同上 `…37oV1z…` | 87 行の再判定と PD-1b/c 設計: `TETO_POOL-REJUDGE_87_*`・`TETO_DOUGH-KIND_PD1BC_*`。branch `claude/pool-rejudge-87-780`（origin に未 push） | **調査の主題が重複**。本書の名前空間（`TETO_CONTENT-EXPANSION_WAVE-A_780_*`）はファイルが衝突しないが、87 行の再判定は T2 に任せ、本書では**これ以上の再測定をしない** |
+| #748 B18 | 解放済み | — | 無し |
+| #779 | 不採用（Owner 指示） | `ingredients.ts` 等 | 触れない。固有成果物の保全と claim 解放後に整理 |
+
+注: 上記 2 つの claim のセッション ID は本セッション（`…4BCurwdvYZFnYeftN`）とは**別**である（先頭が似ているだけ）。本セッションは claim を投稿していない。
+
+### 9.2 「判断不要 9 品」の再確認
+
+- main、open PR（#650・#738・#746・#751・#775・#776・#779 ほか）、#774・#780・#748 の全コメントを再読した。**9 品の id を列挙した資料は無い。** #780 本文の「Fresh Audit 2026-11-07（main `ed159e9`）」の本体も main に無い。
+- 規定どおり**推測しない・実装しない**。§3 の機械照合（READY・新食材 0 は 6 行、いずれも不可）は参考値であり、「9 品」の代替ではない。
+- T2 の停止条件（87 行の出所が再構成できなければ停止して報告）と同じ結論。9 品・87 行の定義は **Owner が Fresh Audit 本体を提示（または main へ取り込み）** するまで確定しない。
+
+### 9.3 87 品の再判定状況
+
+| 項目 | 状況 |
+|---|---|
+| 担当 | T2（`…37oV1z…`）。成果物は未 push（`TETO_POOL-REJUDGE_87_*`） |
+| 本書の寄与 | 172 行マトリクスの静的照合（§3）と S2 の再利用のみ。87 行の再集計は**していない** |
+| 母集団の定義 | 未確定（上記） |
+
+### 9.4 Batch 19 の進捗
+
+Owner GO 済み。実装は T1 が担当（merge 順 #778 → Batch 19 は充足）。origin に branch／PR が未作成のため、**進捗は外部から未確認**。本セッションは重複実装を避け、データも PR も作っていない。報告すべき HEAD・CI・Codex・iPhone HV の証跡は、T1 の PR 作成後にそちらで出る。
+
+### 9.5 次の実装可能バッチ
+
+1. **Batch 19（burrata ＋ pesto-burrata ＋ pizza-alla-crudaiola）— T1 が実施中。本セッションの担当ではない。**
+2. 本セッションが根拠をもって進められる追加レシピ実装は**なし**（§1・§3）。
+3. その次の候補は §7 のまま（B20 案 B → 案 A → DOUGH_VARIANT 後）。いずれも Owner 判断または新工程の決定が先で、Batch 19 の merge 後に catalog 書き込み担当を一本化して着手する。
