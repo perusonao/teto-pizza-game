@@ -1,0 +1,15 @@
+/* DESIGN REFERENCE ONLY (not imported by the app). Eggplant candidate A: ONE svg (svg/eggplant-a.svg, parts tagged data-part) + CSS variables.
+   Values for the 6 named states are generated from the 3x3 keyframe grid in the Result Report (fry position x bake heat, bilinear). PROVISIONAL until the Owner's iPhone HV. */
+.eg [data-part="skin"]{fill:var(--eg-skin);stroke:var(--eg-line)}
+.eg [data-part="flesh"]{fill:var(--eg-flesh);stroke:var(--eg-rim)}
+.eg [data-part="core"]{fill:var(--eg-core)}
+.eg [data-part="seed"]{fill:var(--eg-seed)}
+.eg [data-part="crust"]{stroke:var(--eg-rim);opacity:var(--eg-crust,0)}
+.eg [data-part="score"]{stroke:var(--eg-rim)}
+.eg [data-part="sheen"]{opacity:var(--eg-sheen,0)}
+.eggplant-state--raw { --eg-skin:#62407b; --eg-line:#25182f; --eg-flesh:#f2e6b6; --eg-rim:#cdb974; --eg-core:#e8d9a4; --eg-seed:#9e916d; --eg-crust:0.00; --eg-sheen:0.00; }
+.eggplant-state--baked-good { --eg-skin:#54366b; --eg-line:#201529; --eg-flesh:#e6c27a; --eg-rim:#b68a3e; --eg-core:#d9b269; --eg-seed:#977c4a; --eg-crust:0.00; --eg-sheen:0.00; }
+.eggplant-state--baked-burnt { --eg-skin:#2e1f38; --eg-line:#110c15; --eg-flesh:#8f6a36; --eg-rim:#4d2f16; --eg-core:#7d592d; --eg-seed:#654923; --eg-crust:0.00; --eg-sheen:0.00; }
+.eggplant-state--fried-crisp { --eg-skin:#6f4590; --eg-line:#2a1a37; --eg-flesh:#f2a92a; --eg-rim:#c4781f; --eg-core:#e59b27; --eg-seed:#9e6e1c; --eg-crust:0.90; --eg-sheen:0.55; }
+.eggplant-state--fried-over { --eg-skin:#3b2547; --eg-line:#160e1b; --eg-flesh:#7a4a1c; --eg-rim:#3a1f0b; --eg-core:#683e17; --eg-seed:#583714; --eg-crust:1.00; --eg-sheen:0.10; }
+.eggplant-state--fried-baked { --eg-skin:#5e3a7a; --eg-line:#24162e; --eg-flesh:#dd9022; --eg-rim:#a8661a; --eg-core:#ce8420; --eg-seed:#925f17; --eg-crust:0.90; --eg-sheen:0.43; }

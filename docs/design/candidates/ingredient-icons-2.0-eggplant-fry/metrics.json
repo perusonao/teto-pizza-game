@@ -1,0 +1,249 @@
+{
+ "states": {
+  "A": {
+   "bbox": [
+    4.5,
+    60.5,
+    3.5,
+    59
+   ],
+   "area": 0.519,
+   "dE_raw_bakeG": 12.6,
+   "dE_bakeG_fryC": 14.2,
+   "dE_raw_fryC": 25.2,
+   "dE_fryC_fryO": 32.5,
+   "dE_fryC_fryBk": 6.5,
+   "dE_bakeG_fryBk": 15.1,
+   "vsDough": {
+    "raw": 35.5,
+    "bakeG": 38.2,
+    "bakeB": 23.9,
+    "fryC": 51.1,
+    "fryO": 73.6,
+    "fryBk": 42.2
+   },
+   "Lskin_flesh": null
+  },
+  "B": {
+   "bbox": [
+    6.5,
+    58.5,
+    6,
+    57.5
+   ],
+   "area": 0.452,
+   "dE_raw_bakeG": 8.2,
+   "dE_bakeG_fryC": 14.7,
+   "dE_raw_fryC": 19.8,
+   "dE_fryC_fryO": 28.3,
+   "dE_fryC_fryBk": 6.1,
+   "dE_bakeG_fryBk": 17.8,
+   "vsDough": {
+    "raw": 37.5,
+    "bakeG": 42.5,
+    "bakeB": 29.4,
+    "fryC": 50,
+    "fryO": 74.5,
+    "fryBk": 47.2
+   },
+   "Lskin_flesh": null
+  },
+  "C": {
+   "bbox": [
+    7.5,
+    55,
+    7.5,
+    57.5
+   ],
+   "area": 0.383,
+   "dE_raw_bakeG": 9.1,
+   "dE_bakeG_fryC": 10,
+   "dE_raw_fryC": 16.3,
+   "dE_fryC_fryO": 20.4,
+   "dE_fryC_fryBk": 5,
+   "dE_bakeG_fryBk": 12.1,
+   "vsDough": {
+    "raw": 56.9,
+    "bakeG": 60,
+    "bakeB": 36.6,
+    "fryC": 67.9,
+    "fryO": 82.1,
+    "fryBk": 67.9
+   },
+   "Lskin_flesh": null
+  }
+ },
+ "neigh": {
+  "A": {
+   "salami": {
+    "shape": 0.35,
+    "dE": 28,
+    "dL": 18
+   },
+   "pepperoni": {
+    "shape": 0.54,
+    "dE": 54,
+    "dL": 19
+   },
+   "sausage": {
+    "shape": 0.67,
+    "dE": 34,
+    "dL": 22
+   },
+   "hot-dog": {
+    "shape": 0.7,
+    "dE": 30,
+    "dL": 2
+   },
+   "bell-pepper": {
+    "shape": 0.69,
+    "dE": 40,
+    "dL": 9
+   },
+   "green-pepper": {
+    "shape": 0.39,
+    "dE": 52,
+    "dL": 4
+   },
+   "pickles": {
+    "shape": 0.64,
+    "dE": 42,
+    "dL": 7
+   },
+   "umeboshi-paste": {
+    "shape": 0.48,
+    "dE": 36,
+    "dL": 12
+   },
+   "pomegranate": {
+    "shape": 0.45,
+    "dE": 53,
+    "dL": 26
+   },
+   "bacon": {
+    "shape": 0.53,
+    "dE": 33,
+    "dL": 10
+   },
+   "pineapple": {
+    "shape": 0.52,
+    "dE": 52,
+    "dL": 12
+   }
+  },
+  "B": {
+   "salami": {
+    "shape": 0.34,
+    "dE": 30,
+    "dL": 16
+   },
+   "pepperoni": {
+    "shape": 0.46,
+    "dE": 58,
+    "dL": 17
+   },
+   "sausage": {
+    "shape": 0.64,
+    "dE": 37,
+    "dL": 20
+   },
+   "hot-dog": {
+    "shape": 0.67,
+    "dE": 35,
+    "dL": 4
+   },
+   "bell-pepper": {
+    "shape": 0.64,
+    "dE": 44,
+    "dL": 7
+   },
+   "green-pepper": {
+    "shape": 0.36,
+    "dE": 51,
+    "dL": 2
+   },
+   "pickles": {
+    "shape": 0.6,
+    "dE": 41,
+    "dL": 5
+   },
+   "umeboshi-paste": {
+    "shape": 0.4,
+    "dE": 39,
+    "dL": 10
+   },
+   "pomegranate": {
+    "shape": 0.42,
+    "dE": 56,
+    "dL": 24
+   },
+   "bacon": {
+    "shape": 0.52,
+    "dE": 37,
+    "dL": 8
+   },
+   "pineapple": {
+    "shape": 0.48,
+    "dE": 55,
+    "dL": 14
+   }
+  },
+  "C": {
+   "salami": {
+    "shape": 0.32,
+    "dE": 19,
+    "dL": 1
+   },
+   "pepperoni": {
+    "shape": 0.57,
+    "dE": 53,
+    "dL": 1
+   },
+   "sausage": {
+    "shape": 0.71,
+    "dE": 31,
+    "dL": 5
+   },
+   "hot-dog": {
+    "shape": 0.73,
+    "dE": 39,
+    "dL": 19
+   },
+   "bell-pepper": {
+    "shape": 0.6,
+    "dE": 44,
+    "dL": 8
+   },
+   "green-pepper": {
+    "shape": 0.44,
+    "dE": 69,
+    "dL": 13
+   },
+   "pickles": {
+    "shape": 0.68,
+    "dE": 58,
+    "dL": 10
+   },
+   "umeboshi-paste": {
+    "shape": 0.4,
+    "dE": 28,
+    "dL": 5
+   },
+   "pomegranate": {
+    "shape": 0.44,
+    "dE": 43,
+    "dL": 9
+   },
+   "bacon": {
+    "shape": 0.61,
+    "dE": 33,
+    "dL": 7
+   },
+   "pineapple": {
+    "shape": 0.43,
+    "dE": 71,
+    "dL": 29
+   }
+  }
+ }
+}
