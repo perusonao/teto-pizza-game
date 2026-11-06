@@ -1,0 +1,34 @@
+/* #755 V2: touchable individual-shell rescue; restricted to the Preview/DEV Lab. */
+.sglv2__batch { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: none; }
+.sglv2__batch button {
+  min-height: 40px; padding: 3px 6px;
+  border-radius: 10px; border: 1px solid #ffffff55;
+  background: #ffffff14; color: #fff7ec; font: inherit;
+  font-size: 13px; font-weight: 700; touch-action: manipulation;
+}
+.sglv2__batch button[aria-pressed="true"] { background: #9d6338; border-color: #f7c182; }
+.sglv2__batch button:disabled { opacity: 0.82; }
+.sglv2__batch button:focus-visible { outline: 3px solid #ffd27a; outline-offset: 1px; }
+.sglv2__scene { position: relative; }
+.sglv2__scene .sgl__svg { overflow: visible; }
+.sglv2__shell-button { cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.sglv2__shell-button[aria-disabled="true"] { cursor: default; }
+.sglv2__shell-button:focus-visible > rect { fill: #ffcd6233; stroke: #ffcd62; stroke-width: 2; }
+.sglv2__shell { transition: filter 150ms ease; }
+.sglv2__shell[data-ready="true"] { filter: drop-shadow(0 0 5px #ffdb65); }
+.sglv2__spark { animation: sglv2-spark 550ms ease-in-out infinite alternate; }
+.sglv2__count {
+  position: absolute; top: 3px; right: 0;
+  border: 1px solid #f3d49c99; border-radius: 10px;
+  padding: 4px 9px; color: #fff3d4; background: #211b1acc;
+  font-size: 14px; font-weight: 700; pointer-events: none;
+}
+.sglv2__msg { min-height: 38px; font-size: 15px; }
+.sglv2__msg[data-verdict="perfect"] { background: #297448; }
+.sglv2__msg[data-verdict="partial"] { background: #6b552a; }
+.sglv2__msg[data-verdict="missed"] { background: #714139; }
+@keyframes sglv2-spark { from { opacity: 0.3; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .sglv2__spark { animation: none; }
+  .sglv2__shell { transition: none; }
+}
