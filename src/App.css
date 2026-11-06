@@ -847,7 +847,7 @@
   margin: -0.175em;
 }
 
-/* Issue #758: the shiso leaf's box is 1.35em (was the shared 1.2em above; same value and method as the whitebait school), so the leaf reads on the pizza (23.5 -> 26.5px) and on the RESULT pizza (17.6 -> 19.8px). Its own rule: the shared group above stays untouched. The layout box stays 1em via the negative margin. PROVISIONAL until the Owner's iPhone Safari HV. */
+/* Issue #758: the shiso leaf's box is 1.35em (was the shared 1.2em above; same value and method as the whitebait school), so the leaf reads on the pizza (23.5 -> 26.5px) and on the RESULT pizza (17.6 -> 19.8px). Its own rule: the shared group above stays untouched. The layout box stays 1em via the negative margin. Adopted: Owner iPhone Safari design HV PASS (2026-11-06). */
 .ingredient-glyph--shiso-leaf {
   width: 1.35em;
   height: 1.35em;

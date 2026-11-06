@@ -2,7 +2,7 @@
 
 - 日付: 2026-11-05 / base: main `d85b957` / ブランチ: `claude/issue-758-shiso-1-35em`
 - 調査: `claude/shiso-leaf-visibility-investigation-w7qok9` の `6878e74`（`docs/reports/TETO_ISSUE-758_SHISO-VISIBILITY_Result.md`、1.2 / 1.35 / 1.5em の比較と 20〜48px シート）
-- 状態: **実装・Chromium 検証済み。採用確定は Owner の iPhone Safari 実機 HV 待ち（PROVISIONAL）。** merge・Production・共有 Preview の更新は行っていない。
+- 状態: **実装・Chromium 検証済み。Owner の iPhone Safari 実機デザイン HV は PASS（2026-11-06、#760+#761+#765 の統合 Preview での確認。PR コメント参照）。PROVISIONAL コメントは除去済み。** merge・Production・共有 Preview の更新は行っていない。
 - Refs #758 / #417 / #739
 
 ## 1. 変更
@@ -66,7 +66,7 @@
   - 撮影中、`expansion-batch8b` が 1 回だけ console の 404（リソースの読み込み失敗）で失敗した。main でも本ブランチでも同じように起き、上の一括実行では両 viewport とも pass した。大葉のサイズとは無関係
 - `issue-758-shiso` は main の CSS では `SHISO_EXPECT_EM=1.2` でのみ pass し、1.35em を期待する既定値では落ちる。変更を検出できることを確認した
 - Owner Gate（dry-run）: run 41988333827 が success。artifact はこの環境のネットワーク制限で取得できなかったため、claim と open PR の重複は手動で確認した（§5）
-- iPhone Safari 実機: **未実施**（Owner の HV）
+- iPhone Safari 実機: **PASS**（Owner、2026-11-06。統合 Preview #760+#761+#765 での確認で、#761 単独 HEAD ではない）
 
 ## Human Verification Videos
 
@@ -98,6 +98,6 @@ Video Verification: PASS（H.264 / 390×844。フレームを抜き出して、�
 
 | # | 判断 | 推奨 |
 |---|---|---|
-| OD-758-2 | iPhone Safari 実機 HV での採用確定 | 動画の確認項目で判断。PASS なら `App.css` の「PROVISIONAL」を外す |
+| OD-758-2 | iPhone Safari 実機 HV での採用確定 | 動画の確認項目で判断。**PASS（2026-11-06）**。`App.css` の「PROVISIONAL」を除去済み |
 | OD-758-4 | Style Lock V2 §10.2 の記述更新（「1.2em・RESULT 約 17.6px」→「1.35em・約 19.8px」） | **#753 の merge 後に docs-only で行う**（本 PR には含めない） |
 | — | merge・Production・共有 Preview | Owner の承認まで行わない |
