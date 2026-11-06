@@ -1,6 +1,6 @@
 # Steam S4 — iPhone 実機 HV 最小手順（H1・H2・H3・H9・H11、docs-only・Owner 向け）
 
-作成: 2026-11-06（UTC 約 14:45）/ 基準 main `785d7956b42eac97e42dbd138818262a16c0a91c` / 対象 PR #738（HEAD `2ac98201e7d300090201937809f2c9d0bd2d9d55`、CI 結果は旧 base `49e2add` 上）
+最終版: 2026-11-06（UTC 約 14:50。H9 の期待値を実コードに合わせて修正、§5 に H4・H8・H10・H12 の免除判断表を追加）。初版は同日の commit `893a472` / 基準 main `785d7956b42eac97e42dbd138818262a16c0a91c` / 対象 PR #738（HEAD `2ac98201e7d300090201937809f2c9d0bd2d9d55`、CI 結果は旧 base `49e2add` 上）
 親資料: `TETO_COOKING-METHODS_FRY-STEAM_Evidence-Supplement.md` §3（H1〜H14 の区分）、#747 Runbook（H1〜H14 の原表）、`TETO_COOKING-STEAM_S3_Result.md`・`_H11_Result.md`（#738 ブランチ）
 性質: 手順書のみ。コード・テスト・Preview・claim は触っていない。**PASS／FAIL を書くのは Owner だけ**（SESSION-OPERATIONS §3.3）。自動テストは HV の代替ではない（同 §3.4。H1・H2・H3・H9・H11 以外を免除するかは Owner の判断）。
 
@@ -12,7 +12,7 @@
    - 現在: **#756 `8dfca29`**（V1 Lab、`Built 2026-11-05T00:32:32Z`）。
    - #738 `2ac9820` は 11/4 23:25Z に一度配備されたが、**その後 #756 に上書きされた**（preview リポの commit 履歴で確認）。
    - したがって **今の共有 Preview では `?cookSteamHv=1` が使えない**（この入口は #738 を含むビルドにしか無い）。HV の前に、**Owner の承認を得た再配備**が要る。承認済みの 11/5 のコメント（`6644912674`）は 2ac9820 への一度きりの更新承認で、**再配備にそのまま使えるかは Owner 判断**（SESSION-OPERATIONS §5: 更新は毎回 Owner 承認）。
-2. **HV の証拠は 1 つの HEAD に属する**（SESSION-OPERATIONS §3.1: HEAD が変わると HV はやり直し）。#738 には最新 main の取り込みが残っている（`Gate 計画` 参照）。**取り込み後の最終 HEAD で 1 回だけ HV する**のが最も無駄がない。`2ac9820` で先に HV し、取り込み後に Owner が持ち越しを認める方法もある（§5 の選択肢）。
+2. **HV の証拠は 1 つの HEAD に属する**（SESSION-OPERATIONS §3.1: HEAD が変わると HV はやり直し）。#738 には最新 main の取り込みが残っている（`Gate 計画` 参照）。**取り込み後の最終 HEAD で 1 回だけ HV する**のが最も無駄がない。`2ac9820` で先に HV し、取り込み後に Owner が持ち越しを認める方法もある（§6 の選択肢）。
 3. 所要時間の目安: **約 5 分**（準備 1 分＋確認 4 分）。
 
 ---
@@ -69,7 +69,8 @@
 **Step 4（H9）— 割り込み**
 1. 蒸し画面でふたを閉じ、蒸している最中に**ホームへ戻る（別アプリを開く）か、サイドボタンでロック**して約 5 秒待つ。
 2. Safari に戻る。
-3. 期待: **勝手に「完了」にならない**。画面が使える（待機に戻る、または続きから操作できる）。**状態をメモ**（「待機に戻った」「蒸し続けた」「勝手に完了した」のどれか）。
+3. **設計上の期待（コードと単体テストで確認済み）:** アプリが背面に回る（`visibilitychange` が hidden、またはウィンドウ `blur`）と、**蒸し画面ごと閉じて蒸しを破棄**する（`SteamLayer.tsx` の `abort`／`onVisibility`、テスト「the page losing focus / being hidden mid-steam discards it」）。つまり戻ると **TOPPING 画面に戻り、蒸した印は付かず、貝は蒸されていない**状態が PASS。蒸し画面がそのまま続いている、または**勝手に「蒸し済み」になっている**場合は NEEDS FIX。
+4. **状態をメモ**（「TOPPING に戻り、蒸されていない」「蒸し画面が残っていた」「勝手に蒸し済みになった」のどれか）。通知センターを引き下ろしただけのとき（背面に回らない場合がある）は、その旨を併記。
 
 **Step 5（H11 ＋ H4・H10 の軽い確認）— ピザ上の見分け**
 1. あさりを 3 個置く流れで、**1 個目と 2 個目を蒸し、3 個目は蒸さずに置く**（蒸し画面を途中で × で閉じる操作や、素早い連打・再入場も 1〜2 回試すと H4 の確認になる）。
@@ -102,7 +103,23 @@
 
 ---
 
-## 5. HEAD の扱い（Owner の選択肢）
+## 5. H4・H8・H10・H12 — 免除判断のための既存証拠（Owner 判断用）
+
+**免除は Owner だけが決められる**（自動テストは HV の代替ではない、SESSION-OPERATIONS §3.4）。下表は「免除してよいと判断できる材料があるか」の整理で、PASS の記録ではない。「再確認」は 2026-11-06 に**最新 main に #738 を merge した使い捨てツリー（push なし）**で、ローカルの Chromium（iPhone 390×844・360×800 プロジェクト、**WebKit・実機ではない**）で再実行した結果。
+
+| ID | 確認内容（#747 Runbook） | 既存証拠【実測】 | 最新 main 上での再確認（ローカル Chromium） | 残る不確実性 | 免除の見立て |
+|---|---|---|---|---|---|
+| **H4** | A を素早く連打・キャンセル／戻る。二重確定・固まったオーバーレイなし | `cooking-steam.spec.ts:302`（タッチで開く → 待機のまま → 120ms 後の明示タップで蒸し開始、lid／shake・通常／短い画面の 4 通り）、`:338`（2 回続けたタップ）、`:226`（× で何も残らない）。単体: `steamGhostClick.test.ts`（60〜120ms の再タップが有効）、`SteamLayer.test.tsx` | `cooking-steam.spec.ts` **30/30 pass**（390×844・360×800） | 実機のタッチの互換イベントの順序（H3 と同じ実機確認で自然に触れる） | **免除の根拠あり**。H3 の通しプレイで 1〜2 回素早く触れば足りる |
+| **H8** | A↔B 切替で前の操作を引き継がない | `:226` 「in-screen switch … **locked while steaming**; × keeps nothing」。単体: 「a switch while idle changes the screen; a half-way steam is discarded; the switch is locked while steaming」 | 同上 30/30 pass | **蒸している最中は切替自体が無効**なので「引き継ぎ」は構造上起きない。B 自体を Preview 限定の実験にするなら対象外 | **免除の根拠あり**（B の扱い次第で不要） |
+| **H10** | 焼成 → RESULT まで完走。貝の見た目・他の技法が崩れない | `:245` 「steamed -> bake -> RESULT: the steam look and the bake's own filter both apply」。炙り・炒め・`dynamic-cooking-steps`・`viewport-1screen` の回帰（S3 Result §7）。H11 Result に焼成・仕上げ・RESULT の画像 | 追加で `cooking-screen-sideways`・`cooking-sear-hv`・`dynamic-cooking-steps`・`viewport-1screen`（両 viewport）**55 pass／3 skip**、`cooking-prep`・`b18-hv-preview`（390×844）**30 pass／2 skip**。skip はテスト側の既存条件 | 実機での焼成表示（HV の Step 5 で貝の見た目を見る際に自然に確認できる） | **免除の根拠あり**。Step 5 の「焼く → RESULT」で軽く見れば足りる |
+| **H12** | 保存が汚れない・本番 OFF | `:76`（実際のセーブに触れない）、`:278`（リロードで最初から）、`steam.gate.test.ts`（本番バンドルに `cookSteam*`・HV 印が無く、Preview バンドルには全部ある）、`steamIngredient.flagOff.test.ts`・`unaffected.test.ts`（フラグ OFF で状態不変／保存・採点・在庫・journal がバイト同一）、`STEAM_EXPERIENCE_PRODUCTION = false`（`steamExperienceGate.ts`） | `npm run build` 成功、**`dist/` に `cookSteam*`・`steamGameLab` の文字列なし**、`steam.gate.test.ts` ほか gate 5 本・FRY 純ロジックを含む 81 件 pass、`previewIsolation.gate.test.ts` pass | 実機でしか見えない要素はほぼない。ただし「共有 Preview の保存キーは全 PR で共有」（SESSION-OPERATIONS §5）なので、HV 前後の Preview の保存は使い捨て扱い | **免除の根拠が最も強い**（自動 gate が本番混入を直接検出） |
+
+**免除しない方がよいもの（実機が必要）:** H1・H2・H3・H9・H11（§1）。
+**B 専用の H5〜H7:** B を「Preview 限定の実験」と決めれば必須から外せる。H13・H14 は 2026-11-05 に Owner の実機 PASS 済み。
+
+---
+
+## 6. HEAD の扱い（Owner の選択肢）
 
 | 案 | 内容 | 利点 | 注意 |
 |---|---|---|---|
