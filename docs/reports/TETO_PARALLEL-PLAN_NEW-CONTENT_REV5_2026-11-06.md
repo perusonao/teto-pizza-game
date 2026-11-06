@@ -82,7 +82,7 @@ piadina 1 レシピまでの G5〜G8 を最小化する案（本セッション�
 
 ## 6. #738 STEAM（新 HEAD `78de12a`）
 
-Codex: **主要な指摘なし**（`78de12a`、コメント 6688513577、summary の `has_unresolved_findings:false`）。CI: classify・Layout Contract Gate・layout-chromium・**WebKit 6 shard・WebKit Gate すべて success**、build は確認時点で実行中。build が success になれば GREEN → Owner の iPhone HV（H11 を含む、`TETO_STEAM-738_H11_ReHV_Plan.md` §4）。旧 HEAD の検証は繰り返していない。
+Codex: **主要な指摘なし**（`78de12a`、コメント 6688513577、summary の `has_unresolved_findings:false`）。CI: classify・Layout Contract Gate・layout-chromium・**WebKit 6 shard・WebKit Gate すべて success**、build も **success**。**CI・Codex とも GREEN** → 次は Owner の iPhone HV（H11 を含む、`TETO_STEAM-738_H11_ReHV_Plan.md` §4）。旧 HEAD の検証は繰り返していない。
 
 ## 7. 追加可能な数（Rev 5 時点）
 
@@ -94,4 +94,4 @@ Codex: **主要な指摘なし**（`78de12a`、コメント 6688513577、summary
 | G5〜G8 の 4 問の回答後（PD-1a→1b→2→piadina） | 0 | **+1（計 4）** | **1** | 0 |
 | #738 merge＋本番 ON（別承認） | — | — | — | **1** |
 
-**進捗:** 追加食材数 0/8｜追加レシピ数 0/20｜追加調理方法数 0/2｜新工程 0｜実装中: #738（GREEN 待ち）、PD-1a（別セッション）｜HOLD: B19、B20-A、FRY F2、late 実装｜merge 済み（起点以降）: #753（docs）。
+**進捗:** 追加食材数 0/8｜追加レシピ数 0/20｜追加調理方法数 0/2｜新工程 0｜実装中: #738（CI・Codex GREEN、Owner iPhone HV 待ち）、PD-1a（別セッション）｜HOLD: B19、B20-A、FRY F2、late 実装｜merge 済み（起点以降）: #753（docs）。
