@@ -1,23 +1,29 @@
 /**
- * Dough Kind P1 (Issue #577): which kind of dough a pizza / recipe is made with -- the `dough` identity axis' value.
+ * Dough Kind (Issue #577): which kind of dough a pizza / recipe is made with -- the `dough` identity axis' value.
  *
- * Authority: docs/design/TETO_DOUGH-KIND_PINSA_DETAILED-DESIGN.md §1 (Owner-approved P1). `dough` is independent of the
- * pan (`pan`, ○/□): neither is inferred from the other. Values are the 172-recipe design's vocabulary
- * (`material-multigrain-long-ferment` = Pinsa Romana) and the existing `"standard"`. Never persisted.
+ * Authority: docs/design/TETO_DOUGH-KIND_PINSA_DETAILED-DESIGN.md §1. `dough` is independent of the pan (`pan`, ○/□): neither is
+ * inferred from the other. Values are the 172-recipe design's vocabulary (`material-multigrain-long-ferment` = Pinsa Romana) and the
+ * existing `"standard"`.
  *
- * Inert in Production: no `RECIPES` entry sets `doughKind` and nothing sets `PizzaState.dough` yet (pinned by test);
- * the chip UI is P2 and the first recipe is P3 (HOLD until the original source is checked).
+ * Where it is used today (read from the code, not a promise): `Recipe.doughKind?` / `LateRecipeEntry.doughKind?` (only the Pinsa late-catalog
+ * recipe sets it, behind `PINSA_PRODUCTION`), `PizzaState.dough?` (set by the DOUGH chips / Guided start; the in-progress round's journal
+ * in `pendingRound` stores and validates it with `isDoughKind`), the `dough` signature axis, and the Pinsa technique. A kind that is unknown
+ * to this build is never trusted: `isDoughKind` is false and `resolveDoughKind` falls back to `"standard"`.
+ *
+ * Single source of truth (Dough Kind PD-1a): `DOUGH_KINDS` below lists the kinds, `DoughKind` is derived from it and `isDoughKind` reads it.
+ * Adding a kind later is one new entry here (plus whatever that kind needs elsewhere); this file does not decide which kinds ship.
  */
 
-export type DoughKind = "standard" | "material-multigrain-long-ferment";
+/** Every dough kind this build knows, in a fixed order. The one place a kind is declared. */
+export const DOUGH_KINDS = ["standard", "material-multigrain-long-ferment"] as const;
 
-export const DOUGH_KINDS: readonly DoughKind[] = ["standard", "material-multigrain-long-ferment"];
+export type DoughKind = (typeof DOUGH_KINDS)[number];
 
 /** Every shipped recipe, and what an absent `Recipe.doughKind` / `PizzaState.dough` resolves to. */
 export const DEFAULT_DOUGH_KIND: DoughKind = "standard";
 
 export function isDoughKind(value: unknown): value is DoughKind {
-  return value === "standard" || value === "material-multigrain-long-ferment";
+  return typeof value === "string" && (DOUGH_KINDS as readonly string[]).includes(value);
 }
 
 /** The single place a recipe's dough kind is resolved. Absent or unrecognised -> `"standard"`, never a throw or a guess. */
