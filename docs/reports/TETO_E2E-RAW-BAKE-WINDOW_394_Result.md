@@ -25,7 +25,7 @@ Base: main `c308a3f7`。Branch: `claude/e2e-raw-bake-window-394`。PR #759（Bat
 
 | 層 | 内容 |
 |---|---|
-| 単体（各 spec に追加） | 窓内の針位置（20〜40、0.5 刻み）の全てが、Free Cooking の窓（58-78）と**全 88 レシピ**の `bakeTarget` に対して `classifyBake` = `"raw"`。さらに `RAW_BAKE.end`（40）が、全窓の最小開始値（45）より小さいことを固定。将来 45 未満の窓を持つレシピが入ると、このテストが落ちて見直しを促す。 |
+| 単体（各 spec に追加） | 窓内の針位置（20〜40、0.5 刻み）の全てが、Free Cooking の窓（58-78）と**全 88 レシピ**の `bakeTarget` に対して `classifyBake` = `"raw"`。さらに 全窓の最小開始値（現在 45）と `RAW_BAKE.end`（40）の差が **5pt 以上**であることを固定。将来、開始値が 45 未満（例: 41〜44）のレシピが入ると、窓は依然 raw でも余白が 5pt を切るので、このテストが落ちて見直しを促す（Codex P2 の指摘で、`<` だけの比較から改めた）。 |
 | 実機能（既存 assertion、不変） | 取り出した結果が `.result-panel--failed`（失敗カード）。Research の spec は理由文 `生焼けで提供できません` / 空の皿は `材料が入っていません`、○×の記録、盤面の×を確認する。 |
 | Completion Gate | `BAKE_ACCEPTABLE_MARGIN_RATIO = 0`（Issue #482）なので、窓の開始値より手前は UNDERBAKED、`classifyBake` の `"raw"` と一致する。 |
 

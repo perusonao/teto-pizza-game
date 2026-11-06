@@ -86,7 +86,10 @@ test("RAW_BAKE is a raw (UNDERBAKED) take-out for every recipe window and the Fr
   for (let value = RAW_BAKE.start; value <= RAW_BAKE.end; value += 0.5) {
     for (const window of windows) expect(classifyBake(value, window), `needle ${value} vs window ${window.start}-${window.end}`).toBe("raw");
   }
-  expect(RAW_BAKE.end).toBeLessThan(Math.min(...windows.map((w) => w.start)));
+  // A margin, not just "earlier": a recipe whose window starts within 5 points of this take-out (the earliest today is 45, 5 above
+  // RAW_BAKE.end) is where this window should be reviewed -- it would still be raw, but no longer clearly so.
+  const earliestStart = Math.min(...windows.map((w) => w.start));
+  expect(earliestStart - RAW_BAKE.end, `earliest window start ${earliestStart} vs RAW_BAKE.end ${RAW_BAKE.end}`).toBeGreaterThanOrEqual(5);
 });
 
 test("bake-FAILED Research trial: RESULT shows ○×, the Notebook records it and the Board keeps the ×", async ({ page }) => {
