@@ -1,21 +1,17 @@
 /* Cooking Prep Phase 1 PR-B (下ごしらえ「炒める」). Its own file: App.css is a hot file. Spec: docs/design/TETO_COOKING-PREP_PHASE1_SPEC_2026-10-28.md.
    Nothing here applies unless the experience is ON (the class / elements below are only rendered then); with it OFF the DOM is today's. */
 
-/* ---- S3: a prepped beef piece. `fill` / `stroke` set by CSS beat the SVG presentation attributes, so `BeefSlices` (#691, HV-passed) stays byte-identical.
-   The ribbons / streaks are the four <path>s of the glyph, in drawing order: lean 1, fat 1, lean 2, fat 2. ---- */
-.ingredient-piece--prepared .ingredient-glyph--beef-slices path:nth-of-type(1) {
-  fill: var(--beef-lean);
-  stroke: var(--beef-edge);
-}
-.ingredient-piece--prepared .ingredient-glyph--beef-slices path:nth-of-type(2) {
-  stroke: var(--beef-fat);
-}
-.ingredient-piece--prepared .ingredient-glyph--beef-slices path:nth-of-type(3) {
+/* ---- S3: a prepped beef piece. `fill` / `stroke` set by CSS beat the SVG presentation attributes, so `BeefSlices` stays byte-identical.
+   Issue #733: the glyph is three seared chunks (each a <g> of three <rect>s, in drawing order: crust, cut face, core), no longer the four ribbon / streak <path>s of #691. ---- */
+.ingredient-piece--prepared .ingredient-glyph--beef-slices g > g > rect:nth-of-type(1) {
   fill: var(--beef-lean-2);
   stroke: var(--beef-edge);
 }
-.ingredient-piece--prepared .ingredient-glyph--beef-slices path:nth-of-type(4) {
-  stroke: var(--beef-fat-2);
+.ingredient-piece--prepared .ingredient-glyph--beef-slices g > g > rect:nth-of-type(2) {
+  fill: var(--beef-lean);
+}
+.ingredient-piece--prepared .ingredient-glyph--beef-slices g > g > rect:nth-of-type(3) {
+  fill: var(--beef-fat);
 }
 /* The sheen: a thin warm highlight along the upper edge, only as strong as the doneness. */
 .ingredient-piece--prepared .ingredient-glyph--beef-slices {

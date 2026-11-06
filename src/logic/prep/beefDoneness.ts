@@ -2,7 +2,7 @@
  * Cooking Prep Phase 1 PR-B S3: the beef doneness -> colour rule (pure). Spec: docs/design/TETO_COOKING-PREP_PHASE1_SPEC_2026-10-28.md §4, §18.3.
  *
  * `doneness` runs 0 (raw) .. 1 (prepped). The two ends:
- *   - RAW is exactly what `BeefSlices` (../../components/IngredientGlyph.tsx, PR-2 late4, Owner HV PASS) draws today, so an un-prepped beef is unchanged.
+ *   - RAW is exactly what `BeefSlices` (../../components/IngredientGlyph.tsx; seared chunks since Issue #733) draws today, so an un-prepped beef is unchanged.
  *   - COOKED is PROVISIONAL (spec §4.4: lean #7a4226 / fat #d9b48a / edge #3d2314); the iPhone HV confirms it. The second ribbon's tones are derived the same way.
  * Colours are interpolated linearly in RGB in TypeScript (no `color-mix()`, older iOS Safari) and handed to CSS as custom properties; the SVG markup itself is untouched.
  */
@@ -17,10 +17,18 @@ export interface BeefColors {
   edge: string;
 }
 
-/** `BeefSlices` as shipped (#691): ribbon 1 / ribbon 2 fill, the two fat streaks, the outline. */
-export const BEEF_RAW_COLORS: BeefColors = { lean: "#b8473a", lean2: "#8f3a30", fat: "#f1d3c4", fat2: "#e6c3b4", edge: "#4a1a14" };
-/** Prepped target (provisional until the iPhone HV). */
-export const BEEF_COOKED_COLORS: BeefColors = { lean: "#7a4226", lean2: "#5f331f", fat: "#d9b48a", fat2: "#c79f78", edge: "#3d2314" };
+/**
+ * `BeefSlices` as shipped. Issue #733 (Owner decision 2026-11-05, OD-1 = plan B) redrew it from two ribbons with fat streaks (#691) into three seared chunks, so the keys now name the chunk parts:
+ * `lean` = the red cut face, `lean2` = the seared crust, `fat` / `fat2` = the pale core (one colour; `fat2` mirrors `fat` because the chunks have no second streak), `edge` = the crust outline.
+ * The CSS that reads them (CookingPrep.css) targets the three <rect>s of each chunk in drawing order.
+ */
+export const BEEF_RAW_COLORS: BeefColors = { lean: "#c4473f", lean2: "#6a3220", fat: "#e57d74", fat2: "#e57d74", edge: "#3a160e" };
+/**
+ * Prepped target. Issue #733 Owner Decision OD-A (2026-11-05, comment 6657038390) adopted plan B′: a warmer cooked look than the earlier provisional one (#7a4226 / #5f331f / #9a5a3c / #2e1a10 read
+ * near-black at 20-28 px and its bright core read as a highlight). The core now sits just under the cut face, and every part still only gets darker from raw to cooked (the face keeps green <= raw).
+ * Final colour acceptance waits for the iPhone HV.
+ */
+export const BEEF_COOKED_COLORS: BeefColors = { lean: "#8a4729", lean2: "#66361e", fat: "#7f4628", fat2: "#7f4628", edge: "#34190e" };
 
 /** Heat offset the prep adds to the bake curve (`toppingVisualFrame`). Owner decision P-7: 0 -- the difference is the SVG colour. `bakeVisual.ts` is untouched. */
 export const PREP_HEAT_OFFSET = 0;
