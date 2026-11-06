@@ -694,15 +694,28 @@ function CilantroLeaf() {
 }
 
 /* ---------- PR-2 late4 (Issue #578 / #611): beef, wasabi, cod roe and nori. PROVISIONAL art in the Style Lock v2 vocabulary (2.4 outline, two tones, a ground shadow, no ids / gradients / defs, deterministic); the final adoption is the Owner HV on 390x844 / 360x800.
-   beef-slices: two thin red-brown ribbons with a pale fat streak (a different silhouette from the round dark salami / sausage slices and the pink ham). wasabi-dab: a pale-green mound with a swirl. cod-roe-mass: a coral clump of fine grains. nori-strips: dark green strips. ---------- */
+   beef-slices: (redrawn by Issue #733 as seared chunks, see the comment above BeefSlices). wasabi-dab: a pale-green mound with a swirl. cod-roe-mass: a coral clump of fine grains. nori-strips: dark green strips. ---------- */
+/* Issue #733 (Owner decision 2026-11-05, OD-1 = plan B): the beef is drawn as three seared chunks with a red cut face, replacing the two red-brown ribbons with a pale fat streak, which used the
+   same vocabulary as the bacon emoji. A blocky silhouette, distinct from the ribbon (bacon), the disc (salami / pepperoni) and the round slices (sausage / hot-dog). The visual id `beef-slices` is kept on
+   purpose (OD-3: no ingredients.ts / golden change while #748 holds its claim); the name no longer describes the shape. Ported from
+   docs/design/candidates/ingredient-icons-2.0-733-739/svg/beef-b-seared-chunks.svg (64x64, no id / gradient / defs). */
+const BEEF_CHUNKS: readonly { x: number; y: number; w: number; h: number; rotate: number }[] = [
+  { x: 6, y: 14, w: 25, h: 21, rotate: -8 },
+  { x: 34, y: 10, w: 23, h: 20, rotate: 10 },
+  { x: 18, y: 34, w: 27, h: 19, rotate: -3 },
+];
+
 function BeefSlices() {
   return (
     <g>
       <ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15" />
-      <path d="M6 28c2-9 13-14 25-10 9 3 16 2 24 6 3 8-4 14-14 12-9-2-16 3-26 2-6-1-10-5-9-10z" fill="#b8473a" stroke="#4a1a14" strokeWidth="2.4" strokeLinejoin="round" />
-      <path d="M12 27c7-5 16-4 24 0 6 3 11 3 15 3" fill="none" stroke="#f1d3c4" strokeWidth="2.4" strokeLinecap="round" />
-      <path d="M12 44c3-6 15-4 25 0 8 3 15 2 21 4-1 7-11 9-21 7-9-2-17 1-24-1-3-2-3-6-1-10z" fill="#8f3a30" stroke="#4a1a14" strokeWidth="2.4" strokeLinejoin="round" />
-      <path d="M19 47c8-3 17 1 27 3" fill="none" stroke="#e6c3b4" strokeWidth="2.4" strokeLinecap="round" />
+      {BEEF_CHUNKS.map(({ x, y, w, h, rotate }) => (
+        <g key={`${x}-${y}`} transform={`rotate(${rotate} ${(x + w / 2).toFixed(1)} ${(y + h / 2).toFixed(1)})`}>
+          <rect x={x} y={y} width={w} height={h} rx="6" fill="#6a3220" stroke="#3a160e" strokeWidth="2.4" />
+          <rect x={x + 4} y={y + 4} width={w - 8} height={h - 8} rx="4" fill="#c4473f" />
+          <rect x={x + 7.5} y={y + 7} width={w - 15} height={h - 14} rx="3" fill="#e57d74" />
+        </g>
+      ))}
     </g>
   );
 }
@@ -861,23 +874,41 @@ function MayoDrop() {
   );
 }
 
-/* ---------- Ingredient Icons 2.0 Pilot E (#715, Style Lock v2 §11; Owner decision 2026-10-31 / 2026-11-01): green pepper: three green strips (GP-A2). Ported as-is from docs/design/candidates/ingredient-icons-2.0-pilot-e0/svg/green-pepper-a2-strips.svg (64x64, no id / gradient / defs). ---------- */
+/* ---------- green pepper. Issue #733 (Owner decision 2026-11-05, OD-2 = plan R1, an approved revision of the Pilot E GP-A2 strips that passed the 2026-11-01 iPhone HV): two overlapping ring slices
+   with four bulges and a hollow centre (the dough shows through), because the three green arcs read as green beans / okra / zucchini. The visual id `green-pepper-strips` is kept on purpose (OD-3);
+   the name no longer describes the shape (recorded as technical debt). Geometry follows docs/design/candidates/ingredient-icons-2.0-733-739/svg/green-pepper-r1-rings.svg (same formula, 64x64,
+   no id / gradient / defs, deterministic: computed once at module load). ---------- */
+function lobedRing(cx: number, cy: number, radius: number, amp: number, rot: number): string {
+  const points: string[] = [];
+  for (let i = 0; i < 72; i += 1) {
+    const t = (2 * Math.PI * i) / 72;
+    const r = radius * (1 + amp * Math.cos(4 * (t + rot)));
+    points.push(`${(cx + r * Math.cos(t)).toFixed(1)} ${(cy + r * Math.sin(t) * 0.92).toFixed(1)}`);
+  }
+  return `M${points.join(" L")}Z`;
+}
+
+const GREEN_PEPPER_RINGS = [
+  { cx: 24, cy: 24, radius: 17, rot: 0.3 },
+  { cx: 41, cy: 39, radius: 15.5, rot: 0 },
+].map(({ cx, cy, radius, rot }) => ({
+  key: `${cx}-${cy}`,
+  outer: lobedRing(cx, cy, radius, 0.11, rot),
+  wall: lobedRing(cx, cy, radius * 0.7, 0.12, rot),
+  hole: lobedRing(cx, cy, radius * 0.62, 0.13, rot),
+}));
+
 function GreenPepperStrips() {
   return (
     <g>
-      <ellipse cx="32" cy="57" rx="23" ry="3.3" fill="#000" opacity=".15" />
-      <path d="M10 21Q27 9 50 18" stroke="#2c5a1c" strokeWidth="12.6" strokeLinecap="round" fill="none" />
-      <path d="M10 21Q27 9 50 18" stroke="#5fa83a" strokeWidth="8.6" strokeLinecap="round" fill="none" />
-      <path transform="translate(-1.4 -1.1)" d="M10 21Q27 9 50 18" stroke="#c4e892" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-      <path d="M12 35Q30 24 55 32" stroke="#2c5a1c" strokeWidth="12.6" strokeLinecap="round" fill="none" />
-      <path d="M12 35Q30 24 55 32" stroke="#5fa83a" strokeWidth="8.6" strokeLinecap="round" fill="none" />
-      <path transform="translate(-1.4 -1.1)" d="M12 35Q30 24 55 32" stroke="#c4e892" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-      <path d="M10 49Q27 40 49 46" stroke="#2c5a1c" strokeWidth="12.6" strokeLinecap="round" fill="none" />
-      <path d="M10 49Q27 40 49 46" stroke="#5fa83a" strokeWidth="8.6" strokeLinecap="round" fill="none" />
-      <path transform="translate(-1.4 -1.1)" d="M10 49Q27 40 49 46" stroke="#c4e892" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-      <circle cx="49.6" cy="18.1" r="2.3" fill="#e4f3c0" stroke="#4f8a35" strokeWidth="1.1" />
-      <circle cx="54.6" cy="32.1" r="2.3" fill="#e4f3c0" stroke="#4f8a35" strokeWidth="1.1" />
-      <circle cx="48.6" cy="46.1" r="2.3" fill="#e4f3c0" stroke="#4f8a35" strokeWidth="1.1" />
+      <ellipse cx="32" cy="57" rx="24" ry="3.3" fill="#000" opacity=".15" />
+      {GREEN_PEPPER_RINGS.map((ring) => (
+        <g key={ring.key}>
+          <path d={`${ring.outer} ${ring.hole}`} fill="#4f9a33" fillRule="evenodd" stroke="#244d17" strokeWidth="2.4" strokeLinejoin="round" />
+          <path d={ring.wall} fill="none" stroke="#d3ef9e" strokeWidth="2.2" />
+          <path d={ring.hole} fill="none" stroke="#244d17" strokeWidth="2" />
+        </g>
+      ))}
     </g>
   );
 }
