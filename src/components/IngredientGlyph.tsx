@@ -1,3 +1,4 @@
+import { ArtichokeQuarter, OreganoPile, RosemarySprigs, SpinachLeaves } from "./herbGlyphs/herbGlyphs";
 import type { DedicatedIngredientVisual, Ingredient } from "../data/ingredients";
 
 /**
@@ -61,6 +62,10 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "cream-cheese-block": "0 0 64 64",
   "umeboshi-paste-dab": "0 0 64 64",
   "sour-cream-dab": "0 0 64 64",
+  "rosemary-sprigs": "0 0 64 64",
+  "oregano-flakes": "0 0 64 64",
+  "spinach-leaves": "0 0 64 64",
+  "artichoke-quarter": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -85,6 +90,10 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "wurstel-links" && <WurstelLinks />}
       {visual === "paprika-powder-pile" && <PaprikaPowderPile />}
       {visual === "shiso-leaf" && <ShisoLeaf />}
+      {visual === "rosemary-sprigs" && <RosemarySprigs />}
+      {visual === "oregano-flakes" && <OreganoPile />}
+      {visual === "spinach-leaves" && <SpinachLeaves />}
+      {visual === "artichoke-quarter" && <ArtichokeQuarter />}
       {visual === "arugula-leaves" && <ArugulaLeaves />}
       {visual === "whitebait-school" && <WhitebaitSchool />}
       {visual === "green-onion-slices" && <GreenOnionSlices />}

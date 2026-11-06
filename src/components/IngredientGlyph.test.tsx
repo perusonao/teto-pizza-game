@@ -59,6 +59,10 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "pineapple-wedges",
   "umeboshi-paste-dab",
   "sour-cream-dab",
+  "rosemary-sprigs",
+  "oregano-flakes",
+  "spinach-leaves",
+  "artichoke-quarter",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -103,7 +107,9 @@ const PILOT_E_DEDICATED: Record<string, DedicatedIngredientVisual> = { "green-pe
 const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
 const ISSUE739_DEDICATED: Record<string, DedicatedIngredientVisual> = { "umeboshi-paste": "umeboshi-paste-dab" }; // Issue #739 (Owner P1): the 梅肉 sauce, drawn by a paste dab instead of the 🍑
 const B17_DEDICATED: Record<string, DedicatedIngredientVisual> = { "sour-cream": "sour-cream-dab" }; // Expansion Batch 17 (Owner plan A): the サワークリーム sauce, a swirl-and-peak dab; the 🍦 is only the text fallback
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
+/** Ingredient Icons 2.0 herbs (#417, Owner R2 decision 2026-11-06: rosemary B / oregano B / spinach A2 / artichoke A2): dedicated art instead of the shared 🌱 / 🍃 emoji. */
+const HERB_DEDICATED: Record<string, DedicatedIngredientVisual> = { rosemary: "rosemary-sprigs", oregano: "oregano-flakes", spinach: "spinach-leaves", artichoke: "artichoke-quarter" };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
