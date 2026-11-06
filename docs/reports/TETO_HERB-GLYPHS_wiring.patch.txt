@@ -1,0 +1,135 @@
+diff --git a/src/App.css b/src/App.css
+index 7796a13..d399caf 100644
+--- a/src/App.css
++++ b/src/App.css
+@@ -834,7 +834,11 @@
+ .ingredient-glyph--shrimp-curl,
+ .ingredient-glyph--sesame-seeds,
+ .ingredient-glyph--pomegranate-aril,
+-.ingredient-glyph--cilantro-leaf {
++.ingredient-glyph--cilantro-leaf,
++.ingredient-glyph--rosemary-sprigs,
++.ingredient-glyph--oregano-flakes,
++.ingredient-glyph--spinach-leaves,
++.ingredient-glyph--artichoke-quarter {
+   width: 1.2em;
+   height: 1.2em;
+   margin: -0.1em;
+diff --git a/src/components/IngredientGlyph.test.tsx b/src/components/IngredientGlyph.test.tsx
+index 6c32282..7e7c9a9 100644
+--- a/src/components/IngredientGlyph.test.tsx
++++ b/src/components/IngredientGlyph.test.tsx
+@@ -59,6 +59,10 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
+   "pineapple-wedges",
+   "umeboshi-paste-dab",
+   "sour-cream-dab",
++  "rosemary-sprigs",
++  "oregano-flakes",
++  "spinach-leaves",
++  "artichoke-quarter",
+ ];
+ /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
+ const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
+diff --git a/src/components/IngredientGlyph.tsx b/src/components/IngredientGlyph.tsx
+index 628c91a..d48cdad 100644
+--- a/src/components/IngredientGlyph.tsx
++++ b/src/components/IngredientGlyph.tsx
+@@ -1,3 +1,4 @@
++import { ArtichokeQuarter, OreganoPile, RosemarySprigs, SpinachLeaves } from "./herbGlyphs/herbGlyphs";
+ import type { DedicatedIngredientVisual, Ingredient } from "../data/ingredients";
+ 
+ /**
+@@ -61,6 +62,10 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
+   "cream-cheese-block": "0 0 64 64",
+   "umeboshi-paste-dab": "0 0 64 64",
+   "sour-cream-dab": "0 0 64 64",
++  "rosemary-sprigs": "0 0 64 64",
++  "oregano-flakes": "0 0 64 64",
++  "spinach-leaves": "0 0 64 64",
++  "artichoke-quarter": "0 0 64 64",
+ };
+ 
+ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
+@@ -85,6 +90,10 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual
+       {visual === "wurstel-links" && <WurstelLinks />}
+       {visual === "paprika-powder-pile" && <PaprikaPowderPile />}
+       {visual === "shiso-leaf" && <ShisoLeaf />}
++      {visual === "rosemary-sprigs" && <RosemarySprigs />}
++      {visual === "oregano-flakes" && <OreganoPile />}
++      {visual === "spinach-leaves" && <SpinachLeaves />}
++      {visual === "artichoke-quarter" && <ArtichokeQuarter />}
+       {visual === "arugula-leaves" && <ArugulaLeaves />}
+       {visual === "whitebait-school" && <WhitebaitSchool />}
+       {visual === "green-onion-slices" && <GreenOnionSlices />}
+diff --git a/src/components/herbGlyphs/herbGlyphs.test.tsx b/src/components/herbGlyphs/herbGlyphs.test.tsx
+index c3ce1ee..7ff045a 100644
+--- a/src/components/herbGlyphs/herbGlyphs.test.tsx
++++ b/src/components/herbGlyphs/herbGlyphs.test.tsx
+@@ -47,14 +47,14 @@ describe("herbGlyphs (unwired)", () => {
+     expect(HERBS.map(([, id]) => id)).toEqual(["rosemary-b", "oregano-b", "spinach-a2", "artichoke-a2", "oregano-b2"]);
+   });
+ 
+-  it("is imported by nothing but its own test (wiring is a separate PR)", () => {
++  it("is imported only by IngredientGlyph.tsx (the single wiring point)", () => {
+     const root = join(__dirname, "..", "..");
+     const hits: string[] = [];
+     const walk = (d: string) => {
+       for (const f of readdirSync(d)) {
+         const p = join(d, f);
+         if (statSync(p).isDirectory()) walk(p);
+-        else if (/\.(ts|tsx)$/.test(f) && !p.includes("herbGlyphs") && /herbGlyphs/.test(readFileSync(p, "utf8"))) hits.push(p);
++        else if (/\.(ts|tsx)$/.test(f) && !p.includes("herbGlyphs") && !p.endsWith("IngredientGlyph.tsx") && /herbGlyphs/.test(readFileSync(p, "utf8"))) hits.push(p);
+       }
+     };
+     walk(root);
+diff --git a/src/data/ingredients.ts b/src/data/ingredients.ts
+index 95dea77..42b9bf1 100644
+--- a/src/data/ingredients.ts
++++ b/src/data/ingredients.ts
+@@ -32,6 +32,10 @@ export type DedicatedIngredientVisual =
+   | "wurstel-links"
+   | "paprika-powder-pile"
+   | "shiso-leaf"
++  | "rosemary-sprigs"
++  | "oregano-flakes"
++  | "spinach-leaves"
++  | "artichoke-quarter"
+   | "arugula-leaves"
+   | "whitebait-school"
+   | "salmon-roe-grains"
+@@ -252,6 +256,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
+     nameJa: "オレガノ",
+     color: "#5f7a3d",
+     emoji: "\u{1F343}",
++    /** Ingredient Icons 2.0 herbs (Owner R2 decision 2026-11-06; provisional adoption, final = 390x844 / 360x800 + iPhone HV). */
++    pieceVisual: "oregano-flakes",
+     placement: "scatter",
+     unlockCondition: { minTotalStars: 0 },
+     pricePitz: 55,
+@@ -433,6 +439,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
+     nameJa: "ローズマリー",
+     color: "#7c8f5e",
+     emoji: "\u{1F331}",
++    /** Ingredient Icons 2.0 herbs (Owner R2 decision 2026-11-06; provisional adoption, final = 390x844 / 360x800 + iPhone HV). */
++    pieceVisual: "rosemary-sprigs",
+     placement: "scatter",
+     unlockCondition: { minTotalStars: 0 },
+     pricePitz: 55,
+@@ -936,6 +944,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
+     nameJa: "アーティチョーク",
+     color: "#8a9a5b",
+     emoji: "\u{1F331}",
++    /** Ingredient Icons 2.0 herbs (Owner R2 decision 2026-11-06; provisional adoption, final = 390x844 / 360x800 + iPhone HV). */
++    pieceVisual: "artichoke-quarter",
+     placement: "scatter",
+     unlockCondition: { minTotalStars: 0 },
+   },
+@@ -946,6 +956,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
+     nameJa: "ほうれん草",
+     color: "#2f6b2f",
+     emoji: "\u{1F343}",
++    /** Ingredient Icons 2.0 herbs (Owner R2 decision 2026-11-06; provisional adoption, final = 390x844 / 360x800 + iPhone HV). */
++    pieceVisual: "spinach-leaves",
+     placement: "scatter",
+     unlockCondition: { minTotalStars: 0 },
+   },
