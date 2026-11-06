@@ -1,0 +1,250 @@
+{
+ "note": "Batch 19 prep: Jaccard / duplicate gate. Ingredient id sets extracted from src/data/recipes.ts (80) + src/data/lateCatalog.ts (8) at main fa67c72; 'main+B18' adds the two PR #759 recipes (baingan-bharta-pizza, reina-pepiada-pizza) from the B18 Result Report. Candidate sets are the 172-matrix rows with no substitution. Reproduce: regex over `requiredIngredients` ingredientId; J=|A∩B|/|A∪B|. goulash-pizza (which has no bakeTarget-adjacent match for the first regex) was checked separately: J=0 for both candidates.",
+ "base": "fa67c72a3de120ddf1800b9062bf5c0f43e90f75",
+ "candidates": {
+  "pesto-burrata": [
+   "pesto",
+   "olive-oil",
+   "burrata",
+   "fresh-tomato"
+  ],
+  "pizza-alla-crudaiola": [
+   "tomato-sauce",
+   "olive-oil",
+   "mozzarella",
+   "burrata",
+   "fresh-tomato",
+   "arugula"
+  ]
+ },
+ "exactSubsetSupersetOneDiff": {
+  "pesto-burrata": [],
+  "pizza-alla-crudaiola": []
+ },
+ "intraBatchJaccard": 0.4286,
+ "intraBatchSharedIngredients": [
+  "olive-oil",
+  "burrata",
+  "fresh-tomato"
+ ],
+ "topNeighbours": [
+  {
+   "key": "main:pesto-burrata",
+   "rows": [
+    {
+     "jaccard": 0.333,
+     "recipe": "pesto-trapanese",
+     "shared": [
+      "fresh-tomato",
+      "pesto"
+     ]
+    },
+    {
+     "jaccard": 0.333,
+     "recipe": "pesto-pollo",
+     "shared": [
+      "fresh-tomato",
+      "pesto"
+     ]
+    },
+    {
+     "jaccard": 0.333,
+     "recipe": "pesto-gamberi",
+     "shared": [
+      "fresh-tomato",
+      "pesto"
+     ]
+    },
+    {
+     "jaccard": 0.333,
+     "recipe": "pesto-caprese",
+     "shared": [
+      "fresh-tomato",
+      "pesto"
+     ]
+    },
+    {
+     "jaccard": 0.286,
+     "recipe": "pizza-feta-eliniki",
+     "shared": [
+      "fresh-tomato",
+      "olive-oil"
+     ]
+    },
+    {
+     "jaccard": 0.2,
+     "recipe": "pizza-bianca",
+     "shared": [
+      "olive-oil"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "main:pizza-alla-crudaiola",
+   "rows": [
+    {
+     "jaccard": 0.429,
+     "recipe": "pinsa-romana",
+     "shared": [
+      "arugula",
+      "mozzarella",
+      "tomato-sauce"
+     ]
+    },
+    {
+     "jaccard": 0.429,
+     "recipe": "jamon-serrano-pizza",
+     "shared": [
+      "arugula",
+      "mozzarella",
+      "tomato-sauce"
+     ]
+    },
+    {
+     "jaccard": 0.429,
+     "recipe": "grandma-pizza",
+     "shared": [
+      "mozzarella",
+      "olive-oil",
+      "tomato-sauce"
+     ]
+    },
+    {
+     "jaccard": 0.3,
+     "recipe": "veggie-supreme-pizza",
+     "shared": [
+      "fresh-tomato",
+      "mozzarella",
+      "tomato-sauce"
+     ]
+    },
+    {
+     "jaccard": 0.286,
+     "recipe": "salsiccia",
+     "shared": [
+      "mozzarella",
+      "tomato-sauce"
+     ]
+    },
+    {
+     "jaccard": 0.286,
+     "recipe": "pepperoni",
+     "shared": [
+      "mozzarella",
+      "tomato-sauce"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "main+B18:pesto-burrata",
+   "rows": [
+    {
+     "jaccard": 0.333,
+     "recipe": "pesto-trapanese",
+     "shared": [
+      "fresh-tomato",
+      "pesto"
+     ]
+    },
+    {
+     "jaccard": 0.333,
+     "recipe": "pesto-pollo",
+     "shared": [
+      "fresh-tomato",
+      "pesto"
+     ]
+    },
+    {
+     "jaccard": 0.333,
+     "recipe": "pesto-gamberi",
+     "shared": [
+      "fresh-tomato",
+      "pesto"
+     ]
+    },
+    {
+     "jaccard": 0.333,
+     "recipe": "pesto-caprese",
+     "shared": [
+      "fresh-tomato",
+      "pesto"
+     ]
+    },
+    {
+     "jaccard": 0.286,
+     "recipe": "pizza-feta-eliniki",
+     "shared": [
+      "fresh-tomato",
+      "olive-oil"
+     ]
+    },
+    {
+     "jaccard": 0.2,
+     "recipe": "pizza-bianca",
+     "shared": [
+      "olive-oil"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "main+B18:pizza-alla-crudaiola",
+   "rows": [
+    {
+     "jaccard": 0.429,
+     "recipe": "pinsa-romana",
+     "shared": [
+      "arugula",
+      "mozzarella",
+      "tomato-sauce"
+     ]
+    },
+    {
+     "jaccard": 0.429,
+     "recipe": "jamon-serrano-pizza",
+     "shared": [
+      "arugula",
+      "mozzarella",
+      "tomato-sauce"
+     ]
+    },
+    {
+     "jaccard": 0.429,
+     "recipe": "grandma-pizza",
+     "shared": [
+      "mozzarella",
+      "olive-oil",
+      "tomato-sauce"
+     ]
+    },
+    {
+     "jaccard": 0.3,
+     "recipe": "veggie-supreme-pizza",
+     "shared": [
+      "fresh-tomato",
+      "mozzarella",
+      "tomato-sauce"
+     ]
+    },
+    {
+     "jaccard": 0.286,
+     "recipe": "salsiccia",
+     "shared": [
+      "mozzarella",
+      "tomato-sauce"
+     ]
+    },
+    {
+     "jaccard": 0.286,
+     "recipe": "pepperoni",
+     "shared": [
+      "mozzarella",
+      "tomato-sauce"
+     ]
+    }
+   ]
+  }
+ ]
+}
