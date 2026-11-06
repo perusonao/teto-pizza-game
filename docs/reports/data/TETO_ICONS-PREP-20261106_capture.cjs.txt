@@ -1,0 +1,50 @@
+// Renders each glyph (new SVG art vs. current emoji) at real game sizes, on raw / baked / melted-cheese backgrounds,
+// colour and grayscale, at DPR 3 (iPhone). Usage: node capture.js <scratch dir containing src/*.svg and out/cells/>
+const { chromium } = require("playwright");
+const fs = require("fs");
+const S = process.argv[2];
+const svg = (n) =>
+  fs.readFileSync(`${S}/src/${n}.svg`, "utf8").replace(/ width="64" height="64"/, "").replace(/<svg /, '<svg width="100%" height="100%" ');
+const ICONS = [
+  ["rosemary", "rosemary-B", "\u{1F331}"],
+  ["artichoke", "artichoke-A2", "\u{1F331}"],
+  ["oregano", "oregano-B", "\u{1F343}"],
+  ["spinach", "spinach-A2", "\u{1F343}"],
+  ["eggplant", "eggplant", "\u{1F346}"],
+  ["burrata", "burrata-C", "\u{1F9C0}"],
+  ["cilantroREF", "cilantro", null],
+  ["mozzarellaREF", "mozzarella", null],
+];
+// game sizes: RESULT ~17.6px, tray chip 26px, piece 28px x 1.2em = 33.6px, 64 = source size
+const SIZES = [["RESULT", 17.6], ["tray", 26], ["piece", 33.6], ["big", 64]];
+const BGS = [["raw", "#e6bd78"], ["baked", "#c98f4a"], ["melt", "#f4ecd8"]];
+(async () => {
+  const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+  for (const gray of [false, true])
+    for (const [bgn, bg] of BGS) {
+      const p = await b.newPage({ viewport: { width: 700, height: 1100 }, deviceScaleFactor: 3 });
+      let rows = "";
+      for (const [name, f, emoji] of ICONS)
+        for (const kind of emoji ? ["svg", "emoji"] : ["svg"]) {
+          let cells = "";
+          for (const [sn, px] of SIZES) {
+            const inner = kind === "svg" ? svg(f) : `<span style="font-size:${px}px;line-height:1">${emoji}</span>`;
+            cells += `<div class="c" data-k="${name}__${kind}__${sn}" style="width:${px}px;height:${px}px">${inner}</div>`;
+          }
+          rows += `<div class="r">${cells}</div>`;
+        }
+      await p.setContent(
+        `<style>body{margin:0;background:${bg};filter:${gray ? "grayscale(1)" : "none"}} .r{display:flex;gap:10px;align-items:center;padding:3px 6px;height:70px} .c{display:flex;align-items:center;justify-content:center;overflow:visible}</style><div style="display:grid;grid-template-columns:repeat(4,max-content);gap:0 24px">${rows}</div>`,
+      );
+      await p.waitForTimeout(200);
+      await p.screenshot({ path: `${S}/out/sheet-${bgn}${gray ? "-gray" : ""}.png`, fullPage: true });
+      for (const c of await p.$$(".c")) {
+        const k = await c.getAttribute("data-k");
+        const bb = await c.boundingBox();
+        const pad = 4;
+        await c.screenshot({ path: `${S}/out/cells/${bgn}${gray ? "G" : "C"}__${k}.png` });
+      }
+      await p.close();
+    }
+  await b.close();
+})();

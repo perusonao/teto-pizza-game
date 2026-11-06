@@ -1,0 +1,124 @@
+diff --git a/src/App.css b/src/App.css
+index 7796a13..10f5b31 100644
+--- a/src/App.css
++++ b/src/App.css
+@@ -834,7 +834,11 @@
+ .ingredient-glyph--shrimp-curl,
+ .ingredient-glyph--sesame-seeds,
+ .ingredient-glyph--pomegranate-aril,
+-.ingredient-glyph--cilantro-leaf {
++.ingredient-glyph--cilantro-leaf,
++.ingredient-glyph--rosemary-sprigs,
++.ingredient-glyph--oregano-pile,
++.ingredient-glyph--spinach-leaves,
++.ingredient-glyph--artichoke-quarter {
+   width: 1.2em;
+   height: 1.2em;
+   margin: -0.1em;
+diff --git a/src/components/IngredientGlyph.test.tsx b/src/components/IngredientGlyph.test.tsx
+index 6c32282..c31f204 100644
+--- a/src/components/IngredientGlyph.test.tsx
++++ b/src/components/IngredientGlyph.test.tsx
+@@ -103,7 +103,8 @@ const PILOT_E_DEDICATED: Record<string, DedicatedIngredientVisual> = { "green-pe
+ const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
+ const ISSUE739_DEDICATED: Record<string, DedicatedIngredientVisual> = { "umeboshi-paste": "umeboshi-paste-dab" }; // Issue #739 (Owner P1): the 梅肉 sauce, drawn by a paste dab instead of the 🍑
+ const B17_DEDICATED: Record<string, DedicatedIngredientVisual> = { "sour-cream": "sour-cream-dab" }; // Expansion Batch 17 (Owner plan A): the サワークリーム sauce, a swirl-and-peak dab; the 🍦 is only the text fallback
+-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
++const HERB4_DEDICATED: Record<string, DedicatedIngredientVisual> = { rosemary: "rosemary-sprigs", oregano: "oregano-pile", spinach: "spinach-leaves", artichoke: "artichoke-quarter" };
++const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...HERB4_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
+ /** Every production row that draws its emoji (no dedicated visual). */
+ const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
+ 
+diff --git a/src/components/IngredientGlyph.tsx b/src/components/IngredientGlyph.tsx
+index 628c91a..3a688c2 100644
+--- a/src/components/IngredientGlyph.tsx
++++ b/src/components/IngredientGlyph.tsx
+@@ -1,3 +1,4 @@
++import { RosemarySprigs, OreganoPile, SpinachLeaves, ArtichokeQuarter } from "./herbGlyphs/herbGlyphs";
+ import type { DedicatedIngredientVisual, Ingredient } from "../data/ingredients";
+ 
+ /**
+@@ -61,6 +62,10 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
+   "cream-cheese-block": "0 0 64 64",
+   "umeboshi-paste-dab": "0 0 64 64",
+   "sour-cream-dab": "0 0 64 64",
++  "rosemary-sprigs": "0 0 64 64",
++  "oregano-pile": "0 0 64 64",
++  "spinach-leaves": "0 0 64 64",
++  "artichoke-quarter": "0 0 64 64",
+ };
+ 
+ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
+@@ -109,6 +114,10 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual
+       {visual === "cream-cheese-block" && <CreamCheeseBlock />}
+       {visual === "umeboshi-paste-dab" && <UmeboshiPasteDab />}
+       {visual === "sour-cream-dab" && <SourCreamDab />}
++      {visual === "rosemary-sprigs" && <RosemarySprigs />}
++      {visual === "oregano-pile" && <OreganoPile />}
++      {visual === "spinach-leaves" && <SpinachLeaves />}
++      {visual === "artichoke-quarter" && <ArtichokeQuarter />}
+     </svg>
+   );
+ }
+diff --git a/src/data/__golden__/lateCatalog.offSurface.json b/src/data/__golden__/lateCatalog.offSurface.json
+index 70760ac..5451876 100644
+--- a/src/data/__golden__/lateCatalog.offSurface.json
++++ b/src/data/__golden__/lateCatalog.offSurface.json
+@@ -5,7 +5,7 @@
+  },
+  "ingredients": {
+   "count": 66,
+-  "sha256": "9d51832cdc14eab1ac678746d2a02756fc850c57cb12c3b266263e3a0499856d"
++  "sha256": "01424e9ef4067475bae56d7a7435b9b2d4cd8f993dd9b717ed5cfd110273b16a"
+  },
+  "ladderSteps": {
+   "count": 54,
+diff --git a/src/data/ingredients.ts b/src/data/ingredients.ts
+index 95dea77..a56fab5 100644
+--- a/src/data/ingredients.ts
++++ b/src/data/ingredients.ts
+@@ -55,7 +55,11 @@ export type DedicatedIngredientVisual =
+   | "salmon-fillet"
+   | "cream-cheese-block"
+   | "umeboshi-paste-dab"
+-  | "sour-cream-dab";
++  | "sour-cream-dab"
++  | "rosemary-sprigs"
++  | "oregano-pile"
++  | "spinach-leaves"
++  | "artichoke-quarter";
+ 
+ export interface Ingredient {
+   id: string;
+@@ -252,6 +256,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
+     nameJa: "オレガノ",
+     color: "#5f7a3d",
+     emoji: "\u{1F343}",
++    pieceVisual: "oregano-pile",
+     placement: "scatter",
+     unlockCondition: { minTotalStars: 0 },
+     pricePitz: 55,
+@@ -433,6 +438,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
+     nameJa: "ローズマリー",
+     color: "#7c8f5e",
+     emoji: "\u{1F331}",
++    pieceVisual: "rosemary-sprigs",
+     placement: "scatter",
+     unlockCondition: { minTotalStars: 0 },
+     pricePitz: 55,
+@@ -936,6 +942,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
+     nameJa: "アーティチョーク",
+     color: "#8a9a5b",
+     emoji: "\u{1F331}",
++    pieceVisual: "artichoke-quarter",
+     placement: "scatter",
+     unlockCondition: { minTotalStars: 0 },
+   },
+@@ -946,6 +953,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
+     nameJa: "ほうれん草",
+     color: "#2f6b2f",
+     emoji: "\u{1F343}",
++    pieceVisual: "spinach-leaves",
+     placement: "scatter",
+     unlockCondition: { minTotalStars: 0 },
+   },

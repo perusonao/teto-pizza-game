@@ -1,0 +1,786 @@
+{
+ "artichoke|emoji|RESULT": {
+  "baked": {
+   "visible_css_px2": 126.4,
+   "gray_css_px2": 26.3
+  },
+  "melt": {
+   "visible_css_px2": 136.6,
+   "gray_css_px2": 136.6
+  },
+  "raw": {
+   "visible_css_px2": 124.3,
+   "gray_css_px2": 116.4
+  }
+ },
+ "artichoke|emoji|big": {
+  "baked": {
+   "visible_css_px2": 1673.6,
+   "gray_css_px2": 268.2
+  },
+  "melt": {
+   "visible_css_px2": 1731.3,
+   "gray_css_px2": 1731.4
+  },
+  "raw": {
+   "visible_css_px2": 1654.0,
+   "gray_css_px2": 1603.2
+  }
+ },
+ "artichoke|emoji|piece": {
+  "baked": {
+   "visible_css_px2": 460.2,
+   "gray_css_px2": 74.3
+  },
+  "melt": {
+   "visible_css_px2": 478.3,
+   "gray_css_px2": 478.3
+  },
+  "raw": {
+   "visible_css_px2": 456.7,
+   "gray_css_px2": 441.4
+  }
+ },
+ "artichoke|emoji|tray": {
+  "baked": {
+   "visible_css_px2": 278.2,
+   "gray_css_px2": 44.0
+  },
+  "melt": {
+   "visible_css_px2": 288.1,
+   "gray_css_px2": 288.1
+  },
+  "raw": {
+   "visible_css_px2": 274.8,
+   "gray_css_px2": 266.6
+  }
+ },
+ "artichoke|svg|RESULT": {
+  "baked": {
+   "visible_css_px2": 156.1,
+   "gray_css_px2": 143.9
+  },
+  "melt": {
+   "visible_css_px2": 147.8,
+   "gray_css_px2": 148.6
+  },
+  "raw": {
+   "visible_css_px2": 167.9,
+   "gray_css_px2": 143.1
+  }
+ },
+ "artichoke|svg|big": {
+  "baked": {
+   "visible_css_px2": 2042.3,
+   "gray_css_px2": 1861.9
+  },
+  "melt": {
+   "visible_css_px2": 1766.9,
+   "gray_css_px2": 1761.3
+  },
+  "raw": {
+   "visible_css_px2": 2218.3,
+   "gray_css_px2": 1875.3
+  }
+ },
+ "artichoke|svg|piece": {
+  "baked": {
+   "visible_css_px2": 567.4,
+   "gray_css_px2": 520.0
+  },
+  "melt": {
+   "visible_css_px2": 506.3,
+   "gray_css_px2": 506.0
+  },
+  "raw": {
+   "visible_css_px2": 615.2,
+   "gray_css_px2": 522.9
+  }
+ },
+ "artichoke|svg|tray": {
+  "baked": {
+   "visible_css_px2": 340.1,
+   "gray_css_px2": 317.8
+  },
+  "melt": {
+   "visible_css_px2": 308.2,
+   "gray_css_px2": 307.8
+  },
+  "raw": {
+   "visible_css_px2": 367.2,
+   "gray_css_px2": 308.6
+  }
+ },
+ "burrata|emoji|RESULT": {
+  "baked": {
+   "visible_css_px2": 229.1,
+   "gray_css_px2": 190.2
+  },
+  "melt": {
+   "visible_css_px2": 232.6,
+   "gray_css_px2": 221.4
+  },
+  "raw": {
+   "visible_css_px2": 224.9,
+   "gray_css_px2": 103.6
+  }
+ },
+ "burrata|emoji|big": {
+  "baked": {
+   "visible_css_px2": 2882.9,
+   "gray_css_px2": 2356.2
+  },
+  "melt": {
+   "visible_css_px2": 2900.7,
+   "gray_css_px2": 2837.9
+  },
+  "raw": {
+   "visible_css_px2": 2857.7,
+   "gray_css_px2": 1330.6
+  }
+ },
+ "burrata|emoji|piece": {
+  "baked": {
+   "visible_css_px2": 792.6,
+   "gray_css_px2": 647.7
+  },
+  "melt": {
+   "visible_css_px2": 797.0,
+   "gray_css_px2": 780.3
+  },
+  "raw": {
+   "visible_css_px2": 785.3,
+   "gray_css_px2": 366.1
+  }
+ },
+ "burrata|emoji|tray": {
+  "baked": {
+   "visible_css_px2": 484.7,
+   "gray_css_px2": 397.2
+  },
+  "melt": {
+   "visible_css_px2": 487.8,
+   "gray_css_px2": 477.2
+  },
+  "raw": {
+   "visible_css_px2": 480.2,
+   "gray_css_px2": 219.0
+  }
+ },
+ "burrata|svg|RESULT": {
+  "baked": {
+   "visible_css_px2": 117.7,
+   "gray_css_px2": 128.6
+  },
+  "melt": {
+   "visible_css_px2": 55.2,
+   "gray_css_px2": 61.3
+  },
+  "raw": {
+   "visible_css_px2": 131.2,
+   "gray_css_px2": 131.8
+  }
+ },
+ "burrata|svg|big": {
+  "baked": {
+   "visible_css_px2": 1562.3,
+   "gray_css_px2": 1738.6
+  },
+  "melt": {
+   "visible_css_px2": 670.6,
+   "gray_css_px2": 741.0
+  },
+  "raw": {
+   "visible_css_px2": 1747.0,
+   "gray_css_px2": 1750.3
+  }
+ },
+ "burrata|svg|piece": {
+  "baked": {
+   "visible_css_px2": 430.4,
+   "gray_css_px2": 476.3
+  },
+  "melt": {
+   "visible_css_px2": 193.4,
+   "gray_css_px2": 213.3
+  },
+  "raw": {
+   "visible_css_px2": 481.3,
+   "gray_css_px2": 481.8
+  }
+ },
+ "burrata|svg|tray": {
+  "baked": {
+   "visible_css_px2": 258.7,
+   "gray_css_px2": 283.0
+  },
+  "melt": {
+   "visible_css_px2": 115.3,
+   "gray_css_px2": 129.2
+  },
+  "raw": {
+   "visible_css_px2": 285.1,
+   "gray_css_px2": 287.3
+  }
+ },
+ "cilantroREF|svg|RESULT": {
+  "baked": {
+   "visible_css_px2": 97.0,
+   "gray_css_px2": 94.8
+  },
+  "melt": {
+   "visible_css_px2": 107.4,
+   "gray_css_px2": 111.2
+  },
+  "raw": {
+   "visible_css_px2": 106.0,
+   "gray_css_px2": 79.0
+  }
+ },
+ "cilantroREF|svg|big": {
+  "baked": {
+   "visible_css_px2": 1240.3,
+   "gray_css_px2": 1328.3
+  },
+  "melt": {
+   "visible_css_px2": 1384.3,
+   "gray_css_px2": 1394.1
+  },
+  "raw": {
+   "visible_css_px2": 1366.6,
+   "gray_css_px2": 851.2
+  }
+ },
+ "cilantroREF|svg|piece": {
+  "baked": {
+   "visible_css_px2": 346.6,
+   "gray_css_px2": 362.3
+  },
+  "melt": {
+   "visible_css_px2": 384.8,
+   "gray_css_px2": 391.0
+  },
+  "raw": {
+   "visible_css_px2": 380.2,
+   "gray_css_px2": 250.4
+  }
+ },
+ "cilantroREF|svg|tray": {
+  "baked": {
+   "visible_css_px2": 210.8,
+   "gray_css_px2": 221.0
+  },
+  "melt": {
+   "visible_css_px2": 233.3,
+   "gray_css_px2": 236.1
+  },
+  "raw": {
+   "visible_css_px2": 230.6,
+   "gray_css_px2": 155.2
+  }
+ },
+ "eggplant|emoji|RESULT": {
+  "baked": {
+   "visible_css_px2": 172.8,
+   "gray_css_px2": 167.9
+  },
+  "melt": {
+   "visible_css_px2": 177.1,
+   "gray_css_px2": 179.9
+  },
+  "raw": {
+   "visible_css_px2": 173.7,
+   "gray_css_px2": 176.3
+  }
+ },
+ "eggplant|emoji|big": {
+  "baked": {
+   "visible_css_px2": 2254.2,
+   "gray_css_px2": 2228.3
+  },
+  "melt": {
+   "visible_css_px2": 2275.9,
+   "gray_css_px2": 2290.6
+  },
+  "raw": {
+   "visible_css_px2": 2263.6,
+   "gray_css_px2": 2231.8
+  }
+ },
+ "eggplant|emoji|piece": {
+  "baked": {
+   "visible_css_px2": 631.7,
+   "gray_css_px2": 626.0
+  },
+  "melt": {
+   "visible_css_px2": 638.6,
+   "gray_css_px2": 642.7
+  },
+  "raw": {
+   "visible_css_px2": 635.4,
+   "gray_css_px2": 626.6
+  }
+ },
+ "eggplant|emoji|tray": {
+  "baked": {
+   "visible_css_px2": 378.0,
+   "gray_css_px2": 373.6
+  },
+  "melt": {
+   "visible_css_px2": 382.2,
+   "gray_css_px2": 384.6
+  },
+  "raw": {
+   "visible_css_px2": 380.0,
+   "gray_css_px2": 373.7
+  }
+ },
+ "eggplant|svg|RESULT": {
+  "baked": {
+   "visible_css_px2": 166.3,
+   "gray_css_px2": 169.7
+  },
+  "melt": {
+   "visible_css_px2": 125.0,
+   "gray_css_px2": 124.4
+  },
+  "raw": {
+   "visible_css_px2": 161.2,
+   "gray_css_px2": 161.0
+  }
+ },
+ "eggplant|svg|big": {
+  "baked": {
+   "visible_css_px2": 2167.1,
+   "gray_css_px2": 2246.8
+  },
+  "melt": {
+   "visible_css_px2": 1541.8,
+   "gray_css_px2": 1539.6
+  },
+  "raw": {
+   "visible_css_px2": 2120.0,
+   "gray_css_px2": 2077.3
+  }
+ },
+ "eggplant|svg|piece": {
+  "baked": {
+   "visible_css_px2": 600.6,
+   "gray_css_px2": 620.6
+  },
+  "melt": {
+   "visible_css_px2": 433.9,
+   "gray_css_px2": 431.3
+  },
+  "raw": {
+   "visible_css_px2": 586.6,
+   "gray_css_px2": 579.1
+  }
+ },
+ "eggplant|svg|tray": {
+  "baked": {
+   "visible_css_px2": 362.0,
+   "gray_css_px2": 369.3
+  },
+  "melt": {
+   "visible_css_px2": 263.4,
+   "gray_css_px2": 263.2
+  },
+  "raw": {
+   "visible_css_px2": 351.3,
+   "gray_css_px2": 349.9
+  }
+ },
+ "mozzarellaREF|svg|RESULT": {
+  "baked": {
+   "visible_css_px2": 109.8,
+   "gray_css_px2": 111.9
+  },
+  "melt": {
+   "visible_css_px2": 40.1,
+   "gray_css_px2": 43.3
+  },
+  "raw": {
+   "visible_css_px2": 117.2,
+   "gray_css_px2": 116.7
+  }
+ },
+ "mozzarellaREF|svg|big": {
+  "baked": {
+   "visible_css_px2": 1446.3,
+   "gray_css_px2": 1530.2
+  },
+  "melt": {
+   "visible_css_px2": 515.7,
+   "gray_css_px2": 525.3
+  },
+  "raw": {
+   "visible_css_px2": 1554.6,
+   "gray_css_px2": 1554.7
+  }
+ },
+ "mozzarellaREF|svg|piece": {
+  "baked": {
+   "visible_css_px2": 398.0,
+   "gray_css_px2": 414.8
+  },
+  "melt": {
+   "visible_css_px2": 143.9,
+   "gray_css_px2": 150.6
+  },
+  "raw": {
+   "visible_css_px2": 427.4,
+   "gray_css_px2": 428.0
+  }
+ },
+ "mozzarellaREF|svg|tray": {
+  "baked": {
+   "visible_css_px2": 238.6,
+   "gray_css_px2": 245.9
+  },
+  "melt": {
+   "visible_css_px2": 88.3,
+   "gray_css_px2": 92.4
+  },
+  "raw": {
+   "visible_css_px2": 254.9,
+   "gray_css_px2": 256.7
+  }
+ },
+ "oregano|emoji|RESULT": {
+  "baked": {
+   "visible_css_px2": 121.7,
+   "gray_css_px2": 57.9
+  },
+  "melt": {
+   "visible_css_px2": 115.3,
+   "gray_css_px2": 91.8
+  },
+  "raw": {
+   "visible_css_px2": 121.7,
+   "gray_css_px2": 112.2
+  }
+ },
+ "oregano|emoji|big": {
+  "baked": {
+   "visible_css_px2": 1535.8,
+   "gray_css_px2": 730.0
+  },
+  "melt": {
+   "visible_css_px2": 1493.8,
+   "gray_css_px2": 1178.4
+  },
+  "raw": {
+   "visible_css_px2": 1534.1,
+   "gray_css_px2": 1483.6
+  }
+ },
+ "oregano|emoji|piece": {
+  "baked": {
+   "visible_css_px2": 426.6,
+   "gray_css_px2": 195.9
+  },
+  "melt": {
+   "visible_css_px2": 418.0,
+   "gray_css_px2": 333.7
+  },
+  "raw": {
+   "visible_css_px2": 426.9,
+   "gray_css_px2": 413.8
+  }
+ },
+ "oregano|emoji|tray": {
+  "baked": {
+   "visible_css_px2": 256.4,
+   "gray_css_px2": 120.1
+  },
+  "melt": {
+   "visible_css_px2": 248.1,
+   "gray_css_px2": 199.4
+  },
+  "raw": {
+   "visible_css_px2": 257.0,
+   "gray_css_px2": 247.4
+  }
+ },
+ "oregano|svg|RESULT": {
+  "baked": {
+   "visible_css_px2": 101.2,
+   "gray_css_px2": 97.0
+  },
+  "melt": {
+   "visible_css_px2": 107.3,
+   "gray_css_px2": 109.0
+  },
+  "raw": {
+   "visible_css_px2": 106.7,
+   "gray_css_px2": 104.6
+  }
+ },
+ "oregano|svg|big": {
+  "baked": {
+   "visible_css_px2": 1319.9,
+   "gray_css_px2": 1270.6
+  },
+  "melt": {
+   "visible_css_px2": 1413.3,
+   "gray_css_px2": 1419.2
+  },
+  "raw": {
+   "visible_css_px2": 1409.1,
+   "gray_css_px2": 1351.1
+  }
+ },
+ "oregano|svg|piece": {
+  "baked": {
+   "visible_css_px2": 367.7,
+   "gray_css_px2": 353.8
+  },
+  "melt": {
+   "visible_css_px2": 392.4,
+   "gray_css_px2": 394.6
+  },
+  "raw": {
+   "visible_css_px2": 390.0,
+   "gray_css_px2": 377.4
+  }
+ },
+ "oregano|svg|tray": {
+  "baked": {
+   "visible_css_px2": 219.7,
+   "gray_css_px2": 210.3
+  },
+  "melt": {
+   "visible_css_px2": 234.2,
+   "gray_css_px2": 237.1
+  },
+  "raw": {
+   "visible_css_px2": 232.9,
+   "gray_css_px2": 227.7
+  }
+ },
+ "rosemary|emoji|RESULT": {
+  "baked": {
+   "visible_css_px2": 125.8,
+   "gray_css_px2": 27.3
+  },
+  "melt": {
+   "visible_css_px2": 133.1,
+   "gray_css_px2": 133.2
+  },
+  "raw": {
+   "visible_css_px2": 122.2,
+   "gray_css_px2": 114.2
+  }
+ },
+ "rosemary|emoji|big": {
+  "baked": {
+   "visible_css_px2": 1676.0,
+   "gray_css_px2": 269.3
+  },
+  "melt": {
+   "visible_css_px2": 1735.2,
+   "gray_css_px2": 1735.2
+  },
+  "raw": {
+   "visible_css_px2": 1655.6,
+   "gray_css_px2": 1604.9
+  }
+ },
+ "rosemary|emoji|piece": {
+  "baked": {
+   "visible_css_px2": 465.6,
+   "gray_css_px2": 74.3
+  },
+  "melt": {
+   "visible_css_px2": 483.9,
+   "gray_css_px2": 483.9
+  },
+  "raw": {
+   "visible_css_px2": 462.1,
+   "gray_css_px2": 446.8
+  }
+ },
+ "rosemary|emoji|tray": {
+  "baked": {
+   "visible_css_px2": 277.8,
+   "gray_css_px2": 44.0
+  },
+  "melt": {
+   "visible_css_px2": 287.4,
+   "gray_css_px2": 287.4
+  },
+  "raw": {
+   "visible_css_px2": 274.2,
+   "gray_css_px2": 266.1
+  }
+ },
+ "rosemary|svg|RESULT": {
+  "baked": {
+   "visible_css_px2": 156.2,
+   "gray_css_px2": 169.8
+  },
+  "melt": {
+   "visible_css_px2": 177.0,
+   "gray_css_px2": 182.1
+  },
+  "raw": {
+   "visible_css_px2": 172.7,
+   "gray_css_px2": 167.2
+  }
+ },
+ "rosemary|svg|big": {
+  "baked": {
+   "visible_css_px2": 1870.2,
+   "gray_css_px2": 2076.7
+  },
+  "melt": {
+   "visible_css_px2": 2104.0,
+   "gray_css_px2": 2122.3
+  },
+  "raw": {
+   "visible_css_px2": 2086.9,
+   "gray_css_px2": 1864.2
+  }
+ },
+ "rosemary|svg|piece": {
+  "baked": {
+   "visible_css_px2": 534.4,
+   "gray_css_px2": 590.3
+  },
+  "melt": {
+   "visible_css_px2": 603.3,
+   "gray_css_px2": 615.9
+  },
+  "raw": {
+   "visible_css_px2": 594.2,
+   "gray_css_px2": 551.4
+  }
+ },
+ "rosemary|svg|tray": {
+  "baked": {
+   "visible_css_px2": 329.0,
+   "gray_css_px2": 362.4
+  },
+  "melt": {
+   "visible_css_px2": 371.4,
+   "gray_css_px2": 379.9
+  },
+  "raw": {
+   "visible_css_px2": 365.2,
+   "gray_css_px2": 345.4
+  }
+ },
+ "spinach|emoji|RESULT": {
+  "baked": {
+   "visible_css_px2": 122.4,
+   "gray_css_px2": 58.6
+  },
+  "melt": {
+   "visible_css_px2": 114.9,
+   "gray_css_px2": 90.9
+  },
+  "raw": {
+   "visible_css_px2": 121.9,
+   "gray_css_px2": 112.2
+  }
+ },
+ "spinach|emoji|big": {
+  "baked": {
+   "visible_css_px2": 1534.9,
+   "gray_css_px2": 729.8
+  },
+  "melt": {
+   "visible_css_px2": 1492.7,
+   "gray_css_px2": 1178.3
+  },
+  "raw": {
+   "visible_css_px2": 1534.6,
+   "gray_css_px2": 1482.1
+  }
+ },
+ "spinach|emoji|piece": {
+  "baked": {
+   "visible_css_px2": 426.6,
+   "gray_css_px2": 195.9
+  },
+  "melt": {
+   "visible_css_px2": 418.0,
+   "gray_css_px2": 333.7
+  },
+  "raw": {
+   "visible_css_px2": 426.9,
+   "gray_css_px2": 413.8
+  }
+ },
+ "spinach|emoji|tray": {
+  "baked": {
+   "visible_css_px2": 256.4,
+   "gray_css_px2": 120.1
+  },
+  "melt": {
+   "visible_css_px2": 248.1,
+   "gray_css_px2": 199.4
+  },
+  "raw": {
+   "visible_css_px2": 257.0,
+   "gray_css_px2": 247.4
+  }
+ },
+ "spinach|svg|RESULT": {
+  "baked": {
+   "visible_css_px2": 179.1,
+   "gray_css_px2": 156.4
+  },
+  "melt": {
+   "visible_css_px2": 185.2,
+   "gray_css_px2": 187.6
+  },
+  "raw": {
+   "visible_css_px2": 189.7,
+   "gray_css_px2": 176.1
+  }
+ },
+ "spinach|svg|big": {
+  "baked": {
+   "visible_css_px2": 2288.3,
+   "gray_css_px2": 2051.7
+  },
+  "melt": {
+   "visible_css_px2": 2321.2,
+   "gray_css_px2": 2327.9
+  },
+  "raw": {
+   "visible_css_px2": 2455.0,
+   "gray_css_px2": 2343.6
+  }
+ },
+ "spinach|svg|piece": {
+  "baked": {
+   "visible_css_px2": 639.2,
+   "gray_css_px2": 568.0
+  },
+  "melt": {
+   "visible_css_px2": 652.6,
+   "gray_css_px2": 656.6
+  },
+  "raw": {
+   "visible_css_px2": 683.2,
+   "gray_css_px2": 644.6
+  }
+ },
+ "spinach|svg|tray": {
+  "baked": {
+   "visible_css_px2": 383.3,
+   "gray_css_px2": 339.9
+  },
+  "melt": {
+   "visible_css_px2": 394.1,
+   "gray_css_px2": 396.6
+  },
+  "raw": {
+   "visible_css_px2": 409.1,
+   "gray_css_px2": 384.2
+  }
+ }
+}
