@@ -1,0 +1,58 @@
+{
+ "topped": [
+  {
+   "vis": "beef-slices",
+   "where": "stage",
+   "x": 151.8,
+   "y": 244.7,
+   "w": 33.6,
+   "h": 33.6,
+   "font": 28,
+   "em": 1.2,
+   "rot": 0,
+   "cssW": 33.5938,
+   "filter": "drop-shadow(rgba(0, 0, 0, 0.3) 0px 2px 2px)"
+  },
+  {
+   "vis": "sausage-slices",
+   "where": "stage",
+   "x": 186.3,
+   "y": 362,
+   "w": 28,
+   "h": 28,
+   "font": 28,
+   "em": 1,
+   "rot": 0,
+   "cssW": 28,
+   "filter": "drop-shadow(rgba(0, 0, 0, 0.3) 0px 2px 2px)"
+  }
+ ],
+ "baked": [
+  {
+   "vis": "beef-slices",
+   "where": "stage",
+   "x": 159.5,
+   "y": 115.5,
+   "w": 25.2,
+   "h": 25.2,
+   "font": 21,
+   "em": 1.199,
+   "rot": 0,
+   "cssW": 25.1875,
+   "filter": "brightness(0.97) saturate(1.04) sepia(0.08) drop-shadow(rgba(0, 0, 0, 0.3) 0px 2px 2px)"
+  },
+  {
+   "vis": "sausage-slices",
+   "where": "stage",
+   "x": 183.6,
+   "y": 197.2,
+   "w": 21,
+   "h": 21,
+   "font": 21,
+   "em": 1,
+   "rot": 0,
+   "cssW": 21,
+   "filter": "brightness(0.97) saturate(1.04) sepia(0.08) drop-shadow(rgba(0, 0, 0, 0.3) 0px 2px 2px)"
+  }
+ ]
+}

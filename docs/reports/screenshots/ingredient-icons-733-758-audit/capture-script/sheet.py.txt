@@ -1,0 +1,34 @@
+import json
+from PIL import Image, ImageDraw, ImageFont
+A="/home/user/teto-pizza-game/docs/reports/screenshots/ingredient-icons-733-758-audit"
+C=A+"/capture"; OUTD=A+"/sheets"
+VIS={"beef":"beef-slices","pepper":"green-pepper-strips","shiso":"shiso-leaf"}
+LABEL={"beef":"beef 牛肉","pepper":"green-pepper ピーマン","shiso":"shiso-leaf 大葉"}
+font=ImageFont.load_default()
+def crop_union(img, gl, pad=14, scale=2):
+    x0=min(g["x"] for g in gl); y0=min(g["y"] for g in gl); x1=max(g["x"]+g["w"] for g in gl); y1=max(g["y"]+g["h"] for g in gl)
+    box=[int((x0-pad)*scale),int((y0-pad)*scale),int((x1+pad)*scale),int((y1+pad)*scale)]
+    return img.crop(box)
+def fit(im, h):
+    return im.resize((max(1,int(im.width*h/im.height)),h), Image.LANCZOS)
+for proj in ["iphone-390x844","iphone-360x800"]:
+    rows=[]
+    for k,v in VIS.items():
+        d=json.load(open(f"{C}/{k}-{proj}.json"))
+        tiles=[]
+        for stage,fn,cap in [("tray",f"{k}-1-tray-{proj}.png","tray (tray chip zoom)"),("placed1",f"{k}-2-placed1-{proj}.png","placed x1 (zoom)"),("placed4",f"{k}-3-placed4-{proj}.png","placed x4 (zoom)"),("baked",f"{k}-4-baked-{proj}.png","baked RESULT (zoom)")]:
+            img=Image.open(f"{C}/{fn}"); gl=[g for g in d[stage] if g["vis"]==v and (g["where"]=="tray" if stage=="tray" else g["where"]=="stage")]
+            t=fit(crop_union(img,gl,pad=10 if stage=="tray" else 16),300)
+            # 3x enlarge note
+            dr=ImageDraw.Draw(t); dr.rectangle([0,0,t.width,12],fill=(255,255,255)); dr.text((2,1),cap+f" w={gl[0]['w']}px",fill=(0,0,0),font=font)
+            tiles.append(t)
+        W=sum(t.width for t in tiles)+10*(len(tiles)+1); row=Image.new("RGB",(W,300+24),(240,240,240))
+        ImageDraw.Draw(row).text((6,4),f"{LABEL[k]}  [{proj}]  — CURRENT main 785d795 (real render, not a mock)",fill=(0,0,0),font=font)
+        x=10
+        for t in tiles: row.paste(t,(x,22)); x+=t.width+10
+        rows.append(row)
+    W=max(r.width for r in rows); H=sum(r.height for r in rows)
+    sh=Image.new("RGB",(W,H),(255,255,255)); y=0
+    for r in rows: sh.paste(r,(0,y)); y+=r.height
+    sh.save(f"{OUTD}/zoom-stages-{proj}.png")
+    print(proj,sh.size)
