@@ -11,7 +11,7 @@
 
 | 項目 | 結果 |
 |---|---|
-| Audit 日時 | 2026-11-06 13:2x UTC（GitHub／`git fetch` で取得） |
+| Audit 日時 | 2026-11-06 13:27 UTC（GitHub／`git fetch` で取得） |
 | `origin/main` | **`785d7956b42eac97e42dbd138818262a16c0a91c`**（`feat(recipes): Batch 18 …（#759）`）。直前は `8210d66b`（#768）、`c308a3f7`（#761） |
 | PR #759（Batch 18） | **Squash merge 済み**（`merged_by: perusonao`、`merged_at 2026-11-06T13:15:08Z`、HEAD `c533a4f1`）。依頼文の「merge commit `785d7956`」と一致 |
 | main の Deploy（run 42223996114） | **success**（13:15–13:18Z） |
@@ -128,7 +128,7 @@ R2 決定 D5 を前提に、実装 PR の受入条件を次のとおり提案し
 | S3 | トレイ（約 26px）・ピザ上・焼成後・RESULT・ショップ・図鑑・ヒント表示で、**mozzarella／ricotta／feta／cream-cheese 等の白系チーズと識別できる**輪郭（上の裂け目と溢れるクリーム）が保たれること。グレースケールでも判別できること |
 | S4 | 識別テスト（#733 と同方式）：burrata の描画が既存チーズ描画と別であること。食材 id・`emoji`・色・family・サイズクラス・採点・保存は変更しない（新規 id なので emoji／color は新規に決める） |
 | S5 | 焼成後の見え方（溶けて広がる mozzarella〔#468 の Pilot は open PR〕との混同）を確認。`.pizza-cheese--mozzarella` は #468 が `App.css` で触る領域 |
-| S6 | 360×800・390×844 の両方でトレイの 1 画面 UX を維持（#764／#765 で 390px 未満はチップ名 10px・余白 3px。**「ブッラータ」は 5 文字で既存最長名より短く、横はみ出しの再発リスクは低い**が WebKit 360×800 で実測） |
+| S6 | 360×800・390×844 の両方でトレイの 1 画面 UX を維持（#764／#765 で 390px 未満はチップ名 10px・余白 3px。名称「ブッラータ」の幅は未測定のため、WebKit 360×800 で実測） |
 
 ---
 
