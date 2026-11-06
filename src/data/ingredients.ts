@@ -32,6 +32,10 @@ export type DedicatedIngredientVisual =
   | "wurstel-links"
   | "paprika-powder-pile"
   | "shiso-leaf"
+  | "rosemary-sprigs"
+  | "oregano-flakes"
+  | "spinach-leaves"
+  | "artichoke-quarter"
   | "arugula-leaves"
   | "whitebait-school"
   | "salmon-roe-grains"
@@ -252,6 +256,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "オレガノ",
     color: "#5f7a3d",
     emoji: "\u{1F343}",
+    /** Ingredient Icons 2.0 herbs (Owner R2 decision 2026-11-06; provisional adoption, final = 390x844 / 360x800 + iPhone HV). */
+    pieceVisual: "oregano-flakes",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pricePitz: 55,
@@ -433,6 +439,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "ローズマリー",
     color: "#7c8f5e",
     emoji: "\u{1F331}",
+    /** Ingredient Icons 2.0 herbs (Owner R2 decision 2026-11-06; provisional adoption, final = 390x844 / 360x800 + iPhone HV). */
+    pieceVisual: "rosemary-sprigs",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pricePitz: 55,
@@ -936,6 +944,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "アーティチョーク",
     color: "#8a9a5b",
     emoji: "\u{1F331}",
+    /** Ingredient Icons 2.0 herbs (Owner R2 decision 2026-11-06; provisional adoption, final = 390x844 / 360x800 + iPhone HV). */
+    pieceVisual: "artichoke-quarter",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
@@ -946,6 +956,8 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "ほうれん草",
     color: "#2f6b2f",
     emoji: "\u{1F343}",
+    /** Ingredient Icons 2.0 herbs (Owner R2 decision 2026-11-06; provisional adoption, final = 390x844 / 360x800 + iPhone HV). */
+    pieceVisual: "spinach-leaves",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
