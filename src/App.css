@@ -5620,6 +5620,23 @@
   }
 }
 
+/* Issue #764: on screens narrower than 390px the three-column tray can need more than its width. The tracks are
+   `1fr` (= `minmax(auto, 1fr)`), so a column grows to its chip's min-content (the name never wraps), and when the three
+   min-contents add up past the tray the cooking screen scrolls sideways: WebKit 360x800 measured the sauce tray at 386px
+   in a 360px screen (「ジェノベーゼソース」 chip 117px). Here the name is 1px smaller and the chip's side padding 3px
+   narrower, which keeps every name whole: WebKit-wide glyphs then need about 330px of the 336px tray. 390x844 is not
+   touched. e2e/cooking-screen-sideways.spec.ts checks every tray page at both viewports. */
+@media (max-width: 389px) {
+  .prepare-dock .ingredient-chip {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .prepare-dock .ingredient-chip__name {
+    font-size: 10px;
+  }
+}
+
 /* One page: the pager row keeps its height (no layout jump when a category gains a page) but is
    invisible and never a tap target. */
 .ingredient-page-nav--placeholder {
