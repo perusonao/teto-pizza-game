@@ -27,15 +27,21 @@ D1 は新規ファイルだけで完了した。どこからも import されず
 ## 4. テスト
 | 項目 | 結果 |
 |---|---|
-| D1 の新規テスト | **69 件**／5 ファイル通過（`npx vitest run src/logic/drizzle src/data/drizzleExperienceGate.test.ts`） |
-| 変異検査（コードを壊して失敗を確認） | 6 種類すべて検出: 量子化後の再クランプ無し、タップの内側寄せ無し、`stage` 未検査、間引き無し、本数上限無し、量子化無し |
+| D1 の新規テスト | **74 件**／5 ファイル通過（Codex 指摘の修正後。初版は 69 件）（`npx vitest run src/logic/drizzle src/data/drizzleExperienceGate.test.ts`） |
+| 変異検査（コードを壊して失敗を確認。初版で実施） | 6 種類すべて検出: 量子化後の再クランプ無し、タップの内側寄せ無し、`stage` 未検査、間引き無し、本数上限無し、量子化無し |
 | `tsc -b` | 通過 |
 | `npm run lint`（oxlint） | D1 のファイルに警告 0（全体の警告は既存ファイルのもの） |
 | `npm run build` | 通過。**本番バンドルに D1 の名前なし**（`postBakeLiquid`・`DRIZZLE_EXPERIENCE`・`drizzleExperienceGate`・`logic/drizzle` が `dist/assets/*.js` に 0 件） |
-| 全体 Vitest（`npx vitest run`、D1 追加後・lint 修正後の worktree） | **626 ファイル通過／1 skipped、11,608 件通過／13 skipped／2 todo、失敗 0**（1,004 秒） |
+| 全体 Vitest（`npx vitest run`、**初版 head `dc47d40` で実施**。Codex 指摘の修正後は D1 の範囲のみ再実行） | **626 ファイル通過／1 skipped、11,608 件通過／13 skipped／2 todo、失敗 0**（1,004 秒） |
 | E2E／WebKit | 対象外（UI なし）。CI の既存ジョブに委ねる |
 
 テスト内容: 型と許可リスト（実在する `sauce` のカタログ食材）、上限の固定、座標変換（client → 生地 %、非正方形、退化した箱、非有限）、クランプ（全角度×半径、冪等、非有限・過大は `null`）、間引き（端を保つ・決定的・重複なし・入力不変）、タップ線（点でない・縁でも全長・決定的）、検証（各拒否条件、未知フィールド除去、`__proto__`、投げる getter／Proxy でも例外なし、冪等、JSON 往復）、保存サイズの最悪ケース、architecture（未配線・非読取り・独立・純粋）。
+
+### 4.1 Codex レビューの指摘と修正（head `dc47d40` への P2 ×2、どちらも再現して確認）
+| 指摘 | 再現 | 修正 |
+|---|---|---|
+| 間引き後に連続重複が残り、`sanitize` が冪等でなくなる（同じ場所を往復する 48 点の軌跡は初回 24 点、再適用で 2 点） | 修正前のコードでテストが失敗（冪等性） | 間引きの**後**にも `dropRepeats` を適用（縮むだけなので上限内）。往復の軌跡（周期 2・3・5、点数 25〜160）の冪等性テストを追加 |
+| 配列の `length` を読み直すため、長さが途中で変わる Proxy で走査が終わらない（`catch` では止まらない） | 修正前のコードでテストが 60 秒で強制終了（無限ループ） | `length` を**1 回だけ**読み、有限の非負整数かを検証してから走査範囲を確定（`sanitizeTrail`・`sanitizePostBakeLiquids` の両方）。長さが変わる Proxy と、非整数・負・`Infinity`・`NaN` の長さのテストを追加 |
 
 ## 5. 対象外・HOLD（実施していない）
 D2 journal の書き込み・読み出し／D3 在庫の原子性／D4 採点・識別・Reference／D5 UI／本番フラグ ON／共有 Preview 更新／merge。`gameReducer.ts`・`GameScreen.tsx`・`PizzaStage.tsx`・`App.tsx`・`main.tsx`・`pendingRound.ts`・`persistence.ts`・`inventory.ts`・`finalizeRound.ts`・`pizzaState.ts`、STEAM・FRY・炒め・炙り・#746 のファイルは変更していない（`git diff --stat origin/main` で新規ファイルのみ）。

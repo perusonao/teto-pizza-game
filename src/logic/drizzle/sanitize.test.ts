@@ -35,6 +35,26 @@ describe("sanitizeTrail", () => {
     expect(out[0]).toEqual({ x: 20, y: 50 });
     expect(out[out.length - 1]).toEqual({ x: 80, y: 50 });
   });
+  it("a back-and-forth trail is already in canonical form after one pass (thinning must not leave repeats behind)", () => {
+    const zig = Array.from({ length: 48 }, (_, i) => ({ x: i % 2 ? 40 : 30, y: 50 }));
+    const once = sanitizeTrail(zig);
+    expect(once.length).toBeLessThanOrEqual(PERSIST_MAX_POINTS_PER_STROKE);
+    for (let i = 1; i < once.length; i++) expect(once[i].x !== once[i - 1].x || once[i].y !== once[i - 1].y).toBe(true);
+    expect(sanitizeTrail(once)).toEqual(once);
+    expect(sanitizeTrail(JSON.parse(JSON.stringify(once)))).toEqual(once);
+    for (const n of [25, 26, 47, 48, 49, 96, 160]) {
+      for (const period of [2, 3, 5]) {
+        const t = Array.from({ length: n }, (_, i) => ({ x: 20 + (i % period) * 7, y: 50 }));
+        const a = sanitizeTrail(t);
+        expect(sanitizeTrail(a), `${n}/${period}`).toEqual(a);
+      }
+    }
+  });
+  it("a liquid made from a back-and-forth trail is idempotent too", () => {
+    const zig = Array.from({ length: 48 }, (_, i) => ({ x: i % 2 ? 40 : 30, y: 50 }));
+    const once = sanitizePostBakeLiquid(liquid({ trail: zig }));
+    if (once) expect(sanitizePostBakeLiquid(once)).toEqual(once);
+  });
   it("never throws on hostile input (throwing getters, proxies, prototype keys)", () => {
     const evil = [{ get x(): number { throw new Error("x"); }, y: 1 }];
     expect(() => sanitizeTrail(evil)).not.toThrow();
@@ -42,6 +62,35 @@ describe("sanitizeTrail", () => {
     const proxy = new Proxy([], { get() { throw new Error("boom"); } });
     expect(() => sanitizeTrail(proxy)).not.toThrow();
     expect(sanitizeTrail(JSON.parse('[{"__proto__":{"x":1},"x":30,"y":30},{"x":40,"y":40}]'))).toHaveLength(2);
+  });
+});
+
+/** An array whose `length` changes between reads: the first read passes the size check, later reads are huge. */
+function shiftyArray(items: unknown[]): unknown[] {
+  let reads = 0;
+  return new Proxy(items, {
+    get(target, key, receiver) {
+      if (key === "length") return reads++ === 0 ? target.length : Infinity;
+      return Reflect.get(target, key, receiver);
+    },
+  });
+}
+
+describe("a length that changes between reads cannot make a scan run forever", () => {
+  it("sanitizeTrail reads the length once", () => {
+    const out = sanitizeTrail(shiftyArray([{ x: 30, y: 30 }, { x: 40, y: 40 }]));
+    expect(out).toEqual([{ x: 30, y: 30 }, { x: 40, y: 40 }]);
+  });
+  it("sanitizePostBakeLiquids reads the length once", () => {
+    const out = sanitizePostBakeLiquids(shiftyArray([liquid({ id: "a" }), liquid({ id: "b" })]));
+    expect(out.map((l) => l.id)).toEqual(["a", "b"]);
+  });
+  it("a non-integer or negative length is refused, not scanned", () => {
+    for (const bad of [Infinity, -1, 1.5, NaN]) {
+      const weird = new Proxy([{ x: 30, y: 30 }, { x: 40, y: 40 }], { get: (t, k, r) => (k === "length" ? bad : Reflect.get(t, k, r)) });
+      expect(sanitizeTrail(weird)).toEqual([]);
+      expect(sanitizePostBakeLiquids(weird)).toEqual([]);
+    }
   });
 });
 

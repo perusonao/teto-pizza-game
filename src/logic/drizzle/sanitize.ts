@@ -17,18 +17,31 @@ import {
 } from "./postBakeLiquid";
 import { clampTrailPoint, dropRepeats, isTrailPoint, thinTrail, trailLength } from "./trail";
 
-/** A saved trail: finite points only, clamped into the dough, quantized, repeats removed, thinned to the persist limit. Not an array / too long -> []. */
+/**
+ * An array's length, read exactly ONCE and checked: a finite non-negative integer. Reading `.length` again inside a loop would let a hostile array (a Proxy that
+ * reports a small length first and a huge one later) make the scan endless -- which `try / catch` cannot stop, since nothing throws.
+ */
+function readLength(raw: readonly unknown[]): number | null {
+  const n = raw.length;
+  return Number.isInteger(n) && n >= 0 ? n : null;
+}
+
+/** A saved trail: finite points only, clamped into the dough, quantized, thinned to the persist limit, repeats removed. Not an array / too long -> []. */
 export function sanitizeTrail(raw: unknown, max: number = PERSIST_MAX_POINTS_PER_STROKE): TrailPoint[] {
   try {
-    if (!Array.isArray(raw) || raw.length > MAX_RAW_TRAIL_POINTS) return [];
+    if (!Array.isArray(raw)) return [];
+    const n = readLength(raw);
+    if (n === null || n > MAX_RAW_TRAIL_POINTS) return [];
     const points: TrailPoint[] = [];
-    for (let i = 0; i < raw.length; i++) {
+    for (let i = 0; i < n; i++) {
       const p: unknown = raw[i];
       if (!isTrailPoint(p)) continue;
       const c = clampTrailPoint(p.x, p.y);
       if (c) points.push(c);
     }
-    return thinTrail(dropRepeats(points), max);
+    // Thinning can bring two equal points next to each other (a trail that goes back and forth), so the repeats are removed again AFTER it: the result is then
+    // already in canonical form and sanitizing it again changes nothing (idempotent). It only ever shrinks, so it stays within `max`.
+    return dropRepeats(thinTrail(dropRepeats(points), max));
   } catch {
     return [];
   }
@@ -59,10 +72,12 @@ export function sanitizePostBakeLiquid(raw: unknown): PostBakeLiquid | null {
 export function sanitizePostBakeLiquids(raw: unknown): PostBakeLiquid[] {
   try {
     if (!Array.isArray(raw)) return [];
-    const start = Math.max(0, raw.length - MAX_RAW_LIQUIDS);
+    const n = readLength(raw);
+    if (n === null) return [];
+    const start = Math.max(0, n - MAX_RAW_LIQUIDS);
     const seen = new Set<string>();
     const kept: PostBakeLiquid[] = [];
-    for (let i = raw.length - 1; i >= start && kept.length < PERSIST_MAX_LIQUIDS; i--) {
+    for (let i = n - 1; i >= start && kept.length < PERSIST_MAX_LIQUIDS; i--) {
       const liquid = sanitizePostBakeLiquid(raw[i]);
       if (!liquid || seen.has(liquid.id)) continue;
       seen.add(liquid.id);
