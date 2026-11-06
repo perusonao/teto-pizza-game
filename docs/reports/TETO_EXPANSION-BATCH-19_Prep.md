@@ -1,5 +1,7 @@
 # Expansion Batch 19 — 実装前準備（食材・レシピ重複検査／アイコン仕様／調理工程／受入条件／テスト計画）
 
+**改訂 4（2026-11-06）:** Owner 判断 P1・P2（承認）を追記。AC-8b の合格基準を「SAUCE または CHEESE の有料ヒント 1 段で合理的に区別できる」に確定し、検証項目（Hint 5.0・旧 Hint 経路・表示内容・コスト）を明記。AC-8 に非正準差分の報告形式（ID・レシピ・取得順・変更前後）と **未承認差分が残れば Gate HOLD** を追記。それ以外（実装禁止、#759 の merge と Owner の明示 GO を待つ方針）は変更なし。
+
 **改訂 3（2026-11-06）:** Owner 判断 Q1〜Q4 を反映し、最新 GitHub 状態を Fresh Audit（§1.2）。AC-8 を Q2 に合わせて改め、AC-8b（Research ヒントによる 2 レシピの区別）を追加。**実装は引き続き禁止**（#759 の merge 前、かつ Owner の明示 GO まで）。改訂 2 の要約は以下のとおり。
 
 **改訂 2（2026-11-06）:** Owner 判断 D1〜D9 の確定を反映。D2（crudaiola の類似度例外）は近傍 4 件ごとの根拠表（§2.3.1）を追加し、実装開始条件・claim・競合状況（§7.0）を再確認した。初版は `7afbfc5`。
@@ -24,7 +26,7 @@
 4. **D2／Q1（確定）:** crudaiola の類似度例外は、近傍 4 件（pinsa-romana・jamon-serrano-pizza・grandma-pizza、バッチ内 pesto-burrata）について **C1〜C5 つきで条件付き承認**（Q1、pesto-burrata 近傍を含む）。4 件とも対称差 4、同一／部分集合／上位集合／1 材料差は 0。**受入条件に AC-8b を追加**: Research のヒントで 2 レシピを合理的に区別できること（§5.2）。
 5. **Research ラベル（Q2、確定）:** 正準順序での意図しない既存ラベル変化は **0 件必須**。非正準順序の差分は**全件列挙し、1 件ずつ Owner の個別承認**が必要（B18 の「集合として一括承認」より厳しい。未承認の差分が 1 件でも残れば Gate 失敗）。
 6. **実装開始条件（Q3・Q4、確定）:** **Owner の明示 GO が必須**。**#748 の claim 期限にかかわらず、PR #759 の merge 前に Batch 19 を実装しない**。Fresh Audit（§1.2）の時点で #759 は **Draft／HOLD・未 merge**（#761 は 2026-11-06 07:35Z に merge 済み）。
-7. Owner への確認として残るのは、本書の運用提案 2 点のみ（§8.2 P1・P2）。
+7. **P1・P2（承認済み）:** AC-8b は「SAUCE または CHEESE の有料ヒント 1 段で合理的に区別できれば合格」（無料ラベル・所持食材での区別は不要）。非正準ラベル差分は 1 件ごとに ID・レシピ・取得順・変更前後を Result Report に記載し、Owner の個別承認を得る。**未承認差分が残れば Gate HOLD**。Owner への未回答の確認事項は、本書時点でなし（§8.2）。
 
 ### 0.1 Owner 判断 D1〜D9（2026-11-06 確定）と反映箇所
 
@@ -41,7 +43,7 @@
 | D9 | #759 merge 後の Issue 起票を承認 | §7.0 の開始条件。起票と claim は #759 merge 後の実装セッションが行う（本書では起票しない） |
 
 
-### 0.2 Owner 判断 Q1〜Q4（2026-11-06 確定）と反映箇所
+### 0.2 Owner 判断 Q1〜Q4・P1・P2（2026-11-06 確定）と反映箇所
 
 | # | 確定内容 | 反映 |
 |---|---|---|
@@ -49,6 +51,8 @@
 | Q2 | 正準順序での意図しない Research ラベル変化は **0 件必須**。非正準順序の差分は**全件列挙し、個別 Owner 承認が必要** | §2.4、AC-8（§5.2）、§6.1、§7.0 の S-6。個別承認の運用は §8.2 P2 |
 | Q3 | Batch 19 の実装開始には **Owner の明示 GO が必須** | §7.0 S-7（「推奨」から「必須」へ） |
 | Q4 | #748 の claim 期限にかかわらず、**#759 の merge 前には実装しない** | §7.0 S-1（claim の期限・解放と独立の必須条件）、S-3 の位置づけ |
+| P1 | AC-8b の合格基準: **SAUCE または CHEESE の有料ヒント 1 段**で pesto-burrata と crudaiola を合理的に区別できれば合格。**無料ラベルや所持食材で区別できる必要はない**。Hint 5.0・旧 Hint 経路・表示内容・コストを**実装時に検証** | AC-8b（§5.2）、§6.2、T3 |
+| P2 | 非正準順序の Research ラベル差分は、**1 件ごとに ID・レシピ・取得順・変更前後**を Result Report に記載し、Owner の個別承認を得る。**未承認差分が残る場合は Gate HOLD** | AC-8（§5.2）、§6.1、§7.0 S-6 |
 
 ---
 
@@ -166,7 +170,7 @@ crudaiola = {tomato-sauce, olive-oil, mozzarella, burrata, fresh-tomato, arugula
 
 #### pesto-burrata 近傍の追加根拠と緩和（Q1：C1〜C5 つきで条件付き承認、2026-11-06）
 
-**Q1 で追加された受入条件:** Research のヒントで 2 レシピを合理的に区別できること（AC-8b、§5.2）。Hint 5.0 の SAUCE 段（every sauce）と CHEESE 段（every cheese）は、2 レシピで答えが異なる（pesto＋olive-oil と tomato-sauce＋olive-oil、burrata のみと mozzarella＋burrata）ため、**1 段（`hint5Ladder.ts` の記載で 10 Pitz）で区別できる**設計。段の内容・コストの実測は実装 PR のテストで確認する（本書では実行していない）。
+**Q1 で追加された受入条件:** Research のヒントで 2 レシピを合理的に区別できること（AC-8b、§5.2）。Hint 5.0 の SAUCE 段（every sauce）と CHEESE 段（every cheese）は、2 レシピで答えが異なる（pesto＋olive-oil と tomato-sauce＋olive-oil、burrata のみと mozzarella＋burrata）ため、**SAUCE または CHEESE の有料ヒント 1 段（`hint5Ladder.ts` の記載で各 10 Pitz）で区別できる**設計（P1 で合格基準として確定。無料ラベル・所持食材での区別は不要）。段の内容・表示・コストの実測は実装 PR のテストで確認する（本書では実行していない）。
 
 
 - 区別軸は**主ソース**。pesto-burrata は pesto（緑）が Reference 対象、crudaiola は tomato-sauce（橙〜赤）。どちらも 2 本目は olive-oil で、**2 層の面の色が違う**（R2 は crudaiola のトマト＋オイル面が橙になると確認、pesto 面の見え方は実装 HV で確認）。
@@ -188,7 +192,7 @@ crudaiola = {tomato-sauce, olive-oil, mozzarella, burrata, fresh-tomato, arugula
 
 - T1: 実装直前の main／カタログで、近傍が同一・部分集合・上位集合・1 材料差になった（B18 の rebase、他バッチの merge による）。
 - T2: 近傍が 5 件以上になった、または C2 の数値が崩れた。
-- T3: **AC-8b を満たせない**（Research ヒントで 2 レシピを合理的に区別できない）、または Owner が実装 HV 後に pesto-burrata 近傍の根拠を不十分と判断した。
+- T3: **AC-8b を満たせない**（SAUCE・CHEESE のどちらの有料ヒント 1 段でも 2 レシピを合理的に区別できない）、または Owner が実装 HV 後に pesto-burrata 近傍の根拠を不十分と判断した。
 - T4: 実装 HV で pesto-burrata と crudaiola の区別（Research・調理・結果）が困難と判明した。
 - T5: レシピの素材集合を変更する提案が出た（個数だけの変更は対象外）。
 - 再判断になった場合の選択肢: (i) 例外を維持（追加の緩和策つき）、(ii) 素材集合の変更（原典から離れるため Owner の再承認が必要）、(iii) crudaiola を保留。**D8 により 2 レシピ維持が既定**なので、(iii) は Owner が明示した場合のみ。
@@ -299,7 +303,8 @@ crudaiola = {tomato-sauce, olive-oil, mozzarella, burrata, fresh-tomato, arugula
 ### 5.2 Research・Hint・保存・採点
 
 - AC-8 Research（Q2）: 新 2 件が「A／B（ブッラータ）」で出る（D1）。未発見レシピ名・材料の漏えいなし。**正準 ladder 順で既存レシピのラベル変化 0 件**（全 prefix、通常／late、Pinsa ON／OFF）。**非正準順の差分は全件を一覧化し、1 件ずつ Owner の個別承認を得る**（承認済みの項目だけをテストの固定集合に入れる。未承認の変化が 1 件でも残れば不合格）。
-- **AC-8b Research ヒントによる 2 レシピの区別（Q1 で追加）:** Research 中のヒントだけで、プレイヤーが pesto-burrata-pizza と pizza-alla-crudaiola を**合理的に区別**できる。検証: (1) `buildHint5Ladder` で 2 レシピの段を比較し、SAUCE 段（ソースの集合）と CHEESE 段（チーズの集合）の答えが**どちらも異なる**ことをテストで固定する（1 段だけで一意に区別できること）。(2) 無料の手がかり（Research ラベル「（ブッラータ）」と所持素材）では区別できなくてよい（推理の設計）。(3) どのヒントも、未発見レシピ名・2 レシピのどちらかを断定する文言を出さない（Anti-Oracle、key-free を維持）。(4) 旧 Hint 経路（`hints.ts` の per-recipe、2 ソース）で、主ソース→オリーブオイルの案内が pesto 版・tomato 版とも成立し、`hints.multiSauce.test.ts` の 2 ソース許可リストの追加を Owner に明示する。(5) HV（390×844）で、ヒントを見た人が 2 レシピを取り違えないことを確認する。
+  - **差分の報告形式（P2）:** 非正準順の差分は、実装 PR の Result Report に表で記載する。列は **差分 ID（例: B19-LD-01）・既存レシピ・取得順（最後に入手した共有素材と、それ以前の順序）・変更前ラベル→変更後ラベル・文字なし→ありか否か**。Owner は ID ごとに承認／却下を返す。承認された ID だけをテストの固定集合に入れる。**未承認の差分が 1 件でも残る場合は Gate HOLD**（merge・次工程に進まない）。却下された ID は設計変更（実装の修正）か停止。
+- **AC-8b Research ヒントによる 2 レシピの区別（Q1・P1）:** **SAUCE または CHEESE の有料ヒント 1 段**で、プレイヤーが pesto-burrata-pizza と pizza-alla-crudaiola を**合理的に区別**できれば合格。**無料ラベル（「（ブッラータ）」）や所持食材で区別できる必要はない**（同じ cohort の推理設計を保つ）。実装時の検証項目: (1) **Hint 5.0:** `buildHint5Ladder` で 2 レシピの SAUCE 段・CHEESE 段を比較し、少なくとも一方の段の答えが 2 レシピで異なり、その 1 段だけで一意に区別できること（期待: SAUCE は pesto＋olive-oil と tomato-sauce＋olive-oil、CHEESE は burrata のみと mozzarella＋burrata。**実測で確認し、期待と違えば AC-8b 不合格として報告**）。(2) **コスト:** 該当段の実コスト（`hint5Ladder.ts` の記載は各 10 Pitz）と、プレイヤーが支払える範囲か。購入手段・無料枠・既存の「購入済み事実」との整合（`discoveryHintFacts` への記録を含む）。(3) **表示内容:** 実際の Hint シートの表示（素材名か分類名か、2 本目の olive-oil の見え方）が、区別に足りる内容であること。HV（390×844）で実画面を確認。(4) **旧 Hint 経路:** `hints.ts` の per-recipe（2 ソース）で、主ソース→オリーブオイルの案内が pesto 版・tomato 版とも成立し、`hints.multiSauce.test.ts` の 2 ソース許可リストの追加を Owner に明示する。旧経路が Research では使われない場合は、その事実を Result Report に記録する。(5) **漏えいなし:** どのヒントも未発見レシピ名や、2 レシピのどちらかを断定する文言を出さない（Anti-Oracle、key-free を維持）。(6) HV で、ヒントを見た人が 2 レシピを取り違えないことを確認する。
 - AC-9 Hint 5.0: ladder golden は**挿入のみ**（既存エントリ変更 0）。`alphaFamilyOnly`・DH4 audit の変化は理由を Result Report に記録する。
 - AC-10 保存: schema v2 のまま。新 id の追加だけ。旧版セーブの読み込み・再保存（在庫・Dex・entitlement ledger）がバイト単位で保存される（`persistence.batch19.test.ts`）。
 - AC-11 採点・Pitz・在庫・経済の既存仕様は不変。`referencePizza.ts` に 2 件のリングを追加するだけ。
@@ -329,7 +334,7 @@ crudaiola = {tomato-sauce, olive-oil, mozzarella, burrata, fresh-tomato, arugula
 
 ### 6.1 実装前の scratch 測定（最初の作業。結果が Owner 判断に影響する）
 
-1. **Research ラベル監査（必須 Gate、Q2）**: #759 の `researchLabelAudit.ts` を使い、B19 前後の既存ラベル差を数える（正準順＋非正準の全パターン。予備: 乱数順 600 通り）。正準順で 1 件でも動けば**停止して報告**。非正準順の差分は**全件を一覧にして Owner の個別承認を待つ**（承認前に実装 PR を進めない）。
+1. **Research ラベル監査（必須 Gate、Q2・P2）**: #759 の `researchLabelAudit.ts` を使い、B19 前後の既存ラベル差を数える（正準順＋非正準の全パターン。予備: 乱数順 600 通り）。正準順で 1 件でも動けば**停止して報告**。非正準順の差分は**全件を ID 付きの一覧（レシピ・取得順・変更前後）にして Owner の個別承認を待つ**（承認前に実装 PR を進めない。未承認が残れば Gate HOLD）。
 2. **2 ソースの pesto 主ガード**: 合成レシピまたは実レシピ案で、主ソース pesto＋olive-oil の `completionGate`・Reference・塗り判定が grandma と同様に成立するか。
 3. **burrata のみのチーズ工程**: eggplant-ricotta-pizza と同様に Canvas のチーズ判定が成立するか。
 4. **Jaccard 再計算**: 実装直前の main／カタログで、§2.3 の表を再現（`docs/reports/data/TETO_EXPANSION-BATCH-19_PREP_jaccard.json` と同じ手順）。
@@ -342,7 +347,7 @@ crudaiola = {tomato-sauce, olive-oil, mozzarella, burrata, fresh-tomato, arugula
 | 新規 `expansionBatch19.test.ts` | 識別（完全一致／部分集合／上位集合／1 材料差 0）、Jaccard の名前付き固定（crudaiola の近傍 4 件、pesto-burrata の最大値）、ladder の step 凍結と新 step、credited／non-credit、key-free、Reference の点数、Rule W／H4 の一致、Hint の許可リスト、全材料が焼く前 |
 | 新規 `persistence.batch19.test.ts` | 旧順序・在庫・Dex・entitlement ledger の保存、新 id の追加だけ |
 | 新規（pesto 主の 2 ソース） | `multiSauce.guards` 相当の pesto 版 |
-| 新規（Research ヒントの区別、AC-8b） | 2 レシピの Hint 5.0 の段の比較（SAUCE・CHEESE が異なる）、漏えいなし、`hints.multiSauce.test.ts` の許可リスト追加 |
+| 新規（Research ヒントの区別、AC-8b） | 2 レシピの Hint 5.0 の SAUCE 段・CHEESE 段の比較（少なくとも一方が異なり 1 段で一意）、段のコスト・表示内容の固定、旧 Hint 経路（`hints.ts`）の 2 ソース案内、漏えいなし、`hints.multiSauce.test.ts` の許可リスト追加 |
 | `researchLabelAudit` 固定集合（`recipeBatchManifest.ts` に `B19_BATCH` ほか） | 正準順 0 件、承認済み非正準集合を固定 |
 | `IngredientGlyph.test.tsx`／`IngredientPieceVisual.test.tsx` | burrata の描画、visual の網羅（ハーブ 4 種は Icons PR） |
 | 既存テストの追従（assertion を弱めない） | `catalogLedger`、`recipeChapters`、`discoveryCatalog`（`*_PHASE2_BLOCKED_OWNER_APPROVED`）、`matcher`（`ownerApproved`）、`ingredients.test`、`ingredientShelf`、hint5 ladder golden（挿入のみ）、`alphaFamilyOnly`、DH4 audit |
@@ -396,7 +401,7 @@ crudaiola = {tomato-sauce, olive-oil, mozzarella, burrata, fresh-tomato, arugula
 | S-3 | 他セッションの claim が B19 の予定ファイルと重ならない（#748 の claim は **S-1 とは独立**：S-1 が満たされない限り、claim が失効・解放されても着手しない。S-1 の後に、解放・失効を確認する） | **未確認**（B18 の claim が 2026-11-19 まで有効、解放の投稿なし） |
 | S-4 | B19 用 Issue を起票済み（D9）、claim を投稿済み | 未着手（#759 merge 後に実装セッションが行う） |
 | S-5 | 最新 `main` で、ladder step・件数・Jaccard・Research 監査・Hint を**再検証**（§6.1） | #759 merge 後に実施 |
-| S-6 | D2 の条件 C1〜C5（Q1 で確定）を実装に反映し、Research ラベル監査の結果を Owner が確認し、**非正準差分を 1 件ずつ個別承認**している（Q2） | 実装前の scratch 測定の後に実施 |
+| S-6 | D2 の条件 C1〜C5（Q1 で確定）を実装に反映し、Research ラベル監査の結果を Owner が確認し、**非正準差分を ID ごとに個別承認**している（Q2・P2。未承認が残れば Gate HOLD） | 実装前の scratch 測定の後に実施 |
 | S-7 | **Owner が実装 GO を明示する（Q3、必須）**。条件が揃っても自動では着手しない | 未取得 |
 | S-8 | ハーブ 4 種の Icons PR は、S-1・S-3 に加えて Owner 承認（D5）。ブッラータの SVG は B19 の PR | 同上 |
 
@@ -460,14 +465,14 @@ S5  CI（Pinsa ON/OFF、WebKit 全シャード）、最新 HEAD の Codex レビ
 
 §0.1 の表のとおり。本書の該当箇所に反映済みです。
 
-### 8.2 残る確認事項（運用の提案への同意のみ）
+### 8.2 運用の提案（P1・P2）— 承認済み（2026-11-06）
 
-Q1〜Q4（改訂 2 の確認事項）は 2026-11-06 に確定済み（§0.2）。本書の運用提案のうち、Owner の同意を取りたい 2 点が残る。
-
-| # | 内容 | 提案 |
+| # | 内容 | 状態 |
 |---|---|---|
-| **P1** | AC-8b の「合理的に区別」の測り方（§5.2）: Hint 5.0 の SAUCE 段・CHEESE 段で答えが異なる（1 段で区別可能）ことをテストで固定し、無料の手がかり（ラベルと所持素材）では区別できなくてよい、という解釈でよいか | この解釈（無料の手がかりまで区別可能にすると、同じ cohort の推理設計が壊れる） |
-| **P2** | 非正準差分の個別承認の運用（Q2）: 実装 PR の Result Report に、差分 1 件ごとの ID（レシピ・取得順の条件・前→後）を付けた表を載せ、Owner が ID ごとに承認／却下を返す。却下された項目は設計変更（実装の修正）か停止 | この運用。承認された項目だけをテストの固定集合に入れる |
+| **P1** | AC-8b の合格基準: SAUCE または CHEESE の有料ヒント 1 段で合理的に区別できれば合格。無料ラベル・所持食材での区別は不要。Hint 5.0・旧 Hint 経路・表示内容・コストを実装時に検証 | **承認**（§5.2 AC-8b に反映） |
+| **P2** | 非正準順序の Research ラベル差分は、1 件ごとに ID・レシピ・取得順・変更前後を Result Report に記載し、Owner の個別承認を得る。未承認差分が残る場合は Gate HOLD | **承認**（§5.2 AC-8 に反映） |
+
+本書時点で、Owner への**未回答の確認事項はありません**。実装の開始条件は §7.0 のとおり（**#759 の merge**、Owner の**明示 GO**、claim・競合の確認など）。この方針は変更していません。
 
 ### 8.3 D1〜D9 に関する補足（確認ではなく提案）
 
@@ -484,6 +489,8 @@ Q1〜Q4（改訂 2 の確認事項）は 2026-11-06 に確定済み（§0.2）�
 **実施（改訂 2）:** Owner 判断 D1〜D9 の反映。D2 の近傍 4 件の共有素材・対称差・Jaccard・スターター除外値の再計算（JSON の `d2Neighbours`）と、`jamon-serrano-pizza`・`grandma-pizza`・`pinsa-romana` の素材・pan／dough 軸の確認。#748 の全コメントの claim ブロックの再確認、`origin/main`（`fa67c72`）・PR #759（HEAD `d9679e6`）・PR #761（HEAD `e96318c`）の再確認。実装開始条件（§7.0）の明文化。
 
 **実施（改訂 3）:** GitHub の Fresh Audit（`origin/main`、#761・#759 の状態と check runs、#759 の最新コメント、#748 のコメント、open PR 一覧）。Q1〜Q4 の反映と、関連する AC・テスト計画・開始条件・競合表の整合性確認（旧版の確認事項の記号は Q1〜Q4 に統一）。
+
+**実施（改訂 4）:** P1・P2 の追記のみ（AC-8・AC-8b、§0、§0.2、§6、§7.0 の S-6、§8.2）。GitHub の再取得・コード確認・検証は行っていない（改訂 3 の Fresh Audit の内容が最新）。
 
 **未実施（明示）:** テストの実行（docs-only のため `src/` 無変更）／#759 の検証のやり直し／Research ラベル監査の再計測／画像・SVG の再測定（R2 の値を引用）／iPhone Safari の確認／#748 の claim の更新・解放（B18 セッションの権限）／claim・Issue・コメントの投稿（D9 の Issue は #759 merge 後）／#758 のコメントの直接確認／#759 の iPhone HV PASS の GitHub 上の記録の取得（指示を根拠とした）／全 open PR の変更ファイル一覧の取得（#759・#761 のみ）／食材・レシピの実装／Production ON／共有 Preview 更新／merge。
 
