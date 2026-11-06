@@ -74,7 +74,11 @@ async function shot(page: Page, name: string) {
   if (dir) await page.screenshot({ path: `${dir}/${test.info().project.name.replace("iphone-", "")}-${name}.png` });
 }
 
-const RAW_BAKE = { start: 3, end: 15 };
+// RAW_BAKE places a take-out BEFORE the Free Cooking window (58-78, FREE_COOK_BAKE_TARGET), which is a raw / 生焼け RESULT whatever the exact value is.
+// It is {20, 40} (centre 30), not {3, 15}: bakeToTarget pauses the clock a little after 焼く is pressed, and on a slow runner the one-way needle is already
+// past the window's accepted range by then (CI: `needle is already at 12.9` / `14.5, past the window 3-15`). Measured with the CPU slowed 1x-40x, the needle
+// is at 3.6-22.6 when the clock is paused; {3, 15} accepts up to 12, {20, 40} up to 33, and 30 is still 28 points short of the raw boundary (58). Issue #394.
+const RAW_BAKE = { start: 20, end: 40 };
 
 test("bake-FAILED Research trial: RESULT shows ○×, the Notebook records it and the Board keeps the ×", async ({ page }) => {
   test.setTimeout(240_000);
