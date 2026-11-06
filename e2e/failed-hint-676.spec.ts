@@ -1,5 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
+import { FREE_COOK_BAKE_TARGET } from "../src/data/freeCook";
+import { RECIPES } from "../src/data/recipes";
+import { classifyBake } from "../src/logic/bake";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
 
@@ -12,7 +15,13 @@ import { chipOnTrayOrPin } from "./support/handPick";
  */
 const SAVE_KEY = "teto-pizza-save-v1";
 const FREE_BAKE = { start: 58, end: 78 };
-const RAW_BAKE = { start: 3, end: 15 };
+/**
+ * A take-out well BEFORE every bake window: the RESULT is the bake-FAILED card (UNDERBAKED, Completion Gate margin 0, Issue #482). The
+ * needle is one-way and starts moving at 焼く, so a window near 0 (the former 3-15: stop at 9 +- 3, about 0.36 s in) is missed whenever the
+ * pause lands late on a slow runner (#394: "the one-way needle is already at 14.5, past the window 3-15"). 20-40 (stop at 30 +- 3) allows
+ * about 1 s; it is still below the earliest window of every recipe (45) and of Free Cooking (58), which the test below pins.
+ */
+const RAW_BAKE = { start: 20, end: 40 };
 const NOTE = "ヒントを見ながら、次に試す材料を考えてみよう。";
 const keysBefore = DISCOVERY_LADDER.steps.filter((s) => s.step < 25).map((s) => s.keyRecipeId);
 const materials = DISCOVERY_LADDER.steps.filter((s) => s.step <= 25).flatMap((s) => s.ingredientIds as readonly string[]);
@@ -27,6 +36,16 @@ const RESEARCH_SAVE = {
   starterGrantClaimedRecipeIds: [],
   unlockedForShopIngredientIds: materials,
 };
+
+test("RAW_BAKE is a raw (UNDERBAKED) take-out for every recipe window and the Free Cooking window", () => {
+  const windows = [FREE_COOK_BAKE_TARGET, ...RECIPES.map((r) => r.bakeTarget)];
+  expect(windows.length).toBeGreaterThan(80); // the whole catalog, not a sample
+  for (let value = RAW_BAKE.start; value <= RAW_BAKE.end; value += 0.5) {
+    for (const window of windows) expect(classifyBake(value, window), `needle ${value} vs window ${window.start}-${window.end}`).toBe("raw");
+  }
+  expect(RAW_BAKE.end).toBeLessThan(Math.min(...windows.map((w) => w.start)));
+});
+
 const bar = (page: Page) => page.locator(".prepare-bake-bar");
 
 async function open(page: Page, research: boolean) {

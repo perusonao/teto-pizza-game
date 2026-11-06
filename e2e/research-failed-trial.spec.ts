@@ -1,6 +1,9 @@
 import { expectResearchLead } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
+import { FREE_COOK_BAKE_TARGET } from "../src/data/freeCook";
+import { RECIPES } from "../src/data/recipes";
+import { classifyBake } from "../src/logic/bake";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
 
@@ -74,7 +77,17 @@ async function shot(page: Page, name: string) {
   if (dir) await page.screenshot({ path: `${dir}/${test.info().project.name.replace("iphone-", "")}-${name}.png` });
 }
 
-const RAW_BAKE = { start: 3, end: 15 };
+/** A take-out well before every bake window (UNDERBAKED -> the bake-FAILED card). See e2e/failed-hint-676.spec.ts for why 20-40 and not 3-15 (#394). */
+const RAW_BAKE = { start: 20, end: 40 };
+
+test("RAW_BAKE is a raw (UNDERBAKED) take-out for every recipe window and the Free Cooking window", () => {
+  const windows = [FREE_COOK_BAKE_TARGET, ...RECIPES.map((r) => r.bakeTarget)];
+  expect(windows.length).toBeGreaterThan(80); // the whole catalog, not a sample
+  for (let value = RAW_BAKE.start; value <= RAW_BAKE.end; value += 0.5) {
+    for (const window of windows) expect(classifyBake(value, window), `needle ${value} vs window ${window.start}-${window.end}`).toBe("raw");
+  }
+  expect(RAW_BAKE.end).toBeLessThan(Math.min(...windows.map((w) => w.start)));
+});
 
 test("bake-FAILED Research trial: RESULT shows ○×, the Notebook records it and the Board keeps the ×", async ({ page }) => {
   test.setTimeout(240_000);
