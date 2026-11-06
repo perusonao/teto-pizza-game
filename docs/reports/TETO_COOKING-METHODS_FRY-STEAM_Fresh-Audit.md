@@ -143,7 +143,7 @@ HV: docs-only のため対象外（`TETO_HUMAN-VERIFICATION-POLICY.md`）。
 | 依存先 | 内容 | 競合 |
 |---|---|---|
 | `PizzaStage.tsx`／`GameScreen.tsx`／`App.tsx` | #738 が追加済み（スロット・ピル・オーバーレイ） | FRY F3 と**同じ 3 ファイル** |
-| `src/main.tsx` | #738（+3）、#746（+20 −? 実際は 1 分岐）、#757/#763（Lab 入口）が編集 | **三者の組み合わせはすべて競合**: #738+#746／#738+#763／#746+#763 を**実際に merge 試行して `src/main.tsx` が conflict**【実測】。各 PR 単独なら main に clean。Owner コメント（#755、comment `6652495048`・`6656486348` §7）が「手作業統合・両 Lab 入口と HV seed を残す」と既に方針を出している |
+| `src/main.tsx` | #738（+3）、#746（約 20 行・1 分岐）、#757/#763（Lab 入口）が編集 | **三者の組み合わせはすべて競合**: #738+#746／#738+#763／#746+#763 を**実際に merge 試行して `src/main.tsx` が conflict**【実測】。各 PR 単独なら main に clean。Owner コメント（#755、comment `6652495048`・`6656486348` §7）が「手作業統合・両 Lab 入口と HV seed を残す」と既に方針を出している |
 | Steam 専用 UI / 描画 | `SteamLayer.tsx`・`Steam.css`・`steamPillPlacement.ts`・`steamScreen.ts`（新規）。内側 `<g>` に pop アニメーションを置く修正済み（殻が隅へ飛ぶちらつきの原因対策） | 他工程と共有しない（独立実装） |
 | 状態遷移・完了判定 | `steamLidLevelAt`（4.5 秒で全開）→ `steamedLook`（amount 0〜1）。V3 は別モデル（`steamGameV3.ts`）で、**#738 の amount には接続していない**（Lab 内で完結） | 本線体験を V3 に切り替えるなら、**S2 の reducer の意味（amount）と V3 の評価（★・5 個の回収）の対応づけが新たな設計課題**【推論】 |
 | 保存・復元 | transient `steamedLook`。`RESET_PIZZA` で消去。schema 変更なし | リスク低 |
