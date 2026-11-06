@@ -182,3 +182,45 @@ Batch 18 の前（2 品を除いたカタログ）と後（late を含む全カ�
 反映: 定数を `B18_APPROVED_AUDITED_ALTERNATE_ORDER_LETTER_CHANGES` に改名した（39 件の内容は変更なし）。テストの名称・コメントと e2e の名称を、承認済みの表現に改めた。正準順の検証（変化 0）と、前後比較・正準順の記録の回帰テストはそのまま残している。
 
 **PR #759 は Draft のまま。iPhone Safari HV と Owner の最終 merge 承認まで merge しない。Production ON と共有 Preview の更新も行わない。**
+
+## 12. main 取り込み後の検証と iPhone Safari HV の確認項目（Owner 承認 2026-11-06、PR #759 の再開）
+
+**状態: Draft / HOLD のまま。merge・Production ON・共有 Preview の更新は承認されていない。** 実機 HV の判定（PASS / FAIL / waived）は Owner が記録する。
+
+### 12.1 取り込み
+- main `fa67c72`（#760 牛肉・ピーマンの絵、#765 360px 幅のはみ出し修正）を merge commit で取り込んだ。**競合なし**: 取り込んだ 63 ファイルのうち、本 PR が変更するファイルと重なるものはない。本 PR 固有の変更（`src/`）は、取り込み前後で変わっていない。
+- 両 PR の変更（`IngredientGlyph.tsx` / `CookingPrep.css` / `beefDoneness.ts` / `src/App.css` 17 行 / E2E）はいずれも本 PR の対象外で、本バッチのレシピ・Research・保存・採点・解禁の規則には触れない。
+
+### 12.2 回帰テスト（取り込み後のツリー、ローカル）
+| 項目 | 結果 |
+|---|---|
+| `tsc -b` / `oxlint` / build | 問題なし（lint は既存の警告のみ） |
+| Vitest 全体（Pinsa ON） | **621 ファイル / 11,539 件 pass**（skip 13・todo 2 は既存） |
+| Vitest 全体（Pinsa OFF、`TETO_PINSA_OFF=1`） | **621 ファイル / 11,530 件 pass**（skip 13・todo 2 は既存） |
+| Chromium E2E（390×844 / 360×800 / layout-chromium） | **140 件 pass / 10 件 skip / 0 件 fail** |
+
+E2E の内訳（件数は 2 viewport 分）: `b18` 6、`b18-hv-preview` 10（本番ビルドと Preview ビルドを同じ origin で配信）、`hint5-preview` 28（既存の `?hv=` シードが変わらないこと）、`cooking-screen-sideways` 6（#765 / Issue #764 の検査。B18 の 2 種のソースを含む）、`new-bbq` 4、`b16` 4、`b17` 4、`late4` 6、`batch13` 2、`batch14` 2、`pilot-e-ingredient-icons` 2、`issue-733-icons` 4、`cooking-tray-family-filter` 6、`making-ui-1screen` 14、`viewport-1screen` 30、`layout-contract` 12。
+
+### 12.3 観点別の確認
+| 観点 | 確認したこと |
+|---|---|
+| レシピ | 2 品を Shop NEW → 購入 → 研究 → ソース PAINT・チーズ・具材 → 焼成 → 発見 → 図鑑まで通しで実行（`b18` 6/6、単体 `expansionBatch18`）。 |
+| Research | 研究中の 2 件が「A（パクチー）= レイナ」「B（パクチー）= バインガン」。BBQ チキンは、bbq-sauce → パクチーの順で「B（パクチー）」、逆順で「（バーベキューソース）」。研究中に未発見のレシピ名が出ない。 |
+| 保存データ | `persistence.batch18`（旧順序・在庫・Dex のバイト単位の保持）。`?hv=b18-*` は Preview の保存キーにだけ書き、本番の保存と Firebase に触れない。本番ビルドにシードの ID・ラベルがない（`previewIsolation.gate`）。 |
+| 横はみ出し | 取り込み後も、ソース・チーズ・具材の全ページで調理画面が横にずれない（両サイズ）。360px 幅の WebKit は、CI の WebKit shard が判定する。 |
+
+### 12.4 iPhone Safari 実機 HV の確認項目
+実機 HV は、独立した確認ページ（非公開 Artifact）で行う。共有 Preview は使わない。保存データの切り替え（①新レシピ2品／②BBQ ラベル）と、研究対象の確認手順を、ページに明示している。
+
+| # | 項目 | 見るもの | 目安 |
+|---|---|---|---|
+| ① | 新レシピ 2 品 | ショップにパクチーが NEW で出る。研究中が「A（パクチー）」「B（パクチー）」の 2 つ。B でバインガンバルタ（カレーケチャップ → モッツァレラ2 → ナス2・トマト1・たまねぎ1・パクチー2）、A でレイナペピアーダ（フロマージュブラン → モッツァレラ2 → チキン2・アボカド1・マヨネーズ1・パクチー2）を作り、それぞれ NEW PIZZA と図鑑の No.44 / No.45 を確認。長い名前「ベネズエラレイナペピアーダピザ」が切れない。 | 約 5 分 |
+| ② | BBQ ラベル | 研究中が「？？？ピザ B（パクチー）」の 1 つだけ（Owner が承認した表示）。 | 約 1 分 |
+| ③ | #765（main に反映済み） | 画面幅が 390px 未満の端末でだけ、ソース名が少し小さくなる。390px 以上では変化なしが正常。 | ①の途中 |
+
+- 焼成は、針が約 2 秒（58〜78）で止まれば発見できる。「惜しい」は表示だけで、発見には影響しない。
+- 結果の画面の「ヒントを見る」が短い画面で固定ボタンに隠れる件は、既存の main の問題として Issue #766 で別に扱う（本 PR には含めない）。
+- 確認ページの現在のシナリオ表示と、研究対象の確認手順は、Issue #764 の統合 HV で起きた取り違え（研究対象が「A（牛肉）」のまま）を防ぐための追加である。
+
+### 12.5 残る Owner 確認
+実機 HV の判定、merge の承認（別途）、Production の有効化（別途）。CI・Codex の結果は、この HEAD の PR コメントに記録する。
