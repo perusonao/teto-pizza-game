@@ -1,0 +1,93 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import { test, expect, type Page } from "@playwright/test";
+const R = "/home/user/teto-pizza-game";
+const { RECIPES } = require(`${R}/src/data/recipes`);
+const { DISCOVERY_LADDER } = require(`${R}/src/data/discoveryLadder`);
+const { bakeToTarget, completeDoughStep, tapDoughPercent } = require(`${R}/e2e/gestures`);
+const { chipOnTrayOrPin } = require(`${R}/e2e/support/handPick`);
+const { materialsUpTo } = require(`${R}/src/logic/catalog/testSupport/catalogDerived`);
+const OUT = process.env.AUDIT_OUT!;
+const SAVE_KEY = "teto-pizza-save-v1";
+const STARTERS = ["tomato-sauce", "mozzarella", "basil"];
+const ALL_IDS = RECIPES.map((r: any) => r.id as string);
+const SUYA = "nigerian-suya-pizza";
+const SPOTS: [number, number][] = [[50, 24], [73, 36], [76, 63], [58, 79], [38, 79], [22, 63], [25, 36], [50, 52]];
+const stepOf = (id: string) => DISCOVERY_LADDER.steps.findIndex((s: any) => s.ingredientIds.includes(id)) + 1;
+const saveJson = (discovered: string[], owned: string[]) => JSON.stringify({ schemaVersion: 2,
+  dex: discovered.map((recipeId) => ({ recipeId, discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 })),
+  pitzBalance: 999, ownedIngredientIds: [...STARTERS, ...owned], missionBest: {}, inventory: Object.fromEntries(owned.map((m) => [m, 30])),
+  starterGrantClaimedRecipeIds: [], unlockedForShopIngredientIds: [...owned] });
+const bar = (p: Page) => p.locator(".prepare-bake-bar");
+async function open(page: Page, json: string) {
+  await page.goto("icons/icon-16.png");
+  await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, [SAVE_KEY, json] as const);
+  await page.goto("/"); await page.waitForSelector(".app-frame");
+}
+async function toTopping(page: Page) {
+  await page.getByRole("button", { name: /ピザ図鑑/ }).click();
+  await page.waitForSelector(".dex-overlay");
+  await page.locator(".dex-overlay__research").getByRole("button", { name: /^？？？ピザ A（牛肉）を研究する$/ }).click();
+  await page.waitForSelector(".pizza-stage");
+  await completeDoughStep(page);
+  await bar(page).getByRole("button", { name: /次へ/ }).click();
+  await bar(page).getByRole("button", { name: /次へ/ }).click();
+  await chipOnTrayOrPin; 
+  await (await chipOnTrayOrPin(page, /モッツァレラ/)).click();
+  await tapDoughPercent(page, ...SPOTS[0]); await tapDoughPercent(page, ...SPOTS[4]);
+  await bar(page).getByRole("button", { name: /次へ/ }).click();
+  await expect(page.getByRole("tab", { name: "具材", selected: true })).toBeVisible();
+}
+const VIS = ["beef-slices", "green-pepper-strips", "shiso-leaf", "bacon-strips", "whitebait-school", "green-onion-slices"];
+async function glyphs(page: Page) {
+  return page.evaluate(() => [...document.querySelectorAll("svg.ingredient-glyph")].map((e) => {
+    const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); const font = parseFloat(cs.fontSize);
+    const vis = [...e.classList].find((c) => c.startsWith("ingredient-glyph--"))!.replace("ingredient-glyph--", "");
+    const inChip = !!e.closest(".ingredient-chip"); const inStage = !!e.closest(".pizza-stage");
+    // rotation/scale of ancestors
+    let m = new DOMMatrix(); for (let n: Element | null = e; n && n !== document.body; n = n.parentElement) { const t = getComputedStyle(n).transform; if (t && t !== "none") m = new DOMMatrix(t).multiply(m); }
+    const rot = Math.round(Math.atan2(m.b, m.a) * 180 / Math.PI);
+    return { vis, where: inChip ? "tray" : inStage ? "stage" : "other", x: +r.x.toFixed(1), y: +r.y.toFixed(1), w: +r.width.toFixed(1), h: +r.height.toFixed(1), font, em: +(parseFloat(cs.width) / font).toFixed(3), rot, cssW: parseFloat(cs.width), filter: getComputedStyle(e.closest(".ingredient-piece-visual__emoji") ?? e).filter };
+  }).filter((g) => g.where !== "other" ));
+}
+async function shot(page: Page, name: string, project: string, meas: any, tag: string) {
+  mkdirSync(OUT, { recursive: true });
+  await page.screenshot({ path: `${OUT}/${name}-${project}.png` });
+  const g = await glyphs(page);
+  meas[tag] = g;
+  const st = page.locator(".pizza-stage").first();
+  if (await st.count()) await st.screenshot({ path: `${OUT}/${name}-pizza-${project}.png` }).catch(() => {});
+}
+async function place(page: Page, picks: [RegExp, number][], spot0: number, off = 0) {
+  let s = spot0;
+  for (const [name, n] of picks) { await (await chipOnTrayOrPin(page, name)).click();
+    for (let i = 0; i < n; i++) { const [x, y] = SPOTS[s++ % SPOTS.length]; await tapDoughPercent(page, x + off, y + off); } }
+  return s;
+}
+
+const needStep = Math.max(...["beef", "green-pepper", "shiso", "whitebait", "green-onion", "zucchini", "jalapeno", "bacon", "ham"].map(stepOf));
+const owned = () => materialsUpTo(needStep);
+test("result chips", async ({ page }, ti) => {
+  test.setTimeout(200000);
+  const project = ti.project.name;
+  await open(page, saveJson(ALL_IDS.filter((i: string) => i !== SUYA), owned()));
+  await toTopping(page);
+  await place(page, [[/牛肉/, 1], [/ピーマン/, 1], [/大葉/, 1], [/青ねぎ/, 1], [/ズッキーニ/, 1], [/ベーコン/, 1]], 0);
+  await bakeToTarget(page, { start: 60, end: 76 });
+  await page.waitForSelector(".result-panel");
+  await page.waitForTimeout(1200);
+  const out = await page.evaluate(() => {
+    const res: any[] = [];
+    for (const svg of document.querySelectorAll(".result-panel svg.ingredient-glyph, .result-panel .ingredient-glyph")) {
+      const chip = svg.parentElement!.closest("span,li,div,button") as HTMLElement;
+      const vis = [...svg.classList].find((c) => c.startsWith("ingredient-glyph--"));
+      const sr = svg.getBoundingClientRect();
+      // text node rect next to glyph
+      const range = document.createRange(); let tr: DOMRect | null = null;
+      for (const n of (svg.parentElement as HTMLElement).childNodes) if (n.nodeType === 3 && n.textContent!.trim()) { range.selectNodeContents(n); tr = range.getBoundingClientRect(); }
+      res.push({ vis, chipClass: (svg.parentElement as HTMLElement).className, parentTag: svg.parentElement!.tagName, glyph: [sr.x, sr.y, sr.width, sr.height].map((v) => +v.toFixed(1)), text: tr ? [tr.x, tr.y, tr.width, tr.height].map((v) => +v.toFixed(1)) : null, overlapX: tr ? +(sr.right - tr.left).toFixed(2) : null, font: getComputedStyle(svg.parentElement as HTMLElement).fontSize, gap: getComputedStyle(svg.parentElement as HTMLElement).gap, html: (svg.parentElement as HTMLElement).outerHTML.replace(/<svg[\s\S]*?<\/svg>/, "<svg…/>").slice(0, 220) });
+    }
+    return res;
+  });
+  console.log(JSON.stringify({ project, out }, null, 1));
+  await page.screenshot({ path: `${process.env.AUDIT_OUT}/chips-result-${project}.png` });
+});

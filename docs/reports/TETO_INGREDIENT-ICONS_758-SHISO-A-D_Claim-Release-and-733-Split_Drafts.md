@@ -4,6 +4,8 @@
 - 状態: **下書きのみ。GitHub へは何も投稿していない。** 投稿するかどうか、誰が投稿するかは Owner 判断。
 - 原則: #733 の claim は無断で失効扱いにしない。release は、claim を出した元セッションの `"released": true`（SESSION-OPERATIONS §1）で行う。claim は警告のみでロックではないが、他担当の claim は変更しない。
 
+> **訂正（2026-11-06）:** #733 の claim のうち `IngredientGlyph.tsx` を含むのは、元セッション A（`session_013m8Cb3EYN655PaiWrWXo7E`）の最新 claim `6651022526` のみ。セッション B（`…6oQ84…`）の `6657071151` は含まない。着手条件・最終版のコメント案は `TETO_INGREDIENT-ICONS_758-SHISO-AD1_Pre-Start-Package.md` を優先する。
+
 ## 1. release 依頼コメント案（Issue #733 に投稿する想定）
 
 ### 1.1 事実の整理（コメントの根拠）

@@ -5,6 +5,8 @@
 - 状態: **準備のみ。実装・PR 作成・merge・Production ON・共有 Preview 更新は行っていない。** claim も投稿していない（§7 に下書き）。
 - Owner 方針（今回の指示）: 牛肉・ピーマンは現状維持 / 大葉は SVG の葉脈・輪郭の改善（A+D）を第一候補 / **1.35em は維持**、**CSS と `PizzaStage.tsx` は変更しない**
 
+> **訂正（2026-11-06）:** #733 の claim のうち `IngredientGlyph.tsx` を含むのは、元セッション A（`session_013m8Cb3EYN655PaiWrWXo7E`）の最新 claim `6651022526` のみ。セッション B（`…6oQ84…`）の `6657071151` は含まない。着手条件・最終版のコメント案は `TETO_INGREDIENT-ICONS_758-SHISO-AD1_Pre-Start-Package.md` を優先する。
+
 ## 1. #733 の完了条件と claim の状況
 
 ### 1.1 完了条件の充足（GitHub で再確認）
