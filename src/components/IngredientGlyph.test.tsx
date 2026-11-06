@@ -1,6 +1,8 @@
 import "@testing-library/jest-dom/vitest";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { cleanup, render, within } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
@@ -103,7 +105,9 @@ const PILOT_E_DEDICATED: Record<string, DedicatedIngredientVisual> = { "green-pe
 const PILOT_D_DEDICATED: Record<string, DedicatedIngredientVisual> = { salmon: "salmon-fillet", "cream-cheese": "cream-cheese-block" };
 const ISSUE739_DEDICATED: Record<string, DedicatedIngredientVisual> = { "umeboshi-paste": "umeboshi-paste-dab" }; // Issue #739 (Owner P1): the 梅肉 sauce, drawn by a paste dab instead of the 🍑
 const B17_DEDICATED: Record<string, DedicatedIngredientVisual> = { "sour-cream": "sour-cream-dab" }; // Expansion Batch 17 (Owner plan A): the サワークリーム sauce, a swirl-and-peak dab; the 🍦 is only the text fallback
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
+/** Ingredient Icons 2.0 herbs (#417, Owner R2 2026-11-06): rosemary B / oregano B / spinach A2 / artichoke A2 instead of the 🌱 / 🍃 emoji. */
+const HERB4_DEDICATED: Record<string, DedicatedIngredientVisual> = { rosemary: "rosemary-sprigs", oregano: "oregano-pile", spinach: "spinach-leaves", artichoke: "artichoke-quarter" };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...HERB4_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 
@@ -1187,6 +1191,64 @@ describe("Pilot E: green-pepper / bell-pepper / pineapple dedicated art (product
     const chicken = getIngredient("chicken")!;
     expect(chicken.pieceVisual).toBeUndefined();
     expect(renderToStaticMarkup(<IngredientGlyph ingredient={chicken} />)).toBe(chicken.emoji);
+  });
+});
+
+/**
+ * Ingredient Icons 2.0 herbs (#417; Owner R2 decision 2026-11-06): rosemary B / oregano B / spinach A2 / artichoke A2 are drawn by their own dedicated art on the glyph and on the placed piece,
+ * never by their emoji (the 🌱 / 🍃 are only the text fallbacks). Drawing only: ids, emoji, colour, category, placement and size class are unchanged. The 1.2em size is PROVISIONAL until the actual-size HV (D4).
+ */
+describe("Herbs: rosemary / oregano / spinach / artichoke dedicated art (production rows)", () => {
+  const CASES = [
+    { id: "rosemary", nameJa: "ローズマリー", visual: "rosemary-sprigs", emoji: "\u{1F331}" },
+    { id: "oregano", nameJa: "オレガノ", visual: "oregano-pile", emoji: "\u{1F343}" },
+    { id: "spinach", nameJa: "ほうれん草", visual: "spinach-leaves", emoji: "\u{1F343}" },
+    { id: "artichoke", nameJa: "アーティチョーク", visual: "artichoke-quarter", emoji: "\u{1F331}" },
+  ] as const;
+
+  it.each(CASES)("$id declares $visual and keeps its identity (id / emoji / category / placement)", ({ id, nameJa, visual, emoji }) => {
+    expect(getIngredient(id)).toMatchObject({ id, nameJa, emoji, category: "topping", placement: "scatter", pieceVisual: visual });
+  });
+
+  it.each(CASES)("$id draws an SVG on the glyph and on the placed piece (64x64, no id / gradient / defs) and never prints its emoji", ({ id, visual }) => {
+    const ingredient = getIngredient(id)!;
+    for (const node of [<IngredientGlyph key="g" ingredient={ingredient} />, <IngredientPieceVisual key="p" ingredient={ingredient} />]) {
+      const { container, unmount } = render(<span>{node}</span>);
+      const svg = container.querySelector(`svg[data-ingredient-visual="${visual}"]`);
+      expect(svg).not.toBeNull();
+      expect(svg!.getAttribute("class")).toBe(`ingredient-glyph ingredient-glyph--${visual}`);
+      expect(svg!.getAttribute("viewBox")).toBe("0 0 64 64");
+      expect(svg!.getAttribute("aria-hidden")).toBe("true");
+      expect(svg!.getAttribute("focusable")).toBe("false");
+      expect(container.textContent).toBe("");
+      expect(container.innerHTML).not.toContain("id=");
+      expect(container.innerHTML).not.toContain("url(#");
+      expect(container.innerHTML).not.toContain("<defs");
+      expect(container.innerHTML).not.toContain("gradient");
+      unmount();
+    }
+  });
+
+  it.each(CASES)("$visual depends on the declared visual, not the ingredient id", ({ id, visual }) => {
+    const base = getIngredient(id)!;
+    const a = renderToStaticMarkup(<IngredientGlyph ingredient={base} />);
+    const b = renderToStaticMarkup(<IngredientGlyph ingredient={{ ...base, id: "other-id", nameJa: "別名" }} />);
+    expect(b).toBe(a);
+    expect(a).toContain(`data-ingredient-visual="${visual}"`);
+  });
+
+  it("the four drawings differ from each other and from the neighbouring herb / leaf look-alikes (basil, parsley, mint, cilantro, shiso, arugula)", () => {
+    const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id) ?? LATE_INGREDIENTS.find((x) => x.id === id)!} />);
+    const all = ["rosemary", "oregano", "spinach", "artichoke", "basil", "parsley", "mint", "cilantro", "shiso", "arugula"].map(html);
+    expect(new Set(all).size).toBe(all.length);
+  });
+
+  it("the four join the shared 1.2em herb-glyph rule in App.css (layout box stays 1em via the negative margin)", () => {
+    const css = readFileSync(join(__dirname, "..", "App.css"), "utf8");
+    const rule = css.match(/\.ingredient-glyph--shiso-leaf,[^{]*\{[^}]*\}/)![0];
+    for (const { visual } of CASES) expect(rule).toContain(`.ingredient-glyph--${visual}`);
+    expect(rule).toMatch(/width:\s*1\.2em/);
+    expect(rule).toMatch(/margin:\s*-0\.1em/);
   });
 });
 

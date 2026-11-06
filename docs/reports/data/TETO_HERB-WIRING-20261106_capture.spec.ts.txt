@@ -1,0 +1,92 @@
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { test, type Page } from "@playwright/test";
+import { RECIPES } from "../src/data/recipes";
+import { INGREDIENTS } from "../src/data/ingredients";
+import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
+import { chipOnTrayOrPin } from "./support/handPick";
+import { startTargetlessFreeCook } from "./support/startFreeCook";
+/** INVESTIGATION ONLY (docs comparison for #417 herb icons; never committed as a spec). CAND=none|A|B injects the candidate SVG at runtime (test-only DOM override, no src change). */
+const SAVE_KEY = "teto-pizza-save-v1";
+const DIR = process.env.CAP_DIR ?? "/tmp/cap";
+const CAND = "none";
+const LABEL = process.env.LABEL ?? "before";
+const CDIR = "docs/design/candidates/ingredient-icons-2.0-herbs";
+const TARGETS = ["rosemary", "artichoke", "oregano", "spinach"];
+const svgs: Record<string, string> = {};
+const MAP: Record<string, string> = Object.fromEntries((process.env.CANDMAP ?? TARGETS.map((t) => `${t}:${CAND}`).join(",")).split(",").map((kv) => kv.split(":")));
+if (CAND !== "none") for (const id of TARGETS) svgs[id] = readFileSync(`${CDIR}/${id}-${MAP[id]}.svg`, "utf8").replace(/<svg[^>]*>/, "").replace("</svg>", "");
+const meta = Object.fromEntries(TARGETS.map((id) => { const i = INGREDIENTS.find((x) => x.id === id)!; return [id, { emoji: i.emoji, name: i.nameJa }]; }));
+const owned = INGREDIENTS.map((i) => i.id);
+const save = JSON.stringify({ schemaVersion: 2, dex: RECIPES.map((r) => ({ recipeId: r.id, discovered: true, bestScore: 80, bestStars: 3, timesMade: 1 })), pitzBalance: 9999, ownedIngredientIds: owned, missionBest: {}, inventory: Object.fromEntries(owned.map((m) => [m, 99])), starterGrantClaimedRecipeIds: [], unlockedForShopIngredientIds: owned });
+const bar = (p: Page) => p.locator(".prepare-bake-bar");
+const nameRe = (n: string) => new RegExp(`(^|[^\\p{Script=Katakana}\\p{Script=Han}\\p{Script=Hiragana}ー・])${n}\\s*(×|∞|常備|あと|$)`, "u");
+const shot = async (p: Page, n: string, pr: string) => { mkdirSync(DIR, { recursive: true }); if (process.env.CAP_VIDEO) await p.waitForTimeout(1800); await p.screenshot({ path: `${DIR}/${LABEL}-${n}-${pr}.png` }); };
+if (process.env.CAP_VIDEO) test.use({ video: { mode: "on", size: { width: 390, height: 844 } } });
+async function inject(page: Page) {
+  if (CAND === "none") return;
+  await page.addInitScript(([svgs, meta]) => {
+    const NS = "http://www.w3.org/2000/svg";
+    const put = (host: Element, id: string) => {
+      if ((host as HTMLElement).dataset.cand === id) return;
+      for (const n of [...host.childNodes]) if (n.nodeType === 3 && (n as Text).data.trim() === meta[id].emoji) (n as Text).data = "";
+      const s = document.createElementNS(NS, "svg");
+      s.setAttribute("viewBox", "0 0 64 64"); s.setAttribute("class", "ingredient-glyph ingredient-glyph--candidate"); s.setAttribute("aria-hidden", "true");
+      s.setAttribute("style", "width:1.2em;height:1.2em;margin:-0.1em"); s.innerHTML = svgs[id];
+      host.appendChild(s); (host as HTMLElement).dataset.cand = id;
+    };
+    const apply = () => {
+      for (const chip of document.querySelectorAll(".ingredient-chip")) {
+        const name = chip.querySelector(".ingredient-chip__name")?.textContent;
+        const id = Object.keys(meta).find((k) => meta[k].name === name);
+        const host = chip.querySelector(".ingredient-chip__emoji");
+        if (id && host) put(host, id);
+      }
+      for (const id of Object.keys(meta)) for (const host of document.querySelectorAll(`.pizza-topping--${id} .ingredient-piece-visual__emoji`)) put(host, id);
+    };
+    new MutationObserver(apply).observe(document, { subtree: true, childList: true, characterData: true });
+    document.addEventListener("DOMContentLoaded", apply);
+  }, [svgs, meta] as const);
+}
+async function boxes(page: Page, scope: string) {
+  return page.evaluate((sel) => {
+    const root = document.querySelector(sel); if (!root) return null;
+    const d = (root.querySelector(".pizza-dough") ?? root).getBoundingClientRect();
+    return { dough: [d.x, d.y, d.width, d.height], pieces: [...root.querySelectorAll(".pizza-topping")].map((e) => { const r = e.getBoundingClientRect(); return { cls: [...e.classList].find((c) => c.startsWith("pizza-topping--")), box: [r.x, r.y, r.width, r.height] }; }) };
+  }, scope);
+}
+const PLACE: [string, [number, number][]][] = [["ローズマリー", [[30, 30], [60, 66]]], ["アーティチョーク", [[70, 34], [36, 70]]], ["オレガノ", [[50, 22], [26, 52]]], ["ほうれん草", [[74, 54], [50, 48]]], ["バジル", [[40, 40]]], ["パセリ", [[62, 40]]], ["ミント", [[50, 78]]]];
+test("herb icons " + LABEL, async ({ page }, ti) => {
+  test.setTimeout(240_000);
+  const pr = ti.project.name;
+  await inject(page);
+  await page.goto("icons/icon-16.png");
+  await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, [SAVE_KEY, save] as const);
+  await page.goto("/"); await page.waitForSelector(".app-frame");
+  await startTargetlessFreeCook(page); await page.waitForSelector(".pizza-stage");
+  await completeDoughStep(page); await bar(page).getByRole("button", { name: /次へ/ }).click();
+  await (await chipOnTrayOrPin(page, /トマトソース/)).click(); await paintSauceRing(page, 25, 16); await paintSauceRing(page, 12, 8);
+  await bar(page).getByRole("button", { name: /次へ/ }).click();
+  await (await chipOnTrayOrPin(page, /モッツァレラ/)).click(); for (const [x, y] of [[40, 56], [60, 30], [28, 40]] as const) await tapDoughPercent(page, x, y);
+  await bar(page).getByRole("button", { name: /次へ/ }).click();
+  const chipBoxes: Record<string, number[]> = {};
+  for (const fam of ["ハーブ・香味系", "野菜・きのこ系"]) {
+    await page.getByRole("button", { name: `${fam}の具材だけ表示` }).click(); await page.waitForTimeout(500);
+    for (let k = 0; k < 6; k += 1) {
+      await shot(page, `tray-${fam === "ハーブ・香味系" ? "herb" : "veg"}-p${k + 1}`, pr);
+      for (const t of TARGETS) { const c = page.locator(".ingredient-chip").filter({ hasText: nameRe(meta[t].name) }).first(); if (await c.isVisible().catch(() => false)) { const b = await c.boundingBox(); if (b) chipBoxes[t] = [b.x, b.y, b.width, b.height, k + 1, fam === "ハーブ・香味系" ? 0 : 1]; } }
+      const next = page.getByRole("button", { name: "次のページ" });
+      if (!(await next.isVisible().catch(() => false)) || !(await next.isEnabled())) break;
+      await next.click(); await page.waitForTimeout(250);
+    }
+  }
+  await page.getByRole("button", { name: "全ての具材を表示" }).click(); await page.waitForTimeout(300);
+  for (const [n, spots] of PLACE) { await (await chipOnTrayOrPin(page, nameRe(n))).click(); for (const [x, y] of spots) await tapDoughPercent(page, x, y); }
+  await page.waitForTimeout(900);
+  await shot(page, "1topped", pr); const before = await boxes(page, ".pizza-stage");
+  await bakeToTarget(page, { start: 62, end: 72 }, { finish: false });
+  await page.getByTestId("finish-complete").waitFor({ timeout: 10_000 }); await page.waitForTimeout(900);
+  await shot(page, "2baked-finish", pr); const baked = await boxes(page, ".pizza-stage");
+  await page.getByTestId("finish-complete").click(); await page.waitForSelector(".result-panel"); await page.waitForTimeout(2500);
+  await shot(page, "3result", pr); const result = await boxes(page, ".pizza-stage--result");
+  writeFileSync(`${DIR}/${LABEL}-${pr}.json`, JSON.stringify({ chipBoxes, before, baked, result }, null, 1));
+});

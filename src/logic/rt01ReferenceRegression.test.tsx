@@ -39,7 +39,11 @@ describe("RT-01 shipped-recipe regression", () => {
     const { container } = render(<PizzaThumbnail recipe={recipe} />);
     // Ingredient Icons 2.0 Pilot A (#438) deliberately draws sausage as an SVG instead of 🌭. The frozen baseline guards the
     // layout, so map that one glyph back to its emoji before comparing: any other markup change still fails.
-    const markup = container.innerHTML.replace(/<svg [^>]*data-ingredient-visual="sausage-slices".*?<\/svg>/g, "\u{1F32D}");
+    // Ingredient Icons 2.0 herbs (#417, Owner R2 2026-11-06) likewise draw rosemary / oregano / spinach / artichoke as SVGs instead of 🌱 / 🍃 / 🍃 / 🌱: the same one-glyph-at-a-time mapping back to the emoji.
+    const HERB_EMOJI: Record<string, string> = { "rosemary-sprigs": "\u{1F331}", "oregano-pile": "\u{1F343}", "spinach-leaves": "\u{1F343}", "artichoke-quarter": "\u{1F331}" };
+    const markup = container.innerHTML
+      .replace(/<svg [^>]*data-ingredient-visual="sausage-slices".*?<\/svg>/g, "\u{1F32D}")
+      .replace(/<svg [^>]*data-ingredient-visual="(rosemary-sprigs|oregano-pile|spinach-leaves|artichoke-quarter)".*?<\/svg>/g, (_m, v: string) => HERB_EMOJI[v]);
     expect(markup).toBe(PIZZA_THUMBNAIL_HTML_BASELINE[id]);
   });
 

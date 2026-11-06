@@ -826,7 +826,7 @@
 }
 
 /* Batch 8b / 8c / Phase B-1 / U2 (+ shrimp-curl): the shiso leaf, the whitebait school, the salmon-roe grains, the green-onion slices, the peeled shrimp and the sesame seeds are drawn inside a 64-box with generous margins, so they read smaller than the neighbouring emoji (which overfill
-   their 1em box). Same fix class as the tomato slice above; scoped to these eight visuals only. */
+   their 1em box). Same fix class as the tomato slice above; scoped to these eight visuals only. Issue #417 (Owner R2, 2026-11-06): the four herb visuals (rosemary / oregano / spinach / artichoke) join this 1.2em group; the layout box stays 1em via the negative margin. */
 .ingredient-glyph--shiso-leaf,
 .ingredient-glyph--whitebait-school,
 .ingredient-glyph--salmon-roe-grains,
@@ -834,7 +834,11 @@
 .ingredient-glyph--shrimp-curl,
 .ingredient-glyph--sesame-seeds,
 .ingredient-glyph--pomegranate-aril,
-.ingredient-glyph--cilantro-leaf {
+.ingredient-glyph--cilantro-leaf,
+.ingredient-glyph--rosemary-sprigs,
+.ingredient-glyph--oregano-pile,
+.ingredient-glyph--spinach-leaves,
+.ingredient-glyph--artichoke-quarter {
   width: 1.2em;
   height: 1.2em;
   margin: -0.1em;

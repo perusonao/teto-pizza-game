@@ -55,7 +55,11 @@ export type DedicatedIngredientVisual =
   | "salmon-fillet"
   | "cream-cheese-block"
   | "umeboshi-paste-dab"
-  | "sour-cream-dab";
+  | "sour-cream-dab"
+  | "rosemary-sprigs"
+  | "oregano-pile"
+  | "spinach-leaves"
+  | "artichoke-quarter";
 
 export interface Ingredient {
   id: string;
@@ -252,6 +256,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "オレガノ",
     color: "#5f7a3d",
     emoji: "\u{1F343}",
+    pieceVisual: "oregano-pile",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pricePitz: 55,
@@ -433,6 +438,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "ローズマリー",
     color: "#7c8f5e",
     emoji: "\u{1F331}",
+    pieceVisual: "rosemary-sprigs",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pricePitz: 55,
@@ -936,6 +942,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "アーティチョーク",
     color: "#8a9a5b",
     emoji: "\u{1F331}",
+    pieceVisual: "artichoke-quarter",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
@@ -946,6 +953,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "ほうれん草",
     color: "#2f6b2f",
     emoji: "\u{1F343}",
+    pieceVisual: "spinach-leaves",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
   },
