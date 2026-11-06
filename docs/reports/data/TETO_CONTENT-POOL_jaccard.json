@@ -1,0 +1,522 @@
+{
+ "existingRecipesParsed": 90,
+ "results": {
+  "bulgogi+newSweetSoySauce": {
+   "set": [
+    "beef",
+    "mozzarella",
+    "onion",
+    "sweet-soy-sauce",
+    "white-sesame"
+   ],
+   "top3": [
+    [
+     0.5,
+     "rendang-pizza",
+     3
+    ],
+    [
+     0.5,
+     "nigerian-suya-pizza",
+     3
+    ],
+    [
+     0.429,
+     "wasabi-beef-pizza",
+     4
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "bulgogi NO_SAUCE": {
+   "set": [
+    "beef",
+    "mozzarella",
+    "onion",
+    "white-sesame"
+   ],
+   "top3": [
+    [
+     0.6,
+     "rendang-pizza",
+     2
+    ],
+    [
+     0.6,
+     "nigerian-suya-pizza",
+     2
+    ],
+    [
+     0.5,
+     "wasabi-beef-pizza",
+     3
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "teriyaki+newTeriyakiSauce": {
+   "set": [
+    "chicken",
+    "mayo",
+    "nori",
+    "onion",
+    "teriyaki-sauce"
+   ],
+   "top3": [
+    [
+     0.286,
+     "curry-pizza-japan",
+     5
+    ],
+    [
+     0.25,
+     "bbq-chicken-pizza",
+     6
+    ],
+    [
+     0.222,
+     "reina-pepiada-pizza",
+     7
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": false
+  },
+  "teriyaki NO_SAUCE": {
+   "set": [
+    "chicken",
+    "mayo",
+    "nori",
+    "onion"
+   ],
+   "top3": [
+    [
+     0.333,
+     "curry-pizza-japan",
+     4
+    ],
+    [
+     0.286,
+     "bbq-chicken-pizza",
+     5
+    ],
+    [
+     0.25,
+     "reina-pepiada-pizza",
+     6
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": false
+  },
+  "keema curry-ketchup+beef": {
+   "set": [
+    "beef",
+    "curry-ketchup",
+    "mozzarella",
+    "onion"
+   ],
+   "top3": [
+    [
+     1.0,
+     "rendang-pizza",
+     0
+    ],
+    [
+     0.6,
+     "nigerian-suya-pizza",
+     2
+    ],
+    [
+     0.6,
+     "curry-pizza-japan",
+     2
+    ]
+   ],
+   "identical": [
+    "rendang-pizza"
+   ],
+   "subsetOfCandidate": [],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "keema curry-ketchup+ground-beef(new)": {
+   "set": [
+    "curry-ketchup",
+    "ground-beef",
+    "mozzarella",
+    "onion"
+   ],
+   "top3": [
+    [
+     0.6,
+     "rendang-pizza",
+     2
+    ],
+    [
+     0.6,
+     "curry-pizza-japan",
+     2
+    ],
+    [
+     0.5,
+     "tandoori-paneer-pizza",
+     3
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "keema curry-ketchup+ground-beef+chili-oil(new)": {
+   "set": [
+    "chili-oil",
+    "curry-ketchup",
+    "ground-beef",
+    "mozzarella",
+    "onion"
+   ],
+   "top3": [
+    [
+     0.5,
+     "rendang-pizza",
+     3
+    ],
+    [
+     0.5,
+     "curry-pizza-japan",
+     3
+    ],
+    [
+     0.429,
+     "tandoori-paneer-pizza",
+     4
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "philly beef+pepper+onion+mozzarella": {
+   "set": [
+    "beef",
+    "green-pepper",
+    "mozzarella",
+    "onion"
+   ],
+   "top3": [
+    [
+     1.0,
+     "nigerian-suya-pizza",
+     0
+    ],
+    [
+     0.6,
+     "rendang-pizza",
+     2
+    ],
+    [
+     0.5,
+     "wasabi-beef-pizza",
+     3
+    ]
+   ],
+   "identical": [
+    "nigerian-suya-pizza"
+   ],
+   "subsetOfCandidate": [],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "chilena tomato+ground-beef(new)": {
+   "set": [
+    "black-olive",
+    "egg",
+    "ground-beef",
+    "mozzarella",
+    "onion",
+    "tomato-sauce"
+   ],
+   "top3": [
+    [
+     0.714,
+     "pizza-portuguesa",
+     2
+    ],
+    [
+     0.5,
+     "bismarck",
+     3
+    ],
+    [
+     0.444,
+     "veggie-supreme-pizza",
+     5
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [
+    "bismarck"
+   ],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "chilena tomato+beef": {
+   "set": [
+    "beef",
+    "black-olive",
+    "egg",
+    "mozzarella",
+    "onion",
+    "tomato-sauce"
+   ],
+   "top3": [
+    [
+     0.714,
+     "pizza-portuguesa",
+     2
+    ],
+    [
+     0.5,
+     "bismarck",
+     3
+    ],
+    [
+     0.444,
+     "veggie-supreme-pizza",
+     5
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [
+    "bismarck"
+   ],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "baiana +chili-oil(new)": {
+   "set": [
+    "chili-oil",
+    "egg",
+    "mozzarella",
+    "onion",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "top3": [
+    [
+     0.5,
+     "salsiccia",
+     3
+    ],
+    [
+     0.5,
+     "pizza-portuguesa",
+     4
+    ],
+    [
+     0.5,
+     "bismarck",
+     3
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [
+    "bismarck",
+    "salsiccia"
+   ],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "baiana omit chili": {
+   "set": [
+    "egg",
+    "mozzarella",
+    "onion",
+    "sausage",
+    "tomato-sauce"
+   ],
+   "top3": [
+    [
+     0.6,
+     "salsiccia",
+     2
+    ],
+    [
+     0.6,
+     "bismarck",
+     2
+    ],
+    [
+     0.571,
+     "pizza-portuguesa",
+     3
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [
+    "bismarck",
+    "salsiccia"
+   ],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "de-cancha +chili-oil(new)": {
+   "set": [
+    "chili-oil",
+    "garlic",
+    "olive-oil",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "top3": [
+    [
+     0.6,
+     "marinara",
+     2
+    ],
+    [
+     0.5,
+     "grandma-pizza",
+     3
+    ],
+    [
+     0.333,
+     "fugazza",
+     4
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [
+    "marinara"
+   ],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  },
+  "de-cancha omit chili": {
+   "set": [
+    "garlic",
+    "olive-oil",
+    "oregano",
+    "tomato-sauce"
+   ],
+   "top3": [
+    [
+     0.75,
+     "marinara",
+     1
+    ],
+    [
+     0.6,
+     "grandma-pizza",
+     2
+    ],
+    [
+     0.4,
+     "fugazza",
+     3
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [
+    "marinara"
+   ],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [
+    "marinara"
+   ],
+   "over0.4": true
+  },
+  "hokkaido bacon+corn+potato+mozzarella": {
+   "set": [
+    "bacon",
+    "corn",
+    "mozzarella",
+    "potato"
+   ],
+   "top3": [
+    [
+     0.8,
+     "potato-mayo-pizza",
+     1
+    ],
+    [
+     0.6,
+     "pesto-patate",
+     2
+    ],
+    [
+     0.4,
+     "brazilian-catupiry-corn-pizza",
+     3
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [],
+   "supersetOfCandidate": [
+    "potato-mayo-pizza"
+   ],
+   "oneIngredientDiff": [
+    "potato-mayo-pizza"
+   ],
+   "over0.4": true
+  },
+  "zucchine-menta": {
+   "set": [
+    "lemon",
+    "mint",
+    "mozzarella",
+    "olive-oil",
+    "ricotta",
+    "zucchini"
+   ],
+   "top3": [
+    [
+     0.429,
+     "pizza-bianca-ricotta",
+     4
+    ],
+    [
+     0.429,
+     "eggplant-ricotta-pizza",
+     4
+    ],
+    [
+     0.25,
+     "shirasu-pizza",
+     6
+    ]
+   ],
+   "identical": [],
+   "subsetOfCandidate": [],
+   "supersetOfCandidate": [],
+   "oneIngredientDiff": [],
+   "over0.4": true
+  }
+ }
+}

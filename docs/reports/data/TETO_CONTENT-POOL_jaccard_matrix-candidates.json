@@ -1,0 +1,468 @@
+{
+ "quattro-stagioni": {
+  "set": [
+   "artichoke",
+   "black-olive",
+   "ham",
+   "mozzarella",
+   "mushroom",
+   "tomato-sauce"
+  ],
+  "top2": [
+   [
+    0.714,
+    "capricciosa",
+    2
+   ],
+   [
+    0.5,
+    "pizza-portuguesa",
+    4
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [
+   "funghi"
+  ],
+  "cand_subset_of_existing": []
+ },
+ "sfincione": {
+  "set": [
+   "anchovy",
+   "olive-oil",
+   "onion",
+   "oregano"
+  ],
+  "top2": [
+   [
+    0.75,
+    "fugazza",
+    1
+   ],
+   [
+    0.333,
+    "napoletana",
+    4
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [
+   "fugazza"
+  ],
+  "cand_subset_of_existing": []
+ },
+ "trenton-tomato-pie": {
+  "set": [
+   "mozzarella",
+   "tomato-sauce"
+  ],
+  "top2": [
+   [
+    0.667,
+    "salsiccia",
+    1
+   ],
+   [
+    0.667,
+    "pepperoni",
+    1
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": [
+   "margherita",
+   "bismarck",
+   "funghi",
+   "salsiccia",
+   "pepperoni",
+   "napoletana",
+   "tonno-e-cipolla",
+   "breakfast-pizza",
+   "capricciosa",
+   "meat-lovers",
+   "melanzane-pizza",
+   "parmigiana-pizza",
+   "bambino",
+   "hawaiian",
+   "pizza-portuguesa",
+   "prosciutto-funghi",
+   "veggie-supreme-pizza",
+   "jamon-serrano-pizza",
+   "calabresa-argentina",
+   "pizza-overload",
+   "grandma-pizza",
+   "pescatore",
+   "pinsa-romana"
+  ]
+ },
+ "bianca": {
+  "set": [
+   "mozzarella",
+   "olive-oil",
+   "ricotta",
+   "rosemary"
+  ],
+  "top2": [
+   [
+    1.0,
+    "pizza-bianca-ricotta",
+    0
+   ],
+   [
+    0.5,
+    "pizza-bianca",
+    2
+   ]
+  ],
+  "identical": [
+   "pizza-bianca-ricotta"
+  ],
+  "existing_subset_of_cand": [
+   "pizza-bianca"
+  ],
+  "cand_subset_of_existing": []
+ },
+ "speck-e-brie-pizzadb": {
+  "set": [
+   "brie",
+   "mozzarella",
+   "prosciutto-crudo",
+   "walnut"
+  ],
+  "top2": [
+   [
+    0.333,
+    "prosciutto-funghi",
+    4
+   ],
+   [
+    0.333,
+    "pinsa-romana",
+    4
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "mentaiko-cream-pizza": {
+  "set": [
+   "cod-roe",
+   "fresh-cream-sauce",
+   "mozzarella",
+   "nori",
+   "shiso"
+  ],
+  "top2": [
+   [
+    1.0,
+    "tarako-cream-pizza",
+    0
+   ],
+   [
+    0.286,
+    "yuzu-shrimp-pizza",
+    5
+   ]
+  ],
+  "identical": [
+   "tarako-cream-pizza"
+  ],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "caponata-pizza": {
+  "set": [
+   "black-olive",
+   "capers",
+   "eggplant",
+   "mozzarella"
+  ],
+  "top2": [
+   [
+    0.4,
+    "palmito-pizza",
+    3
+   ],
+   [
+    0.333,
+    "melanzane-pizza",
+    4
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "diavola-pizza": {
+  "set": [
+   "mozzarella",
+   "spicy-salami"
+  ],
+  "top2": [
+   [
+    0.25,
+    "salsiccia-e-friarielli",
+    3
+   ],
+   [
+    0.25,
+    "salsiccia",
+    3
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "piadina-romagnola": {
+  "set": [
+   "arugula",
+   "cream-cheese",
+   "prosciutto-crudo"
+  ],
+  "top2": [
+   [
+    0.4,
+    "rucola-e-grana",
+    3
+   ],
+   [
+    0.4,
+    "pinsa-romana",
+    3
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "pizza-alla-crudaiola": {
+  "set": [
+   "arugula",
+   "burrata",
+   "fresh-tomato",
+   "mozzarella",
+   "olive-oil"
+  ],
+  "top2": [
+   [
+    0.333,
+    "chilean-napolitana",
+    4
+   ],
+   [
+    0.286,
+    "pizza-bianca-ricotta",
+    5
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "pizza-fritta": {
+  "set": [
+   "mozzarella",
+   "pork",
+   "ricotta"
+  ],
+  "top2": [
+   [
+    0.5,
+    "porchetta-pizza",
+    2
+   ],
+   [
+    0.4,
+    "pizza-bianca-ricotta",
+    3
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "burrata-pizza": {
+  "set": [
+   "basil",
+   "burrata",
+   "olive-oil"
+  ],
+  "top2": [
+   [
+    0.25,
+    "pizza-bianca",
+    3
+   ],
+   [
+    0.2,
+    "margherita",
+    4
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "frutti-di-mare-pizzadb": {
+  "set": [
+   "clam",
+   "mussel",
+   "shrimp",
+   "squid"
+  ],
+  "top2": [
+   [
+    0.375,
+    "pescatore",
+    5
+   ],
+   [
+    0.143,
+    "yuzu-shrimp-pizza",
+    6
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "breakfast-pizza-pizzadb": {
+  "set": [
+   "bacon",
+   "cheddar",
+   "egg",
+   "sausage"
+  ],
+  "top2": [
+   [
+    0.5,
+    "full-english-pizza",
+    3
+   ],
+   [
+    0.333,
+    "breakfast-pizza",
+    4
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "pesto-noci": {
+  "set": [
+   "gorgonzola",
+   "honey",
+   "walnut"
+  ],
+  "top2": [
+   [
+    0.143,
+    "quattro-formaggi",
+    6
+   ],
+   [
+    0.0,
+    "yuzu-shrimp-pizza",
+    7
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "pesto-burrata": {
+  "set": [
+   "burrata",
+   "fresh-tomato",
+   "olive-oil"
+  ],
+  "top2": [
+   [
+    0.333,
+    "pizza-feta-eliniki",
+    4
+   ],
+   [
+    0.25,
+    "pizza-bianca",
+    3
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "hot-honey-pepperoni": {
+  "set": [
+   "honey",
+   "mozzarella",
+   "pepperoni"
+  ],
+  "top2": [
+   [
+    0.5,
+    "pepperoni",
+    2
+   ],
+   [
+    0.286,
+    "meat-lovers",
+    5
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "yakiniku-pizza": {
+  "set": [
+   "beef",
+   "mozzarella",
+   "onion",
+   "white-sesame",
+   "yakiniku-sauce"
+  ],
+  "top2": [
+   [
+    0.5,
+    "rendang-pizza",
+    3
+   ],
+   [
+    0.5,
+    "nigerian-suya-pizza",
+    3
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ },
+ "tsukimi-pizza": {
+  "set": [
+   "bacon",
+   "egg",
+   "green-onion",
+   "mozzarella"
+  ],
+  "top2": [
+   [
+    0.6,
+    "breakfast-pizza",
+    2
+   ],
+   [
+    0.6,
+    "aussie",
+    2
+   ]
+  ],
+  "identical": [],
+  "existing_subset_of_cand": [],
+  "cand_subset_of_existing": []
+ }
+}
