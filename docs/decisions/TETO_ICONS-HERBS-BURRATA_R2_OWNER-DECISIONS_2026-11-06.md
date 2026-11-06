@@ -4,7 +4,9 @@ Status: **決定の記録（docs-only）。実装は未着手・HOLD（#759 は 
 根拠のレポート（各ブランチ、いずれも docs-only）:
 - ハーブ: `claude/herb-icons-compare-docs-8auzii` の `docs/reports/TETO_HERB-ICONS-COMPARE_2026-11-05_R2_Result.md`（`c9351e4`）
 - burrata: `claude/burrata-preflight-docs-8auzii` の `docs/reports/TETO_BURRATA-PREFLIGHT_2026-11-05_R2_Result.md`（`d39a680`）
-- FINISH チーズ: 同ブランチの `docs/design/TETO_FINISH-CHEESE_FUTURE-TASK_2026-11-05.md`
+- FINISH チーズ: 同ブランチの `docs/design/TETO_FINISH-CHEESE_FUTURE-TASK_2026-11-05.md`（`d39a6805bcdf038b773061cfce34252d2ec0d3c0`）
+
+> 【Rev 5 更新・2026-11-06】**上の 3 文書と候補 SVG は main に存在しない（未取り込み）。** 各ブランチ・コミットの全桁：herb `claude/herb-icons-compare-docs-8auzii` `c9351e45f2084e9e64fcd56666545838d14755c2`、burrata／FINISH チーズ `claude/burrata-preflight-docs-8auzii` `d39a6805bcdf038b773061cfce34252d2ec0d3c0`。本書内の同パスの言及はこれらを指す。
 
 ## 1. 決定（Owner、2026-11-06）
 
@@ -68,7 +70,7 @@ Status: **決定の記録（docs-only）。実装は未着手・HOLD（#759 は 
 
 - **A と B は別 PR のまま維持する**（Owner、2026-11-06）。A は描画だけ、B は recipe・ladder・Research を含むため、承認と確認の観点が違う。
 - **順序と claim は実装時に再確認する。** A と B は `ingredients.ts`・`IngredientGlyph.tsx`・（A の補正があれば）`App.css` を共有する。開始時に、どちらを先に merge するか、後の側が rebase することを、自分の claim の中で宣言する（SESSION-OPERATIONS §1 の HOT の規則）。同時に始めず、先の PR の claim が解消してから後の PR に着手するのが安全。
-- **main（`c308a3f`）で変わった共有ファイル（実装時はこの版が出発点）:** `src/components/IngredientGlyph.tsx`（#760: `BeefSlices` / `GreenPepperStrips` の描画）、`src/App.css`（#765: 390px 未満のトレイのチップの余白・名前の字、#761: 大葉の 1.35em の独立ルール）、`src/components/CookingPrep.css`・`src/logic/prep/beefDoneness.ts`（#760）。`ingredients.ts`・`recipes.ts`・`lateCatalog.ts` ほか Batch 18 の対象は、#759 の merge まで main に入っていない。実装時は、ハーブ群の 1.2em の補正のルールの現在位置（大葉が独立ルールに分かれた後）を `App.css` で確認する。
+- **main（`c308a3f`）で変わった共有ファイル（実装時はこの版が出発点）:** `src/components/IngredientGlyph.tsx`（#760: `BeefSlices` / `GreenPepperStrips` の描画）、`src/App.css`（#765: 390px 未満のトレイのチップの余白・名前の字、#761: 大葉の 1.35em の独立ルール）、`src/components/CookingPrep.css`・`src/logic/prep/beefDoneness.ts`（#760）。`ingredients.ts`・`recipes.ts`・`lateCatalog.ts` ほか Batch 18 の対象は、#759 の merge まで main に入っていない。実装時は、ハーブ群の 1.2em の補正のルールの現在位置（大葉が独立ルールに分かれた後）を `App.css` で確認する。 【2026-11-06 更新】現在の main は `785d7956`で、#759 の変更（`ingredients.ts`・`recipes.ts`・`lateCatalog.ts`・`discoveryLadder.ts`・golden ほか）も含む。
 - **実装時に確認すること（R2 レポートの「要確認」）:** pesto を主ソースとする 2 ソース recipe の Reference と完成判定（grandma 用の保証テストは tomato-sauce 前提の合成レシピ）。burrata の個数・価格・サイズクラス・焼成窓は GAMEPLAY ASSUMPTION として Result に明記する。元データ（172 matrix 行）にはブラータの後乗せの根拠がない。
 
 ## 4. 検証と人の確認
@@ -79,5 +81,5 @@ Status: **決定の記録（docs-only）。実装は未着手・HOLD（#759 は 
 
 ## 5. 保留（独立した将来タスク）
 
-- FINISH でチーズを置く拡張（D9）: 着手条件は「後乗せのチーズを使うレシピを Owner が決めること」「mozzarella の後乗せ描画の方針」「#738 の merge」。詳細は `docs/design/TETO_FINISH-CHEESE_FUTURE-TASK_2026-11-05.md`。
+- FINISH でチーズを置く拡張（D9）: 着手条件は「後乗せのチーズを使うレシピを Owner が決めること」「mozzarella の後乗せ描画の方針」「#738 の merge」。詳細は `docs/design/TETO_FINISH-CHEESE_FUTURE-TASK_2026-11-05.md`。 【Rev 5 更新】文書は未取り込み（`claude/burrata-preflight-docs-8auzii` `d39a6805`）。
 - 追加のハーブ・チーズのアイコン（P1 の残り: パニール・カトゥピリ・ヤギ・スイス・グラナなどの白・黄の円盤、P5 の絵文字代用）は本決定の対象外。

@@ -3,6 +3,7 @@
 **種類:** docs-only。`src/`・`e2e/`・CSS・JSON・SVG・テストは変更していません。PR 作成・merge・Production ON・共有 Preview 更新・既存 PR ブランチへの push・claim の取得／変更は行っていません。実装は開始していません。
 **ブランチ:** `claude/teto-pizza-batch-19-audit-u2ylym`（`origin/main` `785d7956` から作成。作業ツリーは clean を確認）。
 **既存資料との関係:** Batch 19 Prep Rev 4（`claude/teto-pizza-batch-19-prep-xvizrg` の `9903b33`、`docs/reports/TETO_EXPANSION-BATCH-19_Prep.md`）と R2 Owner 決定記録（`claude/r2-owner-decisions-docs-8auzii` の `2f29318`）が詳細仕様の権威。**本書はそれらを再掲せず、2026-11-06 時点の差分・再計測・矛盾点・判定だけを書く。**
+**読み方:** 本書は時系列の追記構成です。**後ろの追記が前の節の状態（#759 未 merge、WebKit 進行中、「ローカルのみ」など）を更新します。最新の状態は追記 3**。
 **限界:** 実装コードの実行（vitest・E2E）はしていません。件数・Jaccard は `recipes.ts`／`lateCatalog.ts` の静的解析（§4）。「実装時に実測する」と書いた項目は未測定です。原典 pizzadb.jp は未確認で、個数・窓・価格・色はすべて GAMEPLAY ASSUMPTION。
 
 ---
@@ -533,7 +534,7 @@ Owner の回答を **#748 に 1 件のコメントとして記録**する（本�
 | 3 | `docs/decisions/TETO_ICONS-HERBS-BURRATA_R2_OWNER-DECISIONS_2026-11-06.md` | `claude/r2-owner-decisions-docs-8auzii` `2f29318f` | **状態を更新**（B3.2） |
 | 4 | `docs/reports/TETO_EXPANSION-BATCH-19_PreImplementation_Fresh-Audit.md` | 本ブランチ | 本書（追記 1・2 を含む最終版を取り込み時に反映） |
 
-**含めないもの（Owner 判断）:** ハーブ・burrata の R2 Result Report、FINISH チーズの将来タスク文書、候補 SVG／画像（`claude/herb-icons-compare-docs-8auzii` は 89 ファイル、`claude/burrata-preflight-docs-8auzii` は 73 ファイルで PNG を多数含む）。Prep と R2 記録は、これらを「ブランチ名＋コミット SHA」で参照している。取り込み後も、次の参照は main 上では解決しない：`docs/reports/TETO_HERB-ICONS-COMPARE_2026-11-05_R2_Result.md`、`docs/reports/TETO_BURRATA-PREFLIGHT_2026-11-05_R2_Result.md`、`docs/design/TETO_FINISH-CHEESE_FUTURE-TASK_2026-11-05.md`（参照切れの確認済み。`e2e/b19.spec.ts` は将来のファイル）。**選択肢:** (a) 取り込まず、ブランチ参照のまま（推奨：PR を小さく、PNG を持ち込まない）、(b) テキスト 3 文書だけ追加で取り込む、(c) 画像込みで全取り込み。
+**含めないもの（Owner 判断）:** ハーブ・burrata の R2 Result Report、FINISH チーズの将来タスク文書、候補 SVG／画像（`claude/herb-icons-compare-docs-8auzii` は 89 ファイル、`claude/burrata-preflight-docs-8auzii` は 73 ファイルで PNG を多数含む）。Prep と R2 記録は、これらを「ブランチ名＋コミット SHA」で参照している。取り込み後も、次の参照は main 上では解決しない：`docs/reports/TETO_HERB-ICONS-COMPARE_2026-11-05_R2_Result.md`、`docs/reports/TETO_BURRATA-PREFLIGHT_2026-11-05_R2_Result.md`、`docs/design/TETO_FINISH-CHEESE_FUTURE-TASK_2026-11-05.md`（参照切れの確認済み。**未取り込みであり、所在は追記 3 の表のブランチ・全桁コミット**：herb `claude/herb-icons-compare-docs-8auzii` `c9351e45…`、burrata／FINISH チーズ `claude/burrata-preflight-docs-8auzii` `d39a6805…`。`e2e/b19.spec.ts` は将来のファイル）。**選択肢:** (a) 取り込まず、ブランチ参照のまま（推奨：PR を小さく、PNG を持ち込まない）、(b) テキスト 3 文書だけ追加で取り込む、(c) 画像込みで全取り込み。
 
 ### B3.2 修正内容
 
@@ -589,3 +590,110 @@ Owner の回答を **#748 に 1 件のコメントとして記録**する（本�
 | 5 | 実装直前の再計測（step 70・件数・Jaccard・Research・Hint） | 実装セッションの作業 |
 
 **解消済み:** #759 merge、main の WebKit E2E（SUCCESS、Owner 確認）、#758 の claim release、Q4。
+
+---
+
+# 追記 3 — Final Gate 確認（docs 取り込み PR の作成前、2026-11-06）
+
+**範囲:** 確認と、ローカルの取り込みブランチ上の記述修正のみ。**PR 作成・push・merge・Issue／PR コメント投稿・Batch 19 実装・Production ON・共有 Preview 更新は行っていません。** 取り込み方針（Owner 指示）：4 ファイル構成、未取り込みの参照は mainに存在するものとして扱わない、JSON を含むため docs-only 分類にならないことを PR 本文に明記。
+
+## C1. 状態の再確認
+
+| 項目 | 結果 |
+|---|---|
+| main の最新 SHA | `785d7956b42eac97e42dbd138818262a16c0a91c`（変化なし。取り込みブランチはこの上） |
+| WebKit E2E（run 42223996134） | SUCCESS（Owner 確認済み。再確認はしていない） |
+| #748 のコメント | 7 件のまま（新規なし）。有効な claim は 6650377722（B18 セッション、期限 2026-11-19T00:00Z）で**解放の投稿なし**。#758 の claim は release 済み（6679761024） |
+| open PR | 前回から**新規・更新なし**（最新更新は #763＝2026-11-05T15:47Z）。`src/data`・`App.css`・`IngredientGlyph` を触る open PR は確認範囲でなし |
+| 取り込み 4 ファイルとの競合 | **なし**。4 ファイルとも `origin/main` に存在しない新規ファイル。claim の対象（`docs/reports/TETO_EXPANSION-BATCH-18_*` ほか）と重ならない |
+| 出典ブランチの先頭（変化なし） | Prep `9903b33f`、R2 記録 `2f29318f`、herb `c9351e45`、burrata `d39a6805` |
+
+## C2. 変更ファイル（`origin/main..` の差分、4 ファイル・すべて `A`）
+
+| ファイル | 出典との差 |
+|---|---|
+| `docs/reports/TETO_EXPANSION-BATCH-19_Prep.md` | Rev 5 の更新のみ（既存行の削除なし。更新した 11 行はすべて元の文を保ったまま注記を追記、新規行は Rev 5 の説明・D 番号の注記・未取り込みの参照表・将来リスクの注記） |
+| `docs/reports/data/TETO_EXPANSION-BATCH-19_PREP_jaccard.json` | 出典とバイト一致 |
+| `docs/decisions/TETO_ICONS-HERBS-BURRATA_R2_OWNER-DECISIONS_2026-11-06.md` | 状態の更新と対応表のみ。**D1〜D9 の決定内容は不変** |
+| `docs/reports/TETO_EXPANSION-BATCH-19_PreImplementation_Fresh-Audit.md` | 本書（監査ブランチの最新と同一） |
+
+混入の確認：`src/`・`e2e/`・CSS・画像・他の docs の変更なし。CR 改行・メールアドレス・トークン様の文字列なし（`grep` で確認）。
+
+## C3. Final Gate で見つけて修正した点（ローカルの取り込みブランチ）
+
+| # | 内容 | 修正 |
+|---|---|---|
+| G-1 | Prep §7.0 の依存図 `G0 …唯一の未充足の前提` が #759 未 merge の表現のまま | 「充足済み。残る前提は claim の解消と Owner の明示 GO」を追記 |
+| G-2 | Prep §1.1 の #759 行（Draft／HOLD）、§7.0 の claim 注記（#759 未 merge 前提）が未更新 | 注記を追記（元の文は履歴として保持） |
+| G-3 | **FINISH チーズ文書の参照が、ブランチ・コミットなしで main にあるように読める箇所が 3 か所**（Prep §4.1、R2 記録 §2 の根拠リスト・§5） | 各箇所に「未取り込み」とブランチ・コミットを追記。Prep 冒頭と R2 記録に**未取り込みの参照表（全桁 SHA）**を追加 |
+| G-4 | R2 記録 §3 の「main（`c308a3f`）で変わった共有ファイル」が現在の main と食い違う | 「現在の main は `785d7956`」を追記 |
+| G-5 | Prep 冒頭に JSON による CI 分類の注意がない | Rev 5 の説明に追記 |
+
+修正後の再確認：未取り込みの参照（3 文書と候補 SVG ディレクトリ）は**全 14 か所で直近にブランチ名と SHA が併記**されている（`OK` 判定、`NG` は追記 3 の追記前の本書 1 か所＝修正済み）。解決しない参照はこの 3 文書・候補ディレクトリ・将来の `e2e/b19.spec.ts` のみ。
+
+### 未取り込みの参照（main に存在しない）
+
+| パス | ブランチ | コミット（全桁） |
+|---|---|---|
+| `docs/reports/TETO_HERB-ICONS-COMPARE_2026-11-05_R2_Result.md` | `claude/herb-icons-compare-docs-8auzii` | `c9351e45f2084e9e64fcd56666545838d14755c2` |
+| `docs/reports/TETO_BURRATA-PREFLIGHT_2026-11-05_R2_Result.md` | `claude/burrata-preflight-docs-8auzii` | `d39a6805bcdf038b773061cfce34252d2ec0d3c0` |
+| `docs/design/TETO_FINISH-CHEESE_FUTURE-TASK_2026-11-05.md` | `claude/burrata-preflight-docs-8auzii` | `d39a6805bcdf038b773061cfce34252d2ec0d3c0` |
+| `docs/design/candidates/ingredient-icons-2.0-herbs/` | `claude/herb-icons-compare-docs-8auzii` | `c9351e45f2084e9e64fcd56666545838d14755c2` |
+| `docs/design/candidates/ingredient-icons-2.0-burrata/` | `claude/burrata-preflight-docs-8auzii` | `d39a6805bcdf038b773061cfce34252d2ec0d3c0` |
+
+（各パスはそのブランチ上で `git ls-tree` により存在を確認済み。）
+
+## C4. 記述矛盾の確認
+
+- **解消済み:** G-1〜G-4。D 番号の違い（Prep と R2）は §0.1 の注記と R2 §2.4 の対応表で明示。
+- **意図的に残した過去の記述:** Prep §1.2（Rev 3 時点の #759 の状態）などは**履歴**で、「【Rev 5 更新】」の注記が付いている。本書（監査レポート）も時系列構成で、冒頭の「読み方」に最新は追記 3 と明記。
+- **既知の不整合（修正しない・報告のみ）:** 追記 1 の「要確認 11 件」は追記 2 B2 で 9 件と訂正済み（本文はそのまま履歴として残す）。
+
+## C5. PR 本文の下書き（**未作成**。JSON による CI 分類を明記）
+
+```markdown
+## 概要
+Expansion Batch 19 の実装前資料を main に取り込む **docs のみの変更**です。製品コード・テスト・CSS・画像は変更しません。
+Batch 19 の実装は未着手で、Owner の明示 GO と #748 の claim 解消までは実装しません。
+
+## 変更ファイル（4・すべて新規追加）
+- `docs/reports/TETO_EXPANSION-BATCH-19_Prep.md`（Rev 5：#759 merge・#758 claim release の反映、D 番号の注記、未取り込みの参照表）
+- `docs/reports/data/TETO_EXPANSION-BATCH-19_PREP_jaccard.json`（出典 `9903b33f` とバイト一致）
+- `docs/decisions/TETO_ICONS-HERBS-BURRATA_R2_OWNER-DECISIONS_2026-11-06.md`（状態更新と Prep との D 番号対応表。**決定内容は不変**）
+- `docs/reports/TETO_EXPANSION-BATCH-19_PreImplementation_Fresh-Audit.md`（実装前 Fresh Audit）
+
+## CI について（重要）
+**JSON ファイルを含むため、この PR は docs-only 分類にはなりません**（`scripts/ci/classify-ci-docs-only.mjs` は `docs_only=false`。Markdown だけなら `true`）。
+そのため `ci.yml` の lint／Vitest／build が走ります。WebKit は `docs/**` のためスキップされる見込みです（`classify-webkit.mjs` は `webkit_required=false`）。製品コードの変更はありません。
+
+## 未取り込みの参照（main には存在しません）
+次はこの PR に含まれず、記載のブランチ・コミットにだけあります。Prep・R2 記録内の同パスの言及はこれらを指します。
+- `docs/reports/TETO_HERB-ICONS-COMPARE_2026-11-05_R2_Result.md`、候補 `docs/design/candidates/ingredient-icons-2.0-herbs/`：`claude/herb-icons-compare-docs-8auzii` `c9351e45f2084e9e64fcd56666545838d14755c2`
+- `docs/reports/TETO_BURRATA-PREFLIGHT_2026-11-05_R2_Result.md`、`docs/design/TETO_FINISH-CHEESE_FUTURE-TASK_2026-11-05.md`、候補 `docs/design/candidates/ingredient-icons-2.0-burrata/`：`claude/burrata-preflight-docs-8auzii` `d39a6805bcdf038b773061cfce34252d2ec0d3c0`
+
+## 競合・安全
+- main `785d7956` から作成。4 ファイルとも main に存在しない新規ファイルで衝突なし。
+- 実装・merge・Production ON・共有 Preview 更新・他セッションの claim 変更なし。
+- Refs #748 #417
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+https://claude.ai/code/session_013m8Cb5Eb9AX5y6ubDqYMgc
+```
+
+## C6. #748 claim 解放依頼コメント — 最終案
+
+追記 2 の B1 のとおり（**変更なし**）。再確認の結果：#748 に新しいコメントはなく、有効な claim は 6650377722 のまま。本文に `@`・live な claim ブロックは含まない。**未投稿。**
+
+## C7. Final Gate の判定
+
+| 項目 | 判定 |
+|---|---|
+| 4 ファイル構成 | OK |
+| 未取り込み参照の扱い | OK（修正後。全箇所にブランチ・コミットを併記） |
+| JSON による CI 分類の明記 | OK（PR 本文の下書き、Prep Rev 5 冒頭） |
+| main・claim・open PR・競合 | 変化なし・競合なし |
+| 参照切れ・記述矛盾・差分混入 | 修正済み。残りは意図的な履歴のみ |
+| **PR 作成の可否** | **技術的には作成可能（準備完了）。ただし Owner の許可（push と PR 作成）が必要** |
+
+**実装開始のブロッカー（変更なし）:** Owner の明示 GO／#748 claim の解消／承認が必要な 4 項目（D1・D3 の id・D9・Q1）への回答／実装直前の再計測。docs 取り込み PR の作成許可は PR 準備のブロッカーで、実装開始の前提かは Owner 判断。

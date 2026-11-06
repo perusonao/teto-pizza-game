@@ -1,6 +1,6 @@
 # Expansion Batch 19 — 実装前準備（食材・レシピ重複検査／アイコン仕様／調理工程／受入条件／テスト計画）
 
-**改訂 5（2026-11-06）:** main への取り込み（docs-only）のための状態更新のみ。#759 の merge（`785d7956`）、#758 の claim release、D 番号体系の注記、GitHub 未記録の決定の明記を追記した。**Owner 決定の内容・仕様・受入条件は変更していない。** 過去の記述は履歴として残し、更新箇所に「【Rev 5 更新】」を付した。将来の近傍増加リスク（`burrata-pizza`）は §2.3.1 末尾に追記。
+**改訂 5（2026-11-06）:** main への取り込み（docs-only）のための状態更新のみ。#759 の merge（`785d7956`）、#758 の claim release、D 番号体系の注記、GitHub 未記録の決定の明記を追記した。**Owner 決定の内容・仕様・受入条件は変更していない。** 過去の記述は履歴として残し、更新箇所に「【Rev 5 更新】」を付した。将来の近傍増加リスク（`burrata-pizza`）は §2.3.1 末尾に追記。 **CI 上の注意:** 取り込み対象に JSON（`docs/reports/data/…jaccard.json`）が含まれるため、CI の docs-only 分類にはならず ci.yml（lint／Vitest／build）が走る。WebKit は docs/** のためスキップされる。
 
 **改訂 4（2026-11-06）:** Owner 判断 P1・P2（承認）を追記。AC-8b の合格基準を「SAUCE または CHEESE の有料ヒント 1 段で合理的に区別できる」に確定し、検証項目（Hint 5.0・旧 Hint 経路・表示内容・コスト）を明記。AC-8 に非正準差分の報告形式（ID・レシピ・取得順・変更前後）と **未承認差分が残れば Gate HOLD** を追記。それ以外（実装禁止、#759 の merge と Owner の明示 GO を待つ方針）は変更なし。
 
@@ -15,6 +15,16 @@
 - ハーブ 4 食材 R2: ブランチ `claude/herb-icons-compare-docs-8auzii` の `c9351e4`（`docs/reports/TETO_HERB-ICONS-COMPARE_2026-11-05_R2_Result.md`）。
 - ブッラータ R2: ブランチ `claude/burrata-preflight-docs-8auzii` の `d39a680`（`docs/reports/TETO_BURRATA-PREFLIGHT_2026-11-05_R2_Result.md`、`docs/design/TETO_FINISH-CHEESE_FUTURE-TASK_2026-11-05.md`）。
 - 候補 SVG: 上記 2 ブランチの `docs/design/candidates/ingredient-icons-2.0-{herbs,burrata}/`（**どちらも未 merge**。実装時に必要なファイルだけを移す）。
+
+> 【Rev 5 更新・2026-11-06】**未取り込みの参照（main には存在しない）。** 次のファイルは本 PR に含まれず、下記のブランチ・コミットにだけある（2026-11-06 に `git ls-tree` で存在を確認）。本書内でこれらのパスを挙げた箇所は、すべてこの表のブランチ・コミットを指す。実装 PR では**必要なファイルだけ**を移す。
+>
+> | パス | ブランチ | コミット（全桁） |
+> |---|---|---|
+> | `docs/reports/TETO_HERB-ICONS-COMPARE_2026-11-05_R2_Result.md` | `claude/herb-icons-compare-docs-8auzii` | `c9351e45f2084e9e64fcd56666545838d14755c2` |
+> | `docs/reports/TETO_BURRATA-PREFLIGHT_2026-11-05_R2_Result.md` | `claude/burrata-preflight-docs-8auzii` | `d39a6805bcdf038b773061cfce34252d2ec0d3c0` |
+> | `docs/design/TETO_FINISH-CHEESE_FUTURE-TASK_2026-11-05.md` | `claude/burrata-preflight-docs-8auzii` | `d39a6805bcdf038b773061cfce34252d2ec0d3c0` |
+> | `docs/design/candidates/ingredient-icons-2.0-herbs/` | `claude/herb-icons-compare-docs-8auzii` | `c9351e45f2084e9e64fcd56666545838d14755c2` |
+> | `docs/design/candidates/ingredient-icons-2.0-burrata/` | `claude/burrata-preflight-docs-8auzii` | `d39a6805bcdf038b773061cfce34252d2ec0d3c0` |
 
 **原典:** pizzadb.jp は未確認です。根拠は 172 matrix の 2 行（`pesto-burrata-pizzadb-p12`、`pizza-alla-crudaiola-pizzadb-p8`）だけで、個数・焼成窓・価格・色はすべて **GAMEPLAY ASSUMPTION** です。
 
@@ -82,7 +92,7 @@
 
 | 対象 | 状態 | 本準備との関係 |
 |---|---|---|
-| PR #759（B18） | Draft／HOLD、HEAD `d9679e6` | 本ブランチは `docs/reports/` と `docs/reports/data/` の新規ファイルのみ。**ファイル重なりなし**。B19 実装の前提（§7） |
+| PR #759（B18） | Draft／HOLD、HEAD `d9679e6` | 本ブランチは `docs/reports/` と `docs/reports/data/` の新規ファイルのみ。**ファイル重なりなし**。B19 実装の前提（§7） 【Rev 5 更新・2026-11-06】**merge 済み**（`785d7956`）。左は Rev 3 時点の記録 |
 | PR #761（#758 大葉 1.35em） | **merge 済み**（2026-11-06 07:35Z、`c308a3f`）。`src/App.css`・e2e・docs | 重なりなし。herb／ブッラータの描画補正が `App.css`（HOT）を触る場合は、`c308a3f` を含む main から開始 |
 | #760（牛肉・ピーマン）／#765（360px はみ出し） | **main に取り込み済み** | 前提は充足 |
 | #763・#757・#756・#762（Steam V2/V3 Lab）、#746（DRIZZLE）、#738（Steam S3） | Draft／Open | B19 は `src/data/*`・描画・テストのみ。重なりなし（`main.tsx`・`PizzaStage.tsx`・`src/preview/*` に触れない） |
@@ -260,7 +270,7 @@ crudaiola = {tomato-sauce, olive-oil, mozzarella, burrata, fresh-tomato, arugula
 ### 4.1 共通の前提
 
 - 工程は既存の **DOUGH → SAUCE → CHEESE → TOPPING → BAKE（→ CUT は任意）**。**新工程なし**。
-- **すべての材料を焼く前に置く**（Owner 2026-11-06「All crudaiola ingredients are pre-bake」。pesto-burrata も matrix に後乗せの根拠なし）。`POST_BAKE` なし → FINISH 工程なし。FINISH でのチーズ対応（`TETO_FINISH-CHEESE_FUTURE-TASK`）は**別の将来タスクで、B19 は依存しない**。
+- **すべての材料を焼く前に置く**（Owner 2026-11-06「All crudaiola ingredients are pre-bake」。pesto-burrata も matrix に後乗せの根拠なし）。`POST_BAKE` なし → FINISH 工程なし。FINISH でのチーズ対応（`TETO_FINISH-CHEESE_FUTURE-TASK`〔**未取り込み**：`claude/burrata-preflight-docs-8auzii` `d39a6805`、冒頭の表を参照〕）は**別の将来タスクで、B19 は依存しない**。
 - `bakeTarget` は汎用 Free Cooking 窓 **58–78**、`baseRewardPitz` 100、`lunchRush:false`、CUT なし、Hint は **key-free**（pesto-burrata／crudaiola とも）。
 - 複数ソース（SAUCE ×2）は **grandma-pizza（#521）と同じ方式**: 主ソースだけ `RECIPE_SAUCE_PROFILES` に載せて Reference 判定し、2 本目の olive-oil は `requiredIngredients` に含めて「使ったかどうか」で判定する。`requiredIngredients` の順は **主ソース → 2 本目のソース → チーズ → 具材**（Rule W の予約素材とレガシー Hint 2.0 H4 の抜き出し素材を一致させる。B14 moussaka の教訓）。
 - チーズが burrata だけのレシピは前例あり: **eggplant-ricotta-pizza**（ricotta が唯一のチーズ、olive-oil の PAINT_TEMPORARY）。`pieceVisual` を持つチーズのみで CHEESE 工程が成立する。
@@ -388,7 +398,7 @@ crudaiola = {tomato-sauce, olive-oil, mozzarella, burrata, fresh-tomato, arugula
 | #758（`src/App.css`、e2e、docs） | #761 のセッション | `src/App.css`・`e2e/issue-758-shiso.spec.ts` ほか | 2026-11-08（#761 の Result Report の記載） | 有効（本書では #758 のコメントを直接読んでいない。PR #761 の Result Report からの引用） 【Rev 5 更新・2026-11-06】**release 済み**（#758 コメント 6679761024、2026-11-06T07:35:47Z） |
 
 - 他の Owner 決定コメント（6650593172、6651668675、6656496881、6663697601、6673566588）には claim ブロックが無い。R2（6673566588）は「現在の claims が解放されてから」「refresh main/claims」を実装の前提としている。
-- claim は**警告のみで、ブロックではない**（SESSION-OPERATIONS §1）が、B19 は `recipes.ts`・`ingredients.ts`・`discoveryLadder.ts` などの **HOT ファイル**を #759 と共有する。**期限（2026-11-19）は #759 の merge 時期次第で超える可能性がある**（**Q4: #759 が未 merge のまま claim が失効しても、B19 は #759 の merge 前に着手しない**）。B18 セッションが claim を更新するか解放するかは本書の範囲外。
+- claim は**警告のみで、ブロックではない**（SESSION-OPERATIONS §1）が、B19 は `recipes.ts`・`ingredients.ts`・`discoveryLadder.ts` などの **HOT ファイル**を #759 と共有する。**期限（2026-11-19）は #759 の merge 時期次第で超える可能性がある**（**Q4: #759 が未 merge のまま claim が失効しても、B19 は #759 の merge 前に着手しない**）。B18 セッションが claim を更新するか解放するかは本書の範囲外。 【Rev 5 更新・2026-11-06】**#759 は merge 済み**。現在の論点は #748 claim の解消（解放の投稿なし、期限 2026-11-19）。
 - B19 の claim は #759 merge 後に新しい Issue（D9）へ投稿し、`dependsOn:[759]`、`pr` を記入、HOT 重なりのある PR との merge 順を明記する（§7.4）。
 
 #### 競合する open PR（2026-11-06 に一覧取得）
@@ -418,7 +428,7 @@ crudaiola = {tomato-sauce, olive-oil, mozzarella, burrata, fresh-tomato, arugula
 ```
 [今] 本準備 (docs-only)  ──Owner 判断 D1〜D9・Q1〜Q4 確定済み──┐
                                                   │
-G0  #759 (B18) の Owner merge 承認 → merge                    ← 唯一の未充足の前提 (Q4)
+G0  #759 (B18) の Owner merge 承認 → merge                    ← 【Rev 5 更新】充足済み（2026-11-06T13:15:08Z merge）。残る前提は claim の解消と Owner の明示 GO
     └ #760・#765 は main に取り込み済み
     └ #761 は merge 済み (c308a3f)
     └ #748 の claim の解放・失効、他 claim の再確認（S-3。claim は G0 の代わりにならない）
