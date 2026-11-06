@@ -73,3 +73,6 @@
 - 完了: Fresh Audit、重複の回避、eggplant／burrata の未配線コンポーネントとテスト、ハーブ＋新 2 種の小サイズ比較、配線差分の実証（golden の発見を含む）。
 - 未完了／Owner 判断: oregano の RESULT 17.6px と burrata の溶けたチーズ上の見え方の改善（任意）、iPhone Safari 実機 HV、実装 GO、#748 claim の解放。
 - UI は変更していないため HV 動画の対象外（HV Policy §2 の未配線・docs のみ）。
+
+
+> 2026-11-06 追記: `src/components/prepGlyphs/**` は、ハーブ配線 PR（#779）の範囲を保つため、そのブランチのコミットでは削除した。このレポートのコードはコミット `7f75050` に保持されている（復元: `git checkout 7f75050 -- src/components/prepGlyphs`）。

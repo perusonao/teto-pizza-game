@@ -27,7 +27,7 @@
 | `src/logic/rt01ReferenceRegression.test.tsx` | Pizza Select サムネイルの凍結 HTML の比較で、4 つの SVG を絵文字に戻してから比較（sausage の既存の扱いと同じ方式。他のマークアップ変更は引き続き失敗する） |
 | `docs/reports/…`、`docs/reports/screenshots/herb-wiring/` | 本レポート、before／after 画像、撮影スペックの控え |
 
-食材 ID・`emoji`・`color`・family・サイズクラス・採点・Research・保存・レシピ・ladder・Batch 19・eggplant／burrata は変更していない。`src/components/prepGlyphs/**`（前回の未配線コンポーネント）は**保持するが配線しない**。
+食材 ID・`emoji`・`color`・family・サイズクラス・採点・Research・保存・レシピ・ladder・Batch 19・eggplant／burrata は変更していない。`src/components/prepGlyphs/**`（前回の未配線コンポーネント: eggplant・burrata）は**この PR の差分から外した**（コミット `7f75050` に保持。復元: `git checkout 7f75050 -- src/components/prepGlyphs`）。配線しない。
 
 ## 3. 失敗したテストの個別検証と golden
 
@@ -43,7 +43,7 @@
 | `tsc -b` | エラーなし |
 | `npm run build`（tsc ＋ vite build） | 成功（チャンクサイズの既存警告のみ） |
 | `oxlint` | 既存の警告のみ。本変更に起因する警告・エラーなし |
-| `vitest run`（全体） | RESULT_FULL_VITEST |
+| `vitest run`（全体、ローカル、HEAD `992d009` の内容） | **622 files pass / 1 skipped、11555 tests pass**（13 skipped・2 todo）、失敗 0。再実行は `rt01ReferenceRegression` の修正後 |
 | 配線前の個別: `IngredientGlyph.test.tsx` | 221 件 pass（新規の識別テスト含む） |
 | `rt01ReferenceRegression.test.tsx` | 32 件 pass |
 | `lateCatalog.offGolden.test.ts` | 7 件 pass |
@@ -63,11 +63,13 @@
 
 ## 7. CI と Codex
 
-PR 作成後に追記（HEAD、各 check の結果、Codex の指摘）。
+PR #779、検証対象 HEAD `992d009`（配線）。**CI は全て成功**: build（全 Vitest・lint・build）、classify、layout-chromium、Layout Contract Gate、**WebKit 6 shard（390×844 と 360×800 の各 3/3）**、WebKit Gate。run 42255020680／42255020727。
+Codex: `@codex review` を `992d009` に依頼（コメント 6690160863）。この記録時点で Codex の状態は「Running」のまま完了通知なし、レビュースレッド 0 件（指摘なし・完了も未確認）。**Codex 完了を「指摘なし」とは扱わない**。
+その後の push（`prepGlyphs/**` を PR の差分から外す整理、レポート追記）で HEAD が変わるため、最終 HEAD の CI・Codex は PR 上の最新の check を正とする。
 
 ## 8. 触れていないもの・残り
 
 - merge、Production ON、共有 Preview の更新、他セッションの claim の変更、既存 PR への push、Batch 19（burrata・pesto-burrata・crudaiola）の先行実装はしていない。
 - iPhone Safari の実機 HV（Owner）、390×844 の HV 動画（repo に含めない。納品は別）は未実施。**Chromium の確認を実機 HV の合格として記録しない。**
 - `herbGlyphs/**`（別セッション）は本 PR の merge 後に不要になる。扱いはその claim の保有者と Owner が決める。
-- ブランチには前回の準備コミット（`prepGlyphs/**`、レポート、画像）が含まれる。これらは未配線・docs で、本 PR の挙動に影響しない（配線の差分は §2 の表）。
+- ブランチには前回の準備コミット `7f75050`（レポート、画像、メトリクス）が履歴に含まれる。コードは `prepGlyphs/**` を除いて本 PR の diff には残らず、docs のみ。
