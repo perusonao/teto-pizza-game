@@ -29,12 +29,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // Expansion Batch 15 (#728, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + nigerian-suya-pizza (non-credit, NO_SAUCE as a suya-only Owner exception, chapter 4, no new material, no new ladder step; it joins the beef cohort of rendang-pizza at ordinary step 58).
       // Expansion Batch 16 (#736, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + ume-shiso-pizza (credited, chapter 4: its key is the new material `umeboshi-paste`), + umeboshi-paste (a SAUCE, so `toppings` does not move), + ordinary step 67 (the late steps shift +1).
       // Expansion Batch 17 (#741, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + goulash-pizza (credited, chapter 4: its key is the new material `sour-cream`), + sour-cream (a SAUCE, so `toppings` does not move), + ordinary step 68 (the late steps shift +1).
-      recipes: pinsa ? 88 : 87,
-      credited: 78,
+      // Expansion Batch 18 (#748, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + baingan-bharta-pizza (credited, chapter 4: its key is `cilantro`, PROMOTED from the late catalog) + reina-pepiada-pizza (non-credit, chapter 4: the same key step 69); no new ingredient id (cilantro was already counted as a late topping, so `ingredients` / `toppings` do not move in this ON build), + ordinary step 69 (the late steps shift +1).
+      recipes: pinsa ? 90 : 89,
+      credited: 79,
       ingredients: 97,
       toppings: 68,
-      ladderSteps: 75,
-      chapterSizes: [6, 12, 19, pinsa ? 51 : 50],
+      ladderSteps: 76,
+      chapterSizes: [6, 12, 19, pinsa ? 53 : 52],
       lunchRushPool: 25,
     });
   });

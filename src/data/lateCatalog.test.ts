@@ -57,7 +57,7 @@ describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
   it("holds exactly ikura-salmon-pizza, yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza, bbq-chicken-pizza, wasabi-beef-pizza, tarako-cream-pizza and their late materials, and the production switch is ON (E5; the OFF build is covered by the loaders below)", () => {
     expect(lateCatalogEnabled()).toBe(true);
     expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // Pinsa Romana (#577 P3-b) joins only while its own gate is open; yuzu-shrimp-pizza: New Sauces Phase B U1, eggplant-dengaku-pizza: U2 (#578)
-    expect(LATE_INGREDIENTS.map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate", "bbq-sauce", "cilantro", "soy-sauce", "wasabi", "cod-roe", "fresh-cream-sauce", "nori"]);
+    expect(LATE_INGREDIENTS.map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate", "bbq-sauce", "soy-sauce", "wasabi", "cod-roe", "fresh-cream-sauce", "nori"]);
     expect(Object.keys(LATE_DISCOVERY_TARGET_IDS)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
     expect(LATE_DISCOVERY_TARGET_IDS["ikura-salmon-pizza"]).toBe("ikura-salmon-pizza-pizzadb-p1");
   });
@@ -75,7 +75,7 @@ describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
       { ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" },
       { ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" },
       { ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" },
-      { ingredientIds: ["bbq-sauce", "cilantro"], keyRecipeId: "bbq-chicken-pizza" },
+      { ingredientIds: ["bbq-sauce"], keyRecipeId: "bbq-chicken-pizza" }, // Expansion Batch 18 (#748): the cilantro moved to ordinary step 69
       { ingredientIds: ["soy-sauce", "wasabi"], keyRecipeId: "wasabi-beef-pizza" },
       { ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: "tarako-cream-pizza" },
     ]);
@@ -83,8 +83,8 @@ describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
   it("the late ingredient is ladder-gated (never a Starter) and its order, taxonomy row and size class ride the same switch", () => {
     expect(LATE_INGREDIENTS.every((i) => i.unlockCondition !== undefined)).toBe(true); // every late ingredient, the roe and the (taxonomy-free) yuzu-kosho sauce alike
     expect(LATE_ORDERS.map((o) => o.recipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
-    expect(LATE_TAXONOMY_ROWS).toEqual([["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["cilantro", "herb"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"]]); // yuzu-kosho / miso-sauce / tahini are sauces: no topping family, no size class
-    expect(LATE_TOPPING_SIZE_CLASS).toEqual({ "salmon-roe": "xs", "white-sesame": "xs", pomegranate: "xs", cilantro: "xs", wasabi: "xs", "cod-roe": "xs", nori: "xs" });
+    expect(LATE_TAXONOMY_ROWS).toEqual([["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"]]); // yuzu-kosho / miso-sauce / tahini are sauces: no topping family, no size class
+    expect(LATE_TOPPING_SIZE_CLASS).toEqual({ "salmon-roe": "xs", "white-sesame": "xs", pomegranate: "xs", wasabi: "xs", "cod-roe": "xs", nori: "xs" });
   });
 });
 

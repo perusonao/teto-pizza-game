@@ -24,6 +24,7 @@ import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import type { DexEntry } from "../state/dex";
 import { loadSave, persistProgress, resetSave, type ProgressionSnapshot, type StorageLike } from "../state/persistence";
 import { PREVIEW_HELPER_MARK } from "./hint5PreviewOptIn";
+import { applyB18HvSeed, parseB18HvParam, type B18HvScenarioId } from "./b18HvSeeds";
 
 export type HvScenarioId =
   | "normal"
@@ -205,13 +206,17 @@ function currentNavigationType(): string | undefined {
   }
 }
 
-/** The one call ../main.tsx makes (Preview build only): applies `?hv=` to a fresh navigation. */
+/** The one call ../main.tsx makes (Preview build only): applies `?hv=` to a fresh navigation.
+ *  Batch 18 (#748): an id that is not a Hint 5.0 scenario may be a B18 scenario (./b18HvSeeds.ts), under the same
+ *  fresh-navigation rule. The Hint 5.0 ids are looked up first and their seeds are unchanged. */
 export function applyPreviewHvSeed(
   search: unknown,
   storage: StorageLike | null,
   navigationType: string | undefined = currentNavigationType(),
-): HvScenarioId | null {
+): HvScenarioId | B18HvScenarioId | null {
   const id = parseHvParam(search);
-  if (!id || !storage || !shouldApplyHvSeed(navigationType)) return null;
-  return applyHvSeed(id, storage) ? id : null;
+  const b18Id = id ? null : parseB18HvParam(search);
+  if ((!id && !b18Id) || !storage || !shouldApplyHvSeed(navigationType)) return null;
+  if (id) return applyHvSeed(id, storage) ? id : null;
+  return b18Id && applyB18HvSeed(b18Id, storage) ? b18Id : null;
 }

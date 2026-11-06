@@ -133,6 +133,8 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   "nigerian-suya-pizza": "nigerian-suya-pizza-pizzadb-p5",
   "ume-shiso-pizza": "ume-shiso-pizza-pizzadb-p14",
   "goulash-pizza": "goulash-pizza-pizzadb-p3",
+  "baingan-bharta-pizza": "baingan-bharta-pizza-pizzadb-p6",
+  "reina-pepiada-pizza": "venezuelan-reina-pepiada-pizzadb-p12",
   // Multi-Sauce S3 / Square Dough E-2 (#521): PIZZA DB evidence id from the 172 matrix.
   "grandma-pizza": "grandma-pizza-pizzadb",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).

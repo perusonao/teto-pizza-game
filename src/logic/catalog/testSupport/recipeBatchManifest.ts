@@ -21,7 +21,7 @@ export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
     { recipeId: "currywurst", keyIngredientId: "wurstel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "cuban-pizza", keyIngredientId: "swiss-cheese", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["boscaiola", "porcini-pizza", "pescatore", "jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza"], // (B11 S1 is appended after cuban-pizza, B12 after B11 S1, Expansion Batch 12 after B12, Expansion Batch 13 after Expansion Batch 12)
+  followedBy: ["boscaiola", "porcini-pizza", "pescatore", "jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza"], // (B11 S1 is appended after cuban-pizza, B12 after B11 S1, Expansion Batch 12 after B12, Expansion Batch 13 after Expansion Batch 12)
 };
 
 /**
@@ -37,7 +37,7 @@ export const B11_S1_BATCH: RecipeBatchManifest = {
     { recipeId: "porcini-pizza", keyIngredientId: "porcini", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "pescatore", keyIngredientId: "mussel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza"], // (B12 is appended after pescatore; Expansion Batch 12 after B12; Expansion Batch 13 after Expansion Batch 12)
+  followedBy: ["jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza"], // (B12 is appended after pescatore; Expansion Batch 12 after B12; Expansion Batch 13 after Expansion Batch 12)
 };
 
 /**
@@ -50,7 +50,7 @@ export const B12_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "pescatore",
   recipes: [{ recipeId: "jamaican-jerk-chicken-pizza", keyIngredientId: "green-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza"], // (Expansion Batch 12 is appended after B12; Expansion Batch 13 after Expansion Batch 12)
+  followedBy: ["supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza"], // (Expansion Batch 12 is appended after B12; Expansion Batch 13 after Expansion Batch 12)
   acceptedLetterShifts: { "veggie-supreme-pizza": "-->B" },
 };
 
@@ -67,7 +67,7 @@ export const B12B_BATCH: RecipeBatchManifest = {
     { recipeId: "supreme-pizza", keyIngredientId: "bell-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "pizza-alla-norma", keyIngredientId: "ricotta-salata", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza"], // (Expansion Batch 13 is appended after this batch, Expansion Batch 14 after that)
+  followedBy: ["potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza"], // (Expansion Batch 13 is appended after this batch, Expansion Batch 14 after that)
   acceptedLetterShifts: { "spanish-chorizo-pizza": "-->B" },
 };
 
@@ -80,7 +80,7 @@ export const B13_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "pizza-alla-norma",
   recipes: [{ recipeId: "potato-mayo-pizza", keyIngredientId: "mayo", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza"], // (Expansion Batch 14 is appended after this batch, Expansion Batch 15 after that)
+  followedBy: ["moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza"], // (Expansion Batch 14 is appended after this batch, Expansion Batch 15 after that)
 };
 
 /**
@@ -92,7 +92,7 @@ export const B14_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "potato-mayo-pizza",
   recipes: [{ recipeId: "moussaka-style-pizza", keyIngredientId: "cinnamon", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza"], // (Expansion Batch 15 is appended after this batch)
+  followedBy: ["nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza"], // (Expansion Batch 15 is appended after this batch)
 };
 
 /**
@@ -106,7 +106,7 @@ export const B15_BATCH: RecipeBatchManifest = {
   afterRecipeId: "moussaka-style-pizza",
   recipes: [{ recipeId: "nigerian-suya-pizza", keyIngredientId: "beef", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
   acceptedLetterShifts: { "rendang-pizza": "-->B" },
-  followedBy: ["ume-shiso-pizza", "goulash-pizza"], // (Expansion Batch 16 is appended after this batch)
+  followedBy: ["ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza"], // (Expansion Batch 16 is appended after this batch)
 };
 
 /**
@@ -117,7 +117,7 @@ export const B16_BATCH: RecipeBatchManifest = {
   batchId: "expansion-batch-16",
   status: "landed",
   afterRecipeId: "nigerian-suya-pizza",
-  followedBy: ["goulash-pizza"], // (Expansion Batch 17 is appended after this batch)
+  followedBy: ["goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza"], // (Expansion Batch 17 is appended after this batch)
   recipes: [{ recipeId: "ume-shiso-pizza", keyIngredientId: "umeboshi-paste", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
 };
 
@@ -129,10 +129,83 @@ export const B17_BATCH: RecipeBatchManifest = {
   batchId: "expansion-batch-17",
   status: "landed",
   afterRecipeId: "ume-shiso-pizza",
+  followedBy: ["baingan-bharta-pizza", "reina-pepiada-pizza"], // (Expansion Batch 18 is appended after this batch)
   recipes: [{ recipeId: "goulash-pizza", keyIngredientId: "sour-cream", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
 };
 
-export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B14_BATCH, B15_BATCH, B16_BATCH, B17_BATCH];
+/**
+ * Expansion Batch 18 (Issue #748, PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): baingan-bharta-pizza (credited; curry-ketchup stands in for the unspecified curry base; the key of ordinary step 69: `cilantro`, PROMOTED from the late catalog, not a new id)
+ * and reina-pepiada-pizza (NOT credited, `ladderCredit: false`; fromage-blanc-sauce stands in for the white sauce; mayo is the existing topping). Both are recipe-specific Owner decisions, not NO_SAUCE exceptions. Research: cilantro now unlocks two recipes
+ * (baingan / reina, a NEW lettered cohort). In the canonical ladder purchase order, bbq-chicken-pizza (late) is keyed by bbq-sauce, with no letter shift; in the actual entitlement order where cilantro arrives after bbq-sauce, BBQ gains B. Owner approved THAT ORDER-SPECIFIC visible shift on 2026-11-05 (#748).
+ * The validator's `acceptedLetterShifts` contract only applies to canonical ladder order, so declaring the alternative-order shift there would cause ACCEPTED_LETTER_SHIFT_NOT_OBSERVED. Keep that gate strict and pin the approved noncanonical shift in `B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS` + expansionBatch18.test.ts.
+ */
+/** Owner #748 OD-B18-1: explicit acceptance of the actual entitlement-order Research label change, NOT a canonical-ladder validator exception. */
+export const B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS = { "bbq-chicken-pizza": "-->B" } as const;
+
+/**
+ * Codex P2 on PR #759 (2026-11-05): the audit `researchLetterChangesAcrossOrders` (testSupport/researchLabelAudit.ts) compares the catalog BEFORE and AFTER Batch 18 for
+ * many acquisition orders (the full late catalog included). In the CANONICAL ladder order no pre-existing letter changes. In NON-canonical orders (a shared material acquired
+ * last) these 39 pre-existing recipes can change their Research letter -- 24 of them can gain a letter where they had none. Only the bbq-chicken-pizza `-->B` change in the
+ * bbq-sauce -> cilantro order is Owner-approved (OD-B18-1, which was given on the premise that no other recipe changes; that premise was measured in ONE order only).
+ * Owner OD-B18-4 (2026-11-05, Issue #748 comment 6651668675) APPROVED Option A for EXACTLY this audited set (derived Research display labels only; the canonical ladder order must stay at zero
+ * existing-letter changes). The membership is fixed: it is not a general waiver, and any new pre-existing recipe in a later batch needs its own audit and Owner Gate.
+ * Saves, discoveries, scoring, inventory, entitlement (floor 66), recipe identities and the runtime Research 2.0 rule are NOT changed by this approval.
+ * The same audit on the already-merged Batch 17 (goulash-pizza) finds 18 such recipes and on Batch 16 (ume-shiso-pizza) 4: the behaviour follows from the Research 2.0 contract
+ * ("a catalog revision that adds a recipe to an existing cohort may change that cohort's letters", researchEntry.ts), it is not specific to Batch 18.
+ */
+export const B18_APPROVED_AUDITED_ALTERNATE_ORDER_LETTER_CHANGES: readonly string[] = [
+  "aussie",
+  "baba-ganoush-pizza",
+  "bacalhau",
+  "bbq-chicken-pizza",
+  "brazilian-calabresa",
+  "california-style-pizza",
+  "chilean-napolitana",
+  "curry-pizza-japan",
+  "currywurst",
+  "eggplant-dengaku-pizza",
+  "eggplant-ricotta-pizza",
+  "eggplant-tahini-pizza",
+  "flammkuchen",
+  "frango-catupiry",
+  "fugazza",
+  "goulash-pizza",
+  "jamaican-jerk-chicken-pizza",
+  "melanzane-pizza",
+  "moussaka-style-pizza",
+  "parmigiana-pizza",
+  "pesto-caprese",
+  "pesto-gamberi",
+  "pesto-pollo",
+  "pesto-tonno",
+  "pesto-trapanese",
+  "pesto-vegetariana",
+  "pizza-feta-eliniki",
+  "pizza-moscow",
+  "pizza-portuguesa",
+  "polish-kielbasa",
+  "potato-mayo-pizza",
+  "rendang-pizza",
+  "sichuan-eggplant-pizza",
+  "spanish-chorizo-pizza",
+  "supreme-pizza",
+  "tandoori-paneer-pizza",
+  "tonno-e-cipolla",
+  "veggie-supreme-pizza",
+  "wasabi-beef-pizza",
+];
+
+export const B18_BATCH: RecipeBatchManifest = {
+  batchId: "expansion-batch-18",
+  status: "landed",
+  afterRecipeId: "goulash-pizza",
+  recipes: [
+    { recipeId: "baingan-bharta-pizza", keyIngredientId: "cilantro", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "reina-pepiada-pizza", keyIngredientId: "cilantro", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
+  ],
+};
+
+export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B14_BATCH, B15_BATCH, B16_BATCH, B17_BATCH, B18_BATCH];
 
 /**
  * Pinsa Romana (#577 P3-b-3, Owner Q7): the manifest the validator checks in a build where the Pinsa gate (src/data/pinsaGate.ts) is OPEN. Deliberately NOT in
@@ -195,12 +268,13 @@ export const EGGPLANT_TAHINI_BATCH: RecipeBatchManifest = {
  * The recipe is credited, so its own late ladder step (after the tahini step) unlocks `bbq-sauce` and `cilantro`; its Research cohort key is `cilantro` (the last material of the step), a single-member cohort, so no existing recipe
  * changes its Research letter. It is followed by Pinsa only while the Pinsa gate is open. The original PIZZA DB page was not confirmed: the bbq-sauce PAINT before the bake, the chicken and onion before the bake (no pre-cooking)
  * and the cilantro AFTER the bake are GAMEPLAY ASSUMPTIONS (Owner 2026-10-27).
+ * Expansion Batch 18 (#748): `cilantro` was promoted to ordinary step 69, so the late BBQ step now names only `bbq-sauce` and the key ingredient (the Research cohort key) is `bbq-sauce`; the recipe stays a single-member cohort (no letter).
  */
 export const BBQ_CHICKEN_BATCH: RecipeBatchManifest = {
   batchId: "bbq-chicken",
   status: "landed",
   afterRecipeId: "eggplant-tahini-pizza",
-  recipes: [{ recipeId: "bbq-chicken-pizza", keyIngredientId: "cilantro", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
+  recipes: [{ recipeId: "bbq-chicken-pizza", keyIngredientId: "bbq-sauce", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
   followedBy: ["wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza)
 };
 

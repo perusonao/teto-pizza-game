@@ -491,6 +491,18 @@ const BASE_ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "ハンガリーの煮込み風ピザ、食べてみたいな！",
   },
+  {
+    id: "order-baingan-bharta-pizza",
+    recipeId: "baingan-bharta-pizza",
+    requestedBy: "mito",
+    lineJa: "ナスたっぷりのインド風ピザ、食べてみたいな！",
+  },
+  {
+    id: "order-reina-pepiada-pizza",
+    recipeId: "reina-pepiada-pizza",
+    requestedBy: "mito",
+    lineJa: "ベネズエラ風のクリーミーなピザ、おいしそう！",
+  },
 
 ];
 

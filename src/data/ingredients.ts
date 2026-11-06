@@ -1221,6 +1221,22 @@ const BASE_INGREDIENTS: Ingredient[] = [
     unlockCondition: { minTotalStars: 0 },
     pieceVisual: "sour-cream-dab",
   },
+  /**
+   * Expansion Batch 18 (Issue #748): `cilantro` PROMOTED from the late-only catalog (BBQ Chicken, #611 / #679) to an ordinary finite ladder material, ordinary step 69 (T4, no star gate). Same id, colour, emoji and dedicated `cilantro-leaf` visual
+   * (Owner Final Design Gate 2026-10-27); family `herb` (ingredientTaxonomy.ts) and size class `xs` (toppingSizeClass.ts) moved with it. Saved stock / Dex / entitlements keyed by the id are unaffected. `emoji` is only the required, never-displayed
+   * text fallback (G18 keeps it unique). Used BEFORE the bake by baingan-bharta-pizza and reina-pepiada-pizza (GAMEPLAY ASSUMPTION); bbq-chicken-pizza still sprinkles it AFTER the bake (POST_BAKE).
+   */
+  {
+    id: "cilantro",
+    category: "topping",
+    nameJa: "パクチー",
+    color: "#6cae3e",
+    emoji: "\u{1F33C}",
+    pieceVisual: "cilantro-leaf",
+    placement: "scatter",
+    bakeRoastResistant: true,
+    unlockCondition: { minTotalStars: 0 },
+  },
 
 
 ];
