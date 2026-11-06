@@ -1,0 +1,14 @@
+const { chromium } = require("/home/user/teto-pizza-game/node_modules/playwright");
+const fs=require("fs");
+const C=JSON.parse(fs.readFileSync("cands.json"));
+const bgs={dough:"#df a24f".replace(" ",""),raw:"#f1d5a0",cheese:"#e8dac6"};
+const sizes=[14.7,19.8,26.5];
+(async()=>{const b=await chromium.launch();
+ for(const dsf of [1,3]){const p=await b.newPage({viewport:{width:300,height:200},deviceScaleFactor:dsf});
+  for(const [name,[full,nov]] of Object.entries(C)){
+   for(const [bn,bc] of Object.entries(bgs)){for(const z of sizes){for(const [tag,s] of [["full",full],["nov",nov]]){
+    await p.setContent(`<body style="margin:0;background:${bc}"><div id=b style="width:${z+16}px;height:${z+16}px;background:${bc};display:flex;align-items:center;justify-content:center"><div style="width:${z}px;height:${z}px">${s}</div></div></body>`);
+    const id=name.split(" ")[0];
+    await p.locator("#b").screenshot({path:`img/${id}_${bn}_${z}_${tag}_d${dsf}.png`});
+   }}}}}
+ await b.close()})()

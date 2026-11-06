@@ -1,0 +1,23 @@
+import re, json
+src=open('/home/user/teto-pizza-game/src/components/IngredientGlyph.tsx').read()
+leaf=re.search(r'const SHISO_LEAF = "([^"]+)"',src).group(1)
+light=re.search(r'const SHISO_LEAF_LIGHT_HALF = "([^"]+)"',src).group(1)
+veins=re.search(r'const SHISO_VEINS = "([^"]+)"',src).group(1)
+def svg(out="#245f2c",ow=2.4,vw=1.8,vo=.75,vc=None,noveins=False):
+    vc=vc or out
+    v="" if noveins else f'<path d="{veins}" stroke="{vc}" stroke-width="{vw}" stroke-linecap="round" fill="none" opacity="{vo}"/>'
+    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%"><path d="M32 49 L32 57" stroke="{out}" stroke-width="{ow}" stroke-linecap="round" fill="none"/><path d="{leaf}" fill="#5aa84f" stroke="{out}" stroke-width="{ow}" stroke-linejoin="round"/><path d="{light}" fill="#7cc46a"/>{v}</svg>'
+C={ # name: params
+ "C0 current":dict(),
+ "A1 veins2.2/.85":dict(vw=2.2,vo=.85),
+ "A2 veins2.6/.9":dict(vw=2.6,vo=.9),
+ "D1 out#1b4a22/2.4":dict(out="#1b4a22"),
+ "D2 out#1b4a22/2.8":dict(out="#1b4a22",ow=2.8),
+ "D3 out#143a19/2.6":dict(out="#143a19",ow=2.6),
+ "AD1 D1+A1":dict(out="#1b4a22",vw=2.2,vo=.85),
+ "AD2 D2+A2":dict(out="#1b4a22",ow=2.8,vw=2.6,vo=.9),
+ "AD3 D3+A1":dict(out="#143a19",ow=2.6,vw=2.2,vo=.85),
+ "AD4 D1+A2":dict(out="#1b4a22",vw=2.6,vo=.9),
+}
+json.dump({k:[svg(**v),svg(noveins=True,**v)] for k,v in C.items()},open("cands.json","w"))
+json.dump({k:v for k,v in C.items()},open("params.json","w"))
