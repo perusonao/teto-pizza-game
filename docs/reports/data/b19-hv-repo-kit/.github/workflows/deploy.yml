@@ -1,0 +1,45 @@
+name: Deploy B19 HV site (manual, pinned SHA)
+# Publishes a Preview-mode build of perusonao/teto-pizza-game at ONE pinned commit to this repo's own GitHub Pages site.
+# Nothing here touches Production, the shared Preview repo, or Firebase (no secrets are used; no VITE_FIREBASE_* is set).
+# Gate: run only after Owner approval. If the `github-pages` environment has a Required reviewer, the deploy job also waits for it.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEPLOY to publish (Owner approval required)'
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: b19-hv-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    if: ${{ inputs.confirm == 'DEPLOY' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { path: kit }
+      - uses: actions/checkout@v4
+        with:
+          repository: perusonao/teto-pizza-game
+          ref: 8137dc3ba61d636d777b05596b8866f5a74a9d03
+          path: source
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: bash kit/scripts/build-site.sh "$PWD/source" "$PWD/site"
+      - run: bash kit/scripts/verify-site.sh "$PWD/site"
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: site }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

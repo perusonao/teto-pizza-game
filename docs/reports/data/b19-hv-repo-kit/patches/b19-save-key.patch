@@ -1,0 +1,73 @@
+diff --git a/src/state/persistence.ts b/src/state/persistence.ts
+index 61ae000d..8b1703c9 100644
+--- a/src/state/persistence.ts
++++ b/src/state/persistence.ts
+@@ -93,7 +93,9 @@ import {
+  * -- `PersistentSaveV1`'s shape is identical either way, just stored under a different key.
+  */
+ export const SAVE_STORAGE_KEY = import.meta.env.VITE_PREVIEW_MODE
+-  ? "teto-pizza-preview-save-v1"
++  ? // A dedicated, isolated Preview deployment (e.g. the B19 HV site) names its own key at build time so it never shares
++    // the shared Preview's key. Honoured ONLY in a Preview build; ignored (production key) otherwise.
++    (import.meta.env.VITE_SAVE_KEY_OVERRIDE || "teto-pizza-preview-save-v1")
+   : "teto-pizza-save-v1";
+ const CURRENT_SCHEMA_VERSION = 2;
+ 
+diff --git a/src/state/saveKeyOverride.test.ts b/src/state/saveKeyOverride.test.ts
+new file mode 100644
+index 00000000..ffcb7b24
+--- /dev/null
++++ b/src/state/saveKeyOverride.test.ts
+@@ -0,0 +1,52 @@
++import { afterEach, describe, expect, it, vi } from "vitest";
++import type { StorageLike } from "./persistence";
++
++/** Isolated Preview sites (B19 HV) name their own save key at build time; production and the shared Preview keys are untouched. */
++const B19_KEY = "teto-pizza-b19-hv-save-v1";
++const PROD = "teto-pizza-save-v1";
++const SHARED = "teto-pizza-preview-save-v1";
++
++afterEach(() => {
++  vi.unstubAllEnvs();
++  vi.resetModules();
++});
++
++async function load(env: Record<string, string>) {
++  vi.resetModules();
++  for (const [k, v] of Object.entries(env)) vi.stubEnv(k, v);
++  return { persistence: await import("../state/persistence"), seeds: await import("../preview/hvSeeds") };
++}
++function spyStorage(seed: Record<string, string>) {
++  const map = new Map(Object.entries(seed));
++  const touched = new Set<string>();
++  const s: StorageLike = {
++    getItem: (k) => (touched.add(k), map.get(k) ?? null),
++    setItem: (k, v) => (touched.add(k), void map.set(k, v)),
++    removeItem: (k) => (touched.add(k), void map.delete(k)),
++  };
++  return { map, touched, s };
++}
++
++describe("VITE_SAVE_KEY_OVERRIDE", () => {
++  it("Preview build + override: the key is the override", async () => {
++    const { persistence } = await load({ VITE_PREVIEW_MODE: "1", VITE_SAVE_KEY_OVERRIDE: B19_KEY });
++    expect(persistence.SAVE_STORAGE_KEY).toBe(B19_KEY);
++  });
++  it("Preview build without override keeps the shared Preview key; a non-Preview build ignores the override (production key)", async () => {
++    expect((await load({ VITE_PREVIEW_MODE: "1" })).persistence.SAVE_STORAGE_KEY).toBe(SHARED);
++    expect((await load({ VITE_PREVIEW_MODE: "", VITE_SAVE_KEY_OVERRIDE: B19_KEY })).persistence.SAVE_STORAGE_KEY).toBe(PROD);
++  });
++  it("seeding and saving with the override never reads, writes or removes the production or shared-Preview keys (their values stay byte-identical)", async () => {
++    const { persistence, seeds } = await load({ VITE_PREVIEW_MODE: "1", VITE_SAVE_KEY_OVERRIDE: B19_KEY });
++    const { map, touched, s } = spyStorage({ [PROD]: "PROD-SENTINEL", [SHARED]: "SHARED-PREVIEW-SENTINEL" });
++    expect(seeds.applyPreviewHvSeed("?hv=b19-crudaiola", s, "navigate")).toBe("b19-crudaiola");
++    persistence.persistProgress({ ...persistence.loadSave(s), pitzBalance: 123 }, s);
++    expect(persistence.loadSave(s).pitzBalance).toBe(123);
++    persistence.resetSave(s);
++    expect(map.get(PROD)).toBe("PROD-SENTINEL");
++    expect(map.get(SHARED)).toBe("SHARED-PREVIEW-SENTINEL");
++    expect(touched.has(PROD)).toBe(false);
++    expect(touched.has(SHARED)).toBe(false);
++    for (const k of touched) expect(k.startsWith(B19_KEY), k).toBe(true); // the key itself or its derived quarantine / backup keys
++  });
++});

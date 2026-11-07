@@ -1,0 +1,24 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 390, height: 844 } });
+  const p = await ctx.newPage(); const reqs = [];
+  p.on('request', r => reqs.push(r.url()));
+  await p.addInitScript(() => { if (!localStorage.getItem('__seeded')) { localStorage.setItem('teto-pizza-save-v1','PROD-SENTINEL'); localStorage.setItem('teto-pizza-preview-save-v1','SHARED-SENTINEL'); localStorage.setItem('__seeded','1'); } });
+  const base = 'http://localhost:4190/teto-pizza-game-preview-b19/';
+  const bad = [];
+  p.on('response', r => { if (r.status() >= 400) bad.push(r.status() + ' ' + r.url()); });
+  await p.goto(base + '?hv=b19-pesto-burrata'); await p.waitForTimeout(2000);
+  const st = await p.evaluate(() => ({ keys: Object.keys(localStorage).sort(), prod: localStorage.getItem('teto-pizza-save-v1'), shared: localStorage.getItem('teto-pizza-preview-save-v1'), b19: JSON.parse(localStorage.getItem('teto-pizza-b19-hv-save-v1') || 'null') }));
+  console.log('keys', st.keys.join(','));
+  console.log('prod intact', st.prod === 'PROD-SENTINEL', 'shared intact', st.shared === 'SHARED-SENTINEL');
+  console.log('b19 save: pitz', st.b19 && st.b19.pitzBalance, 'burrata owned', st.b19 && st.b19.ownedIngredientIds.includes('burrata'), 'dex', st.b19 && st.b19.dex.length);
+  console.log('badge:', (await p.locator('text=/PREVIEW/').first().innerText()).replace(/\s+/g,' '));
+  const info = await (await p.request.get(base + 'preview-info.json')).json(); console.log('preview-info sha', info.sourceSha.slice(0,8), info.shortSha, info.saveKey);
+  const man = await (await p.request.get(base + 'manifest.webmanifest')).json(); console.log('manifest', man.start_url, man.scope);
+  await p.reload(); await p.waitForTimeout(800);
+  console.log('after reload pitz', await p.evaluate(() => JSON.parse(localStorage.getItem('teto-pizza-b19-hv-save-v1')).pitzBalance));
+  const ext = reqs.filter(u => !u.startsWith('http://localhost:4190/')); console.log('external requests:', ext.length, ext.slice(0,3));
+  console.log('http errors:', bad);
+  await p.screenshot({ path: process.env.S + '/b19-site-home.png' });
+  await b.close();
+})();
