@@ -1,0 +1,27 @@
+/* #755 V3: Preview/DEV Lab only. Builds on the V1 (.sgl) and V2 (.sglv2) rules; only the V3 differences live here. */
+.sglv3__batch button { min-height: 44px; }
+.sglv3__shell-button { cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; outline: none; }
+.sglv3__shell-button[aria-disabled="true"] { cursor: default; }
+/* Keyboard focus only: a tap never focuses the shell (pointerdown / mousedown are prevented in SteamGameLabV3.tsx). */
+.sglv3__shell-button:focus-visible > .sglv3__hit { fill: #ffcd6233; stroke: #ffcd62; stroke-width: 2.5; }
+.sglv3__shell { transform-box: fill-box; transform-origin: 50% 80%; transition: filter 150ms ease; }
+.sglv3__shell[data-state="ready"] { filter: drop-shadow(0 0 5px #ffdb65); }
+.sglv3__shell[data-state="tell"] { animation: sglv3-wobble 150ms ease-in-out infinite alternate; filter: drop-shadow(0 0 3px #fff3d6); }
+.sglv3__bubbles circle { fill: #f5fbff; opacity: 0.85; transform-box: fill-box; animation: sglv3-bubble 420ms ease-out infinite; }
+.sglv3__bubbles circle:nth-child(2) { animation-delay: 140ms; }
+.sglv3__bubbles circle:nth-child(3) { animation-delay: 280ms; }
+.sglv3__count[data-grade="master"] { background: #8a5a12e6; border-color: #ffd36b; }
+.sglv3__count[data-grade="three"] { background: #297448e6; }
+.sglv3__msg[data-grade="master"] { background: #8a5a12; }
+.sglv3__msg[data-grade="three"] { background: #297448; }
+.sglv3__msg[data-grade="two"] { background: #2f5d78; }
+.sglv3__msg[data-grade="one"] { background: #6b552a; }
+.sglv3__msg[data-grade="none"] { background: #714139; }
+@keyframes sglv3-wobble { from { transform: rotate(-7deg) translateY(0); } to { transform: rotate(7deg) translateY(-1.5px); } }
+@keyframes sglv3-bubble { 0% { transform: translateY(2px) scale(0.6); opacity: 0; } 30% { opacity: 0.9; } 100% { transform: translateY(-9px) scale(1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  /* No movement: the tell is a static light outline and still bubbles (no animation). */
+  .sglv3__shell[data-state="tell"] { animation: none; filter: drop-shadow(0 0 4px #ffffff); }
+  .sglv3__bubbles circle { animation: none; }
+  .sglv3__shell { transition: none; }
+}
