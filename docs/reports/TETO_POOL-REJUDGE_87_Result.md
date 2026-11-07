@@ -7,7 +7,7 @@
 ## 0. 結論（先に）
 
 1. **「87」は再構成できた**（母集団としては）: `172 設計行 − 出荷済みレシピに紐づく 85 行 = 87 行`【実測】。90 品の出荷済みのうち 85 品が 172 行のどれかに紐づき、5 品（funghi・napoletana・pepperoni・pizza-bianca・salsiccia）は行を持たない。#780 の「PIZZA DB 版 9 行は別途 Owner 判断」は、85 行のうち出荷済みと構成が食い違う 9 行（`COMPOSITION_CONFLICT_SHIPPED`）が**出荷済み側として数えられている**ことと整合する【実測＋推論】。
-2. **「Wave A 46 / B 26 / C 15」の内訳は再構成できなかった**【未確認】。repo（main・#772 ブランチ・#773 の 2 ブランチ）と #772・#773・#577・#780 のコメントに「Wave」の定義は無い。推測で埋めていない。参考値だけ記す（§2）。
+2. **「Wave A 46 / B 26 / C 15」と「判断不要 9 品」は再現できず UNVERIFIED**。repo（main・#772 ブランチ・#773 の 2 ブランチ）と #772・#773・#577・#780 のコメントに定義も ID も無い。9 件を作らず、6 件などへの置換もしていない（§2）。
 3. **87 品に「Owner 判断不要で今すぐ実装可（FULL）」は 0 件**【実測】（静的ゲート）。内訳は §3。これは #772 S2 の「既存食材だけで足せるレシピはほぼ残っていない」と矛盾しない（S2 は 39 行、本書は 87 行全体を同じ方法で見直した）。
 4. 87 とは別に、**Sept の Phase-2「証拠が揃った 87 行」（`EVIDENCE_READY_TARGET`）という同じ数の別集合**がある。こちらは今 **61 行が出荷済み、26 行が未出荷**【実測】。#780 の 87 をこちらだと読むと、61 行を二重に未実装と数えることになる。数が偶然一致しているので注意。
 5. 古いスナップショット `TETO_POST-W1_COOKING-STEPS_172-MECHANIC-CLASSIFICATION.json`（`e0397ae`）は出荷済みを 49 行しか認識しておらず、**36 行を未実装と数えている**【実測】（late catalog の 8 品と、その後の B8〜B18 を含まない）。
@@ -22,16 +22,17 @@
 | D: 出荷済みと構成が食い違う 9 行を未実装に戻した場合 | 96 | 参考（#780 の「別途 Owner 判断」の 9 行） |
 | E: 古い POST-W1 JSON の `runtimeRecipeId == null` | 123（= 172 − 49） | 不採用（古い） |
 
+- **ID 単位の根拠**: 除外した 85 行は `rows.json` の `summary.linksDetail`（evidenceId → 出荷済みレシピ id と規則）、残る 87 行は `rows`。入力の出典は `origin/main` `06cfc066` の `docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json`（172 行）、`src/data/{recipes,lateCatalog,discoveryCatalog,ingredients}.ts`（出荷済み 90 品・97 食材・target id）、`docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json`（Sept の 87）。
 - 紐づけの規則（`script.py.txt`）: L1 = `RECIPE_DISCOVERY_TARGET_IDS`／`LATE_DISCOVERY_TARGET_IDS` の target id が evidenceId と一致（74 行）、L2 = Phase-2 の `shippedRecipesCountedAsEvidenceRow`（1 行）、L3 = matrix の `canonicalCandidateId`／`correspondsToExistingCatalogId`（10 行。margherita・marinara・fugazza・bismarck・capricciosa・quattro-formaggi・meat-lovers・breakfast-pizza・genovese・pinsa-romana）。1 レシピに 2 行が紐づくことは無い【実測】。二重計上は無い（紐づいた 85 行は 87 の外）。
 - 87 行の内訳: Phase-2 の READY 側 26 行（matrix 状態 READY 14 + READY_WITH_REVIEW 12）、`BLOCKED_PRODUCT_DECISION` 61 行。
 - 本番の食材数 97（`catalogLedger.test.ts` の `ingredients: 97` と一致）、レシピ 90（通常 82 + late 8、`PINSA_PRODUCTION`／`LATE_CATALOG_PRODUCTION` は共に true）【実測】。
 
-## 2. Wave A/B/C について【未確認】
+## 2. Wave A/B/C と「判断不要 9 品」について — **UNVERIFIED**（Owner 追記 2026-11-07 6691497411 に従う）
 
-- #780 本文は「Wave A の Owner 判断不要 9 品」「判断待ち 37 品」と書いており、**A 46 = 9 + 37** と読める【推論】。
-- 本書の静的ゲートで「matrix が READY／READY_WITH_REVIEW かつ重複ゲートを通る」行は 8 行（piadina・fritta・poutine・burrata-pizza・pesto-noci・pesto-burrata・peking-duck・manakish）。これに Batch 19 Prep の D2 で Owner が例外を承認済みの crudaiola を足すと 9 になる【実測＋推論。この 9 が Owner の 9 と同じ集合かは未確認。偶然の一致の可能性がある】。
-- B = 26 は未出荷の READY 側の 26 行と同数だが、定義が違えば偶然。C = 15 に当たる集合は見つからなかった。
-- **Owner／#780 の作成者に、Wave の定義（または元の表）の提示を求める**（§7 Q-1）。得られるまで Wave 別の再集計はしない。
+- **Wave A 46／B 26／C 15、「判断不要 9 品」「判断待ち 37 品」は、repo と GitHub のどこからも再現できなかった（UNVERIFIED）。9 件の ID は本書では作らない。** 本書の分類を「承認済みの実行可能バッチ」と読まないこと。
+- 出所の手がかりは #780 本文の文面だけ（A 46 = 9 + 37 と読める【推論】）。定義・ID 一覧・元の表の commit／path は見つかっていない。足りない出所情報: Wave の定義、9 件の ID、Wave 別の件数の算出元。
+- 参考（置き換えではない）: 本書の静的ゲートで「matrix が READY／READY_WITH_REVIEW かつ重複ゲートを通る」行は 8 行（piadina・pizza-fritta・poutine・burrata-pizza・pesto-noci・pesto-burrata・peking-duck・manakish）。crudaiola は Batch 19 Prep の D2 で Owner が Jaccard 例外を承認済みで、足すと 9 になるが、**これは偶然の件数一致の可能性があり、Owner の 9 とは別物かもしれない。Batch 19（#774）は既に Owner GO と別の T1 claim があり、この集合に依存させない**。
+- 87 の母集団そのものは ID 単位で再現できている（§1）。ただし「Owner が 87 をこの定義で数えたか」は未確認。
 
 ## 3. 分類件数表（87 行、実装済みと二重計上なし）【実測・静的】
 
@@ -182,7 +183,7 @@
 
 | ID | 論点 | 推奨 |
 |---|---|---|
-| Q-1 | **Wave A/B/C と「判断不要 9／判断待ち 37」の定義**を提示してもらう（本書は再構成不能） | 元の表または定義の提示。それまで Wave 別の約束はしない |
+| Q-1 | **Wave A/B/C と「判断不要 9／判断待ち 37」の定義・ID 一覧・出所（commit／path）**の提示（本書は UNVERIFIED のまま） | 提示されるまで Wave 別の約束をしない。9 件を本書の 8＋1 で代用しない |
 | Q-2 | #780 の「87」の定義を「172 − 出荷済み紐づき 85」と記録してよいか。Sept の Phase-2 の 87 とは別集合であることを #780 に 1 行追記 | 記録する |
 | Q-3 | 出荷済みと構成が食い違う 9 行を、出荷済みとして数えるか（現状どおり）、未実装に戻すか | 出荷済みのまま数え、別論点として #190 の A／B 判断に残す |
 | Q-4 | **FULL が 0 件**であることを受けて、次の拡張の優先を「burrata（#774）→ B20-A（honey・walnut）→ DOUGH_VARIANT（piadina から）」とするか | その順（S2・Rev 5 と一致）。新食材なしの水増しはしない |
