@@ -1,0 +1,281 @@
+#!/usr/bin/env python3
+"""TETO_POOL-REJUDGE_87 (#780, docs-only): re-judge the "87 unimplemented rows" against the CURRENT main.
+
+Run (from the repo root, on a checkout of the main commit you want to audit; stdlib only):
+    cp docs/reports/data/TETO_POOL-REJUDGE_87_script.py.txt /tmp/rejudge.py
+    python3 -I /tmp/rejudge.py . docs/reports/data/TETO_POOL-REJUDGE_87_rows.json
+
+Reads (read-only): src/data/recipes.ts, src/data/lateCatalog.ts, src/data/ingredients.ts, src/data/discoveryCatalog.ts,
+docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json (the 172 rows, evidence authority),
+docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json (rowClassification: where the number 87 comes from).
+The Jaccard method is the one of docs/reports/data/TETO_CONTENT-POOL_jaccard.py (#772, branch claude/teto-pizza-parallel-plan-sh894e):
+ingredient-id SETS of requiredIngredients (counts ignored, sauces counted as ingredients). It is a STATIC approximation, NOT the game's validator.
+Production support of each mechanic is a hand-written table below (SUPPORT) read from the code at the audited commit; re-check it when re-running.
+"""
+import json, re, sys, collections as C
+
+root = sys.argv[1] if len(sys.argv) > 1 else "."
+out_path = sys.argv[2] if len(sys.argv) > 2 else None
+
+
+def rd(p):
+    return open(f"{root}/{p}", encoding="utf-8").read()
+
+
+rec_src = rd("src/data/recipes.ts")
+late_src = rd("src/data/lateCatalog.ts")
+ing_src = rd("src/data/ingredients.ts")
+disc_src = rd("src/data/discoveryCatalog.ts")
+M = json.load(open(f"{root}/docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json"))
+P2 = json.load(open(f"{root}/docs/design/data/TETO_PROGRESSION2_PHASE2_UNLOCK-MATRIX.json"))
+rows = M["rows"]
+
+# ---- shipped recipes (BASE_RECIPES + LATE_RECIPES; both are in Production: LATE_CATALOG_PRODUCTION=true, PINSA_PRODUCTION=true) ----
+RE = re.compile(r'\n\s{4}id: "([a-z0-9-]+)",\s*\n\s*nameJa:.*?requiredIngredients: \[(.*?)\]\s*,', re.S)
+shipped = {}
+for src in (rec_src, late_src):
+    for m in RE.finditer(src):
+        ids = re.findall(r'ingredientId: "([a-z0-9-]+)"', m.group(2))
+        shipped[m.group(1)] = {"set": set(ids), "post": set(re.findall(r'ingredientId: "([a-z0-9-]+)"[^}]*applicationPhase: "POST_BAKE"', m.group(2)))}
+# doughKind of shipped recipes (only pinsa-romana today)
+dk = {}
+for m in re.finditer(r'id: "([a-z0-9-]+)",(?:(?!\n    id: ).)*?doughKind: "([a-z-]+)"', late_src + rec_src, re.S):
+    dk[m.group(1)] = m.group(2)
+
+# ---- production ingredients: BASE_INGREDIENTS + LATE_INGREDIENTS ----
+ING_RE = r'^\s{4}id: "([^"]+)",\s*\n\s*category:'
+ing_ids = set(re.findall(ING_RE, ing_src, re.M)) | set(re.findall(ING_RE, late_src, re.M))
+
+# ---- shipped <-> evidence row links ----
+disc_pairs = dict(re.findall(r'^\s+"?([a-z0-9-]+)"?: "([a-z0-9:-]+)",', disc_src, re.M))
+late_pairs = dict(re.findall(r'^\s+"([a-z0-9-]+)": "([a-z0-9-]+)",', late_src.split("LATE_DISCOVERY_TARGET_IDS")[1].split("};")[0], re.M)) if "LATE_DISCOVERY_TARGET_IDS" in late_src else {}
+target_of = {**disc_pairs, **late_pairs}
+target_of = {k: v for k, v in target_of.items() if k in shipped}
+ev_ids = {r["evidenceId"] for r in rows}
+linked = {}  # evidenceId -> (recipeId, how)
+for rid, tid in target_of.items():
+    if tid in ev_ids:
+        linked[tid] = (rid, "L1:RECIPE_DISCOVERY_TARGET_IDS/LATE_DISCOVERY_TARGET_IDS")
+for rid, eid in P2["shippedRecipesCountedAsEvidenceRow"].items():
+    if rid in shipped and eid in ev_ids and eid not in linked:
+        linked[eid] = (rid, "L2:Phase2.shippedRecipesCountedAsEvidenceRow")
+for r in rows:
+    if r["evidenceId"] in linked:
+        continue
+    for cand in (r["canonicalCandidateId"], r["phase0"].get("correspondsToExistingCatalogId")):
+        if cand in shipped:
+            linked[r["evidenceId"]] = (cand, "L3:canonicalCandidateId/correspondsToExistingCatalogId")
+            break
+
+# ---- the number 87 ----
+ready87 = [x["evidenceId"] for x in P2["rowClassification"] if x["phase2Class"] == "EVIDENCE_READY_TARGET"]
+status = {r["evidenceId"]: r["productDecisionStatus"] for r in rows}
+matrix_ready = [e for e, s in status.items() if s in ("READY", "READY_WITH_REVIEW", "ALREADY_SHIPPED_CORROBORATED")]
+assert set(ready87) == set(matrix_ready), "Phase-2 EVIDENCE_READY_TARGET != matrix READY+READY_WITH_REVIEW+ALREADY_SHIPPED"
+
+
+def jacc(a, b):
+    return len(a & b) / len(a | b) if (a | b) else 0.0
+
+
+# ---- production support table (read from code at the audited commit; hand-written) ----
+SUPPORT = {
+    "LATE_ADDITION:post_bake": ("SHIPPED", "late catalog + FINISH ON in Production (LATE_CATALOG_PRODUCTION / FREE_COOK_FINISH_PRODUCTION = true)"),
+    "LATE_ADDITION:mid_bake": ("MISSING", "no mid-bake step"),
+    "MULTI_SPREAD_LAYER": ("SHIPPED_LIMITED", "2 sauce layers shipped (grandma-pizza, #521); secondary sauce scored by presence only; >2 layers or non-sauce layers not shipped"),
+    "PAN_BAKE:tray": ("SHIPPED", "square tray (panShape square / pan tray, #532/#538)"),
+    "PAN_BAKE:other": ("MISSING", "no deep/shallow/steel pan"),
+    "DOUGH_VARIANT": ("PARTIAL", "2 kinds only (standard, material-multigrain-long-ferment); a 3rd kind needs #577 PD-1b/c + PD-2 + PD-3"),
+    "PREP_STEP": ("GATED_OFF", "prep experience built behind PREP_EXPERIENCE_PRODUCTION=false"),
+    "FRY_COOK": ("GATED_OFF", "fry Phase 1 behind FRY_EXPERIENCE_PRODUCTION=false (#749 open)"),
+    "ENCLOSE": ("MISSING", "none"),
+    "LAMINATE": ("MISSING", "none"),
+    "ZONED_PLACEMENT": ("MISSING", "none"),
+    "STEP_ORDER": ("MISSING", "none"),
+    "DOUGH_SHAPE_TARGET": ("MISSING", "none"),
+}
+DEP = {
+    "DOUGH_VARIANT": "#577 PD-1a(PR #775)->PD-1b/c->PD-2 chip UI->PD-3 data (+ #773 J-4/J-5)",
+    "PREP_STEP": "Cooking Prep PR-A gate: Owner production ON",
+    "FRY_COOK": "#749 F1-F3 + Owner production ON",
+    "ENCLOSE": "design only (#773 / #780 workstream D)",
+    "LAMINATE": "design only (#780 workstream D)",
+    "ZONED_PLACEMENT": "design only (#780 workstream D)",
+    "STEP_ORDER": "design only",
+    "DOUGH_SHAPE_TARGET": "design only",
+    "PAN_BAKE:other": "design only (#532/#540 line)",
+    "LATE_ADDITION:mid_bake": "design only",
+    "MULTI_SPREAD_LAYER": "needs 3rd layer / non-sauce layer mechanism (design only)",
+}
+
+
+def mech_keys(r):
+    keys = []
+    for c in r["requiredCapabilities"]:
+        if c == "LATE_ADDITION":
+            modes = {f["mode"] for f in r["postBakeFinish"]} or {"post_bake"}
+            for mo in sorted(modes):
+                keys.append("LATE_ADDITION:" + ("post_bake" if mo == "post_bake" else "mid_bake"))
+        elif c == "PAN_BAKE":
+            keys.append("PAN_BAKE:tray" if r["cookingProfile"]["pan"] in ("tray", "sheet-pan") and False else "PAN_BAKE:other")
+        elif c == "MULTI_SPREAD_LAYER":
+            keys.append("MULTI_SPREAD_LAYER")
+        else:
+            keys.append(c)
+    return keys
+
+
+def judge(r):
+    eid = r["evidenceId"]
+    ident = set(r["ingredients"]["identityIngredientSet"] or r["ingredients"]["canonicalIngredientIds"])
+    new_ing = sorted(i for i in r["ingredients"]["canonicalIngredientIds"] if i not in ing_ids)
+    keys = mech_keys(r)
+    # MULTI_SPREAD: shipped-limited when <=2 layers (sauce-only is assumed; new layers count as new ingredients)
+    blockers_mech, notes = [], []
+    for k in keys:
+        st, why = SUPPORT[k]
+        if k == "MULTI_SPREAD_LAYER":
+            if r["sauceBase"]["spreadLayerCount"] <= 2:
+                notes.append("MULTI_SPREAD(2-layer, shipped #521)")
+                continue
+            blockers_mech.append(k)
+        elif st in ("SHIPPED",):
+            continue
+        else:
+            blockers_mech.append(k)
+    # static duplicate gate against the 90 shipped (identity sets); post-bake / dough axes can separate equal sets
+    best = sorted(((jacc(ident, v["set"]), k) for k, v in shipped.items()), reverse=True)[:3]
+    same = [k for k, v in shipped.items() if v["set"] == ident]
+    sub = [k for k, v in shipped.items() if v["set"] < ident and len(v["set"]) > 0]  # shipped is a strict subset of candidate (candidate is superset)
+    sup = [k for k, v in shipped.items() if v["set"] > ident]  # candidate is a strict subset of shipped
+    axis_sep = bool({"DOUGH_VARIANT"} & set(r["requiredCapabilities"])) or bool({"LATE_ADDITION"} & set(r["requiredCapabilities"]))
+    complete = r["ingredients"]["complete"]
+    dup = "NONE"
+    if same:
+        dup = "IDENTICAL_SET_AXIS_SEPARATED" if axis_sep else "IDENTICAL_SET_FORBIDDEN"
+    elif sup:
+        dup = "SUBSET_OF_SHIPPED_FORBIDDEN"
+    elif sub:
+        dup = "SUPERSET_OF_SHIPPED_FORBIDDEN"
+    elif best and best[0][0] > 0.4:
+        dup = "JACCARD_OVER_0.4_EXCEPTION"
+    return {
+        "evidenceId": eid,
+        "nameJa": r["nameJa"],
+        "matrixStatus": r["productDecisionStatus"],
+        "blockerTypes": sorted({b["type"] for b in r["blockers"]}),
+        "reviewItemTypes": sorted({x["type"] for x in r["reviewItems"]}),
+        "newIngredients": new_ing,
+        "newIngredientCount": len(new_ing),
+        "identitySetComplete": complete,
+        "requiredCapabilities": r["requiredCapabilities"],
+        "candidateCapabilities": r["candidateCapabilities"],
+        "mechanicKeys": keys,
+        "mechanicNotes": notes,
+        "mechanicMissingOrGated": [{"key": k, "support": SUPPORT[k][0], "dependsOn": DEP.get(k, "")} for k in blockers_mech],
+        "pan": r["cookingProfile"]["pan"],
+        "doughVariant": r["dough"]["variant"],
+        "doughForm": r["dough"]["form"],
+        "sauceStatus": r["sauceBase"]["status"],
+        "spreadLayerCount": r["sauceBase"]["spreadLayerCount"],
+        "sourceOrigin": r["phase0"].get("evidenceOrigin"),
+        "sourceStatus": ("individual page relayed by Owner earlier (not re-verified here)" if r["phase0"].get("evidenceOrigin") == "individual_profile_page" else "comparison-table sample only") + "; pizzadb.jp NOT confirmed in this session",
+        "jaccardTop3": [[round(a, 3), k] for a, k in best],
+        "identicalShipped": same,
+        "dupGate": dup,
+        "axisSeparable": axis_sep,
+        "identitySet": sorted(ident),
+    }
+
+
+def classify(j):
+    """Four classes requested by the Owner. Order: Owner decision > process dependency > new ingredient count."""
+    why = []
+    if j["blockerTypes"]:
+        why.append("matrix blockers: " + "+".join(j["blockerTypes"]))
+    if j["matrixStatus"] not in ("READY",) and j["reviewItemTypes"] and any(t in j["reviewItemTypes"] for t in ("SAME_INGREDIENT_SET_AS_CATALOG_RECIPE", "SOURCE_INCONSISTENCY", "PREPARED_COMPOSITE_INGREDIENT", "NAME_SPECIFICITY_GAP")):
+        why.append("review: " + "+".join(t for t in j["reviewItemTypes"] if t != "CANDIDATE_CAPABILITY" and t != "NAMING_CLUSTER"))
+    if j["dupGate"] in ("IDENTICAL_SET_FORBIDDEN", "SUBSET_OF_SHIPPED_FORBIDDEN", "SUPERSET_OF_SHIPPED_FORBIDDEN"):
+        why.append("dup:" + j["dupGate"])
+    if j["dupGate"] == "JACCARD_OVER_0.4_EXCEPTION":
+        why.append("dup: Jaccard>0.4 exception (Batch 19 audit sec.4)")
+    if j["dupGate"] == "IDENTICAL_SET_AXIS_SEPARATED":
+        why.append("same ingredient set as shipped, separated only by dough/late axis (#577 D-F4)")
+    if not j["identitySetComplete"]:
+        why.append("identity set incomplete")
+    if why:
+        return "OWNER_DECISION", why
+    if j["mechanicMissingOrGated"]:
+        return "PROCESS_DEPENDENT", [f"{m['key']}({m['support']})->{m['dependsOn']}" for m in j["mechanicMissingOrGated"]]
+    if j["newIngredientCount"] == 0:
+        return "FULL", ["no new ingredient, no missing mechanism, no blocker, no duplicate"]
+    if j["newIngredientCount"] == 1:
+        return "ONE_NEW_INGREDIENT", ["new ingredient: " + j["newIngredients"][0]]
+    return "MULTI_NEW_INGREDIENT", ["new ingredients: " + ",".join(j["newIngredients"])]
+
+
+def after_decision_class(j):
+    """The class the row would fall in if every Owner decision / blocker were granted (what remains: mechanism, then new-ingredient count)."""
+    if j["mechanicMissingOrGated"]:
+        return "PROCESS_DEPENDENT"
+    return {0: "FULL", 1: "ONE_NEW_INGREDIENT"}.get(j["newIngredientCount"], "MULTI_NEW_INGREDIENT")
+
+
+OWNER_PRIMARY_ORDER = ["EVIDENCE_GAP", "SCOPE_QUESTION", "MECHANIC_INTERPRETATION", "DISCOVERY_COLLISION", "COMPOSITION_CONFLICT_CANDIDATE", "BASE_SAUCE_UNSPECIFIED", "UNRESOLVED_INGREDIENT"]
+
+
+def primary_owner_reason(j):
+    for t in OWNER_PRIMARY_ORDER:
+        if t in j["blockerTypes"]:
+            return t
+    for t in ("dup:IDENTICAL_SET_FORBIDDEN", "dup:SUBSET_OF_SHIPPED_FORBIDDEN", "dup:SUPERSET_OF_SHIPPED_FORBIDDEN", "dup:JACCARD_OVER_0.4_EXCEPTION", "dup:IDENTICAL_SET_AXIS_SEPARATED"):
+        if t.split(":")[1] == j["dupGate"]:
+            return t
+    if j["reviewItemTypes"]:
+        return "review:" + "+".join(j["reviewItemTypes"])
+    return "none"
+
+
+by_id = {r["evidenceId"]: r for r in rows}
+unshipped_all = [r["evidenceId"] for r in rows if r["evidenceId"] not in linked]
+ready_unshipped = [e for e in ready87 if e not in linked]
+ready_shipped = [e for e in ready87 if e in linked]
+
+out_rows = []
+for e in unshipped_all:
+    j = judge(by_id[e])
+    cls, why = classify(j)
+    j["class"] = cls
+    j["inPhase2EvidenceReady87"] = e in set(ready87)
+    j["afterDecisionClass"] = after_decision_class(j)
+    j["primaryOwnerReason"] = primary_owner_reason(j) if cls == "OWNER_DECISION" else None
+    j["classWhy"] = why
+    out_rows.append(j)
+
+blocked_unshipped = [e for e in unshipped_all if e not in set(ready87)]
+
+summary = {
+    "auditedRecipes": len(shipped),
+    "auditedRecipeIds": sorted(shipped),
+    "productionIngredientCount": len(ing_ids),
+    "rows172": len(rows),
+    "linkedShippedRows": len(linked),
+    "linkedByRule": dict(C.Counter(v[1].split(":")[0] for v in linked.values())),
+    "shippedRecipesWithoutRow": sorted(set(shipped) - {v[0] for v in linked.values()}),
+    "unshippedRows172": len(unshipped_all),
+    "phase2EvidenceReady87": len(ready87),
+    "phase2Ready87_alreadyShippedNow": len(ready_shipped),
+    "phase2Ready87_stillUnshipped": len(ready_unshipped),
+    "blockedRows_stillUnshipped": len(blocked_unshipped),
+    "blockedRowsShippedAnyway": sorted(e for e in linked if e not in set(ready87)),
+    "classCounts": dict(C.Counter(o["class"] for o in out_rows)),
+    "afterDecisionCounts": dict(C.Counter(o["afterDecisionClass"] for o in out_rows)),
+    "ownerReasonCounts": dict(C.Counter(o["primaryOwnerReason"] for o in out_rows if o["class"] == "OWNER_DECISION")),
+    "classCountsReadyPart": dict(C.Counter(o["class"] for o in out_rows if o["inPhase2EvidenceReady87"])),
+    "classCountsBlockedPart": dict(C.Counter(o["class"] for o in out_rows if not o["inPhase2EvidenceReady87"])),
+    "linksDetail": {e: list(v) for e, v in sorted(linked.items())},
+}
+result = {"summary": summary, "readyAlreadyShipped": {e: linked[e] for e in ready_shipped}, "rows": out_rows}
+if out_path:
+    json.dump(result, open(out_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+print(json.dumps({k: v for k, v in summary.items() if k not in ("auditedRecipeIds", "linksDetail")}, ensure_ascii=False, indent=1))
