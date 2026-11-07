@@ -2,6 +2,7 @@
 
 Status: **計画のみ（docs-only）。コード・CSS・golden 未変更。共有 Preview 未更新。PR・merge・Production ON なし。**
 Branch `claude/teto-pizza-t7-t9-audit-12by6f` / 基準 `main` `06cfc06` / Issue #675（暫定）/ claim: #675 コメント 6703659391（`TETO_COOK-OPS_T9_*`、期限 2026-11-20）。
+**最終整理は `TETO_COOK-OPS_T9_HV-Checklist-Final_2026-11-07.md`（A0〜A19。本書の H1〜H17 を統合・改番）。**
 根拠: Owner 決定 #675 コメント 6703775101（SEAR 低ステージの read-only iPhone Safari HV は GO）。
 
 ## 0. 検証状況（先に）
