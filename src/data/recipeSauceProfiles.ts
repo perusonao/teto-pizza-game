@@ -386,6 +386,9 @@ export const RECIPE_SAUCE_PROFILES = {
   "baingan-bharta-pizza": { recipeId: "baingan-bharta-pizza", ingredientId: "curry-ketchup", interaction: "PAINT" },
   // Expansion Batch 18 (#748, PROVISIONAL, ORIGINAL NOT CONFIRMED): the existing fromage-blanc-sauce PAINT stands in for the white sauce (a recipe-specific Owner decision, as moussaka-style-pizza); NOT NO_SAUCE. mayo is the existing squeeze topping.
   "reina-pepiada-pizza": { recipeId: "reina-pepiada-pizza", ingredientId: "fromage-blanc-sauce", interaction: "PAINT" },
+  // Expansion Batch 19 (#774, PROVISIONAL, ORIGINAL NOT CONFIRMED): the PRIMARY sauce only (pesto / tomato-sauce, the Reference target). The secondary olive-oil has no profile entry and is scored by presence (Multi-Sauce S3 precedent, grandma-pizza); NOT NO_SAUCE.
+  "pesto-burrata-pizza": { recipeId: "pesto-burrata-pizza", ingredientId: "pesto", interaction: "PAINT" },
+  "pizza-alla-crudaiola": { recipeId: "pizza-alla-crudaiola", ingredientId: "tomato-sauce", interaction: "PAINT" },
   "ikura-salmon-pizza": null,
   // New Sauces Phase B U1 (late catalog): yuzu-kosho painted before the bake (PROVISIONAL, not confirmed by the original).
   "yuzu-shrimp-pizza": {

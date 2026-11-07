@@ -1598,6 +1598,45 @@ const BASE_RECIPES = [
     lunchRush: false,
     ladderCredit: false,
   },
+  {
+    id: "pesto-burrata-pizza",
+    nameJa: "ペスト・ブッラータピザ",
+    description: "ペストとオリーブオイルを塗った生地に、ブッラータとトマトをのせた、緑が映える一枚。",
+    // Expansion Batch 19 (Issue #774; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; id and Japanese name are PROVISIONAL, Owner D3). SOURCE AUTHORITY: the 172 matrix row `pesto-burrata-pizzadb-p12` only (comparison table p12, relayed 2026-09-22, never independently re-fetched): ペスト(sauce) / オリーブオイル / ブラータ / トマト.
+    // OWNER DECISIONS (2026-11-06): D1 the ingredient is spelled ブッラータ (`burrata`); D7 the only cheese is burrata (mozzarella is NOT added); D8 both Batch 19 recipes are kept; the sauce is TWO layers (pesto, then olive-oil) like grandma-pizza. NOT a NO_SAUCE exception.
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source): pesto 1 (PAINT, the Reference target) / olive-oil 1 (PAINT_TEMPORARY, scored by presence) / burrata 2 / fresh-tomato 2, bake 58-78 (the generic Free Cooking window). The order is primary sauce, second sauce, cheese, topping so that the Rule W reserved ingredient
+    // (fresh-tomato, the last) equals the one the legacy Hint 2.0 H4 withholds. EVERY piece is placed BEFORE the bake (no POST_BAKE, so no FINISH step; no prep / steam / sear step). Ladder-credited: the key of ordinary step 70 (burrata). `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "burrata", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "pizza-alla-crudaiola",
+    nameJa: "ピッツァ・アッラ・クルダイオーラ",
+    description: "トマトソースとオリーブオイルを塗った生地に、モッツァレラとブッラータ、トマト、ルッコラをのせた、フレッシュな一枚。",
+    // Expansion Batch 19 (Issue #774; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; id and Japanese name are PROVISIONAL, Owner D3). SOURCE AUTHORITY: the 172 matrix row `pizza-alla-crudaiola-pizzadb-p8` only (comparison table p8, relayed 2026-09-22, never independently re-fetched): トマトソース(sauce) / オリーブオイル / モッツァレラ / ブラータ / トマト / ルッコラ.
+    // OWNER DECISIONS (2026-11-06): all ingredients are pre-bake (the matrix gives no after-bake step; the FINISH-cheese idea is a separate future task); D2 / Q1 a conditional Jaccard 0.429 exception for THIS recipe only (conditions C1-C5, OD-B19-2; four named neighbours: pinsa-romana, jamon-serrano-pizza, grandma-pizza and pesto-burrata-pizza; the global 0.4 guideline is unchanged); D8 both recipes kept.
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source): tomato-sauce 1 (PAINT, the Reference target) / olive-oil 1 (PAINT_TEMPORARY, scored by presence) / mozzarella 2 / burrata 2 / fresh-tomato 2 / arugula 2 (non-sauce 8 pieces = the 8-slot ring; arugula is last = the Rule W reserved ingredient), bake 58-78.
+    // NOT ladder-credited (`ladderCredit: false`): ordinary step 70 (burrata) is keyed by pesto-burrata-pizza and this recipe adds no material; it is makeable at step 70 and shares the burrata cohort (so the two are lettered A / B in Research). `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "burrata", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 2 },
+      { ingredientId: "arugula", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+    ladderCredit: false,
+  },
 
 ] as const;
 

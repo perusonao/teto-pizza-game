@@ -177,6 +177,8 @@ const RECIPE_STEP_MATRIX: Record<BaseRecipeId, readonly MakingStep[]> = {
   "goulash-pizza": ["DOUGH", "SAUCE", "TOPPING"],
   "baingan-bharta-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   "reina-pepiada-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "pesto-burrata-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "pizza-alla-crudaiola": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   // TQ-1D: the first no-sauce recipe has no SAUCE step (mozzarella = cheese, bacon / egg / onion = toppings); no CUT.
   aussie: ["DOUGH", "CHEESE", "TOPPING"],
   // Multi-Sauce S3 / Square Dough E-2: grandma-pizza paints both its sauces (tomato-sauce, olive-oil) in the one SAUCE step; no CUT (square pan).

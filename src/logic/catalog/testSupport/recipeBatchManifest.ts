@@ -205,7 +205,22 @@ export const B18_BATCH: RecipeBatchManifest = {
   ],
 };
 
-export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B14_BATCH, B15_BATCH, B16_BATCH, B17_BATCH, B18_BATCH];
+/**
+ * Expansion Batch 19 (Issue #774, PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): pesto-burrata-pizza (credited; the key of ordinary step 70: the one new material `burrata`) and pizza-alla-crudaiola (NOT credited, `ladderCredit: false`;
+ * a conditional Jaccard 0.429 exception for this recipe only, OD-B19-2). Both have two sauce layers (primary + olive-oil by presence) and every piece is placed before the bake. Research: burrata unlocks two recipes (a NEW lettered cohort A / B); burrata is in no existing recipe,
+ * so no existing label shifts in the canonical ladder order (non-canonical orders are audited separately in the Result Report, AC-8).
+ */
+export const B19_BATCH: RecipeBatchManifest = {
+  batchId: "expansion-batch-19",
+  status: "landed",
+  afterRecipeId: "reina-pepiada-pizza",
+  recipes: [
+    { recipeId: "pesto-burrata-pizza", keyIngredientId: "burrata", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "pizza-alla-crudaiola", keyIngredientId: "burrata", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
+  ],
+};
+
+export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B14_BATCH, B15_BATCH, B16_BATCH, B17_BATCH, B18_BATCH, B19_BATCH];
 
 /**
  * Pinsa Romana (#577 P3-b-3, Owner Q7): the manifest the validator checks in a build where the Pinsa gate (src/data/pinsaGate.ts) is OPEN. Deliberately NOT in
