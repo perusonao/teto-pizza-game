@@ -222,8 +222,10 @@ export function chooseAttempt(
   const totalKnownEnough = k.total !== null && k.positive.length >= k.total;
   const hasUnknown = unknownSauces.length + unknownCheeses.length + unknownToppings.length > 0;
   if (!hasUnknown || totalKnownEnough) {
-    const extraSauce = k.finalFailed ? ordered("sauce")[0] : undefined;
-    if (extraSauce) return { ids: [...k.positive, extraSauce], unknownIds: [extraSauce], unknownTested: 1, final: false };
+    // A recipe can need a SECOND sauce (grandma-pizza, and since Expansion Batch 19 pesto-burrata-pizza / pizza-alla-crudaiola): after the final set failed, the player puts the remaining unknown sauces on in ONE attempt -- the Research rows judge every used, not-yet-known sauce
+    // with no cap (researchResultRows, OD-RB-12) -- instead of one per attempt, which with a long sauce shelf only ends in a (false) "stuck" report. Single-sauce recipes never reach this path.
+    const extraSauces = k.finalFailed ? ordered("sauce") : [];
+    if (extraSauces.length > 0) return { ids: [...k.positive, ...extraSauces], unknownIds: extraSauces, unknownTested: extraSauces.length, final: false };
     return { ids: [...k.positive], unknownIds: [], unknownTested: 0, final: true };
   }
   const ids = [...k.positive];
