@@ -1,6 +1,6 @@
 # T9 — Draft PR #786（researchAttempt.sim 4 分割）の CI・Codex 結果と、分割前後の CI 実行時間の比較
 
-Status: **Result Report（docs-only）。PR #786 は Draft・merge は Owner 承認待ち。**ゲーム本体・`replayAudit`・CI ワークフロー・`vitest.config.ts` は変更なし。Production ON・共有 Preview 更新なし。
+Status: **Result Report（docs-only）。PR #786 は 2026-11-07 に Owner 承認のうえ Squash merge 済み（§7）。**ゲーム本体・`replayAudit`・CI ワークフロー・`vitest.config.ts` は変更なし。Production ON・共有 Preview 更新なし。
 PR: https://github.com/perusonao/teto-pizza-game/pull/786（base main `06cfc06`、head `claude/t9-sim-split-vitest`、**HEAD `ccfbbdebf410a948d12926d3963b0b967ff698e2`**）。
 根拠: Owner 決定 #784 コメント 6708018673。前書: `TETO_COOK-OPS_T9_Vitest-Split-Result_2026-11-07.md`（サンドボックスの実測）。
 
@@ -73,3 +73,20 @@ PR: https://github.com/perusonao/teto-pizza-game/pull/786（base main `06cfc06`�
 
 ---
 _CI・Codex は HEAD `ccfbbde` で成功・指摘なし。CI の短縮は 1 サンプルで約 17%。merge は Owner 承認待ち。_
+
+## 7. Merge の結果（Owner 承認: Squash merge、Expected HEAD `ccfbbde`）
+
+| 項目 | 結果 |
+|---|---|
+| merge 直前の確認 | PR head = `ccfbbdebf410a948d12926d3963b0b967ff698e2`（Expected HEAD と一致）、base = main `06cfc06`（不変）、チェック 11／11 `success`、未解決スレッド 0、`mergeable: true`／`mergeable_state: clean`、Codex の最新レビュー（Draft→Ready の再レビューを含む）は指摘なし |
+| merge 方法 | Squash（`expectedHeadSha` を指定。head が違えば失敗する条件） |
+| **main への反映 SHA** | **`e6b205cac270fe1c72289fb81cd656b68bd0c749`**（`origin/main` が一致。親は `06cfc06`） |
+| main の差分（`06cfc06..e6b205ca`） | **5 ファイルのみ**: M `src/logic/researchAttempt.sim.test.ts`、A `…sim.mainOne.test.ts`・`…sim.sweepFull.test.ts`・`…sim.sweepOne.test.ts`、A `tools/mergeResearchAttemptSimOut.mjs`（ゲーム本体・`replayAudit`・ワークフロー・`vitest.config.ts` は差分なし） |
+| merge 後: `Deploy to GitHub Pages`（run 42387215173） | **success**（既存の「main への push で自動デプロイ」パイプライン。本変更はテストとツールのみで、本番の挙動は変わらない。**私は Production の設定・フラグを操作していない。共有 Preview も更新していない**） |
+| merge 後: `E2E WebKit (Cooking UI 1-Screen)`（run 42387215189） | **success**（ジョブ 10／10 `success`、15:36:37→15:57:22 UTC） |
+| merge 後: `CI`（`build`＝Lint・Vitest・Build） | main への push では走らない（`ci.yml` は `pull_request` のみのトリガー）。**merge 後の main での Vitest 全件は未実行**（PR #786 の HEAD で CI の Vitest は success） |
+| PR の購読 | merge により自動で解除 |
+
+**merge 後に変わること（周知済みの点）**: `RESEARCH_ATTEMPT_SIM_OUT` は 4 ファイルに分かれる。単一ファイルは `node tools/mergeResearchAttemptSimOut.mjs <path>` で復元（元の出力とバイト一致）。Gate C の担当への通知は #784・#363 に投稿済み（Owner 経由の周知を依頼済み）。
+
+**引き続き HOLD**: `replayAudit` の分割、3 ワーカー向けの再分割、CI ワークフロー（`timeout-minutes`・`--shard`）の変更、stamp 入力の実装（Lunch Rush・四角い生地・Dex BEST・星・ランキングへ影響しない練習のみの設計を維持）。
