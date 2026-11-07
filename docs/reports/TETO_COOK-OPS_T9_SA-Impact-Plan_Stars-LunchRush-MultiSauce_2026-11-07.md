@@ -82,7 +82,7 @@ M1 の値を B=100 に当てはめた例（算術）:
 - 参照ソースの deposit だけがソース成分に入る（§0.1）。**副ソース（例: オリーブオイル）にスタンプを使っても、成分点には入らない**（当初の「使った／使わない」だけ）。スタンプが副ソースの量を 1.0 まで押す・全体 2.0 を超えないことを、`exceedsSauceCaps` と `sauceHeadroom` の**既存の純粋関数**で確認する。
 - 描画の重なり（油の上にソース、`SAUCE_OIL_OVERLAP_ALPHA_FACTOR = 0.3`）は**見た目**で、スタンプの deposit が同じ経路に乗る見込みだが**未確認**。
 - 測定: M1 と同形の格子に「2 種の順序（トマト→油／油→トマト）」を加え、参照ソース成分・上限・stamp batch の受理（`planSauceCommit`）を確認。
-- **注意**: 複数ソースの recipe は現在 **S3（グランマピザ）が HOLD**（Design-Lock の状態更新）。実際に複数ソースの本番 recipe は存在しない【Design-Lock の記載。現行の recipe 一覧での再確認は未】。したがって Q4 は**将来の設計への入力**で、現行ゲームの影響は 0 のはず。
+- **【訂正 2026-11-07】** 上の記述は誤り。**`grandma-pizza`（2 ソース：tomato-sauce＋olive-oil）は `RECIPES` に実在**する（`lunchRush: false`、四角い天板）。詳細は `TETO_COOK-OPS_T9_LunchRush391-MultiSauce-Research_2026-11-07.md` §0・§3。
 
 ### Q5 NO_SAUCE
 
