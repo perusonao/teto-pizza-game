@@ -63,6 +63,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "oregano-flakes",
   "spinach-leaves",
   "artichoke-quarter",
+  "burrata-torn-ball",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -109,7 +110,9 @@ const ISSUE739_DEDICATED: Record<string, DedicatedIngredientVisual> = { "umebosh
 const B17_DEDICATED: Record<string, DedicatedIngredientVisual> = { "sour-cream": "sour-cream-dab" }; // Expansion Batch 17 (Owner plan A): the サワークリーム sauce, a swirl-and-peak dab; the 🍦 is only the text fallback
 /** Ingredient Icons 2.0 herbs (#417, Owner R2 decision 2026-11-06: rosemary B / oregano B / spinach A2 / artichoke A2): dedicated art instead of the shared 🌱 / 🍃 emoji. */
 const HERB_DEDICATED: Record<string, DedicatedIngredientVisual> = { rosemary: "rosemary-sprigs", oregano: "oregano-flakes", spinach: "spinach-leaves", artichoke: "artichoke-quarter" };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
+/** Expansion Batch 19 (#774): burrata's dedicated torn-ball art (candidate C) instead of a bare cheese emoji. */
+const B19_DEDICATED: Record<string, DedicatedIngredientVisual> = { burrata: "burrata-torn-ball" };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B19_DEDICATED, ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 

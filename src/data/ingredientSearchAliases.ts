@@ -20,6 +20,7 @@ export const INGREDIENT_SEARCH_ALIASES: Readonly<Record<string, readonly Ingredi
   onion: [{ alias: "玉ねぎ", provenance: "owner-approved" }],
   egg: [{ alias: "卵", provenance: "owner-approved" }],
   mozzarella: [{ alias: "モッツァレラチーズ", provenance: "owner-approved" }],
+  burrata: [{ alias: "ブラータ", provenance: "owner-approved" }], // Expansion Batch 19 (#774): Owner-approved on PR #783 (comment 6704906797, 2026-11-07); the matrix spelling, search-only (no recipe identity / label change); the screen keeps 「ブッラータ」
 };
 
 /** The alias strings of one ingredient id (empty when it has none). */

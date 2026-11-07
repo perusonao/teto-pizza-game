@@ -129,6 +129,23 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     },
     ready: "いい感じ！「焼く！」を押してみよう。",
   },
+  // Expansion Batch 19 (#774): two required sauces, as grandma-pizza. The first sauce uses empty / emptyHint, the second (olive-oil) uses missing["olive-oil"]. The wording names no recipe (Anti-Oracle).
+  "pesto-burrata-pizza": {
+    empty: "指でなぞってソースを塗ろう！",
+    emptyHint: "指でくるくるなぞると塗れるよ。ふちの近くまで広げてみて！",
+    missing: {
+      "olive-oil": "オリーブオイルも塗ってみよう！",
+    },
+    ready: "いい感じ！「焼く！」を押してみよう。",
+  },
+  "pizza-alla-crudaiola": {
+    empty: "指でなぞってソースを塗ろう！",
+    emptyHint: "指でくるくるなぞると塗れるよ。ふちの近くまで広げてみて！",
+    missing: {
+      "olive-oil": "オリーブオイルも塗ってみよう！",
+    },
+    ready: "いい感じ！「焼く！」を押してみよう。",
+  },
 };
 
 export function buildHintLine(
