@@ -5,6 +5,7 @@ import App from './App.tsx'
 import { applyPreviewHvSeed } from './preview/hvSeeds'
 import { activateCookPrepHv } from './preview/cookPrepHv'
 import { activateCookSearHv } from './preview/cookSearHv'
+import { activateCookSteamHv } from './preview/cookSteamHv'
 
 // Discovery Progression Inspector: a DEV / Preview only, read-only developer screen, opened with
 // `?inspector=discovery`. Both env checks are replaced statically by Vite, so a production build
@@ -36,6 +37,8 @@ if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequ
   try {
     // The two HV entries are exclusive: the 炒める one wins when both are asked for.
     if (!activateCookPrepHv(window)) activateCookSearHv(window)
+    // The 蒸す entry stands aside when either of the two above is active (it checks their marks), so the three stay exclusive.
+    activateCookSteamHv(window)
   } catch {
     // A failing entry must never stop the game from starting.
   }
