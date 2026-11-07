@@ -1,6 +1,6 @@
 # Expansion Batch 19 — Result Report（#774、暫定仕様・原典未確認）
 
-**状態:** PR 作成済み・**Gate HOLD（merge 不可）**。理由は AC-8 の非正準順ラベル差分 20 件が Owner の個別承認待ちであること（Q2・P2）。merge、Production ON、共有 Preview 更新は行っていない。
+**状態:** PR #783 は Draft・**Gate HOLD（merge 不可）**。AC-8 の非正準順ラベル差分 20 件は **Owner が 2026-11-07 に ID ごとに承認済み**（PR #783 コメント 6704906797。対象 HEAD `94954b72`）。残る HOLD の理由は、承認反映後の最新 HEAD での全ゲート確認と **iPhone Safari 実機 HV の Owner 承認**。merge、Production ON、共有 Preview 更新は行っていない。
 **ブランチ:** `claude/b19-pizza-774-resume-yq1ykd`（main `06cfc066`＝#778 merge 後から作成。再確認時点で `origin/main` は `06cfc066` のまま）。
 **担当:** Issue #774 の最終 Owner 決定（コメント 6701826602）により `session_016YrGhysskJ41tUDUZwM9gL`。旧 T1（`session_016YrGi37oV1zQLYSQserkSG`）は編集・push・PR 作成を停止し WIP を保全。
 
@@ -55,10 +55,10 @@
 - どの段の表示も未発見レシピ名を出さない（board は材料 id と構造のみ）。旧 Hint 経路（`hints.ts`）は 2 ソース用に「オリーブオイルも塗ってみよう！」を両レシピに追加（レシピ名・材料名は出さない。grandma と同じ作法）。`MULTI_SAUCE_RECIPE_IDS` へ追加済みで、`deductionProduction.gate`・`hint5Production.gate` は全て pass。
 - 実機 HV（ヒントを見た人が取り違えないか）は未実施。
 
-## 6. AC-8 Research ラベル監査 — **正準順 0 件（合格）／非正準順 20 件は Owner の個別承認待ち（Gate HOLD）**
+## 6. AC-8 Research ラベル監査 — **正準順 0 件（合格）／非正準順 20 件は Owner が個別に承認済み（2026-11-07）**
 
 - 新 2 件は「？？？ピザ A／B（ブッラータ）」で出る（D1）。全 ladder prefix（通常・late、Pinsa 開閉）で既存ラベルの変化は **0 件**。ランダム 40 順でも一度付いた文字は変わらない。
-- 非正準順（共有素材を最後に入手）では、既存 **20 レシピ**の文字が変わり得る。監査方法は B18 と同じ（`researchLabelAudit.ts`: 共有素材ごとの所持順・正準順・固定 seed の乱数順）。**以下は範囲の固定であり、承認ではない**（`expansionBatch19.test.ts` の `B19_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER`）。1 レシピを 1 つの ID とし、Owner は ID ごとに承認／却下を返す。承認された ID だけを承認済み定数へ移す。**未承認が 1 件でも残れば merge しない。**
+- 非正準順（共有素材を最後に入手）では、既存 **20 レシピ**の文字が変わり得る。監査方法は B18 と同じ（`researchLabelAudit.ts`: 共有素材ごとの所持順・正準順・固定 seed の乱数順）。1 レシピを 1 つの ID とした。**Owner は PR #783 のコメント 6704906797 で B19-LD-01〜20 の 20 件すべてを個別に承認した**（承認範囲: §6 の表の 20 レシピと、監査が示す「別順での文字の変化」だけ。追加レシピ・想定外のラベル消失・文字以外の変化・Research アルゴリズムの変更は対象外。再生成で未掲載の ID や実質的に異なる変化が出たら停止して再判断を仰ぐ）。承認後は `expansionBatch19.test.ts` の `B19_APPROVED_ALTERNATE_ORDER_LETTER_CHANGES` に 20 件を固定し、正準順 0 件の不変条件、別順の範囲テスト、Pinsa 閉の挙動（19 件）を保っている。
 
 | 差分 ID | 既存レシピ | 変化数 | 変更前→変更後（取得順の例、先頭 3 件） | 文字なし→あり |
 |---|---|---|---|---|
@@ -95,9 +95,9 @@
 
 ## 8. Owner に残る判断
 
-1. **AC-8: 非正準順ラベル差分 20 件（B19-LD-01〜20）の ID ごとの承認／却下。** 未承認が残れば Gate HOLD。
-2. **検索 alias「ブラータ」:** 旧担当セッションは「承認済み」と伝えたが、リポジトリ・Issue に Owner の記録が見つからないため **追加していない**（`ingredientSearchAliases` は「Owner 承認済みのみ」の規則）。必要なら承認を記録してください。
-3. **iPhone Safari 実機 HV と HV 動画**（390×844、リポジトリに入れない）は未実施。画面確認は Chromium の E2E とスクリーンショットまで。
+1. ~~AC-8 の 20 件の個別承認~~ → **承認済み**（2026-11-07、PR #783 コメント 6704906797）。
+2. ~~検索 alias「ブラータ」~~ → **承認済み**（同コメント）。`ingredientSearchAliases.ts` に `burrata: ブラータ`（検索のみ、レシピ識別・ラベルは不変）を追加した。
+3. **iPhone Safari 実機 HV（390×844）の Owner 承認。** HV 動画は Chromium の 390×844 で録画して Owner へ直接渡す（リポジトリには入れない）。iPhone Safari そのものの確認は Owner の実機判断。
 4. 暫定値（個数・焼成窓・色・id・日本語名）の最終確認と、crudaiola の例外（OD-B19-2、条件 C1〜C5）の維持。
 5. 将来 `burrata-pizza`（matrix 行 117）を足すと crudaiola の 5 件目の近傍（0.429）になり C2 により再判断。
 

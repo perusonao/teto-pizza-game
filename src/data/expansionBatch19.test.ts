@@ -260,10 +260,11 @@ describe("Research (AC-8): burrata unlocks a NEW lettered cohort of two; no pre-
 });
 
 /**
- * AC-8 / Owner Q2 + P2: in NON-canonical acquisition orders a pre-existing recipe's letter can change when a shared material is acquired last (the same effect Batch 18 audited). The audited scope below is PINNED here as a RANGE, NOT as an approval: each id
- * (B19-LD-01 ... B19-LD-20 in the Result Report §AC-8, in this order) needs the Owner's INDIVIDUAL approval; until every id is approved the Batch 19 Gate stays HOLD (no merge). Only an approved id may be moved into an "approved" constant.
+ * AC-8 / Owner Q2 + P2: in NON-canonical acquisition orders a pre-existing recipe's letter can change when a shared material is acquired last (the same effect Batch 18 audited). The audited scope below is the Result Report §6 (B19-LD-01 ... B19-LD-20, in this order).
+ * OWNER APPROVAL (PR #783 comment 6704906797, 2026-11-07, at HEAD 94954b72): each of the 20 IDs was APPROVED individually, ONLY for the alternate-order letter changes characterised by the audit. The approval does NOT cover any additional recipe, an unexpected label loss, a non-letter change or a broader
+ * Research algorithm change: if the audit ever yields an unlisted id, STOP and ask the Owner again. The canonical-order 0-change invariant is asserted separately and must stay.
  */
-const B19_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER: readonly string[] = [
+const B19_APPROVED_ALTERNATE_ORDER_LETTER_CHANGES: readonly string[] = [
   "quattro-formaggi",
   "fugazza",
   "pizza-bianca",
@@ -281,17 +282,22 @@ const B19_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER: readonly string[] = [
   "california-style-pizza",
   "chilean-napolitana",
   "jamon-serrano-pizza",
+  "pinsa-romana",
   "rucola-e-grana",
   "baingan-bharta-pizza",
 ];
-describe("Research labels BEFORE vs AFTER Batch 19 across acquisition orders (AC-8, P2): the exact audited scope, pending individual Owner approval", () => {
+describe("Research labels BEFORE vs AFTER Batch 19 across acquisition orders (AC-8, P2): the exact audited scope, individually Owner-approved (20 IDs)", () => {
   const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as readonly Recipe[]);
   it("the canonical ladder order changes no pre-existing letter (the full late catalog included)", () => {
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
   });
-  it("in non-canonical orders exactly the pinned pre-existing recipes can change their letter (a range, not an approval)", () => {
-    // pinsa-romana (B19-LD-18) exists only while the Pinsa gate is open.
-    expect([...changes.keys()].sort()).toEqual([...B19_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER, ...(pinsaEnabled() ? ["pinsa-romana"] : [])].sort());
+  it("in non-canonical orders exactly the 20 Owner-approved pre-existing recipes can change their letter, and no other (an unlisted id is a STOP for a new Owner decision)", () => {
+    // pinsa-romana (B19-LD-18) exists only while the Pinsa gate is open: the Pinsa-closed build has exactly the other 19.
+    expect([...changes.keys()].sort()).toEqual([...B19_APPROVED_ALTERNATE_ORDER_LETTER_CHANGES].filter((id) => id !== "pinsa-romana" || pinsaEnabled()).sort());
+    expect(B19_APPROVED_ALTERNATE_ORDER_LETTER_CHANGES).toHaveLength(20);
+  });
+  it("every audited change is a LETTER change (a letter gained, moved or dropped within the cohort letters), never a non-letter change", () => {
+    for (const [id, list] of changes) for (const c of list) expect(c.change, id).toMatch(/^(-|[A-Z]+)->(-|[A-Z]+)$/);
   });
 });
 
