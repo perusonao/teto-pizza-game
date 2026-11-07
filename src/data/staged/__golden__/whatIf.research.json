@@ -1,6 +1,6 @@
 {
  "shippedRecipesWithCanonicalChange": 19,
- "shippedRecipesWithAnyChange": 86,
+ "shippedRecipesWithAnyChange": 85,
  "canonical": [
   "aussie: A->C",
   "brazilian-calabresa: B->E",
@@ -88,11 +88,10 @@
   "potato-mayo-pizza: I->K B->C A->B C->D -->B -->C A->C B->D -->A C->E",
   "prosciutto-funghi: B->C D->E C->D -->A",
   "puttanesca-pizza: -->A -->B A->D D->F A->B A->C -->C",
-  "quattro-formaggi: A->B B->C -->B -->A",
+  "quattro-formaggi: A->B B->C -->A -->B",
   "ratatouille-pizza: -->A",
   "reina-pepiada-pizza: -->A",
   "rendang-pizza: F->H B->C A->B -->A -->B -->C",
-  "rucola-e-grana: -->B",
   "salsiccia: -->A D->E -->B A->B B->C C->D B->D A->C",
   "salsiccia-e-friarielli: B->C F->H B->D C->D C->E D->E",
   "shirasu-pizza: A->B -->A -->B",

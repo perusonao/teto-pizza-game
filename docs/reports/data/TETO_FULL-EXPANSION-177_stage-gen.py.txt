@@ -13,7 +13,7 @@
 #
 # Owner provisional rules applied here (2026-11-07; recommendations of the plan §9 adopted as PROVISIONAL rules;
 # any irreversible exclusion and every final id are re-judged later). Each application is recorded on the entry.
-#   I-1  alias candidate -> reuse the shipped id ONLY if the substituted identity set hits no duplicate gate
+#   I-1  alias candidate -> reuse the shipped id ONLY if the substituted identity set hits NO duplicate gate at all
 #        (identical / subset / superset / Jaccard > 0.4) against shipped + other staged; otherwise keep the new id.
 #   I-2  merges: puntarelle -> chicory ; nutella-spread -> chocolate (brand-free generic id). cabbage / red-cabbage,
 #        radicchio, lime stay separate.
@@ -126,13 +126,12 @@ for x in recs:
 for x in recs:
     for cand, target in ALIAS.items():
         if cand not in x["ident"]: continue
-        before = hits(x["id"], x["ident"], recs)
         trial = sorted(set(target if i == cand else i for i in x["ident"]))
         after = hits(x["id"], trial, recs)
-        if len(after) <= len(before):
+        if not after:  # I-1: reuse ONLY when the substituted set hits no duplicate gate at all (Codex P2, PR #787)
             x["ident"] = trial; x["applied"].append(f"I-1:{cand}->{target}(reuse)")
         else:
-            x["applied"].append(f"I-1:{cand}(kept: reuse adds duplicate-gate hit)")
+            x["applied"].append(f"I-1:{cand}(kept: reuse hits the duplicate gate)")
 
 MECH_KEY = {"DOUGH_VARIANT":"DOUGH_VARIANT","PAN_BAKE:other":"PAN_PROFILE","DOUGH_SHAPE_TARGET":"DOUGH_SHAPE_TARGET","ENCLOSE":"ENCLOSE",
             "LATE_ADDITION:mid_bake":"MID_BAKE","PREP_STEP":"PREP","FRY_COOK":"FRY","STEP_ORDER":"STEP_ORDER","ZONED_PLACEMENT":"ZONED",

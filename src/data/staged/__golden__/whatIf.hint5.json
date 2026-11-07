@@ -210,7 +210,7 @@
   {
    "id": "buffalo-cauliflower-pizza",
    "target": true,
-   "rungs": "CHEESE,STRUCTURE,SUB_CLASS"
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
   },
   {
    "id": "palmitos-salsa-golf",

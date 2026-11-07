@@ -44,6 +44,7 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
           "asparagus",
           "balsamic-vinegar",
           "banana",
+          "blue-cheese-dressing",
           "blueberry",
           "bonito-flakes",
           "brick-cheese",
@@ -85,6 +86,7 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
           "okra",
           "orange",
           "peanut-sauce",
+          "pecorino",
           "peking-duck",
           "powdered-sugar",
           "radicchio",
@@ -103,11 +105,9 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
           "zaatar",
         ],
         "ALIASED_PROVISIONAL": [
-          "blue-cheese-dressing",
           "chili-powder",
           "cotija",
           "ground-beef",
-          "pecorino",
           "salsa",
         ],
         "MERGED_PROVISIONAL": [

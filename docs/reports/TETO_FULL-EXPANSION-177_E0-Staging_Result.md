@@ -11,13 +11,13 @@ Owner 判断（2026-11-07）: G-1 GO／G-2 既存 claim を尊重して段階移
 | 項目 | 値 |
 |---|---|
 | 登録レシピ | **84**（87 未実装行 − 既存作業の 3 行。evidenceId が計画の 84 行と完全一致、テストで固定） |
-| 登録食材候補 | **70**（73 − burrata／honey／walnut）。内訳 ACTIVE 62、ALIASED_PROVISIONAL 6（I-1 で既存 id を再利用）、MERGED_PROVISIONAL 2（I-2） |
+| 登録食材候補 | **70**（73 − burrata／honey／walnut）。内訳 ACTIVE 64、ALIASED_PROVISIONAL 4（I-1 で既存 id を再利用）、MERGED_PROVISIONAL 2（I-2） |
 | 昇格可能（ブロッキング依存 0） | **0 / 84** |
 | ブロッキング依存（項目数） | **433**（Owner ルール 121、工程 59、重複ゲート 193、ソース未特定 24、未解決トークン 21、in-flight 食材 8、ID 接尾辞 7） |
-| 非ブロッキング（staged 食材の参照、昇格時に同じ列車で解消） | 69 |
+| 非ブロッキング（staged 食材の参照、昇格時に同じ列車で解消） | 72 |
 | 重複ゲートで出荷済みと 1 件も当たらないレシピ | 38 / 84 |
 | Hint 5.0（key-free）対象になれるレシピ | **84 / 84**。出荷済み 55 ladder の golden は**不変** |
-| Research ラベル: 正準順で文字が変わる出荷済みレシピ | **19**（停止条件。原因となる staged レシピは 25 件）。非正準順を含むと 86 |
+| Research ラベル: 正準順で文字が変わる出荷済みレシピ | **19**（停止条件。原因となる staged レシピは 25 件）。非正準順を含むと 85 |
 | 保存データ | staged id を含む保存を本番ビルドで読むと staged id だけ落ち、出荷済みデータ・Pitz は保持、読み込みで書き込みなし |
 | 本番ビルド（`vite build` の dist） | main と**全ファイルの SHA-256 が一致** |
 
@@ -76,7 +76,7 @@ what-if の方法: テストファイル内の module mock で `ingredients`（�
 依存が 1 種類だけのレシピ: `taco-pizza`（R-6 のみ。R-6 は暫定適用済みで、残りは確認だけ）、`piadina-romagnola`（DOUGH_VARIANT のみ）。
 
 暫定ルールの適用（生成器が記録、各エントリの `applied`）:
-- I-1 再利用 7 件（ground-beef→beef、salsa→tomato-sauce、blue-cheese-dressing→gorgonzola ×2、pecorino→grana-padano、chili-powder→paprika-powder、cotija→feta）。保持 4 件（chicken-tikka・spicy-salami・brick-cheese・mentaiko は再利用すると重複ゲートの当たりが増えるため新 id のまま）。blue-cheese-dressing は 1 品で再利用・1 品で保持のため ACTIVE のまま。
+- I-1 再利用 4 件（ground-beef→beef、salsa→tomato-sauce、chili-powder→paprika-powder、cotija→feta）。保持 7 件（blue-cheese-dressing ×2・pecorino・chicken-tikka・spicy-salami・brick-cheese・mentaiko は、置き換えると重複ゲートに 1 件以上当たるため新 id のまま）。条件は「置換後の集合が重複ゲートに 1 件も当たらない」（計画 §9 の I-1 どおり。初版は「当たりが増えない」で判定しており、Codex P2 の指摘で修正した）。
 - I-2 統合 2 件（puntarelle→chicory、nutella-spread→chocolate。商標名の id を避けた）。
 - R-6 1 件（taco-pizza の lettuce・tortilla-chips を既存の後乗せ POST_BAKE で表す）。
 - I-3: 調理済み複合 5 種は 1 食材のまま（`composite: true`）。
@@ -84,7 +84,7 @@ what-if の方法: テストファイル内の module mock で `ingredients`（�
 
 ## 4. Research・Hint（実測）
 
-- **Research（停止条件）:** 84 品を全部足すと、**正準の ladder 順でも出荷済み 19 品の cohort 文字が変わる**（例: aussie A→C、pizza-portuguesa C→F、capricciosa 文字なし→A）。単独で正準順の文字を変える staged レシピは 25 件（`whatIf.research.json`）。いずれも**出荷済み食材だけで作れる**レシピ（39 件のうち 25 件）。非正準順を含めると 86 品に何らかの変化がある。**列車ごとに、この 25 件を入れるかを ID ごとに Owner が判断する必要がある**（B19 の AC-8 と同じ規則）。
+- **Research（停止条件）:** 84 品を全部足すと、**正準の ladder 順でも出荷済み 19 品の cohort 文字が変わる**（例: aussie A→C、pizza-portuguesa C→F、capricciosa 文字なし→A）。単独で正準順の文字を変える staged レシピは 25 件（`whatIf.research.json`）。いずれも**出荷済み食材だけで作れる**レシピ（39 件のうち 25 件）。非正準順を含めると 85 品に何らかの変化がある。**列車ごとに、この 25 件を入れるかを ID ごとに Owner が判断する必要がある**（B19 の AC-8 と同じ規則）。
 - **Hint 5.0:** 84 品すべてが key-free の Hint 5.0 対象になる（トッピングは暫定 family で全件解決）。出荷済み 55 品の ladder golden（`hint5.ladders55.json`）は staged を足しても不変。key-topping を指定する authored roles は未作成（列車ごと）。DH4（deduction hint）は未測定。
 
 ## 5. 保存安全性と本番への影響（実測）
@@ -95,7 +95,7 @@ what-if の方法: テストファイル内の module mock で `ingredients`（�
 
 ## 6. テスト（実測）
 
-- `src/data/staged` の 5 ファイル 15 テスト: 合格（research what-if は単独で約 40 秒。Batch 18/19 と同じシナリオを 84 品 × 出荷済み 90 品に適用するため）。
+- `src/data/staged` の 5 ファイル 15 テスト: 合格（Codex P2 修正後に再実行）（research what-if は単独で約 40 秒。Batch 18/19 と同じシナリオを 84 品 × 出荷済み 90 品に適用するため）。
 - Pinsa ロールバック版（`TETO_PINSA_OFF=1`）: 13 合格・2 skip（golden は本番カタログ＝Pinsa ON で測ったため、その 2 件だけ skip）。
 - **全 Vitest: 631 ファイル合格・1 skip、11,570 テスト合格・13 skip・2 todo、失敗 0**（ローカル、所要 16 分 51 秒）。
 - 型チェック `tsc -b`: エラー 0。lint `oxlint`: エラー 0（警告は既存ファイルのみ、staged は 0）。
