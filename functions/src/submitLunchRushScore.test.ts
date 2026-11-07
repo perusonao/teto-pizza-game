@@ -433,3 +433,181 @@ describe("handleSubmitLunchRushScore", () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------------------------
+// Lunch Rush v2 (PR-A): the server accepts lunch-rush-v1 AND lunch-rush-v2; anything else is
+// rejected. v1 behavior is pinned unchanged; v2 has its own validator, formula and period ids.
+// ---------------------------------------------------------------------------------------------
+describe("handleSubmitLunchRushScore -- ruleset compatibility (v1 + v2)", () => {
+  const NOW = Date.UTC(2026, 8, 20, 3); // 2026-09-20 12:00 JST -> 2026-W38 / 2026-09
+
+  const v1Serves = [
+    { recipeId: "margherita", qualityTotal: 80, completionStatus: "PASS" },
+    { recipeId: "pepperoni", qualityTotal: 60, completionStatus: "PASS" },
+    { recipeId: "funghi", qualityTotal: 0, completionStatus: "FAILED" },
+  ];
+  const v2Serves = [
+    { recipeId: "margherita", qualityTotal: 80, completionStatus: "PASS", wrongIngredientTypes: 0 },
+    { recipeId: "pepperoni", qualityTotal: 60, completionStatus: "PASS", wrongIngredientTypes: 1 },
+    { recipeId: "funghi", qualityTotal: 0, completionStatus: "FAILED", wrongIngredientTypes: 3 },
+  ];
+
+  function v2Payload(overrides: Record<string, unknown> = {}) {
+    return validPayload({ rulesetVersion: "lunch-rush-v2", serves: v2Serves, ...overrides });
+  }
+
+  it("v1: still accepted, scored with the v1 formula, written to the v1 period ids", async () => {
+    const firestore = new FakeFirestore();
+    const result = await handleSubmitLunchRushScore(
+      validPayload({ serves: v1Serves }),
+      { uid: "u1" },
+      makeDeps(firestore, NOW),
+    );
+    expect(result.score).toBe(2 * 100 + 140);
+    expect(firestore.runs[0].rulesetVersion).toBe("lunch-rush-v1");
+    expect(firestore.upsertCalls.map((c) => c.periodId).sort()).toEqual(
+      ["all_all", "monthly_2026-09", "weekly_2026-W38"].sort(),
+    );
+    expect([...firestore.leaderboards.keys()].some((id) => id.includes("v2"))).toBe(false);
+  });
+
+  it("v1: a v1 payload that also carries wrongIngredientTypes is still scored with the v1 formula", async () => {
+    const firestore = new FakeFirestore();
+    const result = await handleSubmitLunchRushScore(
+      validPayload({ serves: [{ recipeId: "margherita", qualityTotal: 100, completionStatus: "PASS", wrongIngredientTypes: 2 }] }),
+      { uid: "u1" },
+      makeDeps(firestore, NOW),
+    );
+    expect(result.score).toBe(200);
+    expect(firestore.runs[0].rulesetVersion).toBe("lunch-rush-v1");
+  });
+
+  it("v2: accepted, scored with the v2 formula (factors 1 / 0.8 / 0.64, FAILED excluded)", async () => {
+    const firestore = new FakeFirestore();
+    const result = await handleSubmitLunchRushScore(v2Payload(), { uid: "u1" }, makeDeps(firestore, NOW));
+    // (100+80)*1 + (100+60)*0.8 = 180 + 128 = 308
+    expect(result).toMatchObject({ score: 308, servedCount: 2, totalQualityScore: 140, bestQualityScore: 80 });
+    expect(firestore.runs[0].rulesetVersion).toBe("lunch-rush-v2");
+  });
+
+  it("v2: written only to the v2 period ids; no v1 leaderboard is touched", async () => {
+    const firestore = new FakeFirestore();
+    await handleSubmitLunchRushScore(v2Payload(), { uid: "u1" }, makeDeps(firestore, NOW));
+    expect(firestore.upsertCalls.map((c) => c.periodId).sort()).toEqual(
+      ["all_v2", "monthly_v2_2026-09", "weekly_v2_2026-W38"].sort(),
+    );
+    expect(firestore.leaderboards.has("weekly_2026-W38")).toBe(false);
+    expect(firestore.leaderboards.has("monthly_2026-09")).toBe(false);
+    expect(firestore.leaderboards.has("all_all")).toBe(false);
+  });
+
+  it("v1 and v2 submissions by the same uid never overwrite each other's leaderboard entry", async () => {
+    const firestore = new FakeFirestore();
+    await handleSubmitLunchRushScore(validPayload({ serves: v1Serves }), { uid: "u1" }, makeDeps(firestore, NOW));
+    const v1Entry = { ...firestore.leaderboards.get("weekly_2026-W38")!.get("u1")! };
+    // a v2 score that is LOWER than the v1 score would be a no-op if the boards were shared
+    await handleSubmitLunchRushScore(
+      v2Payload({ serves: [{ recipeId: "margherita", qualityTotal: 10, completionStatus: "PASS", wrongIngredientTypes: 2 }] }),
+      { uid: "u1" },
+      makeDeps(firestore, NOW),
+    );
+    expect(firestore.leaderboards.get("weekly_2026-W38")!.get("u1")).toEqual(v1Entry);
+    expect(firestore.leaderboards.get("weekly_v2_2026-W38")!.get("u1")!.score).toBe(Math.round(110 * 0.64));
+  });
+
+  it("an unknown / absent / non-string rulesetVersion is rejected and writes nothing", async () => {
+    for (const bad of ["lunch-rush-v0", "lunch-rush-v3", "lunch-rush-v2 ", "LUNCH-RUSH-V2", "", 2, null, undefined, {}]) {
+      const firestore = new FakeFirestore();
+      await expect(
+        handleSubmitLunchRushScore(validPayload({ rulesetVersion: bad }), { uid: "u1" }, makeDeps(firestore, NOW)),
+      ).rejects.toMatchObject({ code: "invalid-argument" });
+      expect(firestore.runs).toHaveLength(0);
+      expect(firestore.upsertCalls).toHaveLength(0);
+    }
+  });
+
+  it("v2: a serve without wrongIngredientTypes is rejected (v1-shaped data cannot ride the v2 ruleset)", async () => {
+    const firestore = new FakeFirestore();
+    await expect(
+      handleSubmitLunchRushScore(v2Payload({ serves: v1Serves }), { uid: "u1" }, makeDeps(firestore, NOW)),
+    ).rejects.toMatchObject({ code: "invalid-argument" });
+    expect(firestore.runs).toHaveLength(0);
+  });
+
+  it("v2: a PASS serve with wrongIngredientTypes >= 3 is rejected (that pizza is FAILED under v2)", async () => {
+    const firestore = new FakeFirestore();
+    await expect(
+      handleSubmitLunchRushScore(
+        v2Payload({ serves: [{ recipeId: "margherita", qualityTotal: 90, completionStatus: "PASS", wrongIngredientTypes: 3 }] }),
+        { uid: "u1" },
+        makeDeps(firestore, NOW),
+      ),
+    ).rejects.toMatchObject({ code: "invalid-argument" });
+    expect(firestore.runs).toHaveLength(0);
+  });
+
+  it("v2: negative / fractional / non-numeric wrongIngredientTypes is rejected", async () => {
+    for (const bad of [-1, 0.5, "1", null, Number.NaN]) {
+      const firestore = new FakeFirestore();
+      await expect(
+        handleSubmitLunchRushScore(
+          v2Payload({ serves: [{ recipeId: "margherita", qualityTotal: 90, completionStatus: "PASS", wrongIngredientTypes: bad }] }),
+          { uid: "u1" },
+          makeDeps(firestore, NOW),
+        ),
+      ).rejects.toMatchObject({ code: "invalid-argument" });
+    }
+  });
+
+  it("v2: the shared guards still apply (missionId, oversized array, impossible pace, quality range)", async () => {
+    const firestore = new FakeFirestore();
+    const deps = makeDeps(firestore, NOW);
+    await expect(
+      handleSubmitLunchRushScore(v2Payload({ missionId: "dinner-dash" }), { uid: "u1" }, deps),
+    ).rejects.toMatchObject({ code: "invalid-argument" });
+    const many = Array.from({ length: 500 }, () => ({
+      recipeId: "margherita",
+      qualityTotal: 50,
+      completionStatus: "PASS",
+      wrongIngredientTypes: 0,
+    }));
+    await expect(handleSubmitLunchRushScore(v2Payload({ serves: many }), { uid: "u1" }, deps)).rejects.toMatchObject({
+      code: "invalid-argument",
+    });
+    const fast = Array.from({ length: 91 }, () => ({
+      recipeId: "margherita",
+      qualityTotal: 50,
+      completionStatus: "PASS",
+      wrongIngredientTypes: 0,
+    }));
+    await expect(handleSubmitLunchRushScore(v2Payload({ serves: fast }), { uid: "u1" }, deps)).rejects.toMatchObject({
+      code: "invalid-argument",
+    });
+    await expect(
+      handleSubmitLunchRushScore(
+        v2Payload({ serves: [{ recipeId: "margherita", qualityTotal: 101, completionStatus: "PASS", wrongIngredientTypes: 0 }] }),
+        { uid: "u1" },
+        deps,
+      ),
+    ).rejects.toMatchObject({ code: "invalid-argument" });
+    expect(firestore.runs).toHaveLength(0);
+  });
+
+  it("v2: an unauthenticated caller is still rejected", async () => {
+    const firestore = new FakeFirestore();
+    await expect(handleSubmitLunchRushScore(v2Payload(), null, makeDeps(firestore, NOW))).rejects.toMatchObject({
+      code: "unauthenticated",
+    });
+  });
+
+  it("v2: a client-supplied score field is ignored; the server's recomputation wins", async () => {
+    const firestore = new FakeFirestore();
+    const result = await handleSubmitLunchRushScore(
+      v2Payload({ score: 999_999, servedCount: 99 }),
+      { uid: "u1" },
+      makeDeps(firestore, NOW),
+    );
+    expect(result.score).toBe(308);
+    expect(result.servedCount).toBe(2);
+  });
+});

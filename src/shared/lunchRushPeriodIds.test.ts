@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { jstWeekRange } from "./lunchRushPeriodIds";
+import { computeLunchRushPeriodIds, isoWeekId, jstWeekRange, weeklyPeriodId } from "./lunchRushPeriodIds";
+import { LUNCH_RUSH_RULESET_VERSION_V1, LUNCH_RUSH_RULESET_VERSION_V2 } from "./lunchRushScoring";
 
 /**
  * Phase 2A (Issue #87). `isoWeekId`/`monthId`/`computeLunchRushPeriodIds` themselves stay
@@ -44,5 +45,29 @@ describe("jstWeekRange", () => {
       monday: { year: 2025, month: 12, day: 29 },
       sunday: { year: 2026, month: 1, day: 4 },
     });
+  });
+});
+
+describe("Lunch Rush v2 period ids (client-side parity with the server's derivation)", () => {
+  it("the period-id ruleset literals equal the scoring module's ruleset constants", () => {
+    // typed as the period module's union: this is a compile-time + runtime pin
+    const v1: Parameters<typeof weeklyPeriodId>[1] = LUNCH_RUSH_RULESET_VERSION_V1;
+    const v2: Parameters<typeof weeklyPeriodId>[1] = LUNCH_RUSH_RULESET_VERSION_V2;
+    expect(weeklyPeriodId(0, v1)).toBe(`weekly_${isoWeekId(0)}`);
+    expect(weeklyPeriodId(0, v2)).toBe(`weekly_v2_${isoWeekId(0)}`);
+  });
+
+  it("the production reader's current derivation (`weekly_${isoWeekId(now)}`) is exactly the v1 id", () => {
+    for (const ts of [0, jstMidnight(2026, 9, 17), jstMidnight(2026, 12, 31), jstMidnight(2027, 1, 1)]) {
+      expect(`weekly_${isoWeekId(ts)}`).toBe(weeklyPeriodId(ts));
+      expect(`weekly_${isoWeekId(ts)}`).toBe(computeLunchRushPeriodIds(ts, "lunch-rush-v1").weekly);
+    }
+  });
+
+  it("the v2 weekly id is never the v1 id and matches the read rule's ^weekly_ prefix", () => {
+    const ts = jstMidnight(2026, 9, 17);
+    expect(weeklyPeriodId(ts, "lunch-rush-v2")).toBe("weekly_v2_2026-W38");
+    expect(weeklyPeriodId(ts, "lunch-rush-v2")).not.toBe(weeklyPeriodId(ts, "lunch-rush-v1"));
+    expect(/^weekly_.*/.test(weeklyPeriodId(ts, "lunch-rush-v2"))).toBe(true);
   });
 });
