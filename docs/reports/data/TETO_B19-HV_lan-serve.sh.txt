@@ -19,4 +19,4 @@ echo; echo "Open on the iPhone (same Wi-Fi, PRIVATE Safari tab):"
 echo "  http://$IP:$PORT/?hv=b19-pesto-burrata"
 echo "  http://$IP:$PORT/?hv=b19-crudaiola"
 echo "Badge must read: PREVIEW · PR#783 · $SHA"
-exec npx vite preview --outDir dist-lan --host "$IP" --port "$PORT" --strictPort
+exec npx vite preview --base=/ --outDir dist-lan --host "$IP" --port "$PORT" --strictPort
