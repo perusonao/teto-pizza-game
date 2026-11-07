@@ -14,7 +14,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
  * Vitest can run them in parallel workers. Every test body, title, seed, expectation and trial count is unchanged; only the loops over `explorePieces` are
  * restricted per file and each file writes its own JSON slice (see `afterAll`). Parts: researchAttempt.sim.test.ts (strategy, flag, main walks FULL, lower bound FULL),
  * researchAttempt.sim.mainOne.test.ts (main walks ONE, lower bound ONE, persistence, economy comparison), researchAttempt.sim.sweepFull.test.ts and
- * researchAttempt.sim.sweepOne.test.ts (the tray-order sensitivity sweep). This is part `mainOne`.
+ * researchAttempt.sim.sweepOne.test.ts (the tray-order sensitivity sweep). To get the old single JSON file back: `node tools/mergeResearchAttemptSimOut.mjs <path>`. This is part `mainOne`.
  */
 vi.mock("./discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: true }));
 
