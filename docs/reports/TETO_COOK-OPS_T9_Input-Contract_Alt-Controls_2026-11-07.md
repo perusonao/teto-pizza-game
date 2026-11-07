@@ -2,7 +2,7 @@
 
 Status: **docs-only 設計。実装なし。コード・CSS・golden・reducer・保存・採点・既存 docs 未変更。PR・merge・Production ON・共有 Preview 更新なし。机上の設計で、実機・自動テストとも未検証。**
 Branch `claude/teto-pizza-t7-t9-audit-12by6f` / 基準 `main` `06cfc06` / Issue #675（暫定）/ claim: #675 コメント 6703659391（`TETO_COOK-OPS_T9_*`）。
-根拠: Owner 決定 #675 コメント 6703775101 — 共通の入力／アクセシビリティ契約を T6 FOLD+SEAL と整合させて docs 化。生地・ソース・CUT の代替操作は**調査のみ**、**実装と PR #26 の挙動変更は HOLD**。**各操作の自然なジェスチャを保ち、全操作をドラッグに統一しない。** #764・#766 を新規操作より先に扱う。
+根拠: Owner 決定 #675 コメント 6703775101（**更新 2026-11-07・#784**: Owner が C1〜C14 を**設計基準として暫定採用**、**C12 を承認**。D-A／S-A／C-A は設計レビューのみ GO・実装 HOLD。設計レビューは `TETO_COOK-OPS_T9_Design-Review_DA-SA-CA_2026-11-07.md`。**§2 の「代替なし」はキーボード／スイッチ／VoiceOver 軸では正しいが、ポインタのタップ軸では不正確**（生地はタップで伸ばせる、ソースはタップでも出る、CUT は意図的にタップ結果なし）。詳細は同レビュー §0。） — 共通の入力／アクセシビリティ契約を T6 FOLD+SEAL と整合させて docs 化。生地・ソース・CUT の代替操作は**調査のみ**、**実装と PR #26 の挙動変更は HOLD**。**各操作の自然なジェスチャを保ち、全操作をドラッグに統一しない。** #764・#766 を新規操作より先に扱う。
 参照（引用のみ・複製しない）: T6 `docs/reports/TETO_FOLD-SEAL_Design-Acceptance_2026-11-07.md`（branch `claude/teto-pizza-t5-t6-r9qup3`、HEAD `4a5bec82`。**main 未取り込み**。本書は読み取りのみ）、`TETO_HUMAN-VERIFICATION-POLICY.md`、`TETO_SESSION-OPERATIONS_1.0.md`。
 
 ## 0. 検証状況

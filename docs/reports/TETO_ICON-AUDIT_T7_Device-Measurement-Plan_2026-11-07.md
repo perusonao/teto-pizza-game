@@ -64,6 +64,8 @@ xs クラス（`toppingSizeClass.ts` 実測）: corn, capers, pine-nuts, oregano
 
 ## 5. 既存の仕組み（コードで確認・実行は未検証）
 
+> **更新（2026-11-07）:** 材料の揃え方・操作手順・リハーサル結果は `TETO_ICON-AUDIT_T7_Preview-Repro-Procedure_2026-11-07.md` に移した。要点: parsley／mint／大葉／しらす／ピーマンを揃えるには State Editor（All Ingredients）が必要で、`?cookSearHv=1`・`?hv=` では揃わない。以下の表の「手順は未実行」は本書で解消（リハーサルは dev サーバー、実機は未検証）。
+
 | 手段 | 内容 | 注意 |
 |---|---|---|
 | 共有 Preview（現在） | `perusonao.github.io/teto-pizza-game-preview/`、README 上は **PR #738・commit `78de12a`・Built 2026-11-06T16:00:50Z** | **更新は禁止（Owner 承認なし）**。この build は main に未取り込みで、main との差分は herb 4 種の SVG（rosemary／oregano／spinach／artichoke）の配線など。**群 A の oregano・rosemary は Preview では絵文字**。corn・parsley・mint・shiso 1.35em・whitebait・bell-pepper 1.65em は同一【`git show` で確認】 |
