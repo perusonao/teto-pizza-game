@@ -25,6 +25,7 @@ export type DedicatedIngredientVisual =
   | "caper-cluster"
   | "clam-valve"
   | "ricotta-mound"
+  | "burrata-torn-ball"
   | "feta-cubes"
   | "sausage-slices"
   | "hot-dog-slices"
@@ -1248,6 +1249,21 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     bakeRoastResistant: true,
     unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * Expansion Batch 19 (Issue #774; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): `burrata` (ブッラータ, Owner D1), a cheese; ordinary ladder step 70 (T4, no star gate), the key material of pesto-burrata-pizza (pizza-alla-crudaiola uses it too).
+   * Dedicated art `burrata-torn-ball` (candidate C, a ball torn open with the cream showing; Owner R2 decision D5, 2026-11-06). `color` is a PROVISIONAL value (Preview HV adjusts it). `emoji` is only the required, never-displayed text fallback
+   * (cheeses share the 🧀 convention, told apart by name / art). The matrix spelling 「ブラータ」 is a search alias only.
+   */
+  {
+    id: "burrata",
+    category: "cheese",
+    nameJa: "ブッラータ",
+    color: "#fdf9ee",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "burrata-torn-ball",
   },
 
 

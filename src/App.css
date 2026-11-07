@@ -913,8 +913,10 @@
 
 /* Pilot D (#623, Owner decision 2026-10-22): salmon fillet / cream-cheese block. Same 64-box margin fix as the groups above (individual class, own rule so the earlier
    groups stay untouched). cream-cheese draws inside `.pizza-cheese--glyph`, whose box is unchanged. */
+/* Expansion Batch 19 (#774): the burrata torn ball joins this group (64-box with margins, 1.2em box, same -0.1em margin; the layout box stays 1em). PROVISIONAL: the final size is the 390x844 / 360x800 HV. */
 .ingredient-glyph--salmon-fillet,
-.ingredient-glyph--cream-cheese-block {
+.ingredient-glyph--cream-cheese-block,
+.ingredient-glyph--burrata-torn-ball {
   width: 1.2em;
   height: 1.2em;
   margin: -0.1em;

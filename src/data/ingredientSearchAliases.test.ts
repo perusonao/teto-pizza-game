@@ -12,11 +12,12 @@ const IDS = new Set(INGREDIENTS.map((i) => i.id));
 const entries = Object.entries(INGREDIENT_SEARCH_ALIASES).flatMap(([id, list]) => list.map((e) => ({ id, ...e })));
 
 describe("ingredient search alias authority (OD-A1 .. OD-A3)", () => {
-  it("is exactly the three Owner-approved aliases (nothing guessed, nothing staged)", () => {
+  it("is exactly the four Owner-approved aliases (nothing guessed, nothing staged; Expansion Batch 19 adds burrata 「ブラータ」, approved on PR #783)", () => {
     expect(INGREDIENT_SEARCH_ALIASES).toEqual({
       onion: [{ alias: "玉ねぎ", provenance: "owner-approved" }],
       egg: [{ alias: "卵", provenance: "owner-approved" }],
       mozzarella: [{ alias: "モッツァレラチーズ", provenance: "owner-approved" }],
+      burrata: [{ alias: "ブラータ", provenance: "owner-approved" }],
     });
     // The unapproved staging candidates are absent.
     for (const id of ["gorgonzola", "parmigiano", "fontina", "pepperoni", "potato"]) expect(searchAliasesFor(id)).toEqual([]);
