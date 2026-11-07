@@ -1,5 +1,8 @@
 # Content Expansion #780 — Workstream A (Wave A recipes) 再検証 Result
 
+> **訂正（2026-11-07、Owner コメント 6705255833 を受けて）:** §9（および §1・§2・§8 の「Batch 19 は未着手」「T2 は未 push」の趣旨）は**履歴上の観察**で、現在は古い。最新の GitHub 状態は **§10** を正とする。要点: Batch 19 = **PR #783**（Draft、HEAD `abb3da5a`）、87 行再判定 = **PR #781**（Open、HEAD `a4dc33ce`）。§3 の静的照合（READY・新食材 0 は 6 行）は本書独自の簡易測定で、#781 の再判定（§10.3）の方が広く再現可能なため、**数値は #781 を優先**する。
+
+
 日付 2026-11-06 / main `5eade46`（#777 取り込み後）。**docs-only・新規ファイル 1 本のみ。** `recipes.ts` / `ingredients.ts` / `discoveryLadder.ts` / `catalogLedger.test.ts` / `PROJECT_HANDOFF.md`（HOT）は編集していない。
 この文書は実装・merge・Production ON・共有 Preview 更新の承認ではない。
 
@@ -116,3 +119,55 @@ Owner GO 済み。実装は T1 が担当（merge 順 #778 → Batch 19 は充足
 1. **Batch 19（burrata ＋ pesto-burrata ＋ pizza-alla-crudaiola）— T1 が実施中。本セッションの担当ではない。**
 2. 本セッションが根拠をもって進められる追加レシピ実装は**なし**（§1・§3）。
 3. その次の候補は §7 のまま（B20 案 B → 案 A → DOUGH_VARIANT 後）。いずれも Owner 判断または新工程の決定が先で、Batch 19 の merge 後に catalog 書き込み担当を一本化して着手する。
+
+---
+
+## 10. 最新状態への訂正（2026-11-07、fresh GitHub 状態、docs-only）
+
+区別: **【履歴】** = §1〜§9 の記述（当時の観察）。**【現在】** = 2026-11-07 に GitHub から再取得した状態。
+
+### 10.1 現在の状態
+
+| 項目 | 【履歴】（§9） | 【現在】 |
+|---|---|---|
+| main | `06cfc066` | `06cfc066`（変化なし。再取得で確認） |
+| Batch 19（#774） | branch／PR は origin に未作成、進捗は外部から未確認 | **PR #783**（Draft・Gate HOLD、head `claude/b19-pizza-774-resume-yq1ykd`、HEAD `abb3da5a1021b160b2ee75acbe5a00866a8a0eaf`、変更 82 ファイル／10 commit）。AC-8 の非正準順ラベル差分 20 件（B19-LD-01〜20）は Owner が ID ごとに承認済み、検索 alias `ブラータ`→`burrata` も承認済み。実機 HV は未実施（Chromium の自動動画 2 本のみ）。旧 WIP `claude/b19-wip-handoff-4cdb9f8` は比較のみ |
+| 87 行再判定（T2） | 成果物は未 push | **PR #781**（Open・clean、head `claude/pool-rejudge-87-780`、HEAD `a4dc33cef3f18df277abd467248337b595cbcda7`、docs-only の新規 4 ファイル）。`TETO_POOL-REJUDGE_87_Result.md`・`rows.json`・再実行スクリプト・`TETO_DOUGH-KIND_PD1BC_Design-Impact.md` |
+| T5（honey／walnut／pesto-noci） | — | claim 済み（コメント 6701869854、`session_016YrGi45ZaQjZXtR2AzPzUp`、docs-only）。Owner は **B20-A 条件付き GO（計画のみ）**: 実装は #774 の merge 後、新 claim と最新 main での再検査が前提（コメント 6703581170） |
+| 本セッション | — | claim なし。Batch 19・87 行再判定を実装・複製しない（Owner 指示 6705255833） |
+
+本書は Batch 19・T2 のどちらも実装・複製していない。PR の作成・merge・Production ON・共有 Preview 更新もしていない。
+
+### 10.2 「判断不要 9 品」の根拠 — 再確認の結果: **UNVERIFIED／HOLD のまま**
+
+再確認した場所: `origin/main`（`docs/` 全体）、PR #781 の Result／rows.json、#783 の branch、T5 の branch、T7/T9 の branch、#774・#780・#748 の全コメント。
+
+- 「Wave A 46／B 26／C 15」「判断不要 9 品」「判断待ち 37 品」を**定義・列挙した資料はどこにも無い**。Fresh Audit 2026-11-07（main `ed159e9` 基準）の本体も、どのブランチにも見つからない（#780 本文の文面のみ）。
+- #781 も同じ結論（UNVERIFIED、9 件を作らず代用もしていない）。Owner 追記 6691497411 は「6 行などへの置換をしない」と明示している。
+- したがって **9 品の ID は未確定**。本書は推測しない。本書 §3 の「6 行」も 9 品の代替ではない。Fresh Audit を main へ丸ごと取り込むことは Owner が求めていない（6705255833）。
+
+### 10.3 87 品の再判定（#781 の結果を参照。本書では再測定しない）
+
+- 87 = 172 設計行 − 出荷済みに紐づく 85 行【#781 が ID 単位で再現、`06cfc066` と `5eade46e` で行別一致】。#780 の「PIZZA DB 版 9 行」は、構成が食い違う `COMPOSITION_CONFLICT_SHIPPED` 9 行と整合する【#781 の推論】。
+- 分類: FULL（判断不要で即実装）**0**／新食材 1 つ 2／新食材 2 つ以上 1／工程依存 3／Owner 判断待ち 81。
+- Sept の Phase-2「証拠が揃った 87」は**別集合**（出荷済み 61・未出荷 26）。数の一致は偶然で、二重計上に注意。
+- 本書 §3 との差: 本書は「READY・新食材 0・ブロッカー 0」で 6 行、#781 は「READY／READY_WITH_REVIEW かつ重複ゲート通過」で 8 行（piadina・pizza-fritta・poutine・burrata-pizza・pesto-noci・pesto-burrata・peking-duck・manakish）。**基準が違うだけで矛盾ではない**。実行可能性の結論（FULL 0）は一致。
+
+### 10.4 Fresh Audit に対して「現在の資料に不足している情報」だけ
+
+#781・#780・#774・#783 で既に充足している事項は除く。不足していて**判断に関わる**ものは次の 4 つだけ:
+
+| # | 不足している情報 | 影響 | 求める形 |
+|---|---|---|---|
+| M1 | **Wave A 46／B 26／C 15 の定義**（Wave を決める基準、算出元の表の commit／path） | 87 行を Wave に割り振れない。本書・#781 の分類は Wave と独立 | 定義 1 段落と元表のパス |
+| M2 | **「判断不要 9 品」の ID 9 個**と、各 ID の根拠（どの Gate を通ったか） | 実装可能バッチとして確定できない | ID 一覧（`evidenceId` で。#781 の `rows.json` と照合可能） |
+| M3 | 「判断待ち 37 品」の論点表（#780 の 7 日チェックポイント 2 番目） | Owner 一括決定表が作れない。ただし #781 の主因列（ソース未特定 21 等）で代替的に推定は可能 | 論点の一覧（任意） |
+| M4 | 「未実装食材候補 73 種」の算出元 | #781 は 87 行の新食材（出荷済み 97 種に無い id）を数えるが、73 種との対応は未確認 | 一覧またはパス |
+
+上記以外（出荷済み 90 品・食材 97 種・172 行・87 行の再構成・工程依存・重複ゲート・Batch 19 の状態）は、#781・#783・main で確認済みで、Fresh Audit からの追加情報は**不要**。
+
+### 10.5 競合状況・次の実装可能バッチ（現在）
+
+- **claim の競合なし。** #774（Batch 19 → PR #783）、#780 T2（→ PR #781）、#780 T5（docs-only）は、それぞれ別のファイル名前空間。本書（`TETO_CONTENT-EXPANSION_WAVE-A_780_*`）は新規 1 ファイルのみ。
+- **次の実装可能バッチ:** Batch 19（#783、Owner の実機 HV と Final Gate 待ち、merge は Owner 承認後）。その次は **B20-A（honey＋walnut＋pesto-noci）**で、#774 merge 後に新 claim と再検査（Owner 6703581170）。本セッションで根拠をもって進められる追加レシピ実装は**なし**（9 品が UNVERIFIED のため）。
+- 87 品のうち FULL は 0。Owner 判断待ち 81 のうち、判断が通ると進められる 11（FULL）・15（新食材 1）・18（新食材 2 以上）・43（工程依存）は #781 の `afterDecisionClass` を参照。
