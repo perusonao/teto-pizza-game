@@ -1,0 +1,3759 @@
+{
+ "ingredients": [
+  {
+   "id": "honey",
+   "inFlightOnly": false,
+   "kind": "LIQUID",
+   "lanes": [
+    "IN_FLIGHT",
+    "R-B",
+    "R-C:M6"
+   ],
+   "recipes": [
+    "nashville-hot-chicken-pizza-pizzadb-p6",
+    "feteer-meshaltet-pizzadb-p10",
+    "pesto-noci-pizzadb-p12",
+    "hot-honey-pepperoni-pizzadb-p12",
+    "nduja-pizza-pizzadb-p14"
+   ],
+   "risk": "OK",
+   "uses": 5
+  },
+  {
+   "id": "walnut",
+   "inFlightOnly": false,
+   "kind": "NUT",
+   "lanes": [
+    "IN_FLIGHT",
+    "R-B"
+   ],
+   "recipes": [
+    "apple-cinnamon-dessert-pizzadb",
+    "speck-e-brie-pizzadb-p4",
+    "pizza-radicchio-noci-pizzadb-p8",
+    "pesto-noci-pizzadb-p12"
+   ],
+   "risk": "OK",
+   "uses": 4
+  },
+  {
+   "id": "burrata",
+   "inFlightOnly": false,
+   "kind": "CHEESE",
+   "lanes": [
+    "IN_FLIGHT",
+    "R-B"
+   ],
+   "recipes": [
+    "pizza-alla-crudaiola-pizzadb-p8",
+    "burrata-pizza-pizzadb-p10",
+    "pesto-burrata-pizzadb-p12"
+   ],
+   "risk": "OK",
+   "uses": 3
+  },
+  {
+   "id": "lettuce",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "taco-pizza-pizzadb",
+    "swedish-kebab-pizza-pizzadb-p4",
+    "pizza-salad-pizzadb-p7"
+   ],
+   "risk": "OK",
+   "uses": 3
+  },
+  {
+   "id": "blue-cheese-dressing",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "buffalo-chicken-pizzadb",
+    "buffalo-cauliflower-pizza-pizzadb-p6"
+   ],
+   "risk": "ALIAS:gorgonzola",
+   "uses": 2
+  },
+  {
+   "id": "carrot",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "banh-mi-pizza-pizzadb-p6",
+    "pizza-cavolo-carote-pizzadb-p8"
+   ],
+   "risk": "OK",
+   "uses": 2
+  },
+  {
+   "id": "cucumber",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "pizza-salad-pizzadb-p7",
+    "peking-duck-pizza"
+   ],
+   "risk": "OK",
+   "uses": 2
+  },
+  {
+   "id": "french-fries",
+   "inFlightOnly": false,
+   "kind": "COMPOSITE",
+   "lanes": [
+    "R-C:M1",
+    "R-C:M4+M5"
+   ],
+   "recipes": [
+    "poutine-pizza-pizzadb-p10",
+    "pizza-de-lomo-saltado"
+   ],
+   "risk": "COMPOSITE (=potato+FRY? #749)",
+   "uses": 2
+  },
+  {
+   "id": "aji-amarillo",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "peruvian-aji-amarillo-pizzadb-p12"
+   ],
+   "risk": "SAUCE_LINE",
+   "uses": 1
+  },
+  {
+   "id": "apple",
+   "inFlightOnly": false,
+   "kind": "FRUIT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "apple-cinnamon-dessert-pizzadb"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "asparagus",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "pizza-asparagi-limone-pizzadb-p8"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "balsamic-vinegar",
+   "inFlightOnly": false,
+   "kind": "LIQUID",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "pizza-radicchio-noci-pizzadb-p8"
+   ],
+   "risk": "OK (#579 DRIZZLE)",
+   "uses": 1
+  },
+  {
+   "id": "banana",
+   "inFlightOnly": false,
+   "kind": "FRUIT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "nutella-dessert-pizza-pizzadb-p6"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "blueberry",
+   "inFlightOnly": false,
+   "kind": "FRUIT",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "fruit-dessert-pizza-pizzadb-p11"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "bonito-flakes",
+   "inFlightOnly": false,
+   "kind": "SEAFOOD",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "okonomiyaki-style-pizza-pizzadb-p1"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "brick-cheese",
+   "inFlightOnly": false,
+   "kind": "CHEESE",
+   "lanes": [
+    "R-C:M1+M2"
+   ],
+   "recipes": [
+    "detroit-style-pizza-pizzadb-p5"
+   ],
+   "risk": "ALIAS:mozzarella (Detroit only)",
+   "uses": 1
+  },
+  {
+   "id": "brie",
+   "inFlightOnly": false,
+   "kind": "CHEESE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "speck-e-brie-pizzadb-p4"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "buffalo-sauce",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "buffalo-chicken-pizzadb"
+   ],
+   "risk": "SAUCE_LINE",
+   "uses": 1
+  },
+  {
+   "id": "cabbage",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "okonomiyaki-style-pizza-pizzadb-p1"
+   ],
+   "risk": "PAIR:red-cabbage",
+   "uses": 1
+  },
+  {
+   "id": "caciocavallo",
+   "inFlightOnly": false,
+   "kind": "CHEESE",
+   "lanes": [
+    "R-C:M3"
+   ],
+   "recipes": [
+    "scacciata-ragusana-pizzadb-p4"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "cauliflower",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "buffalo-cauliflower-pizza-pizzadb-p6"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "celery",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "pizza-carciofi-salad-pizzadb-p8"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "cheddar",
+   "inFlightOnly": false,
+   "kind": "CHEESE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "taco-pizza-pizzadb"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "cheese-curd",
+   "inFlightOnly": false,
+   "kind": "CHEESE",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "poutine-pizza-pizzadb-p10"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "chicken-tikka",
+   "inFlightOnly": false,
+   "kind": "COMPOSITE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "chicken-tikka-pizza-pizzadb-p5"
+   ],
+   "risk": "ALIAS:chicken (+PREP/sauce)",
+   "uses": 1
+  },
+  {
+   "id": "chicory",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "pizza-cicoria-limone-pizzadb-p8"
+   ],
+   "risk": "PAIR:puntarelle/radicchio",
+   "uses": 1
+  },
+  {
+   "id": "chili-powder",
+   "inFlightOnly": false,
+   "kind": "SPICE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "mexican-elote-pizza-pizzadb-p13"
+   ],
+   "risk": "ALIAS:paprika-powder",
+   "uses": 1
+  },
+  {
+   "id": "chocolate",
+   "inFlightOnly": false,
+   "kind": "DESSERT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "smore-dessert-pizza-pizzadb-p4"
+   ],
+   "risk": "PAIR:nutella-spread",
+   "uses": 1
+  },
+  {
+   "id": "chutney",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "south-african-boerewors-pizzadb-p14"
+   ],
+   "risk": "SAUCE_LINE",
+   "uses": 1
+  },
+  {
+   "id": "condensed-milk",
+   "inFlightOnly": false,
+   "kind": "LIQUID",
+   "lanes": [
+    "R-C:M6"
+   ],
+   "recipes": [
+    "feteer-meshaltet-pizzadb-p10"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "cotija",
+   "inFlightOnly": false,
+   "kind": "CHEESE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "mexican-elote-pizza-pizzadb-p13"
+   ],
+   "risk": "ALIAS:feta",
+   "uses": 1
+  },
+  {
+   "id": "cumin",
+   "inFlightOnly": false,
+   "kind": "SPICE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "jerusalem-mixed-grill-pizza-pizzadb-p1"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "daikon",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "banh-mi-pizza-pizzadb-p6"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "eel",
+   "inFlightOnly": false,
+   "kind": "SEAFOOD",
+   "lanes": [
+    "R-C:M4"
+   ],
+   "recipes": [
+    "eel-pizza-pizzadb-p1"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "fennel",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "pizza-finocchi-salad-pizzadb-p8"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "graham-cracker",
+   "inFlightOnly": false,
+   "kind": "DESSERT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "smore-dessert-pizza-pizzadb-p4"
+   ],
+   "risk": "COMPOSITE",
+   "uses": 1
+  },
+  {
+   "id": "gravy-sauce",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "poutine-pizza-pizzadb-p10"
+   ],
+   "risk": "SAUCE_LINE",
+   "uses": 1
+  },
+  {
+   "id": "ground-beef",
+   "inFlightOnly": false,
+   "kind": "MEAT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "taco-pizza-pizzadb"
+   ],
+   "risk": "ALIAS:beef",
+   "uses": 1
+  },
+  {
+   "id": "halloumi",
+   "inFlightOnly": false,
+   "kind": "CHEESE",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "manakish"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "kebab-sauce",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "swedish-kebab-pizza-pizzadb-p4"
+   ],
+   "risk": "SAUCE_LINE",
+   "uses": 1
+  },
+  {
+   "id": "kimchi",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-C:M5"
+   ],
+   "recipes": [
+    "kimchi-pizza-pizzadb-p2"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "kiwi",
+   "inFlightOnly": false,
+   "kind": "FRUIT",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "fruit-dessert-pizza-pizzadb-p11"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "lime",
+   "inFlightOnly": false,
+   "kind": "FRUIT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "mexican-elote-pizza-pizzadb-p13"
+   ],
+   "risk": "PAIR:lemon(shipped)",
+   "uses": 1
+  },
+  {
+   "id": "liver-pate",
+   "inFlightOnly": false,
+   "kind": "COMPOSITE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "banh-mi-pizza-pizzadb-p6"
+   ],
+   "risk": "COMPOSITE",
+   "uses": 1
+  },
+  {
+   "id": "marshmallow",
+   "inFlightOnly": false,
+   "kind": "DESSERT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "smore-dessert-pizza-pizzadb-p4"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "melted-butter",
+   "inFlightOnly": false,
+   "kind": "LIQUID",
+   "lanes": [
+    "R-C:M6"
+   ],
+   "recipes": [
+    "feteer-meshaltet-pizzadb-p10"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "mentaiko",
+   "inFlightOnly": false,
+   "kind": "SEAFOOD",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "mentaiko-mochi-pizza"
+   ],
+   "risk": "ALIAS:cod-roe",
+   "uses": 1
+  },
+  {
+   "id": "mochi",
+   "inFlightOnly": false,
+   "kind": "COMPOSITE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "mentaiko-mochi-pizza"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "natto",
+   "inFlightOnly": false,
+   "kind": "COMPOSITE",
+   "lanes": [
+    "R-C:M4"
+   ],
+   "recipes": [
+    "natto-pizza"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "nutella-spread",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "nutella-dessert-pizza-pizzadb-p6"
+   ],
+   "risk": "PAIR:chocolate",
+   "uses": 1
+  },
+  {
+   "id": "okonomiyaki-sauce",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "okonomiyaki-style-pizza-pizzadb-p1"
+   ],
+   "risk": "SAUCE_LINE",
+   "uses": 1
+  },
+  {
+   "id": "okra",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-C:M4"
+   ],
+   "recipes": [
+    "natto-pizza"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "orange",
+   "inFlightOnly": false,
+   "kind": "FRUIT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "pizza-finocchi-salad-pizzadb-p8"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "peanut-sauce",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "thai-chicken-pizza-pizzadb-p4"
+   ],
+   "risk": "SAUCE_LINE",
+   "uses": 1
+  },
+  {
+   "id": "pecorino",
+   "inFlightOnly": false,
+   "kind": "CHEESE",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "pizza-cicoria-limone-pizzadb-p8"
+   ],
+   "risk": "ALIAS:grana-padano/parmigiano (Hint class)",
+   "uses": 1
+  },
+  {
+   "id": "peking-duck",
+   "inFlightOnly": false,
+   "kind": "COMPOSITE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "peking-duck-pizza"
+   ],
+   "risk": "COMPOSITE",
+   "uses": 1
+  },
+  {
+   "id": "powdered-sugar",
+   "inFlightOnly": false,
+   "kind": "DESSERT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "nutella-dessert-pizza-pizzadb-p6"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "puntarelle",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "pizza-puntarelle-pizzadb-p8"
+   ],
+   "risk": "PAIR:chicory",
+   "uses": 1
+  },
+  {
+   "id": "radicchio",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "pizza-radicchio-noci-pizzadb-p8"
+   ],
+   "risk": "PAIR:chicory",
+   "uses": 1
+  },
+  {
+   "id": "red-cabbage",
+   "inFlightOnly": false,
+   "kind": "VEG",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "pizza-cavolo-carote-pizzadb-p8"
+   ],
+   "risk": "PAIR:cabbage",
+   "uses": 1
+  },
+  {
+   "id": "rock-salt",
+   "inFlightOnly": false,
+   "kind": "SPICE",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "focaccia-genovese-pizzadb-p10"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "salsa",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "taco-pizza-pizzadb"
+   ],
+   "risk": "ALIAS:fresh-tomato/tomato-sauce",
+   "uses": 1
+  },
+  {
+   "id": "sansho-pepper",
+   "inFlightOnly": false,
+   "kind": "SPICE",
+   "lanes": [
+    "R-C:M4"
+   ],
+   "recipes": [
+    "eel-pizza-pizzadb-p1"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "spicy-salami",
+   "inFlightOnly": false,
+   "kind": "MEAT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "diavola-pizza-pizzadb-p5"
+   ],
+   "risk": "ALIAS:salami/pepperoni",
+   "uses": 1
+  },
+  {
+   "id": "squid",
+   "inFlightOnly": false,
+   "kind": "SEAFOOD",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "frutti-di-mare-pizzadb-p11"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "strawberry",
+   "inFlightOnly": false,
+   "kind": "FRUIT",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "fruit-dessert-pizza-pizzadb-p11"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "sunflower-seeds",
+   "inFlightOnly": false,
+   "kind": "NUT",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "pizza-cavolo-carote-pizzadb-p8"
+   ],
+   "risk": "OK",
+   "uses": 1
+  },
+  {
+   "id": "sweet-bean-sauce",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "peking-duck-pizza"
+   ],
+   "risk": "SAUCE_LINE",
+   "uses": 1
+  },
+  {
+   "id": "tortilla-chips",
+   "inFlightOnly": false,
+   "kind": "COMPOSITE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "taco-pizza-pizzadb"
+   ],
+   "risk": "COMPOSITE",
+   "uses": 1
+  },
+  {
+   "id": "truffle",
+   "inFlightOnly": false,
+   "kind": "COMPOSITE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "black-truffle-pizza-pizzadb-p14"
+   ],
+   "risk": "OK (form: shaved/oil undecided)",
+   "uses": 1
+  },
+  {
+   "id": "yakiniku-sauce",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-C:M5"
+   ],
+   "recipes": [
+    "yakiniku-pizza"
+   ],
+   "risk": "SAUCE_LINE",
+   "uses": 1
+  },
+  {
+   "id": "yogurt-sauce",
+   "inFlightOnly": false,
+   "kind": "SAUCE",
+   "lanes": [
+    "R-B"
+   ],
+   "recipes": [
+    "pizza-salad-pizzadb-p7"
+   ],
+   "risk": "SAUCE_LINE",
+   "uses": 1
+  },
+  {
+   "id": "zaatar",
+   "inFlightOnly": false,
+   "kind": "SPICE",
+   "lanes": [
+    "R-C:M1"
+   ],
+   "recipes": [
+    "manakish"
+   ],
+   "risk": "OK",
+   "uses": 1
+  }
+ ],
+ "recipes": [
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": null,
+   "dupGate": "NONE",
+   "evidenceId": "apple-cinnamon-dessert-pizzadb",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.143,
+    "pesto-salmone"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "アップルシナモンデザートピザ",
+   "newIngredients": [
+    "apple",
+    "walnut"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": null,
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "calzone-pizzadb",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M3",
+   "maxJaccard": [
+    0.5,
+    "calabresa-argentina"
+   ],
+   "mechanicIssues": [
+    "#773 FOLD+SEAL (PR #785 F1 HOLD, F2 lab claim)"
+   ],
+   "mechanicTracks": [
+    "M3"
+   ],
+   "mechanicsMissing": [
+    "ENCLOSE"
+   ],
+   "nameJa": "カルツォーネ（PIZZA DB版）",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": null,
+   "dupGate": "SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "quattro-stagioni-pizzadb",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M6",
+   "maxJaccard": [
+    0.714,
+    "capricciosa"
+   ],
+   "mechanicIssues": [
+    "#773 / PR #620 ZONED audit (design only)"
+   ],
+   "mechanicTracks": [
+    "M6"
+   ],
+   "mechanicsMissing": [
+    "ZONED_PLACEMENT"
+   ],
+   "nameJa": "クアトロスタジオーニ（PIZZA DB版）",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": "fluffy-olive-oil",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "greek-style-pizzadb",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1+M2",
+   "maxJaccard": [
+    0.5,
+    "calabresa-argentina"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data",
+    "#532/#538 square-pan line + #773 (deep/shallow/steel profile: design only)"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M2"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE:other"
+   ],
+   "nameJa": "グリークスタイルピザ（PIZZA DB版）",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": "pan",
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": null,
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "chicago-deep-dish-pizzadb",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M2+M6",
+   "maxJaccard": [
+    0.75,
+    "salsiccia"
+   ],
+   "mechanicIssues": [
+    "#532/#538 square-pan line + #773 (deep/shallow/steel profile: design only)",
+    "NO issue yet (cheese-under-sauce order) -> new; PR #620 audit adjacent"
+   ],
+   "mechanicTracks": [
+    "M2",
+    "M6"
+   ],
+   "mechanicsMissing": [
+    "PAN_BAKE:other",
+    "STEP_ORDER"
+   ],
+   "nameJa": "シカゴディープディッシュ（PIZZA DB版）",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": "deep-pan",
+   "reviewItemTypes": [
+    "NAMING_CLUSTER"
+   ],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": "thick-spongy",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "siciliana-pizzadb",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1+M2",
+   "maxJaccard": [
+    0.6,
+    "tonno-e-cipolla"
+   ],
+   "mechanicIssues": [
+    "#532/#536 (square fill exists for tray) + #773 (oval/boat/rect target: design only)",
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data",
+    "#532/#538 square-pan line + #773 (deep/shallow/steel profile: design only)"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M2"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_SHAPE_TARGET",
+    "DOUGH_VARIANT",
+    "PAN_BAKE:other"
+   ],
+   "nameJa": "シチリアンピザ（PIZZA DB版）",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": "pan",
+   "reviewItemTypes": [
+    "NAMING_CLUSTER"
+   ],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": null,
+   "dupGate": "SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "sfincione-pizzadb",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.6,
+    "fugazza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "スフィンチョーネ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "pan": null,
+   "reviewItemTypes": [
+    "NAMING_CLUSTER"
+   ],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "doughVariant": null,
+   "dupGate": "NONE",
+   "evidenceId": "taco-pizza-pizzadb",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.125,
+    "chilean-napolitana"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "タコピザ",
+   "newIngredients": [
+    "cheddar",
+    "ground-beef",
+    "lettuce",
+    "salsa",
+    "tortilla-chips"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": null,
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "trenton-tomato-pie-pizzadb",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M6",
+   "maxJaccard": [
+    0.667,
+    "salsiccia"
+   ],
+   "mechanicIssues": [
+    "NO issue yet (cheese-under-sauce order) -> new; PR #620 audit adjacent"
+   ],
+   "mechanicTracks": [
+    "M6"
+   ],
+   "mechanicsMissing": [
+    "STEP_ORDER"
+   ],
+   "nameJa": "トレントントマトパイ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:SUBSET_OF_SHIPPED_FORBIDDEN",
+   "pan": null,
+   "reviewItemTypes": [
+    "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE"
+   ],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thin-large-pliable",
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "ny-style-pizzadb",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.667,
+    "salsiccia"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "ニューヨークスタイルピザ（PIZZA DB版）",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:SUBSET_OF_SHIPPED_FORBIDDEN",
+   "pan": null,
+   "reviewItemTypes": [
+    "CANDIDATE_CAPABILITY",
+    "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE"
+   ],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": null,
+   "dupGate": "NONE",
+   "evidenceId": "buffalo-chicken-pizzadb",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.333,
+    "pesto-pollo"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "バッファローチキンピザ（PIZZA DB版）",
+   "newIngredients": [
+    "blue-cheese-dressing",
+    "buffalo-sauce"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "pizza-baiana",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.6,
+    "spanish-chorizo-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ピッツァ・バイアーナ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [
+    "EVIDENCE_GAP"
+   ],
+   "doughVariant": "thick-fluffy",
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "pizza-a-caballo",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1+M3",
+   "maxJaccard": [
+    0.6,
+    "calabresa-argentina"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data",
+    "#773 FOLD+SEAL (PR #785 F1 HOLD, F2 lab claim)"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M3"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT",
+    "ENCLOSE"
+   ],
+   "nameJa": "ピッツァ・ア・カバージョ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "EVIDENCE_GAP",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thick-fluffy",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "fugazzeta-rellena",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1+M3",
+   "maxJaccard": [
+    0.429,
+    "pizza-portuguesa"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data",
+    "#773 FOLD+SEAL (PR #785 F1 HOLD, F2 lab claim)"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M3"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT",
+    "ENCLOSE"
+   ],
+   "nameJa": "フガゼッタ・レジェーナ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:JACCARD_OVER_0.4_EXCEPTION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "thick-fluffy",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "pizza-de-cancha",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.5,
+    "marinara"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "ピッツァ・デ・カンチャ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "swedish-kebab-pizza-pizzadb-p4",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.2,
+    "salsiccia-e-friarielli"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "スウェディッシュケバブピザ",
+   "newIngredients": [
+    "kebab-sauce",
+    "lettuce"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [
+    "CANDIDATE_CAPABILITY"
+   ],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": null,
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "scacciata-ragusana-pizzadb-p4",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M3",
+   "maxJaccard": [
+    0.5,
+    "salsiccia"
+   ],
+   "mechanicIssues": [
+    "#773 FOLD+SEAL (PR #785 F1 HOLD, F2 lab claim)"
+   ],
+   "mechanicTracks": [
+    "M3"
+   ],
+   "mechanicsMissing": [
+    "ENCLOSE"
+   ],
+   "nameJa": "スカッチャラグザーナ",
+   "newIngredients": [
+    "caciocavallo"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "dup:JACCARD_OVER_0.4_EXCEPTION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": "neapolitan",
+   "dupGate": "NONE",
+   "evidenceId": "speck-e-brie-pizzadb-p4",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.333,
+    "prosciutto-funghi"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "スペックエブリー",
+   "newIngredients": [
+    "brie",
+    "walnut"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": null,
+   "reviewItemTypes": [
+    "NAMING_CLUSTER"
+   ],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "smore-dessert-pizza-pizzadb-p4",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.0,
+    "yuzu-shrimp-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "スモアデザートピザ",
+   "newIngredients": [
+    "chocolate",
+    "graham-cracker",
+    "marshmallow"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "yeastless-cracker-thin",
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "st-louis-style-pizza-pizzadb-p4",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.333,
+    "pepperoni"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "セントルイススタイルピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "thai-chicken-pizza-pizzadb-p4",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.5,
+    "bbq-chicken-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "タイチキンピザ",
+   "newIngredients": [
+    "peanut-sauce"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thick-fluffy",
+   "dupGate": "SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "argentine-napolitana-pizzadb-p1",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.6,
+    "chilean-napolitana"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "アルゼンチン風ナポリターナ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "pan": null,
+   "reviewItemTypes": [
+    "NAMING_CLUSTER"
+   ],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "MECHANIC_INTERPRETATION"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "eel-pizza-pizzadb-p1",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M4",
+   "maxJaccard": [
+    0.286,
+    "sichuan-eggplant-pizza"
+   ],
+   "mechanicIssues": [
+    "#604/#611 (post_bake shipped; mid_bake: NO issue yet -> new)"
+   ],
+   "mechanicTracks": [
+    "M4"
+   ],
+   "mechanicsMissing": [
+    "LATE_ADDITION:mid_bake"
+   ],
+   "nameJa": "うなぎピザ",
+   "newIngredients": [
+    "eel",
+    "sansho-pepper"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "jerusalem-mixed-grill-pizza-pizzadb-p1",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.333,
+    "curry-pizza-japan"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "エルサレムミックスグリルピザ",
+   "newIngredients": [
+    "cumin"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "medium-thick",
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "old-forge-style-pizza-pizzadb-p1",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M1+M2",
+   "maxJaccard": [
+    0.333,
+    "fugazza"
+   ],
+   "mechanicIssues": [
+    "#532/#536 (square fill exists for tray) + #773 (oval/boat/rect target: design only)",
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M2"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_SHAPE_TARGET",
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "オールドフォージスタイルピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": "sheet-pan",
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.143,
+    "porchetta-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "お好み焼き風ピザ",
+   "newIngredients": [
+    "bonito-flakes",
+    "cabbage",
+    "okonomiyaki-sauce"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "neapolitan",
+   "dupGate": "NONE",
+   "evidenceId": "caponata-pizza-pizzadb-p2",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.4,
+    "palmito-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "カポナータピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "material-cauliflower",
+   "dupGate": "IDENTICAL_SET_AXIS_SEPARATED",
+   "evidenceId": "cauliflower-crust-pizza-pizzadb-p2",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    1.0,
+    "margherita"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "カリフラワークラストピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:IDENTICAL_SET_AXIS_SEPARATED",
+   "pan": null,
+   "reviewItemTypes": [
+    "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE"
+   ],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "keema-pizza-pizzadb-p2",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.5,
+    "tonno-e-cipolla"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "キーマピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "kimchi-pizza-pizzadb-p2",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M5",
+   "maxJaccard": [
+    0.4,
+    "porchetta-pizza"
+   ],
+   "mechanicIssues": [
+    "#696 / prepExperienceGate (PREP_EXPERIENCE_PRODUCTION=false; Owner ON)"
+   ],
+   "mechanicTracks": [
+    "M5"
+   ],
+   "mechanicsMissing": [
+    "PREP_STEP"
+   ],
+   "nameJa": "キムチピザ",
+   "newIngredients": [
+    "kimchi"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "malt-thin-crisp",
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "quad-cities-style-pizza-pizzadb-p2",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.333,
+    "salsiccia-e-friarielli"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "クアッドシティーズスタイルピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "EVIDENCE_GAP"
+   ],
+   "doughVariant": "honey-thick",
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "colorado-mountain-pie-pizzadb-p3",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.333,
+    "salsiccia-e-friarielli"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "コロラドマウンテンパイ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "EVIDENCE_GAP",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thick",
+   "dupGate": "IDENTICAL_SET_AXIS_SEPARATED",
+   "evidenceId": "chicago-stuffed-pizza-pizzadb-p3",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1+M3",
+   "maxJaccard": [
+    1.0,
+    "salsiccia"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data",
+    "#773 FOLD+SEAL (PR #785 F1 HOLD, F2 lab claim)"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M3"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT",
+    "ENCLOSE"
+   ],
+   "nameJa": "シカゴスタッフドピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:IDENTICAL_SET_AXIS_SEPARATED",
+   "pan": null,
+   "reviewItemTypes": [
+    "NAMING_CLUSTER",
+    "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE"
+   ],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "chicken-tikka-pizza-pizzadb-p5",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.5,
+    "spanish-chorizo-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "チキンティッカピザ",
+   "newIngredients": [
+    "chicken-tikka"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [
+    "PREPARED_COMPOSITE_INGREDIENT"
+   ],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "neapolitan",
+   "dupGate": "NONE",
+   "evidenceId": "diavola-pizza-pizzadb-p5",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.25,
+    "salsiccia-e-friarielli"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ディアボラ",
+   "newIngredients": [
+    "spicy-salami"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": "thick-crisp-bottom",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "detroit-style-pizza-pizzadb-p5",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1+M2",
+   "maxJaccard": [
+    0.5,
+    "pepperoni"
+   ],
+   "mechanicIssues": [
+    "#532/#536 (square fill exists for tray) + #773 (oval/boat/rect target: design only)",
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data",
+    "#532/#538 square-pan line + #773 (deep/shallow/steel profile: design only)"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M2"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_SHAPE_TARGET",
+    "DOUGH_VARIANT",
+    "PAN_BAKE:other"
+   ],
+   "nameJa": "デトロイトスタイルピザ",
+   "newIngredients": [
+    "brick-cheese"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": "steel-pan",
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "fluffy",
+   "dupGate": "NONE",
+   "evidenceId": "turkish-pide-pizzadb-p5",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M1+M2",
+   "maxJaccard": [
+    0.25,
+    "chilean-napolitana"
+   ],
+   "mechanicIssues": [
+    "#532/#536 (square fill exists for tray) + #773 (oval/boat/rect target: design only)",
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M2"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_SHAPE_TARGET",
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "トルコピデ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "nashville-hot-chicken-pizza-pizzadb-p6",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.333,
+    "pesto-pollo"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "newIngredients": [
+    "honey"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [
+    "CANDIDATE_CAPABILITY"
+   ],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thin-crisp",
+   "dupGate": "IDENTICAL_SET_AXIS_SEPARATED",
+   "evidenceId": "new-england-bar-pizza-pizzadb-p6",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1+M2",
+   "maxJaccard": [
+    1.0,
+    "pepperoni"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data",
+    "#532/#538 square-pan line + #773 (deep/shallow/steel profile: design only)"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M2"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE:other"
+   ],
+   "nameJa": "ニューイングランドバーピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:IDENTICAL_SET_AXIS_SEPARATED",
+   "pan": "shallow-pan",
+   "reviewItemTypes": [
+    "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE"
+   ],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "neapolitan",
+   "dupGate": "NONE",
+   "evidenceId": "nutella-dessert-pizza-pizzadb-p6",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.0,
+    "yuzu-shrimp-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ヌテラデザートピザ",
+   "newIngredients": [
+    "banana",
+    "nutella-spread",
+    "powdered-sugar"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "banh-mi-pizza-pizzadb-p6",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.25,
+    "hawaiian"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "バインミーピザ",
+   "newIngredients": [
+    "carrot",
+    "daikon",
+    "liver-pate"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "buffalo-cauliflower-pizza-pizzadb-p6",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.2,
+    "salsiccia-e-friarielli"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "バッファローカリフラワーピザ",
+   "newIngredients": [
+    "blue-cheese-dressing",
+    "cauliflower"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [
+    "CANDIDATE_CAPABILITY"
+   ],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thick-fluffy",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "palmitos-salsa-golf-pizzadb-p7",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.429,
+    "capricciosa"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "パルミートス・イ・サルサ・ゴルフ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "flatbread-unleavened",
+   "dupGate": "NONE",
+   "evidenceId": "piadina-romagnola-pizzadb-p7",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.4,
+    "rucola-e-grana"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "ピアディーナ・ロマニョーラ",
+   "newIngredients": [],
+   "ownerDecision": false,
+   "ownerReason": "",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thin",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "pizza-salad-pizzadb-p7",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.429,
+    "bambino"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ピザサラダ",
+   "newIngredients": [
+    "cucumber",
+    "lettuce",
+    "yogurt-sauce"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "dup:JACCARD_OVER_0.4_EXCEPTION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "neapolitan",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "pizza-alla-crudaiola-pizzadb-p8",
+   "identitySetComplete": true,
+   "inFlight": "Batch 19 PR #783 (#774) — Final Gate kept separately",
+   "lane": "IN_FLIGHT",
+   "maxJaccard": [
+    0.429,
+    "pinsa-romana"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ピッツァ・アッラ・クルダイオーラ",
+   "newIngredients": [
+    "burrata"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "dup:JACCARD_OVER_0.4_EXCEPTION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "pizza-asparagi-limone-pizzadb-p8",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.429,
+    "quattro-formaggi"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+   "newIngredients": [
+    "asparagus"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "doughVariant": "roman",
+   "dupGate": "NONE",
+   "evidenceId": "pizza-carciofi-salad-pizzadb-p8",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.375,
+    "spinach-artichoke-pizza"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・カルチョーフィ",
+   "newIngredients": [
+    "celery"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "pizza-finocchi-salad-pizzadb-p8",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.286,
+    "palmito-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+   "newIngredients": [
+    "fennel",
+    "orange"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "pizza-cavolo-carote-pizzadb-p8",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.25,
+    "shirasu-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+   "newIngredients": [
+    "carrot",
+    "red-cabbage",
+    "sunflower-seeds"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "doughVariant": "neapolitan",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "pizza-zucchine-menta-pizzadb-p8",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.429,
+    "pizza-bianca-ricotta"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ピッツァ・コン・ズッキーネ・クルーデ・エ・メンタ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "MECHANIC_INTERPRETATION",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "roman",
+   "dupGate": "NONE",
+   "evidenceId": "pizza-cicoria-limone-pizzadb-p8",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.286,
+    "vongole"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "ピッツァ・コン・チコリア・エ・リモーネ",
+   "newIngredients": [
+    "chicory",
+    "pecorino"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "doughVariant": "roman",
+   "dupGate": "NONE",
+   "evidenceId": "pizza-puntarelle-pizzadb-p8",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.286,
+    "shirasu-pizza"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "ピッツァ・コン・プンタレッレ",
+   "newIngredients": [
+    "puntarelle"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "MECHANIC_INTERPRETATION"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "pizza-radicchio-noci-pizzadb-p8",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.286,
+    "pizza-bianca-ricotta"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+   "newIngredients": [
+    "balsamic-vinegar",
+    "radicchio",
+    "walnut"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "pizza-chilena-pizzadb-p8",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.667,
+    "pizza-portuguesa"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ピッツァ・チレーナ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": "roman-thin-crisp",
+   "dupGate": "SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "pizza-romana-pizzadb-p9",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.8,
+    "napoletana"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "ピッツァ・ロマーナ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "long-ferment",
+   "dupGate": "IDENTICAL_SET_AXIS_SEPARATED",
+   "evidenceId": "pizza-al-taglio-romana-pizzadb-p9",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1+M2",
+   "maxJaccard": [
+    1.0,
+    "margherita"
+   ],
+   "mechanicIssues": [
+    "#532/#536 (square fill exists for tray) + #773 (oval/boat/rect target: design only)",
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M2"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_SHAPE_TARGET",
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "ピッツァアルタリオローマーナ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:IDENTICAL_SET_AXIS_SEPARATED",
+   "pan": "tray",
+   "reviewItemTypes": [
+    "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE"
+   ],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": null,
+   "dupGate": "NONE",
+   "evidenceId": "pizza-fritta-pizzadb-p9",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M5",
+   "maxJaccard": [
+    0.4,
+    "salsiccia"
+   ],
+   "mechanicIssues": [
+    "#749 (FRY_EXPERIENCE_PRODUCTION=false; F1-F3 + Owner ON)"
+   ],
+   "mechanicTracks": [
+    "M5"
+   ],
+   "mechanicsMissing": [
+    "FRY_COOK"
+   ],
+   "nameJa": "ピッツァフリッタ",
+   "newIngredients": [],
+   "ownerDecision": false,
+   "ownerReason": "",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "material-keto-mozzarella-almond",
+   "dupGate": "IDENTICAL_SET_AXIS_SEPARATED",
+   "evidenceId": "fathead-pizza-keto-pizzadb-p9",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    1.0,
+    "pepperoni"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "ファットヘッドピザ（ケト風）",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:IDENTICAL_SET_AXIS_SEPARATED",
+   "pan": null,
+   "reviewItemTypes": [
+    "SAME_INGREDIENT_SET_AS_CATALOG_RECIPE"
+   ],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "philly-cheesesteak-pizza-pizzadb-p9",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.75,
+    "nigerian-suya-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "フィリーチーズステーキピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thick",
+   "dupGate": "NONE",
+   "evidenceId": "poutine-pizza-pizzadb-p10",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.167,
+    "salsiccia-e-friarielli"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "プーティンピザ",
+   "newIngredients": [
+    "cheese-curd",
+    "french-fries",
+    "gravy-sauce"
+   ],
+   "ownerDecision": false,
+   "ownerReason": "",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "SCOPE_QUESTION",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": null,
+   "dupGate": "NONE",
+   "evidenceId": "feteer-meshaltet-pizzadb-p10",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M6",
+   "maxJaccard": [
+    0.0,
+    "yuzu-shrimp-pizza"
+   ],
+   "mechanicIssues": [
+    "NO issue yet -> new (feteer only; candidate to defer)",
+    "#521 (2 layers shipped); 3rd / non-sauce layer: design only"
+   ],
+   "mechanicTracks": [
+    "M6"
+   ],
+   "mechanicsMissing": [
+    "LAMINATE",
+    "MULTI_SPREAD_LAYER"
+   ],
+   "nameJa": "フェテイールメシャルテル",
+   "newIngredients": [
+    "condensed-milk",
+    "honey",
+    "melted-butter"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "SCOPE_QUESTION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "SCOPE_QUESTION"
+   ],
+   "doughVariant": "flatbread-focaccia-thick",
+   "dupGate": "SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "focaccia-genovese-pizzadb-p10",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.667,
+    "pizza-bianca"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "フォカッチャジェノヴェーゼ",
+   "newIngredients": [
+    "rock-salt"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "SCOPE_QUESTION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "DISCOVERY_COLLISION"
+   ],
+   "doughVariant": "thick-fluffy",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "fugazzetta-pizzadb-p10",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.5,
+    "fugazza"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "フガゼッタ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "DISCOVERY_COLLISION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "neapolitan",
+   "dupGate": "NONE",
+   "evidenceId": "burrata-pizza-pizzadb-p10",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.4,
+    "margherita"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ブラータピザ",
+   "newIngredients": [
+    "burrata"
+   ],
+   "ownerDecision": false,
+   "ownerReason": "",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "material-cookie",
+   "dupGate": "NONE",
+   "evidenceId": "fruit-dessert-pizza-pizzadb-p11",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.143,
+    "pesto-salmone"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "フルーツデザートピザ",
+   "newIngredients": [
+    "blueberry",
+    "kiwi",
+    "strawberry"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "bulgogi-pizza-pizzadb-p11",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.6,
+    "rendang-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "プルコギピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": "neapolitan",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "frutti-di-mare-pizzadb-p11",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.5,
+    "pescatore"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "フルッティディマーレ",
+   "newIngredients": [
+    "squid"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": null,
+   "reviewItemTypes": [
+    "NAMING_CLUSTER"
+   ],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "neapolitan",
+   "dupGate": "NONE",
+   "evidenceId": "pesto-noci-pizzadb-p12",
+   "identitySetComplete": true,
+   "inFlight": "B20-A (#780 T5 decision): HOLD until #783 merges",
+   "lane": "IN_FLIGHT",
+   "maxJaccard": [
+    0.167,
+    "genovese"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ペストノーチピザ",
+   "newIngredients": [
+    "honey",
+    "walnut"
+   ],
+   "ownerDecision": false,
+   "ownerReason": "",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "neapolitan",
+   "dupGate": "NONE",
+   "evidenceId": "pesto-burrata-pizzadb-p12",
+   "identitySetComplete": true,
+   "inFlight": "Batch 19 PR #783 (#774) — Final Gate kept separately",
+   "lane": "IN_FLIGHT",
+   "maxJaccard": [
+    0.333,
+    "pesto-trapanese"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ペストブラータピザ",
+   "newIngredients": [
+    "burrata"
+   ],
+   "ownerDecision": false,
+   "ownerReason": "",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "peruvian-aji-amarillo-pizzadb-p12",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.4,
+    "palmito-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ペルーアヒアマリージョピザ",
+   "newIngredients": [
+    "aji-amarillo"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thin",
+   "dupGate": "SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "hot-honey-pepperoni-pizzadb-p12",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.75,
+    "pepperoni"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ホットハニーペパロニピザ",
+   "newIngredients": [
+    "honey"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "dup:SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "pan": null,
+   "reviewItemTypes": [
+    "CANDIDATE_CAPABILITY"
+   ],
+   "sauceStatus": "family_derived",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "natto-pizza",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M4",
+   "maxJaccard": [
+    0.25,
+    "tarako-cream-pizza"
+   ],
+   "mechanicIssues": [
+    "#604/#611 (post_bake shipped; mid_bake: NO issue yet -> new)"
+   ],
+   "mechanicTracks": [
+    "M4"
+   ],
+   "mechanicsMissing": [
+    "LATE_ADDITION:mid_bake"
+   ],
+   "nameJa": "納豆ピザ",
+   "newIngredients": [
+    "natto",
+    "okra"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "peking-duck-pizza",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.25,
+    "sichuan-eggplant-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "北京ダックピザ",
+   "newIngredients": [
+    "cucumber",
+    "peking-duck",
+    "sweet-bean-sauce"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "review:PREPARED_COMPOSITE_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [
+    "PREPARED_COMPOSITE_INGREDIENT"
+   ],
+   "sauceStatus": "listed",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "mentaiko-mochi-pizza",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.25,
+    "tarako-cream-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "明太子もちピザ",
+   "newIngredients": [
+    "mentaiko",
+    "mochi"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [
+    "CANDIDATE_CAPABILITY"
+   ],
+   "sauceStatus": "unspecified",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "flatbread-pita-soft",
+   "dupGate": "NONE",
+   "evidenceId": "manakish",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.25,
+    "pizza-bianca"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "マナキーシュ",
+   "newIngredients": [
+    "halloumi",
+    "zaatar"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "review:SOURCE_INCONSISTENCY",
+   "pan": null,
+   "reviewItemTypes": [
+    "SOURCE_INCONSISTENCY"
+   ],
+   "sauceStatus": "listed",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thin",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "yakiniku-pizza",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M5",
+   "maxJaccard": [
+    0.5,
+    "rendang-pizza"
+   ],
+   "mechanicIssues": [
+    "#696 / prepExperienceGate (PREP_EXPERIENCE_PRODUCTION=false; Owner ON)"
+   ],
+   "mechanicTracks": [
+    "M5"
+   ],
+   "mechanicsMissing": [
+    "PREP_STEP"
+   ],
+   "nameJa": "焼肉ピザ",
+   "newIngredients": [
+    "yakiniku-sauce"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "dup:JACCARD_OVER_0.4_EXCEPTION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "pizza-de-lomo-saltado",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M4+M5",
+   "maxJaccard": [
+    0.5,
+    "rendang-pizza"
+   ],
+   "mechanicIssues": [
+    "#604/#611 (post_bake shipped; mid_bake: NO issue yet -> new)",
+    "#696 / prepExperienceGate (PREP_EXPERIENCE_PRODUCTION=false; Owner ON)"
+   ],
+   "mechanicTracks": [
+    "M4",
+    "M5"
+   ],
+   "mechanicsMissing": [
+    "LATE_ADDITION:mid_bake",
+    "PREP_STEP"
+   ],
+   "nameJa": "ロモ・サルタード・ピザ",
+   "newIngredients": [
+    "french-fries"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "unspecified",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [
+    "MECHANIC_INTERPRETATION",
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "flatbread-ultra-thin-crisp",
+   "dupGate": "NONE",
+   "evidenceId": "lahmacun",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-C:M1",
+   "maxJaccard": [
+    0.2,
+    "chilean-napolitana"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data"
+   ],
+   "mechanicTracks": [
+    "M1"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT"
+   ],
+   "nameJa": "ラフマジュン",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "MECHANIC_INTERPRETATION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "family_derived",
+   "source": "individual_profile_page"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "mexican-elote-pizza-pizzadb-p13",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.25,
+    "potato-mayo-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "メキシカンエロテピザ",
+   "newIngredients": [
+    "chili-powder",
+    "cotija",
+    "lime"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [
+    "CANDIDATE_CAPABILITY"
+   ],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thick",
+   "dupGate": "SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "montreal-style-pizza-pizzadb-p13",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-C:M1+M2",
+   "maxJaccard": [
+    0.75,
+    "pepperoni"
+   ],
+   "mechanicIssues": [
+    "#577 (PR #775 PD-1a open) -> PD-1b/c -> PD-2 chip UI -> PD-3 data",
+    "#532/#538 square-pan line + #773 (deep/shallow/steel profile: design only)"
+   ],
+   "mechanicTracks": [
+    "M1",
+    "M2"
+   ],
+   "mechanicsMissing": [
+    "DOUGH_VARIANT",
+    "PAN_BAKE:other"
+   ],
+   "nameJa": "モントリオールスタイルピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:SUPERSET_OF_SHIPPED_FORBIDDEN",
+   "pan": "deep-pan",
+   "reviewItemTypes": [],
+   "sauceStatus": "listed",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "neapolitan",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "nduja-pizza-pizzadb-p14",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.5,
+    "salsiccia-e-friarielli"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "ンドゥイヤピザ",
+   "newIngredients": [
+    "honey"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [
+    "CANDIDATE_CAPABILITY",
+    "NAME_SPECIFICITY_GAP"
+   ],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [],
+   "doughVariant": "thin",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "tsukimi-pizza-pizzadb-p14",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.6,
+    "breakfast-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "月見ピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "dup:JACCARD_OVER_0.4_EXCEPTION",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": "neapolitan",
+   "dupGate": "NONE",
+   "evidenceId": "black-truffle-pizza-pizzadb-p14",
+   "identitySetComplete": true,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.333,
+    "spinach-artichoke-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "黒トリュフピザ",
+   "newIngredients": [
+    "truffle"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "NONE",
+   "evidenceId": "teriyaki-chicken-pizza-pizzadb-p14",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.333,
+    "curry-pizza-japan"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "照り焼きチキンピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "COMPOSITION_CONFLICT_CANDIDATE",
+   "pan": null,
+   "reviewItemTypes": [
+    "CANDIDATE_CAPABILITY"
+   ],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "JACCARD_OVER_0.4_EXCEPTION",
+   "evidenceId": "south-african-boerewors-pizzadb-p14",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-B",
+   "maxJaccard": [
+    0.6,
+    "spanish-chorizo-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "南アフリカボアヴォースピザ",
+   "newIngredients": [
+    "chutney"
+   ],
+   "ownerDecision": true,
+   "ownerReason": "BASE_SAUCE_UNSPECIFIED",
+   "pan": null,
+   "reviewItemTypes": [
+    "CANDIDATE_CAPABILITY",
+    "NAME_SPECIFICITY_GAP"
+   ],
+   "sauceStatus": "unspecified",
+   "source": "comparison_table_sample"
+  },
+  {
+   "blockerTypes": [
+    "UNRESOLVED_INGREDIENT"
+   ],
+   "doughVariant": "thin",
+   "dupGate": "SUBSET_OF_SHIPPED_FORBIDDEN",
+   "evidenceId": "hokkaido-cheese-pizza-pizzadb-p15",
+   "identitySetComplete": false,
+   "inFlight": null,
+   "lane": "R-A",
+   "maxJaccard": [
+    0.6,
+    "potato-mayo-pizza"
+   ],
+   "mechanicIssues": [],
+   "mechanicTracks": [],
+   "mechanicsMissing": [],
+   "nameJa": "北海道チーズピザ",
+   "newIngredients": [],
+   "ownerDecision": true,
+   "ownerReason": "UNRESOLVED_INGREDIENT",
+   "pan": null,
+   "reviewItemTypes": [],
+   "sauceStatus": "none",
+   "source": "comparison_table_sample"
+  }
+ ],
+ "summary": {
+  "baseline": {
+   "mainCommit": "e6b205c",
+   "shippedIngredients": 97,
+   "shippedRecipes": 90,
+   "target": 177,
+   "unshippedRows": 87
+  },
+  "identityIncompleteRows": 40,
+  "ingredientCount": 73,
+  "ingredientKindCounts": {
+   "CHEESE": 9,
+   "COMPOSITE": 8,
+   "DESSERT": 4,
+   "FRUIT": 7,
+   "LIQUID": 4,
+   "MEAT": 2,
+   "NUT": 2,
+   "SAUCE": 13,
+   "SEAFOOD": 4,
+   "SPICE": 5,
+   "VEG": 15
+  },
+  "ingredientRiskCounts": {
+   "ALIAS": 10,
+   "COMPOSITE": 5,
+   "OK": 40,
+   "PAIR": 8,
+   "SAUCE_LINE": 10
+  },
+  "laneCounts": {
+   "IN_FLIGHT": 3,
+   "R-A": 11,
+   "R-B": 30,
+   "R-C:M1": 20,
+   "R-C:M1+M2": 8,
+   "R-C:M1+M3": 3,
+   "R-C:M2+M6": 1,
+   "R-C:M3": 2,
+   "R-C:M4": 2,
+   "R-C:M4+M5": 1,
+   "R-C:M5": 3,
+   "R-C:M6": 3
+  },
+  "ownerDecisionRows": 81,
+  "ownerReasonCounts": {
+   "BASE_SAUCE_UNSPECIFIED": 21,
+   "COMPOSITION_CONFLICT_CANDIDATE": 13,
+   "DISCOVERY_COLLISION": 1,
+   "EVIDENCE_GAP": 2,
+   "MECHANIC_INTERPRETATION": 11,
+   "SCOPE_QUESTION": 2,
+   "UNRESOLVED_INGREDIENT": 11,
+   "dup:IDENTICAL_SET_AXIS_SEPARATED": 5,
+   "dup:JACCARD_OVER_0.4_EXCEPTION": 6,
+   "dup:SUBSET_OF_SHIPPED_FORBIDDEN": 2,
+   "dup:SUPERSET_OF_SHIPPED_FORBIDDEN": 5,
+   "review:PREPARED_COMPOSITE_INGREDIENT": 1,
+   "review:SOURCE_INCONSISTENCY": 1
+  },
+  "singleUseIngredients": 65,
+  "trackCounts": {
+   "M1": 31,
+   "M2": 9,
+   "M3": 5,
+   "M4": 3,
+   "M5": 4,
+   "M6": 4
+  }
+ }
+}
