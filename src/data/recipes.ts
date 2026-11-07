@@ -1601,7 +1601,7 @@ const BASE_RECIPES = [
   {
     id: "pesto-burrata-pizza",
     nameJa: "ペスト・ブッラータピザ",
-    description: "ペストとオリーブオイルを塗った生地に、ブッラータとトマトをのせた、緑が映える一枚。",
+    description: "ジェノベーゼソースとオリーブオイルを塗った生地に、ブッラータとトマトをのせた、緑が映える一枚。",
     // Expansion Batch 19 (Issue #774; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; id and Japanese name are PROVISIONAL, Owner D3). SOURCE AUTHORITY: the 172 matrix row `pesto-burrata-pizzadb-p12` only (comparison table p12, relayed 2026-09-22, never independently re-fetched): ペスト(sauce) / オリーブオイル / ブラータ / トマト.
     // OWNER DECISIONS (2026-11-06): D1 the ingredient is spelled ブッラータ (`burrata`); D7 the only cheese is burrata (mozzarella is NOT added); D8 both Batch 19 recipes are kept; the sauce is TWO layers (pesto, then olive-oil) like grandma-pizza. NOT a NO_SAUCE exception.
     // GAMEPLAY ASSUMPTION / CALIBRATION (not source): pesto 1 (PAINT, the Reference target) / olive-oil 1 (PAINT_TEMPORARY, scored by presence) / burrata 2 / fresh-tomato 2, bake 58-78 (the generic Free Cooking window). The order is primary sauce, second sauce, cheese, topping so that the Rule W reserved ingredient

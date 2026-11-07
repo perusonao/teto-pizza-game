@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { DISCOVERY_LADDER } from "./discoveryLadder";
 import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "./ingredients";
 import { RECIPES, type Recipe } from "./recipes";
+import { pinsaEnabled } from "./pinsaGate";
 import { LATE_ENTITLEMENT_FLOORS, LATE_RECIPES } from "./lateCatalog";
 import { getRecipeSauceProfile, noSauceRecipeIds } from "./recipeSauceProfiles";
 import { getReferencePizza } from "./referencePizza";
@@ -280,7 +281,6 @@ const B19_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER: readonly string[] = [
   "california-style-pizza",
   "chilean-napolitana",
   "jamon-serrano-pizza",
-  "pinsa-romana",
   "rucola-e-grana",
   "baingan-bharta-pizza",
 ];
@@ -290,7 +290,8 @@ describe("Research labels BEFORE vs AFTER Batch 19 across acquisition orders (AC
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
   });
   it("in non-canonical orders exactly the pinned pre-existing recipes can change their letter (a range, not an approval)", () => {
-    expect([...changes.keys()].sort()).toEqual([...B19_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER].sort());
+    // pinsa-romana (B19-LD-18) exists only while the Pinsa gate is open.
+    expect([...changes.keys()].sort()).toEqual([...B19_ALTERNATE_ORDER_LETTER_CHANGES_PENDING_OWNER, ...(pinsaEnabled() ? ["pinsa-romana"] : [])].sort());
   });
 });
 
