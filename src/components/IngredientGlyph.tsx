@@ -61,6 +61,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "cream-cheese-block": "0 0 64 64",
   "umeboshi-paste-dab": "0 0 64 64",
   "sour-cream-dab": "0 0 64 64",
+  "burrata-torn-ball": "0 0 64 64",
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
@@ -109,6 +110,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "cream-cheese-block" && <CreamCheeseBlock />}
       {visual === "umeboshi-paste-dab" && <UmeboshiPasteDab />}
       {visual === "sour-cream-dab" && <SourCreamDab />}
+      {visual === "burrata-torn-ball" && <BurrataTornBall />}
     </svg>
   );
 }
@@ -1083,6 +1085,24 @@ function SourCreamDab() {
       <path d="M10 44C8 30 20 18 34 20C50 20 58 32 54 44C50 54 16 54 10 44Z" fill="#f1ecdc" stroke="#6b6a52" strokeWidth="2.4" strokeLinejoin="round" />
       <path d="M20 38C26 30 36 30 42 36C47 40 40 44 33 42" fill="none" stroke="#b9b49c" strokeWidth="2.6" strokeLinecap="round" />
       <path d="M30 30C32 24 36 24 36 28" fill="none" stroke="#b9b49c" strokeWidth="2.2" strokeLinecap="round" />
+    </g>
+  );
+}
+
+/* ---------- burrata (Expansion Batch 19, #774; Owner R2 D5, plan C; colours PROVISIONAL): a cream-white ball torn open at the top with the cream spilling out, so it is told apart from the ricotta mound, feta cubes, cream-cheese block and the
+   mozzarella circle by SHAPE. Art = docs/design/candidates/ingredient-icons-2.0-burrata/burrata-C.svg (branch claude/burrata-preflight-docs-8auzii d39a680), converted mechanically to JSX; warm-brown outline so it does not melt into the white baked cheese.
+   64x64 frame, outline weight and ground shadow as the other dedicated art; no id / gradient / defs. */
+function BurrataTornBall() {
+  return (
+    <g>
+      <ellipse cx="32" cy="58" rx="22" ry="3" fill="#000" opacity=".15" />
+      <path d="M32 55 C13 55 7 41 12 31 C15 25 20 22 25 21 L39 21 C44 22 49 25 52 31 C57 41 51 55 32 55 Z" fill="#fdf9ee" stroke="#85694a" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M12.6 41 C16 50 23 52.5 32 52.5 C41 52.5 48 50 51.4 41 C47 46 40 48 32 48 C24 48 17 46 12.6 41 Z" fill="#efe3c6" />
+      <path d="M22 22 C20 15 25 10 32 10 C39 10 44 15 42 22 C40 25 36 26 32 25 C28 26 24 25 22 22 Z" fill="#f9e8b4" stroke="#85694a" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M25 18 C28 14 31 19 34 15 C37 12 40 16 40 19" fill="none" stroke="#fffdf4" strokeWidth="3" strokeLinecap="round" />
+      <path d="M38 24 C42 27 43 31 41 34 C40 36 37 35 37 32 C37 29 36 27 35 26 Z" fill="#f9e8b4" stroke="#85694a" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M19 26 L23 23 M46 25 L49 28" stroke="#85694a" strokeWidth="1.5" strokeLinecap="round" />
+      <ellipse cx="20" cy="35" rx="5" ry="3" transform="rotate(-25 20 35)" fill="#fff" opacity=".85" />
     </g>
   );
 }

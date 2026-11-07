@@ -4434,6 +4434,35 @@ export const REINA_PEPIADA_PIZZA_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * Expansion Batch 19 (Issue #774; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): Reference Truth for `pesto-burrata-pizza`. `sauce` is the PRIMARY pesto target only (RECIPE_SAUCE_PROFILES, PAINT); the secondary olive-oil is a presence-only sauce
+ * (neither a piece nor a Reference target), as in grandma-pizza. Pieces (burrata 2 / fresh-tomato 2 = 4 non-sauce, ALL before the bake) take the first 4 slots of the RT-01 ring consecutively in `requiredIngredients` order. Slot assignment is
+ * GAMEPLAY / REFERENCE CALIBRATION, not source.
+ */
+export const PESTO_BURRATA_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-burrata-pizza",
+  sauce: computeMechanicalSauceReference("pesto-burrata-pizza"),
+  pieceGroups: [
+    { ingredientId: "burrata", positions: [{ x: 50, y: 24 }, { x: 73, y: 36 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "fresh-tomato", positions: [{ x: 76, y: 63 }, { x: 58, y: 79 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+  ],
+};
+
+/**
+ * Expansion Batch 19 (Issue #774; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): Reference Truth for `pizza-alla-crudaiola`. `sauce` is the PRIMARY tomato-sauce target only; the secondary olive-oil is presence-only (as in grandma-pizza).
+ * Pieces (mozzarella 2 / burrata 2 / fresh-tomato 2 / arugula 2 = 8 non-sauce, ALL before the bake) take the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION, not source.
+ */
+export const PIZZA_ALLA_CRUDAIOLA_REFERENCE: ReferencePizza = {
+  recipeId: "pizza-alla-crudaiola",
+  sauce: computeMechanicalSauceReference("pizza-alla-crudaiola"),
+  pieceGroups: [
+    { ingredientId: "mozzarella", positions: [{ x: 50, y: 24 }, { x: 73, y: 36 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "burrata", positions: [{ x: 76, y: 63 }, { x: 58, y: 79 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "fresh-tomato", positions: [{ x: 38, y: 79 }, { x: 22, y: 63 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "arugula", positions: [{ x: 25, y: 36 }, { x: 50, y: 52 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+  ],
+};
+
+/**
  * BBQ Chicken (Issue #611, late catalog): Reference Truth for `bbq-chicken-pizza` (the bbq-sauce PAINT sauce is not a piece). Pieces (mozzarella 2 / onion 1 / chicken 3 / cilantro 2 = 8 non-sauce, the last 2 POST_BAKE) take the
  * RT-01 reference layout consecutively in `requiredIngredients` order (post-bake pieces use the same slots, like `ikura-salmon-pizza`): slots 1-8 of `getReferenceSlots(8)`, the last being the dough centre. Slot assignment is
  * GAMEPLAY / REFERENCE CALIBRATION, not source authority; no piece-count limit is defined by this recipe (RT-01 generates a multi-ring layout above 8).
@@ -5459,6 +5488,8 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [GOULASH_PIZZA_REFERENCE.recipeId, GOULASH_PIZZA_REFERENCE],
   [BAINGAN_BHARTA_PIZZA_REFERENCE.recipeId, BAINGAN_BHARTA_PIZZA_REFERENCE],
   [REINA_PEPIADA_PIZZA_REFERENCE.recipeId, REINA_PEPIADA_PIZZA_REFERENCE],
+  [PESTO_BURRATA_PIZZA_REFERENCE.recipeId, PESTO_BURRATA_PIZZA_REFERENCE],
+  [PIZZA_ALLA_CRUDAIOLA_REFERENCE.recipeId, PIZZA_ALLA_CRUDAIOLA_REFERENCE],
   [WASABI_BEEF_PIZZA_REFERENCE.recipeId, WASABI_BEEF_PIZZA_REFERENCE],
   [TARAKO_CREAM_PIZZA_REFERENCE.recipeId, TARAKO_CREAM_PIZZA_REFERENCE],
   [EGGPLANT_DENGAKU_PIZZA_REFERENCE.recipeId, EGGPLANT_DENGAKU_PIZZA_REFERENCE],

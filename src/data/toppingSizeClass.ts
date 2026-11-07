@@ -85,6 +85,7 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   fontina: "l",
   feta: "l",
   ricotta: "l",
+  burrata: "l", // Expansion Batch 19 (#774): a cheese, like ricotta / feta (GAMEPLAY ASSUMPTION)
   "ricotta-salata": "l",
   "cream-cheese": "l",
   catupiry: "l",

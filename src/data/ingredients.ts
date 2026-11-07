@@ -55,7 +55,8 @@ export type DedicatedIngredientVisual =
   | "salmon-fillet"
   | "cream-cheese-block"
   | "umeboshi-paste-dab"
-  | "sour-cream-dab";
+  | "sour-cream-dab"
+  | "burrata-torn-ball";
 
 export interface Ingredient {
   id: string;
@@ -1236,6 +1237,22 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     bakeRoastResistant: true,
     unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * Expansion Batch 19 (Issue #774; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED): `burrata` (ブッラータ, Owner D1), a NEW finite ladder material, ordinary step 70 (T4, no star gate), cheese category, scatter placement.
+   * Drawn by the dedicated `burrata-torn-ball` visual (Owner R2 D5, plan C: a ball torn open at the top with the cream spilling out), which keeps it apart from the ricotta mound, the feta cubes, the cream-cheese block and the
+   * mozzarella (CSS circle). `color` is a PROVISIONAL value (GAMEPLAY ASSUMPTION, adjusted at Preview HV); `emoji` is only the required, never-displayed text fallback (the shared cheese 🧀, like every cheese; G18 allows it).
+   * Used BEFORE the bake by pesto-burrata-pizza and pizza-alla-crudaiola (both PROVISIONAL id / name). The matrix spells it ブラータ; a search alias for that spelling is NOT added (aliases are Owner-approved only, ingredientSearchAliases.ts) and is left as an Owner question.
+   */
+  {
+    id: "burrata",
+    category: "cheese",
+    nameJa: "ブッラータ",
+    color: "#fdf9ee",
+    emoji: "\u{1F9C0}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "burrata-torn-ball",
   },
 
 

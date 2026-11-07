@@ -1598,6 +1598,47 @@ const BASE_RECIPES = [
     lunchRush: false,
     ladderCredit: false,
   },
+  {
+    id: "pesto-burrata-pizza",
+    nameJa: "ペスト・ブッラータピザ",
+    description: "ペストとオリーブオイルを塗った生地に、ブッラータとフレッシュトマトをのせた、やわらかな一枚。",
+    // Expansion Batch 19 (Issue #774; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; the recipe id and the Japanese name are PROVISIONAL, Owner D3). SOURCE AUTHORITY: the 172 matrix row `pesto-burrata-pizzadb-p12` only (never independently re-fetched): ペスト / ブッラータ / トマト / オリーブオイル (the source sauce field is the basil -> pesto reading).
+    // OWNER DECISIONS (2026-11-06): the primary sauce is `pesto` (RECIPE_SAUCE_PROFILES, the Reference target) with the existing `olive-oil` as the second sauce layer (a presence-only PAINT_TEMPORARY, the grandma-pizza #521 method); burrata is the ONLY cheese (D7: no mozzarella is added). The second sauce is the 2-layer reading of the matrix row, not a NO_SAUCE exception.
+    // GAMEPLAY ASSUMPTION (not source; counts / window / price / colour are adjusted at Preview HV, Owner D4): pesto 1 / olive-oil 1 / burrata 2 / fresh-tomato 2 (non-sauce 4 pieces), bake 58-78 (the generic Free Cooking window). requiredIngredients order = main sauce -> second sauce -> cheese -> topping (Rule W reserves fresh-tomato; the legacy Hint 2.0 H4 withholds the last topping).
+    // EVERY piece is placed BEFORE the bake (no POST_BAKE, so no FINISH step; no prep / steam / sear step). Ladder-credited: the key of ordinary step 70 (`burrata`, the one new material). `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "burrata", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "pizza-alla-crudaiola",
+    nameJa: "ピッツァ・アッラ・クルダイオーラ",
+    description: "トマトソースとオリーブオイルを塗った生地に、モッツァレラとブッラータ、フレッシュトマト、ルッコラをのせた、彩りのいい一枚。",
+    // Expansion Batch 19 (Issue #774; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; the recipe id and the Japanese name are PROVISIONAL, Owner D3). SOURCE AUTHORITY: the 172 matrix row `pizza-alla-crudaiola-pizzadb-p8` only (never independently re-fetched): トマトソース / オリーブオイル / モッツァレラ / ブッラータ / トマト / ルッコラ.
+    // OWNER DECISIONS (2026-11-06): the tomato-sauce + olive-oil 2-layer is kept and EVERY piece is placed BEFORE the bake (R2 D7, plan P; not in the late catalog). The primary sauce is `tomato-sauce` (the Reference target), the olive-oil a presence-only second layer (grandma-pizza method).
+    // OWNER D2 / OD-B19-2 (conditional approval, this recipe only; conditions C1-C5): Jaccard 0.429 against EXACTLY four named neighbours: pinsa-romana (late), jamon-serrano-pizza, grandma-pizza and the same-batch pesto-burrata-pizza. Every one has symmetric difference 4 and no identical / subset / superset / one-ingredient-difference relation. The GLOBAL 0.4 guideline, the
+    // identical / subset / superset prohibitions and the Research rules are unchanged; this is not a blanket approval for future recipes; the ingredient set follows the matrix (no substitution, C5). Pinned by name in expansionBatch19.test.ts.
+    // GAMEPLAY ASSUMPTION (not source; Owner D4, adjusted at Preview HV): tomato-sauce 1 / olive-oil 1 / mozzarella 2 / burrata 2 / fresh-tomato 2 / arugula 2 (non-sauce 8 pieces = the 8-slot ring), bake 58-78. requiredIngredients order = main sauce -> second sauce -> cheeses -> toppings (arugula last = the Rule W reserved ingredient).
+    // NOT ladder-credited (`ladderCredit: false`, the porcini-pizza / grandma-pizza precedent): ordinary step 70 (`burrata`) is keyed by pesto-burrata-pizza; this recipe adds no material and shares the burrata Research cohort (lettered A / B). `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "tomato-sauce", minCount: 1 },
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 2 },
+      { ingredientId: "burrata", minCount: 2 },
+      { ingredientId: "fresh-tomato", minCount: 2 },
+      { ingredientId: "arugula", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+    ladderCredit: false,
+  },
 
 ] as const;
 

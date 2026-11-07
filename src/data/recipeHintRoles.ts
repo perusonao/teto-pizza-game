@@ -145,6 +145,8 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "goulash-pizza": { keyFree: true },
   "baingan-bharta-pizza": { keyFree: true },
   "reina-pepiada-pizza": { keyFree: true },
+  "pesto-burrata-pizza": { keyFree: true },
+  "pizza-alla-crudaiola": { keyFree: true },
   // Multi-Sauce S3 / Square Dough E-2: permanently key-free.
   "grandma-pizza": { keyFree: true },
   // FIN-E4b-ikura (#621, late catalog): permanently key-free.
