@@ -75,7 +75,9 @@ Branch `claude/teto-pizza-t7-t9-audit-12by6f` / 基準 `main` `06cfc06` / Issue 
 | 新規 5 ファイル（D-A′ 機械 20＋構造 5、C-A′ 機械 21＋構造 5、S-A M1 測定 9） | **60 テスト全通過**（`npx vitest run src/logic/doughAlt src/logic/cutAlt src/logic/sauceAlt`） |
 | 型検査 `npx tsc -b` | エラーなし（測定テストの 1 件を直したあと出力なし） |
 | `npx oxlint`（新規 3 ディレクトリ） | 指摘なし |
-| 全 Vitest（既存を含む） | 本書作成時点で**実行中**。完了結果は報告に記載（未完了のものは「未確認」） |
+| src を走査する既存の 13 テストファイル（architecture／gate 系。新しいディレクトリを拒否しないことの確認） | **13 ファイル・112 テスト全通過**（`readdirSync` を使う既存テストを全て指定して実行） |
+| 全 Vitest（既存を含む） | **完走できていない（未確認）**。この環境では `--reporter=dot` の全件実行が 590 秒のタイムアウトで打ち切られた（2 回。`src/logic src/preview src/state` に絞った実行も打ち切り）。**全件の PASS は主張しない**。CI（PR 作成後）で確認するのが前提 |
+| 本番ビルドのバンドル走査系（`previewIsolation.gate` など、`vite build` を伴うもの） | **未実行**。新規ファイルは main／App から import されないため、本番バンドルに入らない設計（architecture テストで固定） |
 | E2E（Playwright）・WebKit CI | **未実行**（ゲーム本体に変更がないため。CI は PR を作っていないので走らない） |
 | 実機 iPhone Safari | **未実施（Owner 担当）。PASS 0** |
 
