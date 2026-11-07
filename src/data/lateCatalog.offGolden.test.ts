@@ -23,6 +23,7 @@ import { isLateRecipeId as recipeIsLate } from "../logic/catalog/testSupport/lat
  * Regenerated a second time for the same reason: `shrimp` gained `pieceVisual: "shrimp-curl"` (Owner-approved peeled-shrimp art replacing the shelled 🦐; no id, order, placement or unlock change).
  * Regenerated again for Ingredient Icons 2.0 Pilot D (#623, Owner-approved): `salmon` gained `pieceVisual: "salmon-fillet"` and `cream-cheese` gained `pieceVisual: "cream-cheese-block"` (the only two differences in the first 66 entries; no id, order, placement or unlock change).
  * Regenerated again for Ingredient Icons 2.0 Pilot E (#715, Owner-approved): `green-pepper`, `bell-pepper` and `pineapple` gained `pieceVisual` "green-pepper-strips" / "bell-pepper-quarter" / "pineapple-wedges" (the only three differences in the first 66 entries, checked by diffing the canonical JSON before / after; no id, order, emoji, placement or unlock change).
+ * Regenerated again for the Ingredient Icons 2.0 herbs (#417, Owner R2 decision 2026-11-06): `oregano`, `rosemary`, `artichoke` and `spinach` gained `pieceVisual` "oregano-flakes" / "rosemary-sprigs" / "artichoke-quarter" / "spinach-leaves" (verified: removing those four fields reproduces the previous digest exactly; no id, order, placement or unlock change).
  */
 const canon = (value: unknown): string =>
   JSON.stringify(value, (_key, v) =>

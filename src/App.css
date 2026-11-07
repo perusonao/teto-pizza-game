@@ -834,7 +834,11 @@
 .ingredient-glyph--shrimp-curl,
 .ingredient-glyph--sesame-seeds,
 .ingredient-glyph--pomegranate-aril,
-.ingredient-glyph--cilantro-leaf {
+.ingredient-glyph--cilantro-leaf,
+.ingredient-glyph--rosemary-sprigs,
+.ingredient-glyph--oregano-flakes,
+.ingredient-glyph--spinach-leaves,
+.ingredient-glyph--artichoke-quarter {
   width: 1.2em;
   height: 1.2em;
   margin: -0.1em;
