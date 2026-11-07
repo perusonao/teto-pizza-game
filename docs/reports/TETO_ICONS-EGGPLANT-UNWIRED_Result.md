@@ -1,6 +1,6 @@
 # Ingredient Icons 2.0 — eggplant（ナス）輪切り A 案の未配線コンポーネント Result Report
 
-Refs #417 / #749。base main `5eade46`。**新規ファイルのみ・どこからも import しない（未配線）・色と形は PROVISIONAL（Owner 未承認）。** ハーブ 4 種（rosemary / oregano / spinach / artichoke）、#778・#779・#777（walnutGlyph）の claim 対象は編集していない。
+Refs #417 / #749。作成時の base main `5eade46`（その後 #778 が merge され、本ブランチは main `06cfc066` を取り込み済み。競合なし）。**新規ファイルのみ・どこからも import しない（未配線）・色と形は PROVISIONAL（Owner 未承認）。** ハーブ 4 種（rosemary / oregano / spinach / artichoke）、#778・#779・#777（walnutGlyph）の claim 対象は編集していない。
 
 ## 範囲
 - 新規: `src/components/eggplantGlyph/{EggplantGlyph.tsx,eggplantPalette.ts,EggplantGlyph.test.tsx}`、本 Report、`docs/reports/data/TETO_ICONS-EGGPLANT-UNWIRED_*`（測定 JSON と測定スクリプト）、`docs/reports/screenshots/eggplant-unwired/`。
@@ -55,10 +55,10 @@ Refs #417 / #749。base main `5eade46`。**新規ファイルのみ・どこか�
 | baked 現行（参考） | 142 / 142 | 3.54 / 8.78 | 焼成後の色は元から問題なし |
 推奨: 焼成チーズ上で生を使う配線なら「外線を濃く太く + 1.2em」。塗りの明度差そのものは色を変えない限り改善しない（raw を暗くすると「生」の見た目でなくなる）。色の変更は Owner 判断。#777 の claim（〜11/13）解除後に別 PR で。
 
-## 第 2 段（配線）で必要な変更（着手しない・#778 merge 後・別 claim・Owner 承認）
+## 第 2 段（配線）で必要な変更（着手しない・#778 は merge 済み（`06cfc066`）・別 claim・Owner 承認）
 - `ingredients.ts` の eggplant に `pieceVisual: "eggplant-slices"`（+1 行）。`IngredientGlyph.tsx` の `DedicatedIngredientVisual` / `VISUAL_VIEWBOX`（"0 0 64 64"）と描画分岐、`App.css` の個別寸法ルール（1.2em 案を採る場合）。
 - **Fry の依存**: `canFryIngredient("eggplant")` は `pieceVisual !== undefined` を要求する（`src/data/fryIngredients.ts`）。`pieceVisual` を足した時点で Fry の提供可否が true に切り替わる（休眠が解ける）。`FRY_EXPERIENCE_PRODUCTION = false` は維持し、`fryIngredients.test.ts` など「eggplant は休眠」を固定するテストの更新要否を確認する。
-- **golden**: 専用 SVG を足すと、DOM を網羅する golden / ダイジェストを持つテストの再生成が要りうる。#778 と同じファイルを触るため、#778 merge 後の最新 main で再生成すること。**どの golden が対象かは本作業では未確認**（#778 の diff を見てから判断）。
+- **golden**: 専用 SVG を足すと、DOM を網羅する golden / ダイジェストを持つテストの再生成が要りうる。#778 と同じファイルを触るため、#778 を含む最新 main で再生成すること。**どの golden が対象かは本作業では未確認**（#778 の diff を見てから判断）。
 - 状態色の駆動（bake heat / 揚げ位置 → `--eg-*`）は Fry F2/F3 と bake 監査の変数名の統一待ち（§12.3 G2）。ナスでは F1 の `--fry-bright/sat/sepia` を使わない。
 - RT-01 比較、実機 HV（390×844 動画 + before/after、24px 識別）は配線 PR で Owner が行う。
 
