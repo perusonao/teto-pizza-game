@@ -9,6 +9,12 @@ import { afterAll, describe, expect, it, vi } from "vitest";
  *
  * `RESEARCH_ATTEMPT_SIM_OUT=<path>` also writes every run as JSON (the Gate C report's tables come from that file).
  * `RESEARCH_ATTEMPT_SIM_SEEDS=<n>` sets the tray-order sensitivity sweep size (default 12; the report used 100).
+ *
+ * SPLIT (T9 #784, test speed only): the original single file ran 117 tests serially in one worker (about 1,300 s of the 1,600 s full run). It is now four files so
+ * Vitest can run them in parallel workers. Every test body, title, seed, expectation and trial count is unchanged; only the loops over `explorePieces` are
+ * restricted per file and each file writes its own JSON slice (see `afterAll`). Parts: researchAttempt.sim.test.ts (strategy, flag, main walks FULL, lower bound FULL),
+ * researchAttempt.sim.mainOne.test.ts (main walks ONE, lower bound ONE, persistence, economy comparison), researchAttempt.sim.sweepFull.test.ts and
+ * researchAttempt.sim.sweepOne.test.ts (the tray-order sensitivity sweep). To get the old single JSON file back: `node tools/mergeResearchAttemptSimOut.mjs <path>`. This is part `mainFull`.
  */
 vi.mock("./discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: true }));
 
@@ -17,11 +23,8 @@ const { getIngredient } = await import("../data/ingredients");
 const { pinsaEnabled } = await import("../data/pinsaGate");
 const { RESEARCH_IDENTIFY_ENABLED } = await import("./discovery/researchIdentifyFlag");
 const { chooseAttempt, simulateResearchAttempts, RESEARCH_HINT_PROFILES } = await import("./testSupport/researchAttemptSim");
-const { simulateHint5Economy } = await import("./testSupport/hint5EconomySim");
-const { loadSave, persistProgress, SAVE_STORAGE_KEY } = await import("../state/persistence");
 
 const QUALITIES = [80, 65, 30]; // ★4, ★3, ★1
-const SEEDS = Number((import.meta.env as Record<string, string | undefined>).RESEARCH_ATTEMPT_SIM_SEEDS ?? "12");
 const cat = (id: string) => getIngredient(id)?.category;
 
 describe("strategy (pure chooser)", () => {
@@ -64,7 +67,7 @@ describe("attempt-aware walk (real reducer)", () => {
   // is unchanged, and `ALL_RUNS` is filled in the same order. `ALL_RUNS` collects every run for the optional JSON output.
   const ALL_RUNS: { runs: unknown[]; baseline: unknown[]; sweep: unknown[] } = { runs: [], baseline: [], sweep: [] };
 
-  for (const explorePieces of ["FULL", "ONE"] as const) {
+  for (const explorePieces of ["FULL"] as const) {
     for (const qualityTotal of QUALITIES) {
       for (const profile of RESEARCH_HINT_PROFILES) {
         it(`reaches the full Dex with the Contract invariants intact on every attempt (${profile} q${qualityTotal} ${explorePieces})`, () => {
@@ -87,7 +90,7 @@ describe("attempt-aware walk (real reducer)", () => {
   }
 
   // Analysis-only lower bound: a free STRUCTURE total (stop as soon as every member is found).
-  for (const explorePieces of ["FULL", "ONE"] as const) {
+  for (const explorePieces of ["FULL"] as const) {
     it(`analysis-only lower bound (a free STRUCTURE total) completes (${explorePieces})`, () => {
       const r = simulateResearchAttempts({ profile: "NONE", qualityTotal: 65, explorePieces, freeTotal: true });
       expect(r.completed).toBe(true);
@@ -96,59 +99,13 @@ describe("attempt-aware walk (real reducer)", () => {
     }, 600_000);
   }
 
-  it("a full walk persists only existing fields (schema v2)", () => {
-    // Save / schema: the final state of a full walk persists only existing fields.
-    const final = simulateResearchAttempts({ profile: "FIXED4", qualityTotal: 65 }).finalState;
-    const m = new Map<string, string>();
-    const storage = { getItem: (key: string) => m.get(key) ?? null, setItem: (key: string, v: string) => void m.set(key, v), removeItem: (key: string) => void m.delete(key) };
-    persistProgress(
-      {
-        dex: final.dex,
-        pitzBalance: final.pitzBalance,
-        ownedIngredientIds: final.ownedIngredientIds,
-        inventory: final.inventory,
-        starterGrantClaimedRecipeIds: final.starterGrantClaimedRecipeIds,
-        unlockedForShopIngredientIds: final.unlockedForShopIngredientIds,
-        discoveryHintPurchases: final.discoveryHintPurchases,
-        discoveryHintFacts: final.discoveryHintFacts,
-        discoveredTechniqueIds: final.discoveredTechniqueIds,
-      },
-      storage,
-    );
-    const raw = storage.getItem(SAVE_STORAGE_KEY) ?? "";
-    expect(loadSave(storage).schemaVersion).toBe(2);
-    for (const word of ["lastResearchRows", "RESEARCH_ROWS", "toppingOverCap", "researchTest", "lastIngredientTest", "researchTargetValidAtStart"]) expect(raw).not.toContain(word);
-  }, 600_000);
-
-  it("economy comparison: the Hint 5.0 Activation Gate's own direct-bake walk, same qualities", () => {
-    // Economy comparison: the Hint 5.0 Activation Gate's own direct-bake walk (no exploration), same qualities.
-    ALL_RUNS.baseline.push(...QUALITIES.flatMap((q) => (["NONE", "FIXED4", "FULL"] as const).map((profile) => {
-      const b = simulateHint5Economy({ profile, qualityTotal: q });
-      return { profile, qualityTotal: q, minPitz: b.minPitz, grindBakes: b.grindBakes, totalHintSpend: b.totalHintSpend, totalRefillSpend: b.totalRefillSpend, totalUnlockSpend: b.totalUnlockSpend, endingPitz: b.endingPitz };
-    })));
-
-  }, 600_000);
-
-  // ★3-FULL: the Hint 5.0 Activation Gate reported (and the Owner accepted) one final-stage Margherita replay in the
-  // direct-bake walk. This walk's own number is a MEASUREMENT (Gate C report), not an assertion.
-
-  for (const explorePieces of ["FULL", "ONE"] as const) for (const profile of ["NONE", "FIXED4", "FULL"] as const) {
-    for (let seed = 1; seed <= SEEDS; seed += 1) {
-      it(`tray-order sensitivity sweep (${profile}, ${explorePieces}, seed ${seed}): completed, no violations, min Pitz >= 0`, () => {
-        const r = simulateResearchAttempts({ profile, qualityTotal: 65, orderSeed: seed, explorePieces });
-        expect(r.completed, `${profile} seed ${seed}`).toBe(true);
-        expect(r.violations, `${profile} seed ${seed}`).toEqual([]);
-        expect(r.minPitz, `${profile} seed ${seed}`).toBeGreaterThanOrEqual(0);
-        ALL_RUNS.sweep.push({ ...r, finalState: undefined });
-      }, 600_000);
-    }
-  }
-
   afterAll(async () => {
     const out = (import.meta.env as Record<string, string | undefined>).RESEARCH_ATTEMPT_SIM_OUT;
     if (out) {
+      // Split (T9 #784): each part file writes its own slice to `<out>` with `.mainFull` inserted before the extension.
+      const target = out.replace(/(\.[^./\\]+)?$/, ".mainFull$1");
       const fs = (await import(/* @vite-ignore */ "node:" + "fs")) as { writeFileSync(path: string, data: string): void };
-      fs.writeFileSync(out, JSON.stringify(ALL_RUNS, null, 1));
+      fs.writeFileSync(target, JSON.stringify(ALL_RUNS, null, 1));
     }
   });
 });

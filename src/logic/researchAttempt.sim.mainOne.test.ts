@@ -1,0 +1,110 @@
+import { afterAll, describe, expect, it, vi } from "vitest";
+
+/**
+ * Contract 2.1 Production Activation Gate C: the attempt-aware walk (test-only; see ./testSupport/researchAttemptSim.ts).
+ * It runs the real reducer with the Hint 5.0 ladder flag mocked ON (it is ON in Production) and the Research flag ON
+ * (every Vitest build). It asserts the Contract invariants on EVERY attempt of every walk and the economy invariants
+ * the Hint 5.0 harness asserts (no deadlock, min Pitz >= 0, no RESERVED stop). The ★3-FULL replay count is only measured
+ * (an Owner-accepted observation of the direct-bake walk, not a threshold; see the Fresh Authority Audit report).
+ *
+ * `RESEARCH_ATTEMPT_SIM_OUT=<path>` also writes every run as JSON (the Gate C report's tables come from that file).
+ * `RESEARCH_ATTEMPT_SIM_SEEDS=<n>` sets the tray-order sensitivity sweep size (default 12; the report used 100).
+ *
+ * SPLIT (T9 #784, test speed only): the original single file ran 117 tests serially in one worker (about 1,300 s of the 1,600 s full run). It is now four files so
+ * Vitest can run them in parallel workers. Every test body, title, seed, expectation and trial count is unchanged; only the loops over `explorePieces` are
+ * restricted per file and each file writes its own JSON slice (see `afterAll`). Parts: researchAttempt.sim.test.ts (strategy, flag, main walks FULL, lower bound FULL),
+ * researchAttempt.sim.mainOne.test.ts (main walks ONE, lower bound ONE, persistence, economy comparison), researchAttempt.sim.sweepFull.test.ts and
+ * researchAttempt.sim.sweepOne.test.ts (the tray-order sensitivity sweep). To get the old single JSON file back: `node tools/mergeResearchAttemptSimOut.mjs <path>`. This is part `mainOne`.
+ */
+vi.mock("./discovery/hint5Flag", () => ({ HINT5_LADDER_ENABLED: true }));
+
+const { RECIPES } = await import("../data/recipes");
+const { pinsaEnabled } = await import("../data/pinsaGate");
+const { simulateResearchAttempts, RESEARCH_HINT_PROFILES } = await import("./testSupport/researchAttemptSim");
+const { simulateHint5Economy } = await import("./testSupport/hint5EconomySim");
+const { loadSave, persistProgress, SAVE_STORAGE_KEY } = await import("../state/persistence");
+
+const QUALITIES = [80, 65, 30]; // ★4, ★3, ★1
+
+describe("attempt-aware walk (real reducer)", () => {
+  // A walk is the unit of cost: it plays the WHOLE catalog in ladder order, so one walk grows with RECIPES.length, and the number of walks does not. The walks used to be batched (18 per `it`, then 12 seeds per
+  // `it`), so every recipe batch pushed an `it` over its 600 s budget (Expansion Batch 10 PR-1; the same class of fix as #682) and someone had to re-split by hand. Now EVERY walk is its own `it`, generated from the
+  // same loops (explorePieces x quality x profile, and profile x explorePieces x seed): the longest `it` is one walk, whatever the catalog size, and no timeout is raised. Every assertion and every walk (options, seeds)
+  // is unchanged, and `ALL_RUNS` is filled in the same order. `ALL_RUNS` collects every run for the optional JSON output.
+  const ALL_RUNS: { runs: unknown[]; baseline: unknown[]; sweep: unknown[] } = { runs: [], baseline: [], sweep: [] };
+
+  for (const explorePieces of ["ONE"] as const) {
+    for (const qualityTotal of QUALITIES) {
+      for (const profile of RESEARCH_HINT_PROFILES) {
+        it(`reaches the full Dex with the Contract invariants intact on every attempt (${profile} q${qualityTotal} ${explorePieces})`, () => {
+          const r = simulateResearchAttempts({ profile, qualityTotal, explorePieces });
+          ALL_RUNS.runs.push({ ...r, finalState: undefined });
+          const tag = `${profile} q${qualityTotal} ${explorePieces}`;
+          expect(r.completed, tag).toBe(true);
+          expect(r.stages.at(-1)!.discovery, tag).toBe(RECIPES.length);
+          // Pinsa Romana (#577 P3-b), gate open: it shares jamon's ingredients, so the walk finds it only by varying the dough and the moment (the player model in the sim), and finds it.
+          if (pinsaEnabled()) expect(r.stages.some((st) => st.discovered.includes("pinsa-romana")), tag).toBe(true);
+          expect(r.violations, tag).toEqual([]);
+          expect(r.minPitz, tag).toBeGreaterThanOrEqual(0);
+          expect(r.reservedStops, tag).toBe(0);
+          for (const st of r.stages) expect(st.attempts, `${tag} ${st.discovered}`).toBeGreaterThanOrEqual(1);
+          // Dex 0 is the free Margherita onboarding: never a hint, never a research attempt.
+          expect(r.stages[0]).toMatchObject({ onboarding: true, attempts: 1, hintSpend: 0 });
+        }, 600_000);
+      }
+    }
+  }
+
+  // Analysis-only lower bound: a free STRUCTURE total (stop as soon as every member is found).
+  for (const explorePieces of ["ONE"] as const) {
+    it(`analysis-only lower bound (a free STRUCTURE total) completes (${explorePieces})`, () => {
+      const r = simulateResearchAttempts({ profile: "NONE", qualityTotal: 65, explorePieces, freeTotal: true });
+      expect(r.completed).toBe(true);
+      expect(r.violations).toEqual([]);
+      ALL_RUNS.runs.push({ ...r, finalState: undefined });
+    }, 600_000);
+  }
+
+  it("a full walk persists only existing fields (schema v2)", () => {
+    // Save / schema: the final state of a full walk persists only existing fields.
+    const final = simulateResearchAttempts({ profile: "FIXED4", qualityTotal: 65 }).finalState;
+    const m = new Map<string, string>();
+    const storage = { getItem: (key: string) => m.get(key) ?? null, setItem: (key: string, v: string) => void m.set(key, v), removeItem: (key: string) => void m.delete(key) };
+    persistProgress(
+      {
+        dex: final.dex,
+        pitzBalance: final.pitzBalance,
+        ownedIngredientIds: final.ownedIngredientIds,
+        inventory: final.inventory,
+        starterGrantClaimedRecipeIds: final.starterGrantClaimedRecipeIds,
+        unlockedForShopIngredientIds: final.unlockedForShopIngredientIds,
+        discoveryHintPurchases: final.discoveryHintPurchases,
+        discoveryHintFacts: final.discoveryHintFacts,
+        discoveredTechniqueIds: final.discoveredTechniqueIds,
+      },
+      storage,
+    );
+    const raw = storage.getItem(SAVE_STORAGE_KEY) ?? "";
+    expect(loadSave(storage).schemaVersion).toBe(2);
+    for (const word of ["lastResearchRows", "RESEARCH_ROWS", "toppingOverCap", "researchTest", "lastIngredientTest", "researchTargetValidAtStart"]) expect(raw).not.toContain(word);
+  }, 600_000);
+
+  it("economy comparison: the Hint 5.0 Activation Gate's own direct-bake walk, same qualities", () => {
+    // Economy comparison: the Hint 5.0 Activation Gate's own direct-bake walk (no exploration), same qualities.
+    ALL_RUNS.baseline.push(...QUALITIES.flatMap((q) => (["NONE", "FIXED4", "FULL"] as const).map((profile) => {
+      const b = simulateHint5Economy({ profile, qualityTotal: q });
+      return { profile, qualityTotal: q, minPitz: b.minPitz, grindBakes: b.grindBakes, totalHintSpend: b.totalHintSpend, totalRefillSpend: b.totalRefillSpend, totalUnlockSpend: b.totalUnlockSpend, endingPitz: b.endingPitz };
+    })));
+
+  }, 600_000);
+
+  afterAll(async () => {
+    const out = (import.meta.env as Record<string, string | undefined>).RESEARCH_ATTEMPT_SIM_OUT;
+    if (out) {
+      // Split (T9 #784): each part file writes its own slice to `<out>` with `.mainOne` inserted before the extension.
+      const target = out.replace(/(\.[^./\\]+)?$/, ".mainOne$1");
+      const fs = (await import(/* @vite-ignore */ "node:" + "fs")) as { writeFileSync(path: string, data: string): void };
+      fs.writeFileSync(target, JSON.stringify(ALL_RUNS, null, 1));
+    }
+  });
+});
