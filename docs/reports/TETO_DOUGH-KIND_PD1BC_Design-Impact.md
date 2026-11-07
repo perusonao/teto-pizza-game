@@ -89,7 +89,7 @@ PD-1b／c で**触らない**: `techniques.ts`（技法定義の追加は PD-3�
 | 区分 | 件数 | 行 |
 |---|---|---|
 | DOUGH だけが未対応で、matrix のブロッカーなし | **7**（7 種の生地） | piadina（READY、新食材 0）、poutine（READY、新食材 3）、manakish（新食材 2、出典不一致）、argentine-napolitana（上位集合の重複あり）、ny-style（生地原文なし、部分集合の重複あり）、cauliflower-crust（`margherita` と同一集合）、fathead（`pepperoni` と同一集合） |
-| DOUGH＋他の未対応工程 | 11 | chicago-stuffed・fugazzeta-rellena（ENCLOSE）、new-england-bar・montreal・pizza-al-taglio・old-forge・siciliana・greek-style・detroit-style（PAN／SHAPE）、turkish-pide（SHAPE）、pizza-a-caballo（ENCLOSE、証拠欠落） |
+| DOUGH＋他の未対応工程 | 11 | chicago-stuffed・fugazzeta-rellena（ENCLOSE）、new-england-bar・montreal・siciliana・greek-style・detroit-style（PAN／SHAPE）、pizza-al-taglio・old-forge（SHAPE。天板は tray 系で出荷済み扱い、`TETO_POOL-REJUDGE_87_Result.md` §10）、turkish-pide（SHAPE）、pizza-a-caballo（ENCLOSE、証拠欠落） |
 | DOUGH だけ未対応だが matrix のブロッカーあり | 13 | st-louis・quad-cities・colorado・pizza-de-cancha・palmitos・pizza-carciofi/cicoria/puntarelle（roman）・pizza-romana・focaccia-genovese・fugazzetta・fruit-dessert・lahmacun |
 
 **最初に解放するなら piadina 1 件**: 新食材 0・READY・重複ゲート通過（Jaccard 0.40、`rucola-e-grana` と）。ただし piadina の解放には、PD-1a→1b→1c→PD-2（チップ UI、#738 merge 後）→PD-3（データ＋専用ゲート OFF）→PD-4（公開、実機 HV）が要り、**投入時機（P-2：案 P＝全て焼成前、案 F＝後乗せ）・NO_SAUCE（D-F2）・原典（G8、暫定仕様）**の Owner 判断も要る（Rev 5 の提案では 4 問）。PD-1b／c の GO 自体は、これらの判断を待たない。

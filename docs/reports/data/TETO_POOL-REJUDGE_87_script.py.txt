@@ -109,6 +109,20 @@ DEP = {
 }
 
 
+# matrix `cookingProfile.pan` -> (mechanic key, basis). Basis = the runtime fact it rests on (read at the audited commit):
+#  - the runtime knows ONE non-round pan: the square tray (PanShape "round"|"square"; pan identity axis value "tray" only;
+#    src/logic/pan/panShape.ts, src/state/panSelection.ts, src/logic/discovery/signature.ts; shipped user: grandma-pizza, panShape "square").
+#  - "tray": the same word as the runtime's pan identity -> supported (SHIPPED).
+#  - "sheet-pan": source text is a square sheet tray (old-forge 「四角い天板焼き」); the shipped grandma-pizza is also a (rectangular) sheet-pan source
+#    that the Owner mapped onto the existing square tray (recipes.ts grandma-pizza comment, decision M-1, 2026-10-24) -> mapped to the tray BY THAT PRECEDENT
+#    (an assumption: needs per-recipe Owner confirmation; the row's other blockers are unchanged).
+#  - "pan" / "deep-pan" / "shallow-pan" / "steel-pan": no walls / depth / bottom-crisp profile exists, and "pan" alone does not say square -> NOT supported.
+PAN_MAP = {
+    "tray": ("PAN_BAKE:tray", "pan identity 'tray' is shipped (signature.ts; grandma-pizza)"),
+    "sheet-pan": ("PAN_BAKE:tray", "sheet-pan -> square tray by the grandma-pizza precedent (M-1); per-recipe Owner confirmation assumed"),
+}
+
+
 def mech_keys(r):
     keys = []
     for c in r["requiredCapabilities"]:
@@ -117,7 +131,7 @@ def mech_keys(r):
             for mo in sorted(modes):
                 keys.append("LATE_ADDITION:" + ("post_bake" if mo == "post_bake" else "mid_bake"))
         elif c == "PAN_BAKE":
-            keys.append("PAN_BAKE:tray" if r["cookingProfile"]["pan"] in ("tray", "sheet-pan") and False else "PAN_BAKE:other")
+            keys.append(PAN_MAP.get(r["cookingProfile"]["pan"], ("PAN_BAKE:other", ""))[0])
         elif c == "MULTI_SPREAD_LAYER":
             keys.append("MULTI_SPREAD_LAYER")
         else:
@@ -174,6 +188,7 @@ def judge(r):
         "mechanicNotes": notes,
         "mechanicMissingOrGated": [{"key": k, "support": SUPPORT[k][0], "dependsOn": DEP.get(k, "")} for k in blockers_mech],
         "pan": r["cookingProfile"]["pan"],
+        "panMapping": (PAN_MAP.get(r["cookingProfile"]["pan"], ("PAN_BAKE:other", "no runtime pan equivalent (only the square tray exists)"))[1] if "PAN_BAKE" in r["requiredCapabilities"] else None),
         "doughVariant": r["dough"]["variant"],
         "doughForm": r["dough"]["form"],
         "sauceStatus": r["sauceBase"]["status"],

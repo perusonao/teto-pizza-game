@@ -83,7 +83,7 @@
 | `piadina-romagnola-pizzadb-p7` | 工程依存 | 工程 | DOUGH | 0 | 0.4 rucola-e-grana | NONE |  |
 | `pizza-salad-pizzadb-p7` | Owner判断待ち | 新2+ | -(2層) | cucumber,lettuce,yogurt-sauce | 0.429 bambino | J>0.4 | JACCARD_OVER_0.4_EXCEPTION |
 | `pizza-alla-crudaiola-pizzadb-p8` | Owner判断待ち | 新1 | -(2層) | burrata | 0.429 pinsa-romana | J>0.4 | JACCARD_OVER_0.4_EXCEPTION |
-| `pizza-al-taglio-romana-pizzadb-p9` | Owner判断待ち | 工程 | DOUGH,PAN,SHAPE | 0 | 1.0 margherita | 同一集合(軸差) | IDENTICAL_SET_AXIS_SEPARATED |
+| `pizza-al-taglio-romana-pizzadb-p9` | Owner判断待ち | 工程 | DOUGH,SHAPE | 0 | 1.0 margherita | 同一集合(軸差) | IDENTICAL_SET_AXIS_SEPARATED |
 | `pizza-fritta-pizzadb-p9` | 工程依存 | 工程 | FRY | 0 | 0.4 salsiccia | NONE |  |
 | `fathead-pizza-keto-pizzadb-p9` | Owner判断待ち | 工程 | DOUGH | 0 | 1.0 pepperoni | 同一集合(軸差) | IDENTICAL_SET_AXIS_SEPARATED |
 | `poutine-pizza-pizzadb-p10` | 工程依存 | 工程 | DOUGH | cheese-curd,french-fries,gravy-sauce | 0.167 salsiccia-e-friarielli | NONE |  |
@@ -116,7 +116,7 @@
 | `thai-chicken-pizza-pizzadb-p4` | Owner判断待ち | 新1 | - | peanut-sauce | 0.5 bbq-chicken-pizza | J>0.4 | UNRESOLVED_INGREDIENT |
 | `eel-pizza-pizzadb-p1` | Owner判断待ち | 工程 | LATE-mid | eel,sansho-pepper | 0.286 sichuan-eggplant-pizza | NONE | MECHANIC_INTERPRETATION |
 | `jerusalem-mixed-grill-pizza-pizzadb-p1` | Owner判断待ち | 新1 | - | cumin | 0.333 curry-pizza-japan | NONE | BASE_SAUCE_UNSPECIFIED |
-| `old-forge-style-pizza-pizzadb-p1` | Owner判断待ち | 工程 | DOUGH,PAN,SHAPE | 0 | 0.333 fugazza | 部分集合禁止 | UNRESOLVED_INGREDIENT |
+| `old-forge-style-pizza-pizzadb-p1` | Owner判断待ち | 工程 | DOUGH,SHAPE | 0 | 0.333 fugazza | 部分集合禁止 | UNRESOLVED_INGREDIENT |
 | `okonomiyaki-style-pizza-pizzadb-p1` | Owner判断待ち | 新2+ | -(2層) | bonito-flakes,cabbage,okonomiyaki-sauce | 0.143 porchetta-pizza | NONE | UNRESOLVED_INGREDIENT |
 | `caponata-pizza-pizzadb-p2` | Owner判断待ち | FULL | - | 0 | 0.4 palmito-pizza | NONE | BASE_SAUCE_UNSPECIFIED |
 | `keema-pizza-pizzadb-p2` | Owner判断待ち | FULL | - | 0 | 0.5 tonno-e-cipolla | 部分集合禁止 | BASE_SAUCE_UNSPECIFIED |
@@ -166,7 +166,7 @@
 |---|---|---|---|
 | DOUGH_VARIANT | 2 種のみ（standard／Pinsa）。3 種目以降は未出荷 | #577 PD-1a（PR #775、open）→ PD-1b/c → PD-2（チップ UI、`GameScreen.tsx` が HOT、#738 の merge 後）→ PD-3（データ。#773 の J-4／J-5） | 31 行（`TETO_DOUGH-KIND_PD1BC_Design-Impact.md` §6） |
 | MULTI_SPREAD_LAYER | 2 層は出荷済み（grandma-pizza、#521）。3 層・非ソース層は未出荷 | 3 層目の機構（設計のみ） | 13 行中 12 行は 2 層で機構あり、3 層の 1 行が未対応 |
-| PAN_BAKE | 四角天板（tray）のみ出荷済み。他の天板は無し | #532／#540 系の設計 | 8 行 |
+| PAN_BAKE | 四角天板（tray）のみ出荷済み（`pan: "tray"` と `sheet-pan` は出荷済み扱い、根拠は §10）。浅型・深型・鉄板・単なる `pan` は無し | #532／#540 系の設計 | 6 行（greek-style・chicago-deep-dish・siciliana・detroit-style・new-england-bar・montreal）。tray 系の 2 行（pizza-al-taglio・old-forge）は PAN では止まらず、DOUGH と DOUGH_SHAPE_TARGET が残る |
 | LATE_ADDITION | post_bake は出荷済み。mid_bake は無し | 設計のみ | mid_bake 3 行 |
 | PREP_STEP | 実装済みだが `PREP_EXPERIENCE_PRODUCTION = false` | Owner の本番 ON 承認 | 3 行 |
 | FRY_COOK | `FRY_EXPERIENCE_PRODUCTION = false` | #749 F1〜F3 と Owner の本番 ON | 1 行（pizza-fritta） |
@@ -198,10 +198,28 @@
 - 原典 pizzadb.jp は全 87 行で未確認（`sourceOrigin`: 比較表のみ 76、個別ページ中継 11。中継分もこの環境では再確認していない）。
 - Jaccard・重複ゲートは静的近似。Research ラベル（cohort 文字）・Hint 5.0・DH4 は実測していない。
 - 未解決食材の行（ひき肉・唐辛子など）の `afterDecisionClass` は新食材数が下限。
-- 本番の工程サポート表（`script.py.txt` の `SUPPORT`）は手書きで、監査時点のコードを読んだもの。再実行時は見直すこと。
+- 本番の工程サポート表（`script.py.txt` の `SUPPORT`・`PAN_MAP`）は手書きで、監査時点のコードを読んだもの。再実行時は見直すこと。`sheet-pan`→tray の対応づけは grandma-pizza の前例（M-1）に基づく**推論で、レシピごとの Owner 確認が要る**（§10）。
 - PR #775 のマージ状態、#774 の GO、#748 claim の解放は本書の時点の GitHub 状態を読んだだけ。
 - アプリ実行・テスト実行・HV はしていない（docs-only）。
 
 ## 9. #772 の claim との関係
 
 #772（`session_013m8Cb6…`、`TETO_CONTENT-POOL_*`）の claim・ブランチ・成果物は編集していない。#772 の `jaccard.py` の方法と S2 の測定は読み取り専用で再利用し、同じ測定（16 候補）は繰り返していない。#772 に追加成果物が出た場合はそちらを優先する。
+
+## 10. 天板（PAN_BAKE）の対応づけと再生成の検証（Codex P2 への対応、head `fe9081e2` からの修正）
+
+**不具合【実測】:** スクリプトの `PAN_BAKE` の分岐が `... and False else "PAN_BAKE:other"` で、tray の枝に到達できなかった。その結果、`pan: "tray"` の pizza-al-taglio と `pan: "sheet-pan"` の old-forge まで未対応の `PAN_BAKE:other` に数えていた（§5 の「PAN_BAKE 8 行」）。
+
+**対応づけの根拠（実 runtime に基づく）【実測】:** 本番が知る非丸型の天板は四角い天板（tray）ただ 1 つ。`PanShape` は `"round" | "square"`、天板の識別軸の値は `"tray"` のみ（`src/logic/pan/panShape.ts`、`src/state/panSelection.ts`、`src/logic/discovery/signature.ts`）。出荷済みの利用者は `grandma-pizza`（`panShape: "square"`）。深さ・縁・底のパリッと感の profile は無い。
+
+| matrix の `pan` | 行 | 対応 | 理由 |
+|---|---|---|---|
+| `tray` | pizza-al-taglio | `PAN_BAKE:tray`（出荷済み） | runtime の識別値と同じ語。記述も「四角い天板生地」 |
+| `sheet-pan` | old-forge | `PAN_BAKE:tray`（**前例による推論**） | 原典の記述が「四角い天板焼き」。同じく sheet-pan 系の原典である grandma-pizza を Owner が既存の四角天板に対応づけた前例（`recipes.ts` の grandma-pizza コメント、決定 M-1、2026-10-24）がある。**レシピごとの Owner 確認を前提とする仮置き** |
+| `pan` / `deep-pan` / `shallow-pan` / `steel-pan` | greek-style・siciliana／chicago-deep-dish・montreal／new-england-bar／detroit-style | `PAN_BAKE:other`（未対応） | 深型・浅型・鉄板の profile が無い。単なる `pan` は四角かどうかを語らない（siciliana は matrix 上は四角形だが、天板の種類が特定できないため未対応のまま） |
+
+**変更前後の差分（ID 単位）【実測】:**
+- 87 行の ID 集合と順序: 同一（SHA256 先頭 `a599b80eb2dd1e78`）。除外した 85 行の `linksDetail`: 同一。
+- 値が変わった行は **2 行のみ**: `pizza-al-taglio-romana-pizzadb-p9`、`old-forge-style-pizza-pizzadb-p1`（`mechanicKeys` の `PAN_BAKE:other` → `PAN_BAKE:tray`、`mechanicMissingOrGated` から PAN を除外）。他の 85 行は全フィールド同一。
+- 件数: `PAN_BAKE:other` の行 8 → **6**。分類件数（FULL 0／新食材 1 つ 2／新食材 2 つ以上 1／工程依存 3／Owner 判断待ち 81）と判断後の件数（FULL 11／新食材 1 つ 15／新食材 2 つ以上 18／工程依存 43）は**変化なし**（この 2 行は DOUGH_VARIANT と DOUGH_SHAPE_TARGET が残り、Owner 判断待ちの主因も変わらない）。DOUGH_VARIANT 31 行、他の工程の件数も変化なし。
+- 再現性: `origin/main` `06cfc066` の `src/data`・`docs/design/data` だけを取り出した別ディレクトリで再実行した出力が、リポジトリの JSON と**バイト単位で一致**。同じ入力での 2 回目の実行も一致（決定的）。
