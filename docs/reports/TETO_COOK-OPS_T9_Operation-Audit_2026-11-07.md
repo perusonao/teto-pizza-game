@@ -57,6 +57,8 @@ claim は #675 に 1 本（`files: docs/reports/TETO_COOK-OPS_T9_*`）。他セ�
 
 ### 3.2 iPhone 1 画面
 
+> **訂正（2026-11-07 追記）:** §3.2 の「PREP 以外（SEAR 等）が低いステージで成立するか未確認」は不正確だった。SEAR は #724 の iPhone HV 後に低ステージ対応（`Sear.css` の SHORT STAGE 規則、3 行構成）が**コード上は既に入っている**。実機での再確認が未了、という意味でのみ「未確認」。詳細は `TETO_COOK-OPS_T9_SEAR-LowStage-HV-Plan_2026-11-07.md` §1。
+
 | 事項 | 状態 | 出典 |
 |---|---|---|
 | 390×844 を authority、360×800 を secondary | 方針確定（VIEWPORT-1SCREEN）。主要画面は 1 画面に収まる | VIEWPORT-1SCREEN Result |
