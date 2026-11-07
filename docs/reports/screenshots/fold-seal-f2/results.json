@@ -1,0 +1,298 @@
+{
+ "url": "http://127.0.0.1:39059/teto-pizza-game/foldseal-lab.html",
+ "date": "2026-11-07T10:01:09.745Z",
+ "note": "Chromium emulation only (not iPhone Safari / WebKit)",
+ "viewports": {
+  "390x844": {
+   "checks": [
+    {
+     "name": "no horizontal scroll",
+     "ok": true,
+     "detail": {
+      "sw": 390,
+      "iw": 390,
+      "sh": 844,
+      "ih": 844
+     }
+    },
+    {
+     "name": "whole lab fits one screen (no vertical scroll)",
+     "ok": true,
+     "detail": {
+      "sw": 390,
+      "iw": 390,
+      "sh": 844,
+      "ih": 844
+     }
+    },
+    {
+     "name": "every button is at least 44x44 css px",
+     "ok": true,
+     "detail": []
+    },
+    {
+     "name": "stage is square and inside the viewport",
+     "ok": true,
+     "detail": {
+      "x": 16,
+      "y": 124.515625,
+      "width": 358,
+      "height": 358
+     }
+    },
+    {
+     "name": "touch on the lid starts folding",
+     "ok": true
+    },
+    {
+     "name": "finger on the fold line = ~90deg",
+     "ok": true,
+     "detail": 1.5708
+    },
+    {
+     "name": "still folding until release",
+     "ok": true
+    },
+    {
+     "name": "contact is tracked while down",
+     "ok": true
+    },
+    {
+     "name": "release past the threshold commits the fold",
+     "ok": true
+    },
+    {
+     "name": "contact released",
+     "ok": true
+    },
+    {
+     "name": "touch on the seam starts sealing",
+     "ok": true
+    },
+    {
+     "name": "next is blocked while the seal finger is down (sealing)",
+     "ok": true
+    },
+    {
+     "name": "partial stroke seals some, not all, segments",
+     "ok": true,
+     "detail": 14
+    },
+    {
+     "name": "a full stroke seals all 36 segments",
+     "ok": true,
+     "detail": 36
+    },
+    {
+     "name": "folded again",
+     "ok": true
+    },
+    {
+     "name": "off-band touch leaves the phase `folded`",
+     "ok": true
+    },
+    {
+     "name": "...yet the contact is tracked",
+     "ok": true
+    },
+    {
+     "name": "next is blocked by contact, not by phase",
+     "ok": true
+    },
+    {
+     "name": "next works once nothing is in contact",
+     "ok": true
+    },
+    {
+     "name": "short drag springs back to idle",
+     "ok": true
+    },
+    {
+     "name": "touchcancel cancels the fold and releases contact",
+     "ok": true
+    },
+    {
+     "name": "折る button folds",
+     "ok": true
+    },
+    {
+     "name": "とじる x4 seals all 36 segments",
+     "ok": true
+    },
+    {
+     "name": "next after the button path",
+     "ok": true
+    },
+    {
+     "name": "前の工程を変える discards everything",
+     "ok": true
+    },
+    {
+     "name": "an unsealed run is drawn as a gap",
+     "ok": true,
+     "detail": 26
+    },
+    {
+     "name": "insufficient seal never blocks the step",
+     "ok": true
+    },
+    {
+     "name": "prefers-reduced-motion removes the lid transition",
+     "ok": true,
+     "detail": "0s"
+    },
+    {
+     "name": "no page errors / console errors",
+     "ok": true,
+     "detail": []
+    }
+   ]
+  },
+  "360x800": {
+   "checks": [
+    {
+     "name": "no horizontal scroll",
+     "ok": true,
+     "detail": {
+      "sw": 360,
+      "iw": 360,
+      "sh": 800,
+      "ih": 800
+     }
+    },
+    {
+     "name": "whole lab fits one screen (no vertical scroll)",
+     "ok": true,
+     "detail": {
+      "sw": 360,
+      "iw": 360,
+      "sh": 800,
+      "ih": 800
+     }
+    },
+    {
+     "name": "every button is at least 44x44 css px",
+     "ok": true,
+     "detail": []
+    },
+    {
+     "name": "stage is square and inside the viewport",
+     "ok": true,
+     "detail": {
+      "x": 16,
+      "y": 124.515625,
+      "width": 328,
+      "height": 328
+     }
+    },
+    {
+     "name": "touch on the lid starts folding",
+     "ok": true
+    },
+    {
+     "name": "finger on the fold line = ~90deg",
+     "ok": true,
+     "detail": 1.5708
+    },
+    {
+     "name": "still folding until release",
+     "ok": true
+    },
+    {
+     "name": "contact is tracked while down",
+     "ok": true
+    },
+    {
+     "name": "release past the threshold commits the fold",
+     "ok": true
+    },
+    {
+     "name": "contact released",
+     "ok": true
+    },
+    {
+     "name": "touch on the seam starts sealing",
+     "ok": true
+    },
+    {
+     "name": "next is blocked while the seal finger is down (sealing)",
+     "ok": true
+    },
+    {
+     "name": "partial stroke seals some, not all, segments",
+     "ok": true,
+     "detail": 14
+    },
+    {
+     "name": "a full stroke seals all 36 segments",
+     "ok": true,
+     "detail": 36
+    },
+    {
+     "name": "folded again",
+     "ok": true
+    },
+    {
+     "name": "off-band touch leaves the phase `folded`",
+     "ok": true
+    },
+    {
+     "name": "...yet the contact is tracked",
+     "ok": true
+    },
+    {
+     "name": "next is blocked by contact, not by phase",
+     "ok": true
+    },
+    {
+     "name": "next works once nothing is in contact",
+     "ok": true
+    },
+    {
+     "name": "short drag springs back to idle",
+     "ok": true
+    },
+    {
+     "name": "touchcancel cancels the fold and releases contact",
+     "ok": true
+    },
+    {
+     "name": "折る button folds",
+     "ok": true
+    },
+    {
+     "name": "とじる x4 seals all 36 segments",
+     "ok": true
+    },
+    {
+     "name": "next after the button path",
+     "ok": true
+    },
+    {
+     "name": "前の工程を変える discards everything",
+     "ok": true
+    },
+    {
+     "name": "an unsealed run is drawn as a gap",
+     "ok": true,
+     "detail": 26
+    },
+    {
+     "name": "insufficient seal never blocks the step",
+     "ok": true
+    },
+    {
+     "name": "prefers-reduced-motion removes the lid transition",
+     "ok": true,
+     "detail": "0s"
+    },
+    {
+     "name": "no page errors / console errors",
+     "ok": true,
+     "detail": []
+    }
+   ]
+  }
+ },
+ "failed": 0
+}

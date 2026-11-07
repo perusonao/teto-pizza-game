@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 /**
  * FOLD+SEAL (Issue #773 T6-F1) architecture gate: the module is PURE and UNWIRED. It reads nothing but its own files and two existing pure geometry modules,
- * and nothing in the game imports it -- so it cannot reach scoring, save, Dex, inventory, Research or hints, and it cannot change a screen.
+ * and nothing in the game imports it (except the DEV-only lab under src/labs/foldSeal, F2) -- so it cannot reach scoring, save, Dex, inventory, Research or hints, and it cannot change a screen.
  */
 const here = __dirname;
 const srcRoot = path.resolve(here, "../..");
@@ -40,6 +40,9 @@ describe("FOLD+SEAL is unwired", () => {
       for (const name of readdirSync(dir)) {
         const p = path.join(dir, name);
         if (p === here) continue;
+        // F2 (Issue #773): the stand-alone DEV lab is the one allowed consumer. Its own isolation test (src/labs/foldSeal/foldSealLab.isolation.test.ts) pins that
+        // nothing else in the game imports the F1 module and that nothing imports the lab.
+        if (p === path.join(srcRoot, "labs", "foldSeal")) continue;
         if (statSync(p).isDirectory()) walk(p);
         else if (/\.(ts|tsx)$/.test(name) && /foldSeal/.test(readFileSync(p, "utf8"))) hits.push(path.relative(srcRoot, p));
       }
