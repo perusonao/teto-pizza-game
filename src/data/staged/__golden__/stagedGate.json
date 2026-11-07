@@ -1,0 +1,5987 @@
+{
+ "summary": {
+  "recipes": 84,
+  "readyForPromotion": [],
+  "recipesWithBlockingDeps": 84,
+  "blockingDeps": 433,
+  "byKind": {
+   "OWNER_RULE": 121,
+   "MECHANIC": 59,
+   "INGREDIENT_IN_FLIGHT": 8,
+   "UNRESOLVED_TOKEN": 21,
+   "SAUCE_UNSPECIFIED": 24,
+   "DUPLICATE_GATE": 193,
+   "ID_SUFFIXED": 7
+  },
+  "recipesBlockedOnlyBy": {
+   "OWNER_RULE": 1,
+   "MECHANIC": 1,
+   "DUPLICATE_GATE": 0
+  },
+  "duplicateGate": {
+   "recipesVsShipped": {
+    "IDENTICAL": 5,
+    "SUBSET": 17,
+    "SUPERSET": 8,
+    "ONE_DIFF": 19,
+    "JACCARD_GT_0_4": 21
+   },
+   "recipesVsStaged": {
+    "IDENTICAL": 8,
+    "SUBSET": 13,
+    "SUPERSET": 61,
+    "ONE_DIFF": 28,
+    "JACCARD_GT_0_4": 13
+   },
+   "recipesWithNoHit": 12,
+   "recipesWithNoShippedHit": 38,
+   "hitsVsShipped": 326
+  },
+  "stagedIngredientRefs": 69
+ },
+ "perRecipe": [
+  {
+   "id": "apple-cinnamon-dessert",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "INGREDIENT_IN_FLIGHT:walnut",
+    "SAUCE_UNSPECIFIED:apple-cinnamon-dessert"
+   ],
+   "staged": [
+    "apple"
+   ],
+   "dup": []
+  },
+  {
+   "id": "calzone-pizzadb",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-5",
+    "MECHANIC:ENCLOSE",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@staged",
+    "ID_SUFFIXED:calzone-pizzadb"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "calabresa-argentina",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-fritta",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "quattro-stagioni",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "MECHANIC:ZONED",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:SUPERSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "bambino",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "capricciosa",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.714
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "greek-style-pizzadb",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "hawaiian",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "montreal-style-pizza",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "prosciutto-funghi",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "veggie-supreme-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.444
+    }
+   ]
+  },
+  {
+   "id": "greek-style-pizzadb",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-5",
+    "MECHANIC:DOUGH_VARIANT",
+    "MECHANIC:PAN_PROFILE",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:SUPERSET@staged",
+    "ID_SUFFIXED:greek-style-pizzadb"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "calabresa-argentina",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "capricciosa",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quattro-stagioni",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "chicago-deep-dish-pizzadb",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-5",
+    "MECHANIC:PAN_PROFILE",
+    "MECHANIC:STEP_ORDER",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged",
+    "ID_SUFFIXED:chicago-deep-dish-pizzadb"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "hot-honey-pepperoni",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "montreal-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "st-louis-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "siciliana-pizzadb",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-5",
+    "MECHANIC:DOUGH_SHAPE_TARGET",
+    "MECHANIC:DOUGH_VARIANT",
+    "MECHANIC:PAN_PROFILE",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged",
+    "ID_SUFFIXED:siciliana-pizzadb"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "napoletana",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "pizza-romana",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "sfincione",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "tonno-e-cipolla",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "sfincione",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:SUPERSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "brazilian-calabresa",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "fugazza",
+     "againstStaged": false,
+     "kind": "SUPERSET",
+     "jaccard": 0.6
+    },
+    {
+     "against": "napoletana",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-romana",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "siciliana-pizzadb",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "taco-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-6"
+   ],
+   "staged": [
+    "cheddar",
+    "lettuce",
+    "tortilla-chips"
+   ],
+   "dup": []
+  },
+  {
+   "id": "trenton-tomato-pie",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "MECHANIC:STEP_ORDER",
+    "DUPLICATE_GATE:IDENTICAL@staged",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUBSET@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "bambino",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "bismarck",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "breakfast-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "calabresa-argentina",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "calzone-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "capricciosa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "cauliflower-crust-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "chicago-deep-dish-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "diavola-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "grandma-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "greek-style-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "hawaiian",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "hot-honey-pepperoni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "jamon-serrano-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.333
+    },
+    {
+     "against": "margherita",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "melanzane-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "montreal-style-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "napoletana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "parmigiana-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "pescatore",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.286
+    },
+    {
+     "against": "pinsa-romana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-al-taglio-romana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "pizza-fritta",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-overload",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-romana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "pizza-salad",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "prosciutto-funghi",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quattro-stagioni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "siciliana-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "tonno-e-cipolla",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "veggie-supreme-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.286
+    }
+   ]
+  },
+  {
+   "id": "ny-style",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:IDENTICAL@staged",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUBSET@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "bambino",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "bismarck",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "breakfast-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "calabresa-argentina",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "calzone-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "capricciosa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "cauliflower-crust-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "chicago-deep-dish-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "diavola-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "grandma-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "greek-style-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "hawaiian",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "hot-honey-pepperoni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "jamon-serrano-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.333
+    },
+    {
+     "against": "margherita",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "melanzane-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "montreal-style-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "napoletana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "parmigiana-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "pescatore",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.286
+    },
+    {
+     "against": "pinsa-romana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-al-taglio-romana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "pizza-fritta",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-overload",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-romana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "pizza-salad",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "prosciutto-funghi",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quattro-stagioni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "siciliana-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "tonno-e-cipolla",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "veggie-supreme-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.286
+    }
+   ]
+  },
+  {
+   "id": "buffalo-chicken-pizzadb",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-5",
+    "DUPLICATE_GATE:SUPERSET@staged",
+    "ID_SUFFIXED:buffalo-chicken-pizzadb"
+   ],
+   "staged": [
+    "buffalo-sauce"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "pizza-baiana",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-7",
+    "UNRESOLVED_TOKEN:唐辛子",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "aussie",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "full-english-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-chilena",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "polish-kielbasa",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "south-african-boerewors",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "spanish-chorizo-pizza",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    }
+   ]
+  },
+  {
+   "id": "pizza-a-caballo",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-8",
+    "MECHANIC:DOUGH_VARIANT",
+    "MECHANIC:ENCLOSE",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "calabresa-argentina",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.6
+    },
+    {
+     "against": "capricciosa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "chilean-napolitana",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fugazzetta",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "palmito-pizza",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    }
+   ]
+  },
+  {
+   "id": "fugazzeta-rellena",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "MECHANIC:DOUGH_VARIANT",
+    "MECHANIC:ENCLOSE",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "capricciosa",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fugazzetta",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "palmitos-salsa-golf",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "pizza-de-cancha",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-7",
+    "MECHANIC:DOUGH_VARIANT",
+    "UNRESOLVED_TOKEN:唐辛子",
+    "DUPLICATE_GATE:ONE_DIFF@shipped"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "fugazza",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "marinara",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "swedish-kebab-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-7",
+    "UNRESOLVED_TOKEN:肉",
+    "SAUCE_UNSPECIFIED:swedish-kebab-pizza",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "kebab-sauce",
+    "lettuce"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    }
+   ]
+  },
+  {
+   "id": "scacciata-ragusana",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "MECHANIC:ENCLOSE",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged"
+   ],
+   "staged": [
+    "caciocavallo"
+   ],
+   "dup": [
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "speck-e-brie-pizzadb",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-5",
+    "INGREDIENT_IN_FLIGHT:walnut",
+    "DUPLICATE_GATE:SUPERSET@staged",
+    "ID_SUFFIXED:speck-e-brie-pizzadb"
+   ],
+   "staged": [
+    "brie"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "smore-dessert-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "SAUCE_UNSPECIFIED:smore-dessert-pizza"
+   ],
+   "staged": [
+    "chocolate",
+    "graham-cracker",
+    "marshmallow"
+   ],
+   "dup": []
+  },
+  {
+   "id": "st-louis-style-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-7",
+    "MECHANIC:DOUGH_VARIANT",
+    "UNRESOLVED_TOKEN:プロヴェルチーズ",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUBSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "chicago-deep-dish-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0
+    },
+    {
+     "against": "detroit-style-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "hot-honey-pepperoni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "montreal-style-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0
+    },
+    {
+     "against": "supreme-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.143
+    }
+   ]
+  },
+  {
+   "id": "thai-chicken-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-7",
+    "UNRESOLVED_TOKEN:赤唐辛子",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "peanut-sauce"
+   ],
+   "dup": [
+    {
+     "against": "bbq-chicken-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "reina-pepiada-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    }
+   ]
+  },
+  {
+   "id": "argentine-napolitana",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:SUPERSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "chilean-napolitana",
+     "againstStaged": false,
+     "kind": "SUPERSET",
+     "jaccard": 0.6
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    }
+   ]
+  },
+  {
+   "id": "eel-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-6",
+    "MECHANIC:MID_BAKE",
+    "SAUCE_UNSPECIFIED:eel-pizza",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "eel",
+    "sansho-pepper"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "jerusalem-mixed-grill-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "SAUCE_UNSPECIFIED:jerusalem-mixed-grill-pizza",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "cumin"
+   ],
+   "dup": [
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "old-forge-style-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-7",
+    "MECHANIC:DOUGH_SHAPE_TARGET",
+    "MECHANIC:DOUGH_VARIANT",
+    "UNRESOLVED_TOKEN:チーズ",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUBSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "aussie",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "bacalhau",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "baingan-bharta-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "bbq-chicken-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "brazilian-calabresa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "bulgogi-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "chicken-tikka-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0
+    },
+    {
+     "against": "curry-pizza-japan",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "flammkuchen",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fugazza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fugazzeta-rellena",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fugazzetta",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "goulash-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "jerusalem-mixed-grill-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "nigerian-suya-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pesto-tonno",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "philly-cheesesteak-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-baiana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-chilena",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-de-lomo-saltado",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-moscow",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "polish-kielbasa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0
+    },
+    {
+     "against": "rendang-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "sfincione",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "siciliana-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "south-african-boerewors",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "spanish-chorizo-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "st-louis-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0
+    },
+    {
+     "against": "supreme-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.143
+    },
+    {
+     "against": "tandoori-paneer-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "teriyaki-chicken-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "tonno-e-cipolla",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "veggie-supreme-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.143
+    },
+    {
+     "against": "wasabi-beef-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "yakiniku-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    }
+   ]
+  },
+  {
+   "id": "okonomiyaki-style-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-7",
+    "UNRESOLVED_TOKEN:青のり"
+   ],
+   "staged": [
+    "bonito-flakes",
+    "cabbage",
+    "okonomiyaki-sauce"
+   ],
+   "dup": []
+  },
+  {
+   "id": "caponata-pizza",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "SAUCE_UNSPECIFIED:caponata-pizza",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "cauliflower-crust-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-3",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:IDENTICAL@shipped",
+    "DUPLICATE_GATE:IDENTICAL@staged",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "bismarck",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "margherita",
+     "againstStaged": false,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "melanzane-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "parmigiana-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.6
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-al-taglio-romana",
+     "againstStaged": true,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    }
+   ]
+  },
+  {
+   "id": "keema-pizza",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-7",
+    "UNRESOLVED_TOKEN:ひき肉",
+    "UNRESOLVED_TOKEN:青唐辛子",
+    "SAUCE_UNSPECIFIED:keema-pizza",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUBSET@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "aussie",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "bacalhau",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "baingan-bharta-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "bbq-chicken-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "bulgogi-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "chicken-tikka-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "curry-pizza-japan",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "diavola-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fugazzeta-rellena",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "fugazzetta",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "nigerian-suya-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.333
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-baiana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-chilena",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-de-lomo-saltado",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "pizza-moscow",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "polish-kielbasa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "rendang-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "siciliana-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "south-african-boerewors",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "spanish-chorizo-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "tandoori-paneer-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "tonno-e-cipolla",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.333
+    },
+    {
+     "against": "veggie-supreme-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.286
+    },
+    {
+     "against": "wasabi-beef-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "yakiniku-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.4
+    }
+   ]
+  },
+  {
+   "id": "kimchi-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "MECHANIC:PREP",
+    "SAUCE_UNSPECIFIED:kimchi-pizza",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "kimchi"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "quad-cities-style-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-7",
+    "MECHANIC:DOUGH_VARIANT",
+    "UNRESOLVED_TOKEN:スパイシーソーセージ",
+    "DUPLICATE_GATE:IDENTICAL@staged",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUBSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "argentine-napolitana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "aussie",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "bacalhau",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "baingan-bharta-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "bambino",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "banh-mi-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "bbq-chicken-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "bismarck",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "black-truffle-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "boscaiola",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "brazilian-catupiry-corn-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "breakfast-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "buffalo-cauliflower-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "buffalo-chicken-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "bulgogi-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "calabresa-argentina",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "calzone-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "caponata-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "capricciosa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "cauliflower-crust-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "chicago-deep-dish-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "chicken-tikka-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "chilean-napolitana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "curry-pizza-japan",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "currywurst",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "diavola-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "eel-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "eggplant-dengaku-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "frango-catupiry",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fugazzeta-rellena",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fugazzetta",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "full-english-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "genovese",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "grandma-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "greek-style-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "hawaiian",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "hot-honey-pepperoni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "jalapeno-popper-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "jamaican-jerk-chicken-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "jamon-serrano-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "kimchi-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "margherita",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "melanzane-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "montreal-style-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "napoletana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "nashville-hot-chicken-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "natto-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "nduja-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "new-zealand-lamb-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "nigerian-suya-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0
+    },
+    {
+     "against": "palmito-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "palmitos-salsa-golf",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "parmigiana-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "peking-duck-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "peruvian-aji-amarillo",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pescatore",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.143
+    },
+    {
+     "against": "pesto-caprese",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pesto-patate",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pesto-pollo",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pesto-vegetariana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pinsa-romana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-a-caballo",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-al-taglio-romana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-asparagi-limone",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-baiana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-bianca-ricotta",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-carciofi-salad",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-cavolo-carote",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-chilena",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-de-lomo-saltado",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-finocchi-salad",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-fritta",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-moscow",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-overload",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-puntarelle",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-radicchio-noci",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-romana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-salad",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-zucchine-menta",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "polish-kielbasa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "porchetta-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "porcini-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "potato-mayo-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "poutine-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "prosciutto-funghi",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quattro-formaggi",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "quattro-stagioni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "reina-pepiada-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "rendang-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "salsiccia-e-friarielli",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "shirasu-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "sichuan-eggplant-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "siciliana-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "south-african-boerewors",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "spanish-chorizo-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "speck-e-brie-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "spinach-artichoke-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "st-louis-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0
+    },
+    {
+     "against": "swedish-kebab-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "tandoori-paneer-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "tarako-cream-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "thai-chicken-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "tonno-e-cipolla",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "tsukimi-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "ume-shiso-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "veggie-supreme-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.143
+    },
+    {
+     "against": "wasabi-beef-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "yakiniku-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "yuzu-shrimp-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "colorado-mountain-pie",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-8",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:IDENTICAL@staged",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUBSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "argentine-napolitana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "aussie",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "bacalhau",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "baingan-bharta-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "bambino",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "banh-mi-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "bbq-chicken-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "bismarck",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "black-truffle-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "boscaiola",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "brazilian-catupiry-corn-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "breakfast-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "buffalo-cauliflower-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "buffalo-chicken-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "bulgogi-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "calabresa-argentina",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "calzone-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "caponata-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "capricciosa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "cauliflower-crust-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "chicago-deep-dish-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "chicken-tikka-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "chilean-napolitana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "curry-pizza-japan",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "currywurst",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "diavola-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "eel-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "eggplant-dengaku-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "frango-catupiry",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fugazzeta-rellena",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fugazzetta",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "full-english-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "genovese",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "grandma-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "greek-style-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "hawaiian",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "hot-honey-pepperoni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "jalapeno-popper-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "jamaican-jerk-chicken-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "jamon-serrano-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "kimchi-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "margherita",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "melanzane-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "montreal-style-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "napoletana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "nashville-hot-chicken-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "natto-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "nduja-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "new-zealand-lamb-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "nigerian-suya-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0
+    },
+    {
+     "against": "palmito-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "palmitos-salsa-golf",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "parmigiana-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "peking-duck-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "peruvian-aji-amarillo",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pescatore",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.143
+    },
+    {
+     "against": "pesto-caprese",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pesto-patate",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pesto-pollo",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pesto-vegetariana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pinsa-romana",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-a-caballo",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-al-taglio-romana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-asparagi-limone",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-baiana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-bianca-ricotta",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-carciofi-salad",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-cavolo-carote",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-chilena",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-de-lomo-saltado",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-finocchi-salad",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-fritta",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-moscow",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-overload",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-puntarelle",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-radicchio-noci",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-romana",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-salad",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-zucchine-menta",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "polish-kielbasa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "porchetta-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "porcini-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "potato-mayo-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "poutine-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "prosciutto-funghi",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "quattro-formaggi",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "quattro-stagioni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "reina-pepiada-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "rendang-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "salsiccia-e-friarielli",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "shirasu-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "sichuan-eggplant-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "siciliana-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "south-african-boerewors",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "spanish-chorizo-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "speck-e-brie-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "spinach-artichoke-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "st-louis-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0
+    },
+    {
+     "against": "swedish-kebab-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "tandoori-paneer-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "tarako-cream-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "thai-chicken-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "tonno-e-cipolla",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "tsukimi-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "ume-shiso-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "veggie-supreme-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.143
+    },
+    {
+     "against": "wasabi-beef-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "yakiniku-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "yuzu-shrimp-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "chicago-stuffed-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-3",
+    "MECHANIC:DOUGH_VARIANT",
+    "MECHANIC:ENCLOSE",
+    "DUPLICATE_GATE:IDENTICAL@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUBSET@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "bismarck",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "cauliflower-crust-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "chicago-deep-dish-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "margherita",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "nduja-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pizza-al-taglio-romana",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "salsiccia-e-friarielli",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "scacciata-ragusana",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    }
+   ]
+  },
+  {
+   "id": "chicken-tikka-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-8",
+    "SAUCE_UNSPECIFIED:chicken-tikka-pizza",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "chicken-tikka"
+   ],
+   "dup": [
+    {
+     "against": "bbq-chicken-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "spanish-chorizo-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "diavola-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-5",
+    "OWNER_RULE:R-7",
+    "UNRESOLVED_TOKEN:唐辛子",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "spicy-salami"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.333
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.333
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.333
+    }
+   ]
+  },
+  {
+   "id": "detroit-style-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-5",
+    "MECHANIC:DOUGH_SHAPE_TARGET",
+    "MECHANIC:DOUGH_VARIANT",
+    "MECHANIC:PAN_PROFILE",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "brick-cheese"
+   ],
+   "dup": [
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "st-louis-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    }
+   ]
+  },
+  {
+   "id": "turkish-pide",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-7",
+    "MECHANIC:DOUGH_SHAPE_TARGET",
+    "MECHANIC:DOUGH_VARIANT",
+    "UNRESOLVED_TOKEN:ひき肉",
+    "UNRESOLVED_TOKEN:チーズ",
+    "DUPLICATE_GATE:SUBSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "lahmacun",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    }
+   ]
+  },
+  {
+   "id": "nashville-hot-chicken-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "INGREDIENT_IN_FLIGHT:honey",
+    "SAUCE_UNSPECIFIED:nashville-hot-chicken-pizza",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "new-england-bar-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-3",
+    "MECHANIC:DOUGH_VARIANT",
+    "MECHANIC:PAN_PROFILE",
+    "DUPLICATE_GATE:IDENTICAL@shipped",
+    "DUPLICATE_GATE:IDENTICAL@staged",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUBSET@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "bismarck",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "cauliflower-crust-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "chicago-deep-dish-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "detroit-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "hot-honey-pepperoni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "margherita",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "montreal-style-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "pizza-al-taglio-romana",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "st-louis-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    }
+   ]
+  },
+  {
+   "id": "nutella-dessert-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-5",
+    "OWNER_RULE:R-7",
+    "UNRESOLVED_TOKEN:ナッツ"
+   ],
+   "staged": [
+    "banana",
+    "chocolate",
+    "powdered-sugar"
+   ],
+   "dup": []
+  },
+  {
+   "id": "banh-mi-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "SAUCE_UNSPECIFIED:banh-mi-pizza",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "carrot",
+    "daikon",
+    "liver-pate"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    }
+   ]
+  },
+  {
+   "id": "buffalo-cauliflower-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "SAUCE_UNSPECIFIED:buffalo-cauliflower-pizza",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "cauliflower"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    }
+   ]
+  },
+  {
+   "id": "palmitos-salsa-golf",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-4",
+    "MECHANIC:DOUGH_VARIANT",
+    "SAUCE_UNSPECIFIED:palmitos-salsa-golf",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "capricciosa",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fugazzeta-rellena",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "piadina-romagnola",
+   "lane": "R-C",
+   "blocking": [
+    "MECHANIC:DOUGH_VARIANT"
+   ],
+   "staged": [],
+   "dup": []
+  },
+  {
+   "id": "pizza-salad",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "cucumber",
+    "lettuce",
+    "yogurt-sauce"
+   ],
+   "dup": [
+    {
+     "against": "bambino",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    }
+   ]
+  },
+  {
+   "id": "pizza-asparagi-limone",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-6",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "asparagus"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-carciofi-salad",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.571
+    },
+    {
+     "against": "pizza-puntarelle",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "quattro-formaggi",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    }
+   ]
+  },
+  {
+   "id": "pizza-carciofi-salad",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-6",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "celery"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "pizza-asparagi-limone",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.571
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    }
+   ]
+  },
+  {
+   "id": "pizza-finocchi-salad",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-6",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "fennel",
+    "orange"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    }
+   ]
+  },
+  {
+   "id": "pizza-cavolo-carote",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-6",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "carrot",
+    "red-cabbage",
+    "sunflower-seeds"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    }
+   ]
+  },
+  {
+   "id": "pizza-zucchine-menta",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-6",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    },
+    {
+     "against": "eggplant-ricotta-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "pizza-bianca-ricotta",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.167
+    }
+   ]
+  },
+  {
+   "id": "pizza-cicoria-limone",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-6",
+    "OWNER_RULE:R-7",
+    "MECHANIC:DOUGH_VARIANT",
+    "UNRESOLVED_TOKEN:唐辛子",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged"
+   ],
+   "staged": [
+    "chicory"
+   ],
+   "dup": [
+    {
+     "against": "pizza-puntarelle",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    }
+   ]
+  },
+  {
+   "id": "pizza-puntarelle",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-6",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "chicory"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-asparagi-limone",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "pizza-cicoria-limone",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    }
+   ]
+  },
+  {
+   "id": "pizza-radicchio-noci",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-6",
+    "INGREDIENT_IN_FLIGHT:walnut",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "balsamic-vinegar",
+    "radicchio"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    }
+   ]
+  },
+  {
+   "id": "pizza-chilena",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-7",
+    "UNRESOLVED_TOKEN:ひき肉",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "aussie",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "bacalhau",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-baiana",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "pizza-portuguesa",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "pizza-romana",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-5",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:SUPERSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "calabresa-argentina",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "napoletana",
+     "againstStaged": false,
+     "kind": "SUPERSET",
+     "jaccard": 0.8
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "puttanesca-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "sfincione",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "siciliana-pizzadb",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.4
+    }
+   ]
+  },
+  {
+   "id": "pizza-al-taglio-romana",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-3",
+    "MECHANIC:DOUGH_SHAPE_TARGET",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:IDENTICAL@shipped",
+    "DUPLICATE_GATE:IDENTICAL@staged",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "bismarck",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "cauliflower-crust-pizza",
+     "againstStaged": true,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "margherita",
+     "againstStaged": false,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "melanzane-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "parmigiana-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.6
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    }
+   ]
+  },
+  {
+   "id": "pizza-fritta",
+   "lane": "R-C",
+   "blocking": [
+    "MECHANIC:FRY",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "calzone-pizzadb",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "fathead-pizza-keto",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-3",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:IDENTICAL@shipped",
+    "DUPLICATE_GATE:IDENTICAL@staged",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUBSET@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "bismarck",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "cauliflower-crust-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "chicago-deep-dish-pizzadb",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "detroit-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "hot-honey-pepperoni",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "margherita",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "montreal-style-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "IDENTICAL",
+     "jaccard": 1
+    },
+    {
+     "against": "pizza-al-taglio-romana",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "st-louis-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    }
+   ]
+  },
+  {
+   "id": "philly-cheesesteak-pizza",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-7",
+    "UNRESOLVED_TOKEN:チーズソース",
+    "DUPLICATE_GATE:SUBSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "nigerian-suya-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    }
+   ]
+  },
+  {
+   "id": "poutine-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "cheese-curd",
+    "french-fries",
+    "gravy-sauce"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "feteer-meshaltet",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-7",
+    "OWNER_RULE:R-8",
+    "MECHANIC:LAMINATE",
+    "MECHANIC:MULTI_SPREAD_3",
+    "INGREDIENT_IN_FLIGHT:honey",
+    "UNRESOLVED_TOKEN:ひき肉",
+    "SAUCE_UNSPECIFIED:feteer-meshaltet"
+   ],
+   "staged": [
+    "condensed-milk",
+    "melted-butter"
+   ],
+   "dup": []
+  },
+  {
+   "id": "focaccia-genovese",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-8",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:SUPERSET@shipped"
+   ],
+   "staged": [
+    "rock-salt"
+   ],
+   "dup": [
+    {
+     "against": "pizza-bianca",
+     "againstStaged": false,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    }
+   ]
+  },
+  {
+   "id": "fugazzetta",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-5",
+    "OWNER_RULE:R-8",
+    "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUBSET@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "chilean-napolitana",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "fugazza",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "fugazzeta-rellena",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "pizza-a-caballo",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    }
+   ]
+  },
+  {
+   "id": "burrata-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "INGREDIENT_IN_FLIGHT:burrata"
+   ],
+   "staged": [],
+   "dup": []
+  },
+  {
+   "id": "fruit-dessert-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "MECHANIC:DOUGH_VARIANT",
+    "SAUCE_UNSPECIFIED:fruit-dessert-pizza"
+   ],
+   "staged": [
+    "blueberry",
+    "kiwi",
+    "strawberry"
+   ],
+   "dup": []
+  },
+  {
+   "id": "bulgogi-pizza",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-4",
+    "SAUCE_UNSPECIFIED:bulgogi-pizza",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:SUBSET@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "nigerian-suya-pizza",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-de-lomo-saltado",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "rendang-pizza",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "wasabi-beef-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "yakiniku-pizza",
+     "againstStaged": true,
+     "kind": "SUBSET",
+     "jaccard": 0.8
+    }
+   ]
+  },
+  {
+   "id": "frutti-di-mare-pizzadb",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "OWNER_RULE:R-5",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "ID_SUFFIXED:frutti-di-mare-pizzadb"
+   ],
+   "staged": [
+    "squid"
+   ],
+   "dup": [
+    {
+     "against": "pescatore",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "peruvian-aji-amarillo",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "SAUCE_UNSPECIFIED:peruvian-aji-amarillo",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "aji-amarillo"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "hot-honey-pepperoni",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "INGREDIENT_IN_FLIGHT:honey",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "chicago-deep-dish-pizzadb",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "montreal-style-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "st-louis-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "natto-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "MECHANIC:MID_BAKE",
+    "SAUCE_UNSPECIFIED:natto-pizza",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "natto",
+    "okra"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    }
+   ]
+  },
+  {
+   "id": "peking-duck-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-8",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "cucumber",
+    "peking-duck",
+    "sweet-bean-sauce"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    }
+   ]
+  },
+  {
+   "id": "mentaiko-mochi-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "SAUCE_UNSPECIFIED:mentaiko-mochi-pizza"
+   ],
+   "staged": [
+    "mentaiko",
+    "mochi"
+   ],
+   "dup": []
+  },
+  {
+   "id": "manakish",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-8",
+    "MECHANIC:DOUGH_VARIANT"
+   ],
+   "staged": [
+    "halloumi",
+    "zaatar"
+   ],
+   "dup": []
+  },
+  {
+   "id": "yakiniku-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "MECHANIC:PREP",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "yakiniku-sauce"
+   ],
+   "dup": [
+    {
+     "against": "bulgogi-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.8
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "nigerian-suya-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "pizza-de-lomo-saltado",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "rendang-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "wasabi-beef-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    }
+   ]
+  },
+  {
+   "id": "pizza-de-lomo-saltado",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-4",
+    "MECHANIC:MID_BAKE",
+    "MECHANIC:PREP",
+    "SAUCE_UNSPECIFIED:pizza-de-lomo-saltado",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "french-fries"
+   ],
+   "dup": [
+    {
+     "against": "bulgogi-pizza",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.4
+    },
+    {
+     "against": "nigerian-suya-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.2
+    },
+    {
+     "against": "rendang-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "wasabi-beef-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "yakiniku-pizza",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    }
+   ]
+  },
+  {
+   "id": "lahmacun",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-6",
+    "OWNER_RULE:R-7",
+    "MECHANIC:DOUGH_VARIANT",
+    "UNRESOLVED_TOKEN:ひき肉",
+    "UNRESOLVED_TOKEN:唐辛子",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "turkish-pide",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.667
+    }
+   ]
+  },
+  {
+   "id": "mexican-elote-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "SAUCE_UNSPECIFIED:mexican-elote-pizza"
+   ],
+   "staged": [
+    "lime"
+   ],
+   "dup": []
+  },
+  {
+   "id": "montreal-style-pizza",
+   "lane": "R-C",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "MECHANIC:DOUGH_VARIANT",
+    "MECHANIC:PAN_PROFILE",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "capricciosa",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "chicago-deep-dish-pizzadb",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "fathead-pizza-keto",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "funghi",
+     "againstStaged": false,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "hot-honey-pepperoni",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "meat-lovers",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "new-england-bar-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "ny-style",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pepperoni",
+     "againstStaged": false,
+     "kind": "SUPERSET",
+     "jaccard": 0.75
+    },
+    {
+     "against": "prosciutto-funghi",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "quattro-stagioni",
+     "againstStaged": true,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "st-louis-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "trenton-tomato-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "nduja-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-4",
+    "INGREDIENT_IN_FLIGHT:honey",
+    "SAUCE_UNSPECIFIED:nduja-pizza",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "chicago-stuffed-pizza",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "salsiccia",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "salsiccia-e-friarielli",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    }
+   ]
+  },
+  {
+   "id": "tsukimi-pizza",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-4",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "aussie",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "breakfast-pizza",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "full-english-pizza",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "black-truffle-pizza",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-5",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "truffle"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.333
+    }
+   ]
+  },
+  {
+   "id": "teriyaki-chicken-pizza",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-5",
+    "SAUCE_UNSPECIFIED:teriyaki-chicken-pizza",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    }
+   ]
+  },
+  {
+   "id": "south-african-boerewors",
+   "lane": "R-B",
+   "blocking": [
+    "OWNER_RULE:R-1",
+    "OWNER_RULE:R-4",
+    "SAUCE_UNSPECIFIED:south-african-boerewors",
+    "DUPLICATE_GATE:ONE_DIFF@shipped",
+    "DUPLICATE_GATE:ONE_DIFF@staged",
+    "DUPLICATE_GATE:SUPERSET@staged"
+   ],
+   "staged": [
+    "chutney"
+   ],
+   "dup": [
+    {
+     "against": "colorado-mountain-pie",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "keema-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.5
+    },
+    {
+     "against": "old-forge-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "pizza-baiana",
+     "againstStaged": true,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "polish-kielbasa",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "quad-cities-style-pizza",
+     "againstStaged": true,
+     "kind": "SUPERSET",
+     "jaccard": 0.25
+    },
+    {
+     "against": "spanish-chorizo-pizza",
+     "againstStaged": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    }
+   ]
+  },
+  {
+   "id": "hokkaido-cheese-pizza",
+   "lane": "R-A",
+   "blocking": [
+    "OWNER_RULE:R-2",
+    "OWNER_RULE:R-7",
+    "UNRESOLVED_TOKEN:チーズ",
+    "DUPLICATE_GATE:SUBSET@shipped"
+   ],
+   "staged": [],
+   "dup": [
+    {
+     "against": "potato-mayo-pizza",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.6
+    }
+   ]
+  }
+ ]
+}
