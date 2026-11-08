@@ -40,4 +40,14 @@ for k, c in case.items():
     out[k]["claude_usd"] = round(units_eq*base["usd"])
     # prompts if the CURRENT operation continues (GitHub Owner comments median 4 / PR, +1 session start): 5 per train-equivalent
     out[k]["total_current_operation"] = round(5*n_tr*{"optimistic":0.6,"standard":1.0,"pessimistic":1.6}[k] + out[k]["line3_mechanics"] + out[k]["shared"])
+# --- Feature-unit regrouping of line 3 (Owner 2026-11-08). Units: U1 dough+pan (M1+M2), U2 prep/fry/mid-bake (M5+M4), U3 enclose/structure (M3+M6), U4 existing-Gate Production ON (5 gates).
+# Owner prompts per unit = 1 decision table (d) + HV-and-merge rounds (R x h; the merge ask is folded into the HV report prompt, S-2) + 1 Production-ON bundle (o).
+# Rounds = distinct iPhone UI surfaces: U1 2, U2 3, U3 3, U4 5. Gates, stop conditions, HV, Codex and CI are NOT reduced; only separate design asks, re-explanations and merge-only prompts are.
+fu = {"optimistic": dict(d=1, h=1, o=1), "standard": dict(d=1, h=2, o=1), "pessimistic": dict(d=2, h=3, o=2)}
+rounds = {"U1": 2, "U2": 3, "U3": 3, "U4": 5}
+for k, c in fu.items():
+    l3 = sum(c["d"] + r*c["h"] + c["o"] for r in rounds.values())
+    out[k]["line3_feature_units"] = l3
+    out[k]["total_feature_units"] = out[k]["line1_ingredients"] + out[k]["line2_recipes"] + l3 + out[k]["shared"]
+    out[k]["total_feature_units_with_S3"] = out[k]["total_feature_units"] - round(0.35*(out[k]["line1_ingredients"] + out[k]["line2_recipes"] + l3))
 print(json.dumps(out, indent=1, ensure_ascii=False))
