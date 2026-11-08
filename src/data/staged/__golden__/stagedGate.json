@@ -3,18 +3,18 @@
   "recipes": 84,
   "readyForPromotion": [],
   "recipesWithBlockingDeps": 84,
-  "blockingDeps": 407,
+  "blockingDeps": 400,
   "byKind": {
    "OWNER_RULE": 121,
    "MECHANIC": 59,
-   "INGREDIENT_IN_FLIGHT": 7,
+   "INGREDIENT_IN_FLIGHT": 0,
    "UNRESOLVED_TOKEN": 21,
    "SAUCE_UNSPECIFIED": 24,
    "DUPLICATE_GATE": 168,
    "ID_SUFFIXED": 7
   },
   "recipesBlockedOnlyBy": {
-   "OWNER_RULE": 5,
+   "OWNER_RULE": 6,
    "MECHANIC": 2,
    "DUPLICATE_GATE": 1
   },
@@ -45,7 +45,6 @@
    "lane": "R-B",
    "blocking": [
     "OWNER_RULE:R-1",
-    "INGREDIENT_IN_FLIGHT:walnut",
     "SAUCE_UNSPECIFIED:apple-cinnamon-dessert"
    ],
    "staged": [
@@ -1472,7 +1471,6 @@
    "lane": "R-B",
    "blocking": [
     "OWNER_RULE:R-5",
-    "INGREDIENT_IN_FLIGHT:walnut",
     "ID_SUFFIXED:speck-e-brie-pizzadb"
    ],
    "staged": [
@@ -3073,7 +3071,6 @@
    "lane": "R-B",
    "blocking": [
     "OWNER_RULE:R-1",
-    "INGREDIENT_IN_FLIGHT:honey",
     "SAUCE_UNSPECIFIED:nashville-hot-chicken-pizza"
    ],
    "staged": [],
@@ -3496,8 +3493,7 @@
    "id": "pizza-radicchio-noci",
    "lane": "R-B",
    "blocking": [
-    "OWNER_RULE:R-6",
-    "INGREDIENT_IN_FLIGHT:walnut"
+    "OWNER_RULE:R-6"
    ],
    "staged": [
     "balsamic-vinegar",
@@ -4036,7 +4032,6 @@
     "OWNER_RULE:R-8",
     "MECHANIC:LAMINATE",
     "MECHANIC:MULTI_SPREAD_3",
-    "INGREDIENT_IN_FLIGHT:honey",
     "UNRESOLVED_TOKEN:ひき肉",
     "SAUCE_UNSPECIFIED:feteer-meshaltet"
    ],
@@ -4236,7 +4231,6 @@
    "lane": "R-B",
    "blocking": [
     "OWNER_RULE:R-2",
-    "INGREDIENT_IN_FLIGHT:honey",
     "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "DUPLICATE_GATE:ONE_DIFF@staged",
     "DUPLICATE_GATE:SUPERSET@shipped",
@@ -4619,7 +4613,6 @@
    "blocking": [
     "OWNER_RULE:R-1",
     "OWNER_RULE:R-4",
-    "INGREDIENT_IN_FLIGHT:honey",
     "SAUCE_UNSPECIFIED:nduja-pizza",
     "DUPLICATE_GATE:ONE_DIFF@shipped",
     "DUPLICATE_GATE:ONE_DIFF@staged"
