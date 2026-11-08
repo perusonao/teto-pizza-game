@@ -24,3 +24,8 @@ ID の集合は ladder の位置に依存しない（Research は ID 集合か�
 
 ## 4. 実装前の確認事項
 validateLateCatalog（本番の関数）、late の `LATE_DISCOVERY_TARGET_IDS`・`LATE_ORDERS`、Hint 5.0 の golden、保存安全性、390×844／360×800 の 1 画面 UX（FINISH の点の置きやすさ）、実機 HV（UI 変更のため）。
+
+## 5. Owner 判断の記録（2026-11-08）
+- buffalo-sauce: family=`spice`、size class=`s` を暫定採用（案 B 向け）。**実装は HOLD。**
+- B20-A の実装は Draft PR #792 に一本化（実装担当 `session_016YrGi2mqx12Yxf3c5WuVLh`）。`session_016YrGi1AJW3sF49Uzak3yaN` は重複 claim の整理対象で、新たな実装は行わない。
+- main WebKit run 42455506474: 初回 failure は 390x844 shard 2/3 の `expansion-grandma.spec.ts:138`（E-AC2、240 秒タイムアウト、`Page closed`）。同じ SHA の attempt 2 は 255 件合格・全ジョブ success。**間欠的な事象として記録**。追加の再実行・コード変更・テストの変更は不要（Owner 確認済み）。
