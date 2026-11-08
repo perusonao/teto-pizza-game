@@ -1,0 +1,1455 @@
+{
+ "blockingDependencies": 407,
+ "byVerdict": {
+  "AUTO_RESOLVED": 11,
+  "RULE_DECIDED_WORK": 2,
+  "DUPLICATE_COUNT": 24,
+  "WAITS_MECHANIC": 58,
+  "WAITS_IN_FLIGHT": 10,
+  "AXIS_CONDITIONAL": 30,
+  "STAGED_PAIR": 94,
+  "EXCEPTION_NEEDED": 75,
+  "OWNER_DECISION": 103
+ },
+ "autoResolved": 11,
+ "byKind": {
+  "DUPLICATE_GATE": {
+   "AXIS_CONDITIONAL": 17,
+   "STAGED_PAIR": 94,
+   "EXCEPTION_NEEDED": 50,
+   "OWNER_DECISION": 6
+  },
+  "ID_SUFFIXED": {
+   "OWNER_DECISION": 7
+  },
+  "INGREDIENT_IN_FLIGHT": {
+   "WAITS_IN_FLIGHT": 8
+  },
+  "MECHANIC": {
+   "AUTO_RESOLVED": 1,
+   "WAITS_MECHANIC": 58
+  },
+  "OWNER_RULE": {
+   "AUTO_RESOLVED": 9,
+   "RULE_DECIDED_WORK": 2,
+   "WAITS_IN_FLIGHT": 1,
+   "AXIS_CONDITIONAL": 13,
+   "EXCEPTION_NEEDED": 25,
+   "OWNER_DECISION": 71
+  },
+  "SAUCE_UNSPECIFIED": {
+   "DUPLICATE_COUNT": 24
+  },
+  "UNRESOLVED_TOKEN": {
+   "AUTO_RESOLVED": 1,
+   "WAITS_IN_FLIGHT": 1,
+   "OWNER_DECISION": 19
+  }
+ },
+ "ownerRules": {
+  "R-1": {
+   "RULE_DECIDED_WORK": 2,
+   "OWNER_DECISION": 22
+  },
+  "R-2": {
+   "AXIS_CONDITIONAL": 10,
+   "EXCEPTION_NEEDED": 9
+  },
+  "R-3": {
+   "AXIS_CONDITIONAL": 3,
+   "OWNER_DECISION": 2
+  },
+  "R-4": {
+   "AUTO_RESOLVED": 6,
+   "EXCEPTION_NEEDED": 16
+  },
+  "R-5": {
+   "OWNER_DECISION": 14
+  },
+  "R-6": {
+   "AUTO_RESOLVED": 2,
+   "OWNER_DECISION": 9
+  },
+  "R-7": {
+   "AUTO_RESOLVED": 1,
+   "WAITS_IN_FLIGHT": 1,
+   "OWNER_DECISION": 16
+  },
+  "R-8": {
+   "OWNER_DECISION": 8
+  }
+ },
+ "duplicateGate": {
+  "dependencies": 167,
+  "byType": {
+   "IDENTICAL@shipped": {
+    "AXIS_CONDITIONAL": 3,
+    "OWNER_DECISION": 2
+   },
+   "IDENTICAL@staged": {
+    "STAGED_PAIR": 8
+   },
+   "JACCARD_GT_0_4@shipped": {
+    "EXCEPTION_NEEDED": 22
+   },
+   "JACCARD_GT_0_4@staged": {
+    "STAGED_PAIR": 18
+   },
+   "ONE_DIFF@shipped": {
+    "EXCEPTION_NEEDED": 16,
+    "OWNER_DECISION": 2
+   },
+   "ONE_DIFF@staged": {
+    "STAGED_PAIR": 27
+   },
+   "SUBSET@shipped": {
+    "AXIS_CONDITIONAL": 9,
+    "EXCEPTION_NEEDED": 6,
+    "OWNER_DECISION": 2
+   },
+   "SUBSET@staged": {
+    "STAGED_PAIR": 13
+   },
+   "SUPERSET@shipped": {
+    "AXIS_CONDITIONAL": 5,
+    "EXCEPTION_NEEDED": 6
+   },
+   "SUPERSET@staged": {
+    "STAGED_PAIR": 28
+   }
+  },
+  "exceptionsNeeded": [
+   {
+    "id": "calzone-pizzadb",
+    "shippedHits": [
+     "JACCARD_GT_0_4:calabresa-argentina(0.5)"
+    ]
+   },
+   {
+    "id": "quattro-stagioni",
+    "shippedHits": [
+     "JACCARD_GT_0_4:bambino(0.429)",
+     "ONE_DIFF:capricciosa(0.714)",
+     "SUPERSET:funghi(0.5)",
+     "JACCARD_GT_0_4:hawaiian(0.429)",
+     "JACCARD_GT_0_4:pizza-portuguesa(0.5)",
+     "JACCARD_GT_0_4:prosciutto-funghi(0.429)",
+     "JACCARD_GT_0_4:veggie-supreme-pizza(0.444)"
+    ]
+   },
+   {
+    "id": "greek-style-pizzadb",
+    "shippedHits": [
+     "JACCARD_GT_0_4:calabresa-argentina(0.5)",
+     "JACCARD_GT_0_4:capricciosa(0.429)",
+     "JACCARD_GT_0_4:pizza-portuguesa(0.429)"
+    ]
+   },
+   {
+    "id": "chicago-deep-dish-pizzadb",
+    "shippedHits": [
+     "SUBSET:meat-lovers(0.667)",
+     "SUPERSET:pepperoni(0.75)",
+     "SUPERSET:salsiccia(0.75)"
+    ]
+   },
+   {
+    "id": "siciliana-pizzadb",
+    "shippedHits": [
+     "ONE_DIFF:napoletana(0.6)",
+     "JACCARD_GT_0_4:pizza-portuguesa(0.429)",
+     "ONE_DIFF:tonno-e-cipolla(0.6)"
+    ]
+   },
+   {
+    "id": "sfincione",
+    "shippedHits": [
+     "JACCARD_GT_0_4:brazilian-calabresa(0.429)",
+     "SUPERSET:fugazza(0.6)",
+     "JACCARD_GT_0_4:napoletana(0.5)"
+    ]
+   },
+   {
+    "id": "trenton-tomato-pie",
+    "shippedHits": [
+     "SUBSET:bambino(0.5)",
+     "SUBSET:bismarck(0.667)",
+     "SUBSET:breakfast-pizza(0.5)",
+     "SUBSET:calabresa-argentina(0.4)",
+     "SUBSET:capricciosa(0.333)",
+     "SUBSET:funghi(0.667)",
+     "SUBSET:grandma-pizza(0.5)",
+     "SUBSET:hawaiian(0.5)",
+     "SUBSET:jamon-serrano-pizza(0.5)",
+     "SUBSET:margherita(0.667)",
+     "SUBSET:meat-lovers(0.333)",
+     "SUBSET:melanzane-pizza(0.5)",
+     "SUBSET:napoletana(0.5)",
+     "SUBSET:parmigiana-pizza(0.4)",
+     "SUBSET:pepperoni(0.667)",
+     "SUBSET:pescatore(0.286)",
+     "SUBSET:pinsa-romana(0.5)",
+     "SUBSET:pizza-overload(0.333)",
+     "SUBSET:pizza-portuguesa(0.333)",
+     "SUBSET:prosciutto-funghi(0.5)",
+     "SUBSET:salsiccia(0.667)",
+     "SUBSET:tonno-e-cipolla(0.5)",
+     "SUBSET:veggie-supreme-pizza(0.286)"
+    ]
+   },
+   {
+    "id": "pizza-baiana",
+    "shippedHits": [
+     "JACCARD_GT_0_4:aussie(0.5)",
+     "SUPERSET:bismarck(0.6)",
+     "JACCARD_GT_0_4:brazilian-calabresa(0.429)",
+     "JACCARD_GT_0_4:breakfast-pizza(0.5)",
+     "JACCARD_GT_0_4:full-english-pizza(0.429)",
+     "JACCARD_GT_0_4:pizza-portuguesa(0.571)",
+     "JACCARD_GT_0_4:polish-kielbasa(0.5)",
+     "SUPERSET:salsiccia(0.6)",
+     "JACCARD_GT_0_4:spanish-chorizo-pizza(0.5)",
+     "JACCARD_GT_0_4:tonno-e-cipolla(0.5)"
+    ]
+   },
+   {
+    "id": "pizza-a-caballo",
+    "shippedHits": [
+     "SUBSET:calabresa-argentina(0.6)",
+     "SUBSET:capricciosa(0.5)",
+     "ONE_DIFF:chilean-napolitana(0.5)",
+     "ONE_DIFF:palmito-pizza(0.5)"
+    ]
+   },
+   {
+    "id": "fugazzeta-rellena",
+    "shippedHits": [
+     "JACCARD_GT_0_4:capricciosa(0.429)",
+     "JACCARD_GT_0_4:pizza-portuguesa(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-de-cancha",
+    "shippedHits": [
+     "ONE_DIFF:grandma-pizza(0.6)",
+     "SUPERSET:marinara(0.75)"
+    ]
+   },
+   {
+    "id": "scacciata-ragusana",
+    "shippedHits": [
+     "ONE_DIFF:salsiccia(0.5)"
+    ]
+   },
+   {
+    "id": "thai-chicken-pizza",
+    "shippedHits": [
+     "JACCARD_GT_0_4:bbq-chicken-pizza(0.5)",
+     "JACCARD_GT_0_4:reina-pepiada-pizza(0.429)"
+    ]
+   },
+   {
+    "id": "keema-pizza",
+    "shippedHits": [
+     "SUBSET:aussie(0.5)",
+     "SUBSET:bacalhau(0.5)",
+     "SUBSET:baingan-bharta-pizza(0.333)",
+     "SUBSET:bbq-chicken-pizza(0.4)",
+     "SUBSET:curry-pizza-japan(0.5)",
+     "SUBSET:nigerian-suya-pizza(0.5)",
+     "SUBSET:pizza-moscow(0.4)",
+     "SUBSET:pizza-portuguesa(0.333)",
+     "SUBSET:polish-kielbasa(0.5)",
+     "SUBSET:rendang-pizza(0.5)",
+     "SUBSET:spanish-chorizo-pizza(0.5)",
+     "SUBSET:tandoori-paneer-pizza(0.4)",
+     "SUBSET:tonno-e-cipolla(0.5)",
+     "SUBSET:veggie-supreme-pizza(0.286)",
+     "SUBSET:wasabi-beef-pizza(0.4)"
+    ]
+   },
+   {
+    "id": "chicago-stuffed-pizza",
+    "shippedHits": [
+     "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:funghi(0.5)",
+     "ONE_DIFF:margherita(0.5)",
+     "SUBSET:meat-lovers(0.5)",
+     "ONE_DIFF:pepperoni(0.5)",
+     "IDENTICAL:salsiccia(1)",
+     "ONE_DIFF:salsiccia-e-friarielli(0.5)"
+    ]
+   },
+   {
+    "id": "chicken-tikka-pizza",
+    "shippedHits": [
+     "JACCARD_GT_0_4:bbq-chicken-pizza(0.429)",
+     "JACCARD_GT_0_4:spanish-chorizo-pizza(0.5)"
+    ]
+   },
+   {
+    "id": "diavola-pizza",
+    "shippedHits": [
+     "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:funghi(0.5)",
+     "ONE_DIFF:margherita(0.5)",
+     "ONE_DIFF:pepperoni(0.5)",
+     "ONE_DIFF:salsiccia(0.5)"
+    ]
+   },
+   {
+    "id": "detroit-style-pizza",
+    "shippedHits": [
+     "ONE_DIFF:pepperoni(0.5)"
+    ]
+   },
+   {
+    "id": "new-england-bar-pizza",
+    "shippedHits": [
+     "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:funghi(0.5)",
+     "ONE_DIFF:margherita(0.5)",
+     "SUBSET:meat-lovers(0.5)",
+     "IDENTICAL:pepperoni(1)",
+     "ONE_DIFF:salsiccia(0.5)"
+    ]
+   },
+   {
+    "id": "palmitos-salsa-golf",
+    "shippedHits": [
+     "JACCARD_GT_0_4:capricciosa(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-salad",
+    "shippedHits": [
+     "JACCARD_GT_0_4:bambino(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-asparagi-limone",
+    "shippedHits": [
+     "JACCARD_GT_0_4:quattro-formaggi(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-zucchine-menta",
+    "shippedHits": [
+     "JACCARD_GT_0_4:eggplant-ricotta-pizza(0.429)",
+     "JACCARD_GT_0_4:pizza-bianca-ricotta(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-chilena",
+    "shippedHits": [
+     "JACCARD_GT_0_4:aussie(0.5)",
+     "JACCARD_GT_0_4:bacalhau(0.5)",
+     "SUPERSET:bismarck(0.6)",
+     "JACCARD_GT_0_4:brazilian-calabresa(0.429)",
+     "JACCARD_GT_0_4:breakfast-pizza(0.5)",
+     "JACCARD_GT_0_4:calabresa-argentina(0.429)",
+     "SUBSET:pizza-portuguesa(0.833)",
+     "JACCARD_GT_0_4:tonno-e-cipolla(0.5)",
+     "JACCARD_GT_0_4:veggie-supreme-pizza(0.5)"
+    ]
+   },
+   {
+    "id": "pizza-romana",
+    "shippedHits": [
+     "JACCARD_GT_0_4:calabresa-argentina(0.429)",
+     "SUPERSET:napoletana(0.8)",
+     "JACCARD_GT_0_4:puttanesca-pizza(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-al-taglio-romana",
+    "shippedHits": [
+     "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:funghi(0.5)",
+     "IDENTICAL:margherita(1)",
+     "SUBSET:melanzane-pizza(0.75)",
+     "SUBSET:parmigiana-pizza(0.6)",
+     "ONE_DIFF:pepperoni(0.5)",
+     "ONE_DIFF:salsiccia(0.5)"
+    ]
+   },
+   {
+    "id": "philly-cheesesteak-pizza",
+    "shippedHits": [
+     "SUBSET:nigerian-suya-pizza(0.75)"
+    ]
+   },
+   {
+    "id": "fugazzetta",
+    "shippedHits": [
+     "ONE_DIFF:chilean-napolitana(0.5)",
+     "ONE_DIFF:fugazza(0.5)"
+    ]
+   },
+   {
+    "id": "bulgogi-pizza",
+    "shippedHits": [
+     "ONE_DIFF:nigerian-suya-pizza(0.6)",
+     "ONE_DIFF:rendang-pizza(0.6)",
+     "JACCARD_GT_0_4:wasabi-beef-pizza(0.5)"
+    ]
+   },
+   {
+    "id": "frutti-di-mare-pizzadb",
+    "shippedHits": [
+     "JACCARD_GT_0_4:pescatore(0.5)"
+    ]
+   },
+   {
+    "id": "hot-honey-pepperoni",
+    "shippedHits": [
+     "JACCARD_GT_0_4:meat-lovers(0.429)",
+     "SUPERSET:pepperoni(0.75)"
+    ]
+   },
+   {
+    "id": "yakiniku-pizza",
+    "shippedHits": [
+     "JACCARD_GT_0_4:nigerian-suya-pizza(0.5)",
+     "JACCARD_GT_0_4:rendang-pizza(0.5)",
+     "JACCARD_GT_0_4:wasabi-beef-pizza(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-de-lomo-saltado",
+    "shippedHits": [
+     "JACCARD_GT_0_4:nigerian-suya-pizza(0.5)",
+     "JACCARD_GT_0_4:rendang-pizza(0.5)",
+     "JACCARD_GT_0_4:wasabi-beef-pizza(0.429)"
+    ]
+   },
+   {
+    "id": "montreal-style-pizza",
+    "shippedHits": [
+     "JACCARD_GT_0_4:capricciosa(0.429)",
+     "SUPERSET:funghi(0.75)",
+     "JACCARD_GT_0_4:meat-lovers(0.429)",
+     "SUPERSET:pepperoni(0.75)",
+     "ONE_DIFF:prosciutto-funghi(0.6)"
+    ]
+   },
+   {
+    "id": "nduja-pizza",
+    "shippedHits": [
+     "ONE_DIFF:salsiccia(0.5)",
+     "ONE_DIFF:salsiccia-e-friarielli(0.5)"
+    ]
+   },
+   {
+    "id": "tsukimi-pizza",
+    "shippedHits": [
+     "ONE_DIFF:aussie(0.6)",
+     "ONE_DIFF:breakfast-pizza(0.6)",
+     "JACCARD_GT_0_4:full-english-pizza(0.5)"
+    ]
+   },
+   {
+    "id": "south-african-boerewors",
+    "shippedHits": [
+     "ONE_DIFF:polish-kielbasa(0.6)",
+     "ONE_DIFF:spanish-chorizo-pizza(0.6)"
+    ]
+   },
+   {
+    "id": "hokkaido-cheese-pizza",
+    "shippedHits": [
+     "SUBSET:potato-mayo-pizza(0.6)"
+    ]
+   }
+  ],
+  "stagedUniquePairs": {
+   "IDENTICAL": 8,
+   "SUBSET_SUPERSET": 103,
+   "ONE_DIFF": 38,
+   "JACCARD_GT_0_4": 16
+  },
+  "stagedPairsByRecipe": {
+   "trenton-tomato-pie": 24,
+   "ny-style": 24,
+   "quad-cities-style-pizza": 24,
+   "colorado-mountain-pie": 24,
+   "keema-pizza": 15,
+   "new-england-bar-pizza": 14,
+   "fathead-pizza-keto": 14,
+   "chicago-stuffed-pizza": 13,
+   "chicago-deep-dish-pizzadb": 11,
+   "pizza-baiana": 11
+  }
+ },
+ "recipesFullyRuleResolvable": [
+  "taco-pizza",
+  "okonomiyaki-style-pizza"
+ ],
+ "recipesNoOwnerDecisionLeft": [
+  {
+   "id": "taco-pizza",
+   "waits": []
+  },
+  {
+   "id": "ny-style",
+   "waits": [
+    "AXIS_CONDITIONAL",
+    "MECHANIC:DOUGH_VARIANT",
+    "STAGED_PAIR"
+   ]
+  },
+  {
+   "id": "argentine-napolitana",
+   "waits": [
+    "AXIS_CONDITIONAL",
+    "MECHANIC:DOUGH_VARIANT"
+   ]
+  },
+  {
+   "id": "okonomiyaki-style-pizza",
+   "waits": []
+  },
+  {
+   "id": "piadina-romagnola",
+   "waits": [
+    "MECHANIC:DOUGH_VARIANT"
+   ]
+  },
+  {
+   "id": "pizza-fritta",
+   "waits": [
+    "MECHANIC:FRY",
+    "STAGED_PAIR"
+   ]
+  },
+  {
+   "id": "poutine-pizza",
+   "waits": [
+    "MECHANIC:DOUGH_VARIANT"
+   ]
+  },
+  {
+   "id": "burrata-pizza",
+   "waits": [
+    "WAITS_IN_FLIGHT"
+   ]
+  }
+ ],
+ "mechanicWaits": {
+  "M1": {
+   "recipesNeedingTrack": 31,
+   "recipesUnblockedByThisTrackAlone": [
+    "ny-style",
+    "argentine-napolitana",
+    "piadina-romagnola",
+    "poutine-pizza"
+   ]
+  },
+  "M2": {
+   "recipesNeedingTrack": 9,
+   "recipesUnblockedByThisTrackAlone": []
+  },
+  "M3": {
+   "recipesNeedingTrack": 5,
+   "recipesUnblockedByThisTrackAlone": []
+  },
+  "M4": {
+   "recipesNeedingTrack": 2,
+   "recipesUnblockedByThisTrackAlone": []
+  },
+  "M5": {
+   "recipesNeedingTrack": 4,
+   "recipesUnblockedByThisTrackAlone": [
+    "pizza-fritta"
+   ]
+  },
+  "M6": {
+   "recipesNeedingTrack": 4,
+   "recipesUnblockedByThisTrackAlone": []
+  }
+ },
+ "perRecipe": [
+  {
+   "id": "apple-cinnamon-dessert",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:walnut"
+   ]
+  },
+  {
+   "id": "calzone-pizzadb",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "WAITS_MECHANIC:MECHANIC:ENCLOSE",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged",
+    "OWNER_DECISION:ID_SUFFIXED:calzone-pizzadb"
+   ]
+  },
+  {
+   "id": "quattro-stagioni",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
+    "WAITS_MECHANIC:MECHANIC:ZONED",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "greek-style-pizzadb",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged",
+    "OWNER_DECISION:ID_SUFFIXED:greek-style-pizzadb"
+   ]
+  },
+  {
+   "id": "chicago-deep-dish-pizzadb",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
+    "WAITS_MECHANIC:MECHANIC:STEP_ORDER",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged",
+    "OWNER_DECISION:ID_SUFFIXED:chicago-deep-dish-pizzadb"
+   ]
+  },
+  {
+   "id": "siciliana-pizzadb",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_SHAPE_TARGET",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged",
+    "OWNER_DECISION:ID_SUFFIXED:siciliana-pizzadb"
+   ]
+  },
+  {
+   "id": "sfincione",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "taco-pizza",
+   "proposals": [],
+   "open": []
+  },
+  {
+   "id": "trenton-tomato-pie",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
+    "WAITS_MECHANIC:MECHANIC:STEP_ORDER",
+    "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
+   ]
+  },
+  {
+   "id": "ny-style",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
+   ]
+  },
+  {
+   "id": "buffalo-chicken-pizzadb",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "OWNER_DECISION:ID_SUFFIXED:buffalo-chicken-pizzadb"
+   ]
+  },
+  {
+   "id": "pizza-baiana",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "pizza-a-caballo",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-8",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "WAITS_MECHANIC:MECHANIC:ENCLOSE",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped"
+   ]
+  },
+  {
+   "id": "fugazzeta-rellena",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "WAITS_MECHANIC:MECHANIC:ENCLOSE",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "pizza-de-cancha",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped"
+   ]
+  },
+  {
+   "id": "swedish-kebab-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:肉"
+   ]
+  },
+  {
+   "id": "scacciata-ragusana",
+   "proposals": [],
+   "open": [
+    "WAITS_MECHANIC:MECHANIC:ENCLOSE",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged"
+   ]
+  },
+  {
+   "id": "speck-e-brie-pizzadb",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:walnut",
+    "OWNER_DECISION:ID_SUFFIXED:speck-e-brie-pizzadb"
+   ]
+  },
+  {
+   "id": "smore-dessert-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
+  },
+  {
+   "id": "st-louis-style-pizza",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:プロヴェルチーズ",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
+   ]
+  },
+  {
+   "id": "thai-chicken-pizza",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:赤唐辛子",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped"
+   ]
+  },
+  {
+   "id": "argentine-napolitana",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped"
+   ]
+  },
+  {
+   "id": "eel-pizza",
+   "proposals": [
+    "R-6: eel -> POST_BAKE (shipped)"
+   ],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
+  },
+  {
+   "id": "jerusalem-mixed-grill-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
+  },
+  {
+   "id": "old-forge-style-pizza",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_SHAPE_TARGET",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:チーズ",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
+   ]
+  },
+  {
+   "id": "okonomiyaki-style-pizza",
+   "proposals": [
+    "R-7: 「青のり」 -> nori"
+   ],
+   "open": []
+  },
+  {
+   "id": "caponata-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
+  },
+  {
+   "id": "cauliflower-crust-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-3",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "OWNER_DECISION:DUPLICATE_GATE:IDENTICAL@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
+    "OWNER_DECISION:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "OWNER_DECISION:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "keema-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:ひき肉",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:青唐辛子",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
+   ]
+  },
+  {
+   "id": "kimchi-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "WAITS_MECHANIC:MECHANIC:PREP"
+   ]
+  },
+  {
+   "id": "quad-cities-style-pizza",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:スパイシーソーセージ",
+    "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
+   ]
+  },
+  {
+   "id": "colorado-mountain-pie",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-8",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
+   ]
+  },
+  {
+   "id": "chicago-stuffed-pizza",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-3",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "WAITS_MECHANIC:MECHANIC:ENCLOSE",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:IDENTICAL@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "chicken-tikka-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "OWNER_DECISION:OWNER_RULE:R-8",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "diavola-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "detroit-style-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_SHAPE_TARGET",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "turkish-pide",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_SHAPE_TARGET",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:ひき肉",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:チーズ",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
+   ]
+  },
+  {
+   "id": "nashville-hot-chicken-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey"
+   ]
+  },
+  {
+   "id": "new-england-bar-pizza",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-3",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:IDENTICAL@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "nutella-dessert-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "WAITS_IN_FLIGHT:OWNER_RULE:R-7",
+    "WAITS_IN_FLIGHT:UNRESOLVED_TOKEN:ナッツ"
+   ]
+  },
+  {
+   "id": "banh-mi-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
+  },
+  {
+   "id": "buffalo-cauliflower-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
+  },
+  {
+   "id": "palmitos-salsa-golf",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged"
+   ]
+  },
+  {
+   "id": "piadina-romagnola",
+   "proposals": [],
+   "open": [
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT"
+   ]
+  },
+  {
+   "id": "pizza-salad",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "pizza-asparagi-limone",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "OWNER_DECISION:OWNER_RULE:R-6",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
+   ]
+  },
+  {
+   "id": "pizza-carciofi-salad",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-6",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
+   ]
+  },
+  {
+   "id": "pizza-finocchi-salad",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-6"
+   ]
+  },
+  {
+   "id": "pizza-cavolo-carote",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-6"
+   ]
+  },
+  {
+   "id": "pizza-zucchine-menta",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "OWNER_DECISION:OWNER_RULE:R-6",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped"
+   ]
+  },
+  {
+   "id": "pizza-cicoria-limone",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-6",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
+   ]
+  },
+  {
+   "id": "pizza-puntarelle",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-6",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
+   ]
+  },
+  {
+   "id": "pizza-radicchio-noci",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-6",
+    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:walnut"
+   ]
+  },
+  {
+   "id": "pizza-chilena",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:ひき肉",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "pizza-romana",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "pizza-al-taglio-romana",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-3",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_SHAPE_TARGET",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:IDENTICAL@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "pizza-fritta",
+   "proposals": [],
+   "open": [
+    "WAITS_MECHANIC:MECHANIC:FRY",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "fathead-pizza-keto",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-3",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "OWNER_DECISION:DUPLICATE_GATE:IDENTICAL@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
+    "OWNER_DECISION:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "OWNER_DECISION:DUPLICATE_GATE:SUBSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "philly-cheesesteak-pizza",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:チーズソース",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped"
+   ]
+  },
+  {
+   "id": "poutine-pizza",
+   "proposals": [],
+   "open": [
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT"
+   ]
+  },
+  {
+   "id": "feteer-meshaltet",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "OWNER_DECISION:OWNER_RULE:R-8",
+    "WAITS_MECHANIC:MECHANIC:LAMINATE",
+    "WAITS_MECHANIC:MECHANIC:MULTI_SPREAD_3",
+    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:ひき肉"
+   ]
+  },
+  {
+   "id": "focaccia-genovese",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-8",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped"
+   ]
+  },
+  {
+   "id": "fugazzetta",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "OWNER_DECISION:OWNER_RULE:R-8",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "burrata-pizza",
+   "proposals": [],
+   "open": [
+    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:burrata"
+   ]
+  },
+  {
+   "id": "fruit-dessert-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT"
+   ]
+  },
+  {
+   "id": "bulgogi-pizza",
+   "proposals": [
+    "R-1: new identity sauce bulgogi-sauce (rule's named example; ingredient still to be created)"
+   ],
+   "open": [
+    "RULE_DECIDED_WORK:OWNER_RULE:R-1",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "frutti-di-mare-pizzadb",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "OWNER_DECISION:OWNER_RULE:R-5",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "OWNER_DECISION:ID_SUFFIXED:frutti-di-mare-pizzadb"
+   ]
+  },
+  {
+   "id": "peruvian-aji-amarillo",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
+  },
+  {
+   "id": "hot-honey-pepperoni",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
+    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "natto-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "WAITS_MECHANIC:MECHANIC:MID_BAKE"
+   ]
+  },
+  {
+   "id": "peking-duck-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-8"
+   ]
+  },
+  {
+   "id": "mentaiko-mochi-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
+  },
+  {
+   "id": "manakish",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-8",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT"
+   ]
+  },
+  {
+   "id": "yakiniku-pizza",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "WAITS_MECHANIC:MECHANIC:PREP",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "pizza-de-lomo-saltado",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "WAITS_MECHANIC:MECHANIC:MID_BAKE",
+    "WAITS_MECHANIC:MECHANIC:PREP",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "lahmacun",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-6",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:ひき肉",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "mexican-elote-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
+  },
+  {
+   "id": "montreal-style-pizza",
+   "proposals": [],
+   "open": [
+    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "nduja-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged"
+   ]
+  },
+  {
+   "id": "tsukimi-pizza",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped"
+   ]
+  },
+  {
+   "id": "black-truffle-pizza",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-5"
+   ]
+  },
+  {
+   "id": "teriyaki-chicken-pizza",
+   "proposals": [
+    "R-1: new identity sauce teriyaki-sauce (rule's named example; ingredient still to be created)"
+   ],
+   "open": [
+    "RULE_DECIDED_WORK:OWNER_RULE:R-1",
+    "OWNER_DECISION:OWNER_RULE:R-5"
+   ]
+  },
+  {
+   "id": "south-african-boerewors",
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+   ]
+  },
+  {
+   "id": "hokkaido-cheese-pizza",
+   "proposals": [],
+   "open": [
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
+    "OWNER_DECISION:OWNER_RULE:R-7",
+    "OWNER_DECISION:UNRESOLVED_TOKEN:チーズ",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped"
+   ]
+  }
+ ]
+}
