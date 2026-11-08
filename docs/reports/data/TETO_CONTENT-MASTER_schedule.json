@@ -74,7 +74,7 @@
  "inputs": {
   "D0": "2026-11-09",
   "n_nonmech_trains": 9,
-  "n_mech_trains": 8,
+  "n_mech_trains": 9,
   "scenarios": {
    "fastest": {
     "L_dec": 1,
@@ -106,7 +106,7 @@
    "nonMechanic_done_day": 2.91,
    "nonMechanic_done_date": "2026-11-11",
    "tracks_ready_day": 1.68,
-   "all_done_day": 4.61,
+   "all_done_day": 4.82,
    "all_done_date": "2026-11-13"
   },
   "standard": {
@@ -115,8 +115,8 @@
    "nonMechanic_done_day": 12.14,
    "nonMechanic_done_date": "2026-11-21",
    "tracks_ready_day": 18.31,
-   "all_done_day": 22.88,
-   "all_done_date": "2026-12-01"
+   "all_done_day": 23.45,
+   "all_done_date": "2026-12-02"
   },
   "delayed": {
    "ready8_done_day": 23.63,
@@ -124,8 +124,8 @@
    "nonMechanic_done_day": 32.85,
    "nonMechanic_done_date": "2026-12-11",
    "tracks_ready_day": 99.5,
-   "all_done_day": 110.03,
-   "all_done_date": "2027-02-27"
+   "all_done_day": 111.35,
+   "all_done_date": "2027-02-28"
   }
  },
  "ingredient": {
@@ -135,12 +135,12 @@
    "ingredient_only_done_day": 2.91
   },
   "standard": {
-   "with_recipes_done_date": "2026-12-01",
+   "with_recipes_done_date": "2026-12-02",
    "ingredient_only_done_date": "2026-11-21",
    "ingredient_only_done_day": 12.14
   },
   "delayed": {
-   "with_recipes_done_date": "2027-02-27",
+   "with_recipes_done_date": "2027-02-28",
    "ingredient_only_done_date": "2026-12-11",
    "ingredient_only_done_day": 32.85
   }

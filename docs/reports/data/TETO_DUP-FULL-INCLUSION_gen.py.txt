@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+"""Duplicate-gate full-inclusion table (Issue #780, docs-only, stdlib only). NOTHING is excluded: every recipe keeps its ledger row and batch.
+
+Run:  python3 -I docs/reports/data/TETO_DUP-FULL-INCLUSION_gen.py.txt <repo-root> <out-dir>
+Inputs (read-only): src/data/staged/__golden__/{stagedGate,decisions,rejudge}.json, src/data/staged/testSupport/stagedRecipes.ts,
+                    docs/reports/data/TETO_CONTENT-MASTER_recipes.csv (batch / state).
+Treatment codes are PROPOSALS for the Owner (D-DUP-1); none is applied.
+"""
+import csv, json, os, sys
+from collections import Counter
+
+REPO, OUT = sys.argv[1], sys.argv[2]
+os.makedirs(OUT, exist_ok=True)
+P = lambda *a: os.path.join(REPO, *a)
+G = lambda n: json.load(open(P("src/data/staged/__golden__", n), encoding="utf-8"))
+gate, dec = G("stagedGate.json"), G("decisions.json")
+S = {}
+for l in open(P("src/data/staged/testSupport/stagedRecipes.ts"), encoding="utf-8"):
+    l = l.strip()
+    if l.startswith('{"'):
+        r = json.loads(l.rstrip(","))
+        S[r["id"]] = r
+d1 = {r["id"]: r for r in dec["d1Dossier"]["rows"]}
+led = {r["id"]: r for r in csv.DictReader(open(P("docs/reports/data/TETO_CONTENT-MASTER_recipes.csv"), encoding="utf-8"))}
+FORB = ("IDENTICAL", "SUBSET", "SUPERSET")
+AXIS_MECH = {"DOUGH_VARIANT", "PAN_PROFILE", "DOUGH_SHAPE_TARGET", "ENCLOSE", "STEP_ORDER", "ZONED", "MID_BAKE", "PREP", "FRY", "LAMINATE"}
+
+# Treatment codes (proposal vocabulary)
+#  X1 axis-separated   : an evidenced process axis (dough / pan / enclose / step order / zones / late / prep) makes the identity differ once that mechanic ships.
+#                        Needs the mechanic + R-3 approval for the IDENTICAL cases.
+#  X2 per-ID exception : Owner approves the overlap for this recipe (D-1 dossier). Only 1-ingredient-diff / Jaccard>0.4 cases (no subset/superset).
+#  X3 no process axis  : subset / superset / identical with NO evidenced process difference. Owner must pick ONE of
+#        a) VARIANT      -> register as a named variant (alternate name / PIZZA DB edition) of the shipped recipe, counted as "collected" without a new identity
+#        b) DISTINGUISH  -> add a source-evidenced optional garnish / second axis so the ingredient SET differs (composition changes vs the matrix row)
+#        c) NEW-AXIS     -> design a new identity axis (e.g. quantity band, order) -- largest scope
+rows = []
+for r in gate["perRecipe"]:
+    sh = [d for d in r["dup"] if not d["againstStaged"]]
+    if not sh:
+        continue
+    rid = r["id"]
+    s = S[rid]
+    kinds = sorted({d["kind"] for d in sh})
+    forbidden = bool(set(kinds) & set(FORB))
+    mech = [m for m in s["mechanics"] if m in AXIS_MECH]
+    late = [m["mode"] for m in s["lateModes"]]
+    has_axis = bool(mech) or any("post_bake" in m for m in late)
+    if not forbidden:
+        code = "X2"
+    elif has_axis:
+        code = "X1"
+    else:
+        code = "X3"
+    # for X1 the identity-bearing axis must actually be evidenced; D-1's own basis is quoted for audit
+    rows.append({
+        "id": rid, "class": "FORBIDDEN(identical/subset/superset)" if forbidden else "EXCEPTION(one-diff/jaccard>0.4)",
+        "hitKinds": "+".join(kinds),
+        "shippedOverlaps": "; ".join(f"{d['against']}:{d['kind']}({d['jaccard']})" for d in sh),
+        "processAxes": "+".join(mech) + (("+" if mech and late else "") + "late:" + "/".join(late) if late else ""),
+        "d1Basis": d1.get(rid, {}).get("judgementBasis") or "(not in D-1 dossier)",
+        "researchBlockedD6": str(d1.get(rid, {}).get("researchBlocked", "")),
+        "treatment": code,
+        "ownerChoice": {"X1": "R-3 approval of the axis (IDENTICAL cases) + mechanic ships", "X2": "per-ID exception (D-1)",
+                        "X3": "pick ONE of VARIANT / DISTINGUISH / NEW-AXIS (D-DUP-1)"}[code],
+        "ledgerState": led[rid]["state"], "batch": led[rid]["batch"],
+        "alsoStagedPairOverlap": str(any(d["againstStaged"] for d in r["dup"])),
+    })
+cnt = Counter((x["class"], x["treatment"]) for x in rows)
+summary = {"recipes": len(rows), "byClassAndTreatment": {f"{k[0]}|{k[1]}": v for k, v in cnt.items()},
+           "forbidden": sum(1 for x in rows if x["class"].startswith("FORBIDDEN")), "exception": sum(1 for x in rows if x["class"].startswith("EXCEPTION")),
+           "x3Recipes": [x["id"] for x in rows if x["treatment"] == "X3"]}
+# machine checks: nothing excluded, nothing double counted, totals equal the master ledger's duplicate-gate summary
+assert len({x["id"] for x in rows}) == len(rows)
+assert summary["forbidden"] == 26 and summary["exception"] == 22, summary
+assert all(x["batch"] for x in rows), "every row keeps a batch (no exclusion)"
+cols = list(rows[0].keys())
+with open(os.path.join(OUT, "TETO_DUP-FULL-INCLUSION_table.csv"), "w", newline="", encoding="utf-8") as f:
+    w = csv.DictWriter(f, fieldnames=cols)
+    w.writeheader()
+    w.writerows(sorted(rows, key=lambda x: (x["treatment"], x["id"])))
+json.dump(summary, open(os.path.join(OUT, "TETO_DUP-FULL-INCLUSION_summary.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+with open(os.path.join(OUT, "TETO_DUP-FULL-INCLUSION_table.md"), "w", encoding="utf-8") as f:
+    f.write("| 区分 | 扱い | レシピ | 重なる出荷済み（種別・Jaccard） | 工程差 | D-1 根拠 | バッチ | Owner が決めること |\n|---|---|---|---|---|---|---|---|\n")
+    for x in sorted(rows, key=lambda x: (x["treatment"], x["id"])):
+        f.write(f"| {x['class'].split('(')[0]} | {x['treatment']} | `{x['id']}` | {x['shippedOverlaps']} | {x['processAxes'] or '-'} | {x['d1Basis']} | {x['batch']} | {x['ownerChoice']} |\n")
+print(json.dumps(summary, ensure_ascii=False, indent=1))

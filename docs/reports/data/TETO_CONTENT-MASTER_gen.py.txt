@@ -96,6 +96,13 @@ gate, rejudge, decisions, r19 = G("stagedGate.json"), G("rejudge.json"), G("deci
 matrix = json.load(open(P("docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json"), encoding="utf-8"))
 plan = json.load(open(P("docs/reports/data/TETO_FULL-EXPANSION-177_plan.json"), encoding="utf-8"))
 
+_cat = {k: v["category"] for k, v in SHIPPED_I.items()}
+_cat.update({x["id"]: x["category"] for x in S_I})
+POSTBAKE_SAUCE_RECIPES = []
+for _s in S_R:
+    if any(q.get("applicationPhase") == "POST_BAKE" and _cat.get(q["ingredientId"], "topping") != "topping" for q in _s["requiredIngredients"]):
+        _s["mechanics"] = list(_s["mechanics"]) + ["POSTBAKE_SAUCE"]     # [MEASURED] FINISH accepts toppings only (gameReducer PLACE_TOPPING; validateLateCatalog)
+        POSTBAKE_SAUCE_RECIPES.append(_s["id"])
 check("staged recipes == 84", len(S_R) == 84, len(S_R))
 check("staged ingredient candidates == 70", len(S_I) == 70, len(S_I))
 check("staged ingredients disjoint from shipped", not ({s["id"] for s in S_I} & set(SHIPPED_I)), sorted({s["id"] for s in S_I} & set(SHIPPED_I)))
@@ -202,14 +209,14 @@ check("RESOLVED in open list + 11 auto-resolved == decisions RESOLVED 33", tally
 
 def mech_tracks(s):
     tr = {"DOUGH_VARIANT": "M1", "PAN_PROFILE": "M2", "DOUGH_SHAPE_TARGET": "M2", "ENCLOSE": "M3", "MID_BAKE": "M4", "PREP": "M5", "FRY": "M5",
-          "STEP_ORDER": "M6", "ZONED": "M6", "LAMINATE": "M6", "MULTI_SPREAD_3": "M6"}
+          "STEP_ORDER": "M6", "ZONED": "M6", "LAMINATE": "M6", "MULTI_SPREAD_3": "M6", "POSTBAKE_SAUCE": "M7"}
     return sorted({tr[m] for m in s["mechanics"]})
 
 
 def primary_state(s):
     rid, sts = s["id"], per_status[s["id"]]
-    if rid in ready: return "READY_TO_PROMOTE"
-    if rid in ready_work: return "READY_AFTER_RENAME"
+    if rid in ready and not s["mechanics"]: return "READY_TO_PROMOTE"
+    if rid in ready_work and not s["mechanics"]: return "READY_AFTER_RENAME"
     if "WAITS_MECHANIC" in sts or s["mechanics"]: return "WAITS_MECHANIC"
     if rid in culprits: return "STOP_D6_RESEARCH"
     if "EXCEPTION_REVIEW" in sts: return "NEEDS_D1_EXCEPTION_JUDGEMENT"
@@ -223,6 +230,7 @@ def primary_state(s):
 
 STATE_OF = {s["id"]: primary_state(s) for s in S_R}
 check("READY set reproduces decisions.nextPromotable.ready (6)", {k for k, v in STATE_OF.items() if v == "READY_TO_PROMOTE"} == ready, sorted(ready))
+check("readyWithWork minus post-bake-sauce overlay == READY_AFTER_RENAME", {k for k, v in STATE_OF.items() if v == "READY_AFTER_RENAME"} == (ready_work - set(POSTBAKE_SAUCE_RECIPES)), sorted(ready_work))
 check("no UNCLASSIFIED staged recipe", "UNCLASSIFIED" not in STATE_OF.values())
 
 # ---------------------------------------------------------------- batches (recipes) -------------------------------
@@ -257,7 +265,7 @@ for st in order:
             "WAITS_DOUGH_AXIS": "M1 dough kind + R-3 approval",
         }[st]))
         n += 1
-TRACK_ORDER = ["M1", "M5", "M3", "M2", "M4", "M6"]     # Owner M-0 priority: M1 > M5 > M3 > M2 > M4 > M6
+TRACK_ORDER = ["M1", "M5", "M3", "M2", "M4", "M6", "M7"]     # Owner M-0 priority: M1 > M5 > M3 > M2 > M4 > M6; M7 (post-bake sauce / DRIZZLE) is not ranked by M-0, appended last
 mech_blocked = [s for s in S_R if s["mechanics"]]
 placed = set()
 for tr in TRACK_ORDER:
@@ -364,7 +372,7 @@ for s in S_R:
     if s["mechanics"]: dep.append("mechanics: " + ",".join(s["mechanics"]) + " (" + "+".join(tracks) + ")")
     if rid in culprits: dep.append("D-6 Research letter change (26 culprits)")
     iss = ["#780"]
-    if s["mechanics"]: iss += {"M1": ["#577", "PR#775"], "M2": ["#532"], "M3": ["#773", "PR#785"], "M4": ["#604", "#611"], "M5": ["#696", "#749"], "M6": ["#773", "PR#620", "#521"]}[tracks[0]] if len(tracks) == 1 else sorted({x for t in tracks for x in {"M1": ["#577", "PR#775"], "M2": ["#532"], "M3": ["#773", "PR#785"], "M4": ["#604", "#611"], "M5": ["#696", "#749"], "M6": ["#773", "PR#620", "#521"]}[t]})
+    if s["mechanics"]: iss += {"M1": ["#577", "PR#775"], "M2": ["#532"], "M3": ["#773", "PR#785"], "M4": ["#604", "#611"], "M5": ["#696", "#749"], "M6": ["#773", "PR#620", "#521"], "M7": ["#579", "PR#746", "PR#776"]}[tracks[0]] if len(tracks) == 1 else sorted({x for t in tracks for x in {"M1": ["#577", "PR#775"], "M2": ["#532"], "M3": ["#773", "PR#785"], "M4": ["#604", "#611"], "M5": ["#696", "#749"], "M6": ["#773", "PR#620", "#521"], "M7": ["#579", "PR#746", "PR#776"]}[t]})
     od = []
     for k, v in sorted(sts.items()):
         if k in ("EXCEPTION_REVIEW", "SOURCE_RESEARCH", "OWNER_DECISION", "CANDIDATE_PENDING"):
@@ -411,7 +419,7 @@ mrow("M-STEP-ORDER", "工程順の入替 (cheese before sauce)", "mechanic M6", 
 mrow("M-ZONED", "ゾーン配置 (quadrants / centre)", "mechanic M6", HOLD, "ZONED UNAVAILABLE in identity signature; audit PR #620 open", "ZONED_PLACEMENT", "ZONED", "#773, PR #620 (audit), #620", "MB-06", "adoption (future phase per Owner policy 2026-10-20)", "zones OBSERVED in signature + Reference + scoring", "adopted (M-0 priority 6), Owner: future phase")
 mrow("M-LAMINATE", "折り重ね (LAMINATE: feteer)", "mechanic M6", UNDEC, "LAMINATE MISSING; 1 recipe only; Owner M-0: deferral candidate", "LAMINATE", "LAMINATE", "new issue needed", "(deferred; MB-06 only if adopted)", "Owner: adopt or drop (plan: deferral candidate)", "adoption decision first", "deferred (M-0)")
 mrow("M-MULTI3", "3 層目のソース (MULTI_SPREAD 3rd layer)", "mechanic M6", PART, "2 layers shipped (B1/B2/S1/S2, grandma #655, pesto-noci #792); 3rd layer design only", "MULTI_SPREAD_LAYER", "MULTI_SPREAD_3", "#521, #620", "MB-06", "adoption of a 3rd layer", "3-layer sauce field + scoring + Hint", "adopted (M-0 priority 6)")
-mrow("M-DRIZZLE", "仕上げがけ DRIZZLE (olive oil / honey / balsamic / buffalo)", "mechanic", PART, "D1 pure logic PR #776 open (unmerged); Gesture Lab PR #746 open; olive-oil DRIZZLE still a TODO in recipeSauceProfiles", "", "", "#579, PR #746, PR #776", "MB-08", "gesture choice (Lab HV) + FINISH accepting non-topping", "FINISH accepts sauce/liquid; DRIZZLE gesture wired behind a gate", "adopted (open Owner Gate)")
+mrow("M-DRIZZLE", "仕上げがけ DRIZZLE ＝ 焼成後のソース／液体 (olive oil / honey / balsamic / buffalo)", "mechanic M7", PART, "D1 pure logic PR #776 open (unmerged); Gesture Lab PR #746 open; olive-oil DRIZZLE still a TODO in recipeSauceProfiles", "", "POSTBAKE_SAUCE", "#579, PR #746, PR #776", "MB-08", "gesture choice (Lab HV) + FINISH accepting non-topping", "FINISH accepts sauce/liquid (today PLACE_TOPPING refuses non-toppings); DRIZZLE gesture wired behind a gate; buffalo-chicken / hot-honey-pepperoni / detroit-style shippable", "adopted (open Owner Gate)")
 mrow("M-STEAM", "蒸す (STEAM: clam / mussel)", "cooking method", PART, f"S1/S2 merged (PR #729/#734, {GATES['steam']}); S3 UI PR #738 open since 2026-11-03; V2/V3 prototypes Draft", "", "", "#726, PR #738, #755, PR #756/#757/#762/#763", "MB-07", "S3 HV A/B result + Production ON", "UI wired + production ON", "adopted; NO staged recipe waits for it [MEASURED]")
 mrow("M-SEAR", "炙る (SEAR: sausage long-press)", "cooking method", IMPL, f"PR #725 + Production ON PR #730 ({GATES['sear']})", "", "", "#724, #727", "-", "-", "done", "adopted")
 mrow("M-SQUEEZE", "絞る (squeeze stroke: mayo)", "interaction", IMPL, "mayo teardrop stroke, Batch 13 (squeeze.ts)", "", "", "#708, PR #716", "-", "-", "done", "adopted")
@@ -469,7 +477,8 @@ summary = {
         "anyHit": len({r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"]}),
         "noShippedHit": 84 - len({r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"]}),
     },
-    "readyNow": {"recipesReady": len(ready), "recipesReadyAfterRename": len(ready_work),
+    "postBakeSauceRecipes": POSTBAKE_SAUCE_RECIPES,
+    "readyNow": {"recipesReady": len(ready), "recipesReadyAfterRename": len([k for k, v in STATE_OF.items() if v == "READY_AFTER_RENAME"]),
                  "ingredientsNeededByReady": len({i for s in S_I for u in used_by[s["id"]] if u in (ready | ready_work) for i in [s["id"]]}),
                  "ingredientsNeededByRB01": len({s["id"] for s in S_I if any(BATCH_OF_R[u] == "RB-01" for u in used_by[s["id"]])}),
                  "ingredientsNeededByRB02": len({s["id"] for s in S_I if any(BATCH_OF_R[u] == "RB-02" for u in used_by[s["id"]])})},

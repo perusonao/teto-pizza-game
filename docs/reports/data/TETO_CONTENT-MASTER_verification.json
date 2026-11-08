@@ -6,22 +6,22 @@
    "remaining": 84,
    "byState": {
     "NEEDS_D2_SOURCE_RESEARCH": 10,
-    "WAITS_MECHANIC": 43,
+    "WAITS_MECHANIC": 45,
     "STOP_D6_RESEARCH": 10,
     "READY_TO_PROMOTE": 6,
-    "READY_AFTER_RENAME": 2,
-    "NEEDS_D1_EXCEPTION_JUDGEMENT": 11,
+    "READY_AFTER_RENAME": 1,
+    "NEEDS_D1_EXCEPTION_JUDGEMENT": 10,
     "NEEDS_CANDIDATE_SELECTION": 1,
     "NEEDS_OWNER_DECISION": 1
    },
-   "batches": 17,
+   "batches": 18,
    "batchSizes": {
     "RB-01": 2,
-    "RB-02": 6,
+    "RB-02": 5,
     "RB-03": 2,
     "RB-04": 5,
     "RB-05": 5,
-    "RB-06": 6,
+    "RB-06": 5,
     "RB-07": 5,
     "RB-08": 5,
     "RB-09": 5,
@@ -30,9 +30,10 @@
     "RB-12": 6,
     "RB-13": 3,
     "RB-14": 5,
-    "RB-15": 8,
+    "RB-15": 7,
     "RB-16": 3,
-    "RB-17": 4
+    "RB-17": 4,
+    "RB-18": 3
    }
   },
   "ingredients": {
@@ -60,13 +61,13 @@
    "batches": 9,
    "batchSizes": {
     "IB-01": 8,
-    "IB-02": 8,
+    "IB-02": 7,
     "IB-03": 9,
     "IB-04": 9,
     "IB-05": 7,
     "IB-06": 8,
     "IB-07": 8,
-    "IB-08": 6,
+    "IB-08": 7,
     "IB-09": 7
    },
    "shippedWithDedicatedSvg": 41
@@ -124,12 +125,17 @@
    "anyHit": 48,
    "noShippedHit": 36
   },
+  "postBakeSauceRecipes": [
+   "buffalo-chicken-pizzadb",
+   "detroit-style-pizza",
+   "hot-honey-pepperoni"
+  ],
   "readyNow": {
    "recipesReady": 6,
-   "recipesReadyAfterRename": 2,
+   "recipesReadyAfterRename": 1,
    "ingredientsNeededByReady": 16,
    "ingredientsNeededByRB01": 6,
-   "ingredientsNeededByRB02": 10
+   "ingredientsNeededByRB02": 9
   },
   "gates": {
    "prep": "PREP_EXPERIENCE_PRODUCTION=false",
@@ -290,6 +296,14 @@
     "pizza-finocchi-salad",
     "pizza-radicchio-noci",
     "taco-pizza"
+   ]
+  },
+  {
+   "name": "readyWithWork minus post-bake-sauce overlay == READY_AFTER_RENAME",
+   "ok": true,
+   "detail": [
+    "buffalo-chicken-pizzadb",
+    "speck-e-brie-pizzadb"
    ]
   },
   {
