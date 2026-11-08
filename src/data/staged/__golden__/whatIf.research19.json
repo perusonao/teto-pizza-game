@@ -1,0 +1,254 @@
+{
+ "shippedRecipes": 19,
+ "distinctCulprits": 25,
+ "culprits": [
+  "bulgogi-pizza",
+  "calzone-pizzadb",
+  "caponata-pizza",
+  "chicago-deep-dish-pizzadb",
+  "chicago-stuffed-pizza",
+  "fathead-pizza-keto",
+  "fugazzeta-rellena",
+  "greek-style-pizzadb",
+  "hokkaido-cheese-pizza",
+  "lahmacun",
+  "montreal-style-pizza",
+  "new-england-bar-pizza",
+  "palmitos-salsa-golf",
+  "pizza-a-caballo",
+  "pizza-baiana",
+  "pizza-chilena",
+  "pizza-fritta",
+  "pizza-romana",
+  "pizza-zucchine-menta",
+  "sfincione",
+  "siciliana-pizzadb",
+  "st-louis-style-pizza",
+  "teriyaki-chicken-pizza",
+  "tsukimi-pizza",
+  "turkish-pide"
+ ],
+ "table": [
+  {
+   "id": "aussie",
+   "changes": [
+    "A->C"
+   ],
+   "cohortMaterial": "onion",
+   "firstPrefix": 13,
+   "causedAloneBy": [
+    "pizza-baiana",
+    "pizza-chilena"
+   ]
+  },
+  {
+   "id": "brazilian-calabresa",
+   "changes": [
+    "B->E"
+   ],
+   "cohortMaterial": "onion",
+   "firstPrefix": 13,
+   "causedAloneBy": [
+    "pizza-baiana",
+    "fugazzeta-rellena",
+    "pizza-chilena"
+   ]
+  },
+  {
+   "id": "capricciosa",
+   "changes": [
+    "-->A"
+   ],
+   "cohortMaterial": "oregano",
+   "firstPrefix": 12,
+   "causedAloneBy": [
+    "pizza-a-caballo"
+   ]
+  },
+  {
+   "id": "eggplant-dengaku-pizza",
+   "changes": [
+    "-->A"
+   ],
+   "cohortMaterial": "white-sesame",
+   "firstPrefix": 86,
+   "causedAloneBy": [
+    "bulgogi-pizza"
+   ]
+  },
+  {
+   "id": "eggplant-ricotta-pizza",
+   "changes": [
+    "-->B"
+   ],
+   "cohortMaterial": "mint",
+   "firstPrefix": 59,
+   "causedAloneBy": [
+    "pizza-zucchine-menta"
+   ]
+  },
+  {
+   "id": "napoletana",
+   "changes": [
+    "-->C"
+   ],
+   "cohortMaterial": "anchovy",
+   "firstPrefix": 16,
+   "causedAloneBy": [
+    "siciliana-pizzadb",
+    "sfincione"
+   ]
+  },
+  {
+   "id": "palmito-pizza",
+   "changes": [
+    "-->B"
+   ],
+   "cohortMaterial": "palm-heart",
+   "firstPrefix": 45,
+   "causedAloneBy": [
+    "palmitos-salsa-golf"
+   ]
+  },
+  {
+   "id": "pepperoni",
+   "changes": [
+    "-->C"
+   ],
+   "cohortMaterial": "pepperoni",
+   "firstPrefix": 6,
+   "causedAloneBy": [
+    "st-louis-style-pizza",
+    "new-england-bar-pizza",
+    "fathead-pizza-keto",
+    "montreal-style-pizza"
+   ]
+  },
+  {
+   "id": "pesto-patate",
+   "changes": [
+    "-->B"
+   ],
+   "cohortMaterial": "potato",
+   "firstPrefix": 22,
+   "causedAloneBy": [
+    "hokkaido-cheese-pizza"
+   ]
+  },
+  {
+   "id": "pizza-bianca-ricotta",
+   "changes": [
+    "-->C"
+   ],
+   "cohortMaterial": "ricotta",
+   "firstPrefix": 53,
+   "causedAloneBy": [
+    "calzone-pizzadb",
+    "pizza-fritta"
+   ]
+  },
+  {
+   "id": "pizza-feta-eliniki",
+   "changes": [
+    "-->B"
+   ],
+   "cohortMaterial": "feta",
+   "firstPrefix": 51,
+   "causedAloneBy": [
+    "greek-style-pizzadb"
+   ]
+  },
+  {
+   "id": "pizza-portuguesa",
+   "changes": [
+    "C->F"
+   ],
+   "cohortMaterial": "onion",
+   "firstPrefix": 13,
+   "causedAloneBy": [
+    "pizza-baiana",
+    "fugazzeta-rellena",
+    "pizza-chilena"
+   ]
+  },
+  {
+   "id": "puttanesca-pizza",
+   "changes": [
+    "-->B"
+   ],
+   "cohortMaterial": "capers",
+   "firstPrefix": 24,
+   "causedAloneBy": [
+    "caponata-pizza",
+    "pizza-romana"
+   ]
+  },
+  {
+   "id": "salsiccia",
+   "changes": [
+    "-->A"
+   ],
+   "cohortMaterial": "sausage",
+   "firstPrefix": 7,
+   "causedAloneBy": [
+    "chicago-deep-dish-pizzadb",
+    "chicago-stuffed-pizza"
+   ]
+  },
+  {
+   "id": "sichuan-eggplant-pizza",
+   "changes": [
+    "-->A"
+   ],
+   "cohortMaterial": "green-onion",
+   "firstPrefix": 66,
+   "causedAloneBy": [
+    "tsukimi-pizza"
+   ]
+  },
+  {
+   "id": "spanish-chorizo-pizza",
+   "changes": [
+    "B->C"
+   ],
+   "cohortMaterial": "bell-pepper",
+   "firstPrefix": 30,
+   "causedAloneBy": [
+    "lahmacun"
+   ]
+  },
+  {
+   "id": "supreme-pizza",
+   "changes": [
+    "A->B"
+   ],
+   "cohortMaterial": "bell-pepper",
+   "firstPrefix": 30,
+   "causedAloneBy": [
+    "lahmacun"
+   ]
+  },
+  {
+   "id": "tarako-cream-pizza",
+   "changes": [
+    "-->A"
+   ],
+   "cohortMaterial": "nori",
+   "firstPrefix": 94,
+   "causedAloneBy": [
+    "teriyaki-chicken-pizza"
+   ]
+  },
+  {
+   "id": "vongole",
+   "changes": [
+    "-->B"
+   ],
+   "cohortMaterial": "parsley",
+   "firstPrefix": 29,
+   "causedAloneBy": [
+    "turkish-pide"
+   ]
+  }
+ ]
+}

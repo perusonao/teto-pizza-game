@@ -172,6 +172,10 @@ for x in recs:
         "mechanics": mech,
         "ownerRules": rules, "ownerReasons": reasons,
         "unresolvedTokens": unresolved,
+        # Raw matrix inputs for the re-judgement (stagedRejudge.ts); data only, nothing here is applied.
+        "sauceFamilyRaw": sauce.get("sauceFamily") or "",
+        "unresolvedRelatedIds": [[t["token"], list(t.get("relatedIds") or [])] for t in m["ingredients"]["unresolvedTokens"]],
+        "lateModes": [{"mode": f["mode"], "ingredients": [MERGE.get(i, i) for i in f["ingredients"]]} for f in m["postBakeFinish"]],
         "identityComplete": bool(r["identitySetComplete"]),
         "applied": x["applied"],
         "inFlightIngredients": sorted(i for i in x["ident"] if i in RESERVED_ING_IDS),
