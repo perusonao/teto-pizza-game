@@ -5,16 +5,16 @@
   "WORK": 9,
   "SOURCE_RESEARCH": 22,
   "CANDIDATE_PENDING": 12,
-  "EXCEPTION_REVIEW": 75,
+  "EXCEPTION_REVIEW": 76,
   "WAITS_MECHANIC": 58,
-  "WAITS_IN_FLIGHT": 10,
+  "WAITS_IN_FLIGHT": 9,
   "AXIS_WITH_M1": 30,
   "STAGED_PAIR": 94,
   "OWNER_DECISION": 40
  },
  "byDecision": {
   "rule": 13,
-  "D-1": 75,
+  "D-1": 76,
   "D-2": 22,
   "D-3": 12,
   "D-4": 21,
@@ -22,9 +22,9 @@
  },
  "remainingOpen": 350,
  "needsAdditionalOwnerDecision": {
-  "total": 115,
-  "perRecipeExceptions": 75,
-  "exceptionRecipes": 38,
+  "total": 116,
+  "perRecipeExceptions": 76,
+  "exceptionRecipes": 39,
   "other": 40
  },
  "needsResearchOrConfirmation": 34,
@@ -104,10 +104,10 @@
   "frutti-di-mare-pizzadb -> frutti-di-mare"
  ],
  "d1Dossier": {
-  "recipes": 38,
+  "recipes": 39,
   "withProcessDifference": 21,
-  "withoutProcessDifference": 17,
-  "alsoResearchBlocked": 18,
+  "withoutProcessDifference": 18,
+  "alsoResearchBlocked": 19,
   "rows": [
    {
     "id": "calzone-pizzadb",
@@ -234,6 +234,7 @@
       "pepperoni(0.667)",
       "pescatore(0.286)",
       "pinsa-romana(0.5)",
+      "pizza-alla-crudaiola(0.333)",
       "pizza-overload(0.333)",
       "pizza-portuguesa(0.333)",
       "prosciutto-funghi(0.5)",
@@ -595,6 +596,17 @@
     ],
     "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
     "researchBlocked": false
+   },
+   {
+    "id": "burrata-pizza",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "pizza-alla-crudaiola(0.429)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": true
    },
    {
     "id": "bulgogi-pizza",

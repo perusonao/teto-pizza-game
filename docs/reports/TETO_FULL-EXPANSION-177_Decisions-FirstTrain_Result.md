@@ -1,6 +1,6 @@
 # TETO FULL-EXPANSION 177 — PR #788 merge・Owner 判断 D-1〜D-7 の適用・最初の昇格候補（taco・okonomiyaki）の準備 Result（#780）
 
-2026-11-08 / 基準 main = **`c458bf3`**（PR #788 の squash merge）。Owner 判断（2026-11-08）: PR #788 の Final Gate を満たせば merge 承認。D-1〜D-7 を適用。taco・okonomiyaki を実装可能な状態まで準備。**HOT ファイルの変更・本番昇格・Production ON・共有 Preview 更新はしていない**（いずれも別途 Owner 承認が必要）。
+2026-11-08 / 基準 main = **`44460cb`**（PR #788 の squash merge `c458bf3` の後に PR #783 Batch 19 が merge された main。本書の数値はすべて `44460cb` 上で再測定。§0.1）。Owner 判断（2026-11-08）: PR #788 の Final Gate を満たせば merge 承認。D-1〜D-7 を適用。taco・okonomiyaki を実装可能な状態まで準備。**HOT ファイルの変更・本番昇格・Production ON・共有 Preview 更新はしていない**（いずれも別途 Owner 承認が必要）。
 
 凡例: 【実測】テスト・スクリプトの出力（golden に固定）、【推論】解釈。判断の適用は staged データを変更しない「記録された状態」で、除外・改名・昇格は何もしていない。
 
@@ -13,12 +13,26 @@
 | D-1〜D-7 とルールで解決 | **33**（ルール 11・D-4 14・D-5 8） |
 | 判断済みで作業だけ残る | 9（新ソース 2・ID 改名 7） |
 | **残件** | **350** |
-| うち追加の Owner 判断が要る | **115**（D-1 の個別判定 75 件＝38 品、その他 40） |
+| うち追加の Owner 判断が要る | **116**（D-1 の個別判定 76 件＝39 品、その他 40） |
 | うち原典調査・確認待ち | 34（D-2 ソース 22・D-3 唐辛子 12） |
-| うち工程・in-flight・生地軸・staged 同士 | 58・10・30・94（判断ではなく実装順・候補選択で解消） |
+| うち工程・in-flight・生地軸・staged 同士 | 58・9・30・94（判断ではなく実装順・候補選択で解消） |
 | **次に昇格可能なレシピ** | **5**（taco・okonomiyaki・pizza-finocchi-salad・pizza-cavolo-carote・black-truffle-pizza）＋ ID 改名だけ残る 1（buffalo-chicken） |
-| D-6 で昇格停止 | 25 品 |
+| D-6 で昇格停止 | 26 品 |
 | 最初の昇格候補 2 品の確認 | 8 項目すべて合格（§3）。本番昇格の前に Owner 承認が要る項目は §4 |
+
+### 0.1 PR #783（Batch 19）の merge を取り込んだ再測定【実測】
+
+本 PR の作成後に PR #783 が main に merge された（`44460cb`、burrata・pesto-burrata-pizza・pizza-alla-crudaiola が本番カタログに入り、staged 側も #783 で整合済み）。本ブランチに main を merge（履歴の書き換えなし、テキスト競合なし）し、すべて再測定した。変化は Batch 19 の出荷によるものだけ:
+
+| 項目 | 前（`c458bf3` 基準） | 後（`44460cb` 基準） | 理由 |
+|---|---|---|---|
+| 依存（重複計上を除く） | 383 | 383 | — |
+| in-flight 待ち | 10 | 9 | burrata-pizza の burrata 待ちが解消 |
+| D-1 の個別判定 | 75 件・38 品 | 76 件・39 品 | burrata-pizza が出荷済みの pesto-burrata-pizza・pizza-alla-crudaiola と重なる |
+| 追加の Owner 判断 | 115 | 116 | 同上 |
+| D-6 の昇格停止 | 25 品 | 26 品 | burrata-pizza が単独で出荷済みの Research 文字を変える（Research 原因表は #783 で再測定済み、出荷済み 21 品・原因 26 品） |
+| 次に昇格可能 | 5＋1 | 5＋1（同じ） | — |
+| taco・okonomiyaki の Research 非正準順 | 15 品 | 17 品 | pesto-burrata-pizza・pizza-alla-crudaiola が加わる。**正準順は 0 のまま** |
 
 ## 1. PR #788 の Final Gate と merge【実測】
 
@@ -38,15 +52,15 @@ PR #783・B20-A・他の PR は merge していない。merge 順序（PR #783 �
 
 | 判断 | 適用 | 結果 |
 |---|---|---|
-| D-1 一括除外の禁止・個別判定の準備 | 例外 38 品は除外せず、品ごとに「出荷済みとの重なりの種類と相手」「区別に使える工程差（M1〜M6・後乗せ）」を並べた資料を作成 | 38 品のうち工程差あり 21・工程差なし 17。D-6 でも止まっている品 18（資料は golden の `d1Dossier.rows`） |
+| D-1 一括除外の禁止・個別判定の準備 | 例外 39 品は除外せず、品ごとに「出荷済みとの重なりの種類と相手」「区別に使える工程差（M1〜M6・後乗せ）」を並べた資料を作成 | 39 品のうち工程差あり 21・工程差なし 18。D-6 でも止まっている品 19（資料は golden の `d1Dossier.rows`） |
 | D-2 ソース 22 品は原典調査 | R-1 の 22 件を SOURCE_RESEARCH に。NO_SAUCE の確定は 0 件（テストで固定） | 22 件が原典調査待ち |
 | D-3 唐辛子 7 件を共通候補に | 7 トークン（唐辛子 5・赤唐辛子 1・青唐辛子 1）と、それだけが残っていた R-7 の 5 件を 1 つの候補「chili-pepper（未確定）」にまとめた。`chili-oil` は使っていない（テストで固定） | 12 件が確認待ち |
 | D-4 PIZZA DB 版を暫定基準、ID は参照整合性の検証後 | R-5 の 14 件を暫定解決。接尾辞を外した ID 7 件を検証: 出荷済み・staged・in-flight の ID と衝突なし、staged 以外のソースからの参照なし（`src/` を検索） | R-5 14 件解決、ID 7 件は「改名可（作業残り）」。改名はまだしていない |
 | D-5 生の葉物・柑橘は原則後乗せ | 後乗せ解釈（R-6）のサラダ系で、葉物（lettuce・arugula・spinach・chicory・puntarelle・radicchio・cabbage・red-cabbage）と柑橘（lemon・orange・lime）を後乗せに。材料そのものの調理法（PREP・FRY・焼成中）がある場合はそちらを優先 | 8 品で解決（asparagi-limone・carciofi-salad・finocchi-salad・cavolo-carote・zucchine-menta・cicoria-limone・puntarelle・radicchio-noci）。lahmacun は葉物・柑橘が無く Owner 判断のまま |
-| D-6 Research 正準順 19 品の変化は未承認 | 原因 25 品を「昇格停止」に | 25 品は他の依存が全部解けても昇格対象にしない |
+| D-6 Research 正準順の変化は未承認 | 原因の品を「昇格停止」に（Batch 19 の出荷後は出荷済み 21 品・原因 26 品） | 26 品は他の依存が全部解けても昇格対象にしない |
 | D-7 taco・okonomiyaki が最初の候補 | §3 の準備 | 2 品とも昇格可能（Owner 承認待ち） |
 
-**残件の内訳（350）:** EXCEPTION_REVIEW 75・OWNER_DECISION 40・SOURCE_RESEARCH 22・CANDIDATE_PENDING 12・WORK 9・WAITS_MECHANIC 58・WAITS_IN_FLIGHT 10・AXIS_WITH_M1 30・STAGED_PAIR 94。
+**残件の内訳（350）:** EXCEPTION_REVIEW 76・OWNER_DECISION 40・SOURCE_RESEARCH 22・CANDIDATE_PENDING 12・WORK 9・WAITS_MECHANIC 58・WAITS_IN_FLIGHT 9・AXIS_WITH_M1 30・STAGED_PAIR 94。
 OWNER_DECISION 40 の内訳: R-7（唐辛子以外の未解決食材）11・未解決トークン 12・R-8 8・R-3 HOLD の重複 6・R-3 HOLD 2・R-6（lahmacun）1。
 
 **次に昇格可能なレシピ（D-6 で止まっていない、全依存が解決済み）:** taco-pizza・okonomiyaki-style-pizza・pizza-finocchi-salad（orange を後乗せ、D-5）・pizza-cavolo-carote（lemon・red-cabbage を後乗せ、D-5）・black-truffle-pizza（D-4 で PIZZA DB 版）。改名だけ残る buffalo-chicken-pizzadb（→ buffalo-chicken）。後ろの 4 品は §3 と同じ確認（Research の非正準順・Hint・保存・アイコン）をまだしていない。black-truffle は truffle の形（スライス／オイル）が未決（食材監査の注記）。
@@ -74,7 +88,7 @@ OWNER_DECISION 40 の内訳: R-7（唐辛子以外の未解決食材）11・未�
 | アイコンの代替表示の重複（G18） | 6 種とも重複なし |
 | 重複ゲート（同一・部分・上位集合・1 材料差・Jaccard > 0.4） | 出荷済みとも、2 品どうしも **0 件** |
 | Research 正準順（既存の ladder ＋ 2 つの新しい段） | 出荷済みの文字の変化 **0**（停止条件に当たらない） |
-| Research 非正準順（Batch 18/19 と同じシナリオ） | 出荷済み 15 品で変化あり（§4 Q-2） |
+| Research 非正準順（Batch 18/19 と同じシナリオ） | 出荷済み 17 品で変化あり（§4 Q-2） |
 | Hint 5.0 | 2 品とも対象。出荷済みの ladder への影響なし（key-free で他のレシピを参照しない） |
 | 保存安全性 | 昇格後は新しい ID の図鑑・所持・在庫が読み込みで保持される。既存の保存はそのまま読める。読み込みで書き込みなし |
 
@@ -83,7 +97,7 @@ OWNER_DECISION 40 の内訳: R-7（唐辛子以外の未解決食材）11・未�
 | ID | 内容 | 推奨 |
 |---|---|---|
 | Q-1 | 2 品を late カタログに置く（okonomiyaki は nori を後乗せ）。代案は nori を通常食材へ昇格（Batch 18 の cilantro の前例） | late カタログ（変更が late の表だけで済む） |
-| Q-2 | Research 非正準順で文字が変わる出荷済み 15 品（baingan-bharta・california-style・chilean-napolitana・cuban・goulash・nigerian-suya・pesto-caprese・pizza-feta-eliniki・porchetta・potato-mayo・reina-pepiada・rendang・tarako-cream・veggie-supreme・wasabi-beef）の ID ごとの承認（Batch 19 の AC-8 と同じ扱い） | 正準順は 0 なので承認（全件 `__golden__/firstTrain.research.json`） |
+| Q-2 | Research 非正準順で文字が変わる出荷済み 17 品（baingan-bharta・california-style・chilean-napolitana・cuban・goulash・nigerian-suya・pesto-burrata・pesto-caprese・pizza-alla-crudaiola・pizza-feta-eliniki・porchetta・potato-mayo・reina-pepiada・rendang・tarako-cream・veggie-supreme・wasabi-beef）の ID ごとの承認（Batch 19 の AC-8 と同じ扱い） | 正準順は 0 なので承認（全件 `__golden__/firstTrain.research.json`） |
 | Q-3 | 暫定の数量・名前・説明・色・代替表示（§3 の表） | 承認。専用 SVG は #417 の線で後から |
 | Q-4 | 昇格 PR で編集するファイル（`PROMOTION_TOUCHES`: `lateCatalog.ts`・`recipeHintRoles.ts`・`recipeSauceProfiles.ts`・`referencePizza.ts`・`catalogLedger.test.ts`・golden、必要なら HOT の `recipes.ts`） | PR #783 → B20-A の merge 後に 1 本の PR で。H-1 どおり全品自動テスト＋代表の実機 HV |
 | Q-5 | 次の候補（finocchi-salad・cavolo-carote・black-truffle、改名後の buffalo-chicken）に同じ確認を進めるか | 進める（truffle の形は先に決める） |
@@ -97,6 +111,6 @@ OWNER_DECISION 40 の内訳: R-7（唐辛子以外の未解決食材）11・未�
 ## 6. 状況
 
 - **完了**: PR #788 の Final Gate 確認と merge、D-1〜D-7 の適用（データ変更なし）、残件の再集計、taco・okonomiyaki の昇格形の準備と 8 項目の確認。
-- **未完了**: 本番昇格（承認待ち）。D-2 の原典調査。D-1 の個別判定（資料は準備済み）。次の候補 4 品の詳細確認。
-- **ブロッカー**: §4 の Q-1〜Q-5。HOT ファイルを触る昇格は PR #783 → B20-A の merge 後。
+- **未完了**: 本番昇格（承認待ち）。D-2 の原典調査。D-1 の個別判定（39 品、資料は準備済み）。次の候補 4 品の詳細確認。
+- **ブロッカー**: §4 の Q-1〜Q-5。HOT ファイルを触る昇格は B20-A の merge 後（PR #783 は merge 済み）。
 - **次の行動**: Owner 承認を受けて、PR #783 → B20-A の後に taco・okonomiyaki の昇格 PR を作る。

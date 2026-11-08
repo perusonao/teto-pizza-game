@@ -28,11 +28,12 @@ describe("Staged Catalog — Owner decisions D-1..D-7 (Issue #780, 2026-11-08)",
     expect(decisions).toHaveLength(84);
   });
 
-  it("D-2 never turns an open sauce into NO_SAUCE; D-3 never confirms chili-oil; D-6 stops all 25 causing recipes", () => {
+  it("D-2 never turns an open sauce into NO_SAUCE; D-3 never confirms chili-oil; D-6 stops every causing recipe of the Research golden", () => {
     const all = decisions.flatMap((d) => d.deps);
     expect(all.filter((x) => x.kind === "OWNER_RULE" && x.id === "R-1" && x.status === "RESOLVED")).toEqual([]);
     expect(JSON.stringify(decisions)).not.toMatch(/chili-oil/);
-    expect(decisions.filter((d) => d.researchBlocked)).toHaveLength(25);
+    // The culprit set is measured (whatIf.research19.json) and grows when the shipped catalog changes (26 after Batch 19, PR #783).
+    expect(decisions.filter((d) => d.researchBlocked).map((d) => d.id).sort()).toEqual([...r19.culprits].sort());
   });
 
   it("D-7 candidates are promotable after the decisions", () => {
