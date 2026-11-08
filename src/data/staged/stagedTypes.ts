@@ -40,6 +40,12 @@ export interface StagedRecipe {
   readonly ownerReasons: readonly string[];
   /** Matrix tokens that did not resolve to an id (R-7). */
   readonly unresolvedTokens: readonly string[];
+  /** Raw matrix sauce-family label (e.g. 「甘辛だれ」「その他」); input of the R-1 re-judgement only. */
+  readonly sauceFamilyRaw: string;
+  /** [token, related ids the matrix canonicalizer suggested]; input of the R-7 re-judgement only. */
+  readonly unresolvedRelatedIds: readonly (readonly [string, readonly string[]])[];
+  /** Matrix post-bake / timing evidence (`post_bake`, `unresolved:mid_bake|post_bake`, ...); input of the R-6 re-judgement only. */
+  readonly lateModes: readonly { readonly mode: string; readonly ingredients: readonly string[] }[];
   readonly identityComplete: boolean;
   /** Provisional rules the generator applied to this entry (I-1 / I-2 / R-6), for audit and reversal. */
   readonly applied: readonly string[];

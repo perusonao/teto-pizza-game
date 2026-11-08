@@ -60,7 +60,7 @@
   {
    "id": "pizza-baiana",
    "target": true,
-   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "pizza-a-caballo",
@@ -100,7 +100,7 @@
   {
    "id": "st-louis-style-pizza",
    "target": true,
-   "rungs": "STRUCTURE,SUB_CLASS"
+   "rungs": "SAUCE,STRUCTURE,SUB_CLASS"
   },
   {
    "id": "thai-chicken-pizza",
@@ -125,7 +125,7 @@
   {
    "id": "old-forge-style-pizza",
    "target": true,
-   "rungs": "STRUCTURE,SUB_CLASS"
+   "rungs": "SAUCE,STRUCTURE,SUB_CLASS"
   },
   {
    "id": "okonomiyaki-style-pizza",
@@ -155,12 +155,12 @@
   {
    "id": "quad-cities-style-pizza",
    "target": true,
-   "rungs": "CHEESE,STRUCTURE"
+   "rungs": "SAUCE,CHEESE,STRUCTURE"
   },
   {
    "id": "colorado-mountain-pie",
    "target": true,
-   "rungs": "CHEESE,STRUCTURE"
+   "rungs": "SAUCE,CHEESE,STRUCTURE"
   },
   {
    "id": "chicago-stuffed-pizza",
@@ -175,7 +175,7 @@
   {
    "id": "diavola-pizza",
    "target": true,
-   "rungs": "CHEESE,STRUCTURE,SUB_CLASS"
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
   },
   {
    "id": "detroit-style-pizza",
@@ -185,7 +185,7 @@
   {
    "id": "turkish-pide",
    "target": true,
-   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS"
+   "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "nashville-hot-chicken-pizza",
@@ -210,7 +210,7 @@
   {
    "id": "buffalo-cauliflower-pizza",
    "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS"
   },
   {
    "id": "palmitos-salsa-golf",
@@ -270,7 +270,7 @@
   {
    "id": "pizza-chilena",
    "target": true,
-   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "pizza-romana",
@@ -380,7 +380,7 @@
   {
    "id": "lahmacun",
    "target": true,
-   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+   "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "mexican-elote-pizza",
