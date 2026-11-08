@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { WalnutGlyph } from "./WalnutGlyph";
+import { WalnutGlyph, WalnutKernel } from "./WalnutGlyph";
 import { WALNUT_PALETTE } from "./walnutPalette";
 
 function lum(hex: string) {
@@ -13,7 +13,7 @@ const contrast = (a: string, b: string) => {
   return (x + 0.05) / (y + 0.05);
 };
 
-describe("WalnutGlyph (Batch 20-A, unwired)", () => {
+describe("WalnutGlyph (Batch 20-A)", () => {
   it("renders a decorative 1em inline SVG with a 64x64 box", () => {
     const html = renderToStaticMarkup(<WalnutGlyph />);
     expect(html).toContain('viewBox="0 0 64 64"');
@@ -60,13 +60,18 @@ describe("WalnutGlyph (Batch 20-A, unwired)", () => {
     }
   });
 
-  it("is not imported by any production module yet (unwired)", async () => {
+  it("is imported by exactly one production module: IngredientGlyph.tsx (Batch 20-A wiring, #790)", async () => {
     const { execSync } = await import("node:child_process");
     const out = execSync(
       "grep -rl 'walnutGlyph' src --include=*.ts --include=*.tsx || true",
       { cwd: process.cwd() },
     ).toString();
     const importers = out.split("\n").filter((f) => f && !f.includes("src/components/walnutGlyph/"));
-    expect(importers).toEqual([]);
+    expect(importers).toEqual(["src/components/IngredientGlyph.tsx"]);
+  });
+
+  it("WalnutKernel (the art inside IngredientGlyph) draws the same shapes as the standalone glyph", () => {
+    const inner = renderToStaticMarkup(<WalnutGlyph />).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
+    expect(renderToStaticMarkup(<WalnutKernel />)).toBe(inner);
   });
 });

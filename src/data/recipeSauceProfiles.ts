@@ -389,6 +389,8 @@ export const RECIPE_SAUCE_PROFILES = {
   // Expansion Batch 19 (#774, PROVISIONAL, ORIGINAL NOT CONFIRMED): the PRIMARY sauce only (pesto / tomato-sauce, the Reference target). The secondary olive-oil has no profile entry and is scored by presence (Multi-Sauce S3 precedent, grandma-pizza); NOT NO_SAUCE.
   "pesto-burrata-pizza": { recipeId: "pesto-burrata-pizza", ingredientId: "pesto", interaction: "PAINT" },
   "pizza-alla-crudaiola": { recipeId: "pizza-alla-crudaiola", ingredientId: "tomato-sauce", interaction: "PAINT" },
+  // Expansion Batch 20-A (#790, PROVISIONAL, ORIGINAL NOT CONFIRMED): the PRIMARY sauce only (pesto, the Reference target). The secondary honey has no profile entry and is scored by presence (Multi-Sauce S3 / Batch 19 precedent); NOT NO_SAUCE.
+  "pesto-noci-pizza": { recipeId: "pesto-noci-pizza", ingredientId: "pesto", interaction: "PAINT" },
   "ikura-salmon-pizza": null,
   // New Sauces Phase B U1 (late catalog): yuzu-kosho painted before the bake (PROVISIONAL, not confirmed by the original).
   "yuzu-shrimp-pizza": {

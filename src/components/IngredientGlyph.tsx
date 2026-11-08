@@ -1,3 +1,4 @@
+import { WalnutKernel } from "./walnutGlyph/WalnutGlyph";
 import { ArtichokeQuarter, OreganoPile, RosemarySprigs, SpinachLeaves } from "./herbGlyphs/herbGlyphs";
 import type { DedicatedIngredientVisual, Ingredient } from "../data/ingredients";
 
@@ -32,6 +33,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "clam-valve": "0 0 32 32",
   "ricotta-mound": "0 0 64 64",
   "burrata-torn-ball": "0 0 64 64",
+  "walnut-kernel": "0 0 64 64",
   "feta-cubes": "0 0 64 64",
   "sausage-slices": "0 0 64 64",
   "hot-dog-slices": "0 0 64 64",
@@ -85,6 +87,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "clam-valve" && <ClamValve />}
       {visual === "ricotta-mound" && <RicottaMound />}
       {visual === "burrata-torn-ball" && <BurrataTornBall />}
+      {visual === "walnut-kernel" && <WalnutKernel />}
       {visual === "feta-cubes" && <FetaCubes />}
       {visual === "sausage-slices" && <SausageSlices />}
       {visual === "hot-dog-slices" && <HotDogSlices />}
