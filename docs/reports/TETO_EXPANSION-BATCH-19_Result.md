@@ -119,3 +119,51 @@
 ## 10. HEAD・PR
 
 実装 HEAD と PR URL、CI・Codex の結果は PR 本文と Issue #774 のコメントに記す。
+
+
+## 11. Staged Catalog 統合（E0 #787 / #788 を取り込み、Owner 承認 2026-11-08）
+
+- 取り込み: main `c458bf3e`（#787・#788 を含む）。staged の 4 失敗は期待値の無条件変更ではなく、原因ごとに修正: ①177 品の母集団は `RECIPES + PLAN − 出荷済み in-flight(2)`（B19 の 2 品を二重計上しない）、②burrata の本番登録を反映（`burrata-pizza` の in-flight 食材依存を、出荷済みなら外す。what-if mock が burrata を二重追加しない）、③duplicate-gate・rejudge・research19 を再測定、④Research what-if を再測定。
+- 再測定の増減はすべて B19 の 2 レシピ起因: `burrata-pizza` が `JACCARD_GT_0_4`（crudaiola 0.429）と SUBSET 4 件を得て in-flight 依存を失う。rejudge は blocking 407→408、EXCEPTION_NEEDED 75→76。research19 の既存 19 品は変化・原因とも不変（firstPrefix が +1 になるのは step 70 の挿入による 2 品のみ）。
+- **Research what-if（Owner 承認範囲）:** 正準順の既存 19 品の差分は 0（従来どおり）。B19 自身の 2 品（pesto-burrata-pizza B→C、pizza-alla-crudaiola A→B）を追加。`burrata-pizza` が新しい原因レシピ（正準順で登録可能・単独で正準の文字を変える）として記録される。非正準順は既存 85 品のうち **37 品**の what-if 集合が変わる（下表。B19 の 2 品追加が唯一の原因: main の golden との差分で、承認済みの差分表 `b19_research_diff.md` と一致）。
+- **未承認のまま:** 実ゲームの Research 文字変更、`burrata-pizza` の本番昇格。staged は本番から import されず（isolation テスト合格）、保存安全性のテストも不変。
+
+| ID | 消えた what-if 変化 | 加わった what-if 変化 |
+|---|---|---|
+| baba-ganoush-pizza | E->F J->M | K->O L->P |
+| bacalhau | - | L->S |
+| baingan-bharta-pizza | - | C->D |
+| boscaiola | E->G | -->C F->I |
+| calabresa-argentina | E->H G->I | F->H |
+| california-style-pizza | D->F | C->E E->G |
+| capricciosa | B->C | - |
+| chilean-napolitana | E->J F->H | E->G E->I G->I |
+| curry-pizza-japan | E->H | C->D N->V |
+| eggplant-ricotta-pizza | G->I | A->C F->G G->J H->K |
+| flammkuchen | - | G->K |
+| frango-catupiry | F->I F->L | E->I |
+| fugazza | D->H | E->H H->L |
+| goulash-pizza | - | I->O |
+| grandma-pizza | F->H | A->D C->E F->I G->J |
+| jamon-serrano-pizza | - | E->F |
+| marinara | D->I E->J | D->H |
+| napoletana | B->F C->G | C->F |
+| palmito-pizza | D->G | D->E |
+| pesto-pollo | G->I | F->H H->J |
+| pesto-tonno | - | E->I |
+| pesto-trapanese | E->G | D->F F->H |
+| pizza-bianca | C->E | -->C B->D D->G |
+| pizza-bianca-ricotta | I->L | J->N K->O |
+| pizza-feta-eliniki | F->I H->J H->K I->L | A->B G->I H->L H->N I->M J->M |
+| pizza-moscow | - | P->Y |
+| pizza-portuguesa | - | A->D F->J |
+| potato-mayo-pizza | - | D->F |
+| rendang-pizza | - | D->E |
+| salsiccia-e-friarielli | D->E | - |
+| spanish-chorizo-pizza | F->H F->I | E->G |
+| supreme-pizza | E->F | D->E |
+| tandoori-paneer-pizza | - | J->P |
+| tonno-e-cipolla | - | K->Q |
+| veggie-supreme-pizza | D->F F->H H->J | G->I I->K M->T |
+| vongole | K->N | C->F L->P M->Q |
+| wasabi-beef-pizza | C->E | O->X |
