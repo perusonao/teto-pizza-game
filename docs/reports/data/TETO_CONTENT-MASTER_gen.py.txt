@@ -1,0 +1,524 @@
+#!/usr/bin/env python3
+"""TETO CONTENT MASTER PLAN generator (Issue #780, docs-only, stdlib only).
+
+Run:  python3 -I docs/reports/data/TETO_CONTENT-MASTER_gen.py.txt <repo-root> <out-dir>
+Reads (read-only): src/data/{recipes,lateCatalog,ingredients}.ts, src/data/staged/testSupport/*.ts,
+  src/data/staged/__golden__/*.json, docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json,
+  docs/reports/data/TETO_FULL-EXPANSION-177_plan.json, src/data/{prep,fry,steam,sear}ExperienceGate.ts, src/data/techniques.ts.
+Writes: ledgers (csv/md), batches, schedule and verification.json. Every ledger is checked mechanically (omission / double count);
+a failed check raises SystemExit(1) so a stale ledger can never be committed silently.
+Facts are tagged in the outputs: [MEASURED] derived from files/GitHub here, [INFERRED] interpretation, [ASSUMED] planning input.
+"""
+import csv, json, os, re, sys, statistics
+from collections import Counter, defaultdict
+from datetime import datetime, timezone
+
+REPO = sys.argv[1]
+OUT = sys.argv[2]
+os.makedirs(OUT, exist_ok=True)
+P = lambda *a: os.path.join(REPO, *a)
+checks = []          # (name, ok, detail)
+
+
+def check(name, ok, detail=""):
+    checks.append({"name": name, "ok": bool(ok), "detail": detail})
+
+
+# ---------------------------------------------------------------- shipped catalog (static parse) -----------------
+def parse_blocks(path):
+    """Split a TS data file into top-level 4-space `id:` blocks (recipes / ingredients / orders)."""
+    blocks, cur = {}, None
+    for line in open(path, encoding="utf-8"):
+        m = re.match(r'^    id: "([^"]+)"', line)
+        if m:
+            cur = m.group(1)
+            blocks[cur] = []
+        if cur is not None:
+            blocks[cur].append(line)
+    return blocks
+
+
+def recipe_info(blocks, src):
+    out = {}
+    for rid, lines in blocks.items():
+        txt = "".join(lines)
+        ings = re.findall(r'ingredientId: "([^"]+)"', txt)
+        if rid.startswith("order-") or not ings:
+            continue
+        nm = re.search(r'nameJa: "([^"]+)"', txt)
+        out[rid] = {"name": nm.group(1) if nm else "", "ing": ings, "src": src, "ladderCredit": 'ladderCredit: false' not in txt}
+    return out
+
+
+SHIPPED_R = {}
+SHIPPED_R.update(recipe_info(parse_blocks(P("src/data/recipes.ts")), "recipes.ts"))
+late_blocks = parse_blocks(P("src/data/lateCatalog.ts"))
+SHIPPED_R.update(recipe_info(late_blocks, "lateCatalog.ts"))
+
+
+def ingredient_info(blocks, src):
+    out = {}
+    for iid, lines in blocks.items():
+        txt = "".join(lines)
+        cat = re.search(r'category: "([^"]+)"', txt)
+        if not cat or iid.startswith("order-"):
+            continue
+        nm = re.search(r'nameJa: "([^"]+)"', txt)
+        pv = re.search(r'pieceVisual: "([^"]+)"', txt)
+        out[iid] = {"name": nm.group(1) if nm else "", "category": cat.group(1), "src": src, "svg": pv.group(1) if pv else ""}
+    return out
+
+
+SHIPPED_I = {}
+SHIPPED_I.update(ingredient_info(parse_blocks(P("src/data/ingredients.ts")), "ingredients.ts"))
+SHIPPED_I.update(ingredient_info(late_blocks, "lateCatalog.ts"))
+
+ledger_test = open(P("src/data/catalogLedger.test.ts"), encoding="utf-8").read()
+m_r = re.search(r"recipes: pinsa \? (\d+) : (\d+)", ledger_test)
+m_i = re.search(r"ingredients: (\d+)", ledger_test)
+check("shipped recipes parsed == catalogLedger.test.ts (Pinsa open)", len(SHIPPED_R) == int(m_r.group(1)), f"{len(SHIPPED_R)} vs {m_r.group(1)}")
+check("shipped ingredients parsed == catalogLedger.test.ts", len(SHIPPED_I) == int(m_i.group(1)), f"{len(SHIPPED_I)} vs {m_i.group(1)}")
+
+# ---------------------------------------------------------------- staged + goldens ------------------------------
+def load_ts_rows(path):
+    rows = []
+    for l in open(path, encoding="utf-8"):
+        l = l.strip()
+        if l.startswith('{"'):
+            rows.append(json.loads(l.rstrip(",")))
+    return rows
+
+
+S_R = load_ts_rows(P("src/data/staged/testSupport/stagedRecipes.ts"))
+S_I = load_ts_rows(P("src/data/staged/testSupport/stagedIngredients.ts"))
+G = lambda n: json.load(open(P("src/data/staged/__golden__", n), encoding="utf-8"))
+gate, rejudge, decisions, r19 = G("stagedGate.json"), G("rejudge.json"), G("decisions.json"), G("whatIf.research19.json")
+matrix = json.load(open(P("docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json"), encoding="utf-8"))
+plan = json.load(open(P("docs/reports/data/TETO_FULL-EXPANSION-177_plan.json"), encoding="utf-8"))
+
+check("staged recipes == 84", len(S_R) == 84, len(S_R))
+check("staged ingredient candidates == 70", len(S_I) == 70, len(S_I))
+check("staged ingredients disjoint from shipped", not ({s["id"] for s in S_I} & set(SHIPPED_I)), sorted({s["id"] for s in S_I} & set(SHIPPED_I)))
+check("staged recipes disjoint from shipped", not ({s["id"] for s in S_R} & set(SHIPPED_R)), sorted({s["id"] for s in S_R} & set(SHIPPED_R)))
+check("staged recipe ids unique", len({s["id"] for s in S_R}) == len(S_R))
+check("staged ingredient ids unique", len({s["id"] for s in S_I}) == len(S_I))
+
+# ---------------------------------------------------------------- 172 matrix reconciliation ---------------------
+ROWS = {r["evidenceId"]: r for r in matrix["rows"]}
+check("matrix rows == 172 and evidenceIds unique", len(matrix["rows"]) == 172 and len(ROWS) == 172)
+plan87 = {r["evidenceId"]: r for r in plan["recipes"]}
+check("plan87 subset of matrix", set(plan87) <= set(ROWS), len(plan87))
+staged_ev = {s["evidenceId"] for s in S_R}
+newly_shipped_ev = sorted(set(plan87) - staged_ev)          # 87 - 84 = 3 rows that were in-flight, now shipped
+check("plan87 - staged == the 3 formerly in-flight rows", len(newly_shipped_ev) == 3, newly_shipped_ev)
+EVIDENCE_TO_SHIPPED_MANUAL = {      # [INFERRED] aliases where the matrix canonical id differs from the shipped id (Jaccard evidence printed in matrix_map)
+    "bbq-chicken-pizzadb": "bbq-chicken-pizza",
+    "supreme-pizzadb": "supreme-pizza",
+    "mentaiko-cream-pizza-pizzadb-p4": "tarako-cream-pizza",
+    "pizza-alla-norma-pizzadb-p9": "pizza-alla-norma",
+    "venezuelan-reina-pepiada-pizzadb-p12": "reina-pepiada-pizza",
+    "porcini-pizza-pizzadb-p13": "porcini-pizza",
+    "bianca-pizzadb-row": "pizza-bianca-ricotta",
+    "pesto-burrata-pizzadb-p12": "pesto-burrata-pizza",
+    "pizza-alla-crudaiola-pizzadb-p8": "pizza-alla-crudaiola",
+    "pesto-noci-pizzadb-p12": "pesto-noci-pizza",
+}
+matrix_map = []     # evidenceId -> shipped id + composition comparison
+linked = [e for e in ROWS if e not in staged_ev]
+for ev in sorted(linked):
+    r = ROWS[ev]
+    sid = EVIDENCE_TO_SHIPPED_MANUAL.get(ev) or r["phase0"].get("correspondsToExistingCatalogId") or r["canonicalCandidateId"]
+    ok = sid in SHIPPED_R
+    a = set(r["ingredients"]["identityIngredientSet"] or r["ingredients"]["canonicalIngredientIds"])
+    b = set(SHIPPED_R[sid]["ing"]) if ok else set()
+    j = round(len(a & b) / len(a | b), 3) if (a | b) else None
+    matrix_map.append({"evidenceId": ev, "shippedId": sid if ok else "", "mapped": ok, "sameComposition": ok and a == b, "jaccard": j,
+                       "matrixOnly": sorted(a - b), "shippedOnly": sorted(b - a)})
+check("every non-staged matrix row maps to a shipped recipe (85 + 3)", all(x["mapped"] for x in matrix_map) and len(matrix_map) == 88,
+      [x["evidenceId"] for x in matrix_map if not x["mapped"]])
+by_shipped = defaultdict(list)
+for x in matrix_map:
+    by_shipped[x["shippedId"]].append(x["evidenceId"])
+dups = {k: v for k, v in by_shipped.items() if len(v) > 1}
+check("no two matrix rows map to one shipped recipe (alias double count)", not dups, dups)
+no_row = sorted(set(SHIPPED_R) - set(by_shipped))
+EXPECT_NO_ROW = ["funghi", "napoletana", "pepperoni", "pizza-bianca", "salsiccia"]
+check("shipped recipes without a 172 row == the 5 known (funghi napoletana pepperoni pizza-bianca salsiccia)", no_row == EXPECT_NO_ROW, no_row)
+check("172 = 88 shipped-linked + 84 staged", len(linked) + len(staged_ev) == 172 and len(staged_ev & set(linked)) == 0)
+check("177 = 93 shipped + 84 staged (distinct ids)", len(SHIPPED_R) + len(S_R) == 177 and not (set(SHIPPED_R) & {s['id'] for s in S_R}))
+variants = [x for x in matrix_map if not x["sameComposition"]]
+sauce_ids = {k for k, v in SHIPPED_I.items() if v["category"] == "sauce"}
+for x in variants:
+    x["onlyBaseSauceDiffers"] = all(i in sauce_ids for i in x["matrixOnly"] + x["shippedOnly"])
+variants_sauce_only = [x for x in variants if x["onlyBaseSauceDiffers"]]
+variants_real = [x for x in variants if not x["onlyBaseSauceDiffers"]]
+
+# ---------------------------------------------------------------- per-recipe decision state ----------------------
+culprits = set(r19["culprits"])
+rj = {r["id"]: r for r in rejudge["perRecipe"]}
+gt = {r["id"]: r for r in gate["perRecipe"]}
+d1 = {r["id"]: r for r in decisions["d1Dossier"]["rows"]}
+d5 = {r["id"]: r["postBake"] for r in decisions["d5PostBake"]}
+d4_ids = {x.split(" -> ")[0] for x in decisions["d4ProposedIds"]}
+D3_TOKENS = {"唐辛子", "赤唐辛子", "青唐辛子"}
+ready = set(decisions["nextPromotable"]["ready"])
+ready_work = set(decisions["nextPromotable"]["readyWithWork"])
+
+
+def dep_status(rid, entry):
+    """Port of applyOwnerDecisions' status mapping onto the rejudge `open` entries (verified against decisions.json byStatus below)."""
+    verdict, kind, did = entry.split(":", 2)
+    if verdict == "RULE_DECIDED_WORK": return "WORK"
+    if verdict == "WAITS_MECHANIC": return "WAITS_MECHANIC"
+    if verdict == "WAITS_IN_FLIGHT": return "WAITS_IN_FLIGHT"
+    if verdict == "AXIS_CONDITIONAL": return "AXIS_WITH_M1"
+    if verdict == "STAGED_PAIR": return "STAGED_PAIR"
+    if verdict == "EXCEPTION_NEEDED": return "EXCEPTION_REVIEW"
+    # OWNER_DECISION
+    if kind == "OWNER_RULE" and did == "R-1": return "SOURCE_RESEARCH"
+    if kind == "OWNER_RULE" and did == "R-5": return "RESOLVED"
+    if kind == "ID_SUFFIXED": return "WORK" if rid in d4_ids else "OWNER_DECISION"
+    if kind == "OWNER_RULE" and did == "R-6":
+        return "RESOLVED" if rid in d5 else "OWNER_DECISION"
+    if kind == "UNRESOLVED_TOKEN" and did in D3_TOKENS: return "CANDIDATE_PENDING"
+    if kind == "OWNER_RULE" and did == "R-7":
+        toks = [x for x in rj[rid]["open"] if x.startswith("OWNER_DECISION:UNRESOLVED_TOKEN:")]
+        if toks and all(t.split(":", 2)[2] in D3_TOKENS for t in toks) and next(s for s in S_R if s["id"] == rid)["unresolvedRelatedIds"]:
+            return "CANDIDATE_PENDING"
+    return "OWNER_DECISION"
+
+
+tally, per_status = Counter(), {}
+for s in S_R:
+    sts = [dep_status(s["id"], e) for e in rj[s["id"]]["open"]]
+    per_status[s["id"]] = sts
+    tally.update(sts)
+# decisions.json byStatus also counts the 33 RESOLVED = 11 auto + 14 R-5 + 8 D-5; rejudge `open` carries only 22 of them (auto-resolved are not in `open`)
+dec_by = decisions["byStatus"]
+for k in ("WORK", "SOURCE_RESEARCH", "CANDIDATE_PENDING", "EXCEPTION_REVIEW", "WAITS_MECHANIC", "WAITS_IN_FLIGHT", "AXIS_WITH_M1", "STAGED_PAIR", "OWNER_DECISION"):
+    check(f"status tally reproduces decisions.json byStatus[{k}]", tally.get(k, 0) == dec_by[k], f"{tally.get(k,0)} vs {dec_by[k]}")
+check("RESOLVED in open list + 11 auto-resolved == decisions RESOLVED 33", tally.get("RESOLVED", 0) + rejudge["autoResolved"] == dec_by["RESOLVED"], f"{tally.get('RESOLVED',0)}+{rejudge['autoResolved']}")
+
+
+def mech_tracks(s):
+    tr = {"DOUGH_VARIANT": "M1", "PAN_PROFILE": "M2", "DOUGH_SHAPE_TARGET": "M2", "ENCLOSE": "M3", "MID_BAKE": "M4", "PREP": "M5", "FRY": "M5",
+          "STEP_ORDER": "M6", "ZONED": "M6", "LAMINATE": "M6", "MULTI_SPREAD_3": "M6"}
+    return sorted({tr[m] for m in s["mechanics"]})
+
+
+def primary_state(s):
+    rid, sts = s["id"], per_status[s["id"]]
+    if rid in ready: return "READY_TO_PROMOTE"
+    if rid in ready_work: return "READY_AFTER_RENAME"
+    if "WAITS_MECHANIC" in sts or s["mechanics"]: return "WAITS_MECHANIC"
+    if rid in culprits: return "STOP_D6_RESEARCH"
+    if "EXCEPTION_REVIEW" in sts: return "NEEDS_D1_EXCEPTION_JUDGEMENT"
+    if "SOURCE_RESEARCH" in sts: return "NEEDS_D2_SOURCE_RESEARCH"
+    if "OWNER_DECISION" in sts: return "NEEDS_OWNER_DECISION"
+    if "CANDIDATE_PENDING" in sts: return "NEEDS_D3_CHILI_CONFIRM"
+    if "AXIS_WITH_M1" in sts: return "WAITS_DOUGH_AXIS"
+    if "STAGED_PAIR" in sts or "WAITS_IN_FLIGHT" in sts: return "NEEDS_CANDIDATE_SELECTION"
+    return "UNCLASSIFIED"
+
+
+STATE_OF = {s["id"]: primary_state(s) for s in S_R}
+check("READY set reproduces decisions.nextPromotable.ready (6)", {k for k, v in STATE_OF.items() if v == "READY_TO_PROMOTE"} == ready, sorted(ready))
+check("no UNCLASSIFIED staged recipe", "UNCLASSIFIED" not in STATE_OF.values())
+
+# ---------------------------------------------------------------- batches (recipes) -------------------------------
+CAP = 8   # [ASSUMED] planning parameter: max recipes per promotion-train PR (largest shipped batch was 5; Plan §8 train design). Not measured.
+RB = []   # (batch id, title, recipe ids, prerequisites)
+
+
+def chunk(ids, n):
+    """Balanced chunks of at most n (e.g. 10 items, cap 8 -> 5+5, not 8+2)."""
+    if not ids: return []
+    k = -(-len(ids) // n)
+    size = -(-len(ids) // k)
+    return [ids[i:i + size] for i in range(0, len(ids), size)]
+
+
+first = [r for r in ["taco-pizza", "okonomiyaki-style-pizza"] if r in ready]
+RB.append(("RB-01", "First train: D-7 candidates (taco / okonomiyaki, late catalog)", first, "Owner Q-1..Q-5 (docs/reports/TETO_FULL-EXPANSION-177_Decisions-FirstTrain_Result.md §4)"))
+second = [s["id"] for s in S_R if STATE_OF[s["id"]] in ("READY_TO_PROMOTE", "READY_AFTER_RENAME") and s["id"] not in first]
+RB.append(("RB-02", "Second train: remaining decided-ready recipes (3 need only the D-4 id rename)", second, "RB-01 merged (HOT serial) + Owner Q-5 + per-recipe Research/Hint/save/icon checks"))
+no_mech_blocked = [s for s in S_R if not s["mechanics"] and STATE_OF[s["id"]] not in ("READY_TO_PROMOTE", "READY_AFTER_RENAME")]
+order = ["MISC_OWNER_DECISION", "NEEDS_D3_CHILI_CONFIRM", "NEEDS_D2_SOURCE_RESEARCH", "NEEDS_D1_EXCEPTION_JUDGEMENT", "STOP_D6_RESEARCH", "WAITS_DOUGH_AXIS"]
+n = 3
+for st in order:
+    ids = sorted(s["id"] for s in no_mech_blocked if (STATE_OF[s["id"]] in ("NEEDS_CANDIDATE_SELECTION", "NEEDS_OWNER_DECISION") if st == "MISC_OWNER_DECISION" else STATE_OF[s["id"]] == st))
+    for part in chunk(ids, CAP):
+        RB.append((f"RB-{n:02d}", f"No new mechanic, blocked on: {st}", part, {
+            "MISC_OWNER_DECISION": "Owner picks between overlapping staged candidates (STAGED_PAIR) or decides an item beyond D-1..D-7 (R-7 / R-8 / R-3 HOLD)",
+            "NEEDS_D3_CHILI_CONFIRM": "Owner confirms the shared chili-pepper candidate (D-3)",
+            "NEEDS_D2_SOURCE_RESEARCH": "Original-source research (pizzadb.jp) for the base sauce (D-2); NO_SAUCE may not be assumed",
+            "NEEDS_D1_EXCEPTION_JUDGEMENT": "Owner per-recipe exception judgement (D-1, dossier already prepared)",
+            "STOP_D6_RESEARCH": "Owner per-ID approval of the Research canonical-order letter change (D-6)",
+            "WAITS_DOUGH_AXIS": "M1 dough kind + R-3 approval",
+        }[st]))
+        n += 1
+TRACK_ORDER = ["M1", "M5", "M3", "M2", "M4", "M6"]     # Owner M-0 priority: M1 > M5 > M3 > M2 > M4 > M6
+mech_blocked = [s for s in S_R if s["mechanics"]]
+placed = set()
+for tr in TRACK_ORDER:
+    # a recipe is placed in the highest-priority... the LAST-finishing track it needs (it can ship only when all its tracks exist)
+    ids = []
+    for s in mech_blocked:
+        if s["id"] in placed: continue
+        trs = mech_tracks(s)
+        last = max(trs, key=lambda t: TRACK_ORDER.index(t))
+        if last == tr:
+            ids.append(s["id"])
+    ids = sorted(ids)
+    placed.update(ids)
+    for part in chunk(ids, CAP):
+        need = sorted({t for sid in part for t in mech_tracks(next(s for s in S_R if s["id"] == sid))})
+        RB.append((f"RB-{n:02d}", f"Mechanic-gated train (last track {tr}; needs {'+'.join(need)})", part, f"Mechanic tracks {'+'.join(need)} shipped (see methods ledger); plus Owner rules R-2..R-8"))
+        n += 1
+allb = [i for _, _, ids, _ in RB for i in ids]
+check("every staged recipe is in exactly one recipe batch (no omission / no double count)", sorted(allb) == sorted(s["id"] for s in S_R) and len(allb) == len(set(allb)), f"{len(allb)} placed")
+BATCH_OF_R = {i: b for b, _, ids, _ in RB for i in ids}
+
+# ---------------------------------------------------------------- ingredient ledger ------------------------------
+PROV = "PROVISIONAL"
+used_by = {s["id"]: [] for s in S_I}
+for s in S_R:
+    for ig in gt[s["id"]]["staged"]:
+        if ig in used_by:
+            used_by[ig].append(s["id"])
+BATCH_ORDER = {b: i for i, (b, _, _, _) in enumerate(RB)}
+ING_BATCH_NOTE = {}
+ing_rows = []
+for iid, v in sorted(SHIPPED_I.items()):
+    ing_rows.append({"id": iid, "nameJa": v["name"], "state": "SHIPPED", "category": v["category"], "kind": "", "svg": v["svg"] or "emoji-only",
+                     "source": v["src"], "usedByRemainingRecipes": "", "firstRecipeBatch": "", "ingredientBatch": "-", "dependsOn": "-",
+                     "issuePr": "shipped (main 348b1e4)", "ownerDecision": "-", "doneCondition": "in main catalog (done)"})
+KIND_ORDER = ["VEG", "FRUIT", "CHEESE", "MEAT", "SEAFOOD", "NUT", "SPICE", "DESSERT", "LIQUID", "SAUCE", "COMPOSITE"]
+# ingredient batches: grouped by the earliest recipe train that needs them, then by kind (cap 10); an ingredient needed by no staged recipe is impossible (checked)
+def first_batch(iid):
+    us = used_by[iid]
+    return min((BATCH_OF_R[u] for u in us), key=lambda b: BATCH_ORDER[b]) if us else ""
+
+
+stg_sorted = sorted(S_I, key=lambda s: (BATCH_ORDER.get(first_batch(s["id"]), 999), KIND_ORDER.index(s["kind"]), s["id"]))
+IB, cur, curkey = [], [], None
+IB_CAP = 10     # [ASSUMED] planning parameter (shipped precedent: up to 8 materials in B10 PR-1)
+def ib_key(s):
+    if s["status"] != "ACTIVE": return "ALIAS"
+    fb = first_batch(s["id"])
+    return "EARLY" if BATCH_ORDER.get(fb, 999) <= BATCH_ORDER["RB-02"] else ("NOMECH" if not any(m for m in [x for x in S_R if x["id"] in used_by[s["id"]] for m in x["mechanics"]]) else "MECH")
+groups = defaultdict(list)
+for s in stg_sorted:
+    groups[ib_key(s)].append(s)
+IB_TITLE = {"ALIAS": "alias / merge candidates (I-1 / I-2): decide BEFORE adding; may need no new id", "EARLY": "needed by the decided-ready trains (RB-01/02)", "NOMECH": "needed only by recipes with no new mechanic (Owner-gated)", "MECH": "needed by mechanic-gated recipes"}
+ib_n = 1
+for key in ("EARLY", "NOMECH", "MECH", "ALIAS"):
+    for part in chunk(groups[key], IB_CAP):
+        IB.append((f"IB-{ib_n:02d}", IB_TITLE[key], [p["id"] for p in part]))
+        ib_n += 1
+allib = [i for _, _, ids in IB for i in ids]
+check("every candidate ingredient is in exactly one ingredient batch", sorted(allib) == sorted(s["id"] for s in S_I) and len(allib) == len(set(allib)), f"{len(allib)} placed")
+BATCH_OF_I = {i: b for b, _, ids in IB for i in ids}
+check("every ACTIVE candidate ingredient is used by >=1 remaining staged recipe (no orphan)", all(used_by[s["id"]] for s in S_I if s["status"] == "ACTIVE"), [s["id"] for s in S_I if s["status"] == "ACTIVE" and not used_by[s["id"]]])
+check("every non-ACTIVE candidate (alias / merge, I-1 / I-2) is unreferenced by design", all(not used_by[s["id"]] for s in S_I if s["status"] != "ACTIVE"), [s["id"] for s in S_I if s["status"] != "ACTIVE" and used_by[s["id"]]])
+for s in S_I:
+    iid = s["id"]
+    owner = []
+    if s["aliasCandidate"]: owner.append(f"I-1 alias of shipped `{s['aliasCandidate']}` (reuse or new id)")
+    if s["mergedFrom"]: owner.append(f"I-2 merge candidate ({', '.join(s['mergedFrom'])})")
+    if s["composite"]: owner.append("I-3 prepared composite (one finished ingredient vs process)")
+    if s["kind"] == "LIQUID": owner.append("pre-bake sauce vs post-bake drizzle (#579)")
+    if s["kind"] == "SAUCE" and s["status"] == "ACTIVE": owner.append("New Sauces procedure (#578): paint colour / profile")
+    if iid in ("chili-pepper", "chili-powder"): owner.append("D-3 shared chili candidate")
+    owner.append("ladder: key-recipe rule (see plan §4.1) / family & colour PROVISIONAL")
+    deps = ["staged recipe(s): " + ", ".join(used_by[iid])]
+    ing_rows.append({"id": iid, "nameJa": s["nameJa"], "state": "CANDIDATE_" + s["status"], "category": s["category"], "kind": s["kind"],
+                     "svg": "none (emoji fallback only)", "source": "staged", "usedByRemainingRecipes": ";".join(used_by[iid]),
+                     "firstRecipeBatch": first_batch(iid), "ingredientBatch": BATCH_OF_I[iid], "dependsOn": " | ".join(deps),
+                     "issuePr": "#780 (staged #787/#788/#789); art #417 line (SVG)", "ownerDecision": " / ".join(owner),
+                     "doneCondition": "in main catalog + ladder step + taxonomy/size/alias rows + icon (SVG or approved emoji) + Hint5/Research/DH4 goldens green + Owner HV (train sample)"})
+check("ingredient universe == 100 shipped + 70 candidates = 170", len(ing_rows) == 170 and len({r['id'] for r in ing_rows}) == 170, len(ing_rows))
+check("the 3 formerly in-flight ingredients (burrata honey walnut) are shipped, not candidates", all(x in SHIPPED_I for x in ("burrata", "honey", "walnut")) and not ({"burrata", "honey", "walnut"} & {s["id"] for s in S_I}))
+plan_ing = {i["id"] for i in plan["ingredients"]}
+check("plan's 73 candidates == 70 staged + 3 now-shipped", plan_ing == ({s["id"] for s in S_I} | {"burrata", "honey", "walnut"}) and len(plan_ing) == 73, len(plan_ing))
+
+# ---------------------------------------------------------------- recipe ledger ----------------------------------
+rec_rows = []
+for rid, v in sorted(SHIPPED_R.items()):
+    rows = by_shipped.get(rid, [])
+    rec_rows.append({"id": rid, "nameJa": v["name"], "state": "SHIPPED", "evidenceRows": ";".join(rows) or "(not in the 172)", "lane": "-", "newIngredients": "",
+                     "mechanics": "", "dependsOn": "-", "openOwnerItems": "", "batch": "-", "issuePr": "shipped (main 348b1e4)", "ownerDecision": "-",
+                     "doneCondition": "in main catalog (done)"})
+SHIP_NOW = {"burrata", "honey", "walnut"}
+for s in S_R:
+    rid = s["id"]
+    new_ing = [i for i in gt[rid]["staged"]]
+    shipped_deps = [i for i in s["inFlightIngredients"] if i in SHIP_NOW]
+    sts = Counter(per_status[rid])
+    open_items = ";".join(f"{k}x{v}" for k, v in sorted(sts.items()) if k != "RESOLVED")
+    tracks = mech_tracks(s)
+    dup_ship = sorted({d["kind"] for d in gt[rid]["dup"] if not d["againstStaged"]})
+    dep = []
+    if new_ing: dep.append("ingredients(staged): " + ",".join(new_ing))
+    if shipped_deps: dep.append("ingredients now shipped: " + ",".join(shipped_deps))
+    if s["mechanics"]: dep.append("mechanics: " + ",".join(s["mechanics"]) + " (" + "+".join(tracks) + ")")
+    if rid in culprits: dep.append("D-6 Research letter change (26 culprits)")
+    iss = ["#780"]
+    if s["mechanics"]: iss += {"M1": ["#577", "PR#775"], "M2": ["#532"], "M3": ["#773", "PR#785"], "M4": ["#604", "#611"], "M5": ["#696", "#749"], "M6": ["#773", "PR#620", "#521"]}[tracks[0]] if len(tracks) == 1 else sorted({x for t in tracks for x in {"M1": ["#577", "PR#775"], "M2": ["#532"], "M3": ["#773", "PR#785"], "M4": ["#604", "#611"], "M5": ["#696", "#749"], "M6": ["#773", "PR#620", "#521"]}[t]})
+    od = []
+    for k, v in sorted(sts.items()):
+        if k in ("EXCEPTION_REVIEW", "SOURCE_RESEARCH", "OWNER_DECISION", "CANDIDATE_PENDING"):
+            od.append({"EXCEPTION_REVIEW": "D-1 exception judgement", "SOURCE_RESEARCH": "D-2 source research", "OWNER_DECISION": "undecided Owner item", "CANDIDATE_PENDING": "D-3 chili confirm"}[k] + f" x{v}")
+    if rid in culprits: od.append("D-6 per-ID Research approval")
+    if rid in ready or rid in ready_work: od.append("Q-1..Q-5 (promotion approval)")
+    rec_rows.append({"id": rid, "nameJa": s["nameJa"], "state": STATE_OF[rid], "evidenceRows": s["evidenceId"], "lane": s["lane"], "newIngredients": ";".join(new_ing),
+                     "mechanics": ";".join(s["mechanics"]), "dependsOn": " | ".join(dep) or "-", "openOwnerItems": open_items or "-", "batch": BATCH_OF_R[rid],
+                     "issuePr": ", ".join(dict.fromkeys(iss)), "ownerDecision": " / ".join(od) or "-",
+                     "doneCondition": "dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge"})
+check("recipe universe == 93 shipped + 84 candidates = 177", len(rec_rows) == 177 and len({r['id'] for r in rec_rows}) == 177, len(rec_rows))
+
+# ---------------------------------------------------------------- methods ledger ---------------------------------
+def gate_const(name):
+    t = open(P("src/data", name), encoding="utf-8").read()
+    m = re.search(r"export const (\w+_PRODUCTION) = (true|false)", t)
+    return m.group(1) + "=" + m.group(2)
+
+
+GATES = {k: gate_const(f"{k}ExperienceGate.ts") for k in ("prep", "fry", "steam", "sear")}
+cap_counts = Counter(c for r in matrix["rows"] for c in r["requiredCapabilities"])
+cap_all = set(cap_counts) | {e["capability"] for r in matrix["rows"] for e in r["mechanicEvidence"]}
+dep_staged = Counter(m for s in S_R for m in s["mechanics"])
+tech_ids = re.findall(r'\bid: "([a-z-]+)"', open(P("src/data/techniques.ts"), encoding="utf-8").read())
+# Each row: id, name, class, status, evidence (state), matrix capability (exactly one row owns each capability), staged key, recipes(staged)/matrix rows, issue/PR, batch, owner, done
+M = []
+def mrow(i, name, cls, status, evidence, cap, skey, issues, batch, owner, done, adopt):
+    M.append({"id": i, "nameJa": name, "class": cls, "status": status, "evidence": evidence, "matrixCapability": cap, "stagedKey": skey,
+              "matrixRows": cap_counts.get(cap, 0) if cap else 0, "stagedRecipesWaiting": dep_staged.get(skey, 0) if skey else 0,
+              "issuePr": issues, "batch": batch, "ownerDecision": owner, "doneCondition": done, "adoption": adopt})
+IMPL, PART, HOLD, TODO, DUP, UNDEC = "IMPLEMENTED", "PARTIAL", "HOLD", "UNIMPLEMENTED", "DUPLICATE", "ADOPTION_UNDECIDED"
+mrow("T-NOSAUCE", "ソースなし (NO_SAUCE)", "technique", IMPL, "techniques.ts id=no-sauce; many NO_SAUCE recipes shipped", "", "", "Cooking Techniques 1.0 (#262)", "-", "-", "done", "adopted")
+mrow("T-TRAY", "天板焼き (pan: tray)", "technique", IMPL, "techniques.ts id=tray; grandma-pizza #655, Square Dough E-0..E-2", "", "", "#532, #655", "-", "-", "done (other pans: see M-PAN)", "adopted")
+mrow("T-DOUGH-PINSA", "ピンサ生地 (DoughKind pinsa)", "technique", IMPL, "techniques.ts id=dough-pinsa-romana; PINSA_PRODUCTION on (PR #659)", "", "", "#577, PR #659", "-", "-", "done", "adopted")
+mrow("T-LATE", "後乗せ (POST_BAKE / FINISH)", "technique", IMPL, "techniques.ts id=late-addition; FINISH E5 on (PR #654); 8 late recipes", "LATE_ADDITION", "", "#604, #621, PR #654", "-", "-", "done for post_bake (mid_bake is M-MIDBAKE)", "adopted")
+mrow("M-DOUGH-KINDS", "生地の種類 3 種目以降 (NY / Roman / Piadina / cauliflower / keto ...)", "mechanic M1", PART, "pinsa shipped as DoughKind #1; Piadina design gate = HOLD (docs/design/TETO_PIADINA-577_DESIGN-GATE_2026-10-26.md); PR #775 PD-1a open", "DOUGH_VARIANT", "DOUGH_VARIANT", "#577, PR #775 (PD-1a), PD-1b/c docs-only", "MB-01", "R-3 (cauliflower / fathead HOLD), Piadina Gate HOLD release", "DoughKind registry + selection UI (PD-2, GameScreen HOT) + per-kind data; every recipe row waiting on M1 shippable", "adopted (M-0 priority 1)")
+mrow("M-PAN", "天板 profile (deep / shallow / steel / sheet)", "mechanic M2", TODO, "stagedMechanics PAN_PROFILE MISSING; tray only", "PAN_BAKE", "PAN_PROFILE", "#532, #536, #538 (new design issue needed)", "MB-04", "new design issue + adoption", "pan profile registry + Reference/scoring for non-tray pans", "adopted (M-0 priority 4)")
+mrow("M-SHAPE", "生地形状ターゲット (oval / boat / rectangle)", "mechanic M2", TODO, "stagedMechanics DOUGH_SHAPE_TARGET MISSING (Pinsa 3:2 oval exists for one kind only)", "DOUGH_SHAPE_TARGET", "DOUGH_SHAPE_TARGET", "#532/#536 (new design issue needed)", "MB-04", "new design issue + adoption", "shape target generalised beyond Pinsa; scoring Reference per shape", "adopted (M-0 priority 4)")
+mrow("M-ENCLOSE", "包む (ENCLOSE: calzone / stuffed / folded)", "mechanic M3", PART, "FOLD+SEAL pure logic PR #785 (Draft, HOLD, unmerged); F2 lab claim (branch claude/fold-seal-f2-lab-773)", "ENCLOSE", "ENCLOSE", "#773, PR #785, F2 lab claim", "MB-03", "F1 HOLD release; F3 game connection", "FOLD+SEAL wired into the cooking flow behind a gate; recipes in M3 shippable", "adopted (M-0 priority 3)")
+mrow("M-MIDBAKE", "焼成中の追加 (mid_bake)", "mechanic M4", TODO, "post_bake shipped; mid_bake MISSING (staged MID_BAKE)", "", "MID_BAKE", "#604, #611 (new issue needed)", "MB-05", "new issue + adoption", "mid-bake action window in BAKE; recipes in M4 shippable", "adopted (M-0 priority 5)")
+mrow("M-PREP", "下ごしらえ「炒める」 (PREP)", "mechanic M5", PART, f"merged PR #694/#695/#697/#722 ({GATES['prep']}; Preview opt-in only); beef only", "PREP_STEP", "PREP", "#696, #611, spec docs/design/TETO_COOKING-PREP_PHASE1_SPEC_2026-10-28.md", "MB-02", "Production ON approval; O-2 recognition axis (identity `prep` OBSERVED) if prep must affect identification", "production ON + per-ingredient extension (kimchi, yakiniku, lomo saltado ingredients)", "adopted (M-0 priority 2)")
+mrow("M-FRY", "揚げる (FRY)", "mechanic M5", PART, f"F1 pure logic merged PR #750 ({GATES['fry']}); eggplant only; no UI", "FRY_COOK", "FRY", "#749, PR #750", "MB-02", "Production ON approval; pizza-fritta is a fried DOUGH (FRY Phase 2)", "FRY UI + production ON; FRY_COOK dough variant for pizza-fritta", "adopted (M-0 priority 2)")
+mrow("M-STEP-ORDER", "工程順の入替 (cheese before sauce)", "mechanic M6", TODO, "STEP_ORDER MISSING", "STEP_ORDER", "STEP_ORDER", "new issue needed", "MB-06", "new issue + adoption", "step order is recipe data; Hint/identity/scoring follow", "adopted (M-0 priority 6)")
+mrow("M-ZONED", "ゾーン配置 (quadrants / centre)", "mechanic M6", HOLD, "ZONED UNAVAILABLE in identity signature; audit PR #620 open", "ZONED_PLACEMENT", "ZONED", "#773, PR #620 (audit), #620", "MB-06", "adoption (future phase per Owner policy 2026-10-20)", "zones OBSERVED in signature + Reference + scoring", "adopted (M-0 priority 6), Owner: future phase")
+mrow("M-LAMINATE", "折り重ね (LAMINATE: feteer)", "mechanic M6", UNDEC, "LAMINATE MISSING; 1 recipe only; Owner M-0: deferral candidate", "LAMINATE", "LAMINATE", "new issue needed", "(deferred; MB-06 only if adopted)", "Owner: adopt or drop (plan: deferral candidate)", "adoption decision first", "deferred (M-0)")
+mrow("M-MULTI3", "3 層目のソース (MULTI_SPREAD 3rd layer)", "mechanic M6", PART, "2 layers shipped (B1/B2/S1/S2, grandma #655, pesto-noci #792); 3rd layer design only", "MULTI_SPREAD_LAYER", "MULTI_SPREAD_3", "#521, #620", "MB-06", "adoption of a 3rd layer", "3-layer sauce field + scoring + Hint", "adopted (M-0 priority 6)")
+mrow("M-DRIZZLE", "仕上げがけ DRIZZLE (olive oil / honey / balsamic / buffalo)", "mechanic", PART, "D1 pure logic PR #776 open (unmerged); Gesture Lab PR #746 open; olive-oil DRIZZLE still a TODO in recipeSauceProfiles", "", "", "#579, PR #746, PR #776", "MB-08", "gesture choice (Lab HV) + FINISH accepting non-topping", "FINISH accepts sauce/liquid; DRIZZLE gesture wired behind a gate", "adopted (open Owner Gate)")
+mrow("M-STEAM", "蒸す (STEAM: clam / mussel)", "cooking method", PART, f"S1/S2 merged (PR #729/#734, {GATES['steam']}); S3 UI PR #738 open since 2026-11-03; V2/V3 prototypes Draft", "", "", "#726, PR #738, #755, PR #756/#757/#762/#763", "MB-07", "S3 HV A/B result + Production ON", "UI wired + production ON", "adopted; NO staged recipe waits for it [MEASURED]")
+mrow("M-SEAR", "炙る (SEAR: sausage long-press)", "cooking method", IMPL, f"PR #725 + Production ON PR #730 ({GATES['sear']})", "", "", "#724, #727", "-", "-", "done", "adopted")
+mrow("M-SQUEEZE", "絞る (squeeze stroke: mayo)", "interaction", IMPL, "mayo teardrop stroke, Batch 13 (squeeze.ts)", "", "", "#708, PR #716", "-", "-", "done", "adopted")
+mrow("M-CUT", "切る (CUT)", "step", IMPL, "PIZZA CUTTING 1.0 + CUT256", "", "", "docs/design/TETO_PIZZA-CUTTING_1.0.md", "-", "-", "done", "adopted")
+mrow("M-SERVE-FOLD", "折って食べる (SERVE_FORM fold-to-eat)", "serve form", UNDEC, "1 matrix row (SERVE_FORM); no issue / design found", "SERVE_FORM", "", "(none found)", "-", "adopt or drop", "adoption decision first", "undecided")
+mrow("M-BOIL", "煮込む / 茹でる (simmer / boil)", "cooking method", UNDEC, "docs/reports/TETO_COOKING-METHODS-NEXT_Research.md: rated 'later' (overlaps SAUCE; 0 matrix rows by keyword)", "", "", "(none)", "-", "adopt or drop", "adoption decision first", "undecided (Research: low priority)")
+mrow("M-CRACK", "割る (egg crack)", "interaction", UNDEC, "METHODS-NEXT Research: 'presentation, not cooking'; 5 shipped recipes use egg; no egg art", "", "", "(none)", "-", "adopt or drop", "adoption decision first", "undecided")
+mrow("M-CHOP", "刻む / ちぎる (chop / tear)", "interaction", UNDEC, "METHODS-NEXT Research: low meaning (piece count is what scores)", "", "", "(none)", "-", "adopt or drop", "adoption decision first", "undecided")
+mrow("M-SPRINKLE", "振りかける / すりおろす (SPRINKLE)", "interaction", DUP, "SPRINKLE withdrawn (#476 D3): xs pieces need 1-3 -> no difference vs tap; duplicates tap placement", "", "", "#476 D3", "-", "-", "n/a (withdrawn)", "withdrawn by earlier Owner decision (not changed here)")
+mrow("M-ARRANGE", "並べる (ARNG: even arrangement)", "interaction", DUP, "COOKING-PROCESS-EXPANSION P-ARNG: experience-only variant of tap placement; zoned form is M-ZONED", "", "", "docs/reports/TETO_COOKING-PROCESS-EXPANSION_Fresh-Audit.md", "-", "-", "n/a (covered by M-ZONED if ever adopted)", "duplicate of tap placement / M-ZONED")
+mrow("M-MIX", "混ぜる / 和える (P-MIX: composite ingredient)", "interaction", UNDEC, "0 matrix rows; would introduce a prepared-composite ingredient concept (3 review items) -- plan rule I-3 instead holds composites as finished ingredients", "", "", "(none)", "-", "adopt or drop", "adoption decision first", "undecided (I-3 makes it unnecessary for now)")
+# every matrix capability must be owned by exactly one row (no omission, no double count)
+owned = Counter(r["matrixCapability"] for r in M if r["matrixCapability"])
+check("every 172-matrix capability is owned by exactly one methods row", set(owned) == cap_all and all(v == 1 for v in owned.values()), {"missing": sorted(cap_all - set(owned)), "extra": sorted(set(owned) - cap_all), "dup": [k for k, v in owned.items() if v > 1]})
+used_keys = {m for s in S_R for m in s["mechanics"]}
+check("every mechanic key used by a staged recipe has a methods row", used_keys <= {r["stagedKey"] for r in M if r["stagedKey"]}, sorted(used_keys - {r["stagedKey"] for r in M if r["stagedKey"]}))
+check("methods ids unique", len({r["id"] for r in M}) == len(M))
+check("registered technique ids are all ledgered", set(tech_ids) >= {"no-sauce", "tray", "dough-pinsa-romana", "late-addition"} and {"T-NOSAUCE", "T-TRAY", "T-DOUGH-PINSA", "T-LATE"} <= {r["id"] for r in M}, tech_ids)
+
+# ---------------------------------------------------------------- write ledgers -----------------------------------
+def write_csv(name, rows, cols):
+    with open(os.path.join(OUT, name), "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=cols)
+        w.writeheader()
+        for r in rows:
+            w.writerow({c: r.get(c, "") for c in cols})
+
+
+I_COLS = ["id", "nameJa", "state", "category", "kind", "svg", "source", "usedByRemainingRecipes", "firstRecipeBatch", "ingredientBatch", "dependsOn", "issuePr", "ownerDecision", "doneCondition"]
+R_COLS = ["id", "nameJa", "state", "evidenceRows", "lane", "newIngredients", "mechanics", "dependsOn", "openOwnerItems", "batch", "issuePr", "ownerDecision", "doneCondition"]
+M_COLS = ["id", "nameJa", "class", "status", "evidence", "matrixCapability", "stagedKey", "matrixRows", "stagedRecipesWaiting", "issuePr", "batch", "ownerDecision", "doneCondition", "adoption"]
+write_csv("TETO_CONTENT-MASTER_ingredients.csv", ing_rows, I_COLS)
+write_csv("TETO_CONTENT-MASTER_recipes.csv", rec_rows, R_COLS)
+write_csv("TETO_CONTENT-MASTER_methods.csv", M, M_COLS)
+write_csv("TETO_CONTENT-MASTER_batches.csv",
+          [{"batch": b, "line": "recipe", "title": t, "count": len(ids), "members": ";".join(ids), "prerequisite": pre} for b, t, ids, pre in RB] +
+          [{"batch": b, "line": "ingredient", "title": t, "count": len(ids), "members": ";".join(ids), "prerequisite": "carried by its first recipe train unless Owner D-ING-1 allows an ingredient-only release"} for b, t, ids in IB],
+          ["batch", "line", "title", "count", "members", "prerequisite"])
+json.dump({"matrixMap": matrix_map, "variantsComposition": variants}, open(os.path.join(OUT, "TETO_CONTENT-MASTER_matrix-map.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+
+summary = {
+    "recipes": {"total": len(rec_rows), "shipped": len(SHIPPED_R), "remaining": len(S_R), "byState": Counter(STATE_OF.values()), "batches": len(RB),
+                "batchSizes": {b: len(ids) for b, _, ids, _ in RB}},
+    "ingredients": {"total": len(ing_rows), "shipped": len(SHIPPED_I), "remaining": len(S_I), "byKind": Counter(s["kind"] for s in S_I),
+                    "byStatus": Counter(s["status"] for s in S_I), "batches": len(IB), "batchSizes": {b: len(ids) for b, _, ids in IB},
+                    "shippedWithDedicatedSvg": sum(1 for v in SHIPPED_I.values() if v["svg"])},
+    "methods": {"total": len(M), "byStatus": Counter(r["status"] for r in M)},
+    "matrix": {"rows": 172, "shippedLinked": 88, "staged": 84, "shippedWithoutRow": no_row, "linkedWithDifferentComposition": len(variants), "differOnlyInBaseSauce": len(variants_sauce_only), "differInNonSauceIngredients": len(variants_real),
+               "differInNonSauceIngredientsIds": [x["evidenceId"] for x in variants_real],
+               "capabilityRows": dict(cap_counts)},
+    "dupGateVsShipped": {
+        "identicalSubsetSuperset": len({r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"] and d["kind"] in ("IDENTICAL", "SUBSET", "SUPERSET")}),
+        "oneDiffOrJaccardOnly": len({r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"] and d["kind"] in ("ONE_DIFF", "JACCARD_GT_0_4")} -
+                                    {r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"] and d["kind"] in ("IDENTICAL", "SUBSET", "SUPERSET")}),
+        "anyHit": len({r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"]}),
+        "noShippedHit": 84 - len({r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"]}),
+    },
+    "readyNow": {"recipesReady": len(ready), "recipesReadyAfterRename": len(ready_work),
+                 "ingredientsNeededByReady": len({i for s in S_I for u in used_by[s["id"]] if u in (ready | ready_work) for i in [s["id"]]}),
+                 "ingredientsNeededByRB01": len({s["id"] for s in S_I if any(BATCH_OF_R[u] == "RB-01" for u in used_by[s["id"]])}),
+                 "ingredientsNeededByRB02": len({s["id"] for s in S_I if any(BATCH_OF_R[u] == "RB-02" for u in used_by[s["id"]])})},
+    "gates": GATES,
+    "checksFailed": [c for c in checks if not c["ok"]],
+}
+json.dump({"summary": summary, "checks": checks}, open(os.path.join(OUT, "TETO_CONTENT-MASTER_verification.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1, default=dict)
+
+# human-readable batch & state tables for the report
+with open(os.path.join(OUT, "TETO_CONTENT-MASTER_tables.md"), "w", encoding="utf-8") as f:
+    f.write("<!-- generated: TETO_CONTENT-MASTER_gen.py.txt -->\n")
+    f.write("### recipe batches\n\n| batch | n | title | prerequisite | members |\n|---|---|---|---|---|\n")
+    for b, t, ids, pre in RB:
+        f.write(f"| {b} | {len(ids)} | {t} | {pre} | {', '.join(ids)} |\n")
+    f.write("\n### ingredient batches\n\n| batch | n | title | members |\n|---|---|---|---|\n")
+    for b, t, ids in IB:
+        f.write(f"| {b} | {len(ids)} | {t} | {', '.join(ids)} |\n")
+
+def md_cell(v):
+    return str(v).replace("|", "\\|").replace("\n", " ") or "-"
+
+
+def write_md(name, title, intro, rows, cols, heads):
+    with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
+        f.write(f"# {title}\n\n{intro}\n\n")
+        f.write("| " + " | ".join(heads) + " |\n|" + "|".join(["---"] * len(heads)) + "|\n")
+        for r in rows:
+            f.write("| " + " | ".join(md_cell(r.get(c, "")) for c in cols) + " |\n")
+
+
+GEN = "Generated by `docs/reports/data/TETO_CONTENT-MASTER_gen.py.txt` from main `348b1e4`; machine checks in `TETO_CONTENT-MASTER_verification.json` (all must PASS). Do not edit by hand."
+write_md("TETO_CONTENT-MASTER_LEDGER_ingredients.md", "全食材マスター台帳（170 = 出荷済み 100 + 候補 70）",
+         GEN + " 状態: SHIPPED=main に存在。CANDIDATE_ACTIVE=staged レシピが参照。CANDIDATE_ALIASED/MERGED_PROVISIONAL=Owner 規則 I-1/I-2 で既存 id を再利用または統合する暫定候補（追加不要になりうる）。",
+         [r for r in ing_rows if r["state"] != "SHIPPED"] + [r for r in ing_rows if r["state"] == "SHIPPED"],
+         ["id", "nameJa", "state", "category", "kind", "svg", "usedByRemainingRecipes", "firstRecipeBatch", "ingredientBatch", "ownerDecision", "issuePr"],
+         ["ID", "名称", "現状", "区分", "種別", "SVG", "依存（使うレシピ）", "最初に要る列車", "食材バッチ", "必要なOwner判断", "Issue/PR"])
+write_md("TETO_CONTENT-MASTER_LEDGER_recipes.md", "全レシピマスター台帳（177 = 出荷済み 93 + 候補 84）",
+         GEN + " 出荷済みの evidenceRows は 172 マトリクスの行（別名照合済み）。候補の state は D-1〜D-7 適用後の主たる阻害要因（1 レシピ 1 値、優先順は生成器のコメント参照）。",
+         [r for r in rec_rows if r["state"] != "SHIPPED"] + [r for r in rec_rows if r["state"] == "SHIPPED"],
+         ["id", "nameJa", "state", "batch", "newIngredients", "mechanics", "openOwnerItems", "ownerDecision", "issuePr", "evidenceRows"],
+         ["ID", "名称", "現状", "担当バッチ", "新食材（staged）", "必要な調理法", "未決の判断", "必要なOwner判断", "Issue/PR", "172 行 ID"])
+write_md("TETO_CONTENT-MASTER_LEDGER_methods.md", "全調理法マスター台帳（27 候補）",
+         GEN + " status: IMPLEMENTED / PARTIAL / HOLD / UNIMPLEMENTED / DUPLICATE / ADOPTION_UNDECIDED。172 マトリクスの capability 11 種＋SERVE_FORM は各 1 行にだけ所属（二重計上なし）。",
+         M, ["id", "nameJa", "class", "status", "evidence", "matrixRows", "stagedRecipesWaiting", "issuePr", "batch", "ownerDecision", "doneCondition", "adoption"],
+         ["ID", "名称", "種別", "状態", "根拠（実測）", "マトリクス行数", "待つ staged レシピ数", "Issue/PR", "担当バッチ", "必要なOwner判断", "完了条件", "採否"])
+
+bad = [c for c in checks if not c["ok"]]
+print(json.dumps(summary, ensure_ascii=False, default=dict, indent=1))
+for c in checks:
+    print(("PASS " if c["ok"] else "FAIL ") + c["name"] + ("" if c["ok"] else "  -> " + str(c["detail"])[:300]))
+if bad:
+    raise SystemExit(1)

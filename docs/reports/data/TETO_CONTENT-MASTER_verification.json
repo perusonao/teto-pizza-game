@@ -1,0 +1,370 @@
+{
+ "summary": {
+  "recipes": {
+   "total": 177,
+   "shipped": 93,
+   "remaining": 84,
+   "byState": {
+    "NEEDS_D2_SOURCE_RESEARCH": 10,
+    "WAITS_MECHANIC": 43,
+    "STOP_D6_RESEARCH": 10,
+    "READY_TO_PROMOTE": 6,
+    "READY_AFTER_RENAME": 2,
+    "NEEDS_D1_EXCEPTION_JUDGEMENT": 11,
+    "NEEDS_CANDIDATE_SELECTION": 1,
+    "NEEDS_OWNER_DECISION": 1
+   },
+   "batches": 17,
+   "batchSizes": {
+    "RB-01": 2,
+    "RB-02": 6,
+    "RB-03": 2,
+    "RB-04": 5,
+    "RB-05": 5,
+    "RB-06": 6,
+    "RB-07": 5,
+    "RB-08": 5,
+    "RB-09": 5,
+    "RB-10": 7,
+    "RB-11": 7,
+    "RB-12": 6,
+    "RB-13": 3,
+    "RB-14": 5,
+    "RB-15": 8,
+    "RB-16": 3,
+    "RB-17": 4
+   }
+  },
+  "ingredients": {
+   "total": 170,
+   "shipped": 100,
+   "remaining": 70,
+   "byKind": {
+    "SAUCE": 13,
+    "FRUIT": 7,
+    "VEG": 15,
+    "LIQUID": 3,
+    "SEAFOOD": 4,
+    "CHEESE": 8,
+    "COMPOSITE": 8,
+    "SPICE": 5,
+    "DESSERT": 4,
+    "MEAT": 2,
+    "NUT": 1
+   },
+   "byStatus": {
+    "ACTIVE": 63,
+    "ALIASED_PROVISIONAL": 5,
+    "MERGED_PROVISIONAL": 2
+   },
+   "batches": 9,
+   "batchSizes": {
+    "IB-01": 8,
+    "IB-02": 8,
+    "IB-03": 9,
+    "IB-04": 9,
+    "IB-05": 7,
+    "IB-06": 8,
+    "IB-07": 8,
+    "IB-08": 6,
+    "IB-09": 7
+   },
+   "shippedWithDedicatedSvg": 41
+  },
+  "methods": {
+   "total": 27,
+   "byStatus": {
+    "IMPLEMENTED": 7,
+    "PARTIAL": 7,
+    "UNIMPLEMENTED": 4,
+    "HOLD": 1,
+    "ADOPTION_UNDECIDED": 6,
+    "DUPLICATE": 2
+   }
+  },
+  "matrix": {
+   "rows": 172,
+   "shippedLinked": 88,
+   "staged": 84,
+   "shippedWithoutRow": [
+    "funghi",
+    "napoletana",
+    "pepperoni",
+    "pizza-bianca",
+    "salsiccia"
+   ],
+   "linkedWithDifferentComposition": 16,
+   "differOnlyInBaseSauce": 10,
+   "differInNonSauceIngredients": 6,
+   "differInNonSauceIngredientsIds": [
+    "bismarck-pizza-pizzadb-p7",
+    "breakfast-pizza-pizzadb-p11",
+    "capricciosa-pizzadb",
+    "fugazza-pizzadb-p10",
+    "meat-lovers-pizza-pizzadb-p13",
+    "pesto-genovese-pizza-pizzadb-p11"
+   ],
+   "capabilityRows": {
+    "LATE_ADDITION": 13,
+    "ENCLOSE": 5,
+    "ZONED_PLACEMENT": 1,
+    "MULTI_SPREAD_LAYER": 17,
+    "DOUGH_VARIANT": 33,
+    "PAN_BAKE": 8,
+    "STEP_ORDER": 2,
+    "DOUGH_SHAPE_TARGET": 5,
+    "PREP_STEP": 3,
+    "FRY_COOK": 1,
+    "LAMINATE": 1
+   }
+  },
+  "dupGateVsShipped": {
+   "identicalSubsetSuperset": 26,
+   "oneDiffOrJaccardOnly": 22,
+   "anyHit": 48,
+   "noShippedHit": 36
+  },
+  "readyNow": {
+   "recipesReady": 6,
+   "recipesReadyAfterRename": 2,
+   "ingredientsNeededByReady": 16,
+   "ingredientsNeededByRB01": 6,
+   "ingredientsNeededByRB02": 10
+  },
+  "gates": {
+   "prep": "PREP_EXPERIENCE_PRODUCTION=false",
+   "fry": "FRY_EXPERIENCE_PRODUCTION=false",
+   "steam": "STEAM_EXPERIENCE_PRODUCTION=false",
+   "sear": "SEAR_EXPERIENCE_PRODUCTION=true"
+  },
+  "checksFailed": []
+ },
+ "checks": [
+  {
+   "name": "shipped recipes parsed == catalogLedger.test.ts (Pinsa open)",
+   "ok": true,
+   "detail": "93 vs 93"
+  },
+  {
+   "name": "shipped ingredients parsed == catalogLedger.test.ts",
+   "ok": true,
+   "detail": "100 vs 100"
+  },
+  {
+   "name": "staged recipes == 84",
+   "ok": true,
+   "detail": 84
+  },
+  {
+   "name": "staged ingredient candidates == 70",
+   "ok": true,
+   "detail": 70
+  },
+  {
+   "name": "staged ingredients disjoint from shipped",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "staged recipes disjoint from shipped",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "staged recipe ids unique",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "staged ingredient ids unique",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "matrix rows == 172 and evidenceIds unique",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "plan87 subset of matrix",
+   "ok": true,
+   "detail": 87
+  },
+  {
+   "name": "plan87 - staged == the 3 formerly in-flight rows",
+   "ok": true,
+   "detail": [
+    "pesto-burrata-pizzadb-p12",
+    "pesto-noci-pizzadb-p12",
+    "pizza-alla-crudaiola-pizzadb-p8"
+   ]
+  },
+  {
+   "name": "every non-staged matrix row maps to a shipped recipe (85 + 3)",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "no two matrix rows map to one shipped recipe (alias double count)",
+   "ok": true,
+   "detail": {}
+  },
+  {
+   "name": "shipped recipes without a 172 row == the 5 known (funghi napoletana pepperoni pizza-bianca salsiccia)",
+   "ok": true,
+   "detail": [
+    "funghi",
+    "napoletana",
+    "pepperoni",
+    "pizza-bianca",
+    "salsiccia"
+   ]
+  },
+  {
+   "name": "172 = 88 shipped-linked + 84 staged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "177 = 93 shipped + 84 staged (distinct ids)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "status tally reproduces decisions.json byStatus[WORK]",
+   "ok": true,
+   "detail": "9 vs 9"
+  },
+  {
+   "name": "status tally reproduces decisions.json byStatus[SOURCE_RESEARCH]",
+   "ok": true,
+   "detail": "22 vs 22"
+  },
+  {
+   "name": "status tally reproduces decisions.json byStatus[CANDIDATE_PENDING]",
+   "ok": true,
+   "detail": "12 vs 12"
+  },
+  {
+   "name": "status tally reproduces decisions.json byStatus[EXCEPTION_REVIEW]",
+   "ok": true,
+   "detail": "76 vs 76"
+  },
+  {
+   "name": "status tally reproduces decisions.json byStatus[WAITS_MECHANIC]",
+   "ok": true,
+   "detail": "58 vs 58"
+  },
+  {
+   "name": "status tally reproduces decisions.json byStatus[WAITS_IN_FLIGHT]",
+   "ok": true,
+   "detail": "2 vs 2"
+  },
+  {
+   "name": "status tally reproduces decisions.json byStatus[AXIS_WITH_M1]",
+   "ok": true,
+   "detail": "30 vs 30"
+  },
+  {
+   "name": "status tally reproduces decisions.json byStatus[STAGED_PAIR]",
+   "ok": true,
+   "detail": "94 vs 94"
+  },
+  {
+   "name": "status tally reproduces decisions.json byStatus[OWNER_DECISION]",
+   "ok": true,
+   "detail": "40 vs 40"
+  },
+  {
+   "name": "RESOLVED in open list + 11 auto-resolved == decisions RESOLVED 33",
+   "ok": true,
+   "detail": "22+11"
+  },
+  {
+   "name": "READY set reproduces decisions.nextPromotable.ready (6)",
+   "ok": true,
+   "detail": [
+    "black-truffle-pizza",
+    "okonomiyaki-style-pizza",
+    "pizza-cavolo-carote",
+    "pizza-finocchi-salad",
+    "pizza-radicchio-noci",
+    "taco-pizza"
+   ]
+  },
+  {
+   "name": "no UNCLASSIFIED staged recipe",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "every staged recipe is in exactly one recipe batch (no omission / no double count)",
+   "ok": true,
+   "detail": "84 placed"
+  },
+  {
+   "name": "every candidate ingredient is in exactly one ingredient batch",
+   "ok": true,
+   "detail": "70 placed"
+  },
+  {
+   "name": "every ACTIVE candidate ingredient is used by >=1 remaining staged recipe (no orphan)",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "every non-ACTIVE candidate (alias / merge, I-1 / I-2) is unreferenced by design",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "ingredient universe == 100 shipped + 70 candidates = 170",
+   "ok": true,
+   "detail": 170
+  },
+  {
+   "name": "the 3 formerly in-flight ingredients (burrata honey walnut) are shipped, not candidates",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "plan's 73 candidates == 70 staged + 3 now-shipped",
+   "ok": true,
+   "detail": 73
+  },
+  {
+   "name": "recipe universe == 93 shipped + 84 candidates = 177",
+   "ok": true,
+   "detail": 177
+  },
+  {
+   "name": "every 172-matrix capability is owned by exactly one methods row",
+   "ok": true,
+   "detail": {
+    "missing": [],
+    "extra": [],
+    "dup": []
+   }
+  },
+  {
+   "name": "every mechanic key used by a staged recipe has a methods row",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "methods ids unique",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "registered technique ids are all ledgered",
+   "ok": true,
+   "detail": [
+    "no-sauce",
+    "tray",
+    "dough-pinsa-romana",
+    "late-addition"
+   ]
+  }
+ ]
+}
