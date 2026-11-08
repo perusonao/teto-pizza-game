@@ -27,4 +27,17 @@ for k,c in case.items():
     saved = round(0.35 * (line1 + line2 + line3))
     out[k] = dict(recipe_only_trains=rtrains, trains=trains, line1_ingredients=line1, line2_recipes=line2,
                   line3_mechanics=line3, shared=shared, total=total, total_with_S3=total - saved)
+# --- Claude tokens (measured medians per batch from 4 attributable batches B12/B13/B19/B20-A: output 438k, cacheRead 289M, cost 51 USD) ---
+base = dict(output_k=438, cache_read_m=289, usd=51)
+mult = {"optimistic": (0.4, 1.0, 0.5), "standard": (1.0, 1.5, 0.5), "pessimistic": (2.0, 3.0, 1.0)}  # train, mechanic PR, gate item
+for k, c in case.items():
+    mt, mm, mg = mult[k]
+    n_tr = out[k]["trains"]
+    units_eq = n_tr*mt + units["new_mechanic_prs"]*mm + units["gate_on_items"]*mg
+    units_eq *= 1.10   # +10% S4 maintenance / measurement sessions
+    out[k]["claude_output_M"] = round(units_eq*base["output_k"]/1000, 1)
+    out[k]["claude_cache_read_B"] = round(units_eq*base["cache_read_m"]/1000, 1)
+    out[k]["claude_usd"] = round(units_eq*base["usd"])
+    # prompts if the CURRENT operation continues (GitHub Owner comments median 4 / PR, +1 session start): 5 per train-equivalent
+    out[k]["total_current_operation"] = round(5*n_tr*{"optimistic":0.6,"standard":1.0,"pessimistic":1.6}[k] + out[k]["line3_mechanics"] + out[k]["shared"])
 print(json.dumps(out, indent=1, ensure_ascii=False))
