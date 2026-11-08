@@ -86,6 +86,7 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   feta: "l",
   ricotta: "l",
   burrata: "l", // Expansion Batch 19 (#774): a cheese, large like ricotta / feta
+  walnut: "s", // Expansion Batch 20-A (#790): a kernel, small like the other nuts / seeds
   "ricotta-salata": "l",
   "cream-cheese": "l",
   catupiry: "l",

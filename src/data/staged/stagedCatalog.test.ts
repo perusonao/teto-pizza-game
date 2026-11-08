@@ -27,10 +27,10 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
     const planned = PLAN.recipes.filter((r) => !r.inFlight).map((r) => r.evidenceId).sort();
     expect(STAGED_RECIPES.map((r) => r.evidenceId).sort()).toEqual(planned);
     expect(PLAN.recipes.filter((r) => r.inFlight)).toHaveLength(3);
-    // In-flight ids that have shipped (pesto-burrata-pizza / pizza-alla-crudaiola via PR #783) are already inside RECIPES: count them once.
+    // In-flight ids that have shipped (pesto-burrata-pizza / pizza-alla-crudaiola via PR #783, pesto-noci-pizza via Batch 20-A #790) are already inside RECIPES: count them once.
     const shippedIds = new Set(RECIPES.map((r) => r.id as string));
     const shippedInFlight = Object.keys(IN_FLIGHT_RECIPE_IDS).filter((id) => shippedIds.has(id));
-    expect(shippedInFlight).toEqual(["pesto-burrata-pizza", "pizza-alla-crudaiola"]);
+    expect(shippedInFlight).toEqual(["pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"]);
     expect(RECIPES.length + PLAN.recipes.length - shippedInFlight.length).toBe(pinsaEnabled() ? 177 : 176);
     expect(Object.keys(IN_FLIGHT_RECIPE_IDS).sort()).toEqual(["pesto-burrata-pizza", "pesto-noci-pizza", "pizza-alla-crudaiola"]);
   });

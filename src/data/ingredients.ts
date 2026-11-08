@@ -26,6 +26,7 @@ export type DedicatedIngredientVisual =
   | "clam-valve"
   | "ricotta-mound"
   | "burrata-torn-ball"
+  | "walnut-kernel"
   | "feta-cubes"
   | "sausage-slices"
   | "hot-dog-slices"
@@ -1264,6 +1265,34 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pieceVisual: "burrata-torn-ball",
+  },
+  /**
+   * Expansion Batch 20-A (Issue #790; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): `honey` (はちみつ), a finite ladder material (ordinary step 71, T4, no star gate), the SECOND sauce layer of pesto-noci-pizza (Owner 2026-11-08: honey is a
+   * pre-bake second sauce layer, provisional). A spread sauce painted in the SAUCE step with the existing PAINT gesture (a plain, non-oil layer; the olive-oil CSS treatment does not apply). Sauces carry no topping family. `color` `#e8a93a` (amber)
+   * is PROVISIONAL until the Owner HV on a real device. `emoji` is the tray / shop chip face (a sauce has no dedicated art; 🍯 is already miso-sauce's, so G18 keeps this one unique with the bee).
+   */
+  {
+    id: "honey",
+    category: "sauce",
+    nameJa: "はちみつ",
+    color: "#e8a93a",
+    emoji: "\u{1F41D}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * Expansion Batch 20-A (Issue #790; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): `walnut` (くるみ), a finite ladder material (ordinary step 71, same step as honey), a scatter topping; Hint 5.0 family `spice` (provisional, Owner 2026-11-08), size class `s`.
+   * Dedicated art `walnut-kernel` = the unwired #777 component, wired here unchanged (raw palette; the shared bake filter does the baking). `color` is PROVISIONAL. `emoji` is only the required, never-displayed text fallback (🌰 is pine-nuts', so G18 keeps this one unique).
+   */
+  {
+    id: "walnut",
+    category: "topping",
+    nameJa: "くるみ",
+    color: "#9a6a3c",
+    emoji: "\u{1F9C6}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "walnut-kernel",
   },
 
 

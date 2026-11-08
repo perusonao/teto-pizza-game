@@ -80,7 +80,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       // Exactly three differences are allowed and each is asserted below: items without olive-oil, no capability, `spreadLayers: null`. Every other item / dimension is still compared with the matrix, which is unchanged.
       const pescatore = t.recipeId === "pescatore";
       // Expansion Batch 19 (#774): the two burrata recipes follow the grandma-pizza two-sauce precedent (primary sauce + olive-oil by presence): the matrix rows list MULTI_SPREAD_LAYER and \`spreadLayers\`, the runtime target has no such capability and \`spreadLayers: null\` (the two sauces are already in \`items\`). Unlike grandma-pizza there is no \`pan\` change.
-      const batch19TwoSauce = t.recipeId === "pesto-burrata-pizza" || t.recipeId === "pizza-alla-crudaiola";
+      const batch19TwoSauce = t.recipeId === "pesto-burrata-pizza" || t.recipeId === "pizza-alla-crudaiola" || t.recipeId === "pesto-noci-pizza"; // (Expansion Batch 20-A, #790: pesto-noci-pizza is the same two-sauce shape: pesto + honey)
       const expectedItems = pescatore ? expected!.items.filter((i) => i !== "olive-oil") : expected!.items;
       if (pescatore) {
         expect(expected!.items).toContain("olive-oil");
