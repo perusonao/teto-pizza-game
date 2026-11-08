@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("../ingredients", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../ingredients")>();
   const { whatIfIngredients } = await import("./whatIfSupport");
-  const all = [...actual.INGREDIENTS, ...whatIfIngredients()] as typeof actual.INGREDIENTS;
+  const all = [...actual.INGREDIENTS, ...whatIfIngredients(actual.INGREDIENTS.map((i) => i.id))] as typeof actual.INGREDIENTS;
   return { ...actual, INGREDIENTS: all, getIngredient: (id: string) => all.find((i) => i.id === id) };
 });
 
@@ -57,7 +57,11 @@ describe("What-if: canonical-order Research letter changes, per shipped recipe",
     }
     const table = [...rows.values()].sort((a, b) => (a.id < b.id ? -1 : 1));
     const culprits = [...new Set(table.flatMap((r) => r.causedAloneBy))].sort();
-    expect(table).toHaveLength(19);
+    // The 19 recipes measured before Batch 19 are unchanged (checked against the committed golden); PR #783 adds its own two shipped recipes.
+    const B19 = ["pesto-burrata-pizza", "pizza-alla-crudaiola"];
+    expect(table.filter((r) => !B19.includes(r.id))).toHaveLength(19);
+    expect(table.filter((r) => B19.includes(r.id)).map((r) => r.id)).toEqual(B19);
+    expect(table).toHaveLength(21);
     await expect(JSON.stringify({ shippedRecipes: table.length, distinctCulprits: culprits.length, culprits, table }, null, 1) + "\n").toMatchFileSnapshot("./__golden__/whatIf.research19.json");
   }, 300_000);
 });

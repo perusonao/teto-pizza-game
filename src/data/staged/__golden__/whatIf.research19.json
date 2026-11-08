@@ -1,8 +1,9 @@
 {
- "shippedRecipes": 19,
- "distinctCulprits": 25,
+ "shippedRecipes": 21,
+ "distinctCulprits": 26,
  "culprits": [
   "bulgogi-pizza",
+  "burrata-pizza",
   "calzone-pizzadb",
   "caponata-pizza",
   "chicago-deep-dish-pizzadb",
@@ -71,7 +72,7 @@
     "-->A"
    ],
    "cohortMaterial": "white-sesame",
-   "firstPrefix": 86,
+   "firstPrefix": 87,
    "causedAloneBy": [
     "bulgogi-pizza"
    ]
@@ -125,6 +126,17 @@
    ]
   },
   {
+   "id": "pesto-burrata-pizza",
+   "changes": [
+    "B->C"
+   ],
+   "cohortMaterial": "burrata",
+   "firstPrefix": 83,
+   "causedAloneBy": [
+    "burrata-pizza"
+   ]
+  },
+  {
    "id": "pesto-patate",
    "changes": [
     "-->B"
@@ -133,6 +145,17 @@
    "firstPrefix": 22,
    "causedAloneBy": [
     "hokkaido-cheese-pizza"
+   ]
+  },
+  {
+   "id": "pizza-alla-crudaiola",
+   "changes": [
+    "A->B"
+   ],
+   "cohortMaterial": "burrata",
+   "firstPrefix": 83,
+   "causedAloneBy": [
+    "burrata-pizza"
    ]
   },
   {
@@ -234,7 +257,7 @@
     "-->A"
    ],
    "cohortMaterial": "nori",
-   "firstPrefix": 94,
+   "firstPrefix": 95,
    "causedAloneBy": [
     "teriyaki-chicken-pizza"
    ]
