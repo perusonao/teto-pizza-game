@@ -1,7 +1,7 @@
 {
  "blockingDependencies": 407,
  "byVerdict": {
-  "AUTO_RESOLVED": 17,
+  "AUTO_RESOLVED": 11,
   "RULE_DECIDED_WORK": 2,
   "DUPLICATE_COUNT": 24,
   "WAITS_MECHANIC": 58,
@@ -9,9 +9,9 @@
   "AXIS_CONDITIONAL": 30,
   "STAGED_PAIR": 94,
   "EXCEPTION_NEEDED": 75,
-  "OWNER_DECISION": 97
+  "OWNER_DECISION": 103
  },
- "autoResolved": 17,
+ "autoResolved": 11,
  "byKind": {
   "DUPLICATE_GATE": {
    "AXIS_CONDITIONAL": 17,
@@ -30,12 +30,12 @@
    "WAITS_MECHANIC": 58
   },
   "OWNER_RULE": {
-   "AUTO_RESOLVED": 15,
+   "AUTO_RESOLVED": 9,
    "RULE_DECIDED_WORK": 2,
    "WAITS_IN_FLIGHT": 1,
    "AXIS_CONDITIONAL": 13,
    "EXCEPTION_NEEDED": 25,
-   "OWNER_DECISION": 65
+   "OWNER_DECISION": 71
   },
   "SAUCE_UNSPECIFIED": {
    "DUPLICATE_COUNT": 24
@@ -48,9 +48,8 @@
  },
  "ownerRules": {
   "R-1": {
-   "AUTO_RESOLVED": 6,
    "RULE_DECIDED_WORK": 2,
-   "OWNER_DECISION": 16
+   "OWNER_DECISION": 22
   },
   "R-2": {
    "AXIS_CONDITIONAL": 10,
@@ -484,10 +483,7 @@
  },
  "recipesFullyRuleResolvable": [
   "taco-pizza",
-  "jerusalem-mixed-grill-pizza",
-  "okonomiyaki-style-pizza",
-  "caponata-pizza",
-  "banh-mi-pizza"
+  "okonomiyaki-style-pizza"
  ],
  "recipesNoOwnerDecisionLeft": [
   {
@@ -510,19 +506,7 @@
    ]
   },
   {
-   "id": "jerusalem-mixed-grill-pizza",
-   "waits": []
-  },
-  {
    "id": "okonomiyaki-style-pizza",
-   "waits": []
-  },
-  {
-   "id": "caponata-pizza",
-   "waits": []
-  },
-  {
-   "id": "banh-mi-pizza",
    "waits": []
   },
   {
@@ -549,12 +533,6 @@
    "waits": [
     "WAITS_IN_FLIGHT"
    ]
-  },
-  {
-   "id": "natto-pizza",
-   "waits": [
-    "MECHANIC:MID_BAKE"
-   ]
   }
  ],
  "mechanicWaits": {
@@ -577,9 +555,7 @@
   },
   "M4": {
    "recipesNeedingTrack": 2,
-   "recipesUnblockedByThisTrackAlone": [
-    "natto-pizza"
-   ]
+   "recipesUnblockedByThisTrackAlone": []
   },
   "M5": {
    "recipesNeedingTrack": 4,
@@ -849,10 +825,10 @@
   },
   {
    "id": "jerusalem-mixed-grill-pizza",
-   "proposals": [
-    "R-1: NO_SAUCE (family 「その他」)"
-   ],
-   "open": []
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
   },
   {
    "id": "old-forge-style-pizza",
@@ -877,10 +853,10 @@
   },
   {
    "id": "caponata-pizza",
-   "proposals": [
-    "R-1: NO_SAUCE (family 「その他」)"
-   ],
-   "open": []
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
   },
   {
    "id": "cauliflower-crust-pizza",
@@ -1043,10 +1019,10 @@
   },
   {
    "id": "banh-mi-pizza",
-   "proposals": [
-    "R-1: NO_SAUCE (family 「その他」)"
-   ],
-   "open": []
+   "proposals": [],
+   "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1"
+   ]
   },
   {
    "id": "buffalo-cauliflower-pizza",
@@ -1057,10 +1033,9 @@
   },
   {
    "id": "palmitos-salsa-golf",
-   "proposals": [
-    "R-1: NO_SAUCE (family 「その他」)"
-   ],
+   "proposals": [],
    "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
     "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
@@ -1334,10 +1309,9 @@
   },
   {
    "id": "natto-pizza",
-   "proposals": [
-    "R-1: NO_SAUCE (family 「その他」)"
-   ],
+   "proposals": [],
    "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
     "WAITS_MECHANIC:MECHANIC:MID_BAKE"
    ]
   },
@@ -1376,10 +1350,9 @@
   },
   {
    "id": "pizza-de-lomo-saltado",
-   "proposals": [
-    "R-1: NO_SAUCE (family 「その他」)"
-   ],
+   "proposals": [],
    "open": [
+    "OWNER_DECISION:OWNER_RULE:R-1",
     "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "WAITS_MECHANIC:MECHANIC:MID_BAKE",
     "WAITS_MECHANIC:MECHANIC:PREP",

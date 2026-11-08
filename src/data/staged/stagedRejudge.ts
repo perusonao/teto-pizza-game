@@ -4,9 +4,10 @@
  * recorded for review; nothing here promotes, excludes or renames anything. STAGED ONLY: never imported by production code.
  *
  * Mechanical rules (only what the rule text decides on its own; everything else stays with the Owner):
- *  - R-1 (sauce): matrix family 「その他」 = no identity sauce named -> NO_SAUCE (rule: "otherwise existing sauce or NO_SAUCE").
- *    「甘辛だれ」 on teriyaki-chicken / bulgogi = the rule's own named examples of an identity sauce -> NEW SAUCE (rule-decided; the sauce
- *    ingredient still has to be created). Every other generic family (hot / curry / dessert / white / tare elsewhere) -> Owner.
+ *  - R-1 (sauce): 「甘辛だれ」 on teriyaki-chicken / bulgogi = the rule's own named examples of an identity sauce -> NEW SAUCE (rule-decided;
+ *    the sauce ingredient still has to be created). Every other family stays with the Owner, 「その他」 included: the matrix rule reads
+ *    "any listed spread satisfies it, otherwise unspecified", so it is NOT evidence of no sauce, and "existing sauce or NO_SAUCE" is still a
+ *    choice (Codex P2, PR #788; e.g. palmitos-salsa-golf is served with salsa golf).
  *  - R-6 (late addition): already applied where the matrix names the post-bake ingredients (taco). An undecided timing
  *    `unresolved:mid_bake|post_bake` -> the shipped post_bake (rule: "use the existing post_bake, no new mechanic"), which also drops
  *    that recipe's MID_BAKE dependency. Salad rows whose post-bake ingredients are not named stay with the Owner.
@@ -48,7 +49,6 @@ export interface RecipeRejudge {
   readonly judged: readonly JudgedDependency[];
 }
 
-const SAUCE_NO_SAUCE_FAMILIES = new Set(["その他"]);
 const RULE_NAMED_IDENTITY_SAUCE: Readonly<Record<string, string>> = { "teriyaki-chicken-pizza": "teriyaki-sauce", "bulgogi-pizza": "bulgogi-sauce" };
 const IN_FLIGHT = new Set(["burrata", "honey", "walnut"]);
 /** R-3 as adopted: "allowed only when the dough is a visibly distinct technique; cauliflower / fathead are HOLD". */
@@ -65,15 +65,12 @@ export function rejudgeStaged(shipped: ShippedView, recipes: readonly StagedReci
   const originalDup = stagedDuplicateGate(shipped, recipes);
 
   // Pass 1: mechanical proposals on the identity sets.
-  const proposed = new Map<string, { set: string[]; proposals: string[]; sauce: "NO_SAUCE" | "NEW" | "OPEN" | "SPECIFIED"; tokens: Map<string, Verdict>; lateResolved: boolean }>();
+  const proposed = new Map<string, { set: string[]; proposals: string[]; sauce: "NEW" | "OPEN" | "SPECIFIED"; tokens: Map<string, Verdict>; lateResolved: boolean }>();
   for (const r of recipes) {
     const set = [...new Set(r.requiredIngredients.map((q) => q.ingredientId))];
     const proposals: string[] = [];
-    let sauce: "NO_SAUCE" | "NEW" | "OPEN" | "SPECIFIED" = r.sauce.status === "unspecified" ? "OPEN" : "SPECIFIED";
-    if (sauce === "OPEN" && SAUCE_NO_SAUCE_FAMILIES.has(r.sauceFamilyRaw)) {
-      sauce = "NO_SAUCE";
-      proposals.push(`R-1: NO_SAUCE (family 「${r.sauceFamilyRaw}」)`);
-    } else if (sauce === "OPEN" && r.id in RULE_NAMED_IDENTITY_SAUCE) {
+    let sauce: "NEW" | "OPEN" | "SPECIFIED" = r.sauce.status === "unspecified" ? "OPEN" : "SPECIFIED";
+    if (sauce === "OPEN" && r.id in RULE_NAMED_IDENTITY_SAUCE) {
       sauce = "NEW";
       proposals.push(`R-1: new identity sauce ${RULE_NAMED_IDENTITY_SAUCE[r.id]} (rule's named example; ingredient still to be created)`);
     }
@@ -127,7 +124,7 @@ export function rejudgeStaged(shipped: ShippedView, recipes: readonly StagedReci
       let note: string | undefined;
       switch (d.kind) {
         case "OWNER_RULE":
-          if (d.id === "R-1") verdict = p.sauce === "NO_SAUCE" ? "AUTO_RESOLVED" : p.sauce === "NEW" ? "RULE_DECIDED_WORK" : "OWNER_DECISION";
+          if (d.id === "R-1") verdict = p.sauce === "NEW" ? "RULE_DECIDED_WORK" : "OWNER_DECISION";
           else if (d.id === "R-6") verdict = r.applied.some((a) => a.startsWith("R-6")) || p.lateResolved ? "AUTO_RESOLVED" : "OWNER_DECISION";
           else if (d.id === "R-7") verdict = [...p.tokens.values()].every((v) => v === "AUTO_RESOLVED") ? "AUTO_RESOLVED" : [...p.tokens.values()].every((v) => v !== "OWNER_DECISION") ? "WAITS_IN_FLIGHT" : "OWNER_DECISION";
           else if (d.id === "R-2") {
