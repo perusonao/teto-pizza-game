@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("../ingredients", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../ingredients")>();
   const { whatIfIngredients } = await import("./whatIfSupport");
-  const all = [...actual.INGREDIENTS, ...whatIfIngredients()] as typeof actual.INGREDIENTS;
+  const all = [...actual.INGREDIENTS, ...whatIfIngredients(actual.INGREDIENTS.map((i) => i.id))] as typeof actual.INGREDIENTS;
   return { ...actual, INGREDIENTS: all, getIngredient: (id: string) => all.find((i) => i.id === id) };
 });
 

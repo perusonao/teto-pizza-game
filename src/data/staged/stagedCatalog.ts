@@ -135,12 +135,18 @@ export interface Dependency {
  * Open dependencies of one staged recipe. `INGREDIENT_STAGED` is registered here and resolves by promotion in the same train;
  * every other kind blocks promotion (`isBlocking`).
  */
-export function stagedDependencies(r: StagedRecipe, dup: readonly DuplicateHit[], ingredients: readonly StagedIngredient[] = STAGED_INGREDIENTS): Dependency[] {
+export function stagedDependencies(
+  r: StagedRecipe,
+  dup: readonly DuplicateHit[],
+  ingredients: readonly StagedIngredient[] = STAGED_INGREDIENTS,
+  shippedIngredientIds: readonly string[] = [],
+): Dependency[] {
   const staged = new Set(ingredients.map((i) => i.id));
   const deps: Dependency[] = [];
   for (const rule of r.ownerRules) deps.push({ kind: "OWNER_RULE", id: rule });
   for (const m of r.mechanics) deps.push({ kind: "MECHANIC", id: m });
-  for (const i of r.inFlightIngredients) deps.push({ kind: "INGREDIENT_IN_FLIGHT", id: i });
+  // An in-flight ingredient that has since shipped (burrata, PR #783) is no longer a dependency.
+  for (const i of r.inFlightIngredients) if (!shippedIngredientIds.includes(i)) deps.push({ kind: "INGREDIENT_IN_FLIGHT", id: i });
   for (const q of r.requiredIngredients) if (staged.has(q.ingredientId)) deps.push({ kind: "INGREDIENT_STAGED", id: q.ingredientId });
   for (const t of r.unresolvedTokens) deps.push({ kind: "UNRESOLVED_TOKEN", id: t });
   if (r.sauce.status === "unspecified") deps.push({ kind: "SAUCE_UNSPECIFIED", id: r.id });

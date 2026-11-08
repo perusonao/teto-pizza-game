@@ -5,10 +5,10 @@
   "RULE_DECIDED_WORK": 2,
   "DUPLICATE_COUNT": 24,
   "WAITS_MECHANIC": 58,
-  "WAITS_IN_FLIGHT": 10,
+  "WAITS_IN_FLIGHT": 9,
   "AXIS_CONDITIONAL": 30,
   "STAGED_PAIR": 94,
-  "EXCEPTION_NEEDED": 75,
+  "EXCEPTION_NEEDED": 76,
   "OWNER_DECISION": 103
  },
  "autoResolved": 11,
@@ -16,14 +16,14 @@
   "DUPLICATE_GATE": {
    "AXIS_CONDITIONAL": 17,
    "STAGED_PAIR": 94,
-   "EXCEPTION_NEEDED": 50,
+   "EXCEPTION_NEEDED": 51,
    "OWNER_DECISION": 6
   },
   "ID_SUFFIXED": {
    "OWNER_DECISION": 7
   },
   "INGREDIENT_IN_FLIGHT": {
-   "WAITS_IN_FLIGHT": 8
+   "WAITS_IN_FLIGHT": 7
   },
   "MECHANIC": {
    "AUTO_RESOLVED": 1,
@@ -80,7 +80,7 @@
   }
  },
  "duplicateGate": {
-  "dependencies": 167,
+  "dependencies": 168,
   "byType": {
    "IDENTICAL@shipped": {
     "AXIS_CONDITIONAL": 3,
@@ -90,7 +90,7 @@
     "STAGED_PAIR": 8
    },
    "JACCARD_GT_0_4@shipped": {
-    "EXCEPTION_NEEDED": 22
+    "EXCEPTION_NEEDED": 23
    },
    "JACCARD_GT_0_4@staged": {
     "STAGED_PAIR": 18
@@ -189,6 +189,7 @@
      "SUBSET:pepperoni(0.667)",
      "SUBSET:pescatore(0.286)",
      "SUBSET:pinsa-romana(0.5)",
+     "SUBSET:pizza-alla-crudaiola(0.333)",
      "SUBSET:pizza-overload(0.333)",
      "SUBSET:pizza-portuguesa(0.333)",
      "SUBSET:prosciutto-funghi(0.5)",
@@ -387,6 +388,12 @@
     ]
    },
    {
+    "id": "burrata-pizza",
+    "shippedHits": [
+     "JACCARD_GT_0_4:pizza-alla-crudaiola(0.429)"
+    ]
+   },
+   {
     "id": "bulgogi-pizza",
     "shippedHits": [
      "ONE_DIFF:nigerian-suya-pizza(0.6)",
@@ -526,12 +533,6 @@
    "id": "poutine-pizza",
    "waits": [
     "MECHANIC:DOUGH_VARIANT"
-   ]
-  },
-  {
-   "id": "burrata-pizza",
-   "waits": [
-    "WAITS_IN_FLIGHT"
    ]
   }
  ],
@@ -1252,7 +1253,7 @@
    "id": "burrata-pizza",
    "proposals": [],
    "open": [
-    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:burrata"
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped"
    ]
   },
   {

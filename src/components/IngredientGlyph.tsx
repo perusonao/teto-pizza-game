@@ -31,6 +31,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "caper-cluster": "0 0 32 32",
   "clam-valve": "0 0 32 32",
   "ricotta-mound": "0 0 64 64",
+  "burrata-torn-ball": "0 0 64 64",
   "feta-cubes": "0 0 64 64",
   "sausage-slices": "0 0 64 64",
   "hot-dog-slices": "0 0 64 64",
@@ -83,6 +84,7 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "caper-cluster" && <CaperCluster />}
       {visual === "clam-valve" && <ClamValve />}
       {visual === "ricotta-mound" && <RicottaMound />}
+      {visual === "burrata-torn-ball" && <BurrataTornBall />}
       {visual === "feta-cubes" && <FetaCubes />}
       {visual === "sausage-slices" && <SausageSlices />}
       {visual === "hot-dog-slices" && <HotDogSlices />}
@@ -1092,6 +1094,22 @@ function SourCreamDab() {
       <path d="M10 44C8 30 20 18 34 20C50 20 58 32 54 44C50 54 16 54 10 44Z" fill="#f1ecdc" stroke="#6b6a52" strokeWidth="2.4" strokeLinejoin="round" />
       <path d="M20 38C26 30 36 30 42 36C47 40 40 44 33 42" fill="none" stroke="#b9b49c" strokeWidth="2.6" strokeLinecap="round" />
       <path d="M30 30C32 24 36 24 36 28" fill="none" stroke="#b9b49c" strokeWidth="2.2" strokeLinecap="round" />
+    </g>
+  );
+}
+
+/* ---------- burrata (Expansion Batch 19, #774, Owner R2 decision D5: candidate C): a ball torn open at the top with the cream spilling out, so it reads differently from the white disc (mozzarella), feta cubes, the cream-cheese block and the ricotta mound. The outline is a warm brown so it does not melt into the white baked cheese. Same grammar as the other cheeses: contact-shadow ellipse, dark outline, no id / gradient / defs. Colours are PROVISIONAL until the 390x844 / 360x800 HV. ---------- */
+function BurrataTornBall() {
+  return (
+    <g>
+      <ellipse cx="32" cy="58" rx="22" ry="3" fill="#000" opacity=".15" />
+      <path d="M32 55C13 55 7 41 12 31C15 25 20 22 25 21L39 21C44 22 49 25 52 31C57 41 51 55 32 55Z" fill="#fdf9ee" stroke="#85694a" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M12.6 41C16 50 23 52.5 32 52.5C41 52.5 48 50 51.4 41C47 46 40 48 32 48C24 48 17 46 12.6 41Z" fill="#efe3c6" />
+      <path d="M22 22C20 15 25 10 32 10C39 10 44 15 42 22C40 25 36 26 32 25C28 26 24 25 22 22Z" fill="#f9e8b4" stroke="#85694a" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M25 18C28 14 31 19 34 15C37 12 40 16 40 19" fill="none" stroke="#fffdf4" strokeWidth="3" strokeLinecap="round" />
+      <path d="M38 24C42 27 43 31 41 34C40 36 37 35 37 32C37 29 36 27 35 26Z" fill="#f9e8b4" stroke="#85694a" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M19 26L23 23M46 25L49 28" stroke="#85694a" strokeWidth="1.5" strokeLinecap="round" />
+      <ellipse cx="20" cy="35" rx="5" ry="3" transform="rotate(-25 20 35)" fill="#fff" opacity=".85" />
     </g>
   );
 }
