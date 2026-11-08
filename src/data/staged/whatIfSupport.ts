@@ -22,7 +22,7 @@ export interface WhatIfIngredient {
 
 /** In-flight ingredients (#783 / B20-A) with their planned category, so recipes that reference them resolve. */
 const IN_FLIGHT_CATEGORY: Record<string, "sauce" | "cheese" | "topping"> = { burrata: "cheese", honey: "sauce", walnut: "topping" };
-export const IN_FLIGHT_FAMILY: Record<string, string> = { walnut: "spice" };
+export const IN_FLIGHT_FAMILY: Record<string, string> = { walnut: "other" }; // (walnut shipped in Batch 20-A #790 as `other`, the nut family with almond / pine-nuts)
 
 /** `shippedIds`: ingredient ids already in the shipped catalog (e.g. burrata after PR #783); they are never appended a second time. */
 export function whatIfIngredients(shippedIds: readonly string[] = []): WhatIfIngredient[] {

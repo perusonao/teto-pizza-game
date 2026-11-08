@@ -1281,7 +1281,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     unlockCondition: { minTotalStars: 0 },
   },
   /**
-   * Expansion Batch 20-A (Issue #790; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): `walnut` (くるみ), a finite ladder material (ordinary step 71, same step as honey), a scatter topping; Hint 5.0 family `spice` (provisional, Owner 2026-11-08), size class `s`.
+   * Expansion Batch 20-A (Issue #790; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): `walnut` (くるみ), a finite ladder material (ordinary step 71, same step as honey), a scatter topping; Hint 5.0 family `other` (Owner decision 2026-11-08, the confirmed spec: the nut family with almond / pine-nuts), size class `s`.
    * Dedicated art `walnut-kernel` = the unwired #777 component, wired here unchanged (raw palette; the shared bake filter does the baking). `color` is PROVISIONAL. `emoji` is only the required, never-displayed text fallback (🌰 is pine-nuts', so G18 keeps this one unique).
    */
   {

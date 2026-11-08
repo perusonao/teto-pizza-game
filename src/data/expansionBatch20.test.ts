@@ -28,8 +28,8 @@ import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { EMPTY_DEX } from "../state/dex";
 
 /**
- * Expansion Batch 20-A (Issue #790): `honey` (はちみつ, a sauce, the SECOND sauce layer) + `walnut` (くるみ, a `spice`-family topping, dedicated art = the #777 component) at ordinary step 71, and the one recipe `pesto-noci-pizza` (credited, the step's key). PROVISIONAL SPEC: the original pizzadb.jp is NOT confirmed;
- * the only evidence is the 172 matrix row `pesto-noci-pizzadb-p12`. Counts / the generic 58-78 bake window / colours are GAMEPLAY ASSUMPTIONS. Owner decisions 2026-11-08: mozzarella is NOT added; honey is a pre-bake second sauce layer (provisional); walnut is `spice` (provisional);
+ * Expansion Batch 20-A (Issue #790): `honey` (はちみつ, a sauce, the SECOND sauce layer) + `walnut` (くるみ, an `other`-family (nut) topping, dedicated art = the #777 component) at ordinary step 71, and the one recipe `pesto-noci-pizza` (credited, the step's key). PROVISIONAL SPEC: the original pizzadb.jp is NOT confirmed;
+ * the only evidence is the 172 matrix row `pesto-noci-pizzadb-p12`. Counts / the generic 58-78 bake window / colours are GAMEPLAY ASSUMPTIONS. Owner decisions 2026-11-08: mozzarella is NOT added; honey is a pre-bake second sauce layer (provisional); walnut is `other` (final, Owner 2026-11-08: spice is not Final-Gate safe);
  * the 10 non-canonical Research letter changes of docs/reports/TETO_B20A_OWNER-DECISION-TABLE_2026-11-08.md are approved and the canonical order must change 0 letters (a mismatch is a STOP).
  */
 const PN = "pesto-noci-pizza";
@@ -46,7 +46,7 @@ const symDiff = (a: readonly string[], b: readonly string[]) => new Set([...a, .
 describe("honey and walnut (Owner 2026-11-08)", () => {
   const honey = getIngredient("honey")!;
   const walnut = getIngredient("walnut")!;
-  it("honey is a finite spread SAUCE named はちみつ with no dedicated art and no topping family; walnut is a finite scatter TOPPING named くるみ with the walnut-kernel art, size class s, family spice", () => {
+  it("honey is a finite spread SAUCE named はちみつ with no dedicated art and no topping family; walnut is a finite scatter TOPPING named くるみ with the walnut-kernel art, size class s, family other (the nuts: almond / pine-nuts / walnut)", () => {
     expect(honey).toMatchObject({ id: "honey", category: "sauce", nameJa: "はちみつ", placement: "spread", color: "#e8a93a" });
     expect(honey.pieceVisual).toBeUndefined();
     expect(honey.unlockCondition).toEqual({ minTotalStars: 0 });
@@ -54,7 +54,7 @@ describe("honey and walnut (Owner 2026-11-08)", () => {
     expect(walnut).toMatchObject({ id: "walnut", category: "topping", nameJa: "くるみ", placement: "scatter", pieceVisual: "walnut-kernel" });
     expect(walnut.unlockCondition).toEqual({ minTotalStars: 0 });
     expect(toppingSizeClass("walnut")).toBe("s");
-    expect(ingredientAttributeFamily("walnut")).toBe("spice");
+    expect(ingredientAttributeFamily("walnut")).toBe("other");
   });
   it("each is exactly one new ingredient id, and their text fallbacks are unique in the catalog (G18)", () => {
     for (const id of ["honey", "walnut"]) expect(INGREDIENTS.filter((i) => i.id === id)).toHaveLength(1);
