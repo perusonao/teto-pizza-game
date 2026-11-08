@@ -1,0 +1,62 @@
+genovese: -->B B->C G->H A->B C->D F->G
+pesto-burrata-pizza: J->K B->C C->D I->J G->H H->I
+pesto-caprese: -->A
+pesto-patate: I->J -->B B->C H->I F->G
+pesto-pollo: F->G B->C C->D E->F
+pesto-salmone: H->I -->B B->C G->H
+pesto-tonno: -->A
+pesto-trapanese: E->F C->D B->C D->E
+pesto-vegetariana: -->A
+quattro-formaggi: -->A
+--finocchi
+baba-ganoush-pizza: L->M -->B B->C F->G
+bacalhau: -->A
+boscaiola: -->A
+brazilian-calabresa: -->A
+calabresa-argentina: -->A
+capricciosa: -->A
+eggplant-ricotta-pizza: -->A
+fugazza: -->A
+grandma-pizza: -->A
+palmito-pizza: -->A
+pesto-burrata-pizza: -->A
+pesto-tonno: -->A
+pizza-alla-crudaiola: -->A
+pizza-bianca-ricotta: K->L B->C C->D
+pizza-bianca: -->A
+pizza-feta-eliniki: -->A
+pizza-portuguesa: -->A
+puttanesca-pizza: -->A
+quattro-formaggi: -->A
+supreme-pizza: -->A
+veggie-supreme-pizza: -->A
+vongole: M->N C->D B->C
+--cavolo
+baba-ganoush-pizza: L->M -->B B->C F->G
+boscaiola: F->G -->B A->B B->C C->D
+eggplant-ricotta-pizza: H->I -->B B->C
+fugazza: E->F -->B A->B B->C
+grandma-pizza: B->C G->H C->D A->B -->B
+pesto-burrata-pizza: J->K -->B B->C E->F
+pesto-salmone: -->B B->C
+pizza-alla-crudaiola: C->D A->B -->B
+pizza-bianca-ricotta: K->L B->C C->D
+pizza-bianca: B->C D->E A->B -->B
+pizza-feta-eliniki: I->J -->B B->C D->E
+quattro-formaggi: -->B A->B B->C
+shirasu-pizza: A->B -->B
+vongole: M->N C->D B->C
+--truffle
+new-haven-apizza: -->A
+parmigiana-pizza: B->C D->E -->B
+quattro-formaggi: -->B A->B B->C
+spinach-artichoke-pizza: C->D -->B A->B
+--buffalo
+bbq-chicken-pizza: -->A
+curry-pizza-japan: E->F -->B B->C D->E C->D
+frango-catupiry: F->G -->B E->F D->E
+jamaican-jerk-chicken-pizza: -->A
+pesto-noci-pizza: -->A
+pesto-pollo: -->A
+quattro-formaggi: -->A
+reina-pepiada-pizza: -->A
