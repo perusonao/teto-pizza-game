@@ -1,0 +1,22 @@
+{
+ "canonicalChanges": 0,
+ "nonCanonicalChanges": [
+  "baingan-bharta-pizza: -->A",
+  "california-style-pizza: -->A",
+  "chilean-napolitana: -->A",
+  "cuban-pizza: -->B A->B",
+  "goulash-pizza: -->A",
+  "nigerian-suya-pizza: -->A",
+  "pesto-burrata-pizza: B->C C->D",
+  "pesto-caprese: -->A",
+  "pizza-alla-crudaiola: -->A",
+  "pizza-feta-eliniki: B->C C->D",
+  "porchetta-pizza: -->B B->C",
+  "potato-mayo-pizza: -->B",
+  "reina-pepiada-pizza: -->A",
+  "rendang-pizza: -->A",
+  "tarako-cream-pizza: -->A",
+  "veggie-supreme-pizza: -->A",
+  "wasabi-beef-pizza: -->B B->C"
+ ]
+}

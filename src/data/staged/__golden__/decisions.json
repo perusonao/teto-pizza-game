@@ -1,0 +1,758 @@
+{
+ "dependencies": 383,
+ "byStatus": {
+  "RESOLVED": 33,
+  "WORK": 9,
+  "SOURCE_RESEARCH": 22,
+  "CANDIDATE_PENDING": 12,
+  "EXCEPTION_REVIEW": 76,
+  "WAITS_MECHANIC": 58,
+  "WAITS_IN_FLIGHT": 9,
+  "AXIS_WITH_M1": 30,
+  "STAGED_PAIR": 94,
+  "OWNER_DECISION": 40
+ },
+ "byDecision": {
+  "rule": 13,
+  "D-1": 76,
+  "D-2": 22,
+  "D-3": 12,
+  "D-4": 21,
+  "D-5": 8
+ },
+ "remainingOpen": 350,
+ "needsAdditionalOwnerDecision": {
+  "total": 116,
+  "perRecipeExceptions": 76,
+  "exceptionRecipes": 39,
+  "other": 40
+ },
+ "needsResearchOrConfirmation": 34,
+ "nextPromotable": {
+  "ready": [
+   "taco-pizza",
+   "okonomiyaki-style-pizza",
+   "pizza-finocchi-salad",
+   "pizza-cavolo-carote",
+   "black-truffle-pizza"
+  ],
+  "readyWithWork": [
+   "buffalo-chicken-pizzadb"
+  ],
+  "researchBlockedButOtherwiseReady": []
+ },
+ "d5PostBake": [
+  {
+   "id": "pizza-asparagi-limone",
+   "postBake": [
+    "lemon"
+   ]
+  },
+  {
+   "id": "pizza-carciofi-salad",
+   "postBake": [
+    "lemon"
+   ]
+  },
+  {
+   "id": "pizza-finocchi-salad",
+   "postBake": [
+    "orange"
+   ]
+  },
+  {
+   "id": "pizza-cavolo-carote",
+   "postBake": [
+    "lemon",
+    "red-cabbage"
+   ]
+  },
+  {
+   "id": "pizza-zucchine-menta",
+   "postBake": [
+    "lemon"
+   ]
+  },
+  {
+   "id": "pizza-cicoria-limone",
+   "postBake": [
+    "chicory",
+    "lemon"
+   ]
+  },
+  {
+   "id": "pizza-puntarelle",
+   "postBake": [
+    "chicory",
+    "lemon"
+   ]
+  },
+  {
+   "id": "pizza-radicchio-noci",
+   "postBake": [
+    "radicchio"
+   ]
+  }
+ ],
+ "d4ProposedIds": [
+  "calzone-pizzadb -> calzone",
+  "greek-style-pizzadb -> greek-style",
+  "chicago-deep-dish-pizzadb -> chicago-deep-dish",
+  "siciliana-pizzadb -> siciliana",
+  "buffalo-chicken-pizzadb -> buffalo-chicken",
+  "speck-e-brie-pizzadb -> speck-e-brie",
+  "frutti-di-mare-pizzadb -> frutti-di-mare"
+ ],
+ "d1Dossier": {
+  "recipes": 39,
+  "withProcessDifference": 21,
+  "withoutProcessDifference": 18,
+  "alsoResearchBlocked": 19,
+  "rows": [
+   {
+    "id": "calzone-pizzadb",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "calabresa-argentina(0.5)"
+     ]
+    },
+    "processDifference": [
+     "ENCLOSE(M3)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "quattro-stagioni",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "bambino(0.429)",
+      "hawaiian(0.429)",
+      "pizza-portuguesa(0.5)",
+      "prosciutto-funghi(0.429)",
+      "veggie-supreme-pizza(0.444)"
+     ],
+     "ONE_DIFF": [
+      "capricciosa(0.714)"
+     ],
+     "SUPERSET": [
+      "funghi(0.5)"
+     ]
+    },
+    "processDifference": [
+     "ZONED(M6)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
+   },
+   {
+    "id": "greek-style-pizzadb",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "calabresa-argentina(0.5)",
+      "capricciosa(0.429)",
+      "pizza-portuguesa(0.429)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)",
+     "PAN_PROFILE(M2)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "chicago-deep-dish-pizzadb",
+    "shippedOverlaps": {
+     "SUBSET": [
+      "meat-lovers(0.667)"
+     ],
+     "SUPERSET": [
+      "pepperoni(0.75)",
+      "salsiccia(0.75)"
+     ]
+    },
+    "processDifference": [
+     "PAN_PROFILE(M2)",
+     "STEP_ORDER(M6)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "siciliana-pizzadb",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "napoletana(0.6)",
+      "tonno-e-cipolla(0.6)"
+     ],
+     "JACCARD_GT_0_4": [
+      "pizza-portuguesa(0.429)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_SHAPE_TARGET(M2)",
+     "DOUGH_VARIANT(M1)",
+     "PAN_PROFILE(M2)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "sfincione",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "brazilian-calabresa(0.429)",
+      "napoletana(0.5)"
+     ],
+     "SUPERSET": [
+      "fugazza(0.6)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": true
+   },
+   {
+    "id": "trenton-tomato-pie",
+    "shippedOverlaps": {
+     "SUBSET": [
+      "bambino(0.5)",
+      "bismarck(0.667)",
+      "breakfast-pizza(0.5)",
+      "calabresa-argentina(0.4)",
+      "capricciosa(0.333)",
+      "funghi(0.667)",
+      "grandma-pizza(0.5)",
+      "hawaiian(0.5)",
+      "jamon-serrano-pizza(0.5)",
+      "margherita(0.667)",
+      "meat-lovers(0.333)",
+      "melanzane-pizza(0.5)",
+      "napoletana(0.5)",
+      "parmigiana-pizza(0.4)",
+      "pepperoni(0.667)",
+      "pescatore(0.286)",
+      "pinsa-romana(0.5)",
+      "pizza-alla-crudaiola(0.333)",
+      "pizza-overload(0.333)",
+      "pizza-portuguesa(0.333)",
+      "prosciutto-funghi(0.5)",
+      "salsiccia(0.667)",
+      "tonno-e-cipolla(0.5)",
+      "veggie-supreme-pizza(0.286)"
+     ]
+    },
+    "processDifference": [
+     "STEP_ORDER(M6)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
+   },
+   {
+    "id": "pizza-baiana",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "aussie(0.5)",
+      "brazilian-calabresa(0.429)",
+      "breakfast-pizza(0.5)",
+      "full-english-pizza(0.429)",
+      "pizza-portuguesa(0.571)",
+      "polish-kielbasa(0.5)",
+      "spanish-chorizo-pizza(0.5)",
+      "tonno-e-cipolla(0.5)"
+     ],
+     "SUPERSET": [
+      "bismarck(0.6)",
+      "salsiccia(0.6)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": true
+   },
+   {
+    "id": "pizza-a-caballo",
+    "shippedOverlaps": {
+     "SUBSET": [
+      "calabresa-argentina(0.6)",
+      "capricciosa(0.5)"
+     ],
+     "ONE_DIFF": [
+      "chilean-napolitana(0.5)",
+      "palmito-pizza(0.5)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)",
+     "ENCLOSE(M3)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "fugazzeta-rellena",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "capricciosa(0.429)",
+      "pizza-portuguesa(0.429)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)",
+     "ENCLOSE(M3)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "pizza-de-cancha",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "grandma-pizza(0.6)"
+     ],
+     "SUPERSET": [
+      "marinara(0.75)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
+   },
+   {
+    "id": "scacciata-ragusana",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "salsiccia(0.5)"
+     ]
+    },
+    "processDifference": [
+     "ENCLOSE(M3)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
+   },
+   {
+    "id": "thai-chicken-pizza",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "bbq-chicken-pizza(0.5)",
+      "reina-pepiada-pizza(0.429)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": false
+   },
+   {
+    "id": "keema-pizza",
+    "shippedOverlaps": {
+     "SUBSET": [
+      "aussie(0.5)",
+      "bacalhau(0.5)",
+      "baingan-bharta-pizza(0.333)",
+      "bbq-chicken-pizza(0.4)",
+      "curry-pizza-japan(0.5)",
+      "nigerian-suya-pizza(0.5)",
+      "pizza-moscow(0.4)",
+      "pizza-portuguesa(0.333)",
+      "polish-kielbasa(0.5)",
+      "rendang-pizza(0.5)",
+      "spanish-chorizo-pizza(0.5)",
+      "tandoori-paneer-pizza(0.4)",
+      "tonno-e-cipolla(0.5)",
+      "veggie-supreme-pizza(0.286)",
+      "wasabi-beef-pizza(0.4)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": false
+   },
+   {
+    "id": "chicago-stuffed-pizza",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "bismarck(0.5)",
+      "funghi(0.5)",
+      "margherita(0.5)",
+      "pepperoni(0.5)",
+      "salsiccia-e-friarielli(0.5)"
+     ],
+     "SUBSET": [
+      "meat-lovers(0.5)"
+     ],
+     "IDENTICAL": [
+      "salsiccia(1)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)",
+     "ENCLOSE(M3)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "chicken-tikka-pizza",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "bbq-chicken-pizza(0.429)",
+      "spanish-chorizo-pizza(0.5)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": false
+   },
+   {
+    "id": "diavola-pizza",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "bismarck(0.5)",
+      "funghi(0.5)",
+      "margherita(0.5)",
+      "pepperoni(0.5)",
+      "salsiccia(0.5)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": false
+   },
+   {
+    "id": "detroit-style-pizza",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "pepperoni(0.5)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_SHAPE_TARGET(M2)",
+     "DOUGH_VARIANT(M1)",
+     "PAN_PROFILE(M2)",
+     "POST_BAKE:tomato-sauce"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
+   },
+   {
+    "id": "new-england-bar-pizza",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "bismarck(0.5)",
+      "funghi(0.5)",
+      "margherita(0.5)",
+      "salsiccia(0.5)"
+     ],
+     "SUBSET": [
+      "meat-lovers(0.5)"
+     ],
+     "IDENTICAL": [
+      "pepperoni(1)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)",
+     "PAN_PROFILE(M2)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "palmitos-salsa-golf",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "capricciosa(0.429)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "pizza-salad",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "bambino(0.429)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": false
+   },
+   {
+    "id": "pizza-asparagi-limone",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "quattro-formaggi(0.429)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": false
+   },
+   {
+    "id": "pizza-zucchine-menta",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "eggplant-ricotta-pizza(0.429)",
+      "pizza-bianca-ricotta(0.429)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": true
+   },
+   {
+    "id": "pizza-chilena",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "aussie(0.5)",
+      "bacalhau(0.5)",
+      "brazilian-calabresa(0.429)",
+      "breakfast-pizza(0.5)",
+      "calabresa-argentina(0.429)",
+      "tonno-e-cipolla(0.5)",
+      "veggie-supreme-pizza(0.5)"
+     ],
+     "SUPERSET": [
+      "bismarck(0.6)"
+     ],
+     "SUBSET": [
+      "pizza-portuguesa(0.833)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": true
+   },
+   {
+    "id": "pizza-romana",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "calabresa-argentina(0.429)",
+      "puttanesca-pizza(0.429)"
+     ],
+     "SUPERSET": [
+      "napoletana(0.8)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "pizza-al-taglio-romana",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "bismarck(0.5)",
+      "funghi(0.5)",
+      "pepperoni(0.5)",
+      "salsiccia(0.5)"
+     ],
+     "IDENTICAL": [
+      "margherita(1)"
+     ],
+     "SUBSET": [
+      "melanzane-pizza(0.75)",
+      "parmigiana-pizza(0.6)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_SHAPE_TARGET(M2)",
+     "DOUGH_VARIANT(M1)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
+   },
+   {
+    "id": "philly-cheesesteak-pizza",
+    "shippedOverlaps": {
+     "SUBSET": [
+      "nigerian-suya-pizza(0.75)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": false
+   },
+   {
+    "id": "fugazzetta",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "chilean-napolitana(0.5)",
+      "fugazza(0.5)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
+   },
+   {
+    "id": "burrata-pizza",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "pizza-alla-crudaiola(0.429)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": true
+   },
+   {
+    "id": "bulgogi-pizza",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "nigerian-suya-pizza(0.6)",
+      "rendang-pizza(0.6)"
+     ],
+     "JACCARD_GT_0_4": [
+      "wasabi-beef-pizza(0.5)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": true
+   },
+   {
+    "id": "frutti-di-mare-pizzadb",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "pescatore(0.5)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": false
+   },
+   {
+    "id": "hot-honey-pepperoni",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "meat-lovers(0.429)"
+     ],
+     "SUPERSET": [
+      "pepperoni(0.75)"
+     ]
+    },
+    "processDifference": [
+     "POST_BAKE:honey"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
+   },
+   {
+    "id": "yakiniku-pizza",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "nigerian-suya-pizza(0.5)",
+      "rendang-pizza(0.5)",
+      "wasabi-beef-pizza(0.429)"
+     ]
+    },
+    "processDifference": [
+     "PREP(M5)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
+   },
+   {
+    "id": "pizza-de-lomo-saltado",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "nigerian-suya-pizza(0.5)",
+      "rendang-pizza(0.5)",
+      "wasabi-beef-pizza(0.429)"
+     ]
+    },
+    "processDifference": [
+     "MID_BAKE(M4)",
+     "PREP(M5)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
+   },
+   {
+    "id": "montreal-style-pizza",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "capricciosa(0.429)",
+      "meat-lovers(0.429)"
+     ],
+     "SUPERSET": [
+      "funghi(0.75)",
+      "pepperoni(0.75)"
+     ],
+     "ONE_DIFF": [
+      "prosciutto-funghi(0.6)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)",
+     "PAN_PROFILE(M2)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": true
+   },
+   {
+    "id": "nduja-pizza",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "salsiccia(0.5)",
+      "salsiccia-e-friarielli(0.5)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": false
+   },
+   {
+    "id": "tsukimi-pizza",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "aussie(0.6)",
+      "breakfast-pizza(0.6)"
+     ],
+     "JACCARD_GT_0_4": [
+      "full-english-pizza(0.5)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": true
+   },
+   {
+    "id": "south-african-boerewors",
+    "shippedOverlaps": {
+     "ONE_DIFF": [
+      "polish-kielbasa(0.6)",
+      "spanish-chorizo-pizza(0.6)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": false
+   },
+   {
+    "id": "hokkaido-cheese-pizza",
+    "shippedOverlaps": {
+     "SUBSET": [
+      "potato-mayo-pizza(0.6)"
+     ]
+    },
+    "processDifference": [],
+    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "researchBlocked": true
+   }
+  ]
+ }
+}
