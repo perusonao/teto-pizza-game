@@ -76,7 +76,8 @@ describe("lunchRush: false foundation", () => {
       "reina-pepiada-pizza",
       "pesto-burrata-pizza",
       "pizza-alla-crudaiola",
-    ]); // opt-out total = 58 (Expansion Batch 19 adds two; Expansion Batch 18 adds two; Expansion Batch 17 adds one; Expansion Batch 16 adds one; Expansion Batch 15 adds one; Expansion Batch 13 adds one; B12 adds one; Expansion Batch 10 PR-1 adds five; B11 S1 adds three; Expansion Batch 12 adds two)
+      "pesto-noci-pizza",
+    ]); // opt-out total = 59 (Expansion Batch 20-A adds one; Expansion Batch 19 adds two; Expansion Batch 18 adds two; Expansion Batch 17 adds one; Expansion Batch 16 adds one; Expansion Batch 15 adds one; Expansion Batch 13 adds one; B12 adds one; Expansion Batch 10 PR-1 adds five; B11 S1 adds three; Expansion Batch 12 adds two)
     const original = (RECIPES as readonly Recipe[]).filter((r) => r.lunchRush !== false);
     expect(original).toHaveLength(25);
     expect(original.every((r) => participatesInLunchRush(r.id))).toBe(true);

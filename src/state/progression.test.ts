@@ -322,6 +322,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "pesto-trapanese",
         "pesto-vegetariana",
         "pizza-alla-crudaiola",
+        "pesto-noci-pizza",
         "pizza-alla-norma",
         "pizza-bianca-ricotta",
         "pizza-feta-eliniki",

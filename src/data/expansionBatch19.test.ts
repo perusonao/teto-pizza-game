@@ -150,16 +150,16 @@ describe("ordinary step 70 and the late steps", () => {
     expect(step).toMatchObject({ step: 70, ingredientIds: ["burrata"], keyRecipeId: PB });
     expect((step as { starGates?: unknown }).starGates).toBeUndefined();
     expect(steps.filter((s) => s.keyRecipeId === CR)).toEqual([]);
-    expect(ordinaryLadderSteps(steps).at(-1)).toBe(step);
+    expect(ordinaryLadderSteps(steps).at(-2)).toBe(step); // (Expansion Batch 20-A, #790, appended the ordinary step 71 after it)
   });
   it("every other ingredient of both recipes is owned before step 70 (burrata is the last unlock)", () => {
     const before = new Set<string>([...STARTER_INGREDIENT_IDS, ...steps.slice(0, 69).flatMap((s) => s.ingredientIds)]);
     for (const r of [pb, cr]) for (const q of r.requiredIngredients) if (q.ingredientId !== "burrata") expect(before.has(q.ingredientId), `${r.id}/${q.ingredientId}`).toBe(true);
     expect(before.has("burrata")).toBe(false);
   });
-  it("the late steps follow at 71-77 (derived; +1 again) and the late floors are unchanged", () => {
-    const late = steps.slice(70);
-    expect(late.map((s) => s.step)).toEqual([71, 72, 73, 74, 75, 76, 77]);
+  it("the late steps follow at 72-78 (derived; +1 again by Expansion Batch 20-A's ordinary step 71) and the late floors are unchanged", () => {
+    const late = steps.slice(71);
+    expect(late.map((s) => s.step)).toEqual([72, 73, 74, 75, 76, 77, 78]);
     expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 });
     expect(LATE_RECIPES.length).toBeGreaterThan(0);
   });

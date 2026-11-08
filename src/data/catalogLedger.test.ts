@@ -31,12 +31,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // Expansion Batch 17 (#741, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + goulash-pizza (credited, chapter 4: its key is the new material `sour-cream`), + sour-cream (a SAUCE, so `toppings` does not move), + ordinary step 68 (the late steps shift +1).
       // Expansion Batch 18 (#748, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + baingan-bharta-pizza (credited, chapter 4: its key is `cilantro`, PROMOTED from the late catalog) + reina-pepiada-pizza (non-credit, chapter 4: the same key step 69); no new ingredient id (cilantro was already counted as a late topping, so `ingredients` / `toppings` do not move in this ON build), + ordinary step 69 (the late steps shift +1).
       // Expansion Batch 19 (#774, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + pesto-burrata-pizza (credited, chapter 4: its key is the new material `burrata`) + pizza-alla-crudaiola (non-credit, chapter 4: the same key step 70), + burrata (a CHEESE, so `toppings` does not move), + ordinary step 70 (the late steps shift +1).
-      recipes: pinsa ? 92 : 91,
-      credited: 80,
-      ingredients: 98,
-      toppings: 68,
-      ladderSteps: 77,
-      chapterSizes: [6, 12, 19, pinsa ? 55 : 54],
+      // Expansion Batch 20-A (#790, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + pesto-noci-pizza (credited, chapter 4: its key is the new materials honey + walnut), + honey (a SAUCE) + walnut (a TOPPING, so `toppings` + 1), + ordinary step 71 (the late steps shift +1).
+      recipes: pinsa ? 93 : 92,
+      credited: 81,
+      ingredients: 100,
+      toppings: 69,
+      ladderSteps: 78,
+      chapterSizes: [6, 12, 19, pinsa ? 56 : 55],
       lunchRushPool: 25,
     });
   });
@@ -47,6 +48,6 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id)! : i.category;
       byShelf[shelf] = (byShelf[shelf] ?? 0) + 1;
     }
-    expect(byShelf).toEqual({ sauce: 15, cheese: 15, meat: 12, seafood: 11, vegetable: 24, fruit: 3, herb: 9, spice: 6, other: 3 });
+    expect(byShelf).toEqual({ sauce: 16, cheese: 15, meat: 12, seafood: 11, vegetable: 24, fruit: 3, herb: 9, spice: 7, other: 3 });
   });
 });
