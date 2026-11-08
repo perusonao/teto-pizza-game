@@ -85,3 +85,26 @@
 | 2 | walnut のサイズ（1em）と色（PROVISIONAL） | 実機 HV の結果で判断 |
 | 3 | iPhone Safari の実機 HV（Shop 2 行・トレイ名の幅・2 層ソース・walnut の視認性・RESULT） | 実施 |
 | 4 | merge | CI 全 green・Codex 最新 HEAD の指摘 0・HV 後に判断 |
+
+## 8. PR #793（重複、close 済み）から移管した測定値・成果物（Owner 判断 2026-11-08）
+
+Owner の判断で #793 を #792 に一本化した。#793 の固有の成果物を次のとおり反映・保全した（walnut の配線方式の変更と画像の移管は別コミット `ba9bac33` で実施済み。本節はその影響確認と、測定値の移管）（#793 の head `4882b5d0` と branch `claude/b20a-pesto-noci-790` は削除しない）。
+
+### 8.1 walnut の配線方式の変更（#793 の非侵襲方式、`ba9bac33`）と、その影響確認
+- `IngredientGlyph.tsx` は `walnut-kernel` で #777 の **`WalnutGlyph`（raw）をそのまま返す**（二重の `<svg>` にしない）。`WalnutKernel` の切り出しはやめ、`walnutGlyph/WalnutGlyph.tsx` は main（#777）の版に戻した（本 PR は `WalnutGlyph.test.tsx` の「importer は `IngredientGlyph.tsx` だけ」の 1 件のみ更新）。
+- **他箇所への影響の確認（変更前 `59d1edff` と変更後の同一コードを、静的 DOM と画面で比較）:** グリフ・駒とも、差は **`data-walnut-state="raw"` 属性が 1 つ増える**ことだけ（形・色・`class`・`viewBox`・`width`／`height`＝**1em**・`aria-hidden`・`data-ingredient-visual` は同一）。この属性を参照する CSS・テスト・E2E は無い（`src`・`e2e` を走査）。**サイズは 1em のまま**（#793 の `App.css` の 1.2em 規則は取り込まない、Owner 判断）。
+- **画面の画素比較（Chromium、390×844・360×800、変更前の #792 の保存画像 `b20/` と変更後の同一 E2E の画像）:** Shop の walnut 行（`b20a-walnut-new`）とトレイのくるみチップ（`tray-topping`）、honey の各画面（Shop・トレイ・ソース塗り後）は**画素差 0**（同一の描画）。盛り付け後の画面（`topped`・`new-recipe`）の駒は着地アニメーションの揺れで実行ごとに数百〜数千画素違う（同一コードの 2 回の実行間でも `new-recipe` は 5,386 画素、360×800 の `topped` は 1,390 画素違う）ため、同一性の根拠にはしていない（形・色は同一に見える）。
+- 描画のコードが変わったため、**iPhone Safari の実機 HV は新しい HEAD で Owner の再確認が必要**（旧 HEAD `59d1edf` の 6/6 PASS は旧コードへの結果）。
+
+### 8.2 spice の Hint 5.0 への影響（測定用 golden の変化。ゲートではない）
+- `hint5.alphaFamilyOnly.json`（family のみの割り当て数）: `eggplant-dengaku-pizza` 94→**117**、`wasabi-beef-pizza` 666→**801**、`pesto-noci-pizza` の新しい行 **5**。walnut を `spice` に置くと spice の候補が 1 つ増えるため、spice の枝を持つ既存 2 レシピの割り当て数が増える（推測しにくくなる方向）。`other` なら既存レシピの値は不変だが、DH4-PROD gate（OD-DH4-2-9）に抵触する（§2.1）。
+- Hint 5.0 の ladder: `pesto-noci-pizza` は key-free で SAUCE, CHEESE, STRUCTURE, SUB_CLASS。`hint5.ladders55.json` は新レシピの行の**挿入のみ**（既存行の変更 0）。出荷済み 91 品の ladder は不変。`spice` と `other` で rung の形は同一。
+
+### 8.3 staged の依存数（in-flight 待ちの解消）
+`src/data/staged/__golden__` の再生成による変化: 依存 **383→376**、`WAITS_IN_FLIGHT` **9→2**、残り（`remainingOpen`）**350→343**、`blockingDependencies`／`blockingDeps` **407→400**、`INGREDIENT_IN_FLIGHT` **7→0**、`OWNER_RULE` 5→6（what-if の `firstPrefix` 87→89・95→97）。honey／walnut の出荷で待ちが解消し、`pizza-radicchio-noci`・`speck-e-brie-pizzadb` の walnut 待ちが外れた（staged データ本体と昇格は未変更）。#780 の T-FX 担当は、本 PR の merge 後に基準値を確認する。
+
+### 8.4 DH4-1 の 25 レシピ監査（`TETO_DISCOVERY-HINT-4_DH4-1_AUDIT.json`）
+候補数が **+1**（category の候補 67→68 など、spice の group 14→15・15→16、shelf の category 15→16）。honey（sauce）と walnut（spice の topping）が加わった分で、他の値は不変。
+
+### 8.5 保全した比較画像（#793、`docs/reports/screenshots/b20a/` の 22 枚）
+390×844・360×800 の before／after: `b20a-shop-before-after-390x844.png`（main の Shop と honey／walnut の NEW 行。before の保存は発見数が少なく、Shop の状態は完全には同一でない）、`b20a-flow-after-{390x844,360x800}.png`（ソース・トレイ → ソース塗り後 → くるみのトレイ → 盛り付け → NEW RECIPE → Dex）、`before-shop-390x844.png`、個別の after 画像。`ba9bac33` で #793 の画像をそのまま移管した（内容は #793 と一致）。#792 の既存画像 20 枚（`docs/reports/screenshots/b20/`）は**削除していない**。Chromium の静止画で、実機の代わりではない。
