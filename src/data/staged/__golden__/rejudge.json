@@ -1,22 +1,22 @@
 {
- "blockingDependencies": 433,
+ "blockingDependencies": 407,
  "byVerdict": {
   "AUTO_RESOLVED": 11,
   "RULE_DECIDED_WORK": 2,
   "DUPLICATE_COUNT": 24,
   "WAITS_MECHANIC": 58,
   "WAITS_IN_FLIGHT": 10,
-  "AXIS_CONDITIONAL": 71,
-  "STAGED_PAIR": 123,
-  "EXCEPTION_NEEDED": 37,
+  "AXIS_CONDITIONAL": 72,
+  "STAGED_PAIR": 94,
+  "EXCEPTION_NEEDED": 39,
   "OWNER_DECISION": 97
  },
  "autoResolved": 11,
  "byKind": {
   "DUPLICATE_GATE": {
-   "AXIS_CONDITIONAL": 43,
-   "STAGED_PAIR": 123,
-   "EXCEPTION_NEEDED": 21,
+   "AXIS_CONDITIONAL": 44,
+   "STAGED_PAIR": 94,
+   "EXCEPTION_NEEDED": 23,
    "OWNER_DECISION": 6
   },
   "ID_SUFFIXED": {
@@ -81,7 +81,7 @@
   }
  },
  "duplicateGate": {
-  "dependencies": 193,
+  "dependencies": 167,
   "byType": {
    "IDENTICAL@shipped": {
     "AXIS_CONDITIONAL": 3,
@@ -92,18 +92,18 @@
    },
    "JACCARD_GT_0_4@shipped": {
     "AXIS_CONDITIONAL": 11,
-    "EXCEPTION_NEEDED": 10
+    "EXCEPTION_NEEDED": 11
    },
    "JACCARD_GT_0_4@staged": {
-    "STAGED_PAIR": 13
+    "STAGED_PAIR": 18
    },
    "ONE_DIFF@shipped": {
     "AXIS_CONDITIONAL": 11,
-    "EXCEPTION_NEEDED": 6,
+    "EXCEPTION_NEEDED": 5,
     "OWNER_DECISION": 2
    },
    "ONE_DIFF@staged": {
-    "STAGED_PAIR": 28
+    "STAGED_PAIR": 27
    },
    "SUBSET@shipped": {
     "AXIS_CONDITIONAL": 11,
@@ -114,11 +114,11 @@
     "STAGED_PAIR": 13
    },
    "SUPERSET@shipped": {
-    "AXIS_CONDITIONAL": 7,
-    "EXCEPTION_NEEDED": 1
+    "AXIS_CONDITIONAL": 8,
+    "EXCEPTION_NEEDED": 3
    },
    "SUPERSET@staged": {
-    "STAGED_PAIR": 61
+    "STAGED_PAIR": 28
    }
   },
   "exceptionsNeeded": [
@@ -133,11 +133,16 @@
    {
     "id": "pizza-baiana",
     "shippedHits": [
-     "ONE_DIFF:aussie(0.6)",
-     "JACCARD_GT_0_4:full-english-pizza(0.5)",
-     "JACCARD_GT_0_4:pizza-portuguesa(0.429)",
-     "ONE_DIFF:polish-kielbasa(0.6)",
-     "ONE_DIFF:spanish-chorizo-pizza(0.6)"
+     "JACCARD_GT_0_4:aussie(0.5)",
+     "SUPERSET:bismarck(0.6)",
+     "JACCARD_GT_0_4:brazilian-calabresa(0.429)",
+     "JACCARD_GT_0_4:breakfast-pizza(0.5)",
+     "JACCARD_GT_0_4:full-english-pizza(0.429)",
+     "JACCARD_GT_0_4:pizza-portuguesa(0.571)",
+     "JACCARD_GT_0_4:polish-kielbasa(0.5)",
+     "SUPERSET:salsiccia(0.6)",
+     "JACCARD_GT_0_4:spanish-chorizo-pizza(0.5)",
+     "JACCARD_GT_0_4:tonno-e-cipolla(0.5)"
     ]
    },
    {
@@ -175,6 +180,16 @@
     ]
    },
    {
+    "id": "diavola-pizza",
+    "shippedHits": [
+     "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:funghi(0.5)",
+     "ONE_DIFF:margherita(0.5)",
+     "ONE_DIFF:pepperoni(0.5)",
+     "ONE_DIFF:salsiccia(0.5)"
+    ]
+   },
+   {
     "id": "pizza-salad",
     "shippedHits": [
      "JACCARD_GT_0_4:bambino(0.429)"
@@ -196,9 +211,15 @@
    {
     "id": "pizza-chilena",
     "shippedHits": [
-     "ONE_DIFF:aussie(0.6)",
-     "ONE_DIFF:bacalhau(0.6)",
-     "SUBSET:pizza-portuguesa(0.667)"
+     "JACCARD_GT_0_4:aussie(0.5)",
+     "JACCARD_GT_0_4:bacalhau(0.5)",
+     "SUPERSET:bismarck(0.6)",
+     "JACCARD_GT_0_4:brazilian-calabresa(0.429)",
+     "JACCARD_GT_0_4:breakfast-pizza(0.5)",
+     "JACCARD_GT_0_4:calabresa-argentina(0.429)",
+     "SUBSET:pizza-portuguesa(0.833)",
+     "JACCARD_GT_0_4:tonno-e-cipolla(0.5)",
+     "JACCARD_GT_0_4:veggie-supreme-pizza(0.5)"
     ]
    },
    {
@@ -251,27 +272,30 @@
    }
   ],
   "stagedUniquePairs": {
-   "IDENTICAL": 4,
-   "SUBSET_SUPERSET": 181,
-   "ONE_DIFF": 30,
-   "JACCARD_GT_0_4": 10
+   "IDENTICAL": 8,
+   "SUBSET_SUPERSET": 103,
+   "ONE_DIFF": 38,
+   "JACCARD_GT_0_4": 16
   },
   "stagedPairsByRecipe": {
-   "quad-cities-style-pizza": 58,
-   "colorado-mountain-pie": 58,
-   "trenton-tomato-pie": 20,
-   "ny-style": 20,
-   "old-forge-style-pizza": 18,
-   "keema-pizza": 16,
-   "new-england-bar-pizza": 13,
-   "fathead-pizza-keto": 13,
-   "chicago-stuffed-pizza": 11,
-   "chicago-deep-dish-pizzadb": 10
+   "trenton-tomato-pie": 24,
+   "ny-style": 24,
+   "quad-cities-style-pizza": 24,
+   "colorado-mountain-pie": 24,
+   "keema-pizza": 15,
+   "new-england-bar-pizza": 14,
+   "fathead-pizza-keto": 14,
+   "chicago-stuffed-pizza": 13,
+   "chicago-deep-dish-pizzadb": 11,
+   "pizza-baiana": 11
   }
  },
  "recipesFullyRuleResolvable": [
   "taco-pizza",
-  "okonomiyaki-style-pizza"
+  "jerusalem-mixed-grill-pizza",
+  "okonomiyaki-style-pizza",
+  "caponata-pizza",
+  "banh-mi-pizza"
  ],
  "recipesNoOwnerDecisionLeft": [
   {
@@ -323,15 +347,12 @@
    "id": "argentine-napolitana",
    "waits": [
     "AXIS_CONDITIONAL",
-    "MECHANIC:DOUGH_VARIANT",
-    "STAGED_PAIR"
+    "MECHANIC:DOUGH_VARIANT"
    ]
   },
   {
    "id": "jerusalem-mixed-grill-pizza",
-   "waits": [
-    "STAGED_PAIR"
-   ]
+   "waits": []
   },
   {
    "id": "okonomiyaki-style-pizza",
@@ -339,9 +360,7 @@
   },
   {
    "id": "caponata-pizza",
-   "waits": [
-    "STAGED_PAIR"
-   ]
+   "waits": []
   },
   {
    "id": "chicago-stuffed-pizza",
@@ -363,9 +382,7 @@
   },
   {
    "id": "banh-mi-pizza",
-   "waits": [
-    "STAGED_PAIR"
-   ]
+   "waits": []
   },
   {
    "id": "palmitos-salsa-golf",
@@ -400,8 +417,7 @@
   {
    "id": "poutine-pizza",
    "waits": [
-    "MECHANIC:DOUGH_VARIANT",
-    "STAGED_PAIR"
+    "MECHANIC:DOUGH_VARIANT"
    ]
   },
   {
@@ -421,8 +437,7 @@
   {
    "id": "natto-pizza",
    "waits": [
-    "MECHANIC:MID_BAKE",
-    "STAGED_PAIR"
+    "MECHANIC:MID_BAKE"
    ]
   },
   {
@@ -551,6 +566,7 @@
     "OWNER_DECISION:OWNER_RULE:R-5",
     "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
     "WAITS_MECHANIC:MECHANIC:STEP_ORDER",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped",
@@ -599,8 +615,7 @@
     "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
    ]
   },
   {
@@ -612,8 +627,7 @@
     "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
    ]
   },
   {
@@ -621,7 +635,6 @@
    "proposals": [],
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-5",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged",
     "OWNER_DECISION:ID_SUFFIXED:buffalo-chicken-pizzadb"
    ]
   },
@@ -633,8 +646,9 @@
     "OWNER_DECISION:OWNER_RULE:R-7",
     "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
   },
@@ -648,8 +662,7 @@
     "WAITS_MECHANIC:MECHANIC:ENCLOSE",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped"
    ]
   },
   {
@@ -672,7 +685,9 @@
     "OWNER_DECISION:OWNER_RULE:R-7",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped"
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped"
    ]
   },
   {
@@ -681,8 +696,7 @@
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-1",
     "OWNER_DECISION:OWNER_RULE:R-7",
-    "OWNER_DECISION:UNRESOLVED_TOKEN:肉",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "OWNER_DECISION:UNRESOLVED_TOKEN:肉"
    ]
   },
   {
@@ -701,7 +715,6 @@
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-5",
     "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:walnut",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged",
     "OWNER_DECISION:ID_SUFFIXED:speck-e-brie-pizzadb"
    ]
   },
@@ -732,8 +745,7 @@
     "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "OWNER_DECISION:OWNER_RULE:R-7",
     "OWNER_DECISION:UNRESOLVED_TOKEN:赤唐辛子",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped"
    ]
   },
   {
@@ -742,8 +754,7 @@
    "open": [
     "AXIS_CONDITIONAL:OWNER_RULE:R-2",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped"
    ]
   },
   {
@@ -752,8 +763,7 @@
     "R-6: eel -> POST_BAKE (shipped)"
    ],
    "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "OWNER_DECISION:OWNER_RULE:R-1"
    ]
   },
   {
@@ -761,9 +771,7 @@
    "proposals": [
     "R-1: NO_SAUCE (family 「その他」)"
    ],
-   "open": [
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
-   ]
+   "open": []
   },
   {
    "id": "old-forge-style-pizza",
@@ -791,9 +799,7 @@
    "proposals": [
     "R-1: NO_SAUCE (family 「その他」)"
    ],
-   "open": [
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
-   ]
+   "open": []
   },
   {
    "id": "cauliflower-crust-pizza",
@@ -820,8 +826,7 @@
     "OWNER_DECISION:UNRESOLVED_TOKEN:青唐辛子",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
    ]
   },
   {
@@ -829,8 +834,7 @@
    "proposals": [],
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-1",
-    "WAITS_MECHANIC:MECHANIC:PREP",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "WAITS_MECHANIC:MECHANIC:PREP"
    ]
   },
   {
@@ -893,6 +897,7 @@
     "OWNER_DECISION:OWNER_RULE:R-5",
     "OWNER_DECISION:OWNER_RULE:R-7",
     "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
@@ -928,8 +933,7 @@
    "proposals": [],
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-1",
-    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey"
    ]
   },
   {
@@ -962,16 +966,13 @@
    "proposals": [
     "R-1: NO_SAUCE (family 「その他」)"
    ],
-   "open": [
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
-   ]
+   "open": []
   },
   {
    "id": "buffalo-cauliflower-pizza",
    "proposals": [],
    "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "OWNER_DECISION:OWNER_RULE:R-1"
    ]
   },
   {
@@ -983,8 +984,7 @@
     "AXIS_CONDITIONAL:OWNER_RULE:R-4",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged"
    ]
   },
   {
@@ -1010,8 +1010,7 @@
     "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "OWNER_DECISION:OWNER_RULE:R-6",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
    ]
   },
   {
@@ -1020,24 +1019,21 @@
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-6",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
-    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
    ]
   },
   {
    "id": "pizza-finocchi-salad",
    "proposals": [],
    "open": [
-    "OWNER_DECISION:OWNER_RULE:R-6",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "OWNER_DECISION:OWNER_RULE:R-6"
    ]
   },
   {
    "id": "pizza-cavolo-carote",
    "proposals": [],
    "open": [
-    "OWNER_DECISION:OWNER_RULE:R-6",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "OWNER_DECISION:OWNER_RULE:R-6"
    ]
   },
   {
@@ -1046,8 +1042,7 @@
    "open": [
     "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "OWNER_DECISION:OWNER_RULE:R-6",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped"
    ]
   },
   {
@@ -1067,8 +1062,7 @@
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-6",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
-    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
    ]
   },
   {
@@ -1076,8 +1070,7 @@
    "proposals": [],
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-6",
-    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:walnut",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:walnut"
    ]
   },
   {
@@ -1087,9 +1080,11 @@
     "EXCEPTION_NEEDED:OWNER_RULE:R-2",
     "OWNER_DECISION:OWNER_RULE:R-7",
     "OWNER_DECISION:UNRESOLVED_TOKEN:ひき肉",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
   },
@@ -1152,16 +1147,14 @@
     "EXCEPTION_NEEDED:OWNER_RULE:R-2",
     "OWNER_DECISION:OWNER_RULE:R-7",
     "OWNER_DECISION:UNRESOLVED_TOKEN:チーズソース",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped"
    ]
   },
   {
    "id": "poutine-pizza",
    "proposals": [],
    "open": [
-    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT"
    ]
   },
   {
@@ -1245,8 +1238,7 @@
    "id": "peruvian-aji-amarillo",
    "proposals": [],
    "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "OWNER_DECISION:OWNER_RULE:R-1"
    ]
   },
   {
@@ -1267,16 +1259,14 @@
     "R-1: NO_SAUCE (family 「その他」)"
    ],
    "open": [
-    "WAITS_MECHANIC:MECHANIC:MID_BAKE",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "WAITS_MECHANIC:MECHANIC:MID_BAKE"
    ]
   },
   {
    "id": "peking-duck-pizza",
    "proposals": [],
    "open": [
-    "OWNER_DECISION:OWNER_RULE:R-8",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "OWNER_DECISION:OWNER_RULE:R-8"
    ]
   },
   {
@@ -1361,8 +1351,7 @@
     "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged"
    ]
   },
   {
@@ -1371,16 +1360,14 @@
    "open": [
     "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped"
    ]
   },
   {
    "id": "black-truffle-pizza",
    "proposals": [],
    "open": [
-    "OWNER_DECISION:OWNER_RULE:R-5",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "OWNER_DECISION:OWNER_RULE:R-5"
    ]
   },
   {
@@ -1390,8 +1377,7 @@
    ],
    "open": [
     "RULE_DECIDED_WORK:OWNER_RULE:R-1",
-    "OWNER_DECISION:OWNER_RULE:R-5",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
+    "OWNER_DECISION:OWNER_RULE:R-5"
    ]
   },
   {
@@ -1400,8 +1386,8 @@
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-1",
     "EXCEPTION_NEEDED:OWNER_RULE:R-4",
+    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
   },

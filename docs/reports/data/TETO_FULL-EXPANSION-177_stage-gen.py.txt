@@ -108,7 +108,13 @@ recs = []
 for r in work:
     m = mrows[r["evidenceId"]]
     ident = [MERGE.get(i, i) for i in r["identitySet"]]
-    recs.append({"r": r, "m": m, "ident": sorted(set(ident)), "applied": [f"I-2:{k}->{v}" for k, v in MERGE.items() if k in r["identitySet"]]})
+    applied = [f"I-2:{k}->{v}" for k, v in MERGE.items() if k in r["identitySet"]]
+    # The matrix's base sauce is part of the recipe. For identity-incomplete rows the matrix has no identityIngredientSet and #781 falls back
+    # to canonicalIngredientIds, which omits a family-derived sauce (e.g. quad-cities = mozzarella only). Add it back (Codex P2, PR #787).
+    base = MERGE.get(m["sauceBase"].get("baseIngredientId"), m["sauceBase"].get("baseIngredientId"))
+    if base and base not in ident:
+        ident.append(base); applied.append(f"SAUCE:base {base} added from matrix sauceBase ({m['sauceBase']['status']})")
+    recs.append({"r": r, "m": m, "ident": sorted(set(ident)), "applied": applied, "base": base})
 
 def hits(rid, ident, others):
     out = []
@@ -130,6 +136,7 @@ for x in recs:
         after = hits(x["id"], trial, recs)
         if not after:  # I-1: reuse ONLY when the substituted set hits no duplicate gate at all (Codex P2, PR #787)
             x["ident"] = trial; x["applied"].append(f"I-1:{cand}->{target}(reuse)")
+            if x["base"] == cand: x["base"] = target  # keep the sauce metadata consistent with the requirements (Codex P2, PR #787)
         else:
             x["applied"].append(f"I-1:{cand}(kept: reuse hits the duplicate gate)")
 
@@ -166,7 +173,7 @@ for x in recs:
     out_recipes.append({
         "id": rid, "evidenceId": r["evidenceId"], "nameJa": m["nameJa"], "origin": m.get("origin") or "",
         "requiredIngredients": req,
-        "sauce": {"status": sauce["status"], "baseIngredientId": MERGE.get(sauce.get("baseIngredientId"), sauce.get("baseIngredientId"))},
+        "sauce": {"status": sauce["status"], "baseIngredientId": x["base"]},
         "dough": {"class": m["dough"]["class"], "variant": m["dough"].get("variant"), "shape": m["dough"].get("shape")},
         "pan": m["cookingProfile"].get("pan"),
         "mechanics": mech,

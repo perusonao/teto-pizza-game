@@ -55,6 +55,7 @@ export function validateStagedCatalog(
       if (q.ingredientId in IN_FLIGHT_INGREDIENT_IDS && !r.inFlightIngredients.includes(q.ingredientId)) problems.push(`${r.id}: undeclared in-flight ingredient ${q.ingredientId}`);
     }
     for (const m of r.mechanics) if (!stagedMechanic(m)) problems.push(`unknown mechanic ${m} in ${r.id}`);
+    if (r.sauce.baseIngredientId !== null && !ids.includes(r.sauce.baseIngredientId)) problems.push(`${r.id}: base sauce ${r.sauce.baseIngredientId} is not a required ingredient`);
     const expectedLane = r.mechanics.length > 0 ? "R-C" : ids.some((i) => stagedIng.has(i) || i in IN_FLIGHT_INGREDIENT_IDS) ? "R-B" : "R-A";
     if (r.lane !== expectedLane) problems.push(`lane of ${r.id}: ${r.lane} != ${expectedLane}`);
   }

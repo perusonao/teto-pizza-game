@@ -88,7 +88,7 @@
   "potato-mayo-pizza: I->K B->C A->B C->D -->B -->C A->C B->D -->A C->E",
   "prosciutto-funghi: B->C D->E C->D -->A",
   "puttanesca-pizza: -->A -->B A->D D->F A->B A->C -->C",
-  "quattro-formaggi: A->B B->C -->A -->B",
+  "quattro-formaggi: A->B B->C -->B -->A",
   "ratatouille-pizza: -->A",
   "reina-pepiada-pizza: -->A",
   "rendang-pizza: F->H B->C A->B -->A -->B -->C",
