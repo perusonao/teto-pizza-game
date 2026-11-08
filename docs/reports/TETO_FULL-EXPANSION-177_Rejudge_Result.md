@@ -13,13 +13,17 @@
 | main の WebKit E2E（`4348e27`） | 1 回目: 1 件失敗（既知の間欠失敗 #570）→ 失敗ジョブを 1 回だけ再実行（§1） |
 | **E0 データの訂正** | 10 品で、matrix が示す基本ソース（トマトソース）が材料から抜けていた／taco の基本ソース表記が I-1 の置換に追従していなかった（§0.1）。訂正後、ブロッキング依存は **433 → 407** |
 | 再判定した依存 | **407 / 407**（訂正後） |
-| 暫定ルールだけで自動解決 | **11**（＋ルールが結論を決め、作業だけ残るもの 2） |
+| 暫定ルールだけで自動解決 | **17**（＋ルールが結論を決め、作業だけ残るもの 2） |
 | 重複計上（同じ問いを別の依存として数えていたもの） | 24（ソース未特定 = 同じレシピの R-1）。ほかに R-7 と未解決トークンの重なり 16、ID 接尾辞が R-5 に従う 7 |
-| Owner 判断が必要（例外を含む） | 97 ＋ 例外 39。重なりを除いた実質の問いは **約 74 ＋ 例外 17 品** |
-| 重複ゲート 167 件のうち本当に例外判断が要るもの | **23 件（17 品）**。他は工程・後乗せの軸で区別できる見込み 44、staged 同士の選択 94、R-3 HOLD 6 |
-| ルール上 Owner 判断が残らないレシピ | **24 / 84**（工程・in-flight・staged 同士の選択だけを待つ） |
+| Owner 判断が必要（例外を含む） | 97 ＋ 例外 75。重なりを除いた実質の問いは **約 74 ＋ 例外 38 品** |
+| 重複ゲート 167 件のうち本当に例外判断が要るもの | **50 件**。他は生地の種類で区別できる見込み 17、staged 同士の選択 94、R-3 HOLD 6 |
+| ルール上 Owner 判断が残らないレシピ | **12 / 84**（工程・in-flight・staged 同士の選択だけを待つ） |
 | 依存がすべてルールで解消するレシピ | **5**（taco-pizza、okonomiyaki-style-pizza、jerusalem-mixed-grill-pizza、caponata-pizza、banh-mi-pizza。残りは新食材の登録＝昇格作業のみ） |
 | Research 正準順で文字が変わる出荷済み | **19 品**、原因の staged は **25 品**（§5 に全件。訂正の前後で同一） |
+
+### 0.2 救済条件の訂正（Codex P2 on PR #788）【実測】
+
+初版（`d1bf277`）は、出荷済みとの重なりを「レシピが何かの工程か後乗せを持てば区別できる見込み」として救っていた。計画書 §9 の暫定ルールは、R-2（部分集合・上位集合）の救済を **R-3 で認められた生地の種類に限り**、R-4（Jaccard > 0.4）は列挙した個別例外以外を原則不採用とする。ルール文どおりに直した（同一・部分・上位集合は DOUGH_VARIANT を持ち R-3 の HOLD でない場合だけ条件付き、Jaccard と 1 材料差は常に例外判断）。影響: 例外判断が要るレシピ 17 → **38**、ルール上 Owner 判断が残らないレシピ 24 → **12**、工程軸で条件付き 72 → 30、自動解決 11 → 17（Jaccard の重なりが提案後に無くなり R-4 自体が解消する 6 件。1 材料差などの重なりは重複ゲート側で例外として残る）。以下の数値はすべて訂正後。
 
 ### 0.1 E0 データの訂正（Codex P2 on PR #787、merge 後に投稿された指摘とその調査）【実測】
 
@@ -55,59 +59,82 @@ PR #783・B20-A・他の PR は merge していない。
 
 | 判定 | 件数 | 意味 |
 |---|---|---|
-| AUTO_RESOLVED | 11 | 暫定ルールだけで解決（R-1 6・R-6 2・R-7 1・トークン 1・MID_BAKE 1） |
+| AUTO_RESOLVED | 17 | 暫定ルールだけで解決（R-1 6・R-4 6・R-6 2・R-7 1・トークン 1・MID_BAKE 1） |
 | RULE_DECIDED_WORK | 2 | 結論はルールで決定（新ソース）、ソース食材の作成が残る |
 | DUPLICATE_COUNT | 24 | ソース未特定＝同じレシピの R-1（重複計上） |
 | WAITS_MECHANIC | 58 | 工程 M1〜M6 待ち |
 | WAITS_IN_FLIGHT | 10 | PR #783（burrata）・B20-A（honey・walnut）待ち |
-| AXIS_CONDITIONAL | 72 | 出荷済みと重なるが、工程・後乗せの軸で区別できる見込み（R-3 の線。工程と一緒に判断） |
+| AXIS_CONDITIONAL | 30 | 出荷済みと同一・部分・上位集合だが、生地の種類（M1）で区別できる見込み（R-3 の線） |
 | STAGED_PAIR | 94 | staged 同士の重なり。候補の選び方で解決し、出荷済みへの例外ではない |
-| EXCEPTION_NEEDED | 39 | 出荷済みと重なり、区別する軸が無い（17 品） |
+| EXCEPTION_NEEDED | 75 | 出荷済みと重なり、ルールが救済しない（38 品） |
 | OWNER_DECISION | 97 | その他 Owner 判断（R-5 14・R-1 16・R-7 16＋トークン 19・R-6 9・R-8 8・ID 7・R-3 HOLD 2＋その 2 品の重複ゲート 6） |
 | 計 | **407** | |
 
-ルール別: R-1 は自動 6・ルール決定 2・Owner 16／R-2 は工程軸 14・例外 5／R-3 は工程軸 3・HOLD 2（cauliflower・fathead はルール文で HOLD）／R-4 は工程軸 11・例外 11／R-5 は Owner 14（比較先の Phase 0a 候補の材料表がリポジトリに無く、機械比較できない）／R-6 は自動 2・Owner 9／R-7 は自動 1・in-flight 1・Owner 16／R-8 は Owner 8。
+ルール別: R-1 は自動 6・ルール決定 2・Owner 16／R-2 は生地軸 10・例外 9／R-3 は生地軸 3・HOLD 2（cauliflower・fathead はルール文で HOLD）／R-4 は自動 6・例外 16／R-5 は Owner 14（比較先の Phase 0a 候補の材料表がリポジトリに無く、機械比較できない）／R-6 は自動 2・Owner 9／R-7 は自動 1・in-flight 1・Owner 16／R-8 は Owner 8。
 
-## 3. 重複ゲート 167 件の種類別整理【実測、提案後の集合で再測定】
+## 3. 重複ゲート 167 件の種類別整理【実測、提案後の集合で再測定・訂正後】
 
 | 種類 | 出荷済みと | staged 同士と |
 |---|---|---|
-| 同一集合 | 工程軸 3・R-3 HOLD 2 | 8 |
-| 部分集合 | 工程軸 11・**例外 4**・HOLD 2 | 13 |
-| 上位集合 | 工程軸 8・**例外 3** | 28 |
-| 1 材料差 | 工程軸 11・**例外 5**・HOLD 2 | 27 |
-| Jaccard > 0.4 | 工程軸 11・**例外 11** | 18 |
+| 同一集合 | 生地軸 3・R-3 HOLD 2 | 8 |
+| 部分集合 | 生地軸 9・**例外 6**・HOLD 2 | 13 |
+| 上位集合 | 生地軸 5・**例外 6** | 28 |
+| 1 材料差 | **例外 16**・HOLD 2 | 27 |
+| Jaccard > 0.4 | **例外 22** | 18 |
 
-- staged 同士の 94 件（レシピ×種類の数）を、重なっている**レシピの組**で数え直すと、同一 8 組・部分／上位 103 組・1 材料差 38 組・Jaccard 16 組。多いのは mozzarella＋トマトだけの trenton・ny-style・quad-cities・colorado（各 24 件）、keema（15）。**材料集合が小さい「生地が正体」のレシピが原因**で、生地の種類（M1）を識別軸にすれば大半が区別できる【推論】。
-- **本当に例外判断が要る 17 品（出荷済みと重なり、工程・後乗せの軸が無い）:**
+- staged 同士の 94 件（レシピ×種類の数）を、重なっている**レシピの組**で数え直すと、同一 8 組・部分／上位 103 組・1 材料差 38 組・Jaccard 16 組。多いのは mozzarella＋トマトだけの trenton・ny-style・quad-cities・colorado（各 24 件）、keema（15）。材料集合が小さい「生地が正体」のレシピが原因【推論】。
+- **例外判断が要る 38 品**（出荷済みとの重なりを、ルールが救済しない。R-2／R-4 を文字どおり当てると不採用。不可逆なので除外はしていない）。うち計画書で個別例外の候補として名前を挙げたのは pizza-zucchine-menta だけ。工程を持つが生地の種類を持たないレシピ（quattro-stagioni・trenton・scacciata など）も、ルール上は救済されないのでここに入る。
 
-| staged | 出荷済みとの重なり（種類:相手(Jaccard)、先頭 5 件と総数） |
-|---|---|
-| sfincione | Jaccard: brazilian-calabresa(0.429)・napoletana(0.5)、上位集合: fugazza(0.6)（計 3） |
-| pizza-baiana | Jaccard: aussie(0.5)・brazilian-calabresa(0.429)・breakfast(0.5)・full-english(0.429)、上位集合: bismarck(0.6) ほか（計 10） |
-| thai-chicken-pizza | Jaccard: bbq-chicken(0.5)・reina-pepiada(0.429)（計 2） |
-| keema-pizza | 部分集合: aussie・bacalhau・baingan-bharta・bbq-chicken・curry-pizza-japan ほか（計 15） |
-| chicken-tikka-pizza | Jaccard: bbq-chicken(0.429)・spanish-chorizo(0.5)（計 2） |
-| diavola-pizza | 1 材料差: bismarck・funghi・margherita・pepperoni・salsiccia(0.5)（計 5） |
-| pizza-salad | Jaccard: bambino(0.429)（計 1） |
-| pizza-asparagi-limone | Jaccard: quattro-formaggi(0.429)（計 1） |
-| pizza-zucchine-menta | Jaccard: eggplant-ricotta・pizza-bianca-ricotta(0.429)（計 2） |
-| pizza-chilena | Jaccard: aussie・bacalhau・breakfast(0.5)・brazilian-calabresa(0.429)、上位集合: bismarck(0.6) ほか（計 9） |
-| philly-cheesesteak-pizza | 部分集合: nigerian-suya(0.75)（計 1） |
-| bulgogi-pizza | 1 材料差: nigerian-suya・rendang(0.6)、Jaccard: wasabi-beef(0.5)（計 3） |
-| frutti-di-mare-pizzadb | Jaccard: pescatore(0.5)（計 1） |
-| nduja-pizza | 1 材料差: salsiccia・salsiccia-e-friarielli(0.5)（計 2） |
-| tsukimi-pizza | 1 材料差: aussie・breakfast(0.6)、Jaccard: full-english(0.5)（計 3） |
-| south-african-boerewors | 1 材料差: polish-kielbasa・spanish-chorizo(0.6)（計 2） |
-| hokkaido-cheese-pizza | 部分集合: potato-mayo(0.6)（計 1） |
+| staged | 出荷済みとの重なり件数 | 例（種類:相手(Jaccard)） |
+|---|---|---|
+| calzone-pizzadb | 1 | JACCARD_GT_0_4:calabresa-argentina(0.5) |
+| quattro-stagioni | 7 | JACCARD_GT_0_4:bambino(0.429)、ONE_DIFF:capricciosa(0.714)、SUPERSET:funghi(0.5) ほか |
+| greek-style-pizzadb | 3 | JACCARD_GT_0_4:calabresa-argentina(0.5)、JACCARD_GT_0_4:capricciosa(0.429)、JACCARD_GT_0_4:pizza-portuguesa(0.429) |
+| chicago-deep-dish-pizzadb | 3 | SUBSET:meat-lovers(0.667)、SUPERSET:pepperoni(0.75)、SUPERSET:salsiccia(0.75) |
+| siciliana-pizzadb | 3 | ONE_DIFF:napoletana(0.6)、JACCARD_GT_0_4:pizza-portuguesa(0.429)、ONE_DIFF:tonno-e-cipolla(0.6) |
+| sfincione | 3 | JACCARD_GT_0_4:brazilian-calabresa(0.429)、SUPERSET:fugazza(0.6)、JACCARD_GT_0_4:napoletana(0.5) |
+| trenton-tomato-pie | 23 | SUBSET:bambino(0.5)、SUBSET:bismarck(0.667)、SUBSET:breakfast-pizza(0.5) ほか |
+| pizza-baiana | 10 | JACCARD_GT_0_4:aussie(0.5)、SUPERSET:bismarck(0.6)、JACCARD_GT_0_4:brazilian-calabresa(0.429) ほか |
+| pizza-a-caballo | 4 | SUBSET:calabresa-argentina(0.6)、SUBSET:capricciosa(0.5)、ONE_DIFF:chilean-napolitana(0.5) ほか |
+| fugazzeta-rellena | 2 | JACCARD_GT_0_4:capricciosa(0.429)、JACCARD_GT_0_4:pizza-portuguesa(0.429) |
+| pizza-de-cancha | 2 | ONE_DIFF:grandma-pizza(0.6)、SUPERSET:marinara(0.75) |
+| scacciata-ragusana | 1 | ONE_DIFF:salsiccia(0.5) |
+| thai-chicken-pizza | 2 | JACCARD_GT_0_4:bbq-chicken-pizza(0.5)、JACCARD_GT_0_4:reina-pepiada-pizza(0.429) |
+| keema-pizza | 15 | SUBSET:aussie(0.5)、SUBSET:bacalhau(0.5)、SUBSET:baingan-bharta-pizza(0.333) ほか |
+| chicago-stuffed-pizza | 7 | ONE_DIFF:bismarck(0.5)、ONE_DIFF:funghi(0.5)、ONE_DIFF:margherita(0.5) ほか |
+| chicken-tikka-pizza | 2 | JACCARD_GT_0_4:bbq-chicken-pizza(0.429)、JACCARD_GT_0_4:spanish-chorizo-pizza(0.5) |
+| diavola-pizza | 5 | ONE_DIFF:bismarck(0.5)、ONE_DIFF:funghi(0.5)、ONE_DIFF:margherita(0.5) ほか |
+| detroit-style-pizza | 1 | ONE_DIFF:pepperoni(0.5) |
+| new-england-bar-pizza | 6 | ONE_DIFF:bismarck(0.5)、ONE_DIFF:funghi(0.5)、ONE_DIFF:margherita(0.5) ほか |
+| palmitos-salsa-golf | 1 | JACCARD_GT_0_4:capricciosa(0.429) |
+| pizza-salad | 1 | JACCARD_GT_0_4:bambino(0.429) |
+| pizza-asparagi-limone | 1 | JACCARD_GT_0_4:quattro-formaggi(0.429) |
+| pizza-zucchine-menta | 2 | JACCARD_GT_0_4:eggplant-ricotta-pizza(0.429)、JACCARD_GT_0_4:pizza-bianca-ricotta(0.429) |
+| pizza-chilena | 9 | JACCARD_GT_0_4:aussie(0.5)、JACCARD_GT_0_4:bacalhau(0.5)、SUPERSET:bismarck(0.6) ほか |
+| pizza-romana | 3 | JACCARD_GT_0_4:calabresa-argentina(0.429)、SUPERSET:napoletana(0.8)、JACCARD_GT_0_4:puttanesca-pizza(0.429) |
+| pizza-al-taglio-romana | 7 | ONE_DIFF:bismarck(0.5)、ONE_DIFF:funghi(0.5)、IDENTICAL:margherita(1) ほか |
+| philly-cheesesteak-pizza | 1 | SUBSET:nigerian-suya-pizza(0.75) |
+| fugazzetta | 2 | ONE_DIFF:chilean-napolitana(0.5)、ONE_DIFF:fugazza(0.5) |
+| bulgogi-pizza | 3 | ONE_DIFF:nigerian-suya-pizza(0.6)、ONE_DIFF:rendang-pizza(0.6)、JACCARD_GT_0_4:wasabi-beef-pizza(0.5) |
+| frutti-di-mare-pizzadb | 1 | JACCARD_GT_0_4:pescatore(0.5) |
+| hot-honey-pepperoni | 2 | JACCARD_GT_0_4:meat-lovers(0.429)、SUPERSET:pepperoni(0.75) |
+| yakiniku-pizza | 3 | JACCARD_GT_0_4:nigerian-suya-pizza(0.5)、JACCARD_GT_0_4:rendang-pizza(0.5)、JACCARD_GT_0_4:wasabi-beef-pizza(0.429) |
+| pizza-de-lomo-saltado | 3 | JACCARD_GT_0_4:nigerian-suya-pizza(0.5)、JACCARD_GT_0_4:rendang-pizza(0.5)、JACCARD_GT_0_4:wasabi-beef-pizza(0.429) |
+| montreal-style-pizza | 5 | JACCARD_GT_0_4:capricciosa(0.429)、SUPERSET:funghi(0.75)、JACCARD_GT_0_4:meat-lovers(0.429) ほか |
+| nduja-pizza | 2 | ONE_DIFF:salsiccia(0.5)、ONE_DIFF:salsiccia-e-friarielli(0.5) |
+| tsukimi-pizza | 3 | ONE_DIFF:aussie(0.6)、ONE_DIFF:breakfast-pizza(0.6)、JACCARD_GT_0_4:full-english-pizza(0.5) |
+| south-african-boerewors | 2 | ONE_DIFF:polish-kielbasa(0.6)、ONE_DIFF:spanish-chorizo-pizza(0.6) |
+| hokkaido-cheese-pizza | 1 | SUBSET:potato-mayo-pizza(0.6) |
 
-全件は `__golden__/rejudge.json` の `duplicateGate.exceptionsNeeded`。R-2（部分集合・上位集合は原則不採用）と R-4（Jaccard > 0.4 は原則不採用）をそのまま当てると、この 17 品は**不採用**になる。不可逆な除外なので、本書では除外せず「ID ごとの判断が必要」として残した。pizza-zucchine-menta は計画書で個別例外の候補として名前を挙げたもの。diavola は、抜けていたトマトソースを戻した結果、マルゲリータ等と 1 材料差になった。
+全件は `__golden__/rejudge.json` の `duplicateGate.exceptionsNeeded`。
 
-## 4. ルール上 Owner 判断が残らないレシピ（24 品）【実測】
+## 4. ルール上 Owner 判断が残らないレシピ（12 品）【実測・訂正後】
 
-taco-pizza・okonomiyaki-style-pizza・jerusalem-mixed-grill・caponata・banh-mi（依存なし。新食材の登録だけ）／burrata-pizza（#783 待ち）・hot-honey-pepperoni（B20-A 待ち＋工程軸）／ny-style・argentine-napolitana・palmitos-salsa-golf・piadina-romagnola・poutine・fugazzeta-rellena・chicago-stuffed・new-england-bar・pizza-al-taglio-romana・montreal-style（M1 ほか）／scacciata-ragusana（M3）／natto（M4）／pizza-fritta・yakiniku（M5）／pizza-de-lomo-saltado（M4＋M5）／quattro-stagioni・trenton-tomato-pie（M6）。
+taco-pizza・ny-style・argentine-napolitana・jerusalem-mixed-grill-pizza・okonomiyaki-style-pizza・caponata-pizza・banh-mi-pizza・piadina-romagnola・pizza-fritta・poutine-pizza・burrata-pizza・natto-pizza。
 
-ここでの「判断が残らない」は §2 の暫定ルールの範囲での話で、昇格の承認・最終 ID・個数・アイコン・Research の ID ごとの承認（§5）は別に要る。
+- このうち依存がすべてルールで解消するのは 5 品（taco-pizza・jerusalem-mixed-grill-pizza・okonomiyaki-style-pizza・caponata-pizza・banh-mi-pizza。残りは新食材の登録＝昇格作業）。
+- ny-style・argentine-napolitana・piadina-romagnola・poutine は M1（生地の種類）待ち、pizza-fritta は M5（FRY）、natto は M4、burrata-pizza は PR #783 待ち。
+- ここでの「判断が残らない」は §2 の暫定ルールの範囲での話で、昇格の承認・最終 ID・個数・アイコン・Research の ID ごとの承認（§5）は別に要る。
 
 ## 5. Research 正準順で文字が変わる出荷済み 19 品（`__golden__/whatIf.research19.json`）【実測】
 
@@ -136,22 +163,22 @@ taco-pizza・okonomiyaki-style-pizza・jerusalem-mixed-grill・caponata・banh-m
 | vongole | なし→B | parsley（29） | turkish-pide |
 
 - 「なし→A」は、1 品だけの cohort だった出荷済みレシピに staged が加わり、文字が付くようになるもの。
-- 原因の 25 品のうち、§3 の例外 17 品にも入るのは 7 品（bulgogi-pizza・hokkaido-cheese-pizza・pizza-baiana・pizza-chilena・pizza-zucchine-menta・sfincione・tsukimi-pizza）。§4 の 24 品のうち原因になるのは 7 品（caponata-pizza・chicago-stuffed-pizza・fugazzeta-rellena・montreal-style-pizza・new-england-bar-pizza・palmitos-salsa-golf・pizza-fritta）。依存がルールで解消する 5 品のうち原因になるのは caponata-pizza。
+- 原因の 25 品のうち、§3 の例外 38 品にも入るのは 18 品。§4 の 12 品のうち原因になるのは 2 品（caponata-pizza・pizza-fritta）。依存がルールで解消する 5 品のうち原因になるのは caponata-pizza。
 - これは staged の元の集合で測った値（§2 の提案は反映していない）。列車ごとに、その列車の集合で同じ表を作り直す。
 
 ## 6. 工程 M1〜M6 の依存と並行実装（`rejudge.json` の mechanicWaits）【実測＋推論】
 
 | トラック | 必要とするレシピ | このトラックだけで解放（Owner 判断なし） | 既存の線 | 主なファイル |
 |---|---|---|---|---|
-| M1 生地の種類 | 31 | 5（ny-style・argentine-napolitana・palmitos-salsa-golf・piadina・poutine） | #577: PR #775（PD-1a、open）→ PD-1b/c → PD-2（チップ UI）→ PD-3 | `src/logic/dough/**`、PD-2 だけ `GameScreen.tsx` |
+| M1 生地の種類 | 31 | 4（ny-style・argentine-napolitana・piadina-romagnola・poutine-pizza） | #577: PR #775（PD-1a、open）→ PD-1b/c → PD-2（チップ UI）→ PD-3 | `src/logic/dough/**`、PD-2 だけ `GameScreen.tsx` |
 | M2 天板・形状 | 9 | 0（すべて M1 も要る） | #532 系。深型・浅型・鉄板と楕円等の目標形は設計 Issue が無い | `src/logic/pan/**` |
-| M3 包む | 5 | 1（scacciata-ragusana） | #773: PR #785（F1、HOLD）、F2 ラボ claim | `src/logic/foldSeal*`、`src/labs/foldSeal/**` |
+| M3 包む | 5 | 0 | #773: PR #785（F1、HOLD）、F2 ラボ claim | `src/logic/foldSeal*`、`src/labs/foldSeal/**` |
 | M4 焼成中の追加 | 2（R-6 で eel が外れて 3→2） | 1（natto） | #604／#611（後乗せは出荷済み）。焼成中は Issue なし | 新規 `src/logic/midBake/**` 想定 |
-| M5 下ごしらえ・揚げ | 4 | 2（pizza-fritta・yakiniku） | PREP #696・FRY #749 は実装済みで本番 OFF。#784（共通入力契約） | 既存 Gate（本番 ON は Owner） |
-| M6 順序・区画・積層 | 4 | 2（quattro-stagioni・trenton-tomato-pie） | ZONED: #773／PR #620 の監査。STEP_ORDER・LAMINATE は Issue なし | 新規 `src/logic/layering/**` 想定 |
+| M5 下ごしらえ・揚げ | 4 | 1（pizza-fritta） | PREP #696・FRY #749 は実装済みで本番 OFF。#784（共通入力契約） | 既存 Gate（本番 ON は Owner） |
+| M6 順序・区画・積層 | 4 | 0 | ZONED: #773／PR #620 の監査。STEP_ORDER・LAMINATE は Issue なし | 新規 `src/logic/layering/**` 想定 |
 
 **並行に進められるもの（HOT ファイルを触らない、互いに別ディレクトリ）:**
-1. M1: PD-1b／PD-1c の純粋ロジック（`src/logic/dough/**`）。前提は PR #775 の merge。解放数が最大（31 品が必要、5 品はこれだけで解放）。
+1. M1: PD-1b／PD-1c の純粋ロジック（`src/logic/dough/**`）。前提は PR #775 の merge。解放数が最大（31 品が必要、4 品はこれだけで解放。R-2／R-3 の生地軸による救済もこのトラックが前提）。
 2. M3: F1（PR #785）の判断と F2 ラボ（既存 claim のまま）。
 3. M2: 天板 profile・目標形の設計 Issue 起票と純粋ロジック（新規ディレクトリ）。
 4. M4: 焼成中追加の設計 Issue 起票と純粋ロジック（新規ディレクトリ）。対象は 2 品と少ないので優先度は低い。
@@ -164,7 +191,7 @@ taco-pizza・okonomiyaki-style-pizza・jerusalem-mixed-grill・caponata・banh-m
 
 | ID | 内容 | 件数（実測） | 推奨 |
 |---|---|---|---|
-| D-1 | 例外 17 品（§3 の表）を R-2／R-4 どおり不採用にするか、ID ごとに例外にするか | 17 品 | 原則不採用。pizza-zucchine-menta だけ個別検討。不採用は staged に残したまま status で表す（削除しない） |
+| D-1 | 例外 38 品（§3 の表）を R-2／R-4 どおり不採用にするか、ID ごとに例外にするか。工程（ZONED・STEP_ORDER・ENCLOSE・PAN 等）を区別の軸として認めるか | 38 品 | 原則不採用。pizza-zucchine-menta だけ個別検討。不採用は staged に残したまま status で表す（削除しない） |
 | D-2 | R-1 の残り 16 品のソース（ホット 6・カレー 2・デザート 4・ホワイト 2・甘辛だれ 2） | 16 | ホット・カレーは「料理の正体」として新ソース、デザート・ホワイトは既存（fresh-cream-sauce 等）か NO_SAUCE を個別に |
 | D-3 | 未解決トークン 19（唐辛子 7 は chili-oil を新食材にするか、ひき肉 5 は beef にすると重複に当たる、チーズ 3 等） | 19 | 唐辛子は新食材 1 種（chili-oil）として 7 件をまとめて解決 |
 | D-4 | R-5 の 14 品（PIZZA DB 版と別候補の構成衝突） | 14 | Phase 0a 候補の材料表が無いので、PIZZA DB 版を採用（ID は接尾辞を外す） |
@@ -180,7 +207,7 @@ taco-pizza・okonomiyaki-style-pizza・jerusalem-mixed-grill・caponata・banh-m
 
 ## 9. 状況
 
-- **完了**: PR #787 の確認と merge（`4348e27`）、main の Deploy 成功、E0 データの訂正（§0.1）、407 件の再判定（自動解決 11・ルール決定 2）、重複ゲートの種類別整理（例外が要るのは 17 品）、Research 19 品の一覧、M1〜M6 の依存と並行作業の整理、本書。
+- **完了**: PR #787 の確認と merge（`4348e27`）、main の Deploy 成功、E0 データの訂正（§0.1）、407 件の再判定（自動解決 11・ルール決定 2）、重複ゲートの種類別整理（例外が要るのは 38 品）、Research 19 品の一覧、M1〜M6 の依存と並行作業の整理、本書。
 - **未完了**: 本番カタログへの昇格（未承認）。D-1〜D-7 の判断。
 - **ブロッカー**: §7 の Owner 判断。HOT ファイルを触る昇格は PR #783 → B20-A の後。
 - **次の行動**: 本書と再判定コードを Staged Catalog 内の PR として出し、CI・Codex を確認する（merge しない）。

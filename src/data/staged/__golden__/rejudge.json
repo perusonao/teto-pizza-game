@@ -1,22 +1,22 @@
 {
  "blockingDependencies": 407,
  "byVerdict": {
-  "AUTO_RESOLVED": 11,
+  "AUTO_RESOLVED": 17,
   "RULE_DECIDED_WORK": 2,
   "DUPLICATE_COUNT": 24,
   "WAITS_MECHANIC": 58,
   "WAITS_IN_FLIGHT": 10,
-  "AXIS_CONDITIONAL": 72,
+  "AXIS_CONDITIONAL": 30,
   "STAGED_PAIR": 94,
-  "EXCEPTION_NEEDED": 39,
+  "EXCEPTION_NEEDED": 75,
   "OWNER_DECISION": 97
  },
- "autoResolved": 11,
+ "autoResolved": 17,
  "byKind": {
   "DUPLICATE_GATE": {
-   "AXIS_CONDITIONAL": 44,
+   "AXIS_CONDITIONAL": 17,
    "STAGED_PAIR": 94,
-   "EXCEPTION_NEEDED": 23,
+   "EXCEPTION_NEEDED": 50,
    "OWNER_DECISION": 6
   },
   "ID_SUFFIXED": {
@@ -30,11 +30,11 @@
    "WAITS_MECHANIC": 58
   },
   "OWNER_RULE": {
-   "AUTO_RESOLVED": 9,
+   "AUTO_RESOLVED": 15,
    "RULE_DECIDED_WORK": 2,
    "WAITS_IN_FLIGHT": 1,
-   "AXIS_CONDITIONAL": 28,
-   "EXCEPTION_NEEDED": 16,
+   "AXIS_CONDITIONAL": 13,
+   "EXCEPTION_NEEDED": 25,
    "OWNER_DECISION": 65
   },
   "SAUCE_UNSPECIFIED": {
@@ -53,16 +53,16 @@
    "OWNER_DECISION": 16
   },
   "R-2": {
-   "AXIS_CONDITIONAL": 14,
-   "EXCEPTION_NEEDED": 5
+   "AXIS_CONDITIONAL": 10,
+   "EXCEPTION_NEEDED": 9
   },
   "R-3": {
    "AXIS_CONDITIONAL": 3,
    "OWNER_DECISION": 2
   },
   "R-4": {
-   "AXIS_CONDITIONAL": 11,
-   "EXCEPTION_NEEDED": 11
+   "AUTO_RESOLVED": 6,
+   "EXCEPTION_NEEDED": 16
   },
   "R-5": {
    "OWNER_DECISION": 14
@@ -91,31 +91,29 @@
     "STAGED_PAIR": 8
    },
    "JACCARD_GT_0_4@shipped": {
-    "AXIS_CONDITIONAL": 11,
-    "EXCEPTION_NEEDED": 11
+    "EXCEPTION_NEEDED": 22
    },
    "JACCARD_GT_0_4@staged": {
     "STAGED_PAIR": 18
    },
    "ONE_DIFF@shipped": {
-    "AXIS_CONDITIONAL": 11,
-    "EXCEPTION_NEEDED": 5,
+    "EXCEPTION_NEEDED": 16,
     "OWNER_DECISION": 2
    },
    "ONE_DIFF@staged": {
     "STAGED_PAIR": 27
    },
    "SUBSET@shipped": {
-    "AXIS_CONDITIONAL": 11,
-    "EXCEPTION_NEEDED": 4,
+    "AXIS_CONDITIONAL": 9,
+    "EXCEPTION_NEEDED": 6,
     "OWNER_DECISION": 2
    },
    "SUBSET@staged": {
     "STAGED_PAIR": 13
    },
    "SUPERSET@shipped": {
-    "AXIS_CONDITIONAL": 8,
-    "EXCEPTION_NEEDED": 3
+    "AXIS_CONDITIONAL": 5,
+    "EXCEPTION_NEEDED": 6
    },
    "SUPERSET@staged": {
     "STAGED_PAIR": 28
@@ -123,11 +121,81 @@
   },
   "exceptionsNeeded": [
    {
+    "id": "calzone-pizzadb",
+    "shippedHits": [
+     "JACCARD_GT_0_4:calabresa-argentina(0.5)"
+    ]
+   },
+   {
+    "id": "quattro-stagioni",
+    "shippedHits": [
+     "JACCARD_GT_0_4:bambino(0.429)",
+     "ONE_DIFF:capricciosa(0.714)",
+     "SUPERSET:funghi(0.5)",
+     "JACCARD_GT_0_4:hawaiian(0.429)",
+     "JACCARD_GT_0_4:pizza-portuguesa(0.5)",
+     "JACCARD_GT_0_4:prosciutto-funghi(0.429)",
+     "JACCARD_GT_0_4:veggie-supreme-pizza(0.444)"
+    ]
+   },
+   {
+    "id": "greek-style-pizzadb",
+    "shippedHits": [
+     "JACCARD_GT_0_4:calabresa-argentina(0.5)",
+     "JACCARD_GT_0_4:capricciosa(0.429)",
+     "JACCARD_GT_0_4:pizza-portuguesa(0.429)"
+    ]
+   },
+   {
+    "id": "chicago-deep-dish-pizzadb",
+    "shippedHits": [
+     "SUBSET:meat-lovers(0.667)",
+     "SUPERSET:pepperoni(0.75)",
+     "SUPERSET:salsiccia(0.75)"
+    ]
+   },
+   {
+    "id": "siciliana-pizzadb",
+    "shippedHits": [
+     "ONE_DIFF:napoletana(0.6)",
+     "JACCARD_GT_0_4:pizza-portuguesa(0.429)",
+     "ONE_DIFF:tonno-e-cipolla(0.6)"
+    ]
+   },
+   {
     "id": "sfincione",
     "shippedHits": [
      "JACCARD_GT_0_4:brazilian-calabresa(0.429)",
      "SUPERSET:fugazza(0.6)",
      "JACCARD_GT_0_4:napoletana(0.5)"
+    ]
+   },
+   {
+    "id": "trenton-tomato-pie",
+    "shippedHits": [
+     "SUBSET:bambino(0.5)",
+     "SUBSET:bismarck(0.667)",
+     "SUBSET:breakfast-pizza(0.5)",
+     "SUBSET:calabresa-argentina(0.4)",
+     "SUBSET:capricciosa(0.333)",
+     "SUBSET:funghi(0.667)",
+     "SUBSET:grandma-pizza(0.5)",
+     "SUBSET:hawaiian(0.5)",
+     "SUBSET:jamon-serrano-pizza(0.5)",
+     "SUBSET:margherita(0.667)",
+     "SUBSET:meat-lovers(0.333)",
+     "SUBSET:melanzane-pizza(0.5)",
+     "SUBSET:napoletana(0.5)",
+     "SUBSET:parmigiana-pizza(0.4)",
+     "SUBSET:pepperoni(0.667)",
+     "SUBSET:pescatore(0.286)",
+     "SUBSET:pinsa-romana(0.5)",
+     "SUBSET:pizza-overload(0.333)",
+     "SUBSET:pizza-portuguesa(0.333)",
+     "SUBSET:prosciutto-funghi(0.5)",
+     "SUBSET:salsiccia(0.667)",
+     "SUBSET:tonno-e-cipolla(0.5)",
+     "SUBSET:veggie-supreme-pizza(0.286)"
     ]
    },
    {
@@ -143,6 +211,35 @@
      "SUPERSET:salsiccia(0.6)",
      "JACCARD_GT_0_4:spanish-chorizo-pizza(0.5)",
      "JACCARD_GT_0_4:tonno-e-cipolla(0.5)"
+    ]
+   },
+   {
+    "id": "pizza-a-caballo",
+    "shippedHits": [
+     "SUBSET:calabresa-argentina(0.6)",
+     "SUBSET:capricciosa(0.5)",
+     "ONE_DIFF:chilean-napolitana(0.5)",
+     "ONE_DIFF:palmito-pizza(0.5)"
+    ]
+   },
+   {
+    "id": "fugazzeta-rellena",
+    "shippedHits": [
+     "JACCARD_GT_0_4:capricciosa(0.429)",
+     "JACCARD_GT_0_4:pizza-portuguesa(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-de-cancha",
+    "shippedHits": [
+     "ONE_DIFF:grandma-pizza(0.6)",
+     "SUPERSET:marinara(0.75)"
+    ]
+   },
+   {
+    "id": "scacciata-ragusana",
+    "shippedHits": [
+     "ONE_DIFF:salsiccia(0.5)"
     ]
    },
    {
@@ -173,6 +270,18 @@
     ]
    },
    {
+    "id": "chicago-stuffed-pizza",
+    "shippedHits": [
+     "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:funghi(0.5)",
+     "ONE_DIFF:margherita(0.5)",
+     "SUBSET:meat-lovers(0.5)",
+     "ONE_DIFF:pepperoni(0.5)",
+     "IDENTICAL:salsiccia(1)",
+     "ONE_DIFF:salsiccia-e-friarielli(0.5)"
+    ]
+   },
+   {
     "id": "chicken-tikka-pizza",
     "shippedHits": [
      "JACCARD_GT_0_4:bbq-chicken-pizza(0.429)",
@@ -187,6 +296,29 @@
      "ONE_DIFF:margherita(0.5)",
      "ONE_DIFF:pepperoni(0.5)",
      "ONE_DIFF:salsiccia(0.5)"
+    ]
+   },
+   {
+    "id": "detroit-style-pizza",
+    "shippedHits": [
+     "ONE_DIFF:pepperoni(0.5)"
+    ]
+   },
+   {
+    "id": "new-england-bar-pizza",
+    "shippedHits": [
+     "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:funghi(0.5)",
+     "ONE_DIFF:margherita(0.5)",
+     "SUBSET:meat-lovers(0.5)",
+     "IDENTICAL:pepperoni(1)",
+     "ONE_DIFF:salsiccia(0.5)"
+    ]
+   },
+   {
+    "id": "palmitos-salsa-golf",
+    "shippedHits": [
+     "JACCARD_GT_0_4:capricciosa(0.429)"
     ]
    },
    {
@@ -223,9 +355,36 @@
     ]
    },
    {
+    "id": "pizza-romana",
+    "shippedHits": [
+     "JACCARD_GT_0_4:calabresa-argentina(0.429)",
+     "SUPERSET:napoletana(0.8)",
+     "JACCARD_GT_0_4:puttanesca-pizza(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-al-taglio-romana",
+    "shippedHits": [
+     "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:funghi(0.5)",
+     "IDENTICAL:margherita(1)",
+     "SUBSET:melanzane-pizza(0.75)",
+     "SUBSET:parmigiana-pizza(0.6)",
+     "ONE_DIFF:pepperoni(0.5)",
+     "ONE_DIFF:salsiccia(0.5)"
+    ]
+   },
+   {
     "id": "philly-cheesesteak-pizza",
     "shippedHits": [
      "SUBSET:nigerian-suya-pizza(0.75)"
+    ]
+   },
+   {
+    "id": "fugazzetta",
+    "shippedHits": [
+     "ONE_DIFF:chilean-napolitana(0.5)",
+     "ONE_DIFF:fugazza(0.5)"
     ]
    },
    {
@@ -240,6 +399,39 @@
     "id": "frutti-di-mare-pizzadb",
     "shippedHits": [
      "JACCARD_GT_0_4:pescatore(0.5)"
+    ]
+   },
+   {
+    "id": "hot-honey-pepperoni",
+    "shippedHits": [
+     "JACCARD_GT_0_4:meat-lovers(0.429)",
+     "SUPERSET:pepperoni(0.75)"
+    ]
+   },
+   {
+    "id": "yakiniku-pizza",
+    "shippedHits": [
+     "JACCARD_GT_0_4:nigerian-suya-pizza(0.5)",
+     "JACCARD_GT_0_4:rendang-pizza(0.5)",
+     "JACCARD_GT_0_4:wasabi-beef-pizza(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-de-lomo-saltado",
+    "shippedHits": [
+     "JACCARD_GT_0_4:nigerian-suya-pizza(0.5)",
+     "JACCARD_GT_0_4:rendang-pizza(0.5)",
+     "JACCARD_GT_0_4:wasabi-beef-pizza(0.429)"
+    ]
+   },
+   {
+    "id": "montreal-style-pizza",
+    "shippedHits": [
+     "JACCARD_GT_0_4:capricciosa(0.429)",
+     "SUPERSET:funghi(0.75)",
+     "JACCARD_GT_0_4:meat-lovers(0.429)",
+     "SUPERSET:pepperoni(0.75)",
+     "ONE_DIFF:prosciutto-funghi(0.6)"
     ]
    },
    {
@@ -299,47 +491,14 @@
  ],
  "recipesNoOwnerDecisionLeft": [
   {
-   "id": "quattro-stagioni",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:ZONED",
-    "STAGED_PAIR"
-   ]
-  },
-  {
    "id": "taco-pizza",
    "waits": []
-  },
-  {
-   "id": "trenton-tomato-pie",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:STEP_ORDER",
-    "STAGED_PAIR"
-   ]
   },
   {
    "id": "ny-style",
    "waits": [
     "AXIS_CONDITIONAL",
     "MECHANIC:DOUGH_VARIANT",
-    "STAGED_PAIR"
-   ]
-  },
-  {
-   "id": "fugazzeta-rellena",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:DOUGH_VARIANT",
-    "MECHANIC:ENCLOSE",
-    "STAGED_PAIR"
-   ]
-  },
-  {
-   "id": "scacciata-ragusana",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:ENCLOSE",
     "STAGED_PAIR"
    ]
   },
@@ -363,48 +522,13 @@
    "waits": []
   },
   {
-   "id": "chicago-stuffed-pizza",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:DOUGH_VARIANT",
-    "MECHANIC:ENCLOSE",
-    "STAGED_PAIR"
-   ]
-  },
-  {
-   "id": "new-england-bar-pizza",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:DOUGH_VARIANT",
-    "MECHANIC:PAN_PROFILE",
-    "STAGED_PAIR"
-   ]
-  },
-  {
    "id": "banh-mi-pizza",
    "waits": []
-  },
-  {
-   "id": "palmitos-salsa-golf",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:DOUGH_VARIANT",
-    "STAGED_PAIR"
-   ]
   },
   {
    "id": "piadina-romagnola",
    "waits": [
     "MECHANIC:DOUGH_VARIANT"
-   ]
-  },
-  {
-   "id": "pizza-al-taglio-romana",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:DOUGH_SHAPE_TARGET",
-    "MECHANIC:DOUGH_VARIANT",
-    "STAGED_PAIR"
    ]
   },
   {
@@ -427,43 +551,9 @@
    ]
   },
   {
-   "id": "hot-honey-pepperoni",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "STAGED_PAIR",
-    "WAITS_IN_FLIGHT"
-   ]
-  },
-  {
    "id": "natto-pizza",
    "waits": [
     "MECHANIC:MID_BAKE"
-   ]
-  },
-  {
-   "id": "yakiniku-pizza",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:PREP",
-    "STAGED_PAIR"
-   ]
-  },
-  {
-   "id": "pizza-de-lomo-saltado",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:MID_BAKE",
-    "MECHANIC:PREP",
-    "STAGED_PAIR"
-   ]
-  },
-  {
-   "id": "montreal-style-pizza",
-   "waits": [
-    "AXIS_CONDITIONAL",
-    "MECHANIC:DOUGH_VARIANT",
-    "MECHANIC:PAN_PROFILE",
-    "STAGED_PAIR"
    ]
   }
  ],
@@ -473,7 +563,6 @@
    "recipesUnblockedByThisTrackAlone": [
     "ny-style",
     "argentine-napolitana",
-    "palmitos-salsa-golf",
     "piadina-romagnola",
     "poutine-pizza"
    ]
@@ -484,9 +573,7 @@
   },
   "M3": {
    "recipesNeedingTrack": 5,
-   "recipesUnblockedByThisTrackAlone": [
-    "scacciata-ragusana"
-   ]
+   "recipesUnblockedByThisTrackAlone": []
   },
   "M4": {
    "recipesNeedingTrack": 2,
@@ -497,16 +584,12 @@
   "M5": {
    "recipesNeedingTrack": 4,
    "recipesUnblockedByThisTrackAlone": [
-    "pizza-fritta",
-    "yakiniku-pizza"
+    "pizza-fritta"
    ]
   },
   "M6": {
    "recipesNeedingTrack": 4,
-   "recipesUnblockedByThisTrackAlone": [
-    "quattro-stagioni",
-    "trenton-tomato-pie"
-   ]
+   "recipesUnblockedByThisTrackAlone": []
   }
  },
  "perRecipe": [
@@ -522,10 +605,10 @@
    "id": "calzone-pizzadb",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "OWNER_DECISION:OWNER_RULE:R-5",
     "WAITS_MECHANIC:MECHANIC:ENCLOSE",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged",
     "OWNER_DECISION:ID_SUFFIXED:calzone-pizzadb"
@@ -535,12 +618,12 @@
    "id": "quattro-stagioni",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
     "WAITS_MECHANIC:MECHANIC:ZONED",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
   },
@@ -548,11 +631,11 @@
    "id": "greek-style-pizzadb",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "OWNER_DECISION:OWNER_RULE:R-5",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged",
     "OWNER_DECISION:ID_SUFFIXED:greek-style-pizzadb"
@@ -562,14 +645,14 @@
    "id": "chicago-deep-dish-pizzadb",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
     "OWNER_DECISION:OWNER_RULE:R-5",
     "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
     "WAITS_MECHANIC:MECHANIC:STEP_ORDER",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged",
     "OWNER_DECISION:ID_SUFFIXED:chicago-deep-dish-pizzadb"
    ]
@@ -578,14 +661,14 @@
    "id": "siciliana-pizzadb",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "OWNER_DECISION:OWNER_RULE:R-5",
     "WAITS_MECHANIC:MECHANIC:DOUGH_SHAPE_TARGET",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged",
     "OWNER_DECISION:ID_SUFFIXED:siciliana-pizzadb"
    ]
@@ -610,11 +693,11 @@
    "id": "trenton-tomato-pie",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
     "WAITS_MECHANIC:MECHANIC:STEP_ORDER",
     "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUBSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
    ]
   },
@@ -660,7 +743,7 @@
     "OWNER_DECISION:OWNER_RULE:R-8",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "WAITS_MECHANIC:MECHANIC:ENCLOSE",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped"
    ]
@@ -669,10 +752,10 @@
    "id": "fugazzeta-rellena",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "WAITS_MECHANIC:MECHANIC:ENCLOSE",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
@@ -681,12 +764,11 @@
    "id": "pizza-de-cancha",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
     "OWNER_DECISION:OWNER_RULE:R-7",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped"
    ]
   },
@@ -703,9 +785,8 @@
    "id": "scacciata-ragusana",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
     "WAITS_MECHANIC:MECHANIC:ENCLOSE",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged"
    ]
   },
@@ -872,7 +953,7 @@
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "WAITS_MECHANIC:MECHANIC:ENCLOSE",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:IDENTICAL@shipped",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
@@ -906,12 +987,11 @@
    "id": "detroit-style-pizza",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
     "OWNER_DECISION:OWNER_RULE:R-5",
     "WAITS_MECHANIC:MECHANIC:DOUGH_SHAPE_TARGET",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
@@ -945,7 +1025,7 @@
     "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:IDENTICAL@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
@@ -981,9 +1061,9 @@
     "R-1: NO_SAUCE (family 「その他」)"
    ],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged"
    ]
   },
@@ -1095,7 +1175,7 @@
     "AXIS_CONDITIONAL:OWNER_RULE:R-2",
     "OWNER_DECISION:OWNER_RULE:R-5",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
@@ -1110,7 +1190,7 @@
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:IDENTICAL@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:IDENTICAL@staged",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
@@ -1184,11 +1264,10 @@
    "id": "fugazzetta",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
     "OWNER_DECISION:OWNER_RULE:R-5",
     "OWNER_DECISION:OWNER_RULE:R-8",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
@@ -1245,11 +1324,11 @@
    "id": "hot-honey-pepperoni",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-2",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-2",
     "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
   },
@@ -1288,9 +1367,9 @@
    "id": "yakiniku-pizza",
    "proposals": [],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "WAITS_MECHANIC:MECHANIC:PREP",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
@@ -1301,10 +1380,10 @@
     "R-1: NO_SAUCE (family 「その他」)"
    ],
    "open": [
-    "AXIS_CONDITIONAL:OWNER_RULE:R-4",
+    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "WAITS_MECHANIC:MECHANIC:MID_BAKE",
     "WAITS_MECHANIC:MECHANIC:PREP",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
@@ -1335,9 +1414,9 @@
     "AXIS_CONDITIONAL:OWNER_RULE:R-2",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "WAITS_MECHANIC:MECHANIC:PAN_PROFILE",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
-    "AXIS_CONDITIONAL:DUPLICATE_GATE:ONE_DIFF@shipped",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUPERSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
@@ -1348,7 +1427,6 @@
    "proposals": [],
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-1",
-    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged"
@@ -1385,7 +1463,6 @@
    "proposals": [],
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-1",
-    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"

@@ -13,8 +13,10 @@
  *  - R-7 (unresolved token): the canonicalizer suggested exactly one id, that id is shipped, and substituting it hits NO duplicate
  *    gate (the I-1 condition, Codex P2 on PR #787) -> map it. A suggested id owned by in-flight work (walnut) -> waits for that work.
  *  - Duplicate gate: re-measured on the proposed sets. A hit against another STAGED recipe is a choice between candidates, not an
- *    exception. A hit against a SHIPPED recipe is "axis-separable" when the staged recipe also needs a mechanic or a post-bake step
- *    that becomes part of its identity (R-3 path: decided with that mechanic), otherwise it is a real exception (R-2 / R-4).
+ *    exception. A hit against a SHIPPED recipe follows the rule text of plan §9 only (Codex P2, PR #788):
+ *      identical / subset / superset (R-3 / R-2) -> conditional ONLY when the recipe has a DOUGH axis (DOUGH_VARIANT) that R-3 can
+ *      approve, and it is not one of R-3's named HOLD recipes; any other mechanic or a post-bake step does NOT rescue it;
+ *      Jaccard > 0.4 (R-4) and one-ingredient-diff -> always an exception decision (R-4 allows only the individually listed ones).
  *  - R-2 / R-3 / R-4 / R-5 / R-8, mechanics, in-flight ingredients and suffixed ids are never resolved here.
  */
 import { stagedDependencies, stagedDuplicateGate, type Dependency, type DuplicateHit, type ShippedView } from "./stagedCatalog";
@@ -28,9 +30,9 @@ export type Verdict =
   | "DUPLICATE_COUNT" // the same open question already counted under another dependency of the same recipe
   | "WAITS_MECHANIC" // a mechanic track (M1-M6) must ship first
   | "WAITS_IN_FLIGHT" // PR #783 / B20-A must merge first
-  | "AXIS_CONDITIONAL" // duplicate vs shipped, separable once the recipe's mechanic / post-bake axis ships (R-3 path)
+  | "AXIS_CONDITIONAL" // identical / subset / superset vs shipped, separable by the DOUGH axis once M1 ships and R-3 approves it
   | "STAGED_PAIR" // duplicate vs another staged candidate: resolved by choosing between candidates
-  | "EXCEPTION_NEEDED" // duplicate vs shipped with no separating axis: R-2 (exclude?) or R-4 (exception?) per ID
+  | "EXCEPTION_NEEDED" // duplicate vs shipped that no rule rescues: per-ID exclusion or exception (R-2 / R-3 / R-4, one-ingredient diff)
   | "OWNER_DECISION"; // anything else the rules leave to the Owner
 
 export interface JudgedDependency extends Dependency {
@@ -52,9 +54,11 @@ const IN_FLIGHT = new Set(["burrata", "honey", "walnut"]);
 /** R-3 as adopted: "allowed only when the dough is a visibly distinct technique; cauliflower / fathead are HOLD". */
 const R3_HOLD = new Set(["cauliflower-crust-pizza", "fathead-pizza-keto"]);
 
-function hasAxis(r: StagedRecipe, mechanics: readonly string[]): boolean {
-  return mechanics.length > 0 || r.requiredIngredients.some((q) => q.applicationPhase === "POST_BAKE");
+/** R-2 / R-3 rescue only a recipe whose separating axis is the dough kind (plan §9). */
+function hasDoughAxis(mechanics: readonly string[]): boolean {
+  return mechanics.includes("DOUGH_VARIANT");
 }
+const SET_KINDS = new Set(["IDENTICAL", "SUBSET", "SUPERSET"]);
 
 export function rejudgeStaged(shipped: ShippedView, recipes: readonly StagedRecipe[] = STAGED_RECIPES): RecipeRejudge[] {
   const shippedIng = new Set(shipped.ingredientIds);
@@ -112,7 +116,7 @@ export function rejudgeStaged(shipped: ShippedView, recipes: readonly StagedReci
     const p = proposed.get(r.id)!;
     const mechanics = r.mechanics.filter((m) => !(m === "MID_BAKE" && p.lateResolved));
     const held = R3_HOLD.has(r.id);
-    const axis = !held && hasAxis(r, mechanics);
+    const axis = !held && hasDoughAxis(mechanics);
     const deps = stagedDependencies(r, originalDup[r.id], STAGED_INGREDIENTS);
     const judged: JudgedDependency[] = [];
     const dupKeyOf = (h: DuplicateHit) => `${h.kind}${h.againstStaged ? "@staged" : "@shipped"}`;
@@ -126,11 +130,14 @@ export function rejudgeStaged(shipped: ShippedView, recipes: readonly StagedReci
           if (d.id === "R-1") verdict = p.sauce === "NO_SAUCE" ? "AUTO_RESOLVED" : p.sauce === "NEW" ? "RULE_DECIDED_WORK" : "OWNER_DECISION";
           else if (d.id === "R-6") verdict = r.applied.some((a) => a.startsWith("R-6")) || p.lateResolved ? "AUTO_RESOLVED" : "OWNER_DECISION";
           else if (d.id === "R-7") verdict = [...p.tokens.values()].every((v) => v === "AUTO_RESOLVED") ? "AUTO_RESOLVED" : [...p.tokens.values()].every((v) => v !== "OWNER_DECISION") ? "WAITS_IN_FLIGHT" : "OWNER_DECISION";
-          else if (d.id === "R-2" || d.id === "R-4") {
-            const shippedLeft = newDup[r.id].filter((h) => !h.againstStaged);
-            verdict = shippedLeft.length === 0 ? "AUTO_RESOLVED" : held ? "OWNER_DECISION" : axis ? "AXIS_CONDITIONAL" : "EXCEPTION_NEEDED";
+          else if (d.id === "R-2") {
+            const left = newDup[r.id].filter((h) => !h.againstStaged && SET_KINDS.has(h.kind));
+            verdict = left.length === 0 ? "AUTO_RESOLVED" : held ? "OWNER_DECISION" : axis ? "AXIS_CONDITIONAL" : "EXCEPTION_NEEDED";
+          } else if (d.id === "R-4") {
+            const left = newDup[r.id].filter((h) => !h.againstStaged && h.kind === "JACCARD_GT_0_4");
+            verdict = left.length === 0 ? "AUTO_RESOLVED" : "EXCEPTION_NEEDED";
           } else if (d.id === "R-3") {
-            verdict = held ? "OWNER_DECISION" : "AXIS_CONDITIONAL";
+            verdict = held ? "OWNER_DECISION" : axis ? "AXIS_CONDITIONAL" : "EXCEPTION_NEEDED";
             if (held) note = "R-3 HOLD (named in the rule)";
           }
           else verdict = "OWNER_DECISION"; // R-5, R-8
@@ -159,7 +166,7 @@ export function rejudgeStaged(shipped: ShippedView, recipes: readonly StagedReci
           else if (held) {
             verdict = "OWNER_DECISION";
             note = "R-3 HOLD (named in the rule)";
-          } else verdict = axis ? "AXIS_CONDITIONAL" : "EXCEPTION_NEEDED";
+          } else verdict = axis && SET_KINDS.has(d.id.split("@")[0]) ? "AXIS_CONDITIONAL" : "EXCEPTION_NEEDED";
           break;
         }
       }
