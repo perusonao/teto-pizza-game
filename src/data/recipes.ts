@@ -1637,6 +1637,24 @@ const BASE_RECIPES = [
     lunchRush: false,
     ladderCredit: false,
   },
+  {
+    id: "pesto-noci-pizza",
+    nameJa: "ペスト・ノーチピザ",
+    description: "ジェノベーゼソースとはちみつを塗った生地に、ゴルゴンゾーラとくるみをのせた、香り豊かな一枚。",
+    // Expansion Batch 20-A (Issue #790; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; id and Japanese name are PROVISIONAL). SOURCE AUTHORITY: the 172 matrix row `pesto-noci-pizzadb-p12` only (comparison table p12, relayed 2026-09-22, never independently re-fetched): ペスト(sauce) / ゴルゴンゾーラ / 蜂蜜 / くるみ.
+    // OWNER DECISIONS (2026-11-08): honey is a PRE-BAKE second sauce layer (a spread sauce painted in the SAUCE step, scored by presence like the olive-oil of grandma-pizza / the Batch 19 recipes; NOT NO_SAUCE); mozzarella is NOT added (the matrix has none); walnut family `other`; provisional counts, name and bake window adopted.
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source): pesto 1 (PAINT, the Reference target) / honey 1 (second sauce, by presence) / gorgonzola 2 / walnut 3, bake 58-78 (the generic Free Cooking window). The order is primary sauce, second sauce, cheese, topping so that the Rule W reserved ingredient (walnut, the last) is the topping.
+    // EVERY piece is placed BEFORE the bake (no POST_BAKE, so no FINISH step; no prep / steam / sear step). Ladder-credited: the key of ordinary step 71 (honey + walnut). `lunchRush: false`; no CUT; permanently key-free (Hint). The description names no moment (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "pesto", minCount: 1 },
+      { ingredientId: "honey", minCount: 1 },
+      { ingredientId: "gorgonzola", minCount: 2 },
+      { ingredientId: "walnut", minCount: 3 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 
 ] as const;
 

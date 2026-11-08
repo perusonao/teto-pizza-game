@@ -315,6 +315,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "pesto-burrata-pizza",
         "pesto-caprese",
         "pesto-gamberi",
+        "pesto-noci-pizza",
         "pesto-patate",
         "pesto-pollo",
         "pesto-salmone",

@@ -18,7 +18,7 @@ export function requiredSauceIds(recipeId: string): string[] {
  * The production recipes that REQUIRE TWO SAUCES (Multi-Sauce, Issue #521). The privacy gates (`deductionProduction.gate`, `hint5Production.gate`) allowlist exactly
  * these next to the NO_SAUCE recipes. Adding an id here is the deliberate step that follows re-running those gates and the DH4 privacy sweeps with the new recipe.
  */
-export const MULTI_SAUCE_RECIPE_IDS: readonly string[] = ["grandma-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola"]; // Expansion Batch 19 (#774): + the two burrata recipes (primary sauce + olive-oil)
+export const MULTI_SAUCE_RECIPE_IDS: readonly string[] = ["grandma-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"]; // Expansion Batch 19 (#774): + the two burrata recipes (primary sauce + olive-oil); Expansion Batch 20-A (#790): + pesto-noci-pizza (pesto + honey)
 
 /** Square Dough E-2: the pizza fields that put a round on the tray when the recipe's own pan is square (`panShape: "square"`, i.e. grandma-pizza); `{}` for every other recipe. */
 export function panFieldsFor(recipeId: string): { pan?: "tray" } {

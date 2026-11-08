@@ -64,6 +64,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "spinach-leaves",
   "artichoke-quarter",
   "burrata-torn-ball",
+  "walnut-kernel",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -112,7 +113,9 @@ const B17_DEDICATED: Record<string, DedicatedIngredientVisual> = { "sour-cream":
 const HERB_DEDICATED: Record<string, DedicatedIngredientVisual> = { rosemary: "rosemary-sprigs", oregano: "oregano-flakes", spinach: "spinach-leaves", artichoke: "artichoke-quarter" };
 /** Expansion Batch 19 (#774): burrata's dedicated torn-ball art (candidate C) instead of a bare cheese emoji. */
 const B19_DEDICATED: Record<string, DedicatedIngredientVisual> = { burrata: "burrata-torn-ball" };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B19_DEDICATED, ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
+/** Expansion Batch 20-A (#790): walnut re-uses the PR #777 kernel art (raw state) instead of a bare emoji; honey is a sauce painted in the SAUCE step and keeps its emoji chip face. */
+const B20A_DEDICATED: Record<string, DedicatedIngredientVisual> = { walnut: "walnut-kernel" };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B20A_DEDICATED, ...B19_DEDICATED, ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 

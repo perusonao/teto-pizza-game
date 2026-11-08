@@ -26,6 +26,7 @@ export type DedicatedIngredientVisual =
   | "clam-valve"
   | "ricotta-mound"
   | "burrata-torn-ball"
+  | "walnut-kernel"
   | "feta-cubes"
   | "sausage-slices"
   | "hot-dog-slices"
@@ -1264,6 +1265,33 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pieceVisual: "burrata-torn-ball",
+  },
+  /**
+   * Expansion Batch 20-A (Issue #790; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; GAMEPLAY ASSUMPTION): `honey` (はちみつ), a spread SAUCE painted in the SAUCE step (the existing PAINT gesture) as the SECOND sauce layer of pesto-noci-pizza (Owner 2026-11-08: a
+   * pre-bake second layer, like the olive-oil of grandma-pizza / the Batch 19 recipes). Ordinary ladder step 71 (T4, no star gate), with walnut. A sauce carries no topping family (no ingredientTaxonomy row) and no dedicated art (it is painted, not placed).
+   * `color` `#e8a93a` (amber) and `emoji` 🐝 are PROVISIONAL: the emoji is the tray / shop chip face (a sauce has no `pieceVisual`) and is told apart from miso-sauce's 🍯 (G18 keeps it unique); the Preview HV adjusts both.
+   */
+  {
+    id: "honey",
+    category: "sauce",
+    nameJa: "はちみつ",
+    color: "#e8a93a",
+    emoji: "\u{1F41D}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * Expansion Batch 20-A (Issue #790; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): `walnut` (くるみ), a topping; ordinary ladder step 71 (T4, no star gate) with honey, the key material of pesto-noci-pizza. Family `spice` (the original tentative design; Owner 2026-11-08 first chose `other`, but that fails the DH4-PROD gate OD-DH4-2-9 because the walnut is the recipe's only topping = the Rule W reserve; see ./ingredientTaxonomy.ts), size class `s`. Drawn by the dedicated `walnut-kernel` visual: the PR #777 `WalnutGlyph` (raw state) re-used unchanged; `emoji` 🥥 is only the required, never-displayed text fallback (G18: not almond's 🥜 nor pine-nuts' 🌰).
+   */
+  {
+    id: "walnut",
+    category: "topping",
+    nameJa: "くるみ",
+    color: "#9a6a3c",
+    emoji: "\u{1F965}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "walnut-kernel",
   },
 
 

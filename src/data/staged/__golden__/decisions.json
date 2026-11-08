@@ -1,5 +1,5 @@
 {
- "dependencies": 383,
+ "dependencies": 376,
  "byStatus": {
   "RESOLVED": 33,
   "WORK": 9,
@@ -7,7 +7,7 @@
   "CANDIDATE_PENDING": 12,
   "EXCEPTION_REVIEW": 76,
   "WAITS_MECHANIC": 58,
-  "WAITS_IN_FLIGHT": 9,
+  "WAITS_IN_FLIGHT": 2,
   "AXIS_WITH_M1": 30,
   "STAGED_PAIR": 94,
   "OWNER_DECISION": 40
@@ -20,7 +20,7 @@
   "D-4": 21,
   "D-5": 8
  },
- "remainingOpen": 350,
+ "remainingOpen": 343,
  "needsAdditionalOwnerDecision": {
   "total": 116,
   "perRecipeExceptions": 76,
@@ -34,10 +34,12 @@
    "okonomiyaki-style-pizza",
    "pizza-finocchi-salad",
    "pizza-cavolo-carote",
+   "pizza-radicchio-noci",
    "black-truffle-pizza"
   ],
   "readyWithWork": [
-   "buffalo-chicken-pizzadb"
+   "buffalo-chicken-pizzadb",
+   "speck-e-brie-pizzadb"
   ],
   "researchBlockedButOtherwiseReady": []
  },

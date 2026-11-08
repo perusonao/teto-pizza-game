@@ -4462,6 +4462,19 @@ export const PIZZA_ALLA_CRUDAIOLA_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * Expansion Batch 20-A (Issue #790; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): Reference Truth for `pesto-noci-pizza` (the pesto PAINT sauce is the Reference target; the second sauce, honey, is scored by presence and is not a piece). Pieces (gorgonzola 2 / walnut 3 = 5 non-sauce, ALL before the bake) take slots 1-5 of the RT-01
+ * 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION, not source.
+ */
+export const PESTO_NOCI_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "pesto-noci-pizza",
+  sauce: computeMechanicalSauceReference("pesto-noci-pizza"),
+  pieceGroups: [
+    { ingredientId: "gorgonzola", positions: [{ x: 50, y: 24 }, { x: 73, y: 36 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "walnut", positions: [{ x: 76, y: 63 }, { x: 58, y: 79 }, { x: 38, y: 79 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+  ],
+};
+
+/**
  * BBQ Chicken (Issue #611, late catalog): Reference Truth for `bbq-chicken-pizza` (the bbq-sauce PAINT sauce is not a piece). Pieces (mozzarella 2 / onion 1 / chicken 3 / cilantro 2 = 8 non-sauce, the last 2 POST_BAKE) take the
  * RT-01 reference layout consecutively in `requiredIngredients` order (post-bake pieces use the same slots, like `ikura-salmon-pizza`): slots 1-8 of `getReferenceSlots(8)`, the last being the dough centre. Slot assignment is
  * GAMEPLAY / REFERENCE CALIBRATION, not source authority; no piece-count limit is defined by this recipe (RT-01 generates a multi-ring layout above 8).
@@ -5489,6 +5502,7 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [REINA_PEPIADA_PIZZA_REFERENCE.recipeId, REINA_PEPIADA_PIZZA_REFERENCE],
   [PESTO_BURRATA_PIZZA_REFERENCE.recipeId, PESTO_BURRATA_PIZZA_REFERENCE],
   [PIZZA_ALLA_CRUDAIOLA_REFERENCE.recipeId, PIZZA_ALLA_CRUDAIOLA_REFERENCE],
+  [PESTO_NOCI_PIZZA_REFERENCE.recipeId, PESTO_NOCI_PIZZA_REFERENCE],
   [WASABI_BEEF_PIZZA_REFERENCE.recipeId, WASABI_BEEF_PIZZA_REFERENCE],
   [TARAKO_CREAM_PIZZA_REFERENCE.recipeId, TARAKO_CREAM_PIZZA_REFERENCE],
   [EGGPLANT_DENGAKU_PIZZA_REFERENCE.recipeId, EGGPLANT_DENGAKU_PIZZA_REFERENCE],

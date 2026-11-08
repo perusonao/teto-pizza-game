@@ -60,13 +60,13 @@ describe("WalnutGlyph (Batch 20-A, unwired)", () => {
     }
   });
 
-  it("is not imported by any production module yet (unwired)", async () => {
+  it("is imported by exactly one module, IngredientGlyph.tsx (wired by Expansion Batch 20-A, #790: `pieceVisual: \"walnut-kernel\"`; it was unwired until then)", async () => {
     const { execSync } = await import("node:child_process");
     const out = execSync(
       "grep -rl 'walnutGlyph' src --include=*.ts --include=*.tsx || true",
       { cwd: process.cwd() },
     ).toString();
     const importers = out.split("\n").filter((f) => f && !f.includes("src/components/walnutGlyph/"));
-    expect(importers).toEqual([]);
+    expect(importers).toEqual(["src/components/IngredientGlyph.tsx"]);
   });
 });

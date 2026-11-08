@@ -122,9 +122,9 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
   });
 
   it("catalog counts after PR-2 late4 (which follows this recipe): 90 recipes (89 with the Pinsa gate off), 97 ingredients, 76 ladder steps (7 late; Expansion Batch 18 added two recipes and ordinary step 69 with the promoted cilantro, no new ingredient id; B11 S1 added three recipes, two materials and ordinary steps 62-63; B12 added one recipe; Expansion Batch 12 added two recipes, one material and ordinary step 64; Expansion Batch 14 added one recipe, one material and ordinary step 66; Expansion Batch 15 added one recipe, no material and no step; Expansion Batch 16 added one recipe, one material and ordinary step 67; Expansion Batch 17 added one recipe, one material and ordinary step 68)", () => {
-    expect(RECIPES.length).toBe(pinsaEnabled() ? 92 : 91); // (Expansion Batch 19: + pesto-burrata-pizza and pizza-alla-crudaiola) // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
-    expect(INGREDIENTS.length).toBe(98); // (Expansion Batch 19: + burrata)
-    expect(DISCOVERY_LADDER.steps.length).toBe(77); // (Expansion Batch 19: + ordinary step 70)
+    expect(RECIPES.length).toBe(pinsaEnabled() ? 93 : 92); // (Expansion Batch 20-A (#790): + pesto-noci-pizza) // (Expansion Batch 19: + pesto-burrata-pizza and pizza-alla-crudaiola) // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
+    expect(INGREDIENTS.length).toBe(100); // (Expansion Batch 20-A (#790): + honey and walnut) // (Expansion Batch 19: + burrata)
+    expect(DISCOVERY_LADDER.steps.length).toBe(78); // (Expansion Batch 20-A (#790): + ordinary step 71) // (Expansion Batch 19: + ordinary step 70)
     expect(LATE_LADDER_STEPS.length).toBe(7);
   });
 

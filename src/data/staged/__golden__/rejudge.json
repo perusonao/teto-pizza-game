@@ -1,11 +1,11 @@
 {
- "blockingDependencies": 407,
+ "blockingDependencies": 400,
  "byVerdict": {
   "AUTO_RESOLVED": 11,
   "RULE_DECIDED_WORK": 2,
   "DUPLICATE_COUNT": 24,
   "WAITS_MECHANIC": 58,
-  "WAITS_IN_FLIGHT": 9,
+  "WAITS_IN_FLIGHT": 2,
   "AXIS_CONDITIONAL": 30,
   "STAGED_PAIR": 94,
   "EXCEPTION_NEEDED": 76,
@@ -21,9 +21,6 @@
   },
   "ID_SUFFIXED": {
    "OWNER_DECISION": 7
-  },
-  "INGREDIENT_IN_FLIGHT": {
-   "WAITS_IN_FLIGHT": 7
   },
   "MECHANIC": {
    "AUTO_RESOLVED": 1,
@@ -574,8 +571,7 @@
    "id": "apple-cinnamon-dessert",
    "proposals": [],
    "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1",
-    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:walnut"
+    "OWNER_DECISION:OWNER_RULE:R-1"
    ]
   },
   {
@@ -772,7 +768,6 @@
    "proposals": [],
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-5",
-    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:walnut",
     "OWNER_DECISION:ID_SUFFIXED:speck-e-brie-pizzadb"
    ]
   },
@@ -989,8 +984,7 @@
    "id": "nashville-hot-chicken-pizza",
    "proposals": [],
    "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1",
-    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey"
+    "OWNER_DECISION:OWNER_RULE:R-1"
    ]
   },
   {
@@ -1125,8 +1119,7 @@
    "id": "pizza-radicchio-noci",
    "proposals": [],
    "open": [
-    "OWNER_DECISION:OWNER_RULE:R-6",
-    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:walnut"
+    "OWNER_DECISION:OWNER_RULE:R-6"
    ]
   },
   {
@@ -1222,7 +1215,6 @@
     "OWNER_DECISION:OWNER_RULE:R-8",
     "WAITS_MECHANIC:MECHANIC:LAMINATE",
     "WAITS_MECHANIC:MECHANIC:MULTI_SPREAD_3",
-    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey",
     "OWNER_DECISION:UNRESOLVED_TOKEN:ひき肉"
    ]
   },
@@ -1301,7 +1293,6 @@
    "proposals": [],
    "open": [
     "EXCEPTION_NEEDED:OWNER_RULE:R-2",
-    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
@@ -1401,7 +1392,6 @@
    "proposals": [],
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-1",
-    "WAITS_IN_FLIGHT:INGREDIENT_IN_FLIGHT:honey",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged"
    ]

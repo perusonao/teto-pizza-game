@@ -88,6 +88,7 @@ const BASE_TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[
   ["egg", "other"],
   ["almond", "other"],
   ["pine-nuts", "other"],
+  ["walnut", "spice"], // Expansion Batch 20-A (#790): `spice`, NOT `other`. Owner 2026-11-08 chose `other` (the shipped nuts' family), but pesto-noci-pizza's only topping is the walnut, so it is the Rule W reserve and `other` would make `attr:family:other` an answer, which the DH4-PROD gate (OD-DH4-2-9: 「その他」 unreachable) forbids (measured: deductionProduction.gate fails with `other`, passes with `spice`). Owner chose `spice` on that evidence (the original tentative design).
   ["prosciutto-crudo", "meat"],
   ["green-pepper", "vegetable"],
   ["salami", "meat"],

@@ -161,7 +161,7 @@ describe("differentiation (the global 0.4 Jaccard guideline is NOT changed; the 
 describe("ordinary step 69 and the late steps", () => {
   const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
   it("steps 1-68 are frozen; step 69 is cilantro alone, no star gate, keyed to baingan-bharta-pizza (reina adds no step)", () => {
-    expect(steps).toHaveLength(70); // Expansion Batch 19 (#774) appended the ordinary step 70 (burrata) after it;
+    expect(steps).toHaveLength(71); // Expansion Batch 20-A (#790) appended the ordinary step 71 (honey + walnut) after it; // Expansion Batch 19 (#774) appended the ordinary step 70 (burrata) after it;
     expect(steps[66]).toMatchObject({ step: 67, ingredientIds: ["umeboshi-paste"], keyRecipeId: "ume-shiso-pizza" });
     expect(steps[67]).toMatchObject({ step: 68, ingredientIds: ["sour-cream"], keyRecipeId: "goulash-pizza" });
     expect(steps[68]).toMatchObject({ step: 69, kind: "MATERIAL", ingredientIds: ["cilantro"], keyRecipeId: BAINGAN });
@@ -175,9 +175,9 @@ describe("ordinary step 69 and the late steps", () => {
   });
   it("the late steps follow at 70-76 (derived; +1 again) and name no cilantro; the BBQ late step is bbq-sauce alone; the late floors are unchanged", () => {
     const late = DISCOVERY_LADDER.steps.slice(69);
-    expect(late.map((s) => s.step)).toEqual([70, 71, 72, 73, 74, 75, 76, 77]); // Expansion Batch 19 (#774): the ordinary step 70 (burrata) now opens this slice and moved the derived late numbers +1 again (71-77)
+    expect(late.map((s) => s.step)).toEqual([70, 71, 72, 73, 74, 75, 76, 77, 78]); // Expansion Batch 20-A (#790): the ordinary step 71 (honey + walnut) now follows step 70 and moved the derived late numbers +1 again (72-78); // Expansion Batch 19 (#774): the ordinary step 70 (burrata) now opens this slice and moved the derived late numbers +1 again (71-77)
     expect(late.some((s) => s.ingredientIds.includes("cilantro"))).toBe(false);
-    expect(late.find((s) => s.keyRecipeId === BBQ)).toMatchObject({ step: 75, ingredientIds: ["bbq-sauce"] }); // (Expansion Batch 19: 74 -> 75)
+    expect(late.find((s) => s.keyRecipeId === BBQ)).toMatchObject({ step: 76, ingredientIds: ["bbq-sauce"] }); // (Expansion Batch 19: 74 -> 75; Expansion Batch 20-A: 75 -> 76)
     expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 });
   });
 });

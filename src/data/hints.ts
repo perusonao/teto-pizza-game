@@ -146,6 +146,15 @@ export const RECIPE_HINTS: Record<string, RecipeHintSet> = {
     },
     ready: "いい感じ！「焼く！」を押してみよう。",
   },
+  // Expansion Batch 20-A (#790): two required sauces (pesto, then honey). The first sauce uses empty / emptyHint, the second (honey) uses missing["honey"]. The wording names no recipe (Anti-Oracle).
+  "pesto-noci-pizza": {
+    empty: "指でなぞってソースを塗ろう！",
+    emptyHint: "指でくるくるなぞると塗れるよ。ふちの近くまで広げてみて！",
+    missing: {
+      honey: "はちみつも塗ってみよう！",
+    },
+    ready: "いい感じ！「焼く！」を押してみよう。",
+  },
 };
 
 export function buildHintLine(
