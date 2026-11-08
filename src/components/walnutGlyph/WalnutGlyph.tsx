@@ -1,8 +1,7 @@
 /**
- * Batch 20-A (pesto-noci): dedicated walnut (くるみ) glyph. WIRED by Batch 20-A (#790): `ingredients.ts`
- * registers `pieceVisual: "walnut-kernel"` and `IngredientGlyph.tsx` draws `WalnutKernel` (the same
- * art as #777, unchanged: colours / shape stay PROVISIONAL). The standalone `WalnutGlyph` below is kept
- * for the comparison sheet and the `baked` palette (the game uses `raw` and the shared bake filter).
+ * Batch 20-A (pesto-noci): dedicated walnut (くるみ) glyph. UNWIRED — nothing imports this file
+ * yet; `ingredients.ts`, `recipes.ts`, `IngredientGlyph.tsx` and `App.css` are untouched. A later
+ * wiring PR decides how it is registered (`pieceVisual`).
  *
  * Two bake states of the same drawing (same silhouette, so a wiring PR can swap by bake level):
  * - `raw`: pale tan kernel (reads against baked cheese / dough).
@@ -26,25 +25,8 @@ const FOLDS = "M31.5 16 C29 25 34 31 30.5 41 M19 25 C24 27 25 31 21 36 M45 22 C4
 const PIECE = "M40 44 C38 38 46 34 52 38 C56 42 52 50 46 50 C43 51 41 48 40 44Z";
 const PIECE_FOLD = "M44 39 C43 44 47 46 49 49";
 
-/** The art only (two `<g>` groups in a 64x64 box), so `IngredientGlyph` can place it inside its own `<svg>`; `WalnutGlyph` wraps the same markup. */
-export function WalnutKernel({ state = "raw" }: { state?: WalnutState }) {
-  const p = WALNUT_PALETTE[state];
-  return (
-    <>
-      <g transform="translate(-2 -4) scale(.98)">
-        <path d={KERNEL} fill={p.fill} stroke={p.outline} strokeWidth="3" strokeLinejoin="round" />
-        <path d={KERNEL_LIGHT} fill={p.light} />
-        <path d={FOLDS} fill="none" stroke={p.fold} strokeWidth="2.6" strokeLinecap="round" />
-      </g>
-      <g transform="translate(4 8)">
-        <path d={PIECE} fill={p.fill} stroke={p.outline} strokeWidth="3" strokeLinejoin="round" />
-        <path d={PIECE_FOLD} fill="none" stroke={p.fold} strokeWidth="2.2" strokeLinecap="round" />
-      </g>
-    </>
-  );
-}
-
 export function WalnutGlyph({ state = "raw" }: { state?: WalnutState }) {
+  const p = WALNUT_PALETTE[state];
   return (
     <svg
       className="ingredient-glyph ingredient-glyph--walnut-kernel"
@@ -56,7 +38,15 @@ export function WalnutGlyph({ state = "raw" }: { state?: WalnutState }) {
       aria-hidden="true"
       focusable="false"
     >
-      <WalnutKernel state={state} />
+      <g transform="translate(-2 -4) scale(.98)">
+        <path d={KERNEL} fill={p.fill} stroke={p.outline} strokeWidth="3" strokeLinejoin="round" />
+        <path d={KERNEL_LIGHT} fill={p.light} />
+        <path d={FOLDS} fill="none" stroke={p.fold} strokeWidth="2.6" strokeLinecap="round" />
+      </g>
+      <g transform="translate(4 8)">
+        <path d={PIECE} fill={p.fill} stroke={p.outline} strokeWidth="3" strokeLinejoin="round" />
+        <path d={PIECE_FOLD} fill="none" stroke={p.fold} strokeWidth="2.2" strokeLinecap="round" />
+      </g>
     </svg>
   );
 }

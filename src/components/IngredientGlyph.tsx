@@ -1,6 +1,6 @@
-import { WalnutKernel } from "./walnutGlyph/WalnutGlyph";
 import { ArtichokeQuarter, OreganoPile, RosemarySprigs, SpinachLeaves } from "./herbGlyphs/herbGlyphs";
 import type { DedicatedIngredientVisual, Ingredient } from "../data/ingredients";
+import { WalnutGlyph } from "./walnutGlyph/WalnutGlyph";
 
 /**
  * Production Visual P1: the single entry point for drawing an ingredient's glyph -- every place
@@ -72,6 +72,8 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
 };
 
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
+  // Expansion Batch 20-A (#790): the walnut is the PR #777 `WalnutGlyph` re-used unchanged (it renders its own 64x64 / 1em <svg> with the same `ingredient-glyph ingredient-glyph--<visual>` class and `data-ingredient-visual`, raw state), not wrapped a second time.
+  if (visual === "walnut-kernel") return <WalnutGlyph state="raw" />;
   return (
     <svg
       className={`ingredient-glyph ingredient-glyph--${visual}`}
@@ -87,7 +89,6 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
       {visual === "clam-valve" && <ClamValve />}
       {visual === "ricotta-mound" && <RicottaMound />}
       {visual === "burrata-torn-ball" && <BurrataTornBall />}
-      {visual === "walnut-kernel" && <WalnutKernel />}
       {visual === "feta-cubes" && <FetaCubes />}
       {visual === "sausage-slices" && <SausageSlices />}
       {visual === "hot-dog-slices" && <HotDogSlices />}

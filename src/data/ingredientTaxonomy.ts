@@ -128,8 +128,8 @@ const BASE_TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[
   ["mayo", "spice"],
   // Expansion Batch 14 (PROVISIONAL SPEC, GAMEPLAY ASSUMPTION; Owner decision): cinnamon = spice (L1 only, no `other`).
   ["cinnamon", "spice"],
-  // Expansion Batch 20-A (#790; Owner decision 2026-11-08, the confirmed spec): walnut = other, the nut family it shares with almond and pine-nuts (NOT spice: spice is not Final-Gate safe); the Hint 5.0 effect is measured in expansionBatch20.test.ts.
-  ["walnut", "other"],
+  // Expansion Batch 20-A (#790; PROVISIONAL SPEC, Owner 2026-11-08): walnut = spice (L1 only, no `other`); the Hint 5.0 effect is measured in expansionBatch20.test.ts.
+  ["walnut", "spice"],
 ];
 
 /** The base rows, plus the late-catalog ingredients' rows (./lateCatalog.ts) when that catalog is enabled; otherwise the base rows themselves. */

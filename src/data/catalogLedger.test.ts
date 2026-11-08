@@ -48,6 +48,6 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id)! : i.category;
       byShelf[shelf] = (byShelf[shelf] ?? 0) + 1;
     }
-    expect(byShelf).toEqual({ sauce: 16, cheese: 15, meat: 12, seafood: 11, vegetable: 24, fruit: 3, herb: 9, spice: 6, other: 4 });
+    expect(byShelf).toEqual({ sauce: 16, cheese: 15, meat: 12, seafood: 11, vegetable: 24, fruit: 3, herb: 9, spice: 7, other: 3 });
   });
 });
