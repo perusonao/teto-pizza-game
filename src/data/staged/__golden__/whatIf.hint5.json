@@ -1,0 +1,426 @@
+{
+ "targets": 84,
+ "notTarget": [],
+ "rows": [
+  {
+   "id": "apple-cinnamon-dessert",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "calzone-pizzadb",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "quattro-stagioni",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "greek-style-pizzadb",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "chicago-deep-dish-pizzadb",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "siciliana-pizzadb",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "sfincione",
+   "target": true,
+   "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "taco-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "trenton-tomato-pie",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE"
+  },
+  {
+   "id": "ny-style",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE"
+  },
+  {
+   "id": "buffalo-chicken-pizzadb",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "pizza-baiana",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-a-caballo",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "fugazzeta-rellena",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-de-cancha",
+   "target": true,
+   "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "swedish-kebab-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "scacciata-ragusana",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "speck-e-brie-pizzadb",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "smore-dessert-pizza",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "st-louis-style-pizza",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "thai-chicken-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "argentine-napolitana",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "eel-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "jerusalem-mixed-grill-pizza",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "old-forge-style-pizza",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "okonomiyaki-style-pizza",
+   "target": true,
+   "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "caponata-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "cauliflower-crust-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "keema-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "kimchi-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "quad-cities-style-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE"
+  },
+  {
+   "id": "colorado-mountain-pie",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE"
+  },
+  {
+   "id": "chicago-stuffed-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "chicken-tikka-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "diavola-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "detroit-style-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "turkish-pide",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "nashville-hot-chicken-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "new-england-bar-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "nutella-dessert-pizza",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "banh-mi-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "buffalo-cauliflower-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "palmitos-salsa-golf",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "piadina-romagnola",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-salad",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-asparagi-limone",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-carciofi-salad",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-finocchi-salad",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-cavolo-carote",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-zucchine-menta",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-cicoria-limone",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-puntarelle",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-radicchio-noci",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-chilena",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-romana",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-al-taglio-romana",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "pizza-fritta",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "fathead-pizza-keto",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "philly-cheesesteak-pizza",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "poutine-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "feteer-meshaltet",
+   "target": true,
+   "rungs": "SAUCE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "focaccia-genovese",
+   "target": true,
+   "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "fugazzetta",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "burrata-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "fruit-dessert-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "bulgogi-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "frutti-di-mare-pizzadb",
+   "target": true,
+   "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "peruvian-aji-amarillo",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "hot-honey-pepperoni",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "natto-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "peking-duck-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "mentaiko-mochi-pizza",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "manakish",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "yakiniku-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "pizza-de-lomo-saltado",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "lahmacun",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "mexican-elote-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "montreal-style-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "nduja-pizza",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "tsukimi-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "black-truffle-pizza",
+   "target": true,
+   "rungs": "CHEESE,STRUCTURE,SUB_CLASS"
+  },
+  {
+   "id": "teriyaki-chicken-pizza",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "south-african-boerewors",
+   "target": true,
+   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
+  },
+  {
+   "id": "hokkaido-cheese-pizza",
+   "target": true,
+   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
+  }
+ ]
+}
