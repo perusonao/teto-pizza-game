@@ -1,0 +1,30 @@
+# Owner-prompt forecast for the full addition (ingredients 70 / recipes 84 / mechanics). Run: python3 -I <this file>
+# All unit counts are measured from main 348b1e4 + staged goldens; per-unit prompt costs are ASSUMPTIONS (see the report).
+import json
+units = {
+  "ingredient_trains": 11,                 # B21-B31 (ingredients + the recipes that complete with them: 41)
+  "recipe_only_recipes": 43,               # recipes needing no new ingredient
+  "new_mechanic_prs": 14,                  # M1 3, M5 2, M3 3, M2 2, M4 2, M6 2
+  "gate_on_items": 5,                      # STEAM #726/#738, DRIZZLE #579, SEAR #727, FRY #749, PREP #696 (Production ON decisions)
+}
+case = {
+  #            recipes/PR, train prompts, mech-PR prompts, gate-ON prompts, bulk-decision prompts, kickoff prompts
+  "optimistic": dict(rpp=8, train=1, mech=3, gate=2, decisions=2,  kickoff=3),
+  "standard":   dict(rpp=6, train=2, mech=5, gate=3, decisions=4,  kickoff=6),
+  "pessimistic":dict(rpp=4, train=3, mech=8, gate=5, decisions=8,  kickoff=12),
+}
+def ceil(a,b): return -(-a//b)
+out = {}
+for k,c in case.items():
+    rtrains = ceil(units["recipe_only_recipes"], c["rpp"])
+    trains = units["ingredient_trains"] + rtrains
+    line1 = units["ingredient_trains"] * c["train"]                       # ingredients (+ their recipes)
+    line2 = rtrains * c["train"]                                          # recipe-only
+    line3 = units["new_mechanic_prs"] * c["mech"] + units["gate_on_items"] * c["gate"]
+    shared = c["decisions"] + c["kickoff"]
+    total = line1 + line2 + line3 + shared
+    # S-3 (conditional merge delegation): the merge half of each train/mech/gate prompt disappears (~35% of the train/mech prompts)
+    saved = round(0.35 * (line1 + line2 + line3))
+    out[k] = dict(recipe_only_trains=rtrains, trains=trains, line1_ingredients=line1, line2_recipes=line2,
+                  line3_mechanics=line3, shared=shared, total=total, total_with_S3=total - saved)
+print(json.dumps(out, indent=1, ensure_ascii=False))
