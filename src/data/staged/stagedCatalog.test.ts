@@ -27,7 +27,11 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
     const planned = PLAN.recipes.filter((r) => !r.inFlight).map((r) => r.evidenceId).sort();
     expect(STAGED_RECIPES.map((r) => r.evidenceId).sort()).toEqual(planned);
     expect(PLAN.recipes.filter((r) => r.inFlight)).toHaveLength(3);
-    expect(RECIPES.length + PLAN.recipes.length).toBe(pinsaEnabled() ? 177 : 176);
+    // In-flight ids that have shipped (pesto-burrata-pizza / pizza-alla-crudaiola via PR #783) are already inside RECIPES: count them once.
+    const shippedIds = new Set(RECIPES.map((r) => r.id as string));
+    const shippedInFlight = Object.keys(IN_FLIGHT_RECIPE_IDS).filter((id) => shippedIds.has(id));
+    expect(shippedInFlight).toEqual(["pesto-burrata-pizza", "pizza-alla-crudaiola"]);
+    expect(RECIPES.length + PLAN.recipes.length - shippedInFlight.length).toBe(pinsaEnabled() ? 177 : 176);
     expect(Object.keys(IN_FLIGHT_RECIPE_IDS).sort()).toEqual(["pesto-burrata-pizza", "pesto-noci-pizza", "pizza-alla-crudaiola"]);
   });
 
@@ -139,7 +143,7 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
   it.skipIf(!pinsaEnabled())("duplicate gate and dependency ledger (measured; changes must be reviewed)", async () => {
     const dup = stagedDuplicateGate(SHIPPED);
     const perRecipe = STAGED_RECIPES.map((r) => {
-      const deps = stagedDependencies(r, dup[r.id]);
+      const deps = stagedDependencies(r, dup[r.id], undefined, SHIPPED.ingredientIds);
       return { id: r.id, lane: r.lane, blocking: deps.filter(isBlocking).map((d) => `${d.kind}:${d.id}`), staged: deps.filter((d) => !isBlocking(d)).map((d) => d.id), dup: dup[r.id] };
     });
     const KINDS = ["IDENTICAL", "SUBSET", "SUPERSET", "ONE_DIFF", "JACCARD_GT_0_4"];
