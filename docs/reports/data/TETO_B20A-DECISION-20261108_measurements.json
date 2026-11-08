@@ -1,0 +1,274 @@
+{
+ "base": "origin/main 4ba05597 (PR #789 merge; catalog files identical to 44460cbf)",
+ "recipeCount": 92,
+ "ladderSteps": 77,
+ "A_original": {
+  "ingredients": [
+   "pesto",
+   "honey",
+   "gorgonzola",
+   "walnut"
+  ],
+  "top5": [
+   {
+    "id": "genovese",
+    "j": 0.16666666666666666,
+    "subset": false,
+    "superset": false,
+    "oneDiff": false,
+    "exact": false
+   },
+   {
+    "id": "pesto-tonno",
+    "j": 0.14285714285714285,
+    "subset": false,
+    "superset": false,
+    "oneDiff": false,
+    "exact": false
+   },
+   {
+    "id": "pesto-caprese",
+    "j": 0.14285714285714285,
+    "subset": false,
+    "superset": false,
+    "oneDiff": false,
+    "exact": false
+   },
+   {
+    "id": "pesto-patate",
+    "j": 0.14285714285714285,
+    "subset": false,
+    "superset": false,
+    "oneDiff": false,
+    "exact": false
+   },
+   {
+    "id": "pesto-pollo",
+    "j": 0.14285714285714285,
+    "subset": false,
+    "superset": false,
+    "oneDiff": false,
+    "exact": false
+   }
+  ],
+  "gateHits": [],
+  "maxJaccard": 0.16666666666666666,
+  "researchCanonicalChanged": [],
+  "researchNonCanonical": [
+   "genovese: -->B B->C A->B C->D",
+   "pesto-burrata-pizza: B->C C->D",
+   "pesto-caprese: -->A",
+   "pesto-patate: -->B B->C",
+   "pesto-pollo: B->C C->D",
+   "pesto-salmone: -->B B->C",
+   "pesto-tonno: -->A",
+   "pesto-trapanese: C->D B->C",
+   "pesto-vegetariana: -->A",
+   "quattro-formaggi: -->A"
+  ],
+  "nonCanonicalCount": 10,
+  "hint5Target": true,
+  "hint5Rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+ },
+ "B_plus_mozzarella": {
+  "ingredients": [
+   "pesto",
+   "honey",
+   "mozzarella",
+   "gorgonzola",
+   "walnut"
+  ],
+  "top5": [
+   {
+    "id": "genovese",
+    "j": 0.3333333333333333,
+    "subset": false,
+    "superset": false,
+    "oneDiff": false,
+    "exact": false
+   },
+   {
+    "id": "pesto-caprese",
+    "j": 0.2857142857142857,
+    "subset": false,
+    "superset": false,
+    "oneDiff": false,
+    "exact": false
+   },
+   {
+    "id": "pesto-patate",
+    "j": 0.2857142857142857,
+    "subset": false,
+    "superset": false,
+    "oneDiff": false,
+    "exact": false
+   },
+   {
+    "id": "pesto-pollo",
+    "j": 0.2857142857142857,
+    "subset": false,
+    "superset": false,
+    "oneDiff": false,
+    "exact": false
+   },
+   {
+    "id": "quattro-formaggi",
+    "j": 0.25,
+    "subset": false,
+    "superset": false,
+    "oneDiff": false,
+    "exact": false
+   }
+  ],
+  "gateHits": [],
+  "maxJaccard": 0.3333333333333333,
+  "researchCanonicalChanged": [],
+  "researchNonCanonical": [
+   "genovese: -->B B->C A->B C->D",
+   "pesto-burrata-pizza: B->C C->D",
+   "pesto-caprese: -->A",
+   "pesto-patate: -->B B->C",
+   "pesto-pollo: B->C C->D",
+   "pesto-salmone: -->B B->C",
+   "pesto-tonno: -->A",
+   "pesto-trapanese: C->D B->C",
+   "pesto-vegetariana: -->A",
+   "quattro-formaggi: -->A"
+  ],
+  "nonCanonicalCount": 10,
+  "hint5Target": true,
+  "hint5Rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+ },
+ "tenDetail": [
+  {
+   "id": "genovese",
+   "nameJa": "ジェノベーゼ",
+   "ingredients": [
+    "pestox1",
+    "mozzarellax2",
+    "cherry-tomatox3"
+   ],
+   "raw": "[{\"change\":\"-->B\",\"example\":\"genovese + pesto-noci-pizza materials only, pesto last\",\"canonical\":false},{\"change\":\"B->C\",\"example\":\"genovese + pesto-noci-pizza materials + fresh-tomato, pesto last\",\"canonical\":false},{\"change\":\"A->B\",\"example\":\"pesto-patate + pesto-noci-pizza materials + cherry-tomato, pesto last\",\"canonical\":false}]",
+   "nOrders": 4
+  },
+  {
+   "id": "pesto-burrata-pizza",
+   "nameJa": "ペスト・ブッラータピザ",
+   "ingredients": [
+    "pestox1",
+    "olive-oilx1",
+    "burratax2",
+    "fresh-tomatox2"
+   ],
+   "raw": "[{\"change\":\"B->C\",\"example\":\"pesto-burrata-pizza + pesto-noci-pizza materials only, pesto last\",\"canonical\":false},{\"change\":\"C->D\",\"example\":\"pesto-burrata-pizza + pesto-noci-pizza materials + cherry-tomato, pesto last\",\"canonical\":false}]",
+   "nOrders": 2
+  },
+  {
+   "id": "pesto-caprese",
+   "nameJa": "ペストカプレーゼピザ",
+   "ingredients": [
+    "pestox1",
+    "mozzarellax2",
+    "fresh-tomatox3",
+    "basilx2"
+   ],
+   "raw": "[{\"change\":\"-->A\",\"example\":\"pesto-caprese + pesto-noci-pizza materials only, pesto last\",\"canonical\":false}]",
+   "nOrders": 1
+  },
+  {
+   "id": "pesto-patate",
+   "nameJa": "ペストパターテピザ",
+   "ingredients": [
+    "pestox1",
+    "mozzarellax2",
+    "potatox3",
+    "baconx2"
+   ],
+   "raw": "[{\"change\":\"-->B\",\"example\":\"pesto-patate + pesto-noci-pizza materials only, pesto last\",\"canonical\":false},{\"change\":\"B->C\",\"example\":\"pesto-patate + pesto-noci-pizza materials + cherry-tomato, pesto last\",\"canonical\":false}]",
+   "nOrders": 2
+  },
+  {
+   "id": "pesto-pollo",
+   "nameJa": "ペストポッロピザ",
+   "ingredients": [
+    "pestox1",
+    "mozzarellax2",
+    "fresh-tomatox2",
+    "chickenx3"
+   ],
+   "raw": "[{\"change\":\"B->C\",\"example\":\"pesto-caprese + pesto-noci-pizza materials + chicken, pesto last\",\"canonical\":false},{\"change\":\"C->D\",\"example\":\"pesto-gamberi + pesto-noci-pizza materials + chicken, pesto last\",\"canonical\":false}]",
+   "nOrders": 2
+  },
+  {
+   "id": "pesto-salmone",
+   "nameJa": "ペストサーモン",
+   "ingredients": [
+    "pestox1",
+    "salmonx3",
+    "cream-cheesex2",
+    "lemonx2"
+   ],
+   "raw": "[{\"change\":\"-->B\",\"example\":\"pesto-salmone + pesto-noci-pizza materials only, pesto last\",\"canonical\":false},{\"change\":\"B->C\",\"example\":\"pesto-salmone + pesto-noci-pizza materials + cherry-tomato, pesto last\",\"canonical\":false}]",
+   "nOrders": 2
+  },
+  {
+   "id": "pesto-tonno",
+   "nameJa": "ペストトンノピザ",
+   "ingredients": [
+    "pestox1",
+    "tunax3",
+    "black-olivex2",
+    "onionx2"
+   ],
+   "raw": "[{\"change\":\"-->A\",\"example\":\"pesto-tonno + pesto-noci-pizza materials only, pesto last\",\"canonical\":false}]",
+   "nOrders": 1
+  },
+  {
+   "id": "pesto-trapanese",
+   "nameJa": "ペストトラパネーゼピザ",
+   "ingredients": [
+    "pestox1",
+    "fresh-tomatox2",
+    "garlicx2",
+    "almondx3"
+   ],
+   "raw": "[{\"change\":\"C->D\",\"example\":\"pesto-gamberi + pesto-noci-pizza materials + almond, pesto last\",\"canonical\":false},{\"change\":\"B->C\",\"example\":\"pesto-trapanese + pesto-noci-pizza materials only, pesto last\",\"canonical\":false}]",
+   "nOrders": 2
+  },
+  {
+   "id": "pesto-vegetariana",
+   "nameJa": "ペストベジタリアーナピザ",
+   "ingredients": [
+    "pestox1",
+    "mozzarellax2",
+    "eggplantx2",
+    "zucchinix2",
+    "bell-pepperx2"
+   ],
+   "raw": "[{\"change\":\"-->A\",\"example\":\"pesto-vegetariana + pesto-noci-pizza materials only, pesto last\",\"canonical\":false}]",
+   "nOrders": 1
+  },
+  {
+   "id": "quattro-formaggi",
+   "nameJa": "クアトロ フォルマッジ",
+   "ingredients": [
+    "olive-oilx1",
+    "mozzarellax2",
+    "gorgonzolax2",
+    "parmigianox2",
+    "fontinax2"
+   ],
+   "raw": "[{\"change\":\"-->A\",\"example\":\"quattro-formaggi + pesto-noci-pizza materials only, gorgonzola last\",\"canonical\":false}]",
+   "nOrders": 1
+  }
+ ],
+ "hintGolden": {
+  "count": 91,
+  "diffsWalnutSpice": [],
+  "diffsWalnutOther": []
+ },
+ "hintFamilyComparison": {
+  "spice": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS",
+  "other": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
+ }
+}

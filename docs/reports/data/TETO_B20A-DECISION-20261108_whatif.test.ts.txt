@@ -1,0 +1,53 @@
+import { describe, it, vi } from "vitest";
+import { writeFileSync, readFileSync } from "node:fs";
+import { RECIPE_HINT_ROLES } from "./recipeHintRoles";
+
+vi.mock("./ingredients", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./ingredients")>();
+  const row = (id: string, category: "sauce" | "topping", nameJa: string) => ({ id, category, nameJa, color: "#999999", emoji: `x:${id}`, placement: category === "sauce" ? "spread" : "scatter", unlockCondition: { minTotalStars: 0 }, pricePitz: 100, restockQuantity: 5 });
+  const have = actual.INGREDIENTS.map((i) => i.id);
+  const all = [...actual.INGREDIENTS, ...(have.includes("honey") ? [] : [row("honey", "sauce", "はちみつ")]), ...(have.includes("walnut") ? [] : [row("walnut", "topping", "くるみ")])] as typeof actual.INGREDIENTS;
+  return { ...actual, INGREDIENTS: all, getIngredient: (id: string) => all.find((i) => i.id === id) };
+});
+vi.mock("./ingredientTaxonomy", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./ingredientTaxonomy")>();
+  return { ...actual, ingredientAttributeFamily: (id: unknown) => actual.ingredientAttributeFamily(id) ?? (id === "walnut" ? (process.env.WALNUT_FAMILY ?? "spice") : null) };
+});
+
+import { researchLetterChangesAcrossOrders } from "../logic/catalog/testSupport/researchLabelAudit";
+import { buildHint5Ladder } from "../logic/discovery/hint5Ladder";
+import { RECIPES } from "./recipes";
+import { DISCOVERY_LADDER } from "./discoveryLadder";
+
+const mk = (id: string, ing: [string, number][]) => ({ id, nameJa: id, description: "", requiredIngredients: ing.map(([ingredientId, minCount]) => ({ ingredientId, minCount })), bakeTarget: { start: 58, end: 78 }, baseRewardPitz: 100 });
+const VARIANTS = {
+  A_original: mk("pesto-noci-pizza", [["pesto", 1], ["honey", 1], ["gorgonzola", 2], ["walnut", 3]]),
+  B_plus_mozzarella: mk("pesto-noci-pizza", [["pesto", 1], ["honey", 1], ["mozzarella", 2], ["gorgonzola", 2], ["walnut", 3]]),
+};
+const sets = (r: { requiredIngredients: readonly { ingredientId: string }[] }) => new Set(r.requiredIngredients.map((q) => q.ingredientId));
+const jac = (a: Set<string>, b: Set<string>) => { const i = [...a].filter((x) => b.has(x)).length; return i / (a.size + b.size - i); };
+
+describe("B20-A what-if on current main", () => {
+  it("measures", async () => {
+    const out: Record<string, unknown> = { recipeCount: RECIPES.length, ladderSteps: DISCOVERY_LADDER.steps.length, lastStep: DISCOVERY_LADDER.steps.at(-1) && { ids: DISCOVERY_LADDER.steps.at(-1)!.ingredientIds, key: (DISCOVERY_LADDER.steps.at(-1) as never as { recipeId?: string }).recipeId } };
+    for (const [name, rec] of Object.entries(VARIANTS)) {
+      const s = sets(rec);
+      const rows = RECIPES.map((r) => { const t = sets(r as never); const inter = [...s].filter((x) => t.has(x)).length; return { id: r.id, j: jac(s, t), subset: inter === s.size, superset: inter === t.size, oneDiff: s.size === t.size ? s.size - inter === 1 : (Math.abs(s.size - t.size) === 1 && inter === Math.min(s.size, t.size)), exact: inter === s.size && s.size === t.size }; });
+      rows.sort((a, b) => b.j - a.j);
+      const all = [...RECIPES, rec] as never;
+      const ch = researchLetterChangesAcrossOrders([rec.id], all, 4);
+      const affected = [...ch.entries()].sort(([a], [b]) => (a < b ? -1 : 1));
+      const canonical = affected.filter(([, l]) => l.some((c) => c.canonical)).map(([id]) => id);
+      const nonCanonical = affected.map(([id, l]) => `${id}: ${[...new Set(l.filter((c) => !c.canonical).map((c) => c.change))].join(" ")}`).filter((x) => !x.endsWith(": "));
+      const ladder = buildHint5Ladder(rec.id, all, { [rec.id]: { keyFree: true } } as never);
+      out[name] = { ingredients: [...s], top5: rows.slice(0, 5), gateHits: rows.filter((r) => r.exact || r.subset || r.superset || r.oneDiff).map((r) => r.id), maxJaccard: rows[0].j, researchCanonicalChanged: canonical, researchNonCanonical: nonCanonical, nonCanonicalCount: nonCanonical.length, hint5Target: ladder !== null, hint5Rungs: ladder ? ladder.rungs.map((g) => g.kind).join(",") : null };
+      if (name === "A_original") out.tenDetail = nonCanonical.map((x) => x.split(":")[0]).map((id) => { const r = RECIPES.find((q) => q.id === id)!; return { id, nameJa: r.nameJa, ingredients: r.requiredIngredients.map((q) => `${q.ingredientId}x${q.minCount}`), raw: JSON.stringify((ch.get(id) ?? []).slice(0, 3)), nOrders: (ch.get(id) ?? []).length }; });
+    }
+    const golden = JSON.parse(readFileSync("src/logic/discovery/__golden__/hint5.ladders55.json", "utf8")) as { id: string; rungs: unknown[][] }[];
+    const allA = [...RECIPES, VARIANTS.A_original] as never;
+    const hintDiffs: string[] = [];
+    for (const g of golden) { const l = buildHint5Ladder(g.id, allA, RECIPE_HINT_ROLES); const now = l ? l.rungs.map((r) => [r.index, r.kind, r.ordinal, ...r.subjectIds]) : null; if (JSON.stringify(now) !== JSON.stringify(g.rungs)) hintDiffs.push(g.id); }
+    out.hintGoldenCount = golden.length; out.hintGoldenDiffs = hintDiffs;
+    writeFileSync(process.env.B20A_OUT ?? "/tmp/b20a.json", JSON.stringify(out, null, 1));
+  }, 600_000);
+});
