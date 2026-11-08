@@ -114,7 +114,7 @@ export function rejudgeStaged(shipped: ShippedView, recipes: readonly StagedReci
     const mechanics = r.mechanics.filter((m) => !(m === "MID_BAKE" && p.lateResolved));
     const held = R3_HOLD.has(r.id);
     const axis = !held && hasDoughAxis(mechanics);
-    const deps = stagedDependencies(r, originalDup[r.id], STAGED_INGREDIENTS);
+    const deps = stagedDependencies(r, originalDup[r.id], STAGED_INGREDIENTS, shipped.ingredientIds);
     const judged: JudgedDependency[] = [];
     const dupKeyOf = (h: DuplicateHit) => `${h.kind}${h.againstStaged ? "@staged" : "@shipped"}`;
     const remaining = new Set(newDup[r.id].map(dupKeyOf));

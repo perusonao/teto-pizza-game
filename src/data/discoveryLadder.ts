@@ -220,6 +220,8 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["sour-cream"], keyRecipeId: "goulash-pizza" },
   // Step 69 (Expansion Batch 18, #748, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): `cilantro`, PROMOTED from the late catalog (same id; the BBQ late step now names only bbq-sauce), key recipe `baingan-bharta-pizza` (it also needs curry-ketchup, mozzarella, eggplant, fresh-tomato and onion from earlier steps / the starters). `reina-pepiada-pizza` (`ladderCredit: false`) is also makeable here and adds no step. Steps 1-68 frozen; the late derived numbers move +1 and `LATE_ENTITLEMENT_FLOORS` is unchanged.
   { ingredientIds: ["cilantro"], keyRecipeId: "baingan-bharta-pizza" },
+  // Step 70 (Expansion Batch 19, #774, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the one new material `burrata`, key recipe `pesto-burrata-pizza` (it also needs pesto, olive-oil and fresh-tomato from earlier steps). `pizza-alla-crudaiola` (`ladderCredit: false`) is also makeable here and adds no step. Steps 1-69 frozen; the late derived numbers move +1 and `LATE_ENTITLEMENT_FLOORS` is unchanged.
+  { ingredientIds: ["burrata"], keyRecipeId: "pesto-burrata-pizza" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

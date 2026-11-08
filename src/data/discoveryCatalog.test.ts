@@ -79,6 +79,8 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       // B11 S1, the ONLY Owner-approved deviation from a SHIPPED_KEEP target (Owner decision 2026-10-28, option A; GAMEPLAY ASSUMPTION, original NOT confirmed): pescatore omits the matrix's olive-oil (a single tomato-sauce, no MULTI_SPREAD_LAYER).
       // Exactly three differences are allowed and each is asserted below: items without olive-oil, no capability, `spreadLayers: null`. Every other item / dimension is still compared with the matrix, which is unchanged.
       const pescatore = t.recipeId === "pescatore";
+      // Expansion Batch 19 (#774): the two burrata recipes follow the grandma-pizza two-sauce precedent (primary sauce + olive-oil by presence): the matrix rows list MULTI_SPREAD_LAYER and \`spreadLayers\`, the runtime target has no such capability and \`spreadLayers: null\` (the two sauces are already in \`items\`). Unlike grandma-pizza there is no \`pan\` change.
+      const batch19TwoSauce = t.recipeId === "pesto-burrata-pizza" || t.recipeId === "pizza-alla-crudaiola";
       const expectedItems = pescatore ? expected!.items.filter((i) => i !== "olive-oil") : expected!.items;
       if (pescatore) {
         expect(expected!.items).toContain("olive-oil");
@@ -86,9 +88,9 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
         expect(expected!.identityDimensions.spreadLayers).toEqual(["tomato-sauce", "olive-oil"]);
       }
       expect(t.items).toEqual([...expectedItems].sort());
-      expect(t.capabilities).toEqual(grandma || pescatore ? [] : expected!.capabilities);
+      expect(t.capabilities).toEqual(grandma || pescatore || batch19TwoSauce ? [] : expected!.capabilities);
       expect(t.identityDimensions).toEqual(
-        grandma ? { ...expected!.identityDimensions, spreadLayers: null, pan: "tray" } : pescatore ? { ...expected!.identityDimensions, spreadLayers: null } : expected!.identityDimensions,
+        grandma ? { ...expected!.identityDimensions, spreadLayers: null, pan: "tray" } : pescatore || batch19TwoSauce ? { ...expected!.identityDimensions, spreadLayers: null } : expected!.identityDimensions,
       );
       expect(t.eligibility).toEqual({ status: "ELIGIBLE" });
     }

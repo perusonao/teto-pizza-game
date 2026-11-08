@@ -24,13 +24,14 @@ export interface WhatIfIngredient {
 const IN_FLIGHT_CATEGORY: Record<string, "sauce" | "cheese" | "topping"> = { burrata: "cheese", honey: "sauce", walnut: "topping" };
 export const IN_FLIGHT_FAMILY: Record<string, string> = { walnut: "spice" };
 
-export function whatIfIngredients(): WhatIfIngredient[] {
+/** `shippedIds`: ingredient ids already in the shipped catalog (e.g. burrata after PR #783); they are never appended a second time. */
+export function whatIfIngredients(shippedIds: readonly string[] = []): WhatIfIngredient[] {
   const row = (id: string, category: WhatIfIngredient["category"], nameJa: string): WhatIfIngredient => ({
     id, category, nameJa, color: "#999999", emoji: `staged:${id}`, placement: category === "sauce" ? "spread" : "scatter",
     unlockCondition: { minTotalStars: 0 }, pricePitz: 100, restockQuantity: 5,
   });
   return [
-    ...Object.keys(IN_FLIGHT_INGREDIENT_IDS).map((id) => row(id, IN_FLIGHT_CATEGORY[id], id)),
+    ...Object.keys(IN_FLIGHT_INGREDIENT_IDS).filter((id) => !shippedIds.includes(id)).map((id) => row(id, IN_FLIGHT_CATEGORY[id], id)),
     ...STAGED_INGREDIENTS.filter((i) => i.status === "ACTIVE").map((i) => row(i.id, i.category, i.nameJa)),
   ];
 }

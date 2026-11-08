@@ -16,7 +16,7 @@ describe("Staged Catalog — re-judgement under the provisional blanket rules (I
 
   it("judges every blocking dependency of the E0 ledger exactly once, and changes no staged data", () => {
     const dup = stagedDuplicateGate(SHIPPED);
-    const blocking = STAGED_RECIPES.reduce((n, r) => n + stagedDependencies(r, dup[r.id]).filter(isBlocking).length, 0);
+    const blocking = STAGED_RECIPES.reduce((n, r) => n + stagedDependencies(r, dup[r.id], undefined, SHIPPED.ingredientIds).filter(isBlocking).length, 0);
     expect(all).toHaveLength(blocking);
     expect(STAGED_RECIPES).toHaveLength(84);
   });

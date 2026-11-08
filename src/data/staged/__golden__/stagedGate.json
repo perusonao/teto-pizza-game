@@ -7,16 +7,16 @@
   "byKind": {
    "OWNER_RULE": 121,
    "MECHANIC": 59,
-   "INGREDIENT_IN_FLIGHT": 8,
+   "INGREDIENT_IN_FLIGHT": 7,
    "UNRESOLVED_TOKEN": 21,
    "SAUCE_UNSPECIFIED": 24,
-   "DUPLICATE_GATE": 167,
+   "DUPLICATE_GATE": 168,
    "ID_SUFFIXED": 7
   },
   "recipesBlockedOnlyBy": {
    "OWNER_RULE": 5,
    "MECHANIC": 2,
-   "DUPLICATE_GATE": 0
+   "DUPLICATE_GATE": 1
   },
   "duplicateGate": {
    "recipesVsShipped": {
@@ -24,7 +24,7 @@
     "SUBSET": 17,
     "SUPERSET": 11,
     "ONE_DIFF": 18,
-    "JACCARD_GT_0_4": 22
+    "JACCARD_GT_0_4": 23
    },
    "recipesVsStaged": {
     "IDENTICAL": 8,
@@ -33,9 +33,9 @@
     "ONE_DIFF": 27,
     "JACCARD_GT_0_4": 18
    },
-   "recipesWithNoHit": 31,
-   "recipesWithNoShippedHit": 37,
-   "hitsVsShipped": 244
+   "recipesWithNoHit": 30,
+   "recipesWithNoShippedHit": 36,
+   "hitsVsShipped": 249
   },
   "stagedIngredientRefs": 70
  },
@@ -745,6 +745,12 @@
      "jaccard": 0.667
     },
     {
+     "against": "pizza-alla-crudaiola",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
      "against": "pizza-baiana",
      "againstStaged": true,
      "kind": "SUBSET",
@@ -1034,6 +1040,12 @@
      "againstStaged": true,
      "kind": "SUBSET",
      "jaccard": 0.667
+    },
+    {
+     "against": "pizza-alla-crudaiola",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
     },
     {
      "against": "pizza-baiana",
@@ -2317,6 +2329,12 @@
      "jaccard": 0.667
     },
     {
+     "against": "pizza-alla-crudaiola",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
+    },
+    {
      "against": "pizza-baiana",
      "againstStaged": true,
      "kind": "SUBSET",
@@ -2607,6 +2625,12 @@
      "againstStaged": true,
      "kind": "SUBSET",
      "jaccard": 0.667
+    },
+    {
+     "against": "pizza-alla-crudaiola",
+     "againstStaged": false,
+     "kind": "SUBSET",
+     "jaccard": 0.333
     },
     {
      "against": "pizza-baiana",
@@ -4094,10 +4118,17 @@
    "id": "burrata-pizza",
    "lane": "R-B",
    "blocking": [
-    "INGREDIENT_IN_FLIGHT:burrata"
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped"
    ],
    "staged": [],
-   "dup": []
+   "dup": [
+    {
+     "against": "pizza-alla-crudaiola",
+     "againstStaged": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    }
+   ]
   },
   {
    "id": "fruit-dessert-pizza",
