@@ -1,6 +1,6 @@
 # Expansion Batch 20-A — Result Report（#790、暫定仕様・原典未確認）
 
-**状態:** PR は Draft・**Gate HOLD（merge 不可）**。Owner の merge 判断待ち。iPhone Safari の実機 HV・CI（WebKit）・Codex は未実施（§6）。
+**状態:** PR #792 は **Draft・Gate HOLD（merge 不可）**。Owner の最終判断（2026-11-08）: walnut family = `spice`、DH4-PROD gate は変更しない、honey = 🐝、walnut は 1em、正式な実装 PR は #792。**iPhone Safari の実機 HV は Owner 実施まで未完了**（旧 HEAD `59d1edff` に対する HV 6/6 PASS の報告は別セッション経由で、本セッションは証跡を確認していない。walnut の描画コードが `ba9bac33` で変わっており、新しい HEAD の差分は Owner の再確認が必要）。
 **ブランチ:** `claude/teto-pizza-b20-a-m48qbl`（main `4ba0559` 基準。作業中に main は動いていない）。
 **根拠:** Owner 判断 2026-11-08（Issue #790 の本文と実装 GO）、承認表 `docs/reports/TETO_B20A_OWNER-DECISION-TABLE_2026-11-08.md`（B20A-LD-01〜10 を承認）。
 **claim:** #774（6691358861・6701234362）と #417（6688256290・6689297059・6689676327）の release を確認してから #790 に claim（コメント 6720288727、更新 6720615107）。
@@ -60,19 +60,20 @@
 
 | 項目 | 結果 |
 |---|---|
-| 全 Vitest（Pinsa 開） | **639 files passed / 11,708 tests passed / 0 failed**（13 skipped・2 todo は既存、約 1,116 秒） |
-| Pinsa 閉（`TETO_PINSA_OFF=1`） | data・state・logic/discovery・logic/catalog・materialShop・mission・dev・IngredientGlyph の 330 files を実行: **329 passed・1 skipped／6,957 tests passed・0 failed**（Pinsa の有無で件数が変わる箇所は `pinsa ? … : …` で両対応済み） |
+| 全 Vitest（Pinsa 開、最終コード `ba9bac33` 以降。コード差分なしの docs 追記を除く） | **639 files passed・1 skipped／11,707 tests passed・0 failed**（13 skipped・2 todo は既存、約 1,173 秒）。`2eac8982`（旧コード）の 11,708 より 1 件少ないのは、不要になった `WalnutKernel` の同一性テストを外したため |
+| 全 Vitest（Pinsa 閉、`TETO_PINSA_OFF=1`、同上） | **638 files passed・2 skipped／11,693 tests passed・0 failed**（18 skipped・2 todo は既存、約 1,199 秒） |
+| `npm run build` | 成功（chunk サイズの警告は既存） |
 | `tsc -b` | 0 error |
 | lint（`oxlint`） | error 0（既存の warning のみ） |
 | E2E（Chromium、`e2e/b20a.spec.ts`） | iphone-390x844 と iphone-360x800 の各 1 本、**2/2 pass**（Shop NEW 2 行〔くるみは専用 SVG〕→ 購入 → Research〔漏えいなし〕→ pesto → honey の順に塗る → チーズ → 具材 → 焼成 → NEW DISCOVERY → 図鑑。横スクロールなし、console error なし） |
-| WebKit | この環境では実行不可。CI の `e2e-webkit` を PR で確認する |
+| WebKit | この環境では実行不可。CI の `e2e-webkit` の結果は PR 上で確認する（§9） |
 
 ローカルの Playwright は事前インストールの Chromium（`/opt/pw-browsers/chromium`）を `executablePath` で指定して実行（一時設定、リポジトリには含めない）。
 
 ## 6. 未実施・限界（正直な記載）
 
 - **iPhone Safari の実機 HV は未実施（PASS 0）。** 静止画は Chromium（390×844・360×800）で `docs/reports/screenshots/b20/` に保存した。実機の見え方の代わりにはならない。HV 動画は repo に含めない（Policy）。
-- **CI（WebKit 6 shard を含む全チェック）・Codex レビューは PR 作成後に確認する。**
+- **CI（WebKit 6 shard を含む全チェック）・Codex レビューは最新 HEAD の結果を PR 上で確認する（§9）。**
 - 原典（pizzadb.jp）は未確認。個数・窓・色・名前は暫定。
 - 画面で確認した所見（Chromium の静止画）: honey のチップはハチの絵文字 🐝（`miso-sauce` が 🍯 を使っており、G18＝代替表示の一意性を守るため。**Owner 判断: 🐝 のままか、別の表現か**）。walnut は専用 SVG が 1em で表示され、トレイ・ショップ・生地上で判別できる。生くるみ×焼成チーズの塗りコントラストは弱く（#777 の実測 1.10）、外線で成立している。**実機で小さすぎる場合の拡大（1.2em 化）は HV 後の別判断**（`App.css` は未変更）。
 - walnut の `baked` パレット（#777）は使っていない（ゲームは共通の焼成フィルタで焼く）。
@@ -86,7 +87,7 @@
 | 3 | iPhone Safari の実機 HV（Shop 2 行・トレイ名の幅・2 層ソース・walnut の視認性・RESULT） | 実施 |
 | 4 | merge | CI 全 green・Codex 最新 HEAD の指摘 0・HV 後に判断 |
 
-## 8. PR #793（重複、close 済み）から移管した測定値・成果物（Owner 判断 2026-11-08）
+## 8. PR #793（重複。**close していない**：成果物の移管の確認まで Owner の指示で保留）から移管した測定値・成果物（Owner 判断 2026-11-08）
 
 Owner の判断で #793 を #792 に一本化した。#793 の固有の成果物を次のとおり反映・保全した（walnut の配線方式の変更と画像の移管は別コミット `ba9bac33` で実施済み。本節はその影響確認と、測定値の移管）（#793 の head `4882b5d0` と branch `claude/b20a-pesto-noci-790` は削除しない）。
 
@@ -108,3 +109,18 @@ Owner の判断で #793 を #792 に一本化した。#793 の固有の成果物
 
 ### 8.5 保全した比較画像（#793、`docs/reports/screenshots/b20a/` の 22 枚）
 390×844・360×800 の before／after: `b20a-shop-before-after-390x844.png`（main の Shop と honey／walnut の NEW 行。before の保存は発見数が少なく、Shop の状態は完全には同一でない）、`b20a-flow-after-{390x844,360x800}.png`（ソース・トレイ → ソース塗り後 → くるみのトレイ → 盛り付け → NEW RECIPE → Dex）、`before-shop-390x844.png`、個別の after 画像。`ba9bac33` で #793 の画像をそのまま移管した（内容は #793 と一致）。#792 の既存画像 20 枚（`docs/reports/screenshots/b20/`）は**削除していない**。Chromium の静止画で、実機の代わりではない。
+
+### 8.6 #793 の測定値（参考。**HEAD が異なる**）
+| 項目 | #793（head `4882b5d0`、branch `claude/b20a-pesto-noci-790`） | #792（最終コード、本書 §5） |
+|---|---|---|
+| 全 Vitest（Pinsa 開） | 11,710 passed・0 failed | 11,707 passed・0 failed |
+| 全 Vitest（Pinsa 閉） | 11,696 passed・0 failed | 11,693 passed・0 failed |
+| `npm run build` | 成功 | 成功 |
+| Chromium E2E（`e2e/b20a.spec.ts`、390×844・360×800） | 2/2 pass | 2/2 pass |
+
+件数の差は、実装の差による（#793 は別実装のテスト・`hints.ts`・`orders.ts` などを含み、#792 は `WalnutKernel` のテストを持たない等）。**#793 の数値は #793 の HEAD で測られたもので、#792 の最終コードの検証としては使わない。** #792 の最終コードは本書 §5 のとおり自前で測定した（`tsc -b` 0 error・oxlint error 0・build 成功・全 Vitest 開閉とも 0 failed）。別セッションの独立検証（HEAD `59d1edff`：Pinsa 開 11,708／閉 11,694）は `ba9bac33` より前のコードに対する結果。
+
+## 9. 最新 HEAD の CI・Codex・HV（Owner の再確認用）
+- CI・WebKit・Codex の結果は PR #792 のチェックとコメントを参照する（このファイルを更新するとコミットが増え CI が走り直すため、結果の数値は本書に固定しない）。
+- **旧 Codex P1**（`ingredientTaxonomy.ts:132`、walnut が `other` で DH4-PROD gate に抵触）は、最新コードが `spice` で gate を通る根拠（本書 §2.1、`deductionProduction.gate` を変更せず全 Vitest 0 failed）を確認した上で resolve 済み。
+- **iPhone Safari 実機 HV:** 未完了。Owner が新 HEAD で、walnut の描画（ショップ行・トレイ・生地上・RESULT）と honey のチップ 🐝 を再確認する。
