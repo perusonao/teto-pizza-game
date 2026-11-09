@@ -24,8 +24,8 @@ describe("Staged Catalog — Owner decisions D-1..D-7 (Issue #780, 2026-11-08)",
   });
 
   it("changes no staged data and excludes nothing (D-1: no bulk exclusion)", () => {
-    expect(STAGED_RECIPES).toHaveLength(84);
-    expect(decisions).toHaveLength(84);
+    expect(STAGED_RECIPES).toHaveLength(82); // (Expansion Batch 21, #780: taco-pizza and okonomiyaki-style-pizza shipped; was 84)
+    expect(decisions).toHaveLength(82);
   });
 
   it("D-2 never turns an open sauce into NO_SAUCE; D-3 never confirms chili-oil; D-6 stops every causing recipe of the Research golden", () => {
@@ -38,7 +38,10 @@ describe("Staged Catalog — Owner decisions D-1..D-7 (Issue #780, 2026-11-08)",
 
   it("D-7 candidates are promotable after the decisions", () => {
     const { ready } = promotableAfterDecisions(decisions);
-    for (const id of D7_FIRST_CANDIDATES) expect(ready).toContain(id);
+    // Expansion Batch 21 (#780) promoted both D-7 first candidates, so they are no longer staged: each is either still promotable here or already shipped (never blocked).
+    const shippedIds = new Set(RECIPES.map((r) => r.id as string));
+    for (const id of D7_FIRST_CANDIDATES) expect(ready.includes(id) || shippedIds.has(id), id).toBe(true);
+    expect(D7_FIRST_CANDIDATES.filter((id) => shippedIds.has(id))).toEqual(["taco-pizza", "okonomiyaki-style-pizza"]);
   });
 
   it.skipIf(!pinsaEnabled())("measured: remaining dependencies, additional decisions, next promotable, and the D-1 per-recipe dossier (golden)", async () => {

@@ -38,6 +38,8 @@ const baingan = RECIPES.find((r) => r.id === BAINGAN)! as Recipe;
 const reina = RECIPES.find((r) => r.id === REINA)! as Recipe;
 const NEW_IDS: readonly string[] = [BAINGAN, REINA];
 const ORDINARY = ordinaryRecipes(RECIPES);
+// Expansion Batch 21 (#780) is a LATER batch: its two late recipes are left out of the Research measurements that must keep Batch 18 meaning (the Batch 21 audit is in expansionBatch21.test.ts).
+const WITHOUT_B21 = (RECIPES as readonly Recipe[]).filter((r) => r.id !== "taco-pizza" && r.id !== "okonomiyaki-style-pizza");
 const idsOf = (r: Recipe) => r.requiredIngredients.map((q) => q.ingredientId as string);
 const jaccard = (a: readonly string[], b: readonly string[]) => {
   const A = new Set(a);
@@ -175,10 +177,10 @@ describe("ordinary step 69 and the late steps", () => {
   });
   it("the late steps follow at 70-76 (derived; +1 again) and name no cilantro; the BBQ late step is bbq-sauce alone; the late floors are unchanged", () => {
     const late = DISCOVERY_LADDER.steps.slice(69);
-    expect(late.map((s) => s.step)).toEqual([70, 71, 72, 73, 74, 75, 76, 77, 78]); // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 (burrata) now opens this slice and moved the derived late numbers +1 again (71-77)
+    expect(late.map((s) => s.step)).toEqual([70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80]); // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 (burrata) now opens this slice and moved the derived late numbers +1 again (71-77)
     expect(late.some((s) => s.ingredientIds.includes("cilantro"))).toBe(false);
     expect(late.find((s) => s.keyRecipeId === BBQ)).toMatchObject({ step: 76, ingredientIds: ["bbq-sauce"] }); // (Expansion Batch 19: 74 -> 75; Expansion Batch 20-A: 75 -> 76)
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80 });
   });
 });
 
@@ -324,7 +326,7 @@ describe("Research: cilantro now unlocks a NEW lettered cohort of two; no pre-ex
 
 describe("Research labels BEFORE vs AFTER Batch 18 across acquisition orders (Codex P2, PR #759): the exact Owner-approved audited scope (OD-B18-4)", () => {
   // Expansion Batch 19 (#774) is a LATER batch: its recipes are left out so this audit stays the Batch 18 before/after comparison (the Batch 19 audit is in expansionBatch19.test.ts).
-  const changes = researchLetterChangesAcrossOrders(NEW_IDS, (RECIPES as readonly Recipe[]).filter((r) => r.id !== "pesto-burrata-pizza" && r.id !== "pizza-alla-crudaiola" && r.id !== "pesto-noci-pizza"));
+  const changes = researchLetterChangesAcrossOrders(NEW_IDS, WITHOUT_B21.filter((r) => r.id !== "pesto-burrata-pizza" && r.id !== "pizza-alla-crudaiola" && r.id !== "pesto-noci-pizza"));
   const changed = [...changes.keys()].sort();
 
   it("the canonical ladder order changes no pre-existing letter (the full late catalog included)", () => {
@@ -340,10 +342,10 @@ describe("Research labels BEFORE vs AFTER Batch 18 across acquisition orders (Co
   it("reproduces the two Codex examples: every ladder material owned, mayo last -> potato-mayo-pizza gains B; avocado last -> california-style-pizza gains B", () => {
     const allLadder = DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds as readonly string[]);
     const last = (m: string) => [...STARTER_INGREDIENT_IDS, ...allLadder.filter((x) => x !== m), m];
-    const without = RECIPES.filter((r) => !NEW_IDS.includes(r.id));
+    const without = WITHOUT_B21.filter((r) => !NEW_IDS.includes(r.id));
     for (const [m, id] of [["mayo", "potato-mayo-pizza"], ["avocado", "california-style-pizza"]] as const) {
       expect(researchCohortLetters(last(m), without).get(id), `${id} before`).toBeUndefined();
-      expect(researchCohortLetters(last(m), RECIPES).get(id), `${id} after`).toBe("B");
+      expect(researchCohortLetters(last(m), WITHOUT_B21).get(id), `${id} after`).toBe("B");
     }
   });
 

@@ -27,6 +27,8 @@ export type DedicatedIngredientVisual =
   | "ricotta-mound"
   | "burrata-torn-ball"
   | "walnut-kernel"
+  | "lettuce-leaf"
+  | "cabbage-shreds"
   | "feta-cubes"
   | "sausage-slices"
   | "hot-dog-slices"

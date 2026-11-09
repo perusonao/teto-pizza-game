@@ -258,6 +258,9 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       // Expansion Batch 18 (Issue #748): baingan-bharta-pizza ('カレー') and reina-pepiada-pizza ('ホワイトソース') are BLOCKED_PRODUCT_DECISION rows (BASE_SAUCE_UNSPECIFIED) shipped with the existing curry-ketchup / fromage-blanc-sauce as the PAINT sauce, as RECIPE-SPECIFIC Owner decisions (2026-11-04); no other unspecified-sauce row is approved by this.
       ownerApproved.add("baingan-bharta-pizza-pizzadb-p6");
       ownerApproved.add("venezuelan-reina-pepiada-pizzadb-p12");
+      // Expansion Batch 21 (Issue #780): taco-pizza-pizzadb and okonomiyaki-style-pizza-pizzadb-p1 are BLOCKED_PRODUCT_DECISION rows that were individually Owner-approved to ship (Q-1, 2026-11-08 / Q-2, Q-3, 2026-11-09).
+      ownerApproved.add("taco-pizza-pizzadb");
+      ownerApproved.add("okonomiyaki-style-pizza-pizzadb-p1");
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(
