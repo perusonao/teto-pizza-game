@@ -159,8 +159,8 @@ describe("ordinary step 70 and the late steps", () => {
   });
   it("the late steps follow at 72-78 (derived; +1 again by Expansion Batch 20-A's ordinary step 71) and the late floors are unchanged", () => {
     const late = steps.slice(71);
-    expect(late.map((s) => s.step)).toEqual([72, 73, 74, 75, 76, 77, 78]);
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 });
+    expect(late.map((s) => s.step)).toEqual([72, 73, 74, 75, 76, 77, 78, 79, 80]);
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80 });
     expect(LATE_RECIPES.length).toBeGreaterThan(0);
   });
   it("the batch manifest is LANDED and consistent: appended tail, append-only ladder, chapter / cohort identity, explicit declarations", () => {

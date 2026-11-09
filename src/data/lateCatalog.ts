@@ -538,21 +538,22 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
   /**
    * Expansion Batch 21 (#780): six late-only materials, promoted from the Staged Catalog with the Owner-approved provisional values (Q-3, 2026-11-09): id / nameJa / `color` / `emoji` / placement are GAMEPLAY ASSUMPTIONS (original pizzadb.jp NOT confirmed).
    * `emoji` is only the required, never-displayed text fallback (unique, G18). No dedicated SVG is wired (the unwired B21 art in src/components/stagedGlyphs/ waits for its own approval), so none carries a `pieceVisual`.
-   * `cheddar` is a cheese (no topping family); `lettuce` / `cabbage` family `vegetable`, `bonito-flakes` `seafood`, `tortilla-chips` `other` (the staged rows, see LATE_TAXONOMY_ROWS).
+   * `cheddar` is a cheese (no topping family); `lettuce` / `cabbage` family `vegetable`, `bonito-flakes` `seafood`, `tortilla-chips` `vegetable` (the staged row said `other`, which the DH4-PROD gate OD-DH4-2-9 rejects, measured; `vegetable` follows the `nori` precedent -- PROPOSED, awaiting Owner confirmation).
+   * EMOJI DEVIATION (awaiting Owner confirmation): the Q-3 fallbacks for `lettuce` (🪴) and `cabbage` (🥬) are the Hint 5.0 `herb` / `vegetable` class symbols, which G18 / H5-INV-2 forbid an ingredient to share (measured: hint5Taxonomy.gate and hint5Production.gate fail), so 🍏 / 🪷 are PROPOSED instead; the fallback is never displayed.
    */
   { id: "cheddar", category: "cheese", nameJa: "チェダーチーズ", color: "#f2a33a", emoji: "\u{1F536}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
-  { id: "lettuce", category: "topping", nameJa: "レタス", color: "#9fd36b", emoji: "\u{1FAB4}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "lettuce", category: "topping", nameJa: "レタス", color: "#9fd36b", emoji: "\u{1F34F}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "tortilla-chips", category: "topping", nameJa: "トルティーヤチップス", color: "#e8c25a", emoji: "\u{1F53A}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "okonomiyaki-sauce", category: "sauce", nameJa: "お好み焼きソース", color: "#5a3420", emoji: "\u{1F376}", placement: "spread", unlockCondition: { minTotalStars: 0 } },
-  { id: "cabbage", category: "topping", nameJa: "キャベツ", color: "#c9e3a3", emoji: "\u{1F96C}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "cabbage", category: "topping", nameJa: "キャベツ", color: "#c9e3a3", emoji: "\u{1FAB7}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "bonito-flakes", category: "topping", nameJa: "かつお節", color: "#c98f5a", emoji: "\u{1FAB6}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
 ];
 
 /** Family rows of the late ingredients (OD-B8-2: `salmon-roe` is `seafood`, L1 only). Joined by ./ingredientTaxonomy.ts only when enabled, so an OFF build has no orphan row. */
-export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"], ["lettuce", "vegetable"], ["tortilla-chips", "other"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"]] as const;
+export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"], ["lettuce", "vegetable"], ["tortilla-chips", "vegetable"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"]] as const;
 
 /** Topping size class of the late ingredients (`salmon-roe` is extra small, like the other fine garnishes). Joined by ./toppingSizeClass.ts only when enabled. */
-export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs", "lettuce": "m", "tortilla-chips": "m", "cabbage": "s", "bonito-flakes": "xs" } as const;
+export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs", "lettuce": "m", "tortilla-chips": "m", "cabbage": "s", "bonito-flakes": "xs", "cheddar": "m" } as const;
 
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
