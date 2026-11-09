@@ -18,12 +18,12 @@ import {
 import { clampTrailPoint, dropRepeats, isTrailPoint, thinTrail, trailLength } from "./trail";
 
 /**
- * An array's length, read exactly ONCE and checked: a finite non-negative integer. Reading `.length` again inside a loop would let a hostile array (a Proxy that
+ * An array's length, read exactly ONCE and checked: a non-negative SAFE integer (a larger one such as 1e20 would leave `n - 1 === n`, so a counting loop could never advance). Reading `.length` again inside a loop would let a hostile array (a Proxy that
  * reports a small length first and a huge one later) make the scan endless -- which `try / catch` cannot stop, since nothing throws.
  */
 function readLength(raw: readonly unknown[]): number | null {
   const n = raw.length;
-  return Number.isInteger(n) && n >= 0 ? n : null;
+  return Number.isSafeInteger(n) && n >= 0 ? n : null;
 }
 
 /** A saved trail: finite points only, clamped into the dough, quantized, thinned to the persist limit, repeats removed. Not an array / too long -> []. */

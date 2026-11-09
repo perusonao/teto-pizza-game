@@ -92,6 +92,13 @@ describe("a length that changes between reads cannot make a scan run forever", (
       expect(sanitizePostBakeLiquids(weird)).toEqual([]);
     }
   });
+  it("a huge integer length beyond the safe range (1e20, 2^53) is refused, not scanned: the loop counter could not move (n - 1 === n)", () => {
+    for (const huge of [1e20, 2 ** 53, Number.MAX_VALUE]) {
+      const weird = new Proxy([{ x: 30, y: 30 }, { x: 40, y: 40 }], { get: (t, k, r) => (k === "length" ? huge : Reflect.get(t, k, r)) });
+      expect(sanitizeTrail(weird)).toEqual([]);
+      expect(sanitizePostBakeLiquids(weird)).toEqual([]);
+    }
+  });
 });
 
 describe("sanitizePostBakeLiquid", () => {
