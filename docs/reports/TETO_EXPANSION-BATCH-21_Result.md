@@ -1,5 +1,8 @@
 # Expansion Batch 21 / RB-01 — taco-pizza・okonomiyaki-style-pizza Result Report（#780、暫定仕様・原典未確認）
 
+> **2026-11-09 追記（重複の解消）:** 本書は、この PR（#798）の最初のコミット `8694b3f4` に含まれていた **B21 の独立実装の記録**です。同じ B21 の実装が別 session の PR #799（lettuce／cabbage の専用 SVG 配線を #797 から行う側）にもあり、2 本は同じファイル 50 本を触って 59 箇所で衝突するため、Owner の「同じ変更を二重に実装しない」に従い、**B21 のコード（`src/**` の B21 部分・golden・E2E・スクリーンショット）を本 PR から取り除きました（履歴には残る）。B21 のコードの正本は #799。** 本書の測定値（Q-2 の 3 層測定、逸脱 3 件、テスト結果、staged の最小編集）は #799 側の確認材料として有効で、そのまま記録として残します。「本 PR に含まれる」と読める記述は、すべて `8694b3f4` 時点のものです。後続の Owner 判断（Q-2 の 6 箇所の個別承認、tortilla-chips = vegetable・cheddar = l の追認、lettuce／cabbage の専用 SVG 採用）は #799 で反映されます。
+
+
 **状態: Draft PR・Gate HOLD（merge 不可）。** Owner の Q-1〜Q-5 承認（2026-11-09）に基づく実装。**Q-2 の停止条件に当たる測定結果が 1 件あり（§3）、Owner の再承認が出るまで merge しない。** Production ON・共有 Preview 更新はしていない。
 **ブランチ:** `claude/teto-pizza-content-master-plan-k8jmjv`（main `348b1e4` 基準。作業中に main は動いていない）。
 **claim:** #790 の release 済み（6721260429／6724920776）を再確認 → #780 に B21 claim（コメント 6729748927）。#417 に B23（デザート SVG、未配線）claim（6729791686。別 session の B21／B22 13 種の claim 6724929630 とは重ならない）。

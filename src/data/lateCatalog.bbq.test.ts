@@ -122,10 +122,10 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
   });
 
   it("catalog counts after PR-2 late4 (which follows this recipe): 90 recipes (89 with the Pinsa gate off), 97 ingredients, 76 ladder steps (7 late; Expansion Batch 18 added two recipes and ordinary step 69 with the promoted cilantro, no new ingredient id; B11 S1 added three recipes, two materials and ordinary steps 62-63; B12 added one recipe; Expansion Batch 12 added two recipes, one material and ordinary step 64; Expansion Batch 14 added one recipe, one material and ordinary step 66; Expansion Batch 15 added one recipe, no material and no step; Expansion Batch 16 added one recipe, one material and ordinary step 67; Expansion Batch 17 added one recipe, one material and ordinary step 68)", () => {
-    expect(RECIPES.length).toBe(pinsaEnabled() ? 95 : 94); // (Expansion Batch 21: + taco-pizza and okonomiyaki-style-pizza) // (Expansion Batch 20-A: + pesto-noci-pizza) // (Expansion Batch 19: + pesto-burrata-pizza and pizza-alla-crudaiola) // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
-    expect(INGREDIENTS.length).toBe(106); // (Expansion Batch 21: + 6 late materials) // (Expansion Batch 20-A: + honey and walnut) // (Expansion Batch 19: + burrata)
-    expect(DISCOVERY_LADDER.steps.length).toBe(80); // (Expansion Batch 21: + late steps 79 / 80) // (Expansion Batch 20-A: + ordinary step 71) // (Expansion Batch 19: + ordinary step 70)
-    expect(LATE_LADDER_STEPS.length).toBe(9); // (Expansion Batch 21: + taco / okonomiyaki late steps)
+    expect(RECIPES.length).toBe(pinsaEnabled() ? 93 : 92); // (Expansion Batch 20-A: + pesto-noci-pizza) // (Expansion Batch 19: + pesto-burrata-pizza and pizza-alla-crudaiola) // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
+    expect(INGREDIENTS.length).toBe(100); // (Expansion Batch 20-A: + honey and walnut) // (Expansion Batch 19: + burrata)
+    expect(DISCOVERY_LADDER.steps.length).toBe(78); // (Expansion Batch 20-A: + ordinary step 71) // (Expansion Batch 19: + ordinary step 70)
+    expect(LATE_LADDER_STEPS.length).toBe(7);
   });
 
   it("tables: PAINT bbq-sauce, key-free hint, a Reference of 8 pieces on the RT-01 layout in requiredIngredients order (the 2 cilantro last, one on the dough centre), no shared slot, no piece-count limit asserted", () => {
@@ -166,9 +166,9 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(stepOf(CIL).step).toBeLessThan(mine.step);
     expect(mine.starGates).toBeUndefined();
     expect(mine.step).toBe(stepOf("tahini").step + 1);
-    expect(steps.at(-5)).toBe(mine); // (Expansion Batch 21: the taco and okonomiyaki late steps follow too) // (PR-2 late4: the wasabi-beef and tarako-cream late steps follow it)
-    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 4); // ordinary length + the five late steps up to and including this one
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", BBQ, "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza"]);
+    expect(steps.at(-3)).toBe(mine); // (PR-2 late4: the wasabi-beef and tarako-cream late steps follow it)
+    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 2); // ordinary length + the five late steps up to and including this one
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", BBQ, "wasabi-beef-pizza", "tarako-cream-pizza"]);
   });
 
   it("Shop: both materials are T4 (the sauce pack 120 / refill 60); the sauce from the BBQ late step, the cilantro from its ordinary step 69", () => {
@@ -189,7 +189,7 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
   });
 
   it("the compatibility floors are FIXED at 66 for both materials (never later than the step the ladder derives; the cilantro keeps its floor on purpose after its Batch 18 promotion); the earlier floors are unchanged", () => {
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, [SAUCE]: 66, [CIL]: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, cheddar: 79, lettuce: 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, cabbage: 80, "bonito-flakes": 80 });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, [SAUCE]: 66, [CIL]: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 });
     for (const id of [SAUCE, CIL]) expect(LATE_ENTITLEMENT_FLOORS[id]).toBeLessThanOrEqual(stepOf(id).step);
   });
 });

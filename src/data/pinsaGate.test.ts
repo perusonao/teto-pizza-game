@@ -50,7 +50,7 @@ describe.runIf(ROLLED_BACK)("OFF (rollback): Pinsa exists in no runtime catalog"
   it("the late catalog (ON in Production since E5) still holds exactly ikura, yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza , bbq-chicken-pizza, wasabi-beef-pizza and tarako-cream-pizza (PR-2 late4; New Sauces Phase B U1 / U2 / U3; BBQ Chicken #611): it is not the late switch that publishes Pinsa", () => {
     // Every late recipe shipped after this gate was written is listed here on purpose (an exact list, as before): the rollback must show that the late
     // switch adds exactly these and never Pinsa. The next late recipe (BBQ chicken, #679) must add its id to this list and to ALL_LATE_RECIPE_IDS below.
-    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza"]);
+    expect(LATE_RECIPES.map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza"]);
     expect(RECIPES.at(-1)!.id).toBe("tarako-cream-pizza");
     expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "tarako-cream-pizza" });
   });
