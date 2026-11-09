@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+"""TETO CONTENT MASTER PLAN -- schedule model (Issue #780, docs-only, stdlib only).
+
+Run:  python3 -I docs/reports/data/TETO_CONTENT-MASTER_schedule.py.txt <verification.json from the ledger generator> <out.json>
+
+INPUT DATA is embedded below, copied from GitHub (list_pull_requests / issue comments / check runs) on 2026-11-08 and tagged [MEASURED].
+Anything not measurable is an explicit [ASSUMED] input (named A1/A2) -- never presented as a measurement. Dates are conditional
+lower bounds / scenarios, not forecasts. The model prints its own formulae so the report can be re-derived.
+"""
+import json, statistics, sys
+from datetime import datetime, timedelta, timezone
+
+T = lambda s: datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+H = lambda a, b: (T(b) - T(a)).total_seconds() / 3600
+
+# [MEASURED] content PRs merged 2026-10-27..11-08 (opened, merged, recipes added, new ingredients added; counts from PR titles / Result Reports)
+CONTENT_PRS = [
+    (686, "B10 PR-1",  "2026-10-27T12:40:47Z", "2026-10-27T14:08:18Z", 5, 8),
+    (693, "B11-S1",    "2026-10-28T18:17:14Z", "2026-10-28T23:14:09Z", 3, 2),
+    (709, "B12",       "2026-10-30T15:15:02Z", "2026-10-31T11:02:11Z", 2, 1),
+    (711, "B12b",      "2026-10-30T17:53:40Z", "2026-10-31T07:47:22Z", 1, 0),
+    (716, "B13",       "2026-10-31T12:12:31Z", "2026-11-01T05:44:55Z", 1, 1),
+    (723, "B14",       "2026-11-01T15:01:13Z", "2026-11-02T08:38:33Z", 1, 1),
+    (731, "B15",       "2026-11-02T19:09:01Z", "2026-11-03T08:43:50Z", 1, 0),
+    (737, "B16",       "2026-11-03T10:56:04Z", "2026-11-03T13:37:28Z", 1, 1),
+    (743, "B17",       "2026-11-03T17:53:46Z", "2026-11-04T04:24:20Z", 1, 1),
+    (759, "B18",       "2026-11-05T05:36:30Z", "2026-11-06T13:15:08Z", 2, 0),
+    (783, "B19",       "2026-11-07T08:26:03Z", "2026-11-08T05:58:29Z", 2, 1),
+    (792, "B20-A",     "2026-11-08T11:20:44Z", "2026-11-08T17:02:01Z", 1, 2),
+]
+# [MEASURED] "@codex review" comment -> codex-review-receipt (clean result), minutes
+CODEX_MIN = [
+    ("#783", "2026-11-07T08:58:01Z", "2026-11-07T09:00:03Z"), ("#783", "2026-11-07T09:17:22Z", "2026-11-07T09:19:33Z"),
+    ("#783", "2026-11-08T05:33:33Z", "2026-11-08T05:35:49Z"), ("#792", "2026-11-08T11:20:51Z", "2026-11-08T11:23:03Z"),
+    ("#792", "2026-11-08T12:05:13Z", "2026-11-08T12:07:18Z"), ("#792", "2026-11-08T15:23:24Z", "2026-11-08T15:25:43Z"),
+    ("#792", "2026-11-08T15:55:14Z", "2026-11-08T15:57:32Z"), ("#789", "2026-11-08T02:48:11Z", "2026-11-08T02:50:16Z"),
+    ("#789", "2026-11-08T06:16:33Z", "2026-11-08T06:19:10Z"), ("#759", "2026-11-05T05:59:20Z", "2026-11-05T06:01:24Z"),
+    ("#759", "2026-11-05T06:19:36Z", "2026-11-05T06:22:03Z"),
+]
+# [MEASURED] one green CI cycle on PR #792 (check runs of the final green attempt): first job start -> last job end, minutes
+CI_792 = ("2026-11-08T15:55:05Z", "2026-11-08T16:14:24Z")
+# [MEASURED] PR #783 (B19) HV chain
+HV_783 = {"hv_path_decided": "2026-11-07T11:13:43Z", "preview_published": "2026-11-07T18:53:36Z", "hv_recorded": "2026-11-07T18:58:42Z",
+          "final_gate_report": "2026-11-07T19:10:29Z", "merged": "2026-11-08T05:58:29Z"}
+# [MEASURED] mechanic tracks: first implementation PR created -> production ON merged (None = not reached as of 2026-11-08T17:02Z)
+TRACKS = [
+    ("SEAR",  "#725 created", "2026-11-02T15:19:38Z", "#730 merged (Production ON)", "2026-11-03T07:35:46Z"),
+    ("PINSA", "#639 created (P3-a1)", "2026-10-23T07:17:11Z", "#659 merged (Production ON)", "2026-10-25T09:32:18Z"),
+    ("PREP",  "#694 created", "2026-10-28T23:07:49Z", None, None),     # logic + UI merged (#697 2026-10-29), still OFF
+    ("STEAM", "#729 created (S1)", "2026-11-02T18:22:35Z", None, None),  # S1/S2 merged, S3 UI #738 open since 2026-11-03T11:53Z
+    ("FRY",   "#750 created (F1)", "2026-11-04T14:53:35Z", None, None),  # pure logic merged, no UI
+]
+NOW = T("2026-11-08T17:02:01Z")      # last observation (B20-A merge)
+D0 = datetime(2026, 11, 9, tzinfo=timezone.utc)   # planning start (first day an Owner approval can land)
+
+ver = json.load(open(sys.argv[1], encoding="utf-8"))["summary"]
+RB = ver["recipes"]["batchSizes"]
+mech_batches = [k for k in RB if int(k.split("-")[1]) >= 10]       # RB-10.. are the mechanic-gated trains (see ledger batches csv)
+nonmech = [k for k in RB if int(k.split("-")[1]) < 10]
+n_nonmech, n_mech = len(nonmech), len(mech_batches)
+
+cyc = [H(o, m) for _, _, o, m, _, _ in CONTENT_PRS]
+rec = sum(r for *_, r, _ in CONTENT_PRS); ingr = sum(i for *_, i in CONTENT_PRS)
+span_d = (T(CONTENT_PRS[-1][3]) - T(CONTENT_PRS[0][3])).total_seconds() / 86400
+stats = {
+    "contentPRs": len(CONTENT_PRS), "recipesAdded": rec, "ingredientsAdded": ingr, "spanDaysFirstToLastMerge": round(span_d, 2),
+    "recipesPerDay_incl_first_batch": round(rec / span_d, 2), "recipesPerDay_excl_first_batch": round((rec - CONTENT_PRS[0][4]) / span_d, 2),
+    "ingredientsPerDay_incl_first": round(ingr / span_d, 2), "prsPerDay": round((len(CONTENT_PRS) - 1) / span_d, 2),
+    "recipesPerPR_mean": round(rec / len(CONTENT_PRS), 2),
+    "openToMergeHours": {"min": round(min(cyc), 1), "median": round(statistics.median(cyc), 1), "mean": round(statistics.mean(cyc), 1),
+                         "max": round(max(cyc), 1), "p25": round(statistics.quantiles(cyc, n=4)[0], 1), "p75": round(statistics.quantiles(cyc, n=4)[2], 1)},
+    "codexCleanMinutes": {"n": len(CODEX_MIN), "median": round(statistics.median([(T(b) - T(a)).total_seconds() / 60 for _, a, b in CODEX_MIN]), 1),
+                          "max": round(max((T(b) - T(a)).total_seconds() / 60 for _, a, b in CODEX_MIN), 1)},
+    "ciGreenCycleMinutes_PR792_n1": round((T(CI_792[1]) - T(CI_792[0])).total_seconds() / 60, 1),
+    "hv783": {"hvPathDecision_to_previewPublished_h": round(H(HV_783["hv_path_decided"], HV_783["preview_published"]), 1),
+              "previewPublished_to_hvRecorded_min": round(H(HV_783["preview_published"], HV_783["hv_recorded"]) * 60, 1),
+              "hvRecorded_to_finalGate_min": round(H(HV_783["hv_recorded"], HV_783["final_gate_report"]) * 60, 1),
+              "finalGate_to_merge_h": round(H(HV_783["final_gate_report"], HV_783["merged"]), 1),
+              "hvPathDecision_to_merge_h": round(H(HV_783["hv_path_decided"], HV_783["merged"]), 1)},
+}
+tr = []
+for name, a_lbl, a, b_lbl, b in TRACKS:
+    if b:
+        tr.append({"track": name, "from": a_lbl, "to": b_lbl, "days": round((T(b) - T(a)).total_seconds() / 86400, 2), "reached": True})
+    else:
+        tr.append({"track": name, "from": a_lbl, "to": "Production ON not reached", "days": round((NOW - T(a)).total_seconds() / 86400, 2), "reached": False, "note": "right-censored: lower bound only"})
+stats["tracks"] = tr
+done = [t["days"] for t in tr if t["reached"]]
+cens = [t["days"] for t in tr if not t["reached"]]
+
+# ---------------- scenarios --------------------------------------------------------------------------------------
+# A1 [ASSUMED] bulk Owner-decision latency L_dec (days). Only 2 precedents (plan G/P/R/I/M/H 2026-11-07, D-1..D-7 2026-11-08): both same day, but 116+34 per-item items have no precedent.
+# A2 [ASSUMED] design lead for tracks that have no issue/design yet (M2 M4 M6): days. No precedent measured.
+SC = {
+    "fastest":  {"L_dec": 1,  "T_train_h": stats["openToMergeHours"]["p25"],    "T_track": min(done),          "serial_tracks": False, "design_lead": 0},
+    "standard": {"L_dec": 7,  "T_train_h": stats["openToMergeHours"]["median"], "T_track": statistics.mean(done), "serial_tracks": True,  "design_lead": 3},
+    "delayed":  {"L_dec": 21, "T_train_h": stats["openToMergeHours"]["max"],    "T_track": max(cens),          "serial_tracks": True,  "design_lead": 14},
+}
+N_TRACKS = 6   # M1..M6; HOT UI serial order #738 -> M1 PD-2 -> M5 -> M3 -> M2 -> M4 -> M6 (plan section 6)
+out = {"stats": stats, "inputs": {"D0": D0.date().isoformat(), "n_nonmech_trains": n_nonmech, "n_mech_trains": n_mech, "scenarios": SC}, "recipe": {}, "ingredient": {}, "methods": {}}
+fmt = lambda d: (D0 + timedelta(days=d)).date().isoformat()
+for name, p in SC.items():
+    Tt = p["T_train_h"] / 24
+    t_ready8 = p["L_dec"] + 2 * Tt          # RB-01 + RB-02 serial after the Owner's Q-1..Q-5
+    t_nonmech = p["L_dec"] + n_nonmech * Tt
+    k = N_TRACKS if p["serial_tracks"] else 1
+    t_tracks = p["L_dec"] + p["design_lead"] + k * p["T_track"]
+    t_mech_done = max(t_nonmech, t_tracks) + n_mech * Tt
+    t_ing_with = t_mech_done                       # ingredients ride with their first recipe train (key-recipe ladder rule)
+    n_ib = ver["ingredients"]["batches"]
+    t_ing_only = p["L_dec"] + n_ib * Tt            # if the Owner allows ingredient-only release (D-ING-1)
+    out["recipe"][name] = {"ready8_done_day": round(t_ready8, 2), "ready8_done_date": fmt(t_ready8), "nonMechanic_done_day": round(t_nonmech, 2),
+                           "nonMechanic_done_date": fmt(t_nonmech), "tracks_ready_day": round(t_tracks, 2), "all_done_day": round(t_mech_done, 2), "all_done_date": fmt(t_mech_done)}
+    out["ingredient"][name] = {"with_recipes_done_date": fmt(t_ing_with), "ingredient_only_done_date": fmt(t_ing_only), "ingredient_only_done_day": round(t_ing_only, 2)}
+    out["methods"][name] = {"tracks_ready_day": round(t_tracks, 2), "tracks_ready_date": fmt(t_tracks)}
+out["formulae"] = {
+    "ready8": "L_dec + 2*T_train", "nonMechanic": "L_dec + n_nonmech_trains*T_train (HOT files: one train at a time)",
+    "tracks": "L_dec + design_lead + k*T_track (k=1 parallel, k=6 HOT-serial)", "all": "max(nonMechanic, tracks) + n_mech_trains*T_train",
+    "delayedIsLowerBound": "T_track(delayed) = longest right-censored track (PREP, not in production after that many days): lower bound, not an estimate"}
+json.dump(out, open(sys.argv[2], "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+print(json.dumps(out, ensure_ascii=False, indent=1))

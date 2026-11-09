@@ -1,0 +1,18 @@
+{
+ "recipes": 48,
+ "byClassAndTreatment": {
+  "EXCEPTION(one-diff/jaccard>0.4)|X2": 22,
+  "FORBIDDEN(identical/subset/superset)|X1": 20,
+  "FORBIDDEN(identical/subset/superset)|X3": 6
+ },
+ "forbidden": 26,
+ "exception": 22,
+ "x3Recipes": [
+  "sfincione",
+  "pizza-baiana",
+  "keema-pizza",
+  "pizza-chilena",
+  "philly-cheesesteak-pizza",
+  "hokkaido-cheese-pizza"
+ ]
+}

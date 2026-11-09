@@ -1,0 +1,37 @@
+{
+ "capturedAt": "2026-11-09 (before removal)",
+ "previewMeta": {
+  "source": "perusonao/teto-pizza-game",
+  "pr": "799",
+  "sha": "ce6c41454aa6d2d7bb66d7db70c45edda56ed9dd",
+  "prHeadSha": "ce6c41454aa6d2d7bb66d7db70c45edda56ed9dd",
+  "workflowRun": "42577255185-1",
+  "builtAt": "2026-11-09T07:08:34Z"
+ },
+ "workflowRun": {
+  "id": 42577255185,
+  "name": "Publish / remove a PR-scoped preview page",
+  "conclusion": "success",
+  "createdAt": "2026-11-09T07:07:08Z",
+  "headBranch": "main",
+  "jobs": {
+   "validate": "success",
+   "build": "success",
+   "publish": "success"
+  }
+ },
+ "publishCommit": {
+  "sha": "4ecad5def5e0a5578a563c02a1b1412d3122c837",
+  "message": "PR page deploy: pr-799-ce6c414 (PR #799, ce6c414)",
+  "changedTopLevelPaths": [
+   "pr/pr-799-ce6c414"
+  ],
+  "filesChanged": 23,
+  "touchedSharedSiteReadmeOrWorkflows": 0
+ },
+ "urls": [
+  "https://perusonao.github.io/teto-pizza-game-preview/pr/pr-799-ce6c414/?hv=b21-taco",
+  "https://perusonao.github.io/teto-pizza-game-preview/pr/pr-799-ce6c414/?hv=b21-okonomiyaki"
+ ],
+ "ownerHvResult": "8/8 PASS, no problem reported (Owner judgement, iPhone Safari, PR #799 HEAD ce6c41454aa6d2d7bb66d7db70c45edda56ed9dd)"
+}
