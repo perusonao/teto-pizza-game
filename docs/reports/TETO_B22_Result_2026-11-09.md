@@ -85,10 +85,11 @@
 | 35 | `vongole` | B→C C→D F→G H→J J→L L→N M→O M→P |
 
 ## 6. テスト結果（HEAD は PR で確認）
-- 全 Vitest（ローカル）: 651 ファイル・12,075 件のうち **12,059 件成功**、13 件 skip、**失敗 1 件**。失敗は `researchAttempt.replayAudit.test.ts`（研究の再挑戦シミュレーションの解析用テスト）の **600 秒タイムアウト**で、B22 のアサーション失敗ではない。REPLAY_AUDIT_RESULT
+- 全 Vitest（ローカル、HEAD `867ebeb8`）: **651 ファイル・12,081 件のうち 12,066 件成功、13 件 skip、失敗 0**。途中の実行では `researchAttempt.replayAudit.test.ts`（研究の再挑戦シミュレーションの解析用テスト）が 600 秒の上限を超えた（B22 前 476 秒 → 617 秒）ため、**同じ 36 回のシミュレーション・同じアサーション・同じ 600 秒の上限のまま 7 本に分割**した（上限の延長・skip・アサーションの弱化なし。分割後は同ファイル 7/7 成功、578 秒）。
 - `tsc -b`: エラー 0。
 - E2E（`e2e/b22.spec.ts`、Chromium、`HV_SCREENSHOT_DIR=docs/reports/screenshots/b22`）: **390×844 の 6／6、360×800 の 6／6 成功**（Shop NEW → 購入 → Research → ソース層 → 各ピース → 焼成 → 後乗せ → NEW DISCOVERY → Dex、コンソールエラー 0、横スクロール 0）。スクリーンショットは `docs/reports/screenshots/b22/`。
-- WebKit E2E・CI・Codex・iPhone Safari HV は PR で確認する（Codex は利用上限のため通常のレビューが受けられない可能性がある。その場合は別コンテキストの独立レビューを記録する）。
+- GitHub CI（HEAD `867ebeb8`）: **11/11 成功**（`build` = 全 Vitest 込み、WebKit の 390×844・360×800 各 3 shard、WebKit Gate、Layout Contract Gate、layout-chromium、classify）。
+- Codex・iPhone Safari HV は PR で確認する（Codex は利用上限のため通常のレビューが受けられない可能性がある。その場合は別コンテキストの独立レビューを記録する）。
 
 ## 7. Owner に確認いただくこと
 1. §5 の Research 35 ID の個別承認（または対象の変更の指示）。
