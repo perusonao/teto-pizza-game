@@ -236,7 +236,7 @@ const B20A_APPROVED: Readonly<Record<string, readonly string[]>> = {
   "pesto-burrata-pizza": ["B->C", "C->D", "G->H", "I->J", "J->K"],
 };
 describe("Research labels BEFORE vs AFTER Batch 20-A across acquisition orders: the exact audited scope, Owner-approved (10 IDs)", () => {
-  const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as readonly Recipe[]);
+  const changes = researchLetterChangesAcrossOrders(NEW_IDS, (RECIPES as readonly Recipe[]).filter((r) => r.id !== "taco-pizza" && r.id !== "okonomiyaki-style-pizza"), 40, 20261105, ["cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes"]); // Expansion Batch 21 (#780) is a LATER batch: its two recipes and its six materials are left out (the audit's seeded random orders then stay the ones this was approved against) so this stays the Batch 20-A before/after comparison (the Batch 21 audit is in expansionBatch21.test.ts)
   it("the canonical ladder order changes no pre-existing letter (the full late catalog included)", () => {
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
   });

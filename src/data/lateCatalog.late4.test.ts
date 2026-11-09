@@ -179,10 +179,10 @@ describe("ladder, Shop, Research and the entitlement floors", () => {
     expect(stepOf("nori").step).toBe(stepOf("wasabi").step + 1);
     expect([stepOf("wasabi").step, stepOf("nori").step]).toEqual([77, 78]); // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 moved the derived late numbers +1 again;
     // // (Expansion Batch 18's ordinary step 69 moved the derived numbers +1 again; Expansion Batch 17's ordinary step 68 moved the derived numbers +1 again; Expansion Batch 16's ordinary step 67 moved the derived numbers +1; the floors are unchanged)
-    expect(steps.at(-1)).toBe(stepOf("nori"));
+    expect(steps.at(-3)).toBe(stepOf("nori")); // (Expansion Batch 21: the taco and okonomiyaki late steps follow it)
     for (const id of ["wasabi", "nori"]) expect(stepOf(id).starGates).toBeUndefined();
-    expect(stepOf("nori").step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length);
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", WASABI_BEEF, TARAKO]);
+    expect(stepOf("nori").step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 2);
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", WASABI_BEEF, TARAKO, "taco-pizza", "okonomiyaki-style-pizza"]);
   });
 
   it("Shop: every new material is T4 (sauce pack 120 / refill 60), from its own late step", () => {

@@ -143,9 +143,9 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(stepOf(POM)).toBe(mine);
     expect(mine.starGates).toBeUndefined();
     expect(mine.step).toBe(stepOf("miso-sauce").step + 1);
-    expect(steps.at(-4)).toBe(mine); // (BBQ Chicken: the bbq late step follows it)
-    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 3); // ordinary length + the four late steps up to and including this one (the bbq step follows)
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", TAHINI_PIZZA, "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza"]);
+    expect(steps.at(-6)).toBe(mine); // (BBQ Chicken / PR-2 late4 / Expansion Batch 21: the later late steps follow it)
+    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 5); // ordinary length + the four late steps up to and including this one (the bbq step follows)
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", TAHINI_PIZZA, "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza"]);
   });
 
   it("Shop: both materials are T4 (the sauce pack 120 / refill 60), from the tahini late step", () => {

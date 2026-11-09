@@ -38,6 +38,8 @@ const baingan = RECIPES.find((r) => r.id === BAINGAN)! as Recipe;
 const reina = RECIPES.find((r) => r.id === REINA)! as Recipe;
 const NEW_IDS: readonly string[] = [BAINGAN, REINA];
 const ORDINARY = ordinaryRecipes(RECIPES);
+// Expansion Batch 21 (#780) is a LATER batch: its two late recipes are left out of the Research measurements that must keep Batch 18 meaning (the Batch 21 audit is in expansionBatch21.test.ts).
+const WITHOUT_B21 = (RECIPES as readonly Recipe[]).filter((r) => r.id !== "taco-pizza" && r.id !== "okonomiyaki-style-pizza");
 const idsOf = (r: Recipe) => r.requiredIngredients.map((q) => q.ingredientId as string);
 const jaccard = (a: readonly string[], b: readonly string[]) => {
   const A = new Set(a);
@@ -324,7 +326,7 @@ describe("Research: cilantro now unlocks a NEW lettered cohort of two; no pre-ex
 
 describe("Research labels BEFORE vs AFTER Batch 18 across acquisition orders (Codex P2, PR #759): the exact Owner-approved audited scope (OD-B18-4)", () => {
   // Expansion Batch 19 (#774) is a LATER batch: its recipes are left out so this audit stays the Batch 18 before/after comparison (the Batch 19 audit is in expansionBatch19.test.ts).
-  const changes = researchLetterChangesAcrossOrders(NEW_IDS, (RECIPES as readonly Recipe[]).filter((r) => r.id !== "pesto-burrata-pizza" && r.id !== "pizza-alla-crudaiola" && r.id !== "pesto-noci-pizza"));
+  const changes = researchLetterChangesAcrossOrders(NEW_IDS, WITHOUT_B21.filter((r) => r.id !== "pesto-burrata-pizza" && r.id !== "pizza-alla-crudaiola" && r.id !== "pesto-noci-pizza"));
   const changed = [...changes.keys()].sort();
 
   it("the canonical ladder order changes no pre-existing letter (the full late catalog included)", () => {
@@ -340,10 +342,10 @@ describe("Research labels BEFORE vs AFTER Batch 18 across acquisition orders (Co
   it("reproduces the two Codex examples: every ladder material owned, mayo last -> potato-mayo-pizza gains B; avocado last -> california-style-pizza gains B", () => {
     const allLadder = DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds as readonly string[]);
     const last = (m: string) => [...STARTER_INGREDIENT_IDS, ...allLadder.filter((x) => x !== m), m];
-    const without = RECIPES.filter((r) => !NEW_IDS.includes(r.id));
+    const without = WITHOUT_B21.filter((r) => !NEW_IDS.includes(r.id));
     for (const [m, id] of [["mayo", "potato-mayo-pizza"], ["avocado", "california-style-pizza"]] as const) {
       expect(researchCohortLetters(last(m), without).get(id), `${id} before`).toBeUndefined();
-      expect(researchCohortLetters(last(m), RECIPES).get(id), `${id} after`).toBe("B");
+      expect(researchCohortLetters(last(m), WITHOUT_B21).get(id), `${id} after`).toBe("B");
     }
   });
 

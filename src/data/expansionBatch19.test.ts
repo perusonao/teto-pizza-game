@@ -287,7 +287,7 @@ const B19_APPROVED_ALTERNATE_ORDER_LETTER_CHANGES: readonly string[] = [
   "baingan-bharta-pizza",
 ];
 describe("Research labels BEFORE vs AFTER Batch 19 across acquisition orders (AC-8, P2): the exact audited scope, individually Owner-approved (20 IDs)", () => {
-  const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as readonly Recipe[]);
+  const changes = researchLetterChangesAcrossOrders(NEW_IDS, (RECIPES as readonly Recipe[]).filter((r) => r.id !== "taco-pizza" && r.id !== "okonomiyaki-style-pizza")); // Expansion Batch 21 (#780) is a LATER batch: its two recipes are left out so this stays the Batch 19 before/after comparison (the Batch 21 audit is in expansionBatch21.test.ts)
   it("the canonical ladder order changes no pre-existing letter (the full late catalog included)", () => {
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
   });
