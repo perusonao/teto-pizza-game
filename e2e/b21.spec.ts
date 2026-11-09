@@ -13,7 +13,8 @@ import { materialsUpTo, CATALOG_COUNTS } from "../src/logic/catalog/testSupport/
  * Expansion Batch 21 representative E2E (Issue #780; PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): taco-pizza and okonomiyaki-style-pizza (late catalog) played end to end
  * at 390x844 and 360x800. Shop NEW (3 materials each) -> purchase -> Dex Research entry (no identity leak) -> paint the sauce -> place every pre-bake piece -> bake -> place the POST_BAKE pieces in FINISH
  * -> NEW DISCOVERY -> Dex. 11 / 10 pieces exceed the 8-ring, so every piece is placed at the Reference's own multi-ring slot (`assignReferenceSlots`, via the REFERENCE data).
- * No dedicated SVG is wired for the new materials (emoji fallback / ordinary dots), so `data-ingredient-visual` is deliberately not asserted. Step numbers are DERIVED from the ladder.
+ * Dedicated SVGs (#797, via IngredientGlyph): lettuce -> `lettuce-leaf`, cabbage -> `cabbage-shreds` (tray chip AND pieces on the pizza, incl. POST_BAKE); tortilla-chips / cheddar / bonito-flakes /
+ * okonomiyaki-sauce have none and draw their emoji (tortilla-chips 🔺). Step numbers are DERIVED from the ladder.
  *
  * Optional output: HV_SCREENSHOT_DIR (screenshots), HV_VIDEO=1 (Playwright video, 390x844 project only).
  */
@@ -59,10 +60,32 @@ async function open(page: Page, json: string) {
   await page.waitForSelector(".app-frame");
 }
 /** Places `chip` once per Reference position of `ingredientId` (dough percent, the Reference's own multi-ring slots). */
-async function placeAtReference(page: Page, ref: ReferencePizza, ingredientId: string, chip: RegExp) {
+async function placeAtReference(page: Page, ref: ReferencePizza, ingredientId: string, chip: RegExp, project = "") {
   const group = ref.pieceGroups.find((g) => g.ingredientId === ingredientId)!;
-  await (await chipOnTrayOrPin(page, chip)).click();
+  const chipEl = await chipOnTrayOrPin(page, chip);
+  const visual = DEDICATED[ingredientId];
+  const emoji = EMOJI_ONLY[ingredientId];
+  const parts = process.env.HV_SCREENSHOT_DIR ? `${process.env.HV_SCREENSHOT_DIR}/compare-parts` : "";
+  if (parts) mkdirSync(parts, { recursive: true });
+  if (visual) await expect(chipEl.locator(`svg[data-ingredient-visual="${visual}"]`)).toHaveCount(1);
+  if (emoji) {
+    await expect(chipEl.locator("svg[data-ingredient-visual]")).toHaveCount(0);
+    await expect(chipEl.locator(".ingredient-chip__emoji")).toContainText(emoji);
+  }
+  if (parts && (visual || emoji)) await chipEl.screenshot({ path: `${parts}/${ingredientId}-chip-${project}.png` });
+  await chipEl.click();
   for (const p of group.positions) await tapDoughPercent(page, p.x, p.y);
+  const stage = page.locator(".pizza-stage");
+  if (visual) {
+    await expect(stage.locator(`svg[data-ingredient-visual="${visual}"]`).first()).toBeVisible();
+    if (parts) await stage.locator(`svg[data-ingredient-visual="${visual}"]`).first().screenshot({ path: `${parts}/${ingredientId}-piece-${project}.png` });
+  }
+  if (emoji) {
+    const piece = stage.locator(".ingredient-piece-visual__emoji").filter({ hasText: emoji }).first();
+    await expect(piece).toBeVisible();
+    await expect(piece.locator("svg[data-ingredient-visual]")).toHaveCount(0);
+    if (parts) await piece.screenshot({ path: `${parts}/${ingredientId}-piece-${project}.png` });
+  }
   return group.positions.length;
 }
 
@@ -77,6 +100,10 @@ interface Plan {
   pre: { id: string; chip: RegExp; tab: "チーズ" | "具材" }[];
   post: { id: string; chip: RegExp }[];
 }
+
+/** Ingredients with a dedicated SVG (#797) and the ones that deliberately stay on their emoji. */
+const DEDICATED: Record<string, string> = { lettuce: "lettuce-leaf", cabbage: "cabbage-shreds" };
+const EMOJI_ONLY: Record<string, string> = { "tortilla-chips": "\u{1F53A}" };
 
 const PLANS: Plan[] = [
   {
@@ -169,7 +196,7 @@ test.describe("Expansion Batch 21 (taco-pizza and okonomiyaki-style-pizza, playe
           await expect(await chipOnTrayOrPin(page, piece.chip)).toBeVisible();
           await capture(page, `${plan.tag}-tray-topping`, project);
         }
-        await placeAtReference(page, plan.ref, piece.id, piece.chip);
+        await placeAtReference(page, plan.ref, piece.id, piece.chip, project);
       }
       await noOverflow(page, "topped");
       await capture(page, `${plan.tag}-topped`, project);
@@ -180,7 +207,7 @@ test.describe("Expansion Batch 21 (taco-pizza and okonomiyaki-style-pizza, playe
       await expect(page.getByTestId("finish-dock")).toBeVisible();
       await capture(page, `${plan.tag}-finish`, project);
       await hold(page, 1800);
-      for (const piece of plan.post) await placeAtReference(page, plan.ref, piece.id, piece.chip);
+      for (const piece of plan.post) await placeAtReference(page, plan.ref, piece.id, piece.chip, project);
       await expect(page.getByTestId("finish-undo")).toBeEnabled();
       await noOverflow(page, "finish garnish placed");
       await capture(page, `${plan.tag}-finish-garnish`, project);
