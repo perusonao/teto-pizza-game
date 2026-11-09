@@ -195,7 +195,7 @@ describe("late material compatibility floor against the production ladder (Expan
     expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 15); // Expansion Batch 20-A appended 71, Expansion Batch 19 appended 70, Expansion Batch 18 appended 69, Expansion Batch 17 appended 68, B10 PR-1 appended 57-61, B11 S1 appended 62-63, Expansion Batch 12 appended 64, Expansion Batch 13 appended 65, Expansion Batch 14 appended 66, Expansion Batch 16 appended 67
     expect(stepOf(ROE)).toBe(72); // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 moved the derived late numbers +1 again; // (Expansion Batch 18 moved the derived numbers +1 again)
     expect(stepOf("tahini")).toBe(75);
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 }); // PR-2 late4: 67 / 68; BBQ Chicken (#611) shipped after Batch 10: 61 ordinary + 5 late = 66
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80 }); // PR-2 late4: 67 / 68; BBQ Chicken (#611) shipped after Batch 10: 61 ordinary + 5 late = 66
   });
 
   it.each([

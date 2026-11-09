@@ -7,6 +7,8 @@
  * Scenarios (deterministic): for every pre-existing recipe R, every new recipe N and every finite material m they share, (1) only R's and N's materials owned with m
  * last, (2) that plus each other ladder material, (3) every ladder material owned with m last; then the canonical ladder order at every prefix and `randomOrders`
  * seeded random orders at every prefix. The late catalog is included when the given recipes include it.
+ * `excludedMaterials` (default none, so every existing call is unchanged) drops ladder materials from the orders: an audit of an EARLIER batch that leaves a later batch's recipes out
+ * also leaves that batch's materials out, so its seeded random orders are the same ones it was approved against (Expansion Batch 21 vs the Batch 20-A audit).
  */
 import { DISCOVERY_LADDER } from "../../../data/discoveryLadder";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../../../data/ingredients";
@@ -28,10 +30,10 @@ export interface LetterChange {
 const finiteOf = (r: AuditRecipe) => [...new Set(r.requiredIngredients.map((q) => q.ingredientId))].filter((id) => !!getIngredient(id)?.unlockCondition);
 
 /** recipe id -> the distinct letter changes observed for a PRE-EXISTING recipe (recipes in `newIds` are not reported). */
-export function researchLetterChangesAcrossOrders(newIds: readonly string[], recipes: readonly AuditRecipe[], randomOrders = 40, seed = 20261105): Map<string, LetterChange[]> {
+export function researchLetterChangesAcrossOrders(newIds: readonly string[], recipes: readonly AuditRecipe[], randomOrders = 40, seed = 20261105, excludedMaterials: readonly string[] = []): Map<string, LetterChange[]> {
   const before = recipes.filter((r) => !newIds.includes(r.id));
   const news = recipes.filter((r) => newIds.includes(r.id));
-  const ladder = DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds as readonly string[]).filter((m) => getIngredient(m));
+  const ladder = DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds as readonly string[]).filter((m) => getIngredient(m) && !excludedMaterials.includes(m));
   const out = new Map<string, LetterChange[]>();
   const compare = (owned: readonly string[], example: string, canonical = false) => {
     const now = researchCohortLetters(owned, recipes as never);
