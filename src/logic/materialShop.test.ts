@@ -33,7 +33,7 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ["bacon", 2, "T1", 3, 30, 60, 30],
   ["mushroom", 3, "T1", 3, 30, 60, 30],
   ["eggplant", 4, "T1", 3, 30, 60, 30],
-  ["parmigiano", 5, "T1", 2, 20, 60, 30],
+  ["parmigiano", 5, "T1", 3, 30, 60, 30], // Expansion Batch 22 (#780): black-truffle-pizza needs 3 (k = the largest minCount over all recipes; was 2)
   ["pepperoni", 6, "T2", 4, 40, 80, 40],
   ["sausage", 7, "T2", 3, 30, 80, 40],
   ["ham", 8, "T2", 3, 30, 80, 40],
@@ -54,7 +54,7 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ["rosemary", 22, "T3", 3, 30, 100, 50],
   ["capers", 23, "T3", 2, 20, 100, 50],
   ["fontina", 24, "T3", 2, 20, 100, 50],
-  ["gorgonzola", 24, "T3", 2, 20, 100, 50],
+  ["gorgonzola", 24, "T3", 3, 30, 100, 50], // Expansion Batch 22 (#780): buffalo-chicken needs 3 (was 2)
   // Discovery 3.0 No.27: appended step 25 (LAD-1); k = chicken x3 in pesto-pollo.
   ["chicken", 25, "T3", 3, 30, 100, 50],
   // Expansion Slice 1: appended step 26 (LAD-1); k = shrimp x3 in pesto-gamberi.
@@ -138,29 +138,35 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   // Expansion Batch 20-A (#790, PROVISIONAL SPEC): appended ordinary step 71 (T4, no star gate), two materials; k = count in the key recipe pesto-noci-pizza (honey 1, walnut 3). The late steps below shift +1 again.
   ["honey", 71, "T4", 1, 10, 120, 60],
   ["walnut", 71, "T4", 3, 30, 120, 60],
+  ["buffalo-sauce", 72, "T4", 1, 10, 120, 60], // Expansion Batch 22 (#780): the ordinary step 72 sells the buffalo-sauce (a sauce: k=1)
+  ["brie", 73, "T4", 3, 30, 120, 60], // Expansion Batch 22 (#780): the ordinary step 73 sells the brie (k=3)
   // E5 (late catalog on): the late step is "ordinary ladder length + 1" (FIN-E4b-ikura); salmon-roe is the late recipe's finite material, k = 2 (its two roe), T4 like the step before it.
-  ...(lateCatalogEnabled() ? [["salmon-roe", 72, "T4", 2, 20, 120, 60] as [string, number, string, number, number, number, number]] : []),
+  ...(lateCatalogEnabled() ? [["salmon-roe", 74, "T4", 2, 20, 120, 60] as [string, number, string, number, number, number, number]] : []),
   // New Sauces Phase B U1 (#578, late catalog on): the next late step ("ordinary length + 2"); yuzu-kosho is the late recipe's finite sauce, k = 1 (one painted use), T4 like the steps before it.
-  ...(lateCatalogEnabled() ? [["yuzu-kosho", 73, "T4", 1, 10, 120, 60] as [string, number, string, number, number, number, number]] : []),
+  ...(lateCatalogEnabled() ? [["yuzu-kosho", 75, "T4", 1, 10, 120, 60] as [string, number, string, number, number, number, number]] : []),
   // New Sauces Phase B U2 (#578): the late step 59 sells the miso-sauce (a sauce: k=1) and the white-sesame (a fine garnish: k=1, like the shiso); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["miso-sauce", 74, "T4", 1, 10, 120, 60], ["white-sesame", 74, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["miso-sauce", 76, "T4", 1, 10, 120, 60], ["white-sesame", 76, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
   // New Sauces Phase B U3 (#578): the late step 60 sells the tahini (a sauce: k=1) and the pomegranate (a finite topping: k=2, like the roe); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["tahini", 75, "T4", 1, 10, 120, 60], ["pomegranate", 75, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["tahini", 77, "T4", 1, 10, 120, 60], ["pomegranate", 77, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
   // BBQ Chicken (#611): the late step 68 sells the bbq-sauce (a sauce: k=1) and the cilantro (a finite topping: k=2, like the pomegranate); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["bbq-sauce", 76, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["bbq-sauce", 78, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
   // PR-2 late4 (#578 / #611): the late step 69 sells the soy-sauce (a sauce: k=1) and the wasabi (a finite topping: k=1), the late step 70 the cod-roe (k=2), the fresh-cream-sauce (a sauce: k=1) and the nori (k=1); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["soy-sauce", 77, "T4", 1, 10, 120, 60], ["wasabi", 77, "T4", 1, 10, 120, 60], ["cod-roe", 78, "T4", 2, 20, 120, 60], ["fresh-cream-sauce", 78, "T4", 1, 10, 120, 60], ["nori", 78, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["soy-sauce", 79, "T4", 1, 10, 120, 60], ["wasabi", 79, "T4", 1, 10, 120, 60], ["cod-roe", 80, "T4", 2, 20, 120, 60], ["fresh-cream-sauce", 80, "T4", 1, 10, 120, 60], ["nori", 80, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
   // Expansion Batch 21 (#780): the late step 79 sells the cheddar (k=2), the lettuce (k=2) and the tortilla-chips (k=2); the late step 80 the okonomiyaki-sauce (a sauce: k=1), the cabbage (k=3) and the bonito-flakes (k=2); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["cheddar", 79, "T4", 2, 20, 120, 60], ["lettuce", 79, "T4", 2, 20, 120, 60], ["tortilla-chips", 79, "T4", 2, 20, 120, 60], ["okonomiyaki-sauce", 80, "T4", 1, 10, 120, 60], ["cabbage", 80, "T4", 3, 30, 120, 60], ["bonito-flakes", 80, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["cheddar", 81, "T4", 2, 20, 120, 60], ["lettuce", 81, "T4", 2, 20, 120, 60], ["tortilla-chips", 81, "T4", 2, 20, 120, 60], ["okonomiyaki-sauce", 82, "T4", 1, 10, 120, 60], ["cabbage", 82, "T4", 3, 30, 120, 60], ["bonito-flakes", 82, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
+    : []),
+  // Expansion Batch 22 (#780): the late steps 83 sells the fennel (k=2) and the orange (k=2); 84 the carrot (k=2), the red-cabbage (k=2) and the sunflower-seeds (k=2); 85 the radicchio (k=2) and the balsamic-vinegar (a sauce: k=1); 86 the truffle (k=2); T4 pack 120 / refill 60
+  ...(lateCatalogEnabled()
+    ? ([["fennel", 83, "T4", 2, 20, 120, 60], ["orange", 83, "T4", 2, 20, 120, 60], ["carrot", 84, "T4", 2, 20, 120, 60], ["red-cabbage", 84, "T4", 2, 20, 120, 60], ["sunflower-seeds", 84, "T4", 2, 20, 120, 60], ["radicchio", 85, "T4", 2, 20, 120, 60], ["balsamic-vinegar", 85, "T4", 1, 10, 120, 60], ["truffle", 86, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
 ];
 
@@ -310,7 +316,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(13)).toEqual({ discoveriesNeeded: 1, step: 14 });
   });
 
-  it("points at the appended steps 25-71 (and the late steps) after the W1 24, and is null once the ladder is complete", () => {
+  it("points at the appended steps 25-73 (and the late steps) after the W1 24, and is null once the ladder is complete", () => {
     expect(nextMaterialHint(24)).toEqual({ discoveriesNeeded: 1, step: 25 });
     expect(nextMaterialHint(25)).toEqual({ discoveriesNeeded: 1, step: 26 });
     expect(nextMaterialHint(26)).toEqual({ discoveriesNeeded: 1, step: 27 });
@@ -319,7 +325,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(29)).toEqual({ discoveriesNeeded: 1, step: 30 });
     expect(nextMaterialHint(30)).toEqual({ discoveriesNeeded: 1, step: 31 });
     expect(nextMaterialHint(31)).toEqual({ discoveriesNeeded: 1, step: 32 });
-    const last = 71 + (lateCatalogEnabled() ? 9 : 0); // Expansion Batch 21: + the taco and okonomiyaki late steps; // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step; BBQ Chicken: + the bbq-sauce / cilantro late step
+    const last = 73 + (lateCatalogEnabled() ? 13 : 0); // Expansion Batch 22: + ordinary steps 72 / 73 and the four late steps; Expansion Batch 21: + the taco and okonomiyaki late steps; // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step; BBQ Chicken: + the bbq-sauce / cilantro late step
     for (let n = 32; n < last; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
     expect(nextMaterialHint(last)).toBeNull();
     expect(nextMaterialHint(last)).toBeNull();

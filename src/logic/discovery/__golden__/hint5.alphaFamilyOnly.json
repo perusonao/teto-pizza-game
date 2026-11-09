@@ -76,6 +76,8 @@
  "pesto-burrata-pizza": 23,
  "pizza-alla-crudaiola": 253,
  "pesto-noci-pizza": 5,
+ "buffalo-chicken": 12,
+ "speck-e-brie": 51,
  "ikura-salmon-pizza": 107,
  "yuzu-shrimp-pizza": 37,
  "eggplant-dengaku-pizza": 117,
@@ -84,5 +86,9 @@
  "wasabi-beef-pizza": 801,
  "tarako-cream-pizza": 472,
  "taco-pizza": 8772,
- "okonomiyaki-style-pizza": 4726
+ "okonomiyaki-style-pizza": 4726,
+ "pizza-finocchi-salad": 1199,
+ "pizza-cavolo-carote": 1430,
+ "pizza-radicchio-noci": 78,
+ "black-truffle-pizza": 32
 }

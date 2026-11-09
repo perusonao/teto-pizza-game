@@ -261,6 +261,70 @@ const ALL_LATE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  // Expansion Batch 22 (#780, Owner approvals 2026-11-09): four late recipes promoted from the Staged Catalog (src/data/staged/testSupport/stagedRecipes.ts) with the Owner-approved provisional spec. SOURCE: the 172-recipe matrix comparison-table rows `pizza-finocchi-salad-pizzadb-p8`, `pizza-cavolo-carote-pizzadb-p8`, `pizza-radicchio-noci-pizzadb-p8`, `black-truffle-pizza-pizzadb-p14` (Owner-relayed, never independently re-fetched).
+  // ORIGINAL (pizzadb.jp) NOT CONFIRMED: ids, names, counts and colours are GAMEPLAY ASSUMPTIONS. Placement: LATE catalog (each has a POST_BAKE requirement; D-5: raw leaves, citrus and the finishing truffle go on after the bake). Owner: olive-oil is the sauce-slot mapping of the first three (PAINT_TEMPORARY, like pizza-bianca / vongole); balsamic-vinegar is a pre-bake SECOND sauce layer of
+  // radicchio-noci (scored by presence; the primary / Reference-target sauce is olive-oil, so it is listed first); black-truffle-pizza is NO_SAUCE (the existing TQ-1D `null` mapping).
+  // GAMEPLAY CALIBRATION (not source): the staged counts, late-catalog convention (bake 58-78, 100 Pitz, `lunchRush: false`, no CUT, key-free Hint, ladder-credited with one late step each). The descriptions name no moment or quantity (Anti-Oracle).
+  {
+    id: "pizza-finocchi-salad",
+    nameJa: "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+    description: "フェンネルとオリーブ、ミントに、オレンジをあわせた、さっぱりした一枚。",
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "black-olive", minCount: 2 },
+      { ingredientId: "fennel", minCount: 2 },
+      { ingredientId: "mint", minCount: 2 },
+      { ingredientId: "orange", minCount: 2, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "pizza-cavolo-carote",
+    nameJa: "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+    description: "にんじんとひまわりの種に、紫キャベツとレモンをあわせた、シャキッとした一枚。",
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "carrot", minCount: 2 },
+      { ingredientId: "sunflower-seeds", minCount: 2 },
+      { ingredientId: "lemon", minCount: 2, applicationPhase: "POST_BAKE" },
+      { ingredientId: "red-cabbage", minCount: 2, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "pizza-radicchio-noci",
+    nameJa: "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+    description: "オリーブオイルとバルサミコを重ねた生地に、くるみとラディッキオをのせた一枚。",
+    requiredIngredients: [
+      { ingredientId: "olive-oil", minCount: 1 },
+      { ingredientId: "balsamic-vinegar", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "walnut", minCount: 2 },
+      { ingredientId: "radicchio", minCount: 2, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "black-truffle-pizza",
+    nameJa: "黒トリュフピザ",
+    description: "モッツァレラとパルミジャーノに、トリュフをあわせた、香り高い一枚。",
+    requiredIngredients: [
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "parmigiano", minCount: 3 },
+      { ingredientId: "truffle", minCount: 2, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
   // Pinsa Romana (#577 P3-b-1, Owner L1 / D4 / R2). Gated by ./pinsaGate.ts (`PINSA_PRODUCTION`): absent at runtime while it is false.
   // SOURCE AUTHORITY (Owner-relayed, not independently verified; PK-0 items 2/4/5 stay open until the Production gate): tomato sauce, mozzarella baked, prosciutto before or after,
   // arugula best added last. The prosciutto is placed BEFORE the bake (L1: a game-design choice, consistent with the source) and only the arugula is POST_BAKE.
@@ -357,6 +421,30 @@ const ALL_LATE_ORDERS = [
     recipeId: "okonomiyaki-style-pizza",
     requestedBy: "mito",
     lineJa: "お好み焼き風ピザ、ソースの香りがおいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-pizza-finocchi-salad",
+    recipeId: "pizza-finocchi-salad",
+    requestedBy: "mito",
+    lineJa: "フェンネルのさっぱりしたピザ、食べてみたいな！",
+  },
+  {
+    id: "order-pizza-cavolo-carote",
+    recipeId: "pizza-cavolo-carote",
+    requestedBy: "mito",
+    lineJa: "紫キャベツとにんじんのカラフルなピザ、おいしそう！",
+  },
+  {
+    id: "order-pizza-radicchio-noci",
+    recipeId: "pizza-radicchio-noci",
+    requestedBy: "mito",
+    lineJa: "ほろ苦い葉っぱとくるみのピザ、大人の味かな？食べてみたいな！",
+  },
+  {
+    id: "order-black-truffle-pizza",
+    recipeId: "black-truffle-pizza",
+    requestedBy: "mito",
+    lineJa: "香りのいいキノコのピザ、おいしそう！食べてみたいな！",
   },
   {
     id: "order-pinsa-romana",
@@ -547,13 +635,26 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
   { id: "okonomiyaki-sauce", category: "sauce", nameJa: "お好み焼きソース", color: "#5a3420", emoji: "\u{1F376}", placement: "spread", unlockCondition: { minTotalStars: 0 } },
   { id: "cabbage", category: "topping", nameJa: "キャベツ", color: "#c9e3a3", emoji: "\u{1FAB7}", pieceVisual: "cabbage-shreds", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "bonito-flakes", category: "topping", nameJa: "かつお節", color: "#c98f5a", emoji: "\u{1FAB6}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  /**
+   * Expansion Batch 22 (#780): eight late-only materials, promoted from the Staged Catalog with the Owner-approved provisional spec (2026-11-09): id / nameJa / `color` / `emoji` / placement are GAMEPLAY ASSUMPTIONS (original pizzadb.jp NOT confirmed). `color` follows the dedicated art's fill (src/components/stagedGlyphs/stagedGlyphPalette.ts, PROVISIONAL).
+   * `emoji` is unique in the catalog and differs from every Hint 5.0 family symbol (G18 / H5-INV-2). The seven toppings draw their dedicated art (`pieceVisual`, #797), so their emoji is only the hidden text fallback; `balsamic-vinegar` has no dedicated art, so its emoji (🏺, Owner-accepted provisionally) IS DISPLAYED as the tray / shop chip face.
+   * Families (Owner): truffle `vegetable` (size `xs`), sunflower-seeds `spice` (size `xs`; `other` is rejected by the DH4-PROD gate OD-DH4-2-9, the walnut precedent); fennel / carrot / red-cabbage / radicchio `vegetable`, orange `fruit` (PROPOSED, in the approved table). `balsamic-vinegar` is a spread sauce (no family); `color` `#3c1a4a` (Owner-approved value) is dE 37.3 from soy-sauce and more from every other sauce.
+   */
+  { id: "fennel", category: "topping", nameJa: "フェンネル", color: "#e4edc2", emoji: "\u{1FABB}", pieceVisual: "fennel-slices", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "orange", category: "topping", nameJa: "オレンジ", color: "#f59a1c", emoji: "\u{1F34A}", pieceVisual: "orange-slices", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "carrot", category: "topping", nameJa: "にんじん", color: "#ee7d28", emoji: "\u{1F955}", pieceVisual: "carrot-rounds", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "red-cabbage", category: "topping", nameJa: "紫キャベツ", color: "#9a4a9e", emoji: "\u{1FAD0}", pieceVisual: "red-cabbage-shreds", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "sunflower-seeds", category: "topping", nameJa: "ひまわりの種", color: "#e6d49a", emoji: "\u{1F33B}", pieceVisual: "sunflower-kernels", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "radicchio", category: "topping", nameJa: "ラディッキオ", color: "#a42a40", emoji: "\u{1F339}", pieceVisual: "radicchio-leaf", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "truffle", category: "topping", nameJa: "トリュフ", color: "#4a382e", emoji: "\u{1F344}\u{200D}\u{1F7EB}", pieceVisual: "truffle-shavings", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "balsamic-vinegar", category: "sauce", nameJa: "バルサミコ酢", color: "#3c1a4a", emoji: "\u{1F3FA}", placement: "spread", unlockCondition: { minTotalStars: 0 } },
 ];
 
 /** Family rows of the late ingredients (OD-B8-2: `salmon-roe` is `seafood`, L1 only). Joined by ./ingredientTaxonomy.ts only when enabled, so an OFF build has no orphan row. */
-export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"], ["lettuce", "vegetable"], ["tortilla-chips", "vegetable"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"]] as const;
+export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"], ["lettuce", "vegetable"], ["tortilla-chips", "vegetable"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"], ["fennel", "vegetable"], ["orange", "fruit"], ["carrot", "vegetable"], ["red-cabbage", "vegetable"], ["sunflower-seeds", "spice"], ["radicchio", "vegetable"], ["truffle", "vegetable"]] as const;
 
 /** Topping size class of the late ingredients (`salmon-roe` is extra small, like the other fine garnishes). Joined by ./toppingSizeClass.ts only when enabled. */
-export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs", "lettuce": "m", "tortilla-chips": "m", "cabbage": "s", "bonito-flakes": "xs", "cheddar": "l" } as const;
+export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs", "lettuce": "m", "tortilla-chips": "m", "cabbage": "s", "bonito-flakes": "xs", "cheddar": "l", "fennel": "s", "orange": "s", "carrot": "s", "red-cabbage": "s", "sunflower-seeds": "xs", "radicchio": "m", "truffle": "xs" } as const;
 
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
@@ -566,6 +667,10 @@ export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
   "tarako-cream-pizza": "mentaiko-cream-pizza-pizzadb-p4",
   "taco-pizza": "taco-pizza-pizzadb",
   "okonomiyaki-style-pizza": "okonomiyaki-style-pizza-pizzadb-p1",
+  "pizza-finocchi-salad": "pizza-finocchi-salad-pizzadb-p8",
+  "pizza-cavolo-carote": "pizza-cavolo-carote-pizzadb-p8",
+  "pizza-radicchio-noci": "pizza-radicchio-noci-pizzadb-p8",
+  "black-truffle-pizza": "black-truffle-pizza-pizzadb-p14",
   ...(pinsaEnabled() ? { "pinsa-romana": "pinsa-romana-pizzadb-p9" } : {}),
 };
 
@@ -591,6 +696,11 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
   // Expansion Batch 21 (#780): after the tarako step (ordinary length + 8 and + 9). Cohort keys: tortilla-chips / bonito-flakes (the last material of each step). Numbers are DERIVED, never authored; no star gate.
   { ingredientIds: ["cheddar", "lettuce", "tortilla-chips"], keyRecipeId: "taco-pizza" },
   { ingredientIds: ["okonomiyaki-sauce", "cabbage", "bonito-flakes"], keyRecipeId: "okonomiyaki-style-pizza" },
+  // Expansion Batch 22 (#780): after the okonomiyaki step (ordinary length + 10 .. + 13; the two new ORDINARY steps 72 / 73 come first, so the derived numbers of the earlier late steps moved +2 and their floors stayed). Cohort keys: orange / sunflower-seeds / balsamic-vinegar / truffle (the last material of each step). Numbers are DERIVED, never authored; no star gate.
+  { ingredientIds: ["fennel", "orange"], keyRecipeId: "pizza-finocchi-salad" },
+  { ingredientIds: ["carrot", "red-cabbage", "sunflower-seeds"], keyRecipeId: "pizza-cavolo-carote" },
+  { ingredientIds: ["radicchio", "balsamic-vinegar"], keyRecipeId: "pizza-radicchio-noci" },
+  { ingredientIds: ["truffle"], keyRecipeId: "black-truffle-pizza" },
 ];
 
 /**
@@ -599,7 +709,7 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
  * save that reached the E5-era step but had not launched since (its ledger has no entry yet) still gets the material. A floor only ever grants earlier; the ledger never re-locks.
  * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). `bbq-sauce` / `cilantro`: 66 = the 61 ordinary steps + 5 when they shipped (BBQ Chicken #611, after Expansion Batch 10 PR-1); `cilantro` is an ordinary material since Expansion Batch 18 (ordinary step 69) and KEEPS this floor on purpose: a floor only grants earlier and never re-locks, so a stale save at 66+ keeps the entitlement it had. `soy-sauce` / `wasabi`: 67 and `cod-roe` / `fresh-cream-sauce` / `nori`: 68 = the 61 ordinary steps + the 5 earlier late steps + 1..2 when PR-2 late4 shipped. RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
  */
-export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60, "bbq-sauce": 66, "cilantro": 66, "soy-sauce": 67, "wasabi": 67, "cod-roe": 68, "fresh-cream-sauce": 68, "nori": 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80 };
+export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60, "bbq-sauce": 66, "cilantro": 66, "soy-sauce": 67, "wasabi": 67, "cod-roe": 68, "fresh-cream-sauce": 68, "nori": 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, "fennel": 83, "orange": 83, "carrot": 84, "red-cabbage": 84, "sunflower-seeds": 84, "radicchio": 85, "balsamic-vinegar": 85, "truffle": 86 };
 
 /** True for a recipe whose own gate is closed (Pinsa while `PINSA_PRODUCTION` is false): the id is in type-keyed tables but the recipe does not exist in this build. */
 export function isGatedOffRecipeId(id: string): boolean {

@@ -13,15 +13,21 @@ export interface ShippedView {
   readonly ingredientIds: readonly string[];
 }
 
-/** Ids owned by in-flight work and therefore never registered here (plan §2; PR #783 = Batch 19, B20-A = #780 T5, B21 = #780 taco-pizza / okonomiyaki-style-pizza). */
+/** Ids owned by in-flight work and therefore never registered here (plan §2; PR #783 = Batch 19, B20-A = #780 T5, B21 = #780 taco-pizza / okonomiyaki-style-pizza, B22 = #780 six recipes and ten materials). */
 export const IN_FLIGHT_RECIPE_IDS: Readonly<Record<string, string>> = {
   "pesto-burrata-pizza": "PR #783",
   "pizza-alla-crudaiola": "PR #783",
   "pesto-noci-pizza": "B20-A",
   "taco-pizza": "B21",
   "okonomiyaki-style-pizza": "B21",
+  "speck-e-brie": "B22",
+  "buffalo-chicken": "B22",
+  "pizza-finocchi-salad": "B22",
+  "pizza-cavolo-carote": "B22",
+  "pizza-radicchio-noci": "B22",
+  "black-truffle-pizza": "B22",
 };
-export const IN_FLIGHT_INGREDIENT_IDS: Readonly<Record<string, string>> = { burrata: "PR #783", honey: "B20-A", walnut: "B20-A", cheddar: "B21", lettuce: "B21", "tortilla-chips": "B21", "okonomiyaki-sauce": "B21", cabbage: "B21", "bonito-flakes": "B21" };
+export const IN_FLIGHT_INGREDIENT_IDS: Readonly<Record<string, string>> = { burrata: "PR #783", honey: "B20-A", walnut: "B20-A", cheddar: "B21", lettuce: "B21", "tortilla-chips": "B21", "okonomiyaki-sauce": "B21", cabbage: "B21", "bonito-flakes": "B21", fennel: "B22", orange: "B22", carrot: "B22", "red-cabbage": "B22", "sunflower-seeds": "B22", radicchio: "B22", truffle: "B22", brie: "B22", "buffalo-sauce": "B22", "balsamic-vinegar": "B22" };
 
 export const STAGED_ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 

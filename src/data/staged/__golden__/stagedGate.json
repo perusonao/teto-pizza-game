@@ -1,20 +1,20 @@
 {
  "summary": {
-  "recipes": 82,
+  "recipes": 76,
   "readyForPromotion": [],
-  "recipesWithBlockingDeps": 82,
-  "blockingDeps": 397,
+  "recipesWithBlockingDeps": 76,
+  "blockingDeps": 389,
   "byKind": {
-   "OWNER_RULE": 119,
+   "OWNER_RULE": 113,
    "MECHANIC": 59,
    "INGREDIENT_IN_FLIGHT": 0,
    "UNRESOLVED_TOKEN": 20,
    "SAUCE_UNSPECIFIED": 24,
    "DUPLICATE_GATE": 168,
-   "ID_SUFFIXED": 7
+   "ID_SUFFIXED": 5
   },
   "recipesBlockedOnlyBy": {
-   "OWNER_RULE": 5,
+   "OWNER_RULE": 1,
    "MECHANIC": 2,
    "DUPLICATE_GATE": 1
   },
@@ -33,11 +33,11 @@
     "ONE_DIFF": 27,
     "JACCARD_GT_0_4": 18
    },
-   "recipesWithNoHit": 28,
-   "recipesWithNoShippedHit": 34,
+   "recipesWithNoHit": 22,
+   "recipesWithNoShippedHit": 28,
    "hitsVsShipped": 249
   },
-  "stagedIngredientRefs": 62
+  "stagedIngredientRefs": 51
  },
  "perRecipe": [
   {
@@ -1132,18 +1132,6 @@
    ]
   },
   {
-   "id": "buffalo-chicken-pizzadb",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-5",
-    "ID_SUFFIXED:buffalo-chicken-pizzadb"
-   ],
-   "staged": [
-    "buffalo-sauce"
-   ],
-   "dup": []
-  },
-  {
    "id": "pizza-baiana",
    "lane": "R-A",
    "blocking": [
@@ -1451,18 +1439,6 @@
      "jaccard": 0.5
     }
    ]
-  },
-  {
-   "id": "speck-e-brie-pizzadb",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-5",
-    "ID_SUFFIXED:speck-e-brie-pizzadb"
-   ],
-   "staged": [
-    "brie"
-   ],
-   "dup": []
   },
   {
    "id": "smore-dessert-pizza",
@@ -3210,7 +3186,6 @@
     "SAUCE_UNSPECIFIED:banh-mi-pizza"
    ],
    "staged": [
-    "carrot",
     "daikon",
     "liver-pate"
    ],
@@ -3363,31 +3338,6 @@
    ]
   },
   {
-   "id": "pizza-finocchi-salad",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-6"
-   ],
-   "staged": [
-    "fennel",
-    "orange"
-   ],
-   "dup": []
-  },
-  {
-   "id": "pizza-cavolo-carote",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-6"
-   ],
-   "staged": [
-    "carrot",
-    "red-cabbage",
-    "sunflower-seeds"
-   ],
-   "dup": []
-  },
-  {
    "id": "pizza-zucchine-menta",
    "lane": "R-A",
    "blocking": [
@@ -3459,18 +3409,6 @@
      "jaccard": 0.429
     }
    ]
-  },
-  {
-   "id": "pizza-radicchio-noci",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-6"
-   ],
-   "staged": [
-    "balsamic-vinegar",
-    "radicchio"
-   ],
-   "dup": []
   },
   {
    "id": "pizza-chilena",
@@ -4639,17 +4577,6 @@
      "jaccard": 0.5
     }
    ]
-  },
-  {
-   "id": "black-truffle-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-5"
-   ],
-   "staged": [
-    "truffle"
-   ],
-   "dup": []
   },
   {
    "id": "teriyaki-chicken-pizza",

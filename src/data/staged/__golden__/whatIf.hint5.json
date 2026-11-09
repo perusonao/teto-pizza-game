@@ -1,5 +1,5 @@
 {
- "targets": 82,
+ "targets": 76,
  "notTarget": [],
  "rows": [
   {
@@ -48,11 +48,6 @@
    "rungs": "SAUCE,CHEESE,STRUCTURE"
   },
   {
-   "id": "buffalo-chicken-pizzadb",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
-  },
-  {
    "id": "pizza-baiana",
    "target": true,
    "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
@@ -81,11 +76,6 @@
    "id": "scacciata-ragusana",
    "target": true,
    "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
-  },
-  {
-   "id": "speck-e-brie-pizzadb",
-   "target": true,
-   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "smore-dessert-pizza",
@@ -228,16 +218,6 @@
    "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
-   "id": "pizza-finocchi-salad",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "pizza-cavolo-carote",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
    "id": "pizza-zucchine-menta",
    "target": true,
    "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
@@ -251,11 +231,6 @@
    "id": "pizza-puntarelle",
    "target": true,
    "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "pizza-radicchio-noci",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "pizza-chilena",
@@ -391,11 +366,6 @@
    "id": "tsukimi-pizza",
    "target": true,
    "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "black-truffle-pizza",
-   "target": true,
-   "rungs": "CHEESE,STRUCTURE,SUB_CLASS"
   },
   {
    "id": "teriyaki-chicken-pizza",
