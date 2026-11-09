@@ -343,6 +343,25 @@ describe("Research: the 17 individually Owner-approved pre-existing recipes (Q-2
     const measured = asMap(researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never));
     for (const id of APPROVED_IDS) for (const change of approvedChanges.get(id)!) expect(measured.get(id), `${id} ${change}`).toContain(change);
   });
+  /**
+   * NOT APPROVED -- STOP, PR HOLD (found 2026-11-09). The Owner's Q-2 approval is limited to the changes listed per ID in docs/reports/TETO_B21_Q2-Q3_Individual-Lists_2026-11-08.md ("anything outside the record is forbidden").
+   * On the SHIPPED ladder (the six B21 materials are in the random-order population) four of the 17 IDs show ADDITIONAL letter-to-letter changes that the approval-time measurement (which had no B21 materials in the ladder) did not contain.
+   * They are pinned here so that nothing else can slip in, but they are PENDING an individual Owner decision: until it is given, B21 must not merge. (If the Owner declines them, B21 must be changed so they do not occur; this block is then deleted.)
+   */
+  const PENDING_OWNER_EXTRA: Readonly<Record<string, readonly string[]>> = {
+    "pesto-burrata-pizza": ["H->I", "I->J", "J->K", "K->L"],
+    "pizza-feta-eliniki": ["H->I", "I->J", "J->K"],
+    "potato-mayo-pizza": ["B->C"],
+    "wasabi-beef-pizza": ["C->D", "D->E"],
+  };
+  it("on the SHIPPED ladder the measured changes are exactly the approved record PLUS the four pinned, NOT-YET-APPROVED additions (any other difference is a new STOP)", () => {
+    const measured = asMap(researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never));
+    for (const id of APPROVED_IDS) {
+      const expected = [...approvedChanges.get(id)!, ...(PENDING_OWNER_EXTRA[id] ?? [])].sort();
+      expect(measured.get(id), id).toEqual(expected);
+    }
+    expect(Object.keys(PENDING_OWNER_EXTRA).sort()).toEqual(["pesto-burrata-pizza", "pizza-feta-eliniki", "potato-mayo-pizza", "wasabi-beef-pizza"]);
+  });
 });
 
 describe("Hint 5.0: both are key-free targets (a SAUCE, [CHEESE,] STRUCTURE, SUB_CLASS ladder) and name no recipe", () => {
