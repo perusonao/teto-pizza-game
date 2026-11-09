@@ -241,6 +241,8 @@ test.describe("Expansion Batch 22 (six recipes, played end to end)", () => {
       await hold(page, 2000);
 
       // 4. Bake (generic window 58-78 = the recipe's own); a late recipe then waits in FINISH for its POST_BAKE pieces.
+      // A recipe whose last pre-bake piece is a cheese (black-truffle-pizza: its only topping is POST_BAKE) still has the empty 具材 step to pass before 焼く.
+      for (let i = 0; i < 3 && !(await page.getByRole("button", { name: /焼く/ }).isVisible().catch(() => false)); i += 1) await bar(page).getByRole("button", { name: /次へ/ }).click();
       if (plan.post.length) {
         await bakeToTarget(page, { start: 60, end: 76 }, { finish: false });
         await expect(page.getByTestId("finish-dock")).toBeVisible();

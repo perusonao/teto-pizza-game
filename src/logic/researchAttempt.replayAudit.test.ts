@@ -20,11 +20,14 @@ const ABLATIONS = {
   refundAll: { refill: true, hints: true, unlock: true },
 } as const;
 
+// Expansion Batch 22 (#780): the single 600 s test (36 simulations of the whole ladder, ~13 s each; 476 s before Batch 22) grew past its own 600 s limit when the ladder gained six steps and six credited recipes
+// (measured: 617 s alone). The SAME 36 simulations and the SAME assertions are now six tests (one per explore-pieces x profile, six ablations each, each far below the unchanged 600 s limit) plus the final
+// shop / structural test; no assertion was weakened, skipped or removed, and the per-test limit is unchanged. (Run them in file order: they share `out`.)
 describe("★3 replay decomposition (analysis only)", () => {
-  it("runs the ablations and checks the structural facts", async () => {
-    const out: Record<string, unknown> = {};
-    for (const explorePieces of ["FULL", "ONE"] as const) {
-      for (const profile of ["NONE", "FIXED4", "FULL"] as const) {
+  const out: Record<string, unknown> = {};
+  for (const explorePieces of ["FULL", "ONE"] as const) {
+    for (const profile of ["NONE", "FIXED4", "FULL"] as const) {
+      it(`runs the ablations (${explorePieces} / ${profile}) and checks the structural facts`, async () => {
         for (const [name, refund] of Object.entries(ABLATIONS)) {
           const r = simulateResearchAttempts({ profile, qualityTotal: 65, explorePieces, refund });
           expect(r.completed).toBe(true);
@@ -40,8 +43,10 @@ describe("★3 replay decomposition (analysis only)", () => {
             })),
           };
         }
-      }
+      }, 600_000);
     }
+  }
+  it("records the shop table and the structural fact (refunding every spending class leaves no replay)", async () => {
     const shop = INGREDIENTS.filter((i) => i.unlockCondition).map((i) => {
       const step = materialLadderStep(i.id);
       const tier = step === null ? null : priceTierForStep(step);
