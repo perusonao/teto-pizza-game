@@ -29,6 +29,7 @@ export type DedicatedIngredientVisual =
   | "walnut-kernel"
   | "lettuce-leaf"
   | "cabbage-shreds"
+  | "tortilla-chip-triangles"
   | "feta-cubes"
   | "sausage-slices"
   | "hot-dog-slices"
