@@ -33,12 +33,14 @@
 
 - 承認の形: 上の表の「承認」欄を Owner が埋める、または「17 件すべて承認」／「#3, #7 は保留」と書く。**保留の ID があれば、B21 はその ID に影響しない構成に変えられるか再測定してから進める**（勝手に承認扱いにしない）。
 
+> **訂正（2026-11-09、#799 の Codex P2）**: 本書の初版は絵文字を「非表示のフォールバック」と書いたが誤り。専用 SVG を配線しない食材では絵文字がそのままトレイのチップ・ドラッグプレビューに描画される。lettuce 🪴・cabbage 🥬 は G18（Hint の family 記号と重複不可）に抵触するため出荷できず、代案（仮に 🍏・🪷）も**見える仕様の変更**として Owner の個別判断が必要（#799 の Draft PR）。
+
 ## Q-3 暫定値の具体一覧（すべて GAMEPLAY ASSUMPTION・原典 pizzadb.jp 未確認）
 
 出所: `src/data/staged/stagedPromotionCandidates.ts`。共通: late カタログの 1 段、焼成窓 58〜78、報酬 100 Pitz、Lunch Rush なし、CUT なし、key-free Hint、アンロック ⭐0。
 
 ### 食材 6 種
-| # | id | 名前 | 種別/配置 | 色 | 文字代替（非表示のフォールバック、G18 一意） | 専用 SVG（P-2、未配線） | 承認 |
+| # | id | 名前 | 種別/配置 | 色 | 絵文字（`pieceVisual` 未配線のため**チップに表示される**、G18 一意） | 専用 SVG（P-2、未配線） | 承認 |
 |---|---|---|---|---|---|---|---|
 | 1 | `cheddar` | チェダーチーズ | cheese / scatter | `#f2a33a` | 🔶 | `cheddar-cubes`（PROVISIONAL、パレット `#f2a33a`） | □ |
 | 2 | `lettuce` | レタス | topping / scatter | `#9fd36b` | 🪴 | `lettuce-leaf`（`#9fd36b`） | □ |
