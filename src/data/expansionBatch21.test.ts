@@ -111,7 +111,7 @@ describe("the six late materials (Q-3 values) and the two Owner-confirmation-pen
       expect(INGREDIENTS.filter((i) => i.id === id), id).toHaveLength(1);
       expect(getIngredient(id), id).toMatchObject(Q3[id]);
       expect(getIngredient(id)!.unlockCondition, id).toEqual({ minTotalStars: 0 });
-      expect((getIngredient(id) as { pieceVisual?: string }).pieceVisual, id).toBe(({ lettuce: "lettuce-leaf", cabbage: "cabbage-shreds" } as Record<string, string>)[id]);
+      expect((getIngredient(id) as { pieceVisual?: string }).pieceVisual, id).toBe(({ lettuce: "lettuce-leaf", cabbage: "cabbage-shreds", "tortilla-chips": "tortilla-chip-triangles" } as Record<string, string>)[id]);
       expect(STARTER_INGREDIENT_IDS, id).not.toContain(id);
     }
   });
