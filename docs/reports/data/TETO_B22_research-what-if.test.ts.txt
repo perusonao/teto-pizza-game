@@ -1,0 +1,80 @@
+// TEMPORARY MEASUREMENT SCRIPT (Issue #780, Expansion Batch 22 Owner decision table, docs-only; stored as .txt so vitest never runs it).
+// To reproduce: copy to src/data/zzB22Measure.test.ts in a checkout of main 719428e0, run `B22_OUT=<out.json> npx vitest run src/data/zzB22Measure.test.ts`, then delete it.
+// It mocks ./ingredients (10 new ingredient rows) and ./discoveryLadder (2 ordinary steps before the late steps, 4 late steps after) and runs researchLetterChangesAcrossOrders.
+// Proposed (unapproved) step layout and compositions; nothing outside this process changes.
+import { describe, expect, it, vi } from "vitest";
+import { writeFileSync } from "node:fs";
+
+const NEW_ING = [
+  ["fennel", "topping"], ["orange", "topping"], ["carrot", "topping"], ["red-cabbage", "topping"], ["sunflower-seeds", "topping"],
+  ["radicchio", "topping"], ["truffle", "topping"], ["brie", "cheese"], ["buffalo-sauce", "sauce"], ["balsamic-vinegar", "sauce"],
+] as const;
+
+vi.mock("./ingredients", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./ingredients")>();
+  const rows = NEW_ING_ROWS();
+  const all = [...actual.INGREDIENTS, ...rows] as typeof actual.INGREDIENTS;
+  return { ...actual, INGREDIENTS: all, getIngredient: (id: string) => all.find((i) => i.id === id) };
+  function NEW_ING_ROWS() {
+    const list: [string, string][] = [["fennel","topping"],["orange","topping"],["carrot","topping"],["red-cabbage","topping"],["sunflower-seeds","topping"],["radicchio","topping"],["truffle","topping"],["brie","cheese"],["buffalo-sauce","sauce"],["balsamic-vinegar","sauce"]];
+    return list.map(([id, category]) => ({ id, category, nameJa: id, color: "#999999", emoji: `x:${id}`, placement: category === "sauce" ? "spread" : "scatter", unlockCondition: { minTotalStars: 0 }, pricePitz: 100, restockQuantity: 5 }));
+  }
+});
+
+vi.mock("./discoveryLadder", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./discoveryLadder")>();
+  const late = await import("./lateCatalog");
+  const steps = actual.DISCOVERY_LADDER.steps as readonly { step: number; kind: "MATERIAL"; ingredientIds: readonly string[]; keyRecipeId: string }[];
+  const nLate = late.LATE_LADDER_STEPS.length;
+  const ordinary = steps.slice(0, steps.length - nLate);
+  const lateSteps = steps.slice(steps.length - nLate);
+  const mk = (ids: string[], key: string) => ({ step: 0, kind: "MATERIAL" as const, ingredientIds: ids, keyRecipeId: key });
+  const merged = [
+    ...ordinary, mk(["brie"], "speck-e-brie"), mk(["buffalo-sauce"], "buffalo-chicken"),
+    ...lateSteps,
+    mk(["fennel", "orange"], "pizza-finocchi-salad"), mk(["carrot", "red-cabbage", "sunflower-seeds"], "pizza-cavolo-carote"),
+    mk(["radicchio", "balsamic-vinegar"], "pizza-radicchio-noci"), mk(["truffle"], "black-truffle-pizza"),
+  ].map((s, i) => ({ ...s, step: i + 1 }));
+  return { ...actual, DISCOVERY_LADDER: { ...actual.DISCOVERY_LADDER, steps: merged } };
+});
+
+import { researchLetterChangesAcrossOrders } from "../logic/catalog/testSupport/researchLabelAudit";
+import { DISCOVERY_LADDER } from "./discoveryLadder";
+import { getIngredient } from "./ingredients";
+import { RECIPES } from "./recipes";
+
+const q = (id: string, n: number) => ({ ingredientId: id, minCount: n });
+const NEW = [
+  { id: "pizza-finocchi-salad", requiredIngredients: [q("black-olive", 2), q("fennel", 2), q("mint", 2), q("mozzarella", 3), q("olive-oil", 1), q("orange", 2)] },
+  { id: "pizza-cavolo-carote", requiredIngredients: [q("carrot", 2), q("lemon", 2), q("mozzarella", 3), q("olive-oil", 1), q("red-cabbage", 2), q("sunflower-seeds", 2)] },
+  { id: "pizza-radicchio-noci", requiredIngredients: [q("balsamic-vinegar", 1), q("mozzarella", 3), q("olive-oil", 1), q("radicchio", 2), q("walnut", 2)] },
+  { id: "black-truffle-pizza", requiredIngredients: [q("mozzarella", 3), q("parmigiano", 3), q("truffle", 2)] },
+  { id: "speck-e-brie", requiredIngredients: [q("brie", 3), q("mozzarella", 3), q("prosciutto-crudo", 2), q("walnut", 2)] },
+  { id: "buffalo-chicken", requiredIngredients: [q("buffalo-sauce", 1), q("chicken", 2), q("gorgonzola", 3), q("mozzarella", 3)] },
+];
+
+describe("B22 what-if measurement (temp, not committed)", () => {
+  it("measures Research letter changes", () => {
+    const ladder = DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds as readonly string[]);
+    for (const [id] of NEW_ING) expect(ladder.includes(id), id).toBe(true);
+    for (const r of NEW) for (const x of r.requiredIngredients) expect(getIngredient(x.ingredientId), `${r.id}:${x.ingredientId}`).toBeDefined();
+    const all = [...RECIPES, ...NEW] as never;
+    const m = researchLetterChangesAcrossOrders(NEW.map((r) => r.id), all);
+    const out: Record<string, { canonical: string[]; nonCanonical: string[]; example: string }> = {};
+    for (const [id, list] of m) {
+      out[id] = {
+        canonical: [...new Set(list.filter((c) => c.canonical).map((c) => c.change))].sort(),
+        nonCanonical: [...new Set(list.filter((c) => !c.canonical).map((c) => c.change))].sort(),
+        example: list.find((c) => !c.canonical)?.example ?? "",
+      };
+    }
+    // per new recipe, added alone
+    const alone: Record<string, string[]> = {};
+    for (const n of NEW) {
+      const one = researchLetterChangesAcrossOrders([n.id], [...RECIPES, n] as never, 10);
+      alone[n.id] = [...one.keys()].sort();
+    }
+    writeFileSync(process.env.B22_OUT as string, JSON.stringify({ steps: DISCOVERY_LADDER.steps.length, recipes: RECIPES.length, affected: out, alone }, null, 1));
+    expect(true).toBe(true);
+  }, 600_000);
+});

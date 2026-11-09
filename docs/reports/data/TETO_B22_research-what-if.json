@@ -1,0 +1,425 @@
+{
+ "steps": 86,
+ "recipes": 95,
+ "affected": {
+  "quattro-formaggi": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A",
+    "-->B",
+    "A->B",
+    "B->C"
+   ],
+   "example": "quattro-formaggi + pizza-finocchi-salad materials only, olive-oil last"
+  },
+  "fugazza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A",
+    "-->B",
+    "A->B",
+    "B->C",
+    "C->D",
+    "D->E",
+    "E->F"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "pizza-bianca": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A",
+    "-->B",
+    "A->B",
+    "B->C",
+    "C->D",
+    "D->E"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "vongole": {
+   "canonical": [],
+   "nonCanonical": [
+    "B->C",
+    "C->D",
+    "F->G",
+    "H->J",
+    "J->L",
+    "L->N",
+    "M->O",
+    "M->P"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "baba-ganoush-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->B",
+    "B->C",
+    "F->G",
+    "G->I",
+    "I->K",
+    "J->L",
+    "K->M",
+    "L->N",
+    "L->O"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "pizza-feta-eliniki": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A",
+    "-->B",
+    "B->C",
+    "F->H",
+    "G->H",
+    "H->I",
+    "H->J",
+    "I->J",
+    "I->K"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "pizza-bianca-ricotta": {
+   "canonical": [],
+   "nonCanonical": [
+    "B->C",
+    "C->D",
+    "D->E",
+    "E->F",
+    "F->H",
+    "H->J",
+    "I->J",
+    "I->K",
+    "J->L",
+    "K->M",
+    "K->N"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "eggplant-ricotta-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A",
+    "-->B",
+    "B->C",
+    "F->G",
+    "H->I"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "grandma-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A",
+    "-->B",
+    "A->B",
+    "B->C",
+    "C->D",
+    "E->F",
+    "G->H"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "boscaiola": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A",
+    "-->B",
+    "A->B",
+    "B->C",
+    "D->E",
+    "E->F",
+    "F->G"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "pesto-burrata-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A",
+    "-->B",
+    "B->C",
+    "D->E",
+    "G->I",
+    "H->I",
+    "I->K",
+    "J->K",
+    "J->L"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "pizza-alla-crudaiola": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A",
+    "-->B",
+    "A->B",
+    "B->C",
+    "C->D"
+   ],
+   "example": "every ladder material, olive-oil last"
+  },
+  "parmigiana-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->B",
+    "B->C",
+    "D->E"
+   ],
+   "example": "quattro-formaggi + black-truffle-pizza materials + eggplant, parmigiano last"
+  },
+  "spinach-artichoke-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->B",
+    "A->B",
+    "B->C",
+    "C->D"
+   ],
+   "example": "every ladder material, parmigiano last"
+  },
+  "pesto-noci-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A",
+    "-->B",
+    "B->C"
+   ],
+   "example": "every ladder material, gorgonzola last"
+  },
+  "capricciosa": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "capricciosa + pizza-finocchi-salad materials only, black-olive last"
+  },
+  "pizza-portuguesa": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "pizza-portuguesa + pizza-finocchi-salad materials only, black-olive last"
+  },
+  "pesto-tonno": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "pesto-tonno + pizza-finocchi-salad materials only, black-olive last"
+  },
+  "new-haven-apizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "new-haven-apizza + black-truffle-pizza materials only, parmigiano last"
+  },
+  "puttanesca-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "puttanesca-pizza + pizza-finocchi-salad materials only, black-olive last"
+  },
+  "brazilian-calabresa": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "brazilian-calabresa + pizza-finocchi-salad materials only, black-olive last"
+  },
+  "pesto-pollo": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->B",
+    "A->B",
+    "B->C",
+    "C->D",
+    "D->E"
+   ],
+   "example": "pesto-pollo + buffalo-chicken materials only, chicken last"
+  },
+  "frango-catupiry": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->B",
+    "B->C",
+    "C->D",
+    "E->F",
+    "F->G"
+   ],
+   "example": "every ladder material, chicken last"
+  },
+  "curry-pizza-japan": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->B",
+    "B->C",
+    "D->E",
+    "E->F"
+   ],
+   "example": "every ladder material, chicken last"
+  },
+  "jamaican-jerk-chicken-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->B",
+    "A->B",
+    "C->D"
+   ],
+   "example": "every ladder material, chicken last"
+  },
+  "prosciutto-funghi": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "prosciutto-funghi + speck-e-brie materials only, prosciutto-crudo last"
+  },
+  "veggie-supreme-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "veggie-supreme-pizza + pizza-finocchi-salad materials only, black-olive last"
+  },
+  "calabresa-argentina": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "calabresa-argentina + pizza-finocchi-salad materials only, black-olive last"
+  },
+  "pesto-salmone": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->B",
+    "B->C"
+   ],
+   "example": "pesto-salmone + pizza-cavolo-carote materials only, lemon last"
+  },
+  "shirasu-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->B",
+    "A->B"
+   ],
+   "example": "every ladder material, lemon last"
+  },
+  "bacalhau": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "bacalhau + pizza-finocchi-salad materials only, black-olive last"
+  },
+  "palmito-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "palmito-pizza + pizza-finocchi-salad materials only, black-olive last"
+  },
+  "supreme-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "supreme-pizza + pizza-finocchi-salad materials only, black-olive last"
+  },
+  "reina-pepiada-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "reina-pepiada-pizza + buffalo-chicken materials only, chicken last"
+  },
+  "bbq-chicken-pizza": {
+   "canonical": [],
+   "nonCanonical": [
+    "-->A"
+   ],
+   "example": "bbq-chicken-pizza + buffalo-chicken materials only, chicken last"
+  }
+ },
+ "alone": {
+  "pizza-finocchi-salad": [
+   "baba-ganoush-pizza",
+   "bacalhau",
+   "boscaiola",
+   "brazilian-calabresa",
+   "calabresa-argentina",
+   "capricciosa",
+   "eggplant-ricotta-pizza",
+   "fugazza",
+   "grandma-pizza",
+   "palmito-pizza",
+   "pesto-burrata-pizza",
+   "pesto-tonno",
+   "pizza-alla-crudaiola",
+   "pizza-bianca",
+   "pizza-bianca-ricotta",
+   "pizza-feta-eliniki",
+   "pizza-portuguesa",
+   "puttanesca-pizza",
+   "quattro-formaggi",
+   "supreme-pizza",
+   "veggie-supreme-pizza",
+   "vongole"
+  ],
+  "pizza-cavolo-carote": [
+   "baba-ganoush-pizza",
+   "boscaiola",
+   "eggplant-ricotta-pizza",
+   "fugazza",
+   "grandma-pizza",
+   "pesto-burrata-pizza",
+   "pesto-salmone",
+   "pizza-alla-crudaiola",
+   "pizza-bianca",
+   "pizza-bianca-ricotta",
+   "pizza-feta-eliniki",
+   "quattro-formaggi",
+   "shirasu-pizza",
+   "vongole"
+  ],
+  "pizza-radicchio-noci": [
+   "baba-ganoush-pizza",
+   "boscaiola",
+   "eggplant-ricotta-pizza",
+   "fugazza",
+   "grandma-pizza",
+   "pesto-burrata-pizza",
+   "pesto-noci-pizza",
+   "pizza-alla-crudaiola",
+   "pizza-bianca",
+   "pizza-bianca-ricotta",
+   "pizza-feta-eliniki",
+   "quattro-formaggi",
+   "vongole"
+  ],
+  "black-truffle-pizza": [
+   "new-haven-apizza",
+   "parmigiana-pizza",
+   "quattro-formaggi",
+   "spinach-artichoke-pizza"
+  ],
+  "speck-e-brie": [
+   "pesto-noci-pizza",
+   "prosciutto-funghi"
+  ],
+  "buffalo-chicken": [
+   "bbq-chicken-pizza",
+   "curry-pizza-japan",
+   "frango-catupiry",
+   "jamaican-jerk-chicken-pizza",
+   "pesto-noci-pizza",
+   "pesto-pollo",
+   "quattro-formaggi",
+   "reina-pepiada-pizza"
+  ]
+ }
+}
