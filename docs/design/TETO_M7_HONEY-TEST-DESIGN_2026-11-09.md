@@ -2,7 +2,7 @@
 
 
 > **Owner 承認（2026-11-09）:** 本書の設計方針、T-1〜T-6 の採用、honey を初号機とすること、buffalo-sauce は許可リストに追加しないこと。#776 merge 済み（`1d5f5a1e`）、#800 merge 済み。HOT 編集は B22 の claim 競合が解消するまで開始しない。
-> **M7 の完成条件:** 許可リストへの 1 行追加だけでは**完成ではない**。M7 の完成には DRIZZLE D2 以降（journal、在庫の原子的消費、採点・識別、工程遷移、UI 接続）が要る。上の M7-PR1〜PR3 は「基盤の登録」までで、完成の判定は D2〜D5 の Owner ゲートを通った後。
+> **M7 の完成条件:** 許可リストへの 1 行追加だけでは**完成ではない**。M7 の完成には DRIZZLE D2 以降（journal、在庫の原子的消費、採点・識別、工程遷移、UI 接続）が要る。§4 の M7-PR1〜PR3 は「基盤の登録」までで、完成の判定は D2〜D5 の Owner ゲートを通った後。
 
 2026-11-09 / 基準 main（#776 merge 済み `1d5f5a1e`）。**実装・HOT 編集はしていない。** 順序（Owner 承認 2026-11-09）: #776 merge ✔ → B22 の HOT 編集 → M7。HOT の claim が空くまで、本書（設計）と、HOT に触れない独立テストの形だけを進める。凡例: 【実測】読取り、【推論】設計。
 
@@ -14,14 +14,14 @@
 ## 2. 必須条件と、それを保証する独立テスト【推論】
 | # | 必須条件 | テスト（新規ファイル案 `src/data/m7HoneyNoDoubleApply.test.ts`、実装後に追加） | HOT |
 |---|---|---|---|
-| T-1 | **同一レシピ内の二重適用の禁止**: 1 つのレシピの `requiredIngredients` で、同じ `ingredientId` が PAINT 相当と `POST_BAKE` の両方に現れない（全レシピを走査） | 本番カタログ全件。hot-honey は honey が POST_BAKE の 1 件のみ、pesto＋honey は PAINT のみ | なし（テストのみ） |
-| T-2 | **レシピ単位の排他**: `recipeSauceProfiles` に PAINT 行がある（レシピ, 食材）の組は、同じレシピで POST_BAKE にならない | honey の PAINT を持つレシピ集合と POST_BAKE の honey を持つレシピ集合が**互いに素** | なし |
-| T-3 | **許可リストの一貫**: POST_BAKE のソース／液体要件の食材はすべて `POST_BAKE_LIQUID_INGREDIENT_IDS` に載る。逆に、許可リストの食材（olive-oil・honey）は未登録の工程で使われない | 全 POST_BAKE 要件を走査、許可リストの食材 id が実在 | なし |
+| T-1 | **同一レシピ内の二重適用の禁止**: 1 つのレシピの `requiredIngredients` で、同じ `ingredientId` が **`applicationPhase: "POST_BAKE"` の要件と、そうでない要件（焼成前＝`applicationPhase` なし。カタログに `PAINT` という値は無く、型は `"POST_BAKE"` のみ）の両方に現れない**（全レシピを走査） | 本番カタログ全件。**hot-honey-pepperoni は現時点で staged のみ**（`stagedRecipes.ts`）なので、honey が POST_BAKE の 1 件のみであることは M7-PR3 までは staged データで検証し、本番カタログでは「0 件」のベースライン | なし（テストのみ） |
+| T-2 | **レシピ間の排他の確認**: honey を焼成前の要件として持つレシピ（例: pesto-noci-pizza。honey は `recipeSauceProfiles` に行が無く「存在で採点」される、`recipeSauceProfiles.ts:392`）と、honey を POST_BAKE で持つレシピの集合は互いに素。**`recipeSauceProfiles` の PAINT 行は honey には無いので、判定は上の T-1 と同じ `applicationPhase` の有無で行う** | honey を焼成前で持つレシピ集合と POST_BAKE で持つレシピ集合が**互いに素**（hot-honey の追加後は、同一レシピが両方に入っていない） | なし |
+| T-3 | **許可リストの一貫**: `applicationPhase: "POST_BAKE"` のソース／液体要件の食材はすべて `POST_BAKE_LIQUID_INGREDIENT_IDS` に載る（許可リストの各 id が実在する食材であることも確認する。「許可リストの食材が他の工程で使われない」という逆の条件は**課さない**: honey は焼成前でも使われるため） | 全 POST_BAKE 要件を走査、許可リストの食材 id が実在 | なし |
 | T-4 | **二重在庫消費の禁止**: 1 回の調理で honey を 1 つの経路でしか消費しない。PAINT 経路の消費と、液体（journal）経路の消費が同じ食材について同時に起きない | 在庫の消費を数える純粋関数（D2 の journal 設計に依存）。**D2 は HOLD のため、今は「消費経路は 1 つ」の契約テストの形（入力＝レシピ＋置き方、出力＝消費する食材と回数）だけを固定**し、実装は D2 で | D2（HOLD） |
 | T-5 | **バッファロー**: buffalo-chicken は POST_BAKE 要件を持たず、許可リストに buffalo-sauce が無い（M7-d） | カタログ・許可リストの断言 | なし |
 | T-6 | 許可リストの変更は 1 行・honey のみ（Owner 承認範囲の固定）: `POST_BAKE_LIQUID_INGREDIENT_IDS` が `["olive-oil","honey"]` に等しい | 固定値のピン（拡張には Owner 承認が要ることを明示） | なし |
 
-T-1〜T-3・T-5・T-6 は**テストのみ**で書け、製品コードに依存しない（本番カタログを読むだけ）。ただし T-3・T-6 は honey の追加と同時に通るため、追加 PR にだけ同梱する（今は書かない）。
+**検証可能性（独立レビュー 2026-11-09 の指摘を反映して訂正）:** T-6 は固定値のピンで今すぐ書ける。T-3 の前半・T-5 の許可リスト側も今書ける。T-1 は `applicationPhase` の有無で判定でき、hot-honey は M7-PR3 まで staged データが要る。T-5 の「buffalo-chicken が POST_BAKE 要件を持たない」は B22 の merge まで main にレシピが無いので自明に真（B22 後に意味を持つ）。T-3 と T-6 は honey の追加（M7-PR1）と同時に通るため、その PR にだけ同梱する（今は書かない）。T-4 は D2（HOLD）待ちで、契約の形だけ。
 
 ## 3. HOT に触れずに今できること
 1. 本書の確定（Owner の追認）。

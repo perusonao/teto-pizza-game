@@ -1,6 +1,8 @@
 # M7 POSTBAKE_SAUCE の影響範囲／D-ING-1 R1 の差分見積もり／B22・#800・DRIZZLE との競合（#780、docs-only）
 
 
+> **訂正（独立レビュー 2026-11-09）:** 下の §2 の buffalo-sauce を液体・許可リストの対象とする記述、および X-3 は**作成時（Owner の M7-d 承認前）の案で、現在は無効**。M7-d 承認済み: buffalo-chicken は B22 の焼成前 PAINT・通常カタログで、buffalo-sauce は POST_BAKE 液体にも許可リストにもしない。M7 の最初の適用は hot-honey-pepperoni の honey のみ。
+>
 > **状態更新（2026-11-09）:** #776（DRIZZLE D1）は Squash merge 済み（`1d5f5a1e`）、#800 も merge 済み（`719428e0`、Owner iPhone HV 3/3 PASS）。以下 §1 の「#776 Open」「#800 Draft」「main に `src/logic/drizzle/` は無い」は**作成時（main `71141335`）の記述で、現在は解消済み**。B22 の HOT 編集は #800 の merge で競合が解消したが、仕様の Owner 承認待ち（`TETO_B22_OWNER-DECISION-TABLE_2026-11-09.md`）。#746（Lab）は未 merge。
 
 2026-11-09 / 基準 `origin/main` = `71141335`。コード・テスト・golden・HOT ファイルは変更していない。凡例: 【実測】取得した値、【推論】解釈・見積もり、【未確認】。
@@ -15,13 +17,13 @@
 | T-FX（staged、〜11/21） | 有効 | `src/data/staged/**` | B22 merge 後の基準値更新は T-FX |
 
 ## 2. M7 POSTBAKE_SAUCE の影響範囲【実測＋推論】
-**対象レシピ（RB-18）:** buffalo-chicken-pizzadb（buffalo-sauce、新食材）・hot-honey-pepperoni（honey、出荷済み）・detroit-style-pizza（tomato-sauce 後がけ、M1・M2 待ち）。
+**対象レシピ（RB-18、作成時の案）:** ~~buffalo-chicken-pizzadb（buffalo-sauce）~~ → **M7-d 承認により M7 の対象から外れ、B22 の焼成前 PAINT へ**。M7 の対象は hot-honey-pepperoni（honey、出荷済み食材。**レシピは staged のみ**）、detroit-style-pizza（tomato-sauce 後がけ、M1・M2 待ち）。
 **現行の仕組み【実測】:** 後乗せ要件は `applicationPhase: "POST_BAKE"`（`lateCatalog.ts` の型、`validateLateCatalog` が検証）。FINISH で扱えるのは**トッピングのみ**（ソース・液体は扱えない＝M7 が必要な理由）。
 | 区分 | 変更内容 | 前提 | HOT |
 |---|---|---|---|
 | 検証 | `validateLateCatalog` に「液体の許可リストの食材は POST_BAKE 要件として許可」を 1 点追加【推論】 | #776 の許可リスト（`POST_BAKE_LIQUID_INGREDIENT_IDS`）が main に必要 | `lateCatalog.ts` |
-| 食材 | buffalo-sauce を**液体**として登録（family なし、T4） | B22 の食材登録と同じ手順 | `ingredients.ts`・`lateCatalog.ts` |
-| 許可リスト | `olive-oil` に buffalo-sauce・honey を追加（Owner 判断 M7-b） | #776 | `src/logic/drizzle/postBakeLiquid.ts`（#776） |
+| 食材 | ~~buffalo-sauce を液体として登録~~ → **対象外**（M7-d。B22 で焼成前の PAINT ソースとして登録）。honey は出荷済みで新規登録なし | — | — |
+| 許可リスト | `olive-oil` に **honey のみ**を追加（M7-b、buffalo-sauce は追加しない） | #776（merge 済み） | `src/logic/drizzle/postBakeLiquid.ts` |
 | UI／採点／識別／在庫 | DRIZZLE D2〜D5（HOLD）の範囲。**M7 では実装しない** | D2〜D5 の Owner ゲート | — |
 | Research／Hint 5.0／DH4 | 新ソースの family 分布が動く可能性（B13 の前例）【未確認、staged what-if で実測が必要】 | — | golden |
 **結論:** M7 の実装は **#776 の merge と D2〜D5 の Owner ゲート後**。それまでにできるのは docs（本書・影響調査）のみ。
@@ -49,4 +51,4 @@ R1 = 設計書 §3.4 の「`riderRegistry.ts`（空）＋型＋検証緩和＋�
 |---|---|---|
 | X-1 | #776（DRIZZLE D1、新規ファイルのみ・未配線）を先に merge するか（M7 の前提） | 判断が必要（#776 の CI・Codex の確認は別途） |
 | X-2 | D-ING-1 R1 を B22 の HOT 編集の**後**にするか | 後（同じファイル、直列） |
-| X-3 | M7-b: 許可リスト拡張を buffalo-sauce と honey から | 推奨どおり |
+| X-3 | ~~M7-b: buffalo-sauce と honey から~~ → **決定済み: honey のみ。buffalo-sauce は許可リストに追加しない** | 決定済み |

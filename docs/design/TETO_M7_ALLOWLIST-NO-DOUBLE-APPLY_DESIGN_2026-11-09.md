@@ -1,37 +1,30 @@
-# M7 許可リスト（buffalo-sauce・honey）と B22 の PAINT 仕様の二重適用を避ける設計（#780、docs-only・設計のみ）
+# M7 許可リスト（honey 初号機）と B22 の PAINT 仕様の二重適用を避ける設計（#780、docs-only・設計のみ）
 
+2026-11-09。コード・HOT は変更していない。凡例: 【実測】読取り、【推論】設計。
 
-> **状態更新（2026-11-09）:** #776 は merge 済み（`1d5f5a1e`）、#800 も merge 済み。実装順序は Owner 承認済み: #776 ✔ → B22 の HOT 編集 → M7。M7-d 承認済み（buffalo-chicken は B22 の焼成前 PAINT、buffalo-sauce は許可リストに追加しない）。最初の適用は hot-honey-pepperoni の honey。
-
-2026-11-09。コード・HOT は変更していない。**すべて提案。** 凡例: 【実測】読取り、【推論】、【未確認】。前提: Owner 承認（2026-11-09）— M7 は buffalo-sauce と honey を最初の許可リスト候補とする。実装は #776（DRIZZLE D1）の merge と B22 の HOT 編集の後。
+> **決定済み（Owner 承認 2026-11-09）:** M7-d — **buffalo-chicken は B22 の焼成前 PAINT・通常カタログで実装し、buffalo-sauce は POST_BAKE 液体にも M7 の許可リストにも追加しない。** M7 の最初の適用は **hot-honey-pepperoni の honey のみ**（許可リストは `["olive-oil","honey"]`）。実装順序は #776 merge ✔（`1d5f5a1e`）→ B22 の HOT 編集 → M7。M7 の完成には DRIZZLE D2 以降（journal・在庫・採点・工程遷移・UI 接続）が必要で、許可リストの追加だけでは完成扱いにしない。
+> 旧版（作成時）は buffalo-sauce を許可リスト候補として扱い M7-d を未決の推奨としていたが、承認により該当の記述はすべて下記に置き換えた（独立レビュー 2026-11-09 の指摘 F1 への対応）。
 
 ## 1. 二重適用が起きる場所【実測】
-| 食材 | B22／出荷済みでの扱い | M7 の許可リスト案での扱い | 衝突 |
+| 食材 | 出荷・計画での扱い | M7 での扱い | 衝突の可能性 |
 |---|---|---|---|
-| **buffalo-sauce** | B22 準備書（#801 §5）: **焼成前の PAINT ソース**を推奨（`recipeSauceProfiles` に PAINT 行、`buffalo-chicken` は**通常**カタログ・後乗せなし） | 液体として許可（`buffalo-chicken-pizzadb` は staged では POST_BAKE） | **同一レシピ・同一食材が PAINT と POST_BAKE の両方になり得る** |
-| **honey** | **出荷済み**: B20-A で焼成前の第 2 ソース（pesto＋honey、PAINT 系） | `hot-honey-pepperoni` で POST_BAKE の液体 | **同一食材が、別レシピで別工程**。レシピ内で両方に出るのは不可 |
+| **buffalo-sauce** | B22 準備書: 焼成前の PAINT ソース、`buffalo-chicken` は通常カタログ・後乗せなし | **M7 の対象外**（許可リストにも POST_BAKE にも使わない） | なし（M7-d で排除） |
+| **honey** | **出荷済み**: B20-A で焼成前の第 2 ソース（pesto＋honey）。`recipeSauceProfiles` に honey の行は無く「存在で採点」される（`recipeSauceProfiles.ts:392`）。カタログの `applicationPhase` は焼成前では未指定 | hot-honey-pepperoni（staged のみ）で `applicationPhase: "POST_BAKE"` の液体 | 同じ食材が**別レシピで別工程**。同一レシピ内で両方に出るのは禁止 |
 
-## 2. 設計原則（二重適用の禁止）【推論】
-1. **工程はレシピの要件が持つ。食材は持たない。** `applicationPhase` はレシピ側の宣言（現行どおり）。許可リストは「この食材は液体として後がけできる」という**能力**であって、PAINT での使用を禁じない・強制もしない。
-2. **1 レシピ内で、同じ食材を 2 つの工程に出さない**（PAINT と POST_BAKE の併記を検証で拒否）。
-3. **同じレシピに PAINT 行と液体要件を両方持たせない。** buffalo-chicken は **PAINT か POST_BAKE の一方だけ**（下の Owner 判断 M7-d）。
-4. **許可リストの追加は 1 食材につき 1 PR・1 行**（#776 の `POST_BAKE_LIQUID_INGREDIENT_IDS`、型が連動）。B22 の PAINT 行追加（`recipeSauceProfiles`）とは別 PR にして、同時に両方を触らない。
-5. **在庫・採点・Dex は工程ごとに別経路**（PAINT は既存のソース経路、液体は D2〜D5 の journal）。同一食材の二重消費を防ぐため、1 回の調理でその食材は**どちらか 1 経路で 1 回だけ**消費する（D2 の原子的消費の設計に含める）。
+## 2. 設計原則【推論】
+1. **工程はレシピの要件が持つ**（`applicationPhase`）。許可リストは「液体として後がけできる」という能力で、焼成前での使用を禁じない。
+2. **1 レシピ内で同じ食材を 2 つの工程に出さない**（`POST_BAKE` の要件と、そうでない要件の併記を検証で拒否）。
+3. **許可リストへの追加は 1 食材・1 PR・1 行**（`POST_BAKE_LIQUID_INGREDIENT_IDS`、型が連動）。最初は honey のみ。buffalo-sauce の追加は Owner 承認のない限り行わない。
+4. **在庫・採点・Dex は工程ごとに別経路**。同一食材の二重消費を防ぐため、1 回の調理でその食材はどちらか 1 経路で 1 回だけ消費する（D2 の原子的消費の設計に含める。D2 は HOLD）。
 
-## 3. 追加する検証（実装時・テストで強制）【推論】
+## 3. 追加する検証（実装時・テストで強制。詳細は `TETO_M7_HONEY-TEST-DESIGN_2026-11-09.md`）
 | 検証 | 内容 |
 |---|---|
-| V-1 | レシピの `requiredIngredients` に同じ `ingredientId` が PAINT 相当と `POST_BAKE` で重複しない |
-| V-2 | `applicationPhase: "POST_BAKE"` の食材がソース・液体なら、許可リストに載っていること（載っていなければ現行どおり拒否） |
-| V-3 | 許可リストの食材が `recipeSauceProfiles` の PAINT 行を持つ場合、**そのレシピ**では POST_BAKE にしない（レシピ単位の排他） |
-| V-4 | buffalo-chicken はカタログ上の工程が 1 つだけ（B22 の PAINT 案を採るなら POST_BAKE 要件・許可リスト登録なし） |
+| T-1 | 同一レシピ内で、同じ食材が `POST_BAKE` の要件とそうでない要件の両方に現れない |
+| T-2 | honey を焼成前に持つレシピ集合と POST_BAKE で持つレシピ集合が互いに素 |
+| T-3 | POST_BAKE のソース／液体要件の食材はすべて許可リストに載る（逆の条件は課さない） |
+| T-5 | buffalo-chicken は POST_BAKE 要件を持たず、許可リストに buffalo-sauce が無い |
+| T-6 | 許可リストが `["olive-oil","honey"]` に等しい（拡張は Owner 承認が必要） |
 
-## 4. Owner 判断（推奨つき）
-| ID | 論点 | 推奨 |
-|---|---|---|
-| **M7-d** | buffalo-chicken: B22 の **PAINT（焼成前、通常カタログ）** か M7 の **POST_BAKE 液体**か | **PAINT を B22 で先に出荷し、M7 の液体は honey（hot-honey-pepperoni）から**。現実のバッファローは「焼成後のかけ」だが、B22 は新機構なしで出せる。buffalo-sauce の液体化は M7 の実装（D2〜D5 後）で別レシピ／別版として再判断 |
-| M7-b（確認） | 最初の許可リスト候補は buffalo-sauce と honey | 承認済み。ただし buffalo-sauce の登録は M7-d の結論後。**honey を先**（出荷済み食材のため新食材の登録が要らない） |
-| M7-e | 原則 1〜5 の採用 | 採用 |
-
-## 5. 順序と競合【実測】
-#800 merge → B22 の仕様承認 → B22 の HOT 編集（buffalo-sauce の PAINT 行を含む）→ D-ING-1 R1 → **#776 merge（個別承認）** → DRIZZLE D2〜D5（HOLD）→ M7 実装（honey から）。M7 の食材・レシピ登録は B22 と同じ HOT ファイルのため、必ず B22 の後。本書は docs のみで HOT・他の claim と重ならない。
+## 4. 順序と競合【実測】
+B22 の HOT 編集（仕様の Owner 最終承認後、buffalo-sauce の PAINT 行を含む）→ D-ING-1 R1 → M7-PR1（honey 追加＋T-3・T-6）→ M7-PR2（`validateLateCatalog` の緩和）→ M7-PR3（hot-honey-pepperoni の登録）→ D2〜D5（HOLD、完成条件）。M7 の食材・レシピ登録は B22 と同じ HOT ファイルのため B22 の後。本書は docs のみで HOT・他の claim と重ならない。
