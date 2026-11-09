@@ -13,8 +13,8 @@ import { materialsUpTo, CATALOG_COUNTS } from "../src/logic/catalog/testSupport/
  * Expansion Batch 21 representative E2E (Issue #780; PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): taco-pizza and okonomiyaki-style-pizza (late catalog) played end to end
  * at 390x844 and 360x800. Shop NEW (3 materials each) -> purchase -> Dex Research entry (no identity leak) -> paint the sauce -> place every pre-bake piece -> bake -> place the POST_BAKE pieces in FINISH
  * -> NEW DISCOVERY -> Dex. 11 / 10 pieces exceed the 8-ring, so every piece is placed at the Reference's own multi-ring slot (`assignReferenceSlots`, via the REFERENCE data).
- * Dedicated SVGs (#797, via IngredientGlyph): lettuce -> `lettuce-leaf`, cabbage -> `cabbage-shreds` (tray chip AND pieces on the pizza, incl. POST_BAKE); tortilla-chips / cheddar / bonito-flakes /
- * okonomiyaki-sauce have none and draw their emoji (tortilla-chips 🔺). Step numbers are DERIVED from the ladder.
+ * Dedicated SVGs (#797, via IngredientGlyph): lettuce -> `lettuce-leaf`, cabbage -> `cabbage-shreds`, tortilla-chips -> `tortilla-chip-triangles` (tray chip AND pieces on the pizza, incl. POST_BAKE); cheddar / bonito-flakes /
+ * okonomiyaki-sauce have none and draw their emoji. Step numbers are DERIVED from the ladder.
  *
  * Optional output: HV_SCREENSHOT_DIR (screenshots), HV_VIDEO=1 (Playwright video, 390x844 project only).
  */
@@ -102,8 +102,8 @@ interface Plan {
 }
 
 /** Ingredients with a dedicated SVG (#797) and the ones that deliberately stay on their emoji. */
-const DEDICATED: Record<string, string> = { lettuce: "lettuce-leaf", cabbage: "cabbage-shreds" };
-const EMOJI_ONLY: Record<string, string> = { "tortilla-chips": "\u{1F53A}" };
+const DEDICATED: Record<string, string> = { lettuce: "lettuce-leaf", cabbage: "cabbage-shreds", "tortilla-chips": "tortilla-chip-triangles" };
+const EMOJI_ONLY: Record<string, string> = {};
 
 const PLANS: Plan[] = [
   {
