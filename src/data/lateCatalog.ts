@@ -553,7 +553,7 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
 export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"], ["lettuce", "vegetable"], ["tortilla-chips", "vegetable"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"]] as const;
 
 /** Topping size class of the late ingredients (`salmon-roe` is extra small, like the other fine garnishes). Joined by ./toppingSizeClass.ts only when enabled. */
-export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs", "lettuce": "m", "tortilla-chips": "m", "cabbage": "s", "bonito-flakes": "xs", "cheddar": "m" } as const;
+export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs", "lettuce": "m", "tortilla-chips": "m", "cabbage": "s", "bonito-flakes": "xs", "cheddar": "l" } as const;
 
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {

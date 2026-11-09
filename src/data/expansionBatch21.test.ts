@@ -124,13 +124,13 @@ describe("the six late materials (Q-3 values) and the two Owner-confirmation-pen
   it("the text fallbacks are unique across the catalog (G18), including the two deviation values", () => {
     for (const id of NEW_MATERIALS) expect(INGREDIENTS.filter((i) => i.emoji === getIngredient(id)!.emoji).map((i) => i.id), id).toEqual([id]);
   });
-  it("families and size classes: cheddar is a cheese (no topping family); lettuce / cabbage vegetable, bonito-flakes seafood; sizes lettuce m / tortilla-chips m / cabbage s / bonito-flakes xs / cheddar m", () => {
+  it("families and size classes: cheddar is a cheese (no topping family); lettuce / cabbage vegetable, bonito-flakes seafood; sizes lettuce m / tortilla-chips m / cabbage s / bonito-flakes xs / cheddar l (Owner 2026-11-09, formally specified)", () => {
     expect(ingredientAttributeFamily("cheddar")).toBeNull();
     expect(ingredientAttributeFamily("lettuce")).toBe("vegetable");
     expect(ingredientAttributeFamily("cabbage")).toBe("vegetable");
     expect(ingredientAttributeFamily("bonito-flakes")).toBe("seafood");
     expect(ingredientAttributeFamily("okonomiyaki-sauce")).toBeNull();
-    expect([toppingSizeClass("lettuce"), toppingSizeClass("tortilla-chips"), toppingSizeClass("cabbage"), toppingSizeClass("bonito-flakes"), toppingSizeClass("cheddar")]).toEqual(["m", "m", "s", "xs", "m"]);
+    expect([toppingSizeClass("lettuce"), toppingSizeClass("tortilla-chips"), toppingSizeClass("cabbage"), toppingSizeClass("bonito-flakes"), toppingSizeClass("cheddar")]).toEqual(["m", "m", "s", "xs", "l"]);
   });
   it("FAMILY DEVIATION (awaiting Owner confirmation): tortilla-chips is `vegetable` (the nori precedent), not the staged row's `other`, which the DH4-PROD gate OD-DH4-2-9 rejects", () => {
     expect(ingredientAttributeFamily("tortilla-chips")).toBe("vegetable");

@@ -86,7 +86,7 @@ describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
     expect(LATE_INGREDIENTS.every((i) => i.unlockCondition !== undefined)).toBe(true); // every late ingredient, the roe and the (taxonomy-free) yuzu-kosho sauce alike
     expect(LATE_ORDERS.map((o) => o.recipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
     expect(LATE_TAXONOMY_ROWS).toEqual([["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"], ["lettuce", "vegetable"], ["tortilla-chips", "vegetable"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"]]); // (Expansion Batch 21: + four; tortilla-chips `vegetable` is a PROPOSED deviation, Owner confirmation pending) // yuzu-kosho / miso-sauce / tahini are sauces: no topping family, no size class
-    expect(LATE_TOPPING_SIZE_CLASS).toEqual({ "salmon-roe": "xs", "white-sesame": "xs", pomegranate: "xs", wasabi: "xs", "cod-roe": "xs", nori: "xs", lettuce: "m", "tortilla-chips": "m", cabbage: "s", "bonito-flakes": "xs", cheddar: "m" });
+    expect(LATE_TOPPING_SIZE_CLASS).toEqual({ "salmon-roe": "xs", "white-sesame": "xs", pomegranate: "xs", wasabi: "xs", "cod-roe": "xs", nori: "xs", lettuce: "m", "tortilla-chips": "m", cabbage: "s", "bonito-flakes": "xs", cheddar: "l" });
   });
 });
 
