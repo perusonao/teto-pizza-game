@@ -12,7 +12,7 @@
 |---|---|---|---|
 | **B22**（#801、#780 claim 6738640959） | Draft・docs のみ。HOT 編集は**仕様承認後、#800 の merge 後**に予約 | `ingredients.ts`・`recipes.ts`・`lateCatalog.ts`・`discoveryLadder.ts`（data）・`discoveryCatalog.ts`・`IngredientGlyph.tsx`・golden ほか | **R1 は `discoveryLadder.ts` を 2 つとも触るため B22 の HOT 予約と重なる**。buffalo-sauce は B22 の焼成前 PAINT の食材で、M7 の対象ではない（M7-d 承認済み） |
 | **#800**（tortilla-chips の SVG 配線） | Draft、claim 6738179452 | `lateCatalog.ts`（`pieceVisual` のみ）・`ingredients.ts`・`IngredientGlyph.tsx` | M7 の食材登録（`ingredients.ts`・`lateCatalog.ts`）と同じファイル |
-| **DRIZZLE D1**（#776）／**Lab**（#746） | どちらも Open（Draft でない）。main に **`src/logic/drizzle/` は無い**。claim は 11/06 に release 済み、#579 の D2〜D5 は HOLD | `src/logic/drizzle/**`・`drizzleExperienceGate.ts`、`src/preview/DrizzleLab.tsx`・`src/main.tsx` | M7 は液体の型・軌跡・ジェスチャーを**実装しない**（設計書 §2）。#776 が main に入るまで M7 の実装は始められない |
+| **DRIZZLE D1**（#776）／**Lab**（#746） | どちらも Open（Draft でない）。main に **`src/logic/drizzle/` は無い**。claim は 11/06 に release 済み、#579 の D2〜D5 は HOLD | `src/logic/drizzle/**`・`drizzleExperienceGate.ts`、`src/preview/DrizzleLab.tsx`・`src/main.tsx` | M7 は液体の型・軌跡・ジェスチャーを**実装しない**（設計書 §2）。#776 が main に入るまで M7 の実装は始められない（→ #776 は merge 済み。残る前提は B22 の HOT 編集と D2〜D5） |
 | #794〜#796（U1〜U3 工程） | Issue のみ・claim なし | 生地・天板／PREP・FRY／ENCLOSE 等 | detroit-style は M1・M2（U1）待ち。buffalo／hot-honey は無関係 |
 | T-FX（staged、〜11/21） | 有効 | `src/data/staged/**` | B22 merge 後の基準値更新は T-FX |
 
