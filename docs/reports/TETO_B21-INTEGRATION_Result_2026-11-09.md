@@ -6,7 +6,7 @@
 
 | PR | 中身 | HEAD | 状態 |
 |---|---|---|---|
-| **#797**（別 session） | B21／B22 の新食材 13 種の専用 SVG（**未配線**）、食材全量計画・台帳・Q 一覧の docs（10 ファイル） | `880fd9a5` | CI 全通過（6 件中 success 4・skipped 2）、Codex 指摘なし。**#798／#799 と変更ファイルの重なりなし** |
+| **#797**（別 session） | B21／B22 の新食材 13 種の専用 SVG（**未配線**）、食材全量計画・台帳・Q 一覧の docs（10 ファイル） | `880fd9a5` | CI 全通過（6 件中 success 4・skipped 2）、Codex 指摘なし。**#798 とは変更ファイルの重なりなし。#799 とは `src/components/stagedGlyphs/**`（#799 がコピーを持つ。`StagedGlyphs.test.tsx` は #799 が変更）が共有ファイル**＝#797 を先に merge する必要がある理由 |
 | **#799**（別 session） | **B21 のコード正本**: late カタログに 2 レシピ・6 食材、golden・pin・staged の最小編集、`expansionBatch21.test.ts`、E2E、**lettuce／cabbage の専用 SVG の配線**（`IngredientGlyph.tsx`・`ingredients.ts` の `pieceVisual`）。**#797 の `stagedGlyphs/**` のコピーを含む** | `ce22ad9e` | CI 実行中。Codex は前 HEAD `dacbfefc` で指摘なし |
 | **#798**（本 session） | 当初は B21 のコードも含んでいたが、**二重実装の解消のためコードを取り除いた**（`a3e37f6f`）。残り: 計画・台帳・Q 一覧・重複／D-ING-1／M7 の設計、デザート 6 種の未配線 SVG、本書（29 ファイル、`src` は `dessertGlyphs/` のみ） | `a3e37f6f` | CI 実行中 |
 
