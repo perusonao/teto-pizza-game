@@ -158,6 +158,10 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ...(lateCatalogEnabled()
     ? ([["soy-sauce", 77, "T4", 1, 10, 120, 60], ["wasabi", 77, "T4", 1, 10, 120, 60], ["cod-roe", 78, "T4", 2, 20, 120, 60], ["fresh-cream-sauce", 78, "T4", 1, 10, 120, 60], ["nori", 78, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
+  // Expansion Batch 21 (#780): the late step 79 sells the cheddar (k=2), the lettuce (k=2) and the tortilla-chips (k=2); the late step 80 the okonomiyaki-sauce (a sauce: k=1), the cabbage (k=3) and the bonito-flakes (k=2); T4 pack 120 / refill 60
+  ...(lateCatalogEnabled()
+    ? ([["cheddar", 79, "T4", 2, 20, 120, 60], ["lettuce", 79, "T4", 2, 20, 120, 60], ["tortilla-chips", 79, "T4", 2, 20, 120, 60], ["okonomiyaki-sauce", 80, "T4", 1, 10, 120, 60], ["cabbage", 80, "T4", 3, 30, 120, 60], ["bonito-flakes", 80, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
+    : []),
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -315,7 +319,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(29)).toEqual({ discoveriesNeeded: 1, step: 30 });
     expect(nextMaterialHint(30)).toEqual({ discoveriesNeeded: 1, step: 31 });
     expect(nextMaterialHint(31)).toEqual({ discoveriesNeeded: 1, step: 32 });
-    const last = 71 + (lateCatalogEnabled() ? 7 : 0); // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step; BBQ Chicken: + the bbq-sauce / cilantro late step
+    const last = 71 + (lateCatalogEnabled() ? 9 : 0); // Expansion Batch 21: + the taco and okonomiyaki late steps; // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step; BBQ Chicken: + the bbq-sauce / cilantro late step
     for (let n = 32; n < last; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
     expect(nextMaterialHint(last)).toBeNull();
     expect(nextMaterialHint(last)).toBeNull();

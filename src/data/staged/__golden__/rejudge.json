@@ -1,7 +1,7 @@
 {
- "blockingDependencies": 400,
+ "blockingDependencies": 397,
  "byVerdict": {
-  "AUTO_RESOLVED": 11,
+  "AUTO_RESOLVED": 8,
   "RULE_DECIDED_WORK": 2,
   "DUPLICATE_COUNT": 24,
   "WAITS_MECHANIC": 58,
@@ -11,7 +11,7 @@
   "EXCEPTION_NEEDED": 76,
   "OWNER_DECISION": 103
  },
- "autoResolved": 11,
+ "autoResolved": 8,
  "byKind": {
   "DUPLICATE_GATE": {
    "AXIS_CONDITIONAL": 17,
@@ -27,7 +27,7 @@
    "WAITS_MECHANIC": 58
   },
   "OWNER_RULE": {
-   "AUTO_RESOLVED": 9,
+   "AUTO_RESOLVED": 7,
    "RULE_DECIDED_WORK": 2,
    "WAITS_IN_FLIGHT": 1,
    "AXIS_CONDITIONAL": 13,
@@ -38,7 +38,6 @@
    "DUPLICATE_COUNT": 24
   },
   "UNRESOLVED_TOKEN": {
-   "AUTO_RESOLVED": 1,
    "WAITS_IN_FLIGHT": 1,
    "OWNER_DECISION": 19
   }
@@ -64,11 +63,10 @@
    "OWNER_DECISION": 14
   },
   "R-6": {
-   "AUTO_RESOLVED": 2,
+   "AUTO_RESOLVED": 1,
    "OWNER_DECISION": 9
   },
   "R-7": {
-   "AUTO_RESOLVED": 1,
    "WAITS_IN_FLIGHT": 1,
    "OWNER_DECISION": 16
   },
@@ -485,15 +483,8 @@
    "pizza-baiana": 11
   }
  },
- "recipesFullyRuleResolvable": [
-  "taco-pizza",
-  "okonomiyaki-style-pizza"
- ],
+ "recipesFullyRuleResolvable": [],
  "recipesNoOwnerDecisionLeft": [
-  {
-   "id": "taco-pizza",
-   "waits": []
-  },
   {
    "id": "ny-style",
    "waits": [
@@ -508,10 +499,6 @@
     "AXIS_CONDITIONAL",
     "MECHANIC:DOUGH_VARIANT"
    ]
-  },
-  {
-   "id": "okonomiyaki-style-pizza",
-   "waits": []
   },
   {
    "id": "piadina-romagnola",
@@ -656,11 +643,6 @@
     "EXCEPTION_NEEDED:DUPLICATE_GATE:SUPERSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
-  },
-  {
-   "id": "taco-pizza",
-   "proposals": [],
-   "open": []
   },
   {
    "id": "trenton-tomato-pie",
@@ -839,13 +821,6 @@
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged"
    ]
-  },
-  {
-   "id": "okonomiyaki-style-pizza",
-   "proposals": [
-    "R-7: 「青のり」 -> nori"
-   ],
-   "open": []
   },
   {
    "id": "caponata-pizza",

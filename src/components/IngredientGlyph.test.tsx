@@ -65,6 +65,8 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "artichoke-quarter",
   "burrata-torn-ball",
   "walnut-kernel",
+  "lettuce-leaf",
+  "cabbage-shreds",
 ];
 /** The original 32x32 visuals; Ingredient Icons 2.0 visuals are 64x64 (Style Lock v2 §4.2). */
 const LEGACY_32: readonly DedicatedIngredientVisual[] = ["tomato-slice", "caper-cluster", "clam-valve"];
@@ -115,7 +117,9 @@ const HERB_DEDICATED: Record<string, DedicatedIngredientVisual> = { rosemary: "r
 const B19_DEDICATED: Record<string, DedicatedIngredientVisual> = { burrata: "burrata-torn-ball" };
 /** Expansion Batch 20-A (#790): walnut's dedicated kernel art (the unwired #777 component, wired unchanged). */
 const B20A_DEDICATED: Record<string, DedicatedIngredientVisual> = { walnut: "walnut-kernel" };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B20A_DEDICATED, ...B19_DEDICATED, ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
+/** Expansion Batch 21 (#780, Owner 2026-11-09): lettuce / cabbage draw the dedicated #797 art (src/components/stagedGlyphs/, PROVISIONAL). */
+const B21_DEDICATED: Record<string, DedicatedIngredientVisual> = { lettuce: "lettuce-leaf", cabbage: "cabbage-shreds" };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B21_DEDICATED, ...B20A_DEDICATED, ...B19_DEDICATED, ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 

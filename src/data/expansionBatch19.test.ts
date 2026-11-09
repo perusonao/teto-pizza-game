@@ -159,8 +159,8 @@ describe("ordinary step 70 and the late steps", () => {
   });
   it("the late steps follow at 72-78 (derived; +1 again by Expansion Batch 20-A's ordinary step 71) and the late floors are unchanged", () => {
     const late = steps.slice(71);
-    expect(late.map((s) => s.step)).toEqual([72, 73, 74, 75, 76, 77, 78]);
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 });
+    expect(late.map((s) => s.step)).toEqual([72, 73, 74, 75, 76, 77, 78, 79, 80]);
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80 });
     expect(LATE_RECIPES.length).toBeGreaterThan(0);
   });
   it("the batch manifest is LANDED and consistent: appended tail, append-only ladder, chapter / cohort identity, explicit declarations", () => {
@@ -287,7 +287,7 @@ const B19_APPROVED_ALTERNATE_ORDER_LETTER_CHANGES: readonly string[] = [
   "baingan-bharta-pizza",
 ];
 describe("Research labels BEFORE vs AFTER Batch 19 across acquisition orders (AC-8, P2): the exact audited scope, individually Owner-approved (20 IDs)", () => {
-  const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as readonly Recipe[]);
+  const changes = researchLetterChangesAcrossOrders(NEW_IDS, (RECIPES as readonly Recipe[]).filter((r) => r.id !== "taco-pizza" && r.id !== "okonomiyaki-style-pizza")); // Expansion Batch 21 (#780) is a LATER batch: its two recipes are left out so this stays the Batch 19 before/after comparison (the Batch 21 audit is in expansionBatch21.test.ts)
   it("the canonical ladder order changes no pre-existing letter (the full late catalog included)", () => {
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
   });

@@ -1,5 +1,5 @@
 {
- "targets": 84,
+ "targets": 82,
  "notTarget": [],
  "rows": [
   {
@@ -36,11 +36,6 @@
    "id": "sfincione",
    "target": true,
    "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "taco-pizza",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "trenton-tomato-pie",
@@ -126,11 +121,6 @@
    "id": "old-forge-style-pizza",
    "target": true,
    "rungs": "SAUCE,STRUCTURE,SUB_CLASS"
-  },
-  {
-   "id": "okonomiyaki-style-pizza",
-   "target": true,
-   "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "caponata-pizza",

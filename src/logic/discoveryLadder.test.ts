@@ -462,6 +462,10 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // cilantro's step (read-only, no numbers of their own). Reached only from ../preview/hvSeeds.ts `applyPreviewHvSeed` (behind
       // `import.meta.env.VITE_PREVIEW_MODE`); ../preview/previewIsolation.gate.test.ts proves a production bundle contains none of it.
       "../preview/b18HvSeeds.ts",
+      // Expansion Batch 21 (#780): the Preview-only B21 HV seeds (`?hv=b21-taco` / `?hv=b21-okonomiyaki`, the B18 approach) read the ladder to find the
+      // materials before the six B21 materials (read-only, no numbers of their own). Reached only from ../preview/hvSeeds.ts `applyPreviewHvSeed`
+      // (behind `import.meta.env.VITE_PREVIEW_MODE`); ../preview/previewIsolation.gate.test.ts proves a production bundle contains none of it.
+      "../preview/b21HvSeeds.ts",
       // Hint 5.0 H5-5: the Preview-only Human Verification seeds read the ladder to build a valid Dex and
       // material set for their target recipe (read-only, no numbers of their own). ../main.tsx calls
       // them only behind `import.meta.env.VITE_PREVIEW_MODE`, and ../preview/previewIsolation.gate.test.ts

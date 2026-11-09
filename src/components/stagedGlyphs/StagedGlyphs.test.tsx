@@ -46,12 +46,16 @@ describe("staged glyphs B21/B22 (unwired, PROVISIONAL)", () => {
     expect(contrast(p.outline, "#f1dcae")).toBeGreaterThan(3);
   });
 
-  it("visual ids do not collide with any visual id already known to IngredientGlyph.tsx", () => {
+  it("only lettuce-leaf and cabbage-shreds are wired into IngredientGlyph.tsx (Owner 2026-11-09, #799); the other eleven visual ids are still unknown to it", () => {
     const src = readFileSync(join(__dirname, "..", "IngredientGlyph.tsx"), "utf8");
-    for (const id of STAGED_GLYPH_IDS) expect(src).not.toContain(`"${id}"`);
+    const WIRED = ["lettuce-leaf", "cabbage-shreds"];
+    for (const id of STAGED_GLYPH_IDS) {
+      if (WIRED.includes(id)) expect(src).toContain(`"${id}"`);
+      else expect(src).not.toContain(`"${id}"`);
+    }
   });
 
-  it("stays unwired: no production source outside this directory imports it", () => {
+  it("stays unwired except for IngredientGlyph.tsx: no other production source imports it", () => {
     const root = join(__dirname, "..", "..");
     const walk = (dir: string): string[] =>
       readdirSync(dir).flatMap((n) => {
@@ -59,7 +63,7 @@ describe("staged glyphs B21/B22 (unwired, PROVISIONAL)", () => {
         return statSync(p).isDirectory() ? walk(p) : /\.(ts|tsx)$/.test(n) ? [p] : [];
       });
     const offenders = walk(root).filter(
-      (f) => !f.includes("stagedGlyphs") && /stagedGlyphs/.test(readFileSync(f, "utf8")) && !/\.test\.tsx?$/.test(f),
+      (f) => !f.includes("stagedGlyphs") && !f.endsWith("components/IngredientGlyph.tsx") && /from\s+["'][^"']*stagedGlyphs/.test(readFileSync(f, "utf8")) && !/\.test\.tsx?$/.test(f),
     );
     expect(offenders).toEqual([]);
   });
