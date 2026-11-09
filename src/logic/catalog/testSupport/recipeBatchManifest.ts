@@ -244,7 +244,7 @@ export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH
 export const PINSA_ROMANA_BATCH: RecipeBatchManifest = {
   batchId: "pinsa-romana",
   status: "landed",
-  afterRecipeId: "tarako-cream-pizza", // (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza.) (New Sauces Phase B U1 / U2 / U3 and BBQ Chicken: yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza and bbq-chicken-pizza are appended after ikura, before Pinsa, so Pinsa stays the last late recipe)
+  afterRecipeId: "okonomiyaki-style-pizza", // (Expansion Batch 21: taco-pizza and okonomiyaki-style-pizza are appended after tarako-cream-pizza.) (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza.) (New Sauces Phase B U1 / U2 / U3 and BBQ Chicken: yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza and bbq-chicken-pizza are appended after ikura, before Pinsa, so Pinsa stays the last late recipe)
   recipes: [{ recipeId: "pinsa-romana", keyIngredientId: "arugula", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
   acceptedLetterShifts: { "jamon-serrano-pizza": "-->B" },
 };
@@ -260,7 +260,7 @@ export const YUZU_SHRIMP_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "ikura-salmon-pizza",
   recipes: [{ recipeId: "yuzu-shrimp-pizza", keyIngredientId: "yuzu-kosho", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza are appended after yuzu-shrimp-pizza)
+  followedBy: ["eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza are appended after yuzu-shrimp-pizza)
 };
 
 /**
@@ -274,7 +274,7 @@ export const EGGPLANT_DENGAKU_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "yuzu-shrimp-pizza",
   recipes: [{ recipeId: "eggplant-dengaku-pizza", keyIngredientId: "white-sesame", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U3 / BBQ Chicken: eggplant-tahini-pizza and bbq-chicken-pizza are appended after eggplant-dengaku-pizza)
+  followedBy: ["eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U3 / BBQ Chicken: eggplant-tahini-pizza and bbq-chicken-pizza are appended after eggplant-dengaku-pizza)
 };
 
 /**
@@ -288,7 +288,7 @@ export const EGGPLANT_TAHINI_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "eggplant-dengaku-pizza",
   recipes: [{ recipeId: "eggplant-tahini-pizza", keyIngredientId: "pomegranate", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (BBQ Chicken is appended after eggplant-tahini-pizza)
+  followedBy: ["bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (BBQ Chicken is appended after eggplant-tahini-pizza)
 };
 
 /**
@@ -303,7 +303,7 @@ export const BBQ_CHICKEN_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "eggplant-tahini-pizza",
   recipes: [{ recipeId: "bbq-chicken-pizza", keyIngredientId: "bbq-sauce", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza)
+  followedBy: ["wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza)
 };
 
 /**
@@ -318,6 +318,21 @@ export const LATE4_BATCH: RecipeBatchManifest = {
   recipes: [
     { recipeId: "wasabi-beef-pizza", keyIngredientId: "wasabi", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "tarako-cream-pizza", keyIngredientId: "nori", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+  ],
+  followedBy: ["taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 21 is appended after tarako-cream-pizza)
+};
+
+/**
+ * Expansion Batch 21 (Issue #780, B21 / RB-01; Owner approval 2026-11-09; PROVISIONAL SPEC, original pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION): `taco-pizza` and `okonomiyaki-style-pizza`, evaluated by `lateCatalog.b21.test.ts` over the full catalog.
+ * Both are credited, each with its own late ladder step (after the late4 steps); the Research cohort keys are `tortilla-chips` and `bonito-flakes` (the last material of each step), single-member cohorts in the canonical order, so no existing recipe changes its Research letter there.
+ */
+export const B21_BATCH: RecipeBatchManifest = {
+  batchId: "expansion-batch-21",
+  status: "landed",
+  afterRecipeId: "tarako-cream-pizza",
+  recipes: [
+    { recipeId: "taco-pizza", keyIngredientId: "tortilla-chips", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "okonomiyaki-style-pizza", keyIngredientId: "bonito-flakes", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
   followedBy: pinsaEnabled() ? ["pinsa-romana"] : [],
 };

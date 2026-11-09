@@ -18,8 +18,20 @@ export const IN_FLIGHT_RECIPE_IDS: Readonly<Record<string, string>> = {
   "pesto-burrata-pizza": "PR #783",
   "pizza-alla-crudaiola": "PR #783",
   "pesto-noci-pizza": "B20-A",
+  "taco-pizza": "B21",
+  "okonomiyaki-style-pizza": "B21",
 };
-export const IN_FLIGHT_INGREDIENT_IDS: Readonly<Record<string, string>> = { burrata: "PR #783", honey: "B20-A", walnut: "B20-A" };
+export const IN_FLIGHT_INGREDIENT_IDS: Readonly<Record<string, string>> = {
+  burrata: "PR #783",
+  honey: "B20-A",
+  walnut: "B20-A",
+  cheddar: "B21",
+  lettuce: "B21",
+  "tortilla-chips": "B21",
+  "okonomiyaki-sauce": "B21",
+  cabbage: "B21",
+  "bonito-flakes": "B21",
+};
 
 export const STAGED_ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 

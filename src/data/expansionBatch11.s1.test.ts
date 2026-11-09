@@ -109,7 +109,7 @@ describe("the two ordinary steps (62 and 63), derived by the REC-04 rule", () =>
     const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
     expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual([72, 73, 74, 75, 76, 77, 78]); // (Expansion Batch 20-A, #790: the ordinary step 71 moved the derived late numbers +1 again) // (Expansion Batch 19, #774: the ordinary step 70 moved the derived late numbers +1 again)
     // // (Expansion Batch 18 inserted the ordinary step 69: the derived late numbers moved +1 again; Expansion Batch 17 inserted the ordinary step 68: the derived late numbers moved +1 again; Expansion Batch 16 inserted the ordinary step 67: the derived late numbers moved +1; the fixed floors did not)
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68 });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, cheddar: 79, lettuce: 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, cabbage: 80, "bonito-flakes": 80 });
   });
 });
 

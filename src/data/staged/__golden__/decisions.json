@@ -1,7 +1,7 @@
 {
- "dependencies": 376,
+ "dependencies": 373,
  "byStatus": {
-  "RESOLVED": 33,
+  "RESOLVED": 30,
   "WORK": 9,
   "SOURCE_RESEARCH": 22,
   "CANDIDATE_PENDING": 12,
@@ -13,7 +13,7 @@
   "OWNER_DECISION": 40
  },
  "byDecision": {
-  "rule": 13,
+  "rule": 10,
   "D-1": 76,
   "D-2": 22,
   "D-3": 12,
@@ -30,8 +30,6 @@
  "needsResearchOrConfirmation": 34,
  "nextPromotable": {
   "ready": [
-   "taco-pizza",
-   "okonomiyaki-style-pizza",
    "pizza-finocchi-salad",
    "pizza-cavolo-carote",
    "pizza-radicchio-noci",

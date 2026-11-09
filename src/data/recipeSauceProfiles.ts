@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce" | "soy-sauce" | "fresh-cream-sauce" | "umeboshi-paste" | "sour-cream";
+  ingredientId: "tomato-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce" | "soy-sauce" | "fresh-cream-sauce" | "umeboshi-paste" | "sour-cream" | "okonomiyaki-sauce";
   interaction: SauceInteractionKind;
 }
 
@@ -405,6 +405,9 @@ export const RECIPE_SAUCE_PROFILES = {
   // PR-2 late4 (late catalog): the sauces are painted before the bake (GAMEPLAY ASSUMPTION, not confirmed by the original).
   "wasabi-beef-pizza": { recipeId: "wasabi-beef-pizza", ingredientId: "soy-sauce", interaction: "PAINT" },
   "tarako-cream-pizza": { recipeId: "tarako-cream-pizza", ingredientId: "fresh-cream-sauce", interaction: "PAINT" },
+  // Expansion Batch 21 (late catalog): taco-pizza paints the shipped tomato-sauce; okonomiyaki-style-pizza paints the new okonomiyaki-sauce (GAMEPLAY ASSUMPTION, not confirmed by the original).
+  "taco-pizza": { recipeId: "taco-pizza", ingredientId: "tomato-sauce", interaction: "PAINT" },
+  "okonomiyaki-style-pizza": { recipeId: "okonomiyaki-style-pizza", ingredientId: "okonomiyaki-sauce", interaction: "PAINT" },
   "eggplant-dengaku-pizza": {
     recipeId: "eggplant-dengaku-pizza",
     ingredientId: "miso-sauce",

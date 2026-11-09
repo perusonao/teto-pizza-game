@@ -18,7 +18,7 @@ describe("Staged Catalog — re-judgement under the provisional blanket rules (I
     const dup = stagedDuplicateGate(SHIPPED);
     const blocking = STAGED_RECIPES.reduce((n, r) => n + stagedDependencies(r, dup[r.id], undefined, SHIPPED.ingredientIds).filter(isBlocking).length, 0);
     expect(all).toHaveLength(blocking);
-    expect(STAGED_RECIPES).toHaveLength(84);
+    expect(STAGED_RECIPES).toHaveLength(82); // (Expansion Batch 21 shipped taco-pizza and okonomiyaki-style-pizza from the 84)
   });
 
   it.skipIf(!pinsaEnabled())("measured verdicts, duplicate types, exceptions and the parallel mechanic plan (golden)", async () => {

@@ -70,11 +70,11 @@ describe("ON: the ordinary catalog followed by the ikura content", () => {
     const off = await load(false);
     const on = await load(true);
     // (New Sauces Phase B U1: yuzu-shrimp-pizza follows ikura, before pinsa-romana, so Pinsa stays the last late recipe; asserted on its own in lateCatalog.yuzu.test.ts)
-    expect(on.recipes.RECIPES.map((r) => r.id)).toEqual([...off.recipes.RECIPES.map((r) => r.id), IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
+    expect(on.recipes.RECIPES.map((r) => r.id)).toEqual([...off.recipes.RECIPES.map((r) => r.id), IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
     expect(JSON.stringify(on.recipes.RECIPES.slice(0, off.recipes.RECIPES.length))).toBe(JSON.stringify(off.recipes.RECIPES));
-    expect(on.ingredients.INGREDIENTS.slice(off.ingredients.INGREDIENTS.length).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate", "bbq-sauce", "soy-sauce", "wasabi", "cod-roe", "fresh-cream-sauce", "nori"]); // the late ingredients, in authored order
+    expect(on.ingredients.INGREDIENTS.slice(off.ingredients.INGREDIENTS.length).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate", "bbq-sauce", "soy-sauce", "wasabi", "cod-roe", "fresh-cream-sauce", "nori", "cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes"]); // the late ingredients, in authored order
     expect(on.ingredients.STARTER_INGREDIENT_IDS).toEqual(off.ingredients.STARTER_INGREDIENT_IDS);
-    expect(on.orders.ORDERS.slice(off.orders.ORDERS.length).map((o) => o.recipeId)).toEqual([IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // (pinsa-romana follows them while its own gate is open)
+    expect(on.orders.ORDERS.slice(off.orders.ORDERS.length).map((o) => o.recipeId)).toEqual([IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]); // (pinsa-romana follows them while its own gate is open)
     expect(on.taxonomy.ingredientAttributeFamily("salmon-roe")).toBe("seafood");
     expect(on.sizes.TOPPING_SIZE_CLASS_BY_ID["salmon-roe"]).toBe("xs");
   });
@@ -84,7 +84,7 @@ describe("ON: the ordinary catalog followed by the ikura content", () => {
     const on = await load(true);
     const offSteps = off.ladder.DISCOVERY_LADDER.steps;
     const onSteps = on.ladder.DISCOVERY_LADDER.steps;
-    expect(onSteps).toHaveLength(offSteps.length + 7); // PR-2 late4: + the soy-sauce / wasabi and cod-roe / fresh-cream-sauce / nori late steps; New BBQ Chicken (#611): + the bbq-sauce / cilantro late step;  Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step
+    expect(onSteps).toHaveLength(offSteps.length + 9); // PR-2 late4: + the soy-sauce / wasabi and cod-roe / fresh-cream-sauce / nori late steps; New BBQ Chicken (#611): + the bbq-sauce / cilantro late step;  Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step
     expect(JSON.stringify(onSteps.slice(0, offSteps.length))).toBe(JSON.stringify(offSteps));
     const late = onSteps[offSteps.length];
     expect(late).toMatchObject({ ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });

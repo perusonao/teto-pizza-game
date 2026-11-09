@@ -68,13 +68,13 @@ function reachableLedgers(recipeId: string): string[][] {
 describe("section 4.1: M-1..M-3 agree with every reachable state of the real old ladder (51 key-free recipes)", () => {
   it("the population is the 64 key-free recipes: sauce + cheese 32, sauce only 10 (Expansion Batch 18: + baingan-bharta-pizza (curry-ketchup sauce + mozzarella) and reina-pepiada-pizza (fromage-blanc-sauce + mozzarella) in sauce + cheese; Expansion Batch 17: + goulash-pizza (sour-cream sauce, no cheese) in sauce only; Expansion Batch 16: + ume-shiso-pizza (umeboshi-paste + mozzarella) in sauce + cheese; Expansion Batch 15: + nigerian-suya-pizza in cheese only; Expansion Batch 14: + moussaka-style-pizza (fromage-blanc-sauce + feta) in sauce + cheese; Expansion Batch 13: + potato-mayo-pizza in cheese only; B12: + jamaican-jerk-chicken-pizza in cheese only; Expansion Batch 12: + pizza-alla-norma (tomato-sauce + ricotta-salata) in sauce + cheese and + supreme-pizza (tomato-sauce, no cheese) in sauce only; B11 S1: + boscaiola and pescatore; PR-2 late4: + wasabi-beef-pizza and tarako-cream-pizza; BBQ Chicken #611: + bbq-chicken-pizza; Expansion Batch 10 PR-1: + five sauce + cheese recipes; Square Dough E-2: + grandma-pizza; New Sauces Phase B U1: + yuzu-shrimp-pizza; U2: + eggplant-dengaku-pizza), cheese only 19 (E5: + ikura-salmon-pizza; B11 S1: + porcini-pizza, NO_SAUCE), sauce only 8 (New Sauces Phase B U3: + eggplant-tahini-pizza)", () => {
     const extra = pinsaEnabled() ? 1 : 0; // Pinsa Romana (#577 P3-b): a sauce + cheese key-free recipe, like jamon, while its gate is open
-    expect(KEY_FREE_RECIPES).toHaveLength(67 + extra); // Expansion Batch 20-A: + pesto-noci-pizza (pesto + honey sauces, gorgonzola), a sauce + cheese recipe; Expansion Batch 19: + pesto-burrata-pizza (pesto + olive-oil sauces, burrata) and pizza-alla-crudaiola (tomato-sauce + olive-oil sauces, mozzarella + burrata), each a sauce + cheese recipe; Expansion Batch 18: + baingan-bharta-pizza and reina-pepiada-pizza (each a sauce + cheese recipe); Expansion Batch 17: + goulash-pizza (sour-cream sauce, no cheese: sauce only); Expansion Batch 16: + ume-shiso-pizza (umeboshi-paste sauce + mozzarella, sauce + cheese); Expansion Batch 15: + nigerian-suya-pizza (NO_SAUCE, cheese only)
+    expect(KEY_FREE_RECIPES).toHaveLength(69 + extra); // Expansion Batch 21: + taco-pizza (tomato-sauce + cheddar, a sauce + cheese recipe) and okonomiyaki-style-pizza (a sauce-only recipe); Expansion Batch 20-A: + pesto-noci-pizza (pesto + honey sauces, gorgonzola), a sauce + cheese recipe; Expansion Batch 19: + pesto-burrata-pizza (pesto + olive-oil sauces, burrata) and pizza-alla-crudaiola (tomato-sauce + olive-oil sauces, mozzarella + burrata), each a sauce + cheese recipe; Expansion Batch 18: + baingan-bharta-pizza and reina-pepiada-pizza (each a sauce + cheese recipe); Expansion Batch 17: + goulash-pizza (sour-cream sauce, no cheese: sauce only); Expansion Batch 16: + ume-shiso-pizza (umeboshi-paste sauce + mozzarella, sauce + cheese); Expansion Batch 15: + nigerian-suya-pizza (NO_SAUCE, cheese only)
     const klass = (r: Recipe) => `${hasCategory(r, "sauce") ? "sauce" : ""}+${hasCategory(r, "cheese") ? "cheese" : ""}`;
     const count = (k: string) => KEY_FREE_RECIPES.filter((r) => klass(r) === k).length;
     expect({ both: count("sauce+cheese"), cheeseOnly: count("+cheese"), sauceOnly: count("sauce+"), neither: count("+") }).toEqual({
-      both: 35 + extra,
+      both: 36 + extra, // (Expansion Batch 21: + taco-pizza)
       cheeseOnly: 22,
-      sauceOnly: 10,
+      sauceOnly: 11, // (Expansion Batch 21: + okonomiyaki-style-pizza)
       neither: 0,
     });
   });
@@ -98,7 +98,7 @@ describe("section 4.1: M-1..M-3 agree with every reachable state of the real old
         }
       }
     }
-    expect(partials).toBe(35 + (pinsaEnabled() ? 1 : 0)); // (Expansion Batch 20-A: + pesto-noci-pizza) (Expansion Batch 19: + pesto-burrata-pizza and pizza-alla-crudaiola) (Expansion Batch 18: + baingan-bharta-pizza and reina-pepiada-pizza) one partial state per sauce + cheese recipe (Expansion Batch 16: + ume-shiso-pizza)
+    expect(partials).toBe(36 + (pinsaEnabled() ? 1 : 0)); // (Expansion Batch 21: + taco-pizza) (Expansion Batch 20-A: + pesto-noci-pizza) (Expansion Batch 19: + pesto-burrata-pizza and pizza-alla-crudaiola) (Expansion Batch 18: + baingan-bharta-pizza and reina-pepiada-pizza) one partial state per sauce + cheese recipe (Expansion Batch 16: + ume-shiso-pizza)
   });
 
   it("single-marker recipes (cheese only, sauce only) can never be PARTIAL", () => {

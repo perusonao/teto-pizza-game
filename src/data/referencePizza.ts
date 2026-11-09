@@ -4674,6 +4674,38 @@ export const TARAKO_CREAM_PIZZA_REFERENCE: ReferencePizza = {
 };
 
 /**
+ * Expansion Batch 21 (Issue #780, late catalog): Reference Truth for `taco-pizza` (cheddar 2 / beef 3 / fresh-tomato 2 / lettuce 2 + tortilla-chips 2 POST_BAKE; the PAINT sauce is not a piece). 11 non-sauce pieces: more than the 8-slot ring, so the RT-01 multi-ring layout
+ * (`assignReferenceSlots`, interleaved) is used, like `pizza-portuguesa`. Post-bake pieces use the same slots, like `ikura-salmon-pizza`. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const TACO_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "taco-pizza",
+  sauce: computeMechanicalSauceReference("taco-pizza"),
+  pieceGroups: [
+    { ingredientId: "cheddar", positions: [{ x: 50, y: 22 }, { x: 40.42, y: 76.31 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "beef", positions: [{ x: 68, y: 28.55 }, { x: 25.75, y: 64 }, { x: 60, y: 50 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "fresh-tomato", positions: [{ x: 77.57, y: 45.14 }, { x: 22.43, y: 45.14 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "lettuce", positions: [{ x: 74.25, y: 64 }, { x: 32, y: 28.55 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "tortilla-chips", positions: [{ x: 59.58, y: 76.31 }, { x: 40, y: 50 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+  ],
+};
+
+/**
+ * Expansion Batch 21 (Issue #780, late catalog): Reference Truth for `okonomiyaki-style-pizza` (cabbage 3 / pork 3 / mayo 1 / bonito-flakes 2 / nori 1 POST_BAKE; the PAINT sauce is not a piece). 10 non-sauce pieces: more than the 8-slot ring, so the RT-01 multi-ring layout
+ * (`assignReferenceSlots`, interleaved) is used, like `pizza-portuguesa`. Post-bake pieces use the same slots, like `ikura-salmon-pizza`. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION, not source authority.
+ */
+export const OKONOMIYAKI_STYLE_PIZZA_REFERENCE: ReferencePizza = {
+  recipeId: "okonomiyaki-style-pizza",
+  sauce: computeMechanicalSauceReference("okonomiyaki-style-pizza"),
+  pieceGroups: [
+    { ingredientId: "cabbage", positions: [{ x: 50, y: 22 }, { x: 40.42, y: 76.31 }, { x: 22.43, y: 45.14 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "pork", positions: [{ x: 68, y: 28.55 }, { x: 25.75, y: 64 }, { x: 50, y: 50 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "mayo", positions: [{ x: 77.57, y: 45.14 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "bonito-flakes", positions: [{ x: 74.25, y: 64 }, { x: 32, y: 28.55 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+    { ingredientId: "nori", positions: [{ x: 59.58, y: 76.31 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
+  ],
+};
+
+/**
  * Batch 7a: Reference Truth for `new-zealand-lamb-pizza` (NO_SAUCE: `sauce: null`, the `aussie` shape). Pieces (mozzarella 2 / rosemary 1 / lamb 3 / sweet-potato 2 = 8) take
  * the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
  * not source authority.
@@ -5505,6 +5537,8 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [PESTO_NOCI_PIZZA_REFERENCE.recipeId, PESTO_NOCI_PIZZA_REFERENCE],
   [WASABI_BEEF_PIZZA_REFERENCE.recipeId, WASABI_BEEF_PIZZA_REFERENCE],
   [TARAKO_CREAM_PIZZA_REFERENCE.recipeId, TARAKO_CREAM_PIZZA_REFERENCE],
+  [TACO_PIZZA_REFERENCE.recipeId, TACO_PIZZA_REFERENCE],
+  [OKONOMIYAKI_STYLE_PIZZA_REFERENCE.recipeId, OKONOMIYAKI_STYLE_PIZZA_REFERENCE],
   [EGGPLANT_DENGAKU_PIZZA_REFERENCE.recipeId, EGGPLANT_DENGAKU_PIZZA_REFERENCE],
   [PINSA_ROMANA_REFERENCE.recipeId, PINSA_ROMANA_REFERENCE],
 ]);

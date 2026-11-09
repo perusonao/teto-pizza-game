@@ -42,9 +42,9 @@ for m_ in re.finditer(r'id: "([a-z0-9-]+)",\n\s+category: "(sauce|cheese|topping
     SHIPPED_CAT[m_.group(1)] = m_.group(2)
 SHIPPED_RECIPE_IDS = set(rj["summary"]["auditedRecipeIds"])
 
-IN_FLIGHT = {"pesto-burrata-pizzadb-p12": "#783", "pizza-alla-crudaiola-pizzadb-p8": "#783", "pesto-noci-pizzadb-p12": "B20-A"}
-RESERVED_RECIPE_IDS = {"pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"}
-RESERVED_ING_IDS = {"burrata": "#783", "honey": "B20-A", "walnut": "B20-A"}
+IN_FLIGHT = {"pesto-burrata-pizzadb-p12": "#783", "pizza-alla-crudaiola-pizzadb-p8": "#783", "pesto-noci-pizzadb-p12": "B20-A", "taco-pizza-pizzadb": "B21", "okonomiyaki-style-pizza-pizzadb-p1": "B21"}
+RESERVED_RECIPE_IDS = {"pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "taco-pizza", "okonomiyaki-style-pizza"}
+RESERVED_ING_IDS = {"burrata": "#783", "honey": "B20-A", "walnut": "B20-A", "cheddar": "B21", "lettuce": "B21", "tortilla-chips": "B21", "okonomiyaki-sauce": "B21", "cabbage": "B21", "bonito-flakes": "B21"}
 
 # kind / family / provisional category for every candidate (manual, mirrors plan appendix B)
 KIND = {

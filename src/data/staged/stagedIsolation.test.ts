@@ -50,6 +50,6 @@ describe("Staged Catalog isolation (E0)", () => {
     expect(STAGED_RECIPES.filter((r) => recipeIds.has(r.id)).map((r) => r.id)).toEqual([]);
     expect(STAGED_INGREDIENTS.filter((i) => ingIds.has(i.id)).map((i) => i.id)).toEqual([]);
     // The ledger (catalogLedger.test.ts) is untouched; this is only a cross-check that staging changed no total.
-    expect(CATALOG_COUNTS.ingredients).toBe(100); // (Expansion Batch 20-A, #790: + honey and walnut; was 98)
+    expect(CATALOG_COUNTS.ingredients).toBe(106); // (Expansion Batch 21, #780: + 6 late materials; was 100) // (Expansion Batch 20-A, #790: + honey and walnut; was 98)
   });
 });

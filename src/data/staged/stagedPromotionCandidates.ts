@@ -1,4 +1,6 @@
 /**
+ * PROMOTED (Expansion Batch 21, Owner approval 2026-11-09): the shipped data in src/data/lateCatalog.ts equals this dossier (pinned by stagedPromotion.firstTrain.test.ts); the only deviations are the text fallback of lettuce (🥙) and cabbage (🥘), because the approved 🪴 / 🥬 are the Hint 5.0 family symbols (G18), and the family of tortilla-chips (`vegetable`, not `other`, which the DH4-PROD gate OD-DH4-2-9 rejects). Kept as the record of what was approved.
+ *
  * First promotion candidates (Issue #780, Owner D-7 2026-11-08): taco-pizza and okonomiyaki-style-pizza, prepared in the exact shape the
  * late catalog (src/data/lateCatalog.ts) takes, so the promotion PR is a copy of these rows plus the table rows listed in
  * `PROMOTION_TOUCHES`. STAGED ONLY: nothing here is imported by production code, and promoting it (editing HOT catalog files) needs a
@@ -41,10 +43,10 @@ export interface CandidateRecipe {
 
 export const CANDIDATE_INGREDIENTS: readonly CandidateIngredient[] = [
   { id: "cheddar", category: "cheese", nameJa: "チェダーチーズ", color: "#f2a33a", emoji: "\u{1F536}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
-  { id: "lettuce", category: "topping", nameJa: "レタス", color: "#9fd36b", emoji: "\u{1FAB4}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "lettuce", category: "topping", nameJa: "レタス", color: "#9fd36b", emoji: "\u{1F959}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "tortilla-chips", category: "topping", nameJa: "トルティーヤチップス", color: "#e8c25a", emoji: "\u{1F53A}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "okonomiyaki-sauce", category: "sauce", nameJa: "お好み焼きソース", color: "#5a3420", emoji: "\u{1F376}", placement: "spread", unlockCondition: { minTotalStars: 0 } },
-  { id: "cabbage", category: "topping", nameJa: "キャベツ", color: "#c9e3a3", emoji: "\u{1F96C}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "cabbage", category: "topping", nameJa: "キャベツ", color: "#c9e3a3", emoji: "\u{1F958}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "bonito-flakes", category: "topping", nameJa: "かつお節", color: "#c98f5a", emoji: "\u{1FAB6}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
 ];
 
@@ -84,7 +86,7 @@ export const CANDIDATE_RECIPES: readonly CandidateRecipe[] = [
 ];
 
 /** Hint 5.0 families of the new toppings (ingredientTaxonomy rows) and their size classes (toppingSizeClass rows). */
-export const CANDIDATE_TAXONOMY_ROWS = [["lettuce", "vegetable"], ["tortilla-chips", "other"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"]] as const;
+export const CANDIDATE_TAXONOMY_ROWS = [["lettuce", "vegetable"], ["tortilla-chips", "vegetable"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"]] as const;
 export const CANDIDATE_TOPPING_SIZE_CLASS = { lettuce: "m", "tortilla-chips": "m", cabbage: "s", "bonito-flakes": "xs" } as const;
 /** One late ladder step per recipe (its new materials), key-free Hint roles, discovery target ids (= the matrix evidence ids). */
 export const CANDIDATE_LADDER_STEPS = [
