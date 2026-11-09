@@ -1,6 +1,7 @@
 import { ArtichokeQuarter, OreganoPile, RosemarySprigs, SpinachLeaves } from "./herbGlyphs/herbGlyphs";
 import type { DedicatedIngredientVisual, Ingredient } from "../data/ingredients";
 import { WalnutGlyph } from "./walnutGlyph/WalnutGlyph";
+import { StagedGlyph } from "./stagedGlyphs/StagedGlyphs";
 
 /**
  * Production Visual P1: the single entry point for drawing an ingredient's glyph -- every place
@@ -34,6 +35,8 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "ricotta-mound": "0 0 64 64",
   "burrata-torn-ball": "0 0 64 64",
   "walnut-kernel": "0 0 64 64",
+  "lettuce-leaf": "0 0 64 64",
+  "cabbage-shreds": "0 0 64 64",
   "feta-cubes": "0 0 64 64",
   "sausage-slices": "0 0 64 64",
   "hot-dog-slices": "0 0 64 64",
@@ -74,6 +77,8 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
 function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
   // Expansion Batch 20-A (#790): the walnut is the PR #777 `WalnutGlyph` re-used unchanged (it renders its own 64x64 / 1em <svg> with the same `ingredient-glyph ingredient-glyph--<visual>` class and `data-ingredient-visual`, raw state), not wrapped a second time.
   if (visual === "walnut-kernel") return <WalnutGlyph state="raw" />;
+  // Expansion Batch 21 (#780, Owner 2026-11-09): lettuce and cabbage use the dedicated art made unwired in #797 (src/components/stagedGlyphs/, PROVISIONAL), which renders its own 64x64 / 1em <svg> with the same `ingredient-glyph ingredient-glyph--<visual>` class and `data-ingredient-visual`, like the walnut above.
+  if (visual === "lettuce-leaf" || visual === "cabbage-shreds") return <StagedGlyph id={visual} />;
   return (
     <svg
       className={`ingredient-glyph ingredient-glyph--${visual}`}

@@ -537,15 +537,15 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
   },
   /**
    * Expansion Batch 21 (#780): six late-only materials, promoted from the Staged Catalog with the Owner-approved provisional values (Q-3, 2026-11-09): id / nameJa / `color` / `emoji` / placement are GAMEPLAY ASSUMPTIONS (original pizzadb.jp NOT confirmed).
-   * `emoji` is unique in the catalog (G18). No dedicated SVG is wired (the unwired B21 art in src/components/stagedGlyphs/ waits for its own approval), so none carries a `pieceVisual` -- and therefore the emoji IS DISPLAYED (IngredientGlyph renders it as the tray chip / drag preview; Codex P2 on #799, a correction of an earlier wrong comment).
+   * `emoji` is unique in the catalog (G18). `lettuce` and `cabbage` use the dedicated art of #797 (`lettuce-leaf` / `cabbage-shreds`, Owner 2026-11-09, PROVISIONAL), so their emoji is only the text fallback; the other four carry no `pieceVisual` (their dedicated art in src/components/stagedGlyphs/ waits for its own approval), so their emoji IS DISPLAYED as the tray chip / drag preview (Codex P2 on #799).
    * `cheddar` is a cheese (no topping family); `lettuce` / `cabbage` family `vegetable`, `bonito-flakes` `seafood`, `tortilla-chips` `vegetable` (the staged row said `other`, which the DH4-PROD gate OD-DH4-2-9 rejects, measured; `vegetable` follows the `nori` precedent -- PROPOSED, awaiting Owner confirmation).
-   * EMOJI DEVIATION (awaiting Owner confirmation): the Q-3 fallbacks for `lettuce` (🪴) and `cabbage` (🥬) are the Hint 5.0 `herb` / `vegetable` class symbols, which G18 / H5-INV-2 forbid an ingredient to share (measured: hint5Taxonomy.gate and hint5Production.gate fail), so 🍏 / 🪷 are PROPOSED instead. They are VISIBLE to players (no `pieceVisual`), so this is an Owner decision: wire the unwired SVGs (lettuce-leaf / cabbage-shreds) or name another G18-safe emoji.
+   * EMOJI DEVIATION (awaiting Owner confirmation): the Q-3 fallbacks for `lettuce` (🪴) and `cabbage` (🥬) are the Hint 5.0 `herb` / `vegetable` class symbols, which G18 / H5-INV-2 forbid an ingredient to share (measured: hint5Taxonomy.gate and hint5Production.gate fail), so 🍏 / 🪷 are PROPOSED instead. Owner 2026-11-09 resolved it by wiring the dedicated art (the two emoji below are now hidden fallbacks, still G18-safe).
    */
   { id: "cheddar", category: "cheese", nameJa: "チェダーチーズ", color: "#f2a33a", emoji: "\u{1F536}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
-  { id: "lettuce", category: "topping", nameJa: "レタス", color: "#9fd36b", emoji: "\u{1F34F}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "lettuce", category: "topping", nameJa: "レタス", color: "#9fd36b", emoji: "\u{1F34F}", pieceVisual: "lettuce-leaf", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "tortilla-chips", category: "topping", nameJa: "トルティーヤチップス", color: "#e8c25a", emoji: "\u{1F53A}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "okonomiyaki-sauce", category: "sauce", nameJa: "お好み焼きソース", color: "#5a3420", emoji: "\u{1F376}", placement: "spread", unlockCondition: { minTotalStars: 0 } },
-  { id: "cabbage", category: "topping", nameJa: "キャベツ", color: "#c9e3a3", emoji: "\u{1FAB7}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "cabbage", category: "topping", nameJa: "キャベツ", color: "#c9e3a3", emoji: "\u{1FAB7}", pieceVisual: "cabbage-shreds", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "bonito-flakes", category: "topping", nameJa: "かつお節", color: "#c98f5a", emoji: "\u{1FAB6}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
 ];
 
