@@ -1,0 +1,169 @@
+{
+ "stats": {
+  "contentPRs": 12,
+  "recipesAdded": 21,
+  "ingredientsAdded": 18,
+  "spanDaysFirstToLastMerge": 12.12,
+  "recipesPerDay_incl_first_batch": 1.73,
+  "recipesPerDay_excl_first_batch": 1.32,
+  "ingredientsPerDay_incl_first": 1.49,
+  "prsPerDay": 0.91,
+  "recipesPerPR_mean": 1.75,
+  "openToMergeHours": {
+   "min": 1.5,
+   "median": 13.7,
+   "mean": 13.4,
+   "max": 31.6,
+   "p25": 5.1,
+   "p75": 19.2
+  },
+  "codexCleanMinutes": {
+   "n": 11,
+   "median": 2.2,
+   "max": 2.6
+  },
+  "ciGreenCycleMinutes_PR792_n1": 19.3,
+  "hv783": {
+   "hvPathDecision_to_previewPublished_h": 7.7,
+   "previewPublished_to_hvRecorded_min": 5.1,
+   "hvRecorded_to_finalGate_min": 11.8,
+   "finalGate_to_merge_h": 10.8,
+   "hvPathDecision_to_merge_h": 18.7
+  },
+  "tracks": [
+   {
+    "track": "SEAR",
+    "from": "#725 created",
+    "to": "#730 merged (Production ON)",
+    "days": 0.68,
+    "reached": true
+   },
+   {
+    "track": "PINSA",
+    "from": "#639 created (P3-a1)",
+    "to": "#659 merged (Production ON)",
+    "days": 2.09,
+    "reached": true
+   },
+   {
+    "track": "PREP",
+    "from": "#694 created",
+    "to": "Production ON not reached",
+    "days": 10.75,
+    "reached": false,
+    "note": "right-censored: lower bound only"
+   },
+   {
+    "track": "STEAM",
+    "from": "#729 created (S1)",
+    "to": "Production ON not reached",
+    "days": 5.94,
+    "reached": false,
+    "note": "right-censored: lower bound only"
+   },
+   {
+    "track": "FRY",
+    "from": "#750 created (F1)",
+    "to": "Production ON not reached",
+    "days": 4.09,
+    "reached": false,
+    "note": "right-censored: lower bound only"
+   }
+  ]
+ },
+ "inputs": {
+  "D0": "2026-11-09",
+  "n_nonmech_trains": 9,
+  "n_mech_trains": 9,
+  "scenarios": {
+   "fastest": {
+    "L_dec": 1,
+    "T_train_h": 5.1,
+    "T_track": 0.68,
+    "serial_tracks": false,
+    "design_lead": 0
+   },
+   "standard": {
+    "L_dec": 7,
+    "T_train_h": 13.7,
+    "T_track": 1.385,
+    "serial_tracks": true,
+    "design_lead": 3
+   },
+   "delayed": {
+    "L_dec": 21,
+    "T_train_h": 31.6,
+    "T_track": 10.75,
+    "serial_tracks": true,
+    "design_lead": 14
+   }
+  }
+ },
+ "recipe": {
+  "fastest": {
+   "ready8_done_day": 1.43,
+   "ready8_done_date": "2026-11-10",
+   "nonMechanic_done_day": 2.91,
+   "nonMechanic_done_date": "2026-11-11",
+   "tracks_ready_day": 1.68,
+   "all_done_day": 4.82,
+   "all_done_date": "2026-11-13"
+  },
+  "standard": {
+   "ready8_done_day": 8.14,
+   "ready8_done_date": "2026-11-17",
+   "nonMechanic_done_day": 12.14,
+   "nonMechanic_done_date": "2026-11-21",
+   "tracks_ready_day": 18.31,
+   "all_done_day": 23.45,
+   "all_done_date": "2026-12-02"
+  },
+  "delayed": {
+   "ready8_done_day": 23.63,
+   "ready8_done_date": "2026-12-02",
+   "nonMechanic_done_day": 32.85,
+   "nonMechanic_done_date": "2026-12-11",
+   "tracks_ready_day": 99.5,
+   "all_done_day": 111.35,
+   "all_done_date": "2027-02-28"
+  }
+ },
+ "ingredient": {
+  "fastest": {
+   "with_recipes_done_date": "2026-11-13",
+   "ingredient_only_done_date": "2026-11-11",
+   "ingredient_only_done_day": 2.91
+  },
+  "standard": {
+   "with_recipes_done_date": "2026-12-02",
+   "ingredient_only_done_date": "2026-11-21",
+   "ingredient_only_done_day": 12.14
+  },
+  "delayed": {
+   "with_recipes_done_date": "2027-02-28",
+   "ingredient_only_done_date": "2026-12-11",
+   "ingredient_only_done_day": 32.85
+  }
+ },
+ "methods": {
+  "fastest": {
+   "tracks_ready_day": 1.68,
+   "tracks_ready_date": "2026-11-10"
+  },
+  "standard": {
+   "tracks_ready_day": 18.31,
+   "tracks_ready_date": "2026-11-27"
+  },
+  "delayed": {
+   "tracks_ready_day": 99.5,
+   "tracks_ready_date": "2027-02-16"
+  }
+ },
+ "formulae": {
+  "ready8": "L_dec + 2*T_train",
+  "nonMechanic": "L_dec + n_nonmech_trains*T_train (HOT files: one train at a time)",
+  "tracks": "L_dec + design_lead + k*T_track (k=1 parallel, k=6 HOT-serial)",
+  "all": "max(nonMechanic, tracks) + n_mech_trains*T_train",
+  "delayedIsLowerBound": "T_track(delayed) = longest right-censored track (PREP, not in production after that many days): lower bound, not an estimate"
+ }
+}

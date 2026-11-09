@@ -1,0 +1,222 @@
+diff --git a/src/preview/b21HvSeeds.test.ts b/src/preview/b21HvSeeds.test.ts
+new file mode 100644
+index 00000000..0204418b
+--- /dev/null
++++ b/src/preview/b21HvSeeds.test.ts
+@@ -0,0 +1,62 @@
++import { describe, expect, it } from "vitest";
++import { getIngredient } from "../data/ingredients";
++import { RECIPES } from "../data/recipes";
++import { resolveShopEntitlement } from "../state/materialEntitlement";
++import { loadSave, type StorageLike } from "../state/persistence";
++import {
++  B21_HV_SCENARIOS,
++  B21_MATERIAL_IDS,
++  B21_NEW_RECIPE_IDS,
++  applyB21HvSeed,
++  b21LadderPrefixMaterials,
++  buildB21HvSnapshot,
++  findB21HvScenario,
++  parseB21HvParam,
++} from "./b21HvSeeds";
++import { applyPreviewHvSeed } from "./hvSeeds";
++
++/** Expansion Batch 21 Preview-only HV seeds: consistent saves, the Shop offers the six materials as NEW, the new recipes are undiscovered, only the Preview key is written, a reload never reseeds. */
++function memory(seed: Record<string, string> = {}): StorageLike & { map: Map<string, string> } {
++  const map = new Map(Object.entries(seed));
++  return { map, getItem: (k) => map.get(k) ?? null, setItem: (k, v) => void map.set(k, v), removeItem: (k) => void map.delete(k) };
++}
++const isFinite = (id: string) => !!getIngredient(id)?.unlockCondition;
++
++describe("B21 HV seeds", () => {
++  it("parses only its own ids", () => {
++    expect(parseB21HvParam("?hv=b21-taco")).toBe("b21-taco");
++    expect(parseB21HvParam("?hv=b21-okonomiyaki")).toBe("b21-okonomiyaki");
++    for (const bad of ["?hv=b18-bbq", "?hv=normal", "", "?x=1", undefined, 7]) expect(parseB21HvParam(bad)).toBeNull();
++  });
++
++  it.each(B21_HV_SCENARIOS)("$id: a consistent save — no B21 material owned, no B21 recipe discovered, every discovered recipe's finite materials owned, owned materials stocked", (s) => {
++    const snap = buildB21HvSnapshot(s);
++    for (const id of B21_MATERIAL_IDS) expect(snap.ownedIngredientIds).not.toContain(id);
++    expect(b21LadderPrefixMaterials().some((id) => B21_MATERIAL_IDS.includes(id))).toBe(false);
++    const dexIds = snap.dex.map((e) => e.recipeId);
++    for (const id of B21_NEW_RECIPE_IDS) expect(dexIds).not.toContain(id);
++    for (const r of RECIPES.filter((x) => dexIds.includes(x.id))) {
++      for (const q of r.requiredIngredients) if (isFinite(q.ingredientId)) expect(snap.ownedIngredientIds, `${r.id}/${q.ingredientId}`).toContain(q.ingredientId);
++    }
++    for (const id of snap.ownedIngredientIds.filter(isFinite)) expect(snap.inventory[id], id).toBeGreaterThan(0);
++    expect(dexIds.length).toBe(RECIPES.length - B21_NEW_RECIPE_IDS.length);
++  });
++
++  it("the load-time entitlement grants all six materials (the Shop offers them as NEW)", () => {
++    const snap = buildB21HvSnapshot(B21_HV_SCENARIOS[0]);
++    const ent = resolveShopEntitlement(snap.dex, snap.ownedIngredientIds, snap.unlockedForShopIngredientIds ?? []);
++    for (const id of B21_MATERIAL_IDS) expect(ent.unlockedForShopIngredientIds, id).toContain(id);
++  });
++
++  it("applying the seed writes a loadable save with the target undiscovered; a reload does not reseed", () => {
++    const storage = memory();
++    expect(applyPreviewHvSeed("?hv=b21-taco", storage, "navigate")).toBe("b21-taco");
++    const stored = loadSave(storage);
++    expect(stored.dex.some((e) => e.recipeId === "taco-pizza")).toBe(false);
++    expect(stored.pitzBalance).toBe(findB21HvScenario("b21-taco")!.pitz);
++    const before = [...storage.map.entries()].join("|");
++    expect(applyPreviewHvSeed("?hv=b21-taco", storage, "reload")).toBeNull();
++    expect([...storage.map.entries()].join("|")).toBe(before);
++    expect(applyB21HvSeed("b21-okonomiyaki", memory())).toBe(true);
++  });
++});
+diff --git a/src/preview/b21HvSeeds.ts b/src/preview/b21HvSeeds.ts
+new file mode 100644
+index 00000000..10af6897
+--- /dev/null
++++ b/src/preview/b21HvSeeds.ts
+@@ -0,0 +1,98 @@
++/**
++ * Expansion Batch 21 (Issue #780): iPhone Safari Human Verification seeds. PREVIEW ONLY (same pattern as ./b18HvSeeds.ts).
++ *
++ * `?hv=b21-taco` and `?hv=b21-okonomiyaki` write ONE ready-made save (the scenario only names which recipe to play): every ladder material before the
++ * taco step (79) is owned, every recipe those materials can make is discovered (so the credited count is past the late floors 79 / 80 and the load-time
++ * entitlement grants the six new materials), and none of the six B21 materials is owned, so the Shop offers them as NEW. Both new recipes are undiscovered.
++ * Saves are internally consistent (a discovered recipe has every finite material owned, a new recipe is never discovered, owned materials are stocked, no
++ * labels are stored). The seed goes through the ordinary `resetSave` / `persistProgress` / `loadSave`, so it lands in the Preview key only and never touches
++ * a production save or Firebase. ./hvSeeds.ts calls `applyB21HvSeed` only for a fresh navigation (never a reload), behind `VITE_PREVIEW_MODE`; a production
++ * build drops this module (./previewIsolation.gate.test.ts scans for every id and label below). No recipe, Research, score, entitlement or save rule changes.
++ */
++import { DISCOVERY_LADDER } from "../data/discoveryLadder";
++import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
++import { RECIPES, type Recipe } from "../data/recipes";
++import type { DexEntry } from "../state/dex";
++import { loadSave, persistProgress, resetSave, type ProgressionSnapshot, type StorageLike } from "../state/persistence";
++import { PREVIEW_HELPER_MARK } from "./hint5PreviewOptIn";
++
++export type B21HvScenarioId = "b21-taco" | "b21-okonomiyaki";
++
++export interface B21HvScenario {
++  id: B21HvScenarioId;
++  /** The recipe the Owner plays / checks (undiscovered in the seeded save). */
++  recipeId: string;
++  labelJa: string;
++  pitz: number;
++}
++
++export const B21_MATERIAL_IDS: readonly string[] = ["cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes"];
++export const B21_NEW_RECIPE_IDS: readonly string[] = ["taco-pizza", "okonomiyaki-style-pizza"];
++const B21_PITZ = 2000;
++const B21_STOCK = 10;
++
++export const B21_HV_SCENARIOS: readonly B21HvScenario[] = [
++  { id: "b21-taco", recipeId: "taco-pizza", labelJa: "B21-1: タコピザ (チェダー・レタス・トルティーヤチップス購入から)", pitz: B21_PITZ },
++  { id: "b21-okonomiyaki", recipeId: "okonomiyaki-style-pizza", labelJa: "B21-2: お好み焼き風ピザ (お好み焼きソース・キャベツ・かつお節購入から)", pitz: B21_PITZ },
++];
++
++export function findB21HvScenario(id: unknown): B21HvScenario | null {
++  return typeof id === "string" ? (B21_HV_SCENARIOS.find((s) => s.id === id) ?? null) : null;
++}
++
++/** `?hv=<b21 id>` (any other value is ignored). */
++export function parseB21HvParam(search: unknown): B21HvScenarioId | null {
++  if (typeof search !== "string") return null;
++  return findB21HvScenario(new URLSearchParams(search).get("hv"))?.id ?? null;
++}
++
++/** Every ladder material except the six B21 materials, in ladder order (the B21 steps are the last two late steps). */
++export function b21LadderPrefixMaterials(): string[] {
++  const first = DISCOVERY_LADDER.steps.findIndex((step) => step.ingredientIds.some((id) => B21_MATERIAL_IDS.includes(id)));
++  if (first < 0) throw new Error(`${PREVIEW_HELPER_MARK}: the B21 materials are not on the ladder`);
++  return DISCOVERY_LADDER.steps.slice(0, first).flatMap((step) => step.ingredientIds);
++}
++
++function makeableWith(recipe: Recipe, owned: ReadonlySet<string>): boolean {
++  return recipe.requiredIngredients.every(({ ingredientId }) => {
++    const ingredient = getIngredient(ingredientId);
++    return !!ingredient && (!ingredient.unlockCondition || owned.has(ingredientId));
++  });
++}
++
++/** The save a scenario stands for, as the ordinary progression snapshot. */
++export function buildB21HvSnapshot(scenario: B21HvScenario): ProgressionSnapshot {
++  const materials = b21LadderPrefixMaterials();
++  const ownedSet = new Set<string>([...STARTER_INGREDIENT_IDS, ...materials]);
++  const dex: DexEntry[] = RECIPES.filter((recipe) => !B21_NEW_RECIPE_IDS.includes(recipe.id) && makeableWith(recipe, ownedSet)).map((recipe) => ({
++    recipeId: recipe.id,
++    discovered: true,
++    bestScore: 70,
++    bestStars: 3,
++    timesMade: 1,
++  }));
++  return {
++    dex,
++    pitzBalance: scenario.pitz,
++    ownedIngredientIds: [...STARTER_INGREDIENT_IDS, ...materials],
++    inventory: Object.fromEntries(materials.map((id) => [id, B21_STOCK])),
++    starterGrantClaimedRecipeIds: [],
++    unlockedForShopIngredientIds: materials,
++    discoveryHintFacts: {},
++  };
++}
++
++/** Replaces the save in `storage` with the scenario's. Returns false when the stored result is not the seed. */
++export function applyB21HvSeed(id: B21HvScenarioId, storage: StorageLike): boolean {
++  const scenario = findB21HvScenario(id);
++  if (!scenario) return false;
++  if (!resetSave(storage)) return false;
++  const snapshot = buildB21HvSnapshot(scenario);
++  persistProgress(snapshot, storage);
++  const stored = loadSave(storage);
++  return (
++    stored.pitzBalance === scenario.pitz &&
++    stored.dex.length === snapshot.dex.length &&
++    !stored.dex.some((entry) => B21_NEW_RECIPE_IDS.includes(entry.recipeId))
++  );
++}
+diff --git a/src/preview/hvSeeds.ts b/src/preview/hvSeeds.ts
+index 5e68772c..5eb45dcc 100644
+--- a/src/preview/hvSeeds.ts
++++ b/src/preview/hvSeeds.ts
+@@ -25,6 +25,7 @@ import type { DexEntry } from "../state/dex";
+ import { loadSave, persistProgress, resetSave, type ProgressionSnapshot, type StorageLike } from "../state/persistence";
+ import { PREVIEW_HELPER_MARK } from "./hint5PreviewOptIn";
+ import { applyB18HvSeed, parseB18HvParam, type B18HvScenarioId } from "./b18HvSeeds";
++import { applyB21HvSeed, parseB21HvParam, type B21HvScenarioId } from "./b21HvSeeds";
+ 
+ export type HvScenarioId =
+   | "normal"
+@@ -213,10 +214,12 @@ export function applyPreviewHvSeed(
+   search: unknown,
+   storage: StorageLike | null,
+   navigationType: string | undefined = currentNavigationType(),
+-): HvScenarioId | B18HvScenarioId | null {
++): HvScenarioId | B18HvScenarioId | B21HvScenarioId | null {
+   const id = parseHvParam(search);
+   const b18Id = id ? null : parseB18HvParam(search);
+-  if ((!id && !b18Id) || !storage || !shouldApplyHvSeed(navigationType)) return null;
++  const b21Id = id || b18Id ? null : parseB21HvParam(search); // Expansion Batch 21 (#780): after the Hint 5.0 and B18 ids, which are looked up first and unchanged
++  if ((!id && !b18Id && !b21Id) || !storage || !shouldApplyHvSeed(navigationType)) return null;
+   if (id) return applyHvSeed(id, storage) ? id : null;
+-  return b18Id && applyB18HvSeed(b18Id, storage) ? b18Id : null;
++  if (b18Id) return applyB18HvSeed(b18Id, storage) ? b18Id : null;
++  return b21Id && applyB21HvSeed(b21Id, storage) ? b21Id : null;
+ }
+diff --git a/src/preview/previewIsolation.gate.test.ts b/src/preview/previewIsolation.gate.test.ts
+index 1d850168..238314ab 100644
+--- a/src/preview/previewIsolation.gate.test.ts
++++ b/src/preview/previewIsolation.gate.test.ts
+@@ -6,6 +6,7 @@ import { DEV_SETTINGS_LINK_LABEL, DEV_SETTINGS_SECTION_TITLE, DEV_STATE_EDITOR_Q
+ import { PRESETS, STAR_PRESETS } from "../devtools/presets";
+ import { HV_SCENARIOS } from "./hvSeeds";
+ import { B18_HV_SCENARIOS } from "./b18HvSeeds";
++import { B21_HV_SCENARIOS } from "./b21HvSeeds";
+ 
+ /**
+  * Discovery Hint 5.0 H5-5, gates P1 / P4 (bundle level): the production bundle contains none of the
+@@ -48,6 +49,9 @@ const PREVIEW_ONLY_STRINGS = [
+   // Batch 18 (#748): the B18 HV seed ids and labels (./b18HvSeeds.ts).
+   ...B18_HV_SCENARIOS.map((s) => s.id),
+   ...B18_HV_SCENARIOS.map((s) => s.labelJa),
++  // Expansion Batch 21 (#780): the B21 HV seed ids and labels (./b21HvSeeds.ts).
++  ...B21_HV_SCENARIOS.map((s) => s.id),
++  ...B21_HV_SCENARIOS.map((s) => s.labelJa),
+   "teto-pizza-preview-save-v1", // the Preview save namespace (already compiled out before H5-5)
+   "teto.dev.hint5Ladder", // the DEV opt-in key (already compiled out before H5-5)
+   "post-layer-bench-v1", // POST_LAYER_BENCH_MARK: the DEV / Preview-only post-bake layer bench (src/dev/PostLayerBench.tsx, FINISH D2-2a)

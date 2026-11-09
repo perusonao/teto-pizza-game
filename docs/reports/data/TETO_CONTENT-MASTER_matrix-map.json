@@ -1,0 +1,1068 @@
+{
+ "matrixMap": [
+  {
+   "evidenceId": "aussie-pizzadb",
+   "shippedId": "aussie",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "baba-ganoush-pizza-pizzadb-p7",
+   "shippedId": "baba-ganoush-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "bacalhau-pizzadb",
+   "shippedId": "bacalhau",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "baingan-bharta-pizza-pizzadb-p6",
+   "shippedId": "baingan-bharta-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.833,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "curry-ketchup"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "bambino-pizzadb-p7",
+   "shippedId": "bambino",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "bbq-chicken-pizzadb",
+   "shippedId": "bbq-chicken-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "bianca-pizzadb-row",
+   "shippedId": "pizza-bianca-ricotta",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "bismarck-pizza-pizzadb-p7",
+   "shippedId": "bismarck",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.6,
+   "matrixOnly": [
+    "ham",
+    "mushroom"
+   ],
+   "shippedOnly": [],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "boscaiola-pizzadb-p12",
+   "shippedId": "boscaiola",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "brazilian-calabresa-pizzadb-p10",
+   "shippedId": "brazilian-calabresa",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "brazilian-catupiry-corn-pizza-pizzadb-p10",
+   "shippedId": "brazilian-catupiry-corn-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "breakfast-pizza-pizzadb-p11",
+   "shippedId": "breakfast-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.333,
+   "matrixOnly": [
+    "cheddar",
+    "sausage"
+   ],
+   "shippedOnly": [
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "calabresa-argentina-pizzadb",
+   "shippedId": "calabresa-argentina",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "california-style-pizza-pizzadb-p2",
+   "shippedId": "california-style-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "capricciosa-pizzadb",
+   "shippedId": "capricciosa",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.625,
+   "matrixOnly": [
+    "artichoke",
+    "egg"
+   ],
+   "shippedOnly": [
+    "oregano"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "chilean-napolitana-pizzadb",
+   "shippedId": "chilean-napolitana",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "cuban-pizza-pizzadb-p2",
+   "shippedId": "cuban-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "curry-pizza-japan-pizzadb-p2",
+   "shippedId": "curry-pizza-japan",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.75,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "curry-ketchup"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "currywurst-pizzadb",
+   "shippedId": "currywurst",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "eggplant-dengaku-pizza-pizzadb-p6",
+   "shippedId": "eggplant-dengaku-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "eggplant-ricotta-pizza-pizzadb-p5",
+   "shippedId": "eggplant-ricotta-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "eggplant-tahini-pizza-pizzadb-p5",
+   "shippedId": "eggplant-tahini-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "flammkuchen-pizzadb",
+   "shippedId": "flammkuchen",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "frango-catupiry-pizzadb-p10",
+   "shippedId": "frango-catupiry",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "fugazza-pizzadb-p10",
+   "shippedId": "fugazza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.5,
+   "matrixOnly": [
+    "mozzarella"
+   ],
+   "shippedOnly": [
+    "olive-oil"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "full-english-pizza-pizzadb-p10",
+   "shippedId": "full-english-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "goulash-pizza-pizzadb-p3",
+   "shippedId": "goulash-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "grandma-pizza-pizzadb",
+   "shippedId": "grandma-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "hawaiian-pizzadb-row",
+   "shippedId": "hawaiian",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "ikura-salmon-pizza-pizzadb-p1",
+   "shippedId": "ikura-salmon-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "jalapeno-popper-pizza-pizzadb-p7",
+   "shippedId": "jalapeno-popper-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "jamaican-jerk-chicken-pizza-pizzadb-p3",
+   "shippedId": "jamaican-jerk-chicken-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "jamon-serrano-pizza-pizzadb-p7",
+   "shippedId": "jamon-serrano-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "margherita-pizzadb-row",
+   "shippedId": "margherita",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.75,
+   "matrixOnly": [
+    "olive-oil"
+   ],
+   "shippedOnly": [],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "marinara-pizza-pizzadb-p13",
+   "shippedId": "marinara",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.75,
+   "matrixOnly": [
+    "olive-oil"
+   ],
+   "shippedOnly": [],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "meat-lovers-pizza-pizzadb-p13",
+   "shippedId": "meat-lovers",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.714,
+   "matrixOnly": [
+    "beef"
+   ],
+   "shippedOnly": [
+    "mozzarella"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "melanzane-pizza-pizzadb-p13",
+   "shippedId": "melanzane-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "mentaiko-cream-pizza-pizzadb-p4",
+   "shippedId": "tarako-cream-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "moussaka-style-pizza-pizzadb-p13",
+   "shippedId": "moussaka-style-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.8,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "fromage-blanc-sauce"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "new-haven-apizza-pizzadb",
+   "shippedId": "new-haven-apizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "new-zealand-lamb-pizza-pizzadb-p6",
+   "shippedId": "new-zealand-lamb-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "nigerian-suya-pizza-pizzadb-p5",
+   "shippedId": "nigerian-suya-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "palmito-pizza-pizzadb-p7",
+   "shippedId": "palmito-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "parmigiana-pizza-pizzadb-p7",
+   "shippedId": "parmigiana-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pescatore-pizzadb-p11",
+   "shippedId": "pescatore",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.875,
+   "matrixOnly": [
+    "olive-oil"
+   ],
+   "shippedOnly": [],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "pesto-burrata-pizzadb-p12",
+   "shippedId": "pesto-burrata-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pesto-caprese-pizzadb-p11",
+   "shippedId": "pesto-caprese",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pesto-gamberi-pizzadb-p11",
+   "shippedId": "pesto-gamberi",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pesto-genovese-pizza-pizzadb-p11",
+   "shippedId": "genovese",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.4,
+   "matrixOnly": [
+    "pine-nuts",
+    "potato"
+   ],
+   "shippedOnly": [
+    "cherry-tomato"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "pesto-noci-pizzadb-p12",
+   "shippedId": "pesto-noci-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pesto-patate-pizzadb-p12",
+   "shippedId": "pesto-patate",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pesto-pollo-pizzadb-p12",
+   "shippedId": "pesto-pollo",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pesto-salmone-pizzadb-p11",
+   "shippedId": "pesto-salmone",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pesto-tonno-pizzadb-p12",
+   "shippedId": "pesto-tonno",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pesto-trapanese-pizzadb-p11",
+   "shippedId": "pesto-trapanese",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pesto-vegetariana-pizzadb-p12",
+   "shippedId": "pesto-vegetariana",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pinsa-romana-pizzadb-p9",
+   "shippedId": "pinsa-romana",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pizza-alla-crudaiola-pizzadb-p8",
+   "shippedId": "pizza-alla-crudaiola",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pizza-alla-norma-pizzadb-p9",
+   "shippedId": "pizza-alla-norma",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pizza-feta-eliniki-pizzadb-p9",
+   "shippedId": "pizza-feta-eliniki",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pizza-moscow-pizzadb-p9",
+   "shippedId": "pizza-moscow",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pizza-overload-pizzadb-p7",
+   "shippedId": "pizza-overload",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pizza-portuguesa-pizzadb-p9",
+   "shippedId": "pizza-portuguesa",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "polish-kielbasa-pizzadb-p12",
+   "shippedId": "polish-kielbasa",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "porchetta-pizza-pizzadb-p12",
+   "shippedId": "porchetta-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "porcini-pizza-pizzadb-p13",
+   "shippedId": "porcini-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "potato-mayo-pizza-pizzadb-p3",
+   "shippedId": "potato-mayo-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "prosciutto-funghi-pizzadb-p11",
+   "shippedId": "prosciutto-funghi",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "puttanesca-pizza-pizzadb-p10",
+   "shippedId": "puttanesca-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "quattro-formaggi-pizzadb",
+   "shippedId": "quattro-formaggi",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.8,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "olive-oil"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "ratatouille-pizza-pizzadb-p13",
+   "shippedId": "ratatouille-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "rendang-pizza-pizzadb-p14",
+   "shippedId": "rendang-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.75,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "curry-ketchup"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "rucola-e-grana-pizzadb-p13",
+   "shippedId": "rucola-e-grana",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "salsiccia-e-friarielli-pizzadb-p3",
+   "shippedId": "salsiccia-e-friarielli",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "shirasu-pizza-pizzadb-p3",
+   "shippedId": "shirasu-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "sichuan-eggplant-pizza",
+   "shippedId": "sichuan-eggplant-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
+   "shippedId": "spanish-chorizo-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "spinach-artichoke-pizza-pizzadb-p4",
+   "shippedId": "spinach-artichoke-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "supreme-pizzadb",
+   "shippedId": "supreme-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "tandoori-paneer-pizza-pizzadb-p5",
+   "shippedId": "tandoori-paneer-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.8,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "curry-ketchup"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "tonno-e-cipolla-pizzadb",
+   "shippedId": "tonno-e-cipolla",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "ume-shiso-pizza-pizzadb-p14",
+   "shippedId": "ume-shiso-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "vegan-cashew-cheese-pizza-pizzadb-p1",
+   "shippedId": "vegan-cashew-cheese-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "veggie-supreme-pizza-pizzadb-p11",
+   "shippedId": "veggie-supreme-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "venezuelan-reina-pepiada-pizzadb-p12",
+   "shippedId": "reina-pepiada-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.833,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "fromage-blanc-sauce"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "vongole-pizzadb",
+   "shippedId": "vongole",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "wasabi-beef-pizza",
+   "shippedId": "wasabi-beef-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "yuzu-shrimp-pizza",
+   "shippedId": "yuzu-shrimp-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  }
+ ],
+ "variantsComposition": [
+  {
+   "evidenceId": "baingan-bharta-pizza-pizzadb-p6",
+   "shippedId": "baingan-bharta-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.833,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "curry-ketchup"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "bismarck-pizza-pizzadb-p7",
+   "shippedId": "bismarck",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.6,
+   "matrixOnly": [
+    "ham",
+    "mushroom"
+   ],
+   "shippedOnly": [],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "breakfast-pizza-pizzadb-p11",
+   "shippedId": "breakfast-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.333,
+   "matrixOnly": [
+    "cheddar",
+    "sausage"
+   ],
+   "shippedOnly": [
+    "mozzarella",
+    "tomato-sauce"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "capricciosa-pizzadb",
+   "shippedId": "capricciosa",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.625,
+   "matrixOnly": [
+    "artichoke",
+    "egg"
+   ],
+   "shippedOnly": [
+    "oregano"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "curry-pizza-japan-pizzadb-p2",
+   "shippedId": "curry-pizza-japan",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.75,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "curry-ketchup"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "fugazza-pizzadb-p10",
+   "shippedId": "fugazza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.5,
+   "matrixOnly": [
+    "mozzarella"
+   ],
+   "shippedOnly": [
+    "olive-oil"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "margherita-pizzadb-row",
+   "shippedId": "margherita",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.75,
+   "matrixOnly": [
+    "olive-oil"
+   ],
+   "shippedOnly": [],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "marinara-pizza-pizzadb-p13",
+   "shippedId": "marinara",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.75,
+   "matrixOnly": [
+    "olive-oil"
+   ],
+   "shippedOnly": [],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "meat-lovers-pizza-pizzadb-p13",
+   "shippedId": "meat-lovers",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.714,
+   "matrixOnly": [
+    "beef"
+   ],
+   "shippedOnly": [
+    "mozzarella"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "moussaka-style-pizza-pizzadb-p13",
+   "shippedId": "moussaka-style-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.8,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "fromage-blanc-sauce"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "pescatore-pizzadb-p11",
+   "shippedId": "pescatore",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.875,
+   "matrixOnly": [
+    "olive-oil"
+   ],
+   "shippedOnly": [],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "pesto-genovese-pizza-pizzadb-p11",
+   "shippedId": "genovese",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.4,
+   "matrixOnly": [
+    "pine-nuts",
+    "potato"
+   ],
+   "shippedOnly": [
+    "cherry-tomato"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "quattro-formaggi-pizzadb",
+   "shippedId": "quattro-formaggi",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.8,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "olive-oil"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "rendang-pizza-pizzadb-p14",
+   "shippedId": "rendang-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.75,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "curry-ketchup"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "tandoori-paneer-pizza-pizzadb-p5",
+   "shippedId": "tandoori-paneer-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.8,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "curry-ketchup"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "venezuelan-reina-pepiada-pizzadb-p12",
+   "shippedId": "reina-pepiada-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.833,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "fromage-blanc-sauce"
+   ],
+   "onlyBaseSauceDiffers": true
+  }
+ ]
+}
