@@ -1,20 +1,20 @@
 {
  "summary": {
-  "recipes": 84,
+  "recipes": 82,
   "readyForPromotion": [],
-  "recipesWithBlockingDeps": 84,
-  "blockingDeps": 400,
+  "recipesWithBlockingDeps": 82,
+  "blockingDeps": 397,
   "byKind": {
-   "OWNER_RULE": 121,
+   "OWNER_RULE": 119,
    "MECHANIC": 59,
    "INGREDIENT_IN_FLIGHT": 0,
-   "UNRESOLVED_TOKEN": 21,
+   "UNRESOLVED_TOKEN": 20,
    "SAUCE_UNSPECIFIED": 24,
    "DUPLICATE_GATE": 168,
    "ID_SUFFIXED": 7
   },
   "recipesBlockedOnlyBy": {
-   "OWNER_RULE": 6,
+   "OWNER_RULE": 5,
    "MECHANIC": 2,
    "DUPLICATE_GATE": 1
   },
@@ -33,11 +33,11 @@
     "ONE_DIFF": 27,
     "JACCARD_GT_0_4": 18
    },
-   "recipesWithNoHit": 30,
-   "recipesWithNoShippedHit": 36,
+   "recipesWithNoHit": 28,
+   "recipesWithNoShippedHit": 34,
    "hitsVsShipped": 249
   },
-  "stagedIngredientRefs": 70
+  "stagedIngredientRefs": 62
  },
  "perRecipe": [
   {
@@ -524,19 +524,6 @@
      "jaccard": 0.5
     }
    ]
-  },
-  {
-   "id": "taco-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-6"
-   ],
-   "staged": [
-    "cheddar",
-    "lettuce",
-    "tortilla-chips"
-   ],
-   "dup": []
   },
   {
    "id": "trenton-tomato-pie",
@@ -1434,8 +1421,7 @@
     "SAUCE_UNSPECIFIED:swedish-kebab-pizza"
    ],
    "staged": [
-    "kebab-sauce",
-    "lettuce"
+    "kebab-sauce"
    ],
    "dup": []
   },
@@ -1770,20 +1756,6 @@
      "jaccard": 0.286
     }
    ]
-  },
-  {
-   "id": "okonomiyaki-style-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-7",
-    "UNRESOLVED_TOKEN:青のり"
-   ],
-   "staged": [
-    "bonito-flakes",
-    "cabbage",
-    "okonomiyaki-sauce"
-   ],
-   "dup": []
   },
   {
    "id": "caponata-pizza",
@@ -3302,7 +3274,6 @@
    ],
    "staged": [
     "cucumber",
-    "lettuce",
     "yogurt-sauce"
    ],
    "dup": [
