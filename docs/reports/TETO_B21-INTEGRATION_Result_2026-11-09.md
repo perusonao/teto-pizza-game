@@ -18,7 +18,7 @@
 
 | # | Owner 判断 | 反映先・状況【実測】 |
 |---|---|---|
-| 1 | Q-2 の追加 4 ID・6 箇所を、報告された変更前後に限定して承認 | #799 `ce22ad9e` が「追加 4 ID の承認」を反映（コミットメッセージ）。承認対象は pesto-burrata-pizza `I->J`・`K->L`／pizza-feta-eliniki `H->I`・`J->K`／potato-mayo-pizza `B->C`／wasabi-beef-pizza `D->E` の 6 つだけ。他の変化・新 ID・正準順の変化は引き続き停止条件 |
+| 1 | Q-2 の追加 4 ID（#799 の報告では 10 文字列）を、報告された変更前後に限定して承認 | #799 `ce22ad9e` が「追加 4 ID の承認」を反映（コミットメッセージ）。承認対象は **#799 が Owner に報告した 10 文字列**（本番 ladder の 40 本シード標本: pesto-burrata-pizza `H->I`・`I->J`・`J->K`・`K->L`／pizza-feta-eliniki `H->I`・`I->J`・`J->K`／potato-mayo-pizza `B->C`／wasabi-beef-pizza `C->D`・`D->E`）。**本書や #798 の旧測定の 6 文字列（既定の乱数 10 本）はその部分集合**で、承認範囲ではない（標本の違い）。他の変化・新 ID・正準順の変化は引き続き停止条件 |
 | 2 | lettuce・cabbage は専用 SVG を採用 | #799 で配線済み（`lettuce-leaf`／`cabbage-shreds`、絵文字は隠れたフォールバックに）。#797 は未配線のまま。**配線は #799 だけ**（#798 には配線を入れていない） |
 | 3 | tortilla-chips family = vegetable、cheddar サイズ = l | tortilla-chips は #799 に反映済み。**cheddar のサイズは #799 の最新 HEAD でも `m` のまま**【実測】（Owner 追認は `l`）。#799 の作成者 session へ連絡済み。#798 の旧コードは `l` だった |
 
