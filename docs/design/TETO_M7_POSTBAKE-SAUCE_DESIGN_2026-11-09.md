@@ -1,5 +1,8 @@
 # M7 POSTBAKE_SAUCE — 焼成後のソース・液体の設計（#780、docs-only・設計のみ）
 
+> **更新（2026-11-09、Owner 承認 M7-d）— この文書の buffalo-sauce に関する記述は無効:** buffalo-chicken は **B22 の焼成前 PAINT・通常カタログ**で実装し、**buffalo-sauce は POST_BAKE 液体にも M7 の許可リストにも追加しない**。M7 の最初の適用は **hot-honey-pepperoni の honey のみ**（許可リスト `["olive-oil","honey"]`）。以下の buffalo-sauce を M7 の対象・許可リスト候補・最初の利用者とする記述（§1 表、§2、§3、§5 M7-b ほか）は作成時の案で、`TETO_M7_ALLOWLIST-NO-DOUBLE-APPLY_DESIGN_2026-11-09.md` と `TETO_M7_HONEY-TEST-DESIGN_2026-11-09.md` が優先する。M7 の完成には DRIZZLE D2 以降が必要で、許可リストの追加だけでは完成扱いにしない。
+
+
 2026-11-09 / 基準 `origin/main` = `348b1e4`。**設計案であり実装承認ではない。** 既存の DRIZZLE（#579、PR #776 = D1 純粋ロジック、PR #746 = Gesture Lab、いずれも open・未 merge）を**重複実装しない**ことを最優先にした分担を示す。
 
 ## 1. 何が M7 か【実測】
