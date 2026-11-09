@@ -323,6 +323,9 @@ describe("Research: the 17 individually Owner-approved pre-existing recipes (Q-2
   const approved = JSON.parse(readFileSync(join(__dirname, "staged", "__golden__", "firstTrain.research.json"), "utf8")) as { canonicalChanges: number; nonCanonicalChanges: string[] };
   const approvedChanges = new Map(approved.nonCanonicalChanges.map((line) => [line.slice(0, line.indexOf(": ")), line.slice(line.indexOf(": ") + 2).split(" ").sort()]));
   const asMap = (m: ReturnType<typeof researchLetterChangesAcrossOrders>) => new Map([...m].map(([id, list]) => [id, [...new Set(list.map((c) => c.change))].sort()]));
+  /** The three tests below measure the SAME input (the shipped ladder, default 40 seeded orders). The audit is deterministic, so it is computed once, lazily, and shared (CI stabilisation: each call took ~3.3 s locally, over the 5 s default under CI load). */
+  let shippedChanges: ReturnType<typeof researchLetterChangesAcrossOrders> | undefined;
+  const shipped = () => (shippedChanges ??= researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never));
 
   it("the approved record is exactly the 17 IDs (and records 0 canonical changes)", () => {
     expect(approved.canonicalChanges).toBe(0);
@@ -334,15 +337,15 @@ describe("Research: the 17 individually Owner-approved pre-existing recipes (Q-2
     for (const id of APPROVED_IDS) expect(measured.get(id), id).toEqual(approvedChanges.get(id));
   });
   it("on the SHIPPED ladder (the six B21 materials included, the audit's default 40 seeded random orders): the canonical order changes 0 letters and the set of changed pre-existing recipes is exactly the 17 approved IDs", () => {
-    const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never);
+    const changes = shipped();
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
     expect([...changes.keys()].sort()).toEqual(APPROVED_IDS);
     for (const list of changes.values()) for (const c of list) expect(c.change).toMatch(/^(-|[A-Z]+)->(-|[A-Z]+)$/);
-  });
+  }, 30_000);
   it("on the SHIPPED ladder every approved letter change is observed for its ID (the approved record is a subset of what is measured)", () => {
-    const measured = asMap(researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never));
+    const measured = asMap(shipped());
     for (const id of APPROVED_IDS) for (const change of approvedChanges.get(id)!) expect(measured.get(id), `${id} ${change}`).toContain(change);
-  });
+  }, 30_000);
   /**
    * OWNER-APPROVED (2026-11-09, #780 / #799): the Q-2 approval was limited to the changes listed per ID, and on the SHIPPED ladder (the six B21 materials are in the random-order population) four of the 17 IDs show the ADDITIONAL
    * letter-to-letter changes below, which the approval-time measurement (no B21 materials in the ladder) did not contain. The Owner approved exactly these additions, "limited to the reported content; any other Research letter change is a STOP".
@@ -355,13 +358,13 @@ describe("Research: the 17 individually Owner-approved pre-existing recipes (Q-2
     "wasabi-beef-pizza": ["C->D", "D->E"],
   };
   it("on the SHIPPED ladder the measured changes are exactly the approved record PLUS the four Owner-approved additions (2026-11-09; any other difference is a new STOP)", () => {
-    const measured = asMap(researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never));
+    const measured = asMap(shipped());
     for (const id of APPROVED_IDS) {
       const expected = [...approvedChanges.get(id)!, ...(APPROVED_EXTRA[id] ?? [])].sort();
       expect(measured.get(id), id).toEqual(expected);
     }
     expect(Object.keys(APPROVED_EXTRA).sort()).toEqual(["pesto-burrata-pizza", "pizza-feta-eliniki", "potato-mayo-pizza", "wasabi-beef-pizza"]);
-  });
+  }, 30_000);
 });
 
 describe("Hint 5.0: both are key-free targets (a SAUCE, [CHEESE,] STRUCTURE, SUB_CLASS ladder) and name no recipe", () => {
