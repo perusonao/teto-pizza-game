@@ -537,9 +537,9 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
   },
   /**
    * Expansion Batch 21 (#780): six late-only materials, promoted from the Staged Catalog with the Owner-approved provisional values (Q-3, 2026-11-09): id / nameJa / `color` / `emoji` / placement are GAMEPLAY ASSUMPTIONS (original pizzadb.jp NOT confirmed).
-   * `emoji` is only the required, never-displayed text fallback (unique, G18). No dedicated SVG is wired (the unwired B21 art in src/components/stagedGlyphs/ waits for its own approval), so none carries a `pieceVisual`.
+   * `emoji` is unique in the catalog (G18). No dedicated SVG is wired (the unwired B21 art in src/components/stagedGlyphs/ waits for its own approval), so none carries a `pieceVisual` -- and therefore the emoji IS DISPLAYED (IngredientGlyph renders it as the tray chip / drag preview; Codex P2 on #799, a correction of an earlier wrong comment).
    * `cheddar` is a cheese (no topping family); `lettuce` / `cabbage` family `vegetable`, `bonito-flakes` `seafood`, `tortilla-chips` `vegetable` (the staged row said `other`, which the DH4-PROD gate OD-DH4-2-9 rejects, measured; `vegetable` follows the `nori` precedent -- PROPOSED, awaiting Owner confirmation).
-   * EMOJI DEVIATION (awaiting Owner confirmation): the Q-3 fallbacks for `lettuce` (🪴) and `cabbage` (🥬) are the Hint 5.0 `herb` / `vegetable` class symbols, which G18 / H5-INV-2 forbid an ingredient to share (measured: hint5Taxonomy.gate and hint5Production.gate fail), so 🍏 / 🪷 are PROPOSED instead; the fallback is never displayed.
+   * EMOJI DEVIATION (awaiting Owner confirmation): the Q-3 fallbacks for `lettuce` (🪴) and `cabbage` (🥬) are the Hint 5.0 `herb` / `vegetable` class symbols, which G18 / H5-INV-2 forbid an ingredient to share (measured: hint5Taxonomy.gate and hint5Production.gate fail), so 🍏 / 🪷 are PROPOSED instead. They are VISIBLE to players (no `pieceVisual`), so this is an Owner decision: wire the unwired SVGs (lettuce-leaf / cabbage-shreds) or name another G18-safe emoji.
    */
   { id: "cheddar", category: "cheese", nameJa: "チェダーチーズ", color: "#f2a33a", emoji: "\u{1F536}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "lettuce", category: "topping", nameJa: "レタス", color: "#9fd36b", emoji: "\u{1F34F}", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
