@@ -4734,7 +4734,7 @@ export const TACO_PIZZA_REFERENCE: ReferencePizza = {
         family: "TAP_PLACE",
         primaryInput: "DRAG_FROM_TRAY",
         fallbackInput: "TAP_ON_PIZZA",
-        landingStyle: "LIGHT_LEAF",
+        landingStyle: "HEAVY_SQUASH",
       },
       matching: { fullCreditRadius: 8, zeroCreditRadius: 22 },
     },
