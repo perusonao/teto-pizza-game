@@ -26,7 +26,7 @@ import { discoveredRecipeIds, EMPTY_DEX } from "../state/dex";
 /**
  * Expansion Batch 22 (Issue #780; Owner approvals 2026-11-09): six recipes and ten materials. PROVISIONAL SPEC: the original pizzadb.jp is NOT confirmed; the evidence is the 172 matrix rows
  * (speck-e-brie-pizzadb-p4, buffalo-chicken-pizzadb, pizza-finocchi-salad-pizzadb-p8, pizza-cavolo-carote-pizzadb-p8, pizza-radicchio-noci-pizzadb-p8, black-truffle-pizza-pizzadb-p14). Counts / the generic 58-78 bake window / colours / emoji are GAMEPLAY ASSUMPTIONS.
- * ORDINARY: speck-e-brie (ordinary step 72, brie) and buffalo-chicken (ordinary step 73, buffalo-sauce, a pre-bake PAINT sauce). LATE: pizza-finocchi-salad (fennel, orange), pizza-cavolo-carote (carrot, red-cabbage, sunflower-seeds),
+ * ORDINARY: buffalo-chicken (ordinary step 72, buffalo-sauce, a pre-bake PAINT sauce) and speck-e-brie (ordinary step 73, brie); the order is the REC-04 rule's own (a tie goes to the smaller recipe id). LATE: pizza-finocchi-salad (fennel, orange), pizza-cavolo-carote (carrot, red-cabbage, sunflower-seeds),
  * pizza-radicchio-noci (radicchio, balsamic-vinegar), black-truffle-pizza (truffle), one late step each.
  */
 const ORDINARY_IDS = ["speck-e-brie", "buffalo-chicken"] as const;
