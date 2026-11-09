@@ -25,7 +25,6 @@ import { buildHint5Ladder } from "../logic/discovery/hint5Ladder";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { discoveredRecipeIds, EMPTY_DEX } from "../state/dex";
-import { CANDIDATE_INGREDIENTS, CANDIDATE_RECIPES } from "./staged/stagedPromotionCandidates";
 
 /**
  * Expansion Batch 21 (Issue #780; Owner approvals 2026-11-08 Q-1 and 2026-11-09 Q-2 / Q-3): the two LATE recipes `taco-pizza` and `okonomiyaki-style-pizza` and their six late materials
@@ -96,12 +95,6 @@ describe("the two recipes (Q-3 values; late catalog, POST_BAKE garnishes, ladder
   it("the descriptions name no moment and no quantity (Anti-Oracle)", () => {
     for (const r of [taco, oko]) expect(r.description, r.id).not.toMatch(/焼く前|焼いた後|焼き上|後乗せ|仕上げ|[0-9０-９]/);
   });
-  it("the production recipes equal the staged promotion candidates (stagedPromotionCandidates.ts) field for field", () => {
-    for (const c of CANDIDATE_RECIPES) {
-      const shipped = RECIPES.find((r) => r.id === c.id)! as Recipe;
-      expect({ id: shipped.id, nameJa: shipped.nameJa, description: shipped.description, requiredIngredients: shipped.requiredIngredients, bakeTarget: shipped.bakeTarget, baseRewardPitz: shipped.baseRewardPitz, lunchRush: shipped.lunchRush }).toEqual(c);
-    }
-  });
 });
 
 describe("the six late materials (Q-3 values) and the two Owner-confirmation-pending DEVIATIONS", () => {
@@ -125,9 +118,7 @@ describe("the six late materials (Q-3 values) and the two Owner-confirmation-pen
   it("EMOJI DEVIATION (awaiting Owner confirmation): lettuce is 🍏 and cabbage is 🪷, not the Q-3 values 🪴 / 🥬, which are the Hint 5.0 herb / vegetable class symbols that G18 / H5-INV-2 forbid an ingredient to share; the fallback is never displayed", () => {
     expect(getIngredient("lettuce")!.emoji).toBe("\u{1F34F}");
     expect(getIngredient("cabbage")!.emoji).toBe("\u{1FAB7}");
-    const q3 = Object.fromEntries(CANDIDATE_INGREDIENTS.map((c) => [c.id, c.emoji]));
-    expect(q3.lettuce).toBe("\u{1FAB4}");
-    expect(q3.cabbage).toBe("\u{1F96C}");
+    // (The Q-3 values themselves are compared with src/data/staged/stagedPromotionCandidates.ts in staged/stagedPromotion.firstTrain.test.ts: nothing outside src/data/staged may import it.)
     expect(INGREDIENTS.some((i) => i.emoji === "\u{1FAB4}" || i.emoji === "\u{1F96C}")).toBe(false);
   });
   it("the text fallbacks are unique across the catalog (G18), including the two deviation values", () => {
@@ -149,16 +140,6 @@ describe("the six late materials (Q-3 values) and the two Owner-confirmation-pen
     for (const id of NEW_MATERIALS) {
       const [step, k] = expected[id];
       expect(materialOffer(getIngredient(id)!), id).toMatchObject({ ingredientId: id, step, tier: "T4", k, packQuantity: 10 * k, packPrice: 120, refillPrice: 60 });
-    }
-  });
-  it("the production ingredients equal the staged promotion candidates except the two pinned emoji deviations", () => {
-    for (const c of CANDIDATE_INGREDIENTS) {
-      const shipped = getIngredient(c.id)!;
-      const { emoji: shippedEmoji, ...rest } = { id: shipped.id, category: shipped.category, nameJa: shipped.nameJa, color: shipped.color, emoji: shipped.emoji, placement: shipped.placement, unlockCondition: shipped.unlockCondition };
-      const { emoji: candidateEmoji, ...expectedRest } = c;
-      expect(rest, c.id).toEqual(expectedRest);
-      if (c.id === "lettuce" || c.id === "cabbage") expect(shippedEmoji).not.toBe(candidateEmoji);
-      else expect(shippedEmoji).toBe(candidateEmoji);
     }
   });
 });
