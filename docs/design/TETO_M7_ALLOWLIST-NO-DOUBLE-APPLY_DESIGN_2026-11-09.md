@@ -1,5 +1,8 @@
 # M7 許可リスト（buffalo-sauce・honey）と B22 の PAINT 仕様の二重適用を避ける設計（#780、docs-only・設計のみ）
 
+
+> **状態更新（2026-11-09）:** #776 は merge 済み（`1d5f5a1e`）、#800 も merge 済み。実装順序は Owner 承認済み: #776 ✔ → B22 の HOT 編集 → M7。M7-d 承認済み（buffalo-chicken は B22 の焼成前 PAINT、buffalo-sauce は許可リストに追加しない）。最初の適用は hot-honey-pepperoni の honey。
+
 2026-11-09。コード・HOT は変更していない。**すべて提案。** 凡例: 【実測】読取り、【推論】、【未確認】。前提: Owner 承認（2026-11-09）— M7 は buffalo-sauce と honey を最初の許可リスト候補とする。実装は #776（DRIZZLE D1）の merge と B22 の HOT 編集の後。
 
 ## 1. 二重適用が起きる場所【実測】

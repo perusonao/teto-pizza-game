@@ -1,5 +1,8 @@
 # M7 POSTBAKE_SAUCE の影響範囲／D-ING-1 R1 の差分見積もり／B22・#800・DRIZZLE との競合（#780、docs-only）
 
+
+> **状態更新（2026-11-09）:** #776（DRIZZLE D1）は Squash merge 済み（`1d5f5a1e`）、#800 も merge 済み（`719428e0`、Owner iPhone HV 3/3 PASS）。以下 §1 の「#776 Open」「#800 Draft」「main に `src/logic/drizzle/` は無い」は**作成時（main `71141335`）の記述で、現在は解消済み**。B22 の HOT 編集は #800 の merge で競合が解消したが、仕様の Owner 承認待ち（`TETO_B22_OWNER-DECISION-TABLE_2026-11-09.md`）。#746（Lab）は未 merge。
+
 2026-11-09 / 基準 `origin/main` = `71141335`。コード・テスト・golden・HOT ファイルは変更していない。凡例: 【実測】取得した値、【推論】解釈・見積もり、【未確認】。
 
 ## 1. 競合の確認【実測】
