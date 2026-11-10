@@ -80,6 +80,15 @@
    "onlyBaseSauceDiffers": false
   },
   {
+   "evidenceId": "black-truffle-pizza-pizzadb-p14",
+   "shippedId": "black-truffle-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
    "evidenceId": "boscaiola-pizzadb-p12",
    "shippedId": "boscaiola",
    "mapped": true,
@@ -119,6 +128,20 @@
    "shippedOnly": [
     "mozzarella",
     "tomato-sauce"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "buffalo-chicken-pizzadb",
+   "shippedId": "buffalo-chicken",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.6,
+   "matrixOnly": [
+    "blue-cheese-dressing"
+   ],
+   "shippedOnly": [
+    "gorgonzola"
    ],
    "onlyBaseSauceDiffers": false
   },
@@ -421,6 +444,18 @@
    "shippedOnly": []
   },
   {
+   "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
+   "shippedId": "okonomiyaki-style-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.833,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "nori"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
    "evidenceId": "palmito-pizza-pizzadb-p7",
    "shippedId": "palmito-pizza",
    "mapped": true,
@@ -583,8 +618,26 @@
    "shippedOnly": []
   },
   {
+   "evidenceId": "pizza-cavolo-carote-pizzadb-p8",
+   "shippedId": "pizza-cavolo-carote",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
    "evidenceId": "pizza-feta-eliniki-pizzadb-p9",
    "shippedId": "pizza-feta-eliniki",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pizza-finocchi-salad-pizzadb-p8",
+   "shippedId": "pizza-finocchi-salad",
    "mapped": true,
    "sameComposition": true,
    "jaccard": 1.0,
@@ -612,6 +665,15 @@
   {
    "evidenceId": "pizza-portuguesa-pizzadb-p9",
    "shippedId": "pizza-portuguesa",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pizza-radicchio-noci-pizzadb-p8",
+   "shippedId": "pizza-radicchio-noci",
    "mapped": true,
    "sameComposition": true,
    "jaccard": 1.0,
@@ -751,6 +813,15 @@
    "shippedOnly": []
   },
   {
+   "evidenceId": "speck-e-brie-pizzadb-p4",
+   "shippedId": "speck-e-brie",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
    "evidenceId": "spinach-artichoke-pizza-pizzadb-p4",
    "shippedId": "spinach-artichoke-pizza",
    "mapped": true,
@@ -767,6 +838,22 @@
    "jaccard": 1.0,
    "matrixOnly": [],
    "shippedOnly": []
+  },
+  {
+   "evidenceId": "taco-pizza-pizzadb",
+   "shippedId": "taco-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.5,
+   "matrixOnly": [
+    "ground-beef",
+    "salsa"
+   ],
+   "shippedOnly": [
+    "beef",
+    "tomato-sauce"
+   ],
+   "onlyBaseSauceDiffers": false
   },
   {
    "evidenceId": "tandoori-paneer-pizza-pizzadb-p5",
@@ -899,6 +986,20 @@
    "onlyBaseSauceDiffers": false
   },
   {
+   "evidenceId": "buffalo-chicken-pizzadb",
+   "shippedId": "buffalo-chicken",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.6,
+   "matrixOnly": [
+    "blue-cheese-dressing"
+   ],
+   "shippedOnly": [
+    "gorgonzola"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
    "evidenceId": "capricciosa-pizzadb",
    "shippedId": "capricciosa",
    "mapped": true,
@@ -990,6 +1091,18 @@
    "onlyBaseSauceDiffers": true
   },
   {
+   "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
+   "shippedId": "okonomiyaki-style-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.833,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "nori"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
    "evidenceId": "pescatore-pizzadb-p11",
    "shippedId": "pescatore",
    "mapped": true,
@@ -1039,6 +1152,22 @@
     "curry-ketchup"
    ],
    "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "taco-pizza-pizzadb",
+   "shippedId": "taco-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.5,
+   "matrixOnly": [
+    "ground-beef",
+    "salsa"
+   ],
+   "shippedOnly": [
+    "beef",
+    "tomato-sauce"
+   ],
+   "onlyBaseSauceDiffers": false
   },
   {
    "evidenceId": "tandoori-paneer-pizza-pizzadb-p5",

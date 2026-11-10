@@ -1,97 +1,105 @@
 id,nameJa,state,evidenceRows,lane,newIngredients,mechanics,dependsOn,openOwnerItems,batch,issuePr,ownerDecision,doneCondition
-aussie,オージーピザ,SHIPPED,aussie-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-baba-ganoush-pizza,ババガヌーシュピザ,SHIPPED,baba-ganoush-pizza-pizzadb-p7,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-bacalhau,バカリャウピザ,SHIPPED,bacalhau-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-baingan-bharta-pizza,バインガンバルタピザ,SHIPPED,baingan-bharta-pizza-pizzadb-p6,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-bambino,バンビーノ,SHIPPED,bambino-pizzadb-p7,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-bbq-chicken-pizza,BBQチキンピザ,SHIPPED,bbq-chicken-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-bismarck,ビスマルク,SHIPPED,bismarck-pizza-pizzadb-p7,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-boscaiola,ボスカイオーラ,SHIPPED,boscaiola-pizzadb-p12,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-brazilian-calabresa,ブラジリアン・カラブレーザ,SHIPPED,brazilian-calabresa-pizzadb-p10,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-brazilian-catupiry-corn-pizza,ブラジリアン・カトゥピリ・コーンピザ,SHIPPED,brazilian-catupiry-corn-pizza-pizzadb-p10,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-breakfast-pizza,ブレックファストピザ,SHIPPED,breakfast-pizza-pizzadb-p11,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-calabresa-argentina,カラブレサ・アルヘンティーナ,SHIPPED,calabresa-argentina-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-california-style-pizza,カリフォルニアスタイルピザ,SHIPPED,california-style-pizza-pizzadb-p2,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-capricciosa,カプリチョーザ,SHIPPED,capricciosa-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-chilean-napolitana,チリアン・ナポリターナ,SHIPPED,chilean-napolitana-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-cuban-pizza,キューバンピザ,SHIPPED,cuban-pizza-pizzadb-p2,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-curry-pizza-japan,カレーピザ,SHIPPED,curry-pizza-japan-pizzadb-p2,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-currywurst,カリーヴルストピザ,SHIPPED,currywurst-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-eggplant-dengaku-pizza,ナス田楽ピザ,SHIPPED,eggplant-dengaku-pizza-pizzadb-p6,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-eggplant-ricotta-pizza,ナスとリコッタのピザ,SHIPPED,eggplant-ricotta-pizza-pizzadb-p5,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-eggplant-tahini-pizza,ナスとタヒニのピザ,SHIPPED,eggplant-tahini-pizza-pizzadb-p5,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-flammkuchen,タルトフランベ,SHIPPED,flammkuchen-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-frango-catupiry,フランゴ・カトゥピリ,SHIPPED,frango-catupiry-pizzadb-p10,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-fugazza,フガッサ,SHIPPED,fugazza-pizzadb-p10,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-full-english-pizza,フルイングリッシュピザ,SHIPPED,full-english-pizza-pizzadb-p10,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-funghi,フンギ,SHIPPED,(not in the 172),-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-genovese,ジェノベーゼ,SHIPPED,pesto-genovese-pizza-pizzadb-p11,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-goulash-pizza,グヤーシュピザ,SHIPPED,goulash-pizza-pizzadb-p3,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-grandma-pizza,グランマピザ,SHIPPED,grandma-pizza-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-hawaiian,ハワイアンピザ,SHIPPED,hawaiian-pizzadb-row,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-ikura-salmon-pizza,いくらとサーモンのピザ,SHIPPED,ikura-salmon-pizza-pizzadb-p1,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-jalapeno-popper-pizza,ハラペーニョ・ポッパーピザ,SHIPPED,jalapeno-popper-pizza-pizzadb-p7,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-jamaican-jerk-chicken-pizza,ジャマイカンジャークチキンピザ,SHIPPED,jamaican-jerk-chicken-pizza-pizzadb-p3,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-jamon-serrano-pizza,ハモンセラーノピザ,SHIPPED,jamon-serrano-pizza-pizzadb-p7,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-margherita,マルゲリータ,SHIPPED,margherita-pizzadb-row,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-marinara,マリナーラ,SHIPPED,marinara-pizza-pizzadb-p13,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-meat-lovers,ミートラヴァーズ,SHIPPED,meat-lovers-pizza-pizzadb-p13,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-melanzane-pizza,メランザーネピザ,SHIPPED,melanzane-pizza-pizzadb-p13,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-moussaka-style-pizza,ムサカ風ピザ,SHIPPED,moussaka-style-pizza-pizzadb-p13,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-napoletana,ナポリ,SHIPPED,(not in the 172),-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-new-haven-apizza,ニューヘイブンアピッツァ,SHIPPED,new-haven-apizza-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-new-zealand-lamb-pizza,ニュージーランドラムピザ,SHIPPED,new-zealand-lamb-pizza-pizzadb-p6,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-nigerian-suya-pizza,ナイジェリアンスヤピザ,SHIPPED,nigerian-suya-pizza-pizzadb-p5,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-palmito-pizza,パルミットピザ,SHIPPED,palmito-pizza-pizzadb-p7,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-parmigiana-pizza,パルミジャーナピザ,SHIPPED,parmigiana-pizza-pizzadb-p7,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pepperoni,ペパロニ,SHIPPED,(not in the 172),-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pescatore,ペスカトーレ,SHIPPED,pescatore-pizzadb-p11,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pesto-burrata-pizza,ペスト・ブッラータピザ,SHIPPED,pesto-burrata-pizzadb-p12,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pesto-caprese,ペストカプレーゼピザ,SHIPPED,pesto-caprese-pizzadb-p11,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pesto-gamberi,ペストガンベリピザ,SHIPPED,pesto-gamberi-pizzadb-p11,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pesto-noci-pizza,ペスト・ノーチピザ,SHIPPED,pesto-noci-pizzadb-p12,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pesto-patate,ペストパターテピザ,SHIPPED,pesto-patate-pizzadb-p12,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pesto-pollo,ペストポッロピザ,SHIPPED,pesto-pollo-pizzadb-p12,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pesto-salmone,ペストサーモン,SHIPPED,pesto-salmone-pizzadb-p11,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pesto-tonno,ペストトンノピザ,SHIPPED,pesto-tonno-pizzadb-p12,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pesto-trapanese,ペストトラパネーゼピザ,SHIPPED,pesto-trapanese-pizzadb-p11,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pesto-vegetariana,ペストベジタリアーナピザ,SHIPPED,pesto-vegetariana-pizzadb-p12,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pinsa-romana,ピンサ・ロマーナ,SHIPPED,pinsa-romana-pizzadb-p9,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pizza-alla-crudaiola,ピッツァ・アッラ・クルダイオーラ,SHIPPED,pizza-alla-crudaiola-pizzadb-p8,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pizza-alla-norma,ピッツァ・アッラ・ノルマ,SHIPPED,pizza-alla-norma-pizzadb-p9,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pizza-bianca,ピッツァ・ビアンカ,SHIPPED,(not in the 172),-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pizza-bianca-ricotta,ピッツァ・ビアンカ・リコッタ,SHIPPED,bianca-pizzadb-row,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pizza-feta-eliniki,ピッツァ・フェタ・エッリニキ,SHIPPED,pizza-feta-eliniki-pizzadb-p9,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pizza-moscow,ピッツァ・モスクワ,SHIPPED,pizza-moscow-pizzadb-p9,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pizza-overload,ピザオーバーロード,SHIPPED,pizza-overload-pizzadb-p7,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-pizza-portuguesa,ピッツァ・ポルトゲーザ,SHIPPED,pizza-portuguesa-pizzadb-p9,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-polish-kielbasa,ポーリッシュ・キエルバサピザ,SHIPPED,polish-kielbasa-pizzadb-p12,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-porchetta-pizza,ポルケッタピザ,SHIPPED,porchetta-pizza-pizzadb-p12,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-porcini-pizza,ポルチーニ茸のピザ,SHIPPED,porcini-pizza-pizzadb-p13,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-potato-mayo-pizza,じゃがマヨピザ,SHIPPED,potato-mayo-pizza-pizzadb-p3,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-prosciutto-funghi,プロシュットフンギ,SHIPPED,prosciutto-funghi-pizzadb-p11,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-puttanesca-pizza,プッタネスカ,SHIPPED,puttanesca-pizza-pizzadb-p10,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-quattro-formaggi,クアトロ フォルマッジ,SHIPPED,quattro-formaggi-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-ratatouille-pizza,ラタトゥイユピザ,SHIPPED,ratatouille-pizza-pizzadb-p13,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-reina-pepiada-pizza,ベネズエラレイナペピアーダピザ,SHIPPED,venezuelan-reina-pepiada-pizzadb-p12,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-rendang-pizza,ルンダンピザ,SHIPPED,rendang-pizza-pizzadb-p14,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-rucola-e-grana,ルーコラ・エ・グラナ,SHIPPED,rucola-e-grana-pizzadb-p13,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-salsiccia,サルシッチャ,SHIPPED,(not in the 172),-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-salsiccia-e-friarielli,サルシッチャ・エ・フリアリエッリ,SHIPPED,salsiccia-e-friarielli-pizzadb-p3,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-shirasu-pizza,しらすピザ,SHIPPED,shirasu-pizza-pizzadb-p3,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-sichuan-eggplant-pizza,四川風ナスピザ,SHIPPED,sichuan-eggplant-pizza,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-spanish-chorizo-pizza,スパニッシュ・チョリソ,SHIPPED,spanish-chorizo-pizza-pizzadb-p4,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-spinach-artichoke-pizza,スピナッチアーティチョークピザ,SHIPPED,spinach-artichoke-pizza-pizzadb-p4,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-supreme-pizza,スプリームピッツァ,SHIPPED,supreme-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-tandoori-paneer-pizza,タンドリーパニールピザ,SHIPPED,tandoori-paneer-pizza-pizzadb-p5,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-tarako-cream-pizza,たらこクリームピザ,SHIPPED,mentaiko-cream-pizza-pizzadb-p4,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-tonno-e-cipolla,トンノ・エ・チポッラ,SHIPPED,tonno-e-cipolla-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-ume-shiso-pizza,梅しそピザ,SHIPPED,ume-shiso-pizza-pizzadb-p14,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-vegan-cashew-cheese-pizza,ヴィーガンカシューチーズピザ,SHIPPED,vegan-cashew-cheese-pizza-pizzadb-p1,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-veggie-supreme-pizza,ベジースプリームピザ,SHIPPED,veggie-supreme-pizza-pizzadb-p11,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-vongole,ヴォンゴレピザ,SHIPPED,vongole-pizzadb,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-wasabi-beef-pizza,わさび牛ピザ,SHIPPED,wasabi-beef-pizza,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
-yuzu-shrimp-pizza,柚子えびピザ,SHIPPED,yuzu-shrimp-pizza,-,,,-,,-,shipped (main 348b1e4),-,in main catalog (done)
+aussie,オージーピザ,SHIPPED,aussie-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+baba-ganoush-pizza,ババガヌーシュピザ,SHIPPED,baba-ganoush-pizza-pizzadb-p7,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+bacalhau,バカリャウピザ,SHIPPED,bacalhau-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+baingan-bharta-pizza,バインガンバルタピザ,SHIPPED,baingan-bharta-pizza-pizzadb-p6,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+bambino,バンビーノ,SHIPPED,bambino-pizzadb-p7,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+bbq-chicken-pizza,BBQチキンピザ,SHIPPED,bbq-chicken-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+bismarck,ビスマルク,SHIPPED,bismarck-pizza-pizzadb-p7,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+black-truffle-pizza,黒トリュフピザ,SHIPPED,black-truffle-pizza-pizzadb-p14,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+boscaiola,ボスカイオーラ,SHIPPED,boscaiola-pizzadb-p12,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+brazilian-calabresa,ブラジリアン・カラブレーザ,SHIPPED,brazilian-calabresa-pizzadb-p10,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+brazilian-catupiry-corn-pizza,ブラジリアン・カトゥピリ・コーンピザ,SHIPPED,brazilian-catupiry-corn-pizza-pizzadb-p10,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+breakfast-pizza,ブレックファストピザ,SHIPPED,breakfast-pizza-pizzadb-p11,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+buffalo-chicken,バッファローチキンピザ,SHIPPED,buffalo-chicken-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+calabresa-argentina,カラブレサ・アルヘンティーナ,SHIPPED,calabresa-argentina-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+california-style-pizza,カリフォルニアスタイルピザ,SHIPPED,california-style-pizza-pizzadb-p2,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+capricciosa,カプリチョーザ,SHIPPED,capricciosa-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+chilean-napolitana,チリアン・ナポリターナ,SHIPPED,chilean-napolitana-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+cuban-pizza,キューバンピザ,SHIPPED,cuban-pizza-pizzadb-p2,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+curry-pizza-japan,カレーピザ,SHIPPED,curry-pizza-japan-pizzadb-p2,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+currywurst,カリーヴルストピザ,SHIPPED,currywurst-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+eggplant-dengaku-pizza,ナス田楽ピザ,SHIPPED,eggplant-dengaku-pizza-pizzadb-p6,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+eggplant-ricotta-pizza,ナスとリコッタのピザ,SHIPPED,eggplant-ricotta-pizza-pizzadb-p5,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+eggplant-tahini-pizza,ナスとタヒニのピザ,SHIPPED,eggplant-tahini-pizza-pizzadb-p5,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+flammkuchen,タルトフランベ,SHIPPED,flammkuchen-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+frango-catupiry,フランゴ・カトゥピリ,SHIPPED,frango-catupiry-pizzadb-p10,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+fugazza,フガッサ,SHIPPED,fugazza-pizzadb-p10,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+full-english-pizza,フルイングリッシュピザ,SHIPPED,full-english-pizza-pizzadb-p10,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+funghi,フンギ,SHIPPED,(not in the 172),-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+genovese,ジェノベーゼ,SHIPPED,pesto-genovese-pizza-pizzadb-p11,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+goulash-pizza,グヤーシュピザ,SHIPPED,goulash-pizza-pizzadb-p3,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+grandma-pizza,グランマピザ,SHIPPED,grandma-pizza-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+hawaiian,ハワイアンピザ,SHIPPED,hawaiian-pizzadb-row,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+ikura-salmon-pizza,いくらとサーモンのピザ,SHIPPED,ikura-salmon-pizza-pizzadb-p1,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+jalapeno-popper-pizza,ハラペーニョ・ポッパーピザ,SHIPPED,jalapeno-popper-pizza-pizzadb-p7,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+jamaican-jerk-chicken-pizza,ジャマイカンジャークチキンピザ,SHIPPED,jamaican-jerk-chicken-pizza-pizzadb-p3,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+jamon-serrano-pizza,ハモンセラーノピザ,SHIPPED,jamon-serrano-pizza-pizzadb-p7,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+margherita,マルゲリータ,SHIPPED,margherita-pizzadb-row,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+marinara,マリナーラ,SHIPPED,marinara-pizza-pizzadb-p13,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+meat-lovers,ミートラヴァーズ,SHIPPED,meat-lovers-pizza-pizzadb-p13,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+melanzane-pizza,メランザーネピザ,SHIPPED,melanzane-pizza-pizzadb-p13,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+moussaka-style-pizza,ムサカ風ピザ,SHIPPED,moussaka-style-pizza-pizzadb-p13,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+napoletana,ナポリ,SHIPPED,(not in the 172),-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+new-haven-apizza,ニューヘイブンアピッツァ,SHIPPED,new-haven-apizza-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+new-zealand-lamb-pizza,ニュージーランドラムピザ,SHIPPED,new-zealand-lamb-pizza-pizzadb-p6,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+nigerian-suya-pizza,ナイジェリアンスヤピザ,SHIPPED,nigerian-suya-pizza-pizzadb-p5,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+okonomiyaki-style-pizza,お好み焼き風ピザ,SHIPPED,okonomiyaki-style-pizza-pizzadb-p1,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+palmito-pizza,パルミットピザ,SHIPPED,palmito-pizza-pizzadb-p7,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+parmigiana-pizza,パルミジャーナピザ,SHIPPED,parmigiana-pizza-pizzadb-p7,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pepperoni,ペパロニ,SHIPPED,(not in the 172),-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pescatore,ペスカトーレ,SHIPPED,pescatore-pizzadb-p11,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pesto-burrata-pizza,ペスト・ブッラータピザ,SHIPPED,pesto-burrata-pizzadb-p12,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pesto-caprese,ペストカプレーゼピザ,SHIPPED,pesto-caprese-pizzadb-p11,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pesto-gamberi,ペストガンベリピザ,SHIPPED,pesto-gamberi-pizzadb-p11,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pesto-noci-pizza,ペスト・ノーチピザ,SHIPPED,pesto-noci-pizzadb-p12,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pesto-patate,ペストパターテピザ,SHIPPED,pesto-patate-pizzadb-p12,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pesto-pollo,ペストポッロピザ,SHIPPED,pesto-pollo-pizzadb-p12,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pesto-salmone,ペストサーモン,SHIPPED,pesto-salmone-pizzadb-p11,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pesto-tonno,ペストトンノピザ,SHIPPED,pesto-tonno-pizzadb-p12,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pesto-trapanese,ペストトラパネーゼピザ,SHIPPED,pesto-trapanese-pizzadb-p11,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pesto-vegetariana,ペストベジタリアーナピザ,SHIPPED,pesto-vegetariana-pizzadb-p12,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pinsa-romana,ピンサ・ロマーナ,SHIPPED,pinsa-romana-pizzadb-p9,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-alla-crudaiola,ピッツァ・アッラ・クルダイオーラ,SHIPPED,pizza-alla-crudaiola-pizzadb-p8,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-alla-norma,ピッツァ・アッラ・ノルマ,SHIPPED,pizza-alla-norma-pizzadb-p9,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-bianca,ピッツァ・ビアンカ,SHIPPED,(not in the 172),-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-bianca-ricotta,ピッツァ・ビアンカ・リコッタ,SHIPPED,bianca-pizzadb-row,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-cavolo-carote,ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ,SHIPPED,pizza-cavolo-carote-pizzadb-p8,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-feta-eliniki,ピッツァ・フェタ・エッリニキ,SHIPPED,pizza-feta-eliniki-pizzadb-p9,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-finocchi-salad,ピッツァ・コン・インサラータ・ディ・フィノッキ,SHIPPED,pizza-finocchi-salad-pizzadb-p8,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-moscow,ピッツァ・モスクワ,SHIPPED,pizza-moscow-pizzadb-p9,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-overload,ピザオーバーロード,SHIPPED,pizza-overload-pizzadb-p7,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-portuguesa,ピッツァ・ポルトゲーザ,SHIPPED,pizza-portuguesa-pizzadb-p9,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+pizza-radicchio-noci,ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ,SHIPPED,pizza-radicchio-noci-pizzadb-p8,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+polish-kielbasa,ポーリッシュ・キエルバサピザ,SHIPPED,polish-kielbasa-pizzadb-p12,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+porchetta-pizza,ポルケッタピザ,SHIPPED,porchetta-pizza-pizzadb-p12,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+porcini-pizza,ポルチーニ茸のピザ,SHIPPED,porcini-pizza-pizzadb-p13,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+potato-mayo-pizza,じゃがマヨピザ,SHIPPED,potato-mayo-pizza-pizzadb-p3,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+prosciutto-funghi,プロシュットフンギ,SHIPPED,prosciutto-funghi-pizzadb-p11,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+puttanesca-pizza,プッタネスカ,SHIPPED,puttanesca-pizza-pizzadb-p10,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+quattro-formaggi,クアトロ フォルマッジ,SHIPPED,quattro-formaggi-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+ratatouille-pizza,ラタトゥイユピザ,SHIPPED,ratatouille-pizza-pizzadb-p13,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+reina-pepiada-pizza,ベネズエラレイナペピアーダピザ,SHIPPED,venezuelan-reina-pepiada-pizzadb-p12,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+rendang-pizza,ルンダンピザ,SHIPPED,rendang-pizza-pizzadb-p14,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+rucola-e-grana,ルーコラ・エ・グラナ,SHIPPED,rucola-e-grana-pizzadb-p13,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+salsiccia,サルシッチャ,SHIPPED,(not in the 172),-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+salsiccia-e-friarielli,サルシッチャ・エ・フリアリエッリ,SHIPPED,salsiccia-e-friarielli-pizzadb-p3,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+shirasu-pizza,しらすピザ,SHIPPED,shirasu-pizza-pizzadb-p3,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+sichuan-eggplant-pizza,四川風ナスピザ,SHIPPED,sichuan-eggplant-pizza,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+spanish-chorizo-pizza,スパニッシュ・チョリソ,SHIPPED,spanish-chorizo-pizza-pizzadb-p4,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+speck-e-brie,スペックエブリー,SHIPPED,speck-e-brie-pizzadb-p4,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+spinach-artichoke-pizza,スピナッチアーティチョークピザ,SHIPPED,spinach-artichoke-pizza-pizzadb-p4,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+supreme-pizza,スプリームピッツァ,SHIPPED,supreme-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+taco-pizza,タコピザ,SHIPPED,taco-pizza-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+tandoori-paneer-pizza,タンドリーパニールピザ,SHIPPED,tandoori-paneer-pizza-pizzadb-p5,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+tarako-cream-pizza,たらこクリームピザ,SHIPPED,mentaiko-cream-pizza-pizzadb-p4,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+tonno-e-cipolla,トンノ・エ・チポッラ,SHIPPED,tonno-e-cipolla-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+ume-shiso-pizza,梅しそピザ,SHIPPED,ume-shiso-pizza-pizzadb-p14,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+vegan-cashew-cheese-pizza,ヴィーガンカシューチーズピザ,SHIPPED,vegan-cashew-cheese-pizza-pizzadb-p1,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+veggie-supreme-pizza,ベジースプリームピザ,SHIPPED,veggie-supreme-pizza-pizzadb-p11,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+vongole,ヴォンゴレピザ,SHIPPED,vongole-pizzadb,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+wasabi-beef-pizza,わさび牛ピザ,SHIPPED,wasabi-beef-pizza,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
+yuzu-shrimp-pizza,柚子えびピザ,SHIPPED,yuzu-shrimp-pizza,-,,,-,,-,shipped (main 4c275c2b),-,in main catalog (done)
 apple-cinnamon-dessert,アップルシナモンデザートピザ,NEEDS_D2_SOURCE_RESEARCH,apple-cinnamon-dessert-pizzadb,R-B,apple,,ingredients(staged): apple | ingredients now shipped: walnut,SOURCE_RESEARCHx1,RB-04,#780,D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 calzone-pizzadb,カルツォーネ（PIZZA DB版）,WAITS_MECHANIC,calzone-pizzadb,R-C,,ENCLOSE,mechanics: ENCLOSE (M3) | D-6 Research letter change (26 culprits),EXCEPTION_REVIEWx2;STAGED_PAIRx2;WAITS_MECHANICx1;WORKx1,RB-14,"#780, #773, PR#785",D-1 exception judgement x2 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 quattro-stagioni,クアトロスタジオーニ（PIZZA DB版）,WAITS_MECHANIC,quattro-stagioni-pizzadb,R-C,,ZONED,mechanics: ZONED (M6),EXCEPTION_REVIEWx4;STAGED_PAIRx2;WAITS_MECHANICx1,RB-17,"#780, #773, PR#620, #521",D-1 exception judgement x4,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
@@ -99,17 +107,14 @@ greek-style-pizzadb,グリークスタイルピザ（PIZZA DB版）,WAITS_MECHAN
 chicago-deep-dish-pizzadb,シカゴディープディッシュ（PIZZA DB版）,WAITS_MECHANIC,chicago-deep-dish-pizzadb,R-C,,PAN_PROFILE;STEP_ORDER,"mechanics: PAN_PROFILE,STEP_ORDER (M2+M6) | D-6 Research letter change (26 culprits)",EXCEPTION_REVIEWx3;STAGED_PAIRx3;WAITS_MECHANICx2;WORKx1,RB-17,"#780, #521, #532, #773, PR#620",D-1 exception judgement x3 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 siciliana-pizzadb,シチリアンピザ（PIZZA DB版）,WAITS_MECHANIC,siciliana-pizzadb,R-C,,DOUGH_SHAPE_TARGET;DOUGH_VARIANT;PAN_PROFILE,"mechanics: DOUGH_SHAPE_TARGET,DOUGH_VARIANT,PAN_PROFILE (M1+M2) | D-6 Research letter change (26 culprits)",EXCEPTION_REVIEWx3;STAGED_PAIRx2;WAITS_MECHANICx3;WORKx1,RB-15,"#780, #532, #577, PR#775",D-1 exception judgement x3 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 sfincione,スフィンチョーネ,STOP_D6_RESEARCH,sfincione-pizzadb,R-A,,,D-6 Research letter change (26 culprits),EXCEPTION_REVIEWx3;STAGED_PAIRx2,RB-09,#780,D-1 exception judgement x3 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-taco-pizza,タコピザ,READY_TO_PROMOTE,taco-pizza-pizzadb,R-B,cheddar;lettuce;tortilla-chips,,"ingredients(staged): cheddar,lettuce,tortilla-chips",-,RB-01,#780,Q-1..Q-5 (promotion approval),dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 trenton-tomato-pie,トレントントマトパイ,WAITS_MECHANIC,trenton-tomato-pie-pizzadb,R-C,,STEP_ORDER,mechanics: STEP_ORDER (M6),EXCEPTION_REVIEWx2;STAGED_PAIRx3;WAITS_MECHANICx1,RB-17,"#780, #773, PR#620, #521",D-1 exception judgement x2,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 ny-style,ニューヨークスタイルピザ（PIZZA DB版）,WAITS_MECHANIC,ny-style-pizzadb,R-C,,DOUGH_VARIANT,mechanics: DOUGH_VARIANT (M1),AXIS_WITH_M1x2;STAGED_PAIRx3;WAITS_MECHANICx1,RB-11,"#780, #577, PR#775",-,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-buffalo-chicken-pizzadb,バッファローチキンピザ（PIZZA DB版）,WAITS_MECHANIC,buffalo-chicken-pizzadb,R-B,buffalo-sauce,POSTBAKE_SAUCE,ingredients(staged): buffalo-sauce | mechanics: POSTBAKE_SAUCE (M7),WORKx1,RB-18,"#780, #579, PR#746, PR#776",Q-1..Q-5 (promotion approval),dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-baiana,ピッツァ・バイアーナ,STOP_D6_RESEARCH,pizza-baiana,R-A,,,D-6 Research letter change (26 culprits),CANDIDATE_PENDINGx2;EXCEPTION_REVIEWx3;STAGED_PAIRx3,RB-08,#780,D-3 chili confirm x2 / D-1 exception judgement x3 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-a-caballo,ピッツァ・ア・カバージョ,WAITS_MECHANIC,pizza-a-caballo,R-C,,DOUGH_VARIANT;ENCLOSE,"mechanics: DOUGH_VARIANT,ENCLOSE (M1+M3) | D-6 Research letter change (26 culprits)",AXIS_WITH_M1x2;EXCEPTION_REVIEWx1;OWNER_DECISIONx1;STAGED_PAIRx1;WAITS_MECHANICx2,RB-14,"#780, #577, #773, PR#775, PR#785",D-1 exception judgement x1 / undecided Owner item x1 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 fugazzeta-rellena,フガゼッタ・レジェーナ,WAITS_MECHANIC,fugazzeta-rellena,R-C,,DOUGH_VARIANT;ENCLOSE,"mechanics: DOUGH_VARIANT,ENCLOSE (M1+M3) | D-6 Research letter change (26 culprits)",EXCEPTION_REVIEWx2;STAGED_PAIRx2;WAITS_MECHANICx2,RB-14,"#780, #577, #773, PR#775, PR#785",D-1 exception judgement x2 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-de-cancha,ピッツァ・デ・カンチャ,WAITS_MECHANIC,pizza-de-cancha,R-C,,DOUGH_VARIANT,mechanics: DOUGH_VARIANT (M1),AXIS_WITH_M1x1;CANDIDATE_PENDINGx2;EXCEPTION_REVIEWx1;STAGED_PAIRx1;WAITS_MECHANICx1,RB-12,"#780, #577, PR#775",D-3 chili confirm x2 / D-1 exception judgement x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-swedish-kebab-pizza,スウェディッシュケバブピザ,NEEDS_D2_SOURCE_RESEARCH,swedish-kebab-pizza-pizzadb-p4,R-B,kebab-sauce;lettuce,,"ingredients(staged): kebab-sauce,lettuce",OWNER_DECISIONx2;SOURCE_RESEARCHx1,RB-05,#780,undecided Owner item x2 / D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
+swedish-kebab-pizza,スウェディッシュケバブピザ,NEEDS_D2_SOURCE_RESEARCH,swedish-kebab-pizza-pizzadb-p4,R-B,kebab-sauce,,ingredients(staged): kebab-sauce,OWNER_DECISIONx2;SOURCE_RESEARCHx1,RB-05,#780,undecided Owner item x2 / D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 scacciata-ragusana,スカッチャラグザーナ,WAITS_MECHANIC,scacciata-ragusana-pizzadb-p4,R-C,caciocavallo,ENCLOSE,ingredients(staged): caciocavallo | mechanics: ENCLOSE (M3),EXCEPTION_REVIEWx1;STAGED_PAIRx1;WAITS_MECHANICx1,RB-14,"#780, #773, PR#785",D-1 exception judgement x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-speck-e-brie-pizzadb,スペックエブリー,READY_AFTER_RENAME,speck-e-brie-pizzadb-p4,R-B,brie,,ingredients(staged): brie | ingredients now shipped: walnut,WORKx1,RB-02,#780,Q-1..Q-5 (promotion approval),dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 smore-dessert-pizza,スモアデザートピザ,NEEDS_D2_SOURCE_RESEARCH,smore-dessert-pizza-pizzadb-p4,R-B,chocolate;graham-cracker;marshmallow,,"ingredients(staged): chocolate,graham-cracker,marshmallow",SOURCE_RESEARCHx1,RB-05,#780,D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 st-louis-style-pizza,セントルイススタイルピザ,WAITS_MECHANIC,st-louis-style-pizza-pizzadb-p4,R-C,,DOUGH_VARIANT,mechanics: DOUGH_VARIANT (M1) | D-6 Research letter change (26 culprits),AXIS_WITH_M1x2;OWNER_DECISIONx2;STAGED_PAIRx2;WAITS_MECHANICx1,RB-12,"#780, #577, PR#775",undecided Owner item x2 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 thai-chicken-pizza,タイチキンピザ,NEEDS_D1_EXCEPTION_JUDGEMENT,thai-chicken-pizza-pizzadb-p4,R-B,peanut-sauce,,ingredients(staged): peanut-sauce,CANDIDATE_PENDINGx2;EXCEPTION_REVIEWx2,RB-07,#780,D-3 chili confirm x2 / D-1 exception judgement x2,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
@@ -117,7 +122,6 @@ argentine-napolitana,アルゼンチン風ナポリターナ,WAITS_MECHANIC,arge
 eel-pizza,うなぎピザ,WAITS_MECHANIC,eel-pizza-pizzadb-p1,R-C,eel;sansho-pepper,MID_BAKE,"ingredients(staged): eel,sansho-pepper | mechanics: MID_BAKE (M4)",SOURCE_RESEARCHx1,RB-16,"#780, #604, #611",D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 jerusalem-mixed-grill-pizza,エルサレムミックスグリルピザ,NEEDS_D2_SOURCE_RESEARCH,jerusalem-mixed-grill-pizza-pizzadb-p1,R-B,cumin,,ingredients(staged): cumin,SOURCE_RESEARCHx1,RB-04,#780,D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 old-forge-style-pizza,オールドフォージスタイルピザ,WAITS_MECHANIC,old-forge-style-pizza-pizzadb-p1,R-C,,DOUGH_SHAPE_TARGET;DOUGH_VARIANT,"mechanics: DOUGH_SHAPE_TARGET,DOUGH_VARIANT (M1+M2)",AXIS_WITH_M1x2;OWNER_DECISIONx2;STAGED_PAIRx2;WAITS_MECHANICx2,RB-15,"#780, #532, #577, PR#775",undecided Owner item x2,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-okonomiyaki-style-pizza,お好み焼き風ピザ,READY_TO_PROMOTE,okonomiyaki-style-pizza-pizzadb-p1,R-B,bonito-flakes;cabbage;okonomiyaki-sauce,,"ingredients(staged): bonito-flakes,cabbage,okonomiyaki-sauce",-,RB-01,#780,Q-1..Q-5 (promotion approval),dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 caponata-pizza,カポナータピザ,STOP_D6_RESEARCH,caponata-pizza-pizzadb-p2,R-A,,,D-6 Research letter change (26 culprits),SOURCE_RESEARCHx1,RB-08,#780,D-2 source research x1 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 cauliflower-crust-pizza,カリフラワークラストピザ,WAITS_MECHANIC,cauliflower-crust-pizza-pizzadb-p2,R-C,,DOUGH_VARIANT,mechanics: DOUGH_VARIANT (M1),OWNER_DECISIONx4;STAGED_PAIRx3;WAITS_MECHANICx1,RB-10,"#780, #577, PR#775",undecided Owner item x4,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 keema-pizza,キーマピザ,NEEDS_D1_EXCEPTION_JUDGEMENT,keema-pizza-pizzadb-p2,R-A,,,-,CANDIDATE_PENDINGx1;EXCEPTION_REVIEWx2;OWNER_DECISIONx2;SOURCE_RESEARCHx1;STAGED_PAIRx2,RB-06,#780,D-3 chili confirm x1 / D-1 exception judgement x2 / undecided Owner item x2 / D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
@@ -132,19 +136,16 @@ turkish-pide,トルコピデ,WAITS_MECHANIC,turkish-pide-pizzadb-p5,R-C,,DOUGH_S
 nashville-hot-chicken-pizza,ナッシュビルホットチキンピザ,NEEDS_D2_SOURCE_RESEARCH,nashville-hot-chicken-pizza-pizzadb-p6,R-B,,,ingredients now shipped: honey,SOURCE_RESEARCHx1,RB-05,#780,D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 new-england-bar-pizza,ニューイングランドバーピザ,WAITS_MECHANIC,new-england-bar-pizza-pizzadb-p6,R-C,,DOUGH_VARIANT;PAN_PROFILE,"mechanics: DOUGH_VARIANT,PAN_PROFILE (M1+M2) | D-6 Research letter change (26 culprits)",AXIS_WITH_M1x3;EXCEPTION_REVIEWx1;STAGED_PAIRx4;WAITS_MECHANICx2,RB-15,"#780, #532, #577, PR#775",D-1 exception judgement x1 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 nutella-dessert-pizza,ヌテラデザートピザ,NEEDS_CANDIDATE_SELECTION,nutella-dessert-pizza-pizzadb-p6,R-B,banana;chocolate;powdered-sugar,,"ingredients(staged): banana,chocolate,powdered-sugar",WAITS_IN_FLIGHTx2,RB-03,#780,-,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-banh-mi-pizza,バインミーピザ,NEEDS_D2_SOURCE_RESEARCH,banh-mi-pizza-pizzadb-p6,R-B,carrot;daikon;liver-pate,,"ingredients(staged): carrot,daikon,liver-pate",SOURCE_RESEARCHx1,RB-04,#780,D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
+banh-mi-pizza,バインミーピザ,NEEDS_D2_SOURCE_RESEARCH,banh-mi-pizza-pizzadb-p6,R-B,daikon;liver-pate,,"ingredients(staged): daikon,liver-pate",SOURCE_RESEARCHx1,RB-04,#780,D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 buffalo-cauliflower-pizza,バッファローカリフラワーピザ,NEEDS_D2_SOURCE_RESEARCH,buffalo-cauliflower-pizza-pizzadb-p6,R-B,cauliflower,,ingredients(staged): cauliflower,SOURCE_RESEARCHx1,RB-04,#780,D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 palmitos-salsa-golf,パルミートス・イ・サルサ・ゴルフ,WAITS_MECHANIC,palmitos-salsa-golf-pizzadb-p7,R-C,,DOUGH_VARIANT,mechanics: DOUGH_VARIANT (M1) | D-6 Research letter change (26 culprits),EXCEPTION_REVIEWx2;SOURCE_RESEARCHx1;STAGED_PAIRx1;WAITS_MECHANICx1,RB-11,"#780, #577, PR#775",D-1 exception judgement x2 / D-2 source research x1 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 piadina-romagnola,ピアディーナ・ロマニョーラ,WAITS_MECHANIC,piadina-romagnola-pizzadb-p7,R-C,,DOUGH_VARIANT,mechanics: DOUGH_VARIANT (M1),WAITS_MECHANICx1,RB-11,"#780, #577, PR#775",-,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-pizza-salad,ピザサラダ,NEEDS_D1_EXCEPTION_JUDGEMENT,pizza-salad-pizzadb-p7,R-B,cucumber;lettuce;yogurt-sauce,,"ingredients(staged): cucumber,lettuce,yogurt-sauce",EXCEPTION_REVIEWx2;STAGED_PAIRx1,RB-07,#780,D-1 exception judgement x2,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
+pizza-salad,ピザサラダ,NEEDS_D1_EXCEPTION_JUDGEMENT,pizza-salad-pizzadb-p7,R-B,cucumber;yogurt-sauce,,"ingredients(staged): cucumber,yogurt-sauce",EXCEPTION_REVIEWx2;STAGED_PAIRx1,RB-07,#780,D-1 exception judgement x2,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-asparagi-limone,ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ,NEEDS_D1_EXCEPTION_JUDGEMENT,pizza-asparagi-limone-pizzadb-p8,R-B,asparagus,,ingredients(staged): asparagus,EXCEPTION_REVIEWx2;STAGED_PAIRx1,RB-07,#780,D-1 exception judgement x2,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-carciofi-salad,ピッツァ・コン・インサラータ・ディ・カルチョーフィ,WAITS_MECHANIC,pizza-carciofi-salad-pizzadb-p8,R-C,celery,DOUGH_VARIANT,ingredients(staged): celery | mechanics: DOUGH_VARIANT (M1),STAGED_PAIRx1;WAITS_MECHANICx1,RB-11,"#780, #577, PR#775",-,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-pizza-finocchi-salad,ピッツァ・コン・インサラータ・ディ・フィノッキ,READY_TO_PROMOTE,pizza-finocchi-salad-pizzadb-p8,R-B,fennel;orange,,"ingredients(staged): fennel,orange",-,RB-02,#780,Q-1..Q-5 (promotion approval),dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-pizza-cavolo-carote,ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ,READY_TO_PROMOTE,pizza-cavolo-carote-pizzadb-p8,R-B,carrot;red-cabbage;sunflower-seeds,,"ingredients(staged): carrot,red-cabbage,sunflower-seeds",-,RB-02,#780,Q-1..Q-5 (promotion approval),dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-zucchine-menta,ピッツァ・コン・ズッキーネ・クルーデ・エ・メンタ,STOP_D6_RESEARCH,pizza-zucchine-menta-pizzadb-p8,R-A,,,D-6 Research letter change (26 culprits),EXCEPTION_REVIEWx2,RB-09,#780,D-1 exception judgement x2 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-cicoria-limone,ピッツァ・コン・チコリア・エ・リモーネ,WAITS_MECHANIC,pizza-cicoria-limone-pizzadb-p8,R-C,chicory;pecorino,DOUGH_VARIANT,"ingredients(staged): chicory,pecorino | mechanics: DOUGH_VARIANT (M1)",CANDIDATE_PENDINGx2;STAGED_PAIRx1;WAITS_MECHANICx1,RB-11,"#780, #577, PR#775",D-3 chili confirm x2,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-puntarelle,ピッツァ・コン・プンタレッレ,WAITS_MECHANIC,pizza-puntarelle-pizzadb-p8,R-C,chicory,DOUGH_VARIANT,ingredients(staged): chicory | mechanics: DOUGH_VARIANT (M1),STAGED_PAIRx1;WAITS_MECHANICx1,RB-12,"#780, #577, PR#775",-,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-pizza-radicchio-noci,ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ,READY_TO_PROMOTE,pizza-radicchio-noci-pizzadb-p8,R-B,balsamic-vinegar;radicchio,,"ingredients(staged): balsamic-vinegar,radicchio | ingredients now shipped: walnut",-,RB-02,#780,Q-1..Q-5 (promotion approval),dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-chilena,ピッツァ・チレーナ,STOP_D6_RESEARCH,pizza-chilena-pizzadb-p8,R-A,,,D-6 Research letter change (26 culprits),EXCEPTION_REVIEWx4;OWNER_DECISIONx2;STAGED_PAIRx3,RB-09,#780,D-1 exception judgement x4 / undecided Owner item x2 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-romana,ピッツァ・ロマーナ,WAITS_MECHANIC,pizza-romana-pizzadb-p9,R-C,,DOUGH_VARIANT,mechanics: DOUGH_VARIANT (M1) | D-6 Research letter change (26 culprits),AXIS_WITH_M1x2;EXCEPTION_REVIEWx1;STAGED_PAIRx2;WAITS_MECHANICx1,RB-12,"#780, #577, PR#775",D-1 exception judgement x1 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 pizza-al-taglio-romana,ピッツァアルタリオローマーナ,WAITS_MECHANIC,pizza-al-taglio-romana-pizzadb-p9,R-C,,DOUGH_SHAPE_TARGET;DOUGH_VARIANT,"mechanics: DOUGH_SHAPE_TARGET,DOUGH_VARIANT (M1+M2)",AXIS_WITH_M1x3;EXCEPTION_REVIEWx1;STAGED_PAIRx3;WAITS_MECHANICx2,RB-15,"#780, #532, #577, PR#775",D-1 exception judgement x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
@@ -172,7 +173,6 @@ mexican-elote-pizza,メキシカンエロテピザ,NEEDS_D2_SOURCE_RESEARCH,mexi
 montreal-style-pizza,モントリオールスタイルピザ,WAITS_MECHANIC,montreal-style-pizza-pizzadb-p13,R-C,,DOUGH_VARIANT;PAN_PROFILE,"mechanics: DOUGH_VARIANT,PAN_PROFILE (M1+M2) | D-6 Research letter change (26 culprits)",AXIS_WITH_M1x2;EXCEPTION_REVIEWx2;STAGED_PAIRx3;WAITS_MECHANICx2,RB-15,"#780, #532, #577, PR#775",D-1 exception judgement x2 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 nduja-pizza,ンドゥイヤピザ,NEEDS_D1_EXCEPTION_JUDGEMENT,nduja-pizza-pizzadb-p14,R-B,,,ingredients now shipped: honey,EXCEPTION_REVIEWx1;SOURCE_RESEARCHx1;STAGED_PAIRx1,RB-06,#780,D-1 exception judgement x1 / D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 tsukimi-pizza,月見ピザ,STOP_D6_RESEARCH,tsukimi-pizza-pizzadb-p14,R-A,,,D-6 Research letter change (26 culprits),EXCEPTION_REVIEWx3,RB-09,#780,D-1 exception judgement x3 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
-black-truffle-pizza,黒トリュフピザ,READY_TO_PROMOTE,black-truffle-pizza-pizzadb-p14,R-B,truffle,,ingredients(staged): truffle,-,RB-02,#780,Q-1..Q-5 (promotion approval),dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 teriyaki-chicken-pizza,照り焼きチキンピザ,STOP_D6_RESEARCH,teriyaki-chicken-pizza-pizzadb-p14,R-A,,,D-6 Research letter change (26 culprits),WORKx1,RB-09,#780,D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 south-african-boerewors,南アフリカボアヴォースピザ,NEEDS_D1_EXCEPTION_JUDGEMENT,south-african-boerewors-pizzadb-p14,R-B,chutney,,ingredients(staged): chutney,EXCEPTION_REVIEWx1;SOURCE_RESEARCHx1;STAGED_PAIRx2,RB-07,#780,D-1 exception judgement x1 / D-2 source research x1,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
 hokkaido-cheese-pizza,北海道チーズピザ,STOP_D6_RESEARCH,hokkaido-cheese-pizza-pizzadb-p15,R-A,,,D-6 Research letter change (26 culprits),EXCEPTION_REVIEWx2;OWNER_DECISIONx2,RB-08,#780,D-1 exception judgement x2 / undecided Owner item x2 / D-6 per-ID Research approval,dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge
