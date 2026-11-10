@@ -85,7 +85,7 @@ SHIPPED_I.update(ingredient_info(parse_blocks(P("src/data/ingredients.ts")), "in
 SHIPPED_I.update(ingredient_info(late_blocks, "lateCatalog.ts"))
 SHIPPED_I.update(ingredient_oneline(P("src/data/ingredients.ts"), "ingredients.ts"))
 SHIPPED_I.update(ingredient_oneline(P("src/data/lateCatalog.ts"), "lateCatalog.ts"))
-MAIN_SHA = "d3d4ec05"      # the main commit this ledger is generated from (update on every refresh)
+MAIN_SHA = "4c275c2b"      # the main commit this ledger is generated from (update on every refresh)
 
 ledger_test = open(P("src/data/catalogLedger.test.ts"), encoding="utf-8").read()
 m_r = re.search(r"recipes: pinsa \? (\d+) : (\d+)", ledger_test)
