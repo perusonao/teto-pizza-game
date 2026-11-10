@@ -9,7 +9,7 @@ Research 非正準 35 ID（承認パケット §2、`jamon-serrano-pizza` は対
 | 項目 | 結果 |
 |---|---|
 | Deploy to GitHub Pages（run 42742587915） | 1 回目: build は成功、`deploy-pages` が「Deployment failed, try again later.」で失敗（Pages の `deployment_queued` が約 45 秒続いた後の失敗。アプリのビルドではない）。**失敗 job を 1 回再実行して成功**（02:41:51）。原因の詳細は未確認（GitHub Pages 側の一時的な失敗と見られるが、確定ではない） |
-| E2E WebKit（run 42742588075） | classify・layout-chromium・Layout Contract Gate は成功。WebKit は 6 shard のうち **5 shard が成功**、`webkit-390x844 shard 1/3` は記録時点で実行中（**最終結果は未確認**。WebKit Gate は shard 完了待ち）。失敗は出ていない |
+| E2E WebKit（run 42742588075） | **全体が成功**（attempt 1、02:47:59 完了）: classify、layout-chromium、Layout Contract Gate、WebKit 6 shard（390×844・360×800 の各 3）、WebKit Gate。失敗・再実行なし。記録の作成時（02:45 頃）は 1 shard が実行中だったため、完了後に更新した |
 | iPhone HV ページ `pr/pr-807-eb37889/` の削除 | Owner の許可で `remove` を実行。run 42744296774 の validate・publish・live 検証が成功。**「`pr/<slug>/` 以外が staged されていない」ことを証明するステップも成功**（削除対象以外の差分なし）。Production・共有 Preview は変更していない |
 
 ## 3. 台帳（#810、main `d3d4ec05` 基準で再生成）【実測】
@@ -44,7 +44,7 @@ Research 非正準 35 ID（承認パケット §2、`jamon-serrano-pizza` は対
 プログラムの開始時（B21 前）からの累計の増分: 食材 +16（B21 の 6＋B22 の 10）、レシピ +8（B21 の 2＋B22 の 6）、調理法 +0。
 
 ## 6. 次の作業
-1. main の E2E WebKit の最終結果（`webkit-390x844 shard 1/3` と WebKit Gate）を確認する。失敗したら原因を調査し、失敗 job の再実行は 1 回まで。
+1. （完了）main の E2E WebKit は全体が成功。Deploy は再実行 1 回で成功。
 2. 台帳 #810 と承認の記録（本 PR）を Owner が確認して merge。#804（M7 台帳）と #810 は同じ台帳ファイルを触るため、後から merge する側が生成器を再実行する。
 3. D-ING-1（#805）の Owner 判断 4 項目。R1 の実装は決定後に別 PR（ladder のスナップショットは B22 後の main から生成）。
 4. B23 の準備（残 76 レシピ・54 食材）。着手は Owner の指示と claim の後。
