@@ -150,7 +150,7 @@ T24〜T26 の 16 品・16 食材は、往復 1 の回答だけで実装に入れ
 
 1. **HOT claim は列車シリーズで 1 本**。L1 以外は HOT を import して読むだけ。次の列車は前の列車の merge 後の main から分岐（積み上げない、§2 `WAIT_DEPENDENCY`）。
 2. **引き継ぎは保有 session の `released:true` のみ**（Owner が保有 session に直接指示）。第三者の「引き継ぎ希望」コメントでは動かない（B23-b の先例）。
-3. merge した session は**同じターンで release を投稿**する（#792 の release 漏れの再発防止）。【提案】「PR merge＝claim release とみなす」を §1 に追記（Owner 承認が要る。未実施）。
+3. merge した session は**同じターンで release を投稿**する（#792 の release 漏れの再発防止）。release は元 session の正式な `released:true` のみ（Owner 判断 2026-11-10: merge による自動 release は**不承認**）。代わりに「PR は merge 済みなのに claim が未 release」を Owner Gate のレポートに警告として出す release 忘れ防止チェックを足す（承認済み、#815 merge 後の別 PR）。
 4. staged の追従は L1 が「出荷品を生成器で外す」最小編集だけ行い、T-FX に通知（B19〜B23 の先例）。
 5. 台帳（`TETO_CONTENT-MASTER_LEDGER_*`）は後から merge する側が生成器を再実行（#804／#810 の先例）。
 6. L2 の成果物は列車ごとに別ファイル。L4 の SVG は新規ファイルのみで、配線は L1 の次の列車に同梱。
@@ -218,8 +218,12 @@ T24〜T26 の 16 品・16 食材は、往復 1 の回答だけで実装に入れ
 | R-RES-1 | Research 非正準の承認単位を「ID＋最大ずれ幅」にする（§3.3） | 承認（正準 0 は必須のまま） |
 | E-2 | T24〜T26 の列車割り（§4.2）で L2 がパケットを先行作成する | 承認（実装は各パケットの承認後） |
 | E-3 | Gate 自動化の次の段 G-A〜G-F（§3.4）を #815 merge 後に別 PR で進める | G-A・G-B・G-E・G-F を承認、G-C は内容を見てから |
-| E-4 | 「PR merge＝claim release」を Session Operations §1 に追記 | 承認 |
+| E-4 | 「PR merge＝claim release」を Session Operations §1 に追記 | 承認（→ **Owner 判断: 不承認**。release 忘れ防止チェックのみ承認） |
 | E-5 | 本ブランチの PR 化（ツールと本書） | 指示があれば Draft で作成 |
+
+### Owner 判断の記録（2026-11-10）
+
+E-1 承認（T24 から試験導入）／R-RES-1 条件付き承認（正準順の変化 0 を維持、非正準は ID・段・方向・最大ずれ幅を明示、未知の変更は包括承認しない）／E-2 承認（T24〜T26 のパケットを先行作成 → `TETO_TRAIN-EFFICIENCY_T24-T26_OwnerPackets_2026-11-10.md`）／E-3 条件付き承認（バッチテスト・HV シード・E2E 生成・`hot-files.json` 拡充を #815 merge 後に別 PR。既存 Gate の緩和・置換は禁止。実測スナップショット集約は設計を先行）／E-4 自動 release は不承認、release 忘れ防止チェックのみ承認／E-5 承認（Draft PR #816）。
 
 ## 9. Result Report（四項目）
 
