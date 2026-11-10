@@ -57,3 +57,17 @@
 ## 6. 本日の記録として残す点
 - 本日 main の WebKit 失敗は 4 件。いずれも同じコミットの再実行で成功し、merge・Deploy には影響しなかった（Deploy to GitHub Pages は 4 件とも success）。
 - Owner の指示（skip・タイムアウト延長の禁止）に従い、テスト・CI の設定は変更していない。
+
+## 7. 追記（2026-11-10 Owner 指示）: 5 件目 — PR #807 のブランチ（main ではない）【実測】
+2026-11-09 22:15 UTC、PR #807（B22 実装、Draft）の HEAD `c54e9fae`（**コメントのみの変更**）で、WebKit の 1 job が失敗し、**失敗した job の 1 回の再実行で成功**した。**原因は確定していない。** 上の 4 件は main の push、これは PR ブランチ（`pull_request` の run）である点が違う。
+
+| # | run（attempt 1 の job） | 対象 | project・shard | テスト | 失敗の形 | 再実行の結果 |
+|---|---|---|---|---|---|---|
+| 5 | 42707456770（job 129468082967、21:58–22:15 UTC） | #807 の HEAD `c54e9fae`（B22 の食材・レシピ。コメントのみの追加コミット） | webkit-360x800 shard 3/3（208 件成功・51 skip・1 失敗、15.6 分） | `e2e/sauce-edge-475.spec.ts:124`「sauce heatmap edge (Issue #475 Slice 1) › the same pixels carry SAUCE -> BAKE -> CUT -> RESULT (continuity and determinism)」 | **テストの 60 秒タイムアウト**: `Error: mouse.move: Protocol error (Input.dispatchMouseEvent): Page closed`（同 spec の `drag` ヘルパー 52 行、127 行の呼出し） | `rerun_failed_jobs` で job 129479366217 が成功（22:19–22:35 UTC）。WebKit Gate・全 11 check が成功 |
+
+- **別のテスト・別の形**: #1〜#4 のどれとも違うテスト。#4（teardown のタイムアウト）と同じ「ページ／コンテキストが閉じる側の問題」に見えるが（`Page closed`）、**同一原因かは未確認**。#394（WebKit cooking E2E の間欠失敗の総括）・#562（30 秒のタイムアウト）と「WebKit の間欠失敗」という点で近い。
+- **B22 との関係**: B22 はこのテストの経路（sauce の描画・`sauce-edge-475.spec.ts`）に触れていない。同じ spec は B22 の実装コミット `867ebeb8` の CI（11/11）で成功している。「変更と無関係」は再実行で通ったことからの推論で、**原因の特定ではない**。
+- **未確認**: 失敗時の artifact（`playwright-webkit-test-results-webkit-360x800-shard3-attempt1`、保持期限 14 日＝2026-11-23 頃）の内容。同 spec の過去の失敗履歴。ドラッグを 60 秒かけて打つ `drag` ヘルパー（`mouse.move` の間に `waitForTimeout`）が WebKit の負荷下でどこまで遅れるか。
+- **扱い**: テストの skip・タイムアウトの延長・assertion の弱化はしていない（Owner の指示どおり）。PR では失敗した job を **1 回だけ**再実行し、再失敗したら停止して報告する方針。
+- 集計: 2026-11-09 の WebKit 間欠失敗は main 4 件＋PR ブランチ 1 件＝**計 5 件**（うち 1 件は #680 と同じテスト）。5 件とも同じコミットの再実行で解消した。
+- §5 の手順 1（artifact の保存）は #1〜#5 の全てが対象。#5 の artifact も期限前に保存する。
