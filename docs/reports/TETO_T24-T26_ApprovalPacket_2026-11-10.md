@@ -2,7 +2,13 @@
 
 2026-11-10 / 基準 `main` `7a217c38`（#817 merge 後。カタログは `577dcfd7` と同一: レシピ 102／食材 117／ladder 87 step）。
 
-- **更新（同日）**: Owner 判断（1 回目・2 回目）で 28 件はすべて確定した。確定した仕様は Followup の §7。その経過と、原典調査・28 件の分類・Research 追補の実測・nduja の影響は `TETO_T24-T26_OwnerDecisions-Followup_2026-11-10.md` に記録した。§4.1 の追補と §8 の 25-2・25-3 は、そちらの値と推奨が新しい。
+- **更新（同日）— 本書は提示時点の記録。最終状態は Followup が正本。** Owner 判断（1 回目・2 回目）で 28 件はすべて確定し、確定した仕様は `TETO_T24-T26_OwnerDecisions-Followup_2026-11-10.md` の §7 にある。本書のうち次の箇所は、その後の判断と調査で**古くなっている**（履歴として残す）:
+  - 冒頭の「原典未確認」、§9 の「原典調査は未実施」「ブロッカー: §8 の Owner 回答」→ 原典は取得済み、Owner 判断は残っていない。
+  - §2 の T25 の表、§4.2 の「NO_SAUCE の品（banh-mi、elote）」→ banh-mi は liver-pate 1 を塗り層、elote は sour-cream 1 を下地（どちらも NO_SAUCE ではない）。
+  - §4.1 の追補 6 行 → 実測は 5 行・すべて最大ずれ 1。
+  - §4.2 と C-4 の新ソース 6 色 → liver-pate を加えて 7 色。
+  - §8 の「T25-R1」と 25-8 の参照先、再現手順の T25 → 正本は `T25-R2b`。
+  - `frutti-di-mare-pizzadb` の表記 → 出荷する id は `frutti-di-mare`。
 - **本書は準備であり、実装・HOT 編集・merge・Production ON・共有 Preview 更新の承認ではない。** 変更は本書と `docs/reports/data/TETO_T24-T26_PREP/**`（新規）のみ。
 - B23-b（#815、claim 6763341354）と content-train（#816、claim 6766203727）のファイル・branch には触れていない。#816 の道具は**スクラッチの作業ツリーで読み取り実行しただけ**で、#816 の成果物（`TETO_TRAIN-EFFICIENCY*`）は編集していない。
 - 暫定仕様・原典（pizzadb.jp）未確認。id・名前・数量・family・色は GAMEPLAY ASSUMPTION。

@@ -237,6 +237,9 @@ pizzadb.jp はセッションのネットワーク設定で遮断されていた
 | T26 | `T26-R1.spec.md` | 2 | 1（nduja） | `T26-R1.preflight.md` §4 の 9 ID ＋ §4 の追補 2 行 |
 | 計 | | **15** | **17** | 正準順の変化は 0 が必須（1 件でも出たら停止） |
 
+- **出荷する id は `frutti-di-mare`**（Q2 で承認した改名）。`T24-R1.spec.md` と `T24-R1.preflight.md` に出てくる `frutti-di-mare-pizzadb` は staged 上の名前で、内容は同じ品を指す。実装では `frutti-di-mare` を使う（出荷後の改名は図鑑の移行が要るため、出荷前に確定する）。出荷済みの id との衝突は無い【実測】。
+- `banh-mi-pizza` は late 配置（late ladder の食材 carrot を使うため）。**スペックどおり全ての材料を焼成前に置く。** 原典はなます・コリアンダーを焼成後に載せる方法にも触れているが、それを POST_BAKE にする変更は今回の承認に含まれない（行うなら Owner に戻す）。
+- Research の追補 5 行は T25-R2a（banh-mi が NO_SAUCE の形）で測った。R2b との違いは liver-pate の区分と数量だけで、有限食材の集合は同じ【推論】。実装 PR の測定で表の外が出たら停止する。
 - `T25-R1`・`T25-R2a` は検討の経過として残す。**T25 の正本は R2b**。
 - 暫定色（HV で最終判断）: aji-amarillo `#ffe60f`、peanut-sauce `#faa078`、chutney `#876e00`、sweet-bean-sauce `#50001e`、kebab-sauce `#96af91`、yogurt-sauce `#cdd7ff`、liver-pate `#af7387`。色差基準 dE ≥ 25 は維持。
 - 承認の外（実装中に出たら停止して Owner に戻す）: 表に無い ID・段・方向、表より大きいずれ、正準順の変化、スペックに無い材料・数量・配置の変更、既存 Gate の緩和、保存形式の変更。
