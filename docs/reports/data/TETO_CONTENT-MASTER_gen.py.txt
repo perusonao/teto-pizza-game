@@ -69,9 +69,23 @@ def ingredient_info(blocks, src):
     return out
 
 
+def ingredient_oneline(path, src):
+    """One-line rows `{ id: "x", category: "y", nameJa: "z", ... }` (late-catalog ingredients are written this way, B21 onward)."""
+    out = {}
+    for line in open(path, encoding="utf-8"):
+        m = re.match(r'^\s*\{ id: "([^"]+)", category: "([^"]+)", nameJa: "([^"]+)"', line)
+        if m and not m.group(1).startswith("order-"):
+            pv = re.search(r'pieceVisual: "([^"]+)"', line)
+            out[m.group(1)] = {"name": m.group(3), "category": m.group(2), "src": src, "svg": pv.group(1) if pv else ""}
+    return out
+
+
 SHIPPED_I = {}
 SHIPPED_I.update(ingredient_info(parse_blocks(P("src/data/ingredients.ts")), "ingredients.ts"))
 SHIPPED_I.update(ingredient_info(late_blocks, "lateCatalog.ts"))
+SHIPPED_I.update(ingredient_oneline(P("src/data/ingredients.ts"), "ingredients.ts"))
+SHIPPED_I.update(ingredient_oneline(P("src/data/lateCatalog.ts"), "lateCatalog.ts"))
+MAIN_SHA = "300e4b16"      # the main commit this ledger is generated from (update on every refresh)
 
 ledger_test = open(P("src/data/catalogLedger.test.ts"), encoding="utf-8").read()
 m_r = re.search(r"recipes: pinsa \? (\d+) : (\d+)", ledger_test)
@@ -103,8 +117,8 @@ for _s in S_R:
     if any(q.get("applicationPhase") == "POST_BAKE" and _cat.get(q["ingredientId"], "topping") != "topping" for q in _s["requiredIngredients"]):
         _s["mechanics"] = list(_s["mechanics"]) + ["POSTBAKE_SAUCE"]     # [MEASURED] FINISH accepts toppings only (gameReducer PLACE_TOPPING; validateLateCatalog)
         POSTBAKE_SAUCE_RECIPES.append(_s["id"])
-check("staged recipes == 84", len(S_R) == 84, len(S_R))
-check("staged ingredient candidates == 70", len(S_I) == 70, len(S_I))
+check(f"staged recipes == 177 - {len(SHIPPED_R)} shipped = {177 - len(SHIPPED_R)}", len(S_R) == 177 - len(SHIPPED_R), len(S_R))
+check(f"staged ingredient candidates == 170 - {len(SHIPPED_I)} shipped = {170 - len(SHIPPED_I)}", len(S_I) == 170 - len(SHIPPED_I), len(S_I))
 check("staged ingredients disjoint from shipped", not ({s["id"] for s in S_I} & set(SHIPPED_I)), sorted({s["id"] for s in S_I} & set(SHIPPED_I)))
 check("staged recipes disjoint from shipped", not ({s["id"] for s in S_R} & set(SHIPPED_R)), sorted({s["id"] for s in S_R} & set(SHIPPED_R)))
 check("staged recipe ids unique", len({s["id"] for s in S_R}) == len(S_R))
@@ -116,8 +130,8 @@ check("matrix rows == 172 and evidenceIds unique", len(matrix["rows"]) == 172 an
 plan87 = {r["evidenceId"]: r for r in plan["recipes"]}
 check("plan87 subset of matrix", set(plan87) <= set(ROWS), len(plan87))
 staged_ev = {s["evidenceId"] for s in S_R}
-newly_shipped_ev = sorted(set(plan87) - staged_ev)          # 87 - 84 = 3 rows that were in-flight, now shipped
-check("plan87 - staged == the 3 formerly in-flight rows", len(newly_shipped_ev) == 3, newly_shipped_ev)
+newly_shipped_ev = sorted(set(plan87) - staged_ev)          # plan rows no longer staged = shipped since the plan (3 in-flight at the plan + every batch merged since)
+check(f"plan87 - staged == the {len(plan87) - len(S_R)} rows shipped since the plan; staged is a subset of the plan", staged_ev <= set(plan87) and len(newly_shipped_ev) == len(plan87) - len(S_R), newly_shipped_ev)
 EVIDENCE_TO_SHIPPED_MANUAL = {      # [INFERRED] aliases where the matrix canonical id differs from the shipped id (Jaccard evidence printed in matrix_map)
     "bbq-chicken-pizzadb": "bbq-chicken-pizza",
     "supreme-pizzadb": "supreme-pizza",
@@ -141,7 +155,7 @@ for ev in sorted(linked):
     j = round(len(a & b) / len(a | b), 3) if (a | b) else None
     matrix_map.append({"evidenceId": ev, "shippedId": sid if ok else "", "mapped": ok, "sameComposition": ok and a == b, "jaccard": j,
                        "matrixOnly": sorted(a - b), "shippedOnly": sorted(b - a)})
-check("every non-staged matrix row maps to a shipped recipe (85 + 3)", all(x["mapped"] for x in matrix_map) and len(matrix_map) == 88,
+check(f"every non-staged matrix row maps to a shipped recipe ({172 - len(S_R)} rows)", all(x["mapped"] for x in matrix_map) and len(matrix_map) == 172 - len(S_R),
       [x["evidenceId"] for x in matrix_map if not x["mapped"]])
 by_shipped = defaultdict(list)
 for x in matrix_map:
@@ -151,8 +165,8 @@ check("no two matrix rows map to one shipped recipe (alias double count)", not d
 no_row = sorted(set(SHIPPED_R) - set(by_shipped))
 EXPECT_NO_ROW = ["funghi", "napoletana", "pepperoni", "pizza-bianca", "salsiccia"]
 check("shipped recipes without a 172 row == the 5 known (funghi napoletana pepperoni pizza-bianca salsiccia)", no_row == EXPECT_NO_ROW, no_row)
-check("172 = 88 shipped-linked + 84 staged", len(linked) + len(staged_ev) == 172 and len(staged_ev & set(linked)) == 0)
-check("177 = 93 shipped + 84 staged (distinct ids)", len(SHIPPED_R) + len(S_R) == 177 and not (set(SHIPPED_R) & {s['id'] for s in S_R}))
+check(f"172 = {len(linked)} shipped-linked + {len(staged_ev)} staged", len(linked) + len(staged_ev) == 172 and len(staged_ev & set(linked)) == 0)
+check(f"177 = {len(SHIPPED_R)} shipped + {len(S_R)} staged (distinct ids)", len(SHIPPED_R) + len(S_R) == 177 and not (set(SHIPPED_R) & {s['id'] for s in S_R}))
 variants = [x for x in matrix_map if not x["sameComposition"]]
 sauce_ids = {k for k, v in SHIPPED_I.items() if v["category"] == "sauce"}
 for x in variants:
@@ -300,7 +314,7 @@ ing_rows = []
 for iid, v in sorted(SHIPPED_I.items()):
     ing_rows.append({"id": iid, "nameJa": v["name"], "state": "SHIPPED", "category": v["category"], "kind": "", "svg": v["svg"] or "emoji-only",
                      "source": v["src"], "usedByRemainingRecipes": "", "firstRecipeBatch": "", "ingredientBatch": "-", "dependsOn": "-",
-                     "issuePr": "shipped (main 348b1e4)", "ownerDecision": "-", "doneCondition": "in main catalog (done)"})
+                     "issuePr": f"shipped (main {MAIN_SHA})", "ownerDecision": "-", "doneCondition": "in main catalog (done)"})
 KIND_ORDER = ["VEG", "FRUIT", "CHEESE", "MEAT", "SEAFOOD", "NUT", "SPICE", "DESSERT", "LIQUID", "SAUCE", "COMPOSITE"]
 # ingredient batches: grouped by the earliest recipe train that needs them, then by kind (cap 10); an ingredient needed by no staged recipe is impossible (checked)
 def first_batch(iid):
@@ -345,17 +359,18 @@ for s in S_I:
                      "firstRecipeBatch": first_batch(iid), "ingredientBatch": BATCH_OF_I[iid], "dependsOn": " | ".join(deps),
                      "issuePr": "#780 (staged #787/#788/#789); art #417 line (SVG)", "ownerDecision": " / ".join(owner),
                      "doneCondition": "in main catalog + ladder step + taxonomy/size/alias rows + icon (SVG or approved emoji) + Hint5/Research/DH4 goldens green + Owner HV (train sample)"})
-check("ingredient universe == 100 shipped + 70 candidates = 170", len(ing_rows) == 170 and len({r['id'] for r in ing_rows}) == 170, len(ing_rows))
+check(f"ingredient universe == {len(SHIPPED_I)} shipped + {len(S_I)} candidates = 170", len(ing_rows) == 170 and len({r['id'] for r in ing_rows}) == 170, len(ing_rows))
 check("the 3 formerly in-flight ingredients (burrata honey walnut) are shipped, not candidates", all(x in SHIPPED_I for x in ("burrata", "honey", "walnut")) and not ({"burrata", "honey", "walnut"} & {s["id"] for s in S_I}))
 plan_ing = {i["id"] for i in plan["ingredients"]}
-check("plan's 73 candidates == 70 staged + 3 now-shipped", plan_ing == ({s["id"] for s in S_I} | {"burrata", "honey", "walnut"}) and len(plan_ing) == 73, len(plan_ing))
+_shipped_since_plan = plan_ing - {s["id"] for s in S_I}
+check(f"plan's 73 candidates == {len(S_I)} staged + {len(_shipped_since_plan)} now-shipped (every non-staged plan ingredient is in the shipped catalog)", len(plan_ing) == 73 and {s["id"] for s in S_I} <= plan_ing and _shipped_since_plan <= set(SHIPPED_I) and {"burrata", "honey", "walnut"} <= _shipped_since_plan, sorted(_shipped_since_plan - set(SHIPPED_I)))
 
 # ---------------------------------------------------------------- recipe ledger ----------------------------------
 rec_rows = []
 for rid, v in sorted(SHIPPED_R.items()):
     rows = by_shipped.get(rid, [])
     rec_rows.append({"id": rid, "nameJa": v["name"], "state": "SHIPPED", "evidenceRows": ";".join(rows) or "(not in the 172)", "lane": "-", "newIngredients": "",
-                     "mechanics": "", "dependsOn": "-", "openOwnerItems": "", "batch": "-", "issuePr": "shipped (main 348b1e4)", "ownerDecision": "-",
+                     "mechanics": "", "dependsOn": "-", "openOwnerItems": "", "batch": "-", "issuePr": f"shipped (main {MAIN_SHA})", "ownerDecision": "-",
                      "doneCondition": "in main catalog (done)"})
 SHIP_NOW = {"burrata", "honey", "walnut"}
 for s in S_R:
@@ -383,7 +398,7 @@ for s in S_R:
                      "mechanics": ";".join(s["mechanics"]), "dependsOn": " | ".join(dep) or "-", "openOwnerItems": open_items or "-", "batch": BATCH_OF_R[rid],
                      "issuePr": ", ".join(dict.fromkeys(iss)), "ownerDecision": " / ".join(od) or "-",
                      "doneCondition": "dup gate ok (or Owner exception) + Research canonical order unchanged (or per-ID approval) + Hint5/DH4 + save safety + Owner HV (train sample) + merge"})
-check("recipe universe == 93 shipped + 84 candidates = 177", len(rec_rows) == 177 and len({r['id'] for r in rec_rows}) == 177, len(rec_rows))
+check(f"recipe universe == {len(SHIPPED_R)} shipped + {len(S_R)} candidates = 177", len(rec_rows) == 177 and len({r['id'] for r in rec_rows}) == 177, len(rec_rows))
 
 # ---------------------------------------------------------------- methods ledger ---------------------------------
 def gate_const(name):
@@ -419,7 +434,7 @@ mrow("M-STEP-ORDER", "工程順の入替 (cheese before sauce)", "mechanic M6", 
 mrow("M-ZONED", "ゾーン配置 (quadrants / centre)", "mechanic M6", HOLD, "ZONED UNAVAILABLE in identity signature; audit PR #620 open", "ZONED_PLACEMENT", "ZONED", "#773, PR #620 (audit), #620", "MB-06", "adoption (future phase per Owner policy 2026-10-20)", "zones OBSERVED in signature + Reference + scoring", "adopted (M-0 priority 6), Owner: future phase")
 mrow("M-LAMINATE", "折り重ね (LAMINATE: feteer)", "mechanic M6", UNDEC, "LAMINATE MISSING; 1 recipe only; Owner M-0: deferral candidate", "LAMINATE", "LAMINATE", "new issue needed", "(deferred; MB-06 only if adopted)", "Owner: adopt or drop (plan: deferral candidate)", "adoption decision first", "deferred (M-0)")
 mrow("M-MULTI3", "3 層目のソース (MULTI_SPREAD 3rd layer)", "mechanic M6", PART, "2 layers shipped (B1/B2/S1/S2, grandma #655, pesto-noci #792); 3rd layer design only", "MULTI_SPREAD_LAYER", "MULTI_SPREAD_3", "#521, #620", "MB-06", "adoption of a 3rd layer", "3-layer sauce field + scoring + Hint", "adopted (M-0 priority 6)")
-mrow("M-DRIZZLE", "仕上げがけ DRIZZLE ＝ 焼成後のソース／液体 (olive oil / honey / balsamic / buffalo)", "mechanic M7", PART, "D1 pure logic PR #776 open (unmerged); Gesture Lab PR #746 open; olive-oil DRIZZLE still a TODO in recipeSauceProfiles", "", "POSTBAKE_SAUCE", "#579, PR #746, PR #776", "MB-08", "gesture choice (Lab HV) + FINISH accepting non-topping", "FINISH accepts sauce/liquid (today PLACE_TOPPING refuses non-toppings); DRIZZLE gesture wired behind a gate; buffalo-chicken / hot-honey-pepperoni / detroit-style shippable", "adopted (open Owner Gate)")
+mrow("M-DRIZZLE", "仕上げがけ DRIZZLE ＝ 焼成後のソース／液体 (olive oil / honey / balsamic / buffalo)", "mechanic M7", PART, "D1 pure logic merged (PR #776, unwired, production OFF); Gesture Lab PR #746 open; olive-oil DRIZZLE still a TODO in recipeSauceProfiles", "", "POSTBAKE_SAUCE", "#579, PR #746, PR #776", "MB-08", "gesture choice (Lab HV) + FINISH accepting non-topping", "FINISH accepts sauce/liquid (today PLACE_TOPPING refuses non-toppings); DRIZZLE gesture wired behind a gate; buffalo-chicken / hot-honey-pepperoni / detroit-style shippable", "adopted (open Owner Gate)")
 mrow("M-STEAM", "蒸す (STEAM: clam / mussel)", "cooking method", PART, f"S1/S2 merged (PR #729/#734, {GATES['steam']}); S3 UI PR #738 open since 2026-11-03; V2/V3 prototypes Draft", "", "", "#726, PR #738, #755, PR #756/#757/#762/#763", "MB-07", "S3 HV A/B result + Production ON", "UI wired + production ON", "adopted; NO staged recipe waits for it [MEASURED]")
 mrow("M-SEAR", "炙る (SEAR: sausage long-press)", "cooking method", IMPL, f"PR #725 + Production ON PR #730 ({GATES['sear']})", "", "", "#724, #727", "-", "-", "done", "adopted")
 mrow("M-SQUEEZE", "絞る (squeeze stroke: mayo)", "interaction", IMPL, "mayo teardrop stroke, Batch 13 (squeeze.ts)", "", "", "#708, PR #716", "-", "-", "done", "adopted")
@@ -467,7 +482,7 @@ summary = {
                     "byStatus": Counter(s["status"] for s in S_I), "batches": len(IB), "batchSizes": {b: len(ids) for b, _, ids in IB},
                     "shippedWithDedicatedSvg": sum(1 for v in SHIPPED_I.values() if v["svg"])},
     "methods": {"total": len(M), "byStatus": Counter(r["status"] for r in M)},
-    "matrix": {"rows": 172, "shippedLinked": 88, "staged": 84, "shippedWithoutRow": no_row, "linkedWithDifferentComposition": len(variants), "differOnlyInBaseSauce": len(variants_sauce_only), "differInNonSauceIngredients": len(variants_real),
+    "matrix": {"rows": 172, "shippedLinked": len(linked), "staged": len(S_R), "shippedWithoutRow": no_row, "linkedWithDifferentComposition": len(variants), "differOnlyInBaseSauce": len(variants_sauce_only), "differInNonSauceIngredients": len(variants_real),
                "differInNonSauceIngredientsIds": [x["evidenceId"] for x in variants_real],
                "capabilityRows": dict(cap_counts)},
     "dupGateVsShipped": {
@@ -475,7 +490,7 @@ summary = {
         "oneDiffOrJaccardOnly": len({r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"] and d["kind"] in ("ONE_DIFF", "JACCARD_GT_0_4")} -
                                     {r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"] and d["kind"] in ("IDENTICAL", "SUBSET", "SUPERSET")}),
         "anyHit": len({r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"]}),
-        "noShippedHit": 84 - len({r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"]}),
+        "noShippedHit": len(S_R) - len({r["id"] for r in gate["perRecipe"] for d in r["dup"] if not d["againstStaged"]}),
     },
     "postBakeSauceRecipes": POSTBAKE_SAUCE_RECIPES,
     "readyNow": {"recipesReady": len(ready), "recipesReadyAfterRename": len([k for k, v in STATE_OF.items() if v == "READY_AFTER_RENAME"]),
@@ -509,13 +524,13 @@ def write_md(name, title, intro, rows, cols, heads):
             f.write("| " + " | ".join(md_cell(r.get(c, "")) for c in cols) + " |\n")
 
 
-GEN = "Generated by `docs/reports/data/TETO_CONTENT-MASTER_gen.py.txt` from main `348b1e4`; machine checks in `TETO_CONTENT-MASTER_verification.json` (all must PASS). Do not edit by hand."
-write_md("TETO_CONTENT-MASTER_LEDGER_ingredients.md", "全食材マスター台帳（170 = 出荷済み 100 + 候補 70）",
+GEN = f"Generated by `docs/reports/data/TETO_CONTENT-MASTER_gen.py.txt` from main `{MAIN_SHA}`; machine checks in `TETO_CONTENT-MASTER_verification.json` (all must PASS). Do not edit by hand."
+write_md("TETO_CONTENT-MASTER_LEDGER_ingredients.md", f"全食材マスター台帳（170 = 出荷済み {len(SHIPPED_I)} + 候補 {len(S_I)}）",
          GEN + " 状態: SHIPPED=main に存在。CANDIDATE_ACTIVE=staged レシピが参照。CANDIDATE_ALIASED/MERGED_PROVISIONAL=Owner 規則 I-1/I-2 で既存 id を再利用または統合する暫定候補（追加不要になりうる）。",
          [r for r in ing_rows if r["state"] != "SHIPPED"] + [r for r in ing_rows if r["state"] == "SHIPPED"],
          ["id", "nameJa", "state", "category", "kind", "svg", "usedByRemainingRecipes", "firstRecipeBatch", "ingredientBatch", "ownerDecision", "issuePr"],
          ["ID", "名称", "現状", "区分", "種別", "SVG", "依存（使うレシピ）", "最初に要る列車", "食材バッチ", "必要なOwner判断", "Issue/PR"])
-write_md("TETO_CONTENT-MASTER_LEDGER_recipes.md", "全レシピマスター台帳（177 = 出荷済み 93 + 候補 84）",
+write_md("TETO_CONTENT-MASTER_LEDGER_recipes.md", f"全レシピマスター台帳（177 = 出荷済み {len(SHIPPED_R)} + 候補 {len(S_R)}）",
          GEN + " 出荷済みの evidenceRows は 172 マトリクスの行（別名照合済み）。候補の state は D-1〜D-7 適用後の主たる阻害要因（1 レシピ 1 値、優先順は生成器のコメント参照）。",
          [r for r in rec_rows if r["state"] != "SHIPPED"] + [r for r in rec_rows if r["state"] == "SHIPPED"],
          ["id", "nameJa", "state", "batch", "newIngredients", "mechanics", "openOwnerItems", "ownerDecision", "issuePr", "evidenceRows"],

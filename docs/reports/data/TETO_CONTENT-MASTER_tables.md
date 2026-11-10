@@ -3,7 +3,7 @@
 
 | batch | n | title | prerequisite | members |
 |---|---|---|---|---|
-| RB-01 | 2 | First train: D-7 candidates (taco / okonomiyaki, late catalog) | Owner Q-1..Q-5 (docs/reports/TETO_FULL-EXPANSION-177_Decisions-FirstTrain_Result.md §4) | taco-pizza, okonomiyaki-style-pizza |
+| RB-01 | 0 | First train: D-7 candidates (taco / okonomiyaki, late catalog) | Owner Q-1..Q-5 (docs/reports/TETO_FULL-EXPANSION-177_Decisions-FirstTrain_Result.md §4) |  |
 | RB-02 | 5 | Second train: remaining decided-ready recipes (3 need only the D-4 id rename) | RB-01 merged (HOT serial) + Owner Q-5 + per-recipe Research/Hint/save/icon checks | speck-e-brie-pizzadb, pizza-finocchi-salad, pizza-cavolo-carote, pizza-radicchio-noci, black-truffle-pizza |
 | RB-03 | 2 | No new mechanic, blocked on: MISC_OWNER_DECISION | Owner picks between overlapping staged candidates (STAGED_PAIR) or decides an item beyond D-1..D-7 (R-7 / R-8 / R-3 HOLD) | nutella-dessert-pizza, peking-duck-pizza |
 | RB-04 | 5 | No new mechanic, blocked on: NEEDS_D2_SOURCE_RESEARCH | Original-source research (pizzadb.jp) for the base sauce (D-2); NO_SAUCE may not be assumed | apple-cinnamon-dessert, banh-mi-pizza, buffalo-cauliflower-pizza, jerusalem-mixed-grill-pizza, mentaiko-mochi-pizza |
@@ -26,12 +26,11 @@
 
 | batch | n | title | members |
 |---|---|---|---|
-| IB-01 | 8 | needed by the decided-ready trains (RB-01/02) | cabbage, lettuce, cheddar, bonito-flakes, okonomiyaki-sauce, tortilla-chips, carrot, fennel |
-| IB-02 | 7 | needed by the decided-ready trains (RB-01/02) | radicchio, red-cabbage, orange, brie, sunflower-seeds, balsamic-vinegar, truffle |
-| IB-03 | 9 | needed only by recipes with no new mechanic (Owner-gated) | cucumber, banana, chocolate, powdered-sugar, sweet-bean-sauce, peking-duck, cauliflower, daikon, apple |
-| IB-04 | 9 | needed only by recipes with no new mechanic (Owner-gated) | mentaiko, cumin, liver-pate, mochi, lime, graham-cracker, marshmallow, aji-amarillo, kebab-sauce |
-| IB-05 | 7 | needed only by recipes with no new mechanic (Owner-gated) | spicy-salami, squid, chicken-tikka, asparagus, chutney, peanut-sauce, yogurt-sauce |
-| IB-06 | 8 | needed by mechanic-gated recipes | blueberry, kiwi, strawberry, rock-salt, celery, chicory, halloumi, pecorino |
-| IB-07 | 8 | needed by mechanic-gated recipes | zaatar, cheese-curd, gravy-sauce, french-fries, kimchi, yakiniku-sauce, caciocavallo, okra |
-| IB-08 | 7 | needed by mechanic-gated recipes | eel, sansho-pepper, natto, condensed-milk, melted-butter, brick-cheese, buffalo-sauce |
-| IB-09 | 7 | alias / merge candidates (I-1 / I-2): decide BEFORE adding; may need no new id | puntarelle, cotija, ground-beef, chili-powder, blue-cheese-dressing, nutella-spread, salsa |
+| IB-01 | 9 | needed by the decided-ready trains (RB-01/02) | carrot, fennel, radicchio, red-cabbage, orange, brie, sunflower-seeds, balsamic-vinegar, truffle |
+| IB-02 | 9 | needed only by recipes with no new mechanic (Owner-gated) | cucumber, banana, chocolate, powdered-sugar, sweet-bean-sauce, peking-duck, cauliflower, daikon, apple |
+| IB-03 | 9 | needed only by recipes with no new mechanic (Owner-gated) | mentaiko, cumin, liver-pate, mochi, lime, graham-cracker, marshmallow, aji-amarillo, kebab-sauce |
+| IB-04 | 7 | needed only by recipes with no new mechanic (Owner-gated) | spicy-salami, squid, chicken-tikka, asparagus, chutney, peanut-sauce, yogurt-sauce |
+| IB-05 | 8 | needed by mechanic-gated recipes | blueberry, kiwi, strawberry, rock-salt, celery, chicory, halloumi, pecorino |
+| IB-06 | 8 | needed by mechanic-gated recipes | zaatar, cheese-curd, gravy-sauce, french-fries, kimchi, yakiniku-sauce, caciocavallo, okra |
+| IB-07 | 7 | needed by mechanic-gated recipes | eel, sansho-pepper, natto, condensed-milk, melted-butter, brick-cheese, buffalo-sauce |
+| IB-08 | 7 | alias / merge candidates (I-1 / I-2): decide BEFORE adding; may need no new id | puntarelle, cotija, ground-beef, chili-powder, blue-cheese-dressing, nutella-spread, salsa |
