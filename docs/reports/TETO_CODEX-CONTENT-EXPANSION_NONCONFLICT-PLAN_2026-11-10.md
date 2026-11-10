@@ -102,7 +102,7 @@ D1 runtime の allowlist は **`olive-oil` のみ**である。D2 のために D
 
 ### 6.2 D2 の5契約を正規SSOTへ統合する
 
-D2 は #804 の CI 修復と、次の5契約の正規SSOT統合を先行条件とする。
+D2 は #804 の CI 根因修復と、次の5契約の正規SSOT統合を先行条件とする。attempt 2 の rerun 成功だけでは修復完了とせず、現時点の D2 実装は HOLD とする。
 
 1. post-bake liquid は明示 allowlist の ID だけを対象とする（D2計画に `honey` を含む）。
 2. 液体 ID ごとに1ラウンド1回、在庫を1個消費する。
@@ -114,6 +114,7 @@ D2 は #804 の CI 修復と、次の5契約の正規SSOT統合を先行条件�
 
 - attempt 1: `deductionGuard.gate.test.ts` が120秒で timeout。649 files / 12,071 tests は通過し、assertion failure はなかった。
 - attempt 2: failed-job rerun が成功し、結果は **RERUN_PASSED**。
+- PR #815 の最新CIでも同じ `deductionGuard.gate.test.ts:110` が120秒で timeout しており、コード上の根因修復は未完了。
 
 初回 timeout の履歴を消さず、attempt 2 の成功と併記する。timeout や Gate の緩和は修復手段にしない。
 
@@ -135,7 +136,7 @@ D-ING-1 は設計のみ継続し、HOT 実装は B23 完了後に別 claim で�
 
 1. **STEAM S4を優先**し、非競合の比較・検証を進める。
 2. **FRY F2は正式 claim 取得後に並行**して進める。
-3. **M7 D2は5契約の正規SSOT統合と #804 CI修復後**に実装へ進む。
+3. **M7 D2は5契約の正規SSOT統合と #804 CI根因修復後**に実装へ進む。rerun成功のみでは解除せず、それまではHOLDとする。
 4. **D-ING-1は設計継続**、HOT実装はB23完了後の別claimとする。
 
 eggplant 専用 visual は既承認 SVG 方針で比較・検証を進めるが、最終採用は Owner HV 後とする。
