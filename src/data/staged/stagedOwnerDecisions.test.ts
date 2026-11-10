@@ -24,8 +24,8 @@ describe("Staged Catalog — Owner decisions D-1..D-7 (Issue #780, 2026-11-08)",
   });
 
   it("changes no staged data and excludes nothing (D-1: no bulk exclusion)", () => {
-    expect(STAGED_RECIPES).toHaveLength(76); // (Expansion Batch 22, #780: six more shipped; Expansion Batch 21, #780: taco-pizza and okonomiyaki-style-pizza shipped; was 84)
-    expect(decisions).toHaveLength(76);
+    expect(STAGED_RECIPES).toHaveLength(75); // (Expansion Batch 22, #780: six more shipped; Expansion Batch 21, #780: taco-pizza and okonomiyaki-style-pizza shipped; was 84)
+    expect(decisions).toHaveLength(75);
   });
 
   it("D-2 never turns an open sauce into NO_SAUCE; D-3 never confirms chili-oil; D-6 stops every causing recipe of the Research golden", () => {

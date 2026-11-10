@@ -1,15 +1,15 @@
 {
- "blockingDependencies": 389,
+ "blockingDependencies": 387,
  "byVerdict": {
   "AUTO_RESOLVED": 8,
   "RULE_DECIDED_WORK": 2,
-  "DUPLICATE_COUNT": 24,
+  "DUPLICATE_COUNT": 23,
   "WAITS_MECHANIC": 58,
   "WAITS_IN_FLIGHT": 2,
   "AXIS_CONDITIONAL": 30,
   "STAGED_PAIR": 94,
   "EXCEPTION_NEEDED": 76,
-  "OWNER_DECISION": 95
+  "OWNER_DECISION": 94
  },
  "autoResolved": 8,
  "byKind": {
@@ -32,10 +32,10 @@
    "WAITS_IN_FLIGHT": 1,
    "AXIS_CONDITIONAL": 13,
    "EXCEPTION_NEEDED": 25,
-   "OWNER_DECISION": 65
+   "OWNER_DECISION": 64
   },
   "SAUCE_UNSPECIFIED": {
-   "DUPLICATE_COUNT": 24
+   "DUPLICATE_COUNT": 23
   },
   "UNRESOLVED_TOKEN": {
    "WAITS_IN_FLIGHT": 1,
@@ -45,7 +45,7 @@
  "ownerRules": {
   "R-1": {
    "RULE_DECIDED_WORK": 2,
-   "OWNER_DECISION": 22
+   "OWNER_DECISION": 21
   },
   "R-2": {
    "AXIS_CONDITIONAL": 10,
@@ -554,13 +554,6 @@
   }
  },
  "perRecipe": [
-  {
-   "id": "apple-cinnamon-dessert",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1"
-   ]
-  },
   {
    "id": "calzone-pizzadb",
    "proposals": [],

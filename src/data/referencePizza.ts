@@ -4934,32 +4934,6 @@ export const APPLE_CINNAMON_DESSERT_REFERENCE: ReferencePizza = {
 };
 
 /**
- * Expansion Batch 23 (#780, PROVISIONAL, ORIGINAL NOT CONFIRMED; Owner 2026-11-10): Reference Truth for `nutella-dessert-pizza` (banana 2 / chocolate 2 / powdered-sugar 2 = 6 non-sauce pieces; NO_SAUCE: the mechanical sauce reference of a `null` profile; chocolate is a scattered topping, Owner Q-2). 6 pieces take the first 6 slots of the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION, not source authority.
- */
-export const NUTELLA_DESSERT_PIZZA_REFERENCE: ReferencePizza = {
-  recipeId: "nutella-dessert-pizza",
-  sauce: computeMechanicalSauceReference("nutella-dessert-pizza"),
-  pieceGroups: [
-    { ingredientId: "banana", positions: [{ x: 50, y: 24 }, { x: 73, y: 36 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
-    { ingredientId: "chocolate", positions: [{ x: 76, y: 63 }, { x: 58, y: 79 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
-    { ingredientId: "powdered-sugar", positions: [{ x: 38, y: 79 }, { x: 22, y: 63 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
-  ],
-};
-
-/**
- * Expansion Batch 23 (#780, PROVISIONAL, ORIGINAL NOT CONFIRMED; Owner 2026-11-10): Reference Truth for `smore-dessert-pizza` (chocolate 2 / graham-cracker 2 / marshmallow 2 = 6 non-sauce pieces; NO_SAUCE (Owner Q-1: an explicit GAMEPLAY decision, not a fact about the original): the mechanical sauce reference of a `null` profile). 6 pieces take the first 6 slots of the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION, not source authority.
- */
-export const SMORE_DESSERT_PIZZA_REFERENCE: ReferencePizza = {
-  recipeId: "smore-dessert-pizza",
-  sauce: computeMechanicalSauceReference("smore-dessert-pizza"),
-  pieceGroups: [
-    { ingredientId: "chocolate", positions: [{ x: 50, y: 24 }, { x: 73, y: 36 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
-    { ingredientId: "graham-cracker", positions: [{ x: 76, y: 63 }, { x: 58, y: 79 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
-    { ingredientId: "marshmallow", positions: [{ x: 38, y: 79 }, { x: 22, y: 63 }], interaction: { family: "TAP_PLACE", primaryInput: "DRAG_FROM_TRAY", fallbackInput: "TAP_ON_PIZZA", landingStyle: "HEAVY_SQUASH" }, matching: { fullCreditRadius: 8, zeroCreditRadius: 22 } },
-  ],
-};
-
-/**
  * Batch 7a: Reference Truth for `new-zealand-lamb-pizza` (NO_SAUCE: `sauce: null`, the `aussie` shape). Pieces (mozzarella 2 / rosemary 1 / lamb 3 / sweet-potato 2 = 8) take
  * the RT-01 8-piece ring consecutively in `requiredIngredients` order. Slot assignment is GAMEPLAY / REFERENCE CALIBRATION,
  * not source authority.
@@ -5801,8 +5775,6 @@ const REFERENCE_PIZZAS: ReadonlyMap<RecipeId, ReferencePizza> = new Map([
   [SPECK_E_BRIE_REFERENCE.recipeId, SPECK_E_BRIE_REFERENCE],
   [BUFFALO_CHICKEN_REFERENCE.recipeId, BUFFALO_CHICKEN_REFERENCE],
   [APPLE_CINNAMON_DESSERT_REFERENCE.recipeId, APPLE_CINNAMON_DESSERT_REFERENCE],
-  [NUTELLA_DESSERT_PIZZA_REFERENCE.recipeId, NUTELLA_DESSERT_PIZZA_REFERENCE],
-  [SMORE_DESSERT_PIZZA_REFERENCE.recipeId, SMORE_DESSERT_PIZZA_REFERENCE],
   [PINSA_ROMANA_REFERENCE.recipeId, PINSA_ROMANA_REFERENCE],
 ]);
 for (const ref of REFERENCE_PIZZAS.values()) deepFreezeReference(ref);

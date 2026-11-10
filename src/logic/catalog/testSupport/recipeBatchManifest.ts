@@ -380,20 +380,5 @@ export const B22_LATE_BATCH: RecipeBatchManifest = {
     { recipeId: "pizza-radicchio-noci", keyIngredientId: "balsamic-vinegar", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "black-truffle-pizza", keyIngredientId: "truffle", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["nutella-dessert-pizza", "smore-dessert-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 23 is appended after this batch)
-};
-
-/**
- * Expansion Batch 23, late part (#780, late catalog, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed; Owner 2026-11-10): `nutella-dessert-pizza` and `smore-dessert-pizza`, each credited with its own late ladder step (after the truffle step); Research cohort keys are
- * `powdered-sugar` / `marshmallow` (the last material of each step), single-member cohorts. Like the other late batches it is deliberately NOT in `RECIPE_BATCHES`; `expansionBatch23.test.ts` evaluates it over the full catalog.
- */
-export const B23_LATE_BATCH: RecipeBatchManifest = {
-  batchId: "b23-late",
-  status: "landed",
-  afterRecipeId: "black-truffle-pizza",
-  recipes: [
-    { recipeId: "nutella-dessert-pizza", keyIngredientId: "powdered-sugar", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-    { recipeId: "smore-dessert-pizza", keyIngredientId: "marshmallow", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
-  ],
   followedBy: pinsaEnabled() ? ["pinsa-romana"] : [],
 };

@@ -177,7 +177,7 @@ describe("ladder, Shop, Research and the entitlement floors", () => {
     expect(stepOf("nori")).toMatchObject({ ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: TARAKO });
     expect(stepOf("wasabi").step).toBe(stepOf("bbq-sauce").step + 1);
     expect(stepOf("nori").step).toBe(stepOf("wasabi").step + 1);
-    expect([stepOf("wasabi").step, stepOf("nori").step]).toEqual([79, 80]); // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 moved the derived late numbers +1 again;
+    expect([stepOf("wasabi").step, stepOf("nori").step]).toEqual([80, 81]); // Expansion Batch 23 (#780): the ordinary step 74 moved the derived late numbers +1 again; // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 moved the derived late numbers +1 again;
     // // (Expansion Batch 18's ordinary step 69 moved the derived numbers +1 again; Expansion Batch 17's ordinary step 68 moved the derived numbers +1 again; Expansion Batch 16's ordinary step 67 moved the derived numbers +1; the floors are unchanged)
     expect(steps.at(-7)).toBe(stepOf("nori")); // (Expansion Batch 21: the taco and okonomiyaki late steps follow it)
     for (const id of ["wasabi", "nori"]) expect(stepOf(id).starGates).toBeUndefined();

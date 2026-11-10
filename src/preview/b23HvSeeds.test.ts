@@ -42,12 +42,12 @@ describe("B23 HV seeds", () => {
 
   it("applying the seed writes a loadable save with the target undiscovered; a reload does not reseed", () => {
     const storage = memory();
-    expect(applyPreviewHvSeed("?hv=b23-nutella", storage, "navigate")).toBe("b23-nutella");
+    expect(applyPreviewHvSeed("?hv=b23-apple-cinnamon", storage, "navigate")).toBe("b23-apple-cinnamon");
     const stored = loadSave(storage);
-    expect(stored.dex.some((e) => e.recipeId === "nutella-dessert-pizza")).toBe(false);
-    expect(stored.pitzBalance).toBe(findB23HvScenario("b23-nutella")!.pitz);
+    expect(stored.dex.some((e) => e.recipeId === "apple-cinnamon-dessert")).toBe(false);
+    expect(stored.pitzBalance).toBe(findB23HvScenario("b23-apple-cinnamon")!.pitz);
     const before = [...storage.map.entries()].join("|");
-    expect(applyPreviewHvSeed("?hv=b23-nutella", storage, "reload")).toBeNull();
+    expect(applyPreviewHvSeed("?hv=b23-apple-cinnamon", storage, "reload")).toBeNull();
     expect([...storage.map.entries()].join("|")).toBe(before);
     for (const s of B23_HV_SCENARIOS) expect(applyB23HvSeed(s.id, memory()), s.id).toBe(true);
   });

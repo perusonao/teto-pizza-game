@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
-import { APPLE_CINNAMON_DESSERT_REFERENCE, NUTELLA_DESSERT_PIZZA_REFERENCE, SMORE_DESSERT_PIZZA_REFERENCE, type ReferencePizza } from "../src/data/referencePizza";
+import { APPLE_CINNAMON_DESSERT_REFERENCE, type ReferencePizza } from "../src/data/referencePizza";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
@@ -10,9 +10,9 @@ import { expectResearchLead } from "./support/hintNote";
 import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
- * Expansion Batch 23 representative E2E (Issue #780; PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION; Owner decisions 2026-11-10): the three B23 dessert recipes played end to end at 390x844 and 360x800. Ordinary: apple-cinnamon-dessert (NO_SAUCE, apple). Late: nutella-dessert-pizza (banana / chocolate / powdered-sugar after the bake)
- * and smore-dessert-pizza (chocolate / marshmallow, graham-cracker after the bake), both NO_SAUCE. Shop NEW -> purchase -> Dex Research entry (no identity leak) -> every pre-bake piece at the Reference's own slot (`assignReferenceSlots` via the REFERENCE data) -> bake -> POST_BAKE pieces in FINISH (late) -> NEW DISCOVERY -> Dex.
- * Dedicated SVGs (the B23 dessert glyphs, via IngredientGlyph): apple / banana / chocolate / graham-cracker / marshmallow / powdered-sugar draw `<id>-dessert` on the tray chip AND on the pizza. The Owner's priority HV items (Q-6): small-size legibility of apple and powdered-sugar (close-up captures in compare-parts).
+ * Expansion Batch 23 representative E2E (Issue #780; PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION; Owner decisions 2026-11-10): the B23 dessert recipe apple-cinnamon-dessert (ordinary step 74, NO_SAUCE, an explicit Owner GAMEPLAY decision) played end to end at 390x844 and 360x800:
+ * Shop NEW -> purchase -> Dex Research entry (no identity leak) -> every pre-bake piece at the Reference's own slot (`assignReferenceSlots` via the REFERENCE data) -> bake -> NEW DISCOVERY -> Dex.
+ * Dedicated SVG (the B23 dessert glyph, via IngredientGlyph): apple draws `apple-dessert` on the tray chip AND on the pizza. The Owner's priority HV item (Q-6): small-size legibility of the apple (close-up captures in compare-parts).
  *
  * Optional output: HV_SCREENSHOT_DIR (screenshots), HV_VIDEO=1 (Playwright video, 390x844 project only).
  */
@@ -101,9 +101,7 @@ interface Plan {
 }
 
 /** Ingredients with a dedicated SVG (#797) and the ones that deliberately stay on their emoji (the sauces have no pieces on the pizza). */
-const DEDICATED: Record<string, string> = {
-  apple: "apple-dessert", banana: "banana-dessert", chocolate: "chocolate-dessert", "graham-cracker": "graham-cracker-dessert", marshmallow: "marshmallow-dessert", "powdered-sugar": "powdered-sugar-dessert",
-};
+const DEDICATED: Record<string, string> = { apple: "apple-dessert" };
 const EMOJI_ONLY: Record<string, string> = {};
 
 const PLANS: Plan[] = [
@@ -113,21 +111,9 @@ const PLANS: Plan[] = [
     pre: [{ id: "cream-cheese", chip: /クリームチーズ/, tab: "チーズ" }, { id: "apple", chip: /りんご/, tab: "具材" }, { id: "cinnamon", chip: /シナモン/, tab: "具材" }, { id: "walnut", chip: /くるみ/, tab: "具材" }],
     post: [],
   },
-  {
-    id: "nutella-dessert-pizza", name: "ヌテラデザートピザ", tag: "b23-nutella", ref: NUTELLA_DESSERT_PIZZA_REFERENCE,
-    materials: [["banana", "バナナ"], ["chocolate", "チョコレート"], ["powdered-sugar", "粉砂糖"]], cohortKey: "粉砂糖", sauces: [],
-    pre: [{ id: "banana", chip: /バナナ/, tab: "具材" }, { id: "chocolate", chip: /チョコレート/, tab: "具材" }],
-    post: [{ id: "powdered-sugar", chip: /粉砂糖/ }],
-  },
-  {
-    id: "smore-dessert-pizza", name: "スモアデザートピザ", tag: "b23-smore", ref: SMORE_DESSERT_PIZZA_REFERENCE,
-    materials: [["graham-cracker", "グラハムクラッカー"], ["marshmallow", "マシュマロ"]], cohortKey: "マシュマロ", sauces: [],
-    pre: [{ id: "chocolate", chip: /チョコレート/, tab: "具材" }, { id: "marshmallow", chip: /マシュマロ/, tab: "具材" }],
-    post: [{ id: "graham-cracker", chip: /グラハム/ }],
-  },
 ];
 
-test.describe("Expansion Batch 23 (three dessert recipes, played end to end)", () => {
+test.describe("Expansion Batch 23 (dessert recipe, played end to end)", () => {
   test.setTimeout(300_000);
 
   for (const plan of PLANS) {

@@ -280,6 +280,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
     const w1 = (ordinaryRecipes(RECIPES) as readonly Recipe[]).filter((r) => !r.unlockCondition && r.id !== "margherita"); // E5: the late recipe (no recipe gate either; material-gated by the late step) is pinned in lateCatalog.ikura.test.ts
     expect(w1.map((r) => r.id).sort()).toEqual(
       [
+        "apple-cinnamon-dessert", // Expansion Batch 23 (#780)
         "aussie",
         "baba-ganoush-pizza",
         "bacalhau",

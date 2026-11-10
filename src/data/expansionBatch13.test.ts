@@ -101,7 +101,7 @@ describe(ID, () => {
 describe("the ordinary step 65", () => {
   it("is appended after step 64 (steps 1-65 frozen; Expansion Batch 14 appended step 66 after it): mayo alone, no star gate, keyed to potato-mayo-pizza", () => {
     const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
-    expect(steps).toHaveLength(73); // Expansion Batch 20-A (#790) appended the ordinary step 71 (honey + walnut) after it; // Expansion Batch 19 (#774) appended the ordinary step 70 (burrata) after it; // Expansion Batch 18 appended the ordinary step 69, Expansion Batch 17 appended the ordinary step 68, Expansion Batch 16 the step 67, Expansion Batch 14 the step 66; steps 1-65 are unchanged
+    expect(steps).toHaveLength(74); // Expansion Batch 23 (#780): the ordinary step 74 moved the derived late numbers +1 again; // Expansion Batch 20-A (#790) appended the ordinary step 71 (honey + walnut) after it; // Expansion Batch 19 (#774) appended the ordinary step 70 (burrata) after it; // Expansion Batch 18 appended the ordinary step 69, Expansion Batch 17 appended the ordinary step 68, Expansion Batch 16 the step 67, Expansion Batch 14 the step 66; steps 1-65 are unchanged
     expect(steps[63]).toMatchObject({ step: 64, ingredientIds: ["ricotta-salata"], keyRecipeId: "pizza-alla-norma" });
     expect(steps[64]).toMatchObject({ step: 65, kind: "MATERIAL", ingredientIds: ["mayo"], keyRecipeId: ID });
     expect(steps[64].starGates).toBeUndefined();

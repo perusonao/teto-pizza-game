@@ -1,10 +1,10 @@
 /**
  * Expansion Batch 23 (Issue #780): iPhone Safari Human Verification seeds. PREVIEW ONLY (same pattern as ./b18HvSeeds.ts and ./b21HvSeeds.ts).
  *
- * `?hv=b23-<recipe>` writes ONE ready-made save per target recipe (apple-cinnamon, nutella, smore): every ladder material
+ * `?hv=b23-<recipe>` writes ONE ready-made save per target recipe (apple-cinnamon): every ladder material
  * is owned EXCEPT the materials of the target's own step (the target's new materials), and every recipe those materials can make is discovered, EXCEPT the target
  * (so the credited count is past every B23 entitlement floor and the load-time entitlement grants the target's new materials: the Shop offers them as NEW).
- * Unlike B21 the B23 materials are not one ladder suffix (the ordinary step 74 and two late steps 88 / 89), so the owned set is "all ladder materials minus
+ * Unlike B21 the B23 materials are not one ladder suffix (the ordinary step 74), so the owned set is "all ladder materials minus
  * the target step's", not a prefix. Saves are internally consistent (a discovered recipe has every finite material owned, the target is never discovered, owned
  * materials are stocked, no labels are stored). The seed goes through the ordinary `resetSave` / `persistProgress` / `loadSave`, so it lands in the Preview key
  * only and never touches a production save or Firebase. ./hvSeeds.ts calls `applyB23HvSeed` only for a fresh navigation (never a reload), behind
@@ -18,7 +18,7 @@ import type { DexEntry } from "../state/dex";
 import { loadSave, persistProgress, resetSave, type ProgressionSnapshot, type StorageLike } from "../state/persistence";
 import { PREVIEW_HELPER_MARK } from "./hint5PreviewOptIn";
 
-export type B23HvScenarioId = "b23-apple-cinnamon" | "b23-nutella" | "b23-smore";
+export type B23HvScenarioId = "b23-apple-cinnamon";
 
 export interface B23HvScenario {
   id: B23HvScenarioId;
@@ -28,14 +28,12 @@ export interface B23HvScenario {
   pitz: number;
 }
 
-export const B23_RECIPE_IDS: readonly string[] = ["apple-cinnamon-dessert", "nutella-dessert-pizza", "smore-dessert-pizza"];
+export const B23_RECIPE_IDS: readonly string[] = ["apple-cinnamon-dessert"];
 const B23_PITZ = 2000;
 const B23_STOCK = 10;
 
 export const B23_HV_SCENARIOS: readonly B23HvScenario[] = [
   { id: "b23-apple-cinnamon", recipeId: "apple-cinnamon-dessert", labelJa: "B23-1: アップルシナモンデザート (りんご購入から)", pitz: B23_PITZ },
-  { id: "b23-nutella", recipeId: "nutella-dessert-pizza", labelJa: "B23-2: ヌテラデザート (バナナ・チョコ・粉砂糖購入から)", pitz: B23_PITZ },
-  { id: "b23-smore", recipeId: "smore-dessert-pizza", labelJa: "B23-3: スモアデザート (グラハム・マシュマロ購入から)", pitz: B23_PITZ },
 ];
 
 export function findB23HvScenario(id: unknown): B23HvScenario | null {

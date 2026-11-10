@@ -268,6 +268,8 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       ownerApproved.add("pizza-cavolo-carote-pizzadb-p8");
       ownerApproved.add("pizza-radicchio-noci-pizzadb-p8");
       ownerApproved.add("black-truffle-pizza-pizzadb-p14");
+      // Expansion Batch 23 (Issue #780): apple-cinnamon-dessert-pizzadb is a BLOCKED_PRODUCT_DECISION row (BASE_SAUCE_UNSPECIFIED) Owner-approved to ship as NO_SAUCE (a GAMEPLAY decision, 2026-11-10, Q-1).
+      ownerApproved.add("apple-cinnamon-dessert-pizzadb");
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(

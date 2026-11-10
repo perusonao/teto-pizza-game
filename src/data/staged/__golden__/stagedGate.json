@@ -1,15 +1,15 @@
 {
  "summary": {
-  "recipes": 76,
+  "recipes": 75,
   "readyForPromotion": [],
-  "recipesWithBlockingDeps": 76,
-  "blockingDeps": 389,
+  "recipesWithBlockingDeps": 75,
+  "blockingDeps": 387,
   "byKind": {
-   "OWNER_RULE": 113,
+   "OWNER_RULE": 112,
    "MECHANIC": 59,
    "INGREDIENT_IN_FLIGHT": 0,
    "UNRESOLVED_TOKEN": 20,
-   "SAUCE_UNSPECIFIED": 24,
+   "SAUCE_UNSPECIFIED": 23,
    "DUPLICATE_GATE": 168,
    "ID_SUFFIXED": 5
   },
@@ -33,25 +33,13 @@
     "ONE_DIFF": 27,
     "JACCARD_GT_0_4": 18
    },
-   "recipesWithNoHit": 22,
-   "recipesWithNoShippedHit": 28,
+   "recipesWithNoHit": 21,
+   "recipesWithNoShippedHit": 27,
    "hitsVsShipped": 249
   },
-  "stagedIngredientRefs": 51
+  "stagedIngredientRefs": 50
  },
  "perRecipe": [
-  {
-   "id": "apple-cinnamon-dessert",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-1",
-    "SAUCE_UNSPECIFIED:apple-cinnamon-dessert"
-   ],
-   "staged": [
-    "apple"
-   ],
-   "dup": []
-  },
   {
    "id": "calzone-pizzadb",
    "lane": "R-C",
