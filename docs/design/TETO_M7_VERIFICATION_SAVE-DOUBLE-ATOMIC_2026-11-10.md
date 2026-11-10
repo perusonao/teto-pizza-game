@@ -11,13 +11,13 @@
 | 置く前の在庫判定 | `canPlaceIngredient`（焼成前）・`canPlacePostBakeIngredient`（FINISH）が、置く**前に**在庫を判定し、不足なら置かずに「rejected」を返す。在庫そのものは減らさない（`gameReducer.ts` 1115〜1135 行付近）。**拒否は状態を変えない**（`placement` の通知だけ） |
 | 消費のタイミング | 在庫の消費は `CONFIRM_BAKE` の `consumePizzaInventory`（焼成前の駒とソース）と、FINISH を出る遷移の `consumePostBakeInventory`（FINISH で置いた駒だけ）の 2 回に分かれる。`CONFIRM_BAKE` は exactly-once のガードがある（1525〜1531 行付近） |
 | 二重計上の回避 | FINISH の在庫は「焼成後の残り」で、数えるのは FINISH の駒（`isPostBakePiece`）だけ。焼成前後の両方で使う食材を二重に数えない（`canPlacePostBakeIngredient` の注記） |
-| **液体の扱い** | `canPlacePostBakeIngredient` は `ingredient.placement !== "scatter"` なら**常に false**（`inventory.ts` 166 行付近）。`consumePostBakeInventory` は `isPostBakePiece` の駒だけを数える（`pizza.toppings` の駒）。**液体は `pizza.toppings` にも `isPostBakePiece` にも現れない**（D1 の `PostBakeLiquid` は別の型で、`src/` の他の場所から参照されていない【実測：D1 以外の参照は `finishCatalogGuards.test.ts` と `recipeBatchValidator.ts` のみ】） |
+| **液体の扱い** | `canPlacePostBakeIngredient` は `ingredient.placement !== "scatter"` なら**常に false**（`inventory.ts` 166 行付近）。`consumePostBakeInventory` は `isPostBakePiece` の駒だけを数える（`pizza.toppings` の駒）。**液体は `pizza.toppings` にも `isPostBakePiece` にも現れない**（D1 の `PostBakeLiquid` は別の型で、`src/` の他の場所から参照されていない【実測：`src/` で `liquids`／`PostBakeLiquid` の文字列が D1 の外に現れるのは `finishCatalogGuards.test.ts` と `recipeBatchValidator.ts` のみ。その用法が D1 の型への参照かは未確認で、reducer・在庫・保存には現れない】） |
 | DRIZZLE D1 | 純粋ロジック（`postBakeLiquid.ts`・`sanitize.ts`・`trail.ts`）。reducer・journal・在庫・採点・識別・UI・保存に**接続していない**。許可リストは `["olive-oil"]` のみ（`POST_BAKE_LIQUID_INGREDIENT_IDS`）。D1 の 4 本＋在庫関連のテスト 7 ファイル・110 件が成功【実測】 |
 
 ## 3. 3 つの検証項目
 ### 3.1 保存互換
 - D1 の `sanitize` は保存用に 1 筋 24 点以内（`PERSIST_MAX_POINTS_PER_STROKE`）・液体 4 本以内（`PERSIST_MAX_LIQUIDS`）に間引き、敵対的な入力（長さが変わる Proxy・`1e20` の長さ・往復する軌跡）に対して冪等・有限であることをテストしている【実測：`sanitize.test.ts`】。
-- **未接続のため、保存データには何も書かれない**。M7 の接続（D2〜D5）で `liquids` が保存に入ると、旧ビルドは未知のフィールドを読む。保存の `CURRENT_SCHEMA_VERSION`（2）を上げずに済ませるには、旧ビルドが未知の液体を**落としても壊れず、保存領域には残る**ことが要る【設計案；`persistence.ts` の `extractForwardCompatExtras` が既知フィールドの外を保持する性質は D-ING-1 の検証で確認済みだが、`pizza` 内の新フィールドに同じ性質が成り立つかは未確認】。
+- **未接続のため、保存データには何も書かれない**。M7 の接続（D2〜D5）で `liquids` が保存に入ると、旧ビルドは未知のフィールドを読む。保存の `CURRENT_SCHEMA_VERSION`（2）を上げずに済ませるには、旧ビルドが未知の液体を**落としても壊れず、保存領域には残る**ことが要る【設計案；既知フィールドの外を保存領域に残す性質（`extractForwardCompatExtras`）は D-ING-1 R1 のテスト設計 SAVE-2 が確認項目としているが、まだ実測しておらず、`pizza` 内の新フィールドに同じ性質が成り立つかも未確認】。
 - 条件: ① 旧ビルドで読み込める（クラッシュしない）、② 未知の液体は落とされても保存領域に残る（ロールバック保護）、③ journal（保留中のラウンド）の新フィールドも同様、④ `CURRENT_SCHEMA_VERSION` は据え置き。
 
 ### 3.2 二重消費の防止
