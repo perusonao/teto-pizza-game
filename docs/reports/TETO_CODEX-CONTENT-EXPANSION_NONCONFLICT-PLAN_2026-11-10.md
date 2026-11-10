@@ -73,22 +73,22 @@ PR #815 の最終検証または fallback 移植時は、次を同一 HEAD で�
 - PR #815 反映後見込み: 122 / 170
 - 残数: 48（既存 staged 47 + 補充枠 1）
 
-補充枠は既存の未実装食材から選ぶ。次は候補比較であり、採用決定ではない。
+補充枠は既存の未実装食材から選ぶ。Owner判断（2026-11-10）により、補充1枠は `squid` を採用する。比較経緯は次のとおり。
 
 | 候補 | 種別 | 既存の紐づき | 利点 | 主な追加条件・リスク |
 |---|---|---|---|---|
-| `squid` | topping / SEAFOOD | `frutti-di-mare-pizzadb`、RB-06 / IB-03 | 早い batch、既存レシピ用途が明確、新 sauce 手順が不要 | SVG、Research、host レシピ依存の確認が必要 |
+| **`squid`（採用）** | topping / SEAFOOD | `frutti-di-mare-pizzadb`、RB-06 / IB-03 | 早い batch、既存レシピ用途が明確、新 sauce 手順が不要 | HOT実装は別作業。正式claim後にSVG、Research、hostレシピ依存を確認 |
 | `peanut-sauce` | sauce | `thai-chicken-pizza`、RB-07 / IB-03 | 用途が明確で sauce 系の幅を増やす | New Sauces 手順 #578 と sauce Gate が必要 |
 | `strawberry` | topping / FRUIT | `fruit-dessert-pizza`、RB-10 / IB-04 | dessert 系を補強し、通常 topping として扱える | batch が遅く、SVG と host レシピ依存がある |
 | `rock-salt` | topping / SPICE | `focaccia-genovese`、RB-10 / IB-04 | spice として既存モデルへ載せやすい | batch が遅く、用途が単一レシピ寄り |
 
-暫定推奨は `squid`。既存未実装食材で最も早い投入帯にあり、新しい sauce 挙動を増やさないためである。ただし、host レシピ、SVG、Research Gate を確認した上で Owner が補充枠を決定する。`nutella-spread` の再分離や別名食材の水増しは行わない。
+Owner判断により補充1枠は `squid` に確定した。既存未実装食材で最も早い投入帯にあり、新しい sauce 挙動を増やさない。これは計画上の枠決定であり、本PRではHOT実装しない。別作業で既存claimとの非競合を確認し、正式claimを取得してからhostレシピ、SVG、Research Gateを満たす。`nutella-spread` の再分離や別名食材の水増しは行わない。
 
 ## 5. 3ラインの進捗
 
 | ライン | 最新 main 出荷済み | 今回増分 | PR #815 後見込み | 残数 | 進捗率（PR #815後） | 次の候補 |
 |---|---:|---:|---:|---:|---:|---|
-| 食材 | 117 | 0（docs-only） | 122 / 170 | 48 | 71.8% | staged 47件 + Owner選定の補充1枠 |
+| 食材 | 117 | 0（docs-only） | 122 / 170 | 48 | 71.8% | staged 47件 + 採用済み補充枠 `squid` |
 | レシピ | 102 | 0（docs-only） | 104 / 177 | 73 | 58.8% | PR #815完了後の次 Research Batch |
 | 調理法・工程 | 7 | 0（docs-only） | 7 / 27 | 20 | 25.9% | STEAM S4、M7 D2、FRY F2、D-ING-1設計 |
 
