@@ -99,3 +99,24 @@ Owner の 2026-11-10 の判断（step 順 72=buffalo-chicken／73=speck-e-brie�
 | 食材 | B21 の 6 | +10 → 16／70 | 54（新規 49＋再利用／統合 5） |
 | レシピ | B21 の 2 | +6 → 8／84 | 76 |
 | 調理法 | 0（DRIZZLE D1 のロジックは merge 済みだが未配線・OFF） | +0 → 0／27 | 27 |
+
+---
+
+## 付録 A. 承認の時系列（追記専用。上の本文は merge 時点の記載のまま、改変しない）【実測：PR・Owner の連絡】
+
+上の本文の「未承認」「個別承認待ち」は、**書いた時点（2026-11-10 の merge 前）の状態**を示す。その後の経過は次のとおり。
+
+| 時刻（UTC） | 出来事 | 出典 |
+|---|---|---|
+| 2026-11-10（本パケット作成時） | Owner 判断: step 順（72=buffalo-chicken／73=speck-e-brie）・radicchio のソース順・replayAudit の 7 分割は承認。ショップパック 20→30 は「既存の購入・在庫テスト成功」を条件に承認（条件は §1 のとおり確認済み）。Research 35 ID は**未承認** | Owner の連絡、PR #807 コメント |
+| 2026-11-10（`bcd9aaf9` の作成後） | Owner 判断: 逸脱 10（`resultNearMiss.p2.test.ts` の 6 分割。条件: 同じ入力集合・同じアサーション・同じ 60 秒の上限）を承認。逸脱 7（長いレシピ名）は暫定承認（iPhone Safari HV で確認） | Owner の連絡、PR #807 コメント 6756802345 |
+| 2026-11-10 02:03 | Codex レビュー（`bcd9aaf9`）: 指摘なし | PR #807 のコメント |
+| 2026-11-10 02:24:48〜49 | **Owner のアカウントが Draft を ready にし、squash merge した**（main `d3d4ec05`）。この時点で PR のタイトルには「Research 35 ID の Owner 個別承認待ち」が残り、PR 上に Research 35 ID の承認の記録は無かった | GitHub の PR 履歴 |
+| 2026-11-10（merge の後） | **Owner が確定**: ① Research 非正準 35 ID は本パケット §2 の ID 別 before→after を**すべて承認済み**（`jamon-serrano-pizza` は対象外）。② `resultNearMiss` テストの 6 分割は承認済み。③ iPhone Safari HV は **6/6 PASS、備考なし**。④ #807 の squash merge は Owner 承認済みで実施済み | Owner の連絡（merge の後、時刻の指定なし） |
+
+### 記録の扱い
+- 承認の**効力**は Owner の確定の連絡による。**PR 上の記録は merge の後**になった（merge 時点の PR には承認の記載が無かった）。この付録でその順序を明確にしておく。
+- merge 済みの履歴（コミット・PR のタイトルと本文）は改変していない。PR のタイトルの「個別承認待ち」は merge 時点の記載のまま残る。
+- **承認された 35 ID**: §2 の表の 35 行（分類 1 = 14、分類 2 = 19、分類 3 = 2）。表の ID 以外（例: `jamon-serrano-pizza`）は承認の対象に含まれず、`PENDING_OWNER_APPROVAL` の固定集合にも入っていない（Codex の並行監査: 旧 36 との差はこの 1 ID のみで、旧測定は再現できないため不採用）。
+- **iPhone Safari HV**: 6 シナリオ（`b22-speck-e-brie`／`b22-buffalo-chicken`／`b22-finocchi`／`b22-cavolo`／`b22-radicchio`／`b22-truffle`）が 6/6 PASS、備考なし。逸脱 7（長いレシピ名）は HV で確認され、備考は出なかった。
+- **個別の明示承認の記録が無いまま merge に含まれた項目**（Result Report §3 の 5・6・8・9）: mint の着地 LIGHT_LEAF、black-truffle-pizza の NO_SAUCE 扱い、過去バッチの Research 監査から B22 を除く形、`hint5Production.gate` の合成カタログの調整（DH4-2A の旧計測値 321→291）。独立レビューでブロッカー無し・Codex 指摘なしだが、Owner の項目別の承認の記録は無い。Owner が必要と判断すれば確認する。
