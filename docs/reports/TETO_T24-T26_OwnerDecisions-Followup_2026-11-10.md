@@ -15,7 +15,7 @@
 3. **28 件の分類**: 承認済み 7／保留 2／追加確認 19（§3）。追加確認 19 は 4 つの束にまとめられる。
 4. **Research 追補を実測した【実測】。** 列車を順に出荷した想定で、**出荷済み ID の正準順の変化は 3 段とも 0**。先行列車の品に対する追補は **5 行、すべて最大ずれ 1**（パケットの見込み「最大 2」より小さい）。
 5. **nduja の追加で既存に動くものは無い【実測】。** 既存レシピの組成・パック・Hint 梯子・保存形式は不変。実装時に追従が要る既存テストが 1 件ある（§5）。
-6. **残る Owner 判断は 6 問**（§6）。
+6. §6 の 6 問は Owner の 2 回目の判断ですべて確定した（§8）。**残る Owner 判断は 0。** 確定した実装対象はレシピ 15・新食材 17。
 
 ---
 
@@ -71,7 +71,7 @@ pizzadb.jp はセッションのネットワーク設定で遮断されていた
 | **B（推奨）** | liver-pate を塗り層にする | STOP 0、正準 0、非正準 59 ID（変化なし）。先頭 rung は SAUCE | 塗り層が 7 色目になる。自然な色 `#a9796b` は tahini と dE 16.3 で不可、代替 `#af7387`（最小 dE 28.1、相手 fresh-cream-sauce）【暫定】 |
 | C | T25 から外して後続へ | — | 食材 daikon・liver-pate の出荷が遅れる（T25 の新食材 8 → 6） |
 
-スペック: A = `T25-R2a.spec.json`、B = `T25-R2b.spec.json`。
+スペック: A = `T25-R2a.spec.md`、B = `T25-R2b.spec.md`。
 
 ### 2.3 mexican-elote-pizza
 
@@ -95,7 +95,7 @@ pizzadb.jp はセッションのネットワーク設定で遮断されていた
 | **B（推奨）** | sour-cream 1 を下地（mayo はトッピングのまま） | STOP 0、正準 0、非正準 59 ID（変化なし）、重複 0。先頭 rung は SAUCE | sour-cream を選ぶのは GAMEPLAY ASSUMPTION（原典は「ホワイトソース」「クリーム状のソース」までで、製品名は無い）。新しい色は不要 |
 | C | mayo をソース扱いに変える | 未検査 | 出荷済み食材のカテゴリ変更になり、既存レシピに波及するため非推奨 |
 
-スペック: B は `T25-R2a.spec.json` と `T25-R2b.spec.json` の両方に入れてある。
+スペック: B は `T25-R2a.spec.md` と `T25-R2b.spec.md` の両方に入れてある。
 
 ---
 
@@ -137,7 +137,7 @@ pizzadb.jp はセッションのネットワーク設定で遮断されていた
 
 ## 4. Research 追補の実測
 
-方法【実測】: T24-R1 → T25-R2a → T26-R1 の順に出荷した想定で、各段を「それまでの列車を含むカタログ」に対して測った。main（102／117／87）と #815 を載せた状態（104／122／89）の両方で実行し、結果は同一。全文は `data/TETO_T24-T26_PREP/research-sequence.json`。
+方法【実測】: T24-R1 → T25-R2a → T26-R1 の順に出荷した想定で、各段を「それまでの列車を含むカタログ」に対して測った。main（102／117／87）と #815 を載せた状態（104／122／89）の両方で実行し、結果は同一。全文は `data/TETO_T24-T26_PREP/research-sequence.md`。
 
 - 正準順: 最終カタログの ladder 順（通常 ladder → 各列車の通常の新食材 → late ladder → 各列車の late の新食材）の全 prefix で、前後の文字を比較。
 - 非正準: 決定的な上界（方向は実 authority `researchCohortLetters` から読む）と、乱数 40 順の標本監査との突合。
@@ -216,11 +216,53 @@ pizzadb.jp はセッションのネットワーク設定で遮断されていた
 
 ---
 
-## 7. Result Report
+## 8. Owner 判断（2 回目、2026-11-10、会話での指示）と確定した仕様
+
+| 問 | 判断 |
+|---|---|
+| Q1・Q2・Q3・Q6 | 承認 |
+| Q4 | banh-mi-pizza は `liver-pate` を塗り層として採用。NO_SAUCE にしない。色 `#af7387` は暫定採用、iPhone HV で最終判断 |
+| Q5 | mexican-elote-pizza は `sour-cream` を下地に採用。NO_SAUCE にしない |
+| 範囲 | **承認は #819 の具体的な仕様と Research 差分に限定。未知の変更は含めない** |
+| 進行 | #815 の merge と正式な claim release までは T24 の HOT 実装を開始しない。無断 merge・Production ON・共有 Preview 更新は禁止 |
+
+これで承認表 28 件は**すべて確定**（承認 28、うち色 7 色は暫定で HV 待ち）。§3 の「保留」「追加確認」は、この判断で承認済みに移った。
+
+### 確定した実装対象
+
+| 列車 | 正本のスペック | レシピ | 新食材 | 承認済みの Research（非正準） |
+|---|---|---:|---:|---|
+| T24 | `T24-R1.spec.md` | 6 | 8（aji-amarillo、chutney、cucumber、peanut-sauce、peking-duck、spicy-salami、squid、sweet-bean-sauce） | `T24-R1.preflight.md` §4 の 43 ID |
+| T25 | `T25-R2b.spec.md` | 7 | 8（asparagus、cauliflower、chicken-tikka、daikon、kebab-sauce、lime、liver-pate〔塗り層〕、yogurt-sauce） | `T25-R2b.preflight.md` §4 の 59 ID ＋ §4 の追補 3 行 |
+| T26 | `T26-R1.spec.md` | 2 | 1（nduja） | `T26-R1.preflight.md` §4 の 9 ID ＋ §4 の追補 2 行 |
+| 計 | | **15** | **17** | 正準順の変化は 0 が必須（1 件でも出たら停止） |
+
+- `T25-R1`・`T25-R2a` は検討の経過として残す。**T25 の正本は R2b**。
+- 暫定色（HV で最終判断）: aji-amarillo `#ffe60f`、peanut-sauce `#faa078`、chutney `#876e00`、sweet-bean-sauce `#50001e`、kebab-sauce `#96af91`、yogurt-sauce `#cdd7ff`、liver-pate `#af7387`。色差基準 dE ≥ 25 は維持。
+- 承認の外（実装中に出たら停止して Owner に戻す）: 表に無い ID・段・方向、表より大きいずれ、正準順の変化、スペックに無い材料・数量・配置の変更、既存 Gate の緩和、保存形式の変更。
+- keema-pizza は T27 のパケットで cumin と一緒に仕様を出す（今回の実装対象外）。
+
+## 9. PR #819 の CI
+
+| 項目 | 内容【実測】 |
+|---|---|
+| 失敗した HEAD | `489f5cbb`、run 42865788056、job `build`、step「WebKit CI scripts tests」（`scripts/ci/test-webkit-ci.sh`）で **147／154**、exit 1 |
+| 失敗した 7 件 | すべて `install-with-retry.sh` の apt ロック待ち・後始末の検査で、fixture の `fake-apt`（`sleep` の実体をコピーしたもの）が**生きていること**を前提にする検査 |
+| タイムアウトか | **違う。** `deductionGuard.gate.test.ts` の 120 秒（#804・#815）とは別件。Vitest には到達していない |
+| この PR が原因か | **違う。** この PR は `scripts/**`・`.github/**` を変更していない。同じ 147／154 が #818（run 42863158243、attempt 2）と #820（run 42866005929、attempt 2）でも出ている。同じ step は 12:47 UTC の #816（attempt 2）では成功していた |
+| 原因の見立て【推論・runner 上では未確認】 | 17:16 UTC 以降の runner（`ubuntu-latest`）で、`sleep` を別名にコピーした `fake-apt` がすぐ終了している。ゾンビを使う検査だけ通っていることと整合する。`sleep` が呼び出し名で動作を切り替える多機能バイナリになった場合に起きる形 |
+| この PR 側の問題 | データを `.json` で置いたため、CI の分類が `docs_only=false` になり、重い step が走った（分類器は `docs/**` の JSON を「テストが import しうる」として対象外にする）。docs のみの PR という前提に反していた |
+| 対応 | データを Markdown（`*.spec.md`、`research-sequence.md`）に収め直し、重複していた `*.preflight.json` を削除。変更は `docs/**/*.md` だけになり、既存の分類規則どおり重い step は実行されない。**Gate・分類器・ワークフローは変更していない** |
+
+`test-webkit-ci.sh` の失敗そのものは残っており、`docs_only=false` になる PR（#815・#816・#818・#820 と、今後の T24 実装 PR）は、直るまで `build` が赤になる。恒久対策は CI スクリプトの担当（#811／#820）の範囲で、この PR では扱わない。確認用の手順: runner 上で `ls -l "$(command -v sleep)"` と、`cp "$(command -v sleep)" /tmp/fake-apt && /tmp/fake-apt 1; echo $?`。
+
+---
+
+## 10. Result Report
 
 - **完了**: banh-mi・elote・nduja の原典取得と NO_SAUCE の推奨／28 件の分類／Research 追補の実測（正準 0 を 3 段で確認）／nduja の影響調査／docs のみの Draft PR。
 - **未完了**: 個別ページが引く外部の参考資料の確認。新ソースの色の実機確認。step 番号確定後の正準順の再確認（実装 PR）。
-- **ブロッカー**: §6 の 6 問。HOT は #815 の merge と正式 release まで。
-- **次の行動**: Owner の回答でスペックを確定 → #815 の release 後に HOT 担当が T24 から実装。
+- **ブロッカー**: Owner 判断は残っていない。HOT は #815 の merge と正式 release まで開始しない。`test-webkit-ci.sh` の runner 起因の失敗（§9）が直るまで、実装 PR の `build` は赤になる。
+- **次の行動**: #815 の merge・release と §9 の修復の後、HOT 担当が §8 の正本どおりに T24 から実装。
 
 検証: `src/**`・`e2e/**`・HOT・golden・staged は未編集。UI・ゲームプレイの変更なし（HV Policy の対象外）。測定用のテストファイルは一時的な作業ツリーにだけ置き、削除済み。

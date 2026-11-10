@@ -2,7 +2,7 @@
 
 2026-11-10 / 基準 `main` `7a217c38`（#817 merge 後。カタログは `577dcfd7` と同一: レシピ 102／食材 117／ladder 87 step）。
 
-- **更新（同日）**: Owner 判断（C-1・C-3・C-4・C-7・26-2 承認、25-2・25-3 未承認）と、原典調査・28 件の分類・Research 追補の実測・nduja の影響は `TETO_T24-T26_OwnerDecisions-Followup_2026-11-10.md` に記録した。§4.1 の追補と §8 の 25-2・25-3 は、そちらの値と推奨が新しい。
+- **更新（同日）**: Owner 判断（1 回目・2 回目）で 28 件はすべて確定した。確定した仕様は Followup の §8。その経過と、原典調査・28 件の分類・Research 追補の実測・nduja の影響は `TETO_T24-T26_OwnerDecisions-Followup_2026-11-10.md` に記録した。§4.1 の追補と §8 の 25-2・25-3 は、そちらの値と推奨が新しい。
 - **本書は準備であり、実装・HOT 編集・merge・Production ON・共有 Preview 更新の承認ではない。** 変更は本書と `docs/reports/data/TETO_T24-T26_PREP/**`（新規）のみ。
 - B23-b（#815、claim 6763341354）と content-train（#816、claim 6766203727）のファイル・branch には触れていない。#816 の道具は**スクラッチの作業ツリーで読み取り実行しただけ**で、#816 の成果物（`TETO_TRAIN-EFFICIENCY*`）は編集していない。
 - 暫定仕様・原典（pizzadb.jp）未確認。id・名前・数量・family・色は GAMEPLAY ASSUMPTION。
@@ -41,7 +41,7 @@
 
 ## 2. T24〜T26 の仕様
 
-2 つの構成を並べる。**A** = #816 の既存パケットの構成（staged のまま）。**R1** = 本書の修正構成（§3 の論点を反映）。スペックと事前検査の全文は `docs/reports/data/TETO_T24-T26_PREP/T2x-R1.{spec.json,preflight.md}`。
+2 つの構成を並べる。**A** = #816 の既存パケットの構成（staged のまま）。**R1** = 本書の修正構成（§3 の論点を反映）。スペックと事前検査の全文は `docs/reports/data/TETO_T24-T26_PREP/T2x-R1.{spec.md,preflight.md}`。
 
 ### T24 — 新食材つき・ソースあり（通常カタログ）
 
@@ -290,10 +290,10 @@ step 番号と凍結範囲、`alphaFamilyOnly` の差分、旧 DH4-2A などの�
 ### 再現手順
 
 ```
-# #816 の branch（または merge 後の main）で
-node tools/content-train/preflight.mjs docs/reports/data/TETO_T24-T26_PREP/T24-R1.spec.json --out /tmp/t24r1
-node tools/content-train/preflight.mjs docs/reports/data/TETO_T24-T26_PREP/T25-R1.spec.json --out /tmp/t25r1
-node tools/content-train/preflight.mjs docs/reports/data/TETO_T24-T26_PREP/T26-R1.spec.json --out /tmp/t26r1
+# #816 の branch（または merge 後の main）で。スペックは T2x-R1.spec.md の JSON ブロックを T2x-R1.spec.json として保存してから渡す
+node tools/content-train/preflight.mjs /tmp/T24-R1.spec.json --out /tmp/t24r1
+node tools/content-train/preflight.mjs /tmp/T25-R1.spec.json --out /tmp/t25r1
+node tools/content-train/preflight.mjs /tmp/T26-R1.spec.json --out /tmp/t26r1
 ```
 
 `*.preflight.md` の見出しの件数（104／122／89）は、#815 を載せた状態で測ったことを示す。main（102／117／87）で実行しても §1〜§6 は同一。

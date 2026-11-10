@@ -1,3 +1,8 @@
+# Train spec — T24-T26-R1-combined
+
+列車スペック（content-train の入力）。Markdown に収めているのは、この PR を CI の docs-only 分類（`docs/**/*.md`）に保つため。下の JSON ブロックをそのまま `T24-T26-R1-combined.spec.json` として保存すれば `tools/content-train/preflight.mjs` に渡せる。
+
+```json
 {
  "train": "T24-T26-R1-combined",
  "recipes": [
@@ -563,3 +568,4 @@
   }
  ]
 }
+```
