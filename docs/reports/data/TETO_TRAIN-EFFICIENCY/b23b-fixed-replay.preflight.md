@@ -33,13 +33,15 @@ Canonical ladder order (stop condition): **0** shipped recipe(s) change.
 
 Non-canonical acquisition orders — deterministic bound, additive over the recipes (a split of this train needs no new approval): **5** shipped recipe(s).
 
-| shipped recipe | kind | max shift | caused by (shared material) |
+Approval unit (Owner R-RES-1, 2026-11-10): per ID, the stage (the shared material acquired last), the direction and the maximum shift. Nothing outside this table is approved: any other ID, stage, direction or a larger shift is a STOP in the implementation PR.
+
+| shipped recipe | stage (shared material acquired last) → direction, max shift | allowed changes | caused by |
 |---|---|---|---|
-| `apple-cinnamon-dessert` | NEW_LABEL_ONLY | 0 | nutella-dessert-pizza (cream-cheese); smore-dessert-pizza (cream-cheese) |
-| `ikura-salmon-pizza` | NEW_LABEL_ONLY | 0 | nutella-dessert-pizza (cream-cheese); smore-dessert-pizza (cream-cheese) |
-| `jalapeno-popper-pizza` | NEW_LABEL_ONLY | 0 | nutella-dessert-pizza (cream-cheese); smore-dessert-pizza (cream-cheese) |
-| `pesto-salmone` | SHIFT | 2 | nutella-dessert-pizza (cream-cheese); smore-dessert-pizza (cream-cheese) |
-| `spinach-artichoke-pizza` | NEW_LABEL_ONLY | 0 | nutella-dessert-pizza (cream-cheese); smore-dessert-pizza (cream-cheese) |
+| `apple-cinnamon-dessert` | cream-cheese: new first letter only | (none)→A | nutella-dessert-pizza, smore-dessert-pizza |
+| `ikura-salmon-pizza` | cream-cheese: new first letter only | (none)→A | nutella-dessert-pizza, smore-dessert-pizza |
+| `jalapeno-popper-pizza` | cream-cheese: new first letter only | (none)→A | nutella-dessert-pizza, smore-dessert-pizza |
+| `pesto-salmone` | cream-cheese: later by at most 2 | (none)→A..C; X→X+1..X+2 | nutella-dessert-pizza, smore-dessert-pizza |
+| `spinach-artichoke-pizza` | cream-cheese: new first letter only | (none)→A | nutella-dessert-pizza, smore-dessert-pizza |
 
 Rule cross-check against the sampled audit: 0 violations.
 

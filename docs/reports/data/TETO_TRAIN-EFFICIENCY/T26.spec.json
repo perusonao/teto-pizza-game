@@ -1,0 +1,81 @@
+{
+ "train": "T26",
+ "recipes": [
+  {
+   "id": "nashville-hot-chicken-pizza",
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "chicken",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "honey",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "pickles",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY"
+   ]
+  },
+  {
+   "id": "keema-pizza",
+   "nameJa": "キーマピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "SUBSET_OF_SHIPPED_FORBIDDEN",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  },
+  {
+   "id": "nduja-pizza",
+   "nameJa": "ンドゥイヤピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "honey",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "sausage",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY",
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "NAME_SPECIFICITY_GAP"
+   ]
+  }
+ ],
+ "newIngredients": []
+}

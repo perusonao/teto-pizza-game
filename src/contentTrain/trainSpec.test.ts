@@ -53,13 +53,13 @@ describe("Research impact: the deterministic bound", () => {
   const shipped = [recipe("r-ham", ["tomato", "ham"]), recipe("r-nut", ["tomato", "nut", "mozz"]), recipe("r-plain", ["tomato"])];
   it("only shipped recipes that share a FINITE material are affected; a starter in common is not a cause", () => {
     const rows = researchImpact([recipe("n", ["tomato", "ham", "fig"])], shipped, finite, () => false);
-    expect(rows).toEqual([{ recipeId: "r-ham", kind: "NEW_LABEL_ONLY", maxShift: 0, causes: [{ newRecipeId: "n", materials: ["ham"], newSortsFirst: false }] }]);
+    expect(rows).toEqual([{ recipeId: "r-ham", kind: "NEW_LABEL_ONLY", maxShift: 0, byMaterial: [{ material: "ham", shift: 0 }], causes: [{ newRecipeId: "n", materials: ["ham"], newSortsFirst: false }] }]);
   });
   it("a new recipe that sorts first shifts by one; k of them on ONE material shift by k, on different materials by one", () => {
     const first = () => true;
     expect(researchImpact([recipe("n1", ["ham"])], shipped, finite, first)[0]).toMatchObject({ recipeId: "r-ham", kind: "SHIFT", maxShift: 1 });
     expect(researchImpact([recipe("n1", ["ham"]), recipe("n2", ["ham", "fig"])], shipped, finite, first)[0].maxShift).toBe(2);
-    expect(researchImpact([recipe("n1", ["nut"]), recipe("n2", ["mozz"])], shipped, finite, first)[0]).toMatchObject({ recipeId: "r-nut", maxShift: 1 });
+    expect(researchImpact([recipe("n1", ["nut"]), recipe("n2", ["mozz"])], shipped, finite, first)[0]).toMatchObject({ recipeId: "r-nut", maxShift: 1, byMaterial: [{ material: "mozz", shift: 1 }, { material: "nut", shift: 1 }] });
   });
   it("is additive: the rows of a train are the union of the rows of its recipes taken alone (a split needs no new approval)", () => {
     const train = [recipe("n1", ["ham", "fig"]), recipe("n2", ["nut"])];
@@ -124,7 +124,7 @@ describe("pack changes, verdicts and the packet", () => {
     const packet: PreflightPacket = {
       train: "T", measuredOn: { recipes: 1, ingredients: 2, ladderSteps: 3 },
       recipes: [{ id: "n", nameJa: "n", placement: "ordinary", verdict: "BLOCKED", newMaterials: ["fig"], hintRungs: "SAUCE,CHEESE", duplicates: [], findings: [{ gate: "X|Y", severity: "STOP", recipeId: "n", message: "stop here" }, { gate: "OWN", severity: "OWNER", recipeId: "n", message: "decide" }] }],
-      trainFindings: [], research: { canonical: [], nonCanonical: [{ recipeId: "r", kind: "SHIFT", maxShift: 1, causes: [{ newRecipeId: "n", materials: ["ham"], newSortsFirst: true }] }], ruleViolations: [] },
+      trainFindings: [], research: { canonical: [], nonCanonical: [{ recipeId: "r", kind: "SHIFT", maxShift: 1, byMaterial: [{ material: "ham", shift: 1 }], causes: [{ newRecipeId: "n", materials: ["ham"], newSortsFirst: true }] }], ruleViolations: [] },
       packChanges: [{ ingredientId: "mozz", before: 2, after: 3, raisedBy: ["n"] }], notCovered: ["icons"],
     };
     const md = renderPacketMarkdown(packet);
@@ -132,7 +132,8 @@ describe("pack changes, verdicts and the packet", () => {
     expect(md).toContain("[STOP] X/Y");
     expect(md.match(/stop here/g)).toHaveLength(1);
     expect(md.match(/decide/g)).toHaveLength(1);
-    expect(md).toContain("| `r` | SHIFT | 1 | n (ham) |");
+    expect(md).toContain("| `r` | ham: later by at most 1 | (none)→A..B; X→X+1 | n |");
+    expect(md).toContain("Nothing outside this table is approved");
     expect(md).toContain("`mozz`: pack 20 → 30");
     expect(md).toContain("0 violations");
   });

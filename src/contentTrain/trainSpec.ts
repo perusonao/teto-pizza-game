@@ -162,6 +162,8 @@ export interface ResearchImpactRow {
   /** `NEW_LABEL_ONLY`: at most `-->A`. `SHIFT`: may move up to `maxShift` letters later (a lone recipe gains up to that letter). */
   readonly kind: "NEW_LABEL_ONLY" | "SHIFT";
   readonly maxShift: number;
+  /** Per shared material (the unlock fact of the group in which the change happens): how many letters later the recipe can move there; 0 = only a first letter `A`. */
+  readonly byMaterial: readonly { readonly material: string; readonly shift: number }[];
   readonly causes: readonly { readonly newRecipeId: string; readonly materials: readonly string[]; readonly newSortsFirst: boolean }[];
 }
 
@@ -181,9 +183,9 @@ export function researchImpact(
       if (materials.length > 0) causes.push({ newRecipeId: n.id, materials, newSortsFirst: newSortsFirst(n.id, r.id) });
     }
     if (causes.length === 0) continue;
-    let maxShift = 0;
-    for (const m of mine) maxShift = Math.max(maxShift, causes.filter((c) => c.newSortsFirst && c.materials.includes(m)).length);
-    rows.push({ recipeId: r.id, kind: maxShift > 0 ? "SHIFT" : "NEW_LABEL_ONLY", maxShift, causes });
+    const byMaterial = mine.filter((m) => causes.some((c) => c.materials.includes(m))).map((material) => ({ material, shift: causes.filter((c) => c.newSortsFirst && c.materials.includes(material)).length }));
+    const maxShift = Math.max(...byMaterial.map((x) => x.shift));
+    rows.push({ recipeId: r.id, kind: maxShift > 0 ? "SHIFT" : "NEW_LABEL_ONLY", maxShift, byMaterial, causes });
   }
   return rows.sort((a, b) => (a.recipeId < b.recipeId ? -1 : 1));
 }
@@ -314,8 +316,14 @@ export function renderPacketMarkdown(p: PreflightPacket): string {
   for (const c of p.research.canonical) lines.push(`- \`${c.recipeId}\`: ${c.changes.join(" ")} — caused by ${c.causedBy.join(", ")}`);
   lines.push("", `Non-canonical acquisition orders — deterministic bound, additive over the recipes (a split of this train needs no new approval): **${p.research.nonCanonical.length}** shipped recipe(s).`, "");
   if (p.research.nonCanonical.length > 0) {
-    lines.push("| shipped recipe | kind | max shift | caused by (shared material) |", "|---|---|---|---|");
-    for (const r of p.research.nonCanonical) lines.push(`| \`${r.recipeId}\` | ${r.kind} | ${r.maxShift} | ${cell(r.causes.map((c) => `${c.newRecipeId} (${c.materials.join(", ")})`).join("; "))} |`);
+    lines.push("Approval unit (Owner R-RES-1, 2026-11-10): per ID, the stage (the shared material acquired last), the direction and the maximum shift. Nothing outside this table is approved: any other ID, stage, direction or a larger shift is a STOP in the implementation PR.", "");
+    lines.push("| shipped recipe | stage (shared material acquired last) → direction, max shift | allowed changes | caused by |", "|---|---|---|---|");
+    const letter = (i: number) => String.fromCharCode(65 + i);
+    for (const r of p.research.nonCanonical) {
+      const stages = r.byMaterial.map((m) => `${m.material}: ${m.shift === 0 ? "new first letter only" : `later by at most ${m.shift}`}`).join("; ");
+      const allowed = r.maxShift === 0 ? "(none)→A" : `(none)→A..${letter(r.maxShift)}; X→X+1${r.maxShift > 1 ? `..X+${r.maxShift}` : ""}`;
+      lines.push(`| \`${r.recipeId}\` | ${cell(stages)} | ${allowed} | ${cell([...new Set(r.causes.map((c) => c.newRecipeId))].join(", "))} |`);
+    }
   }
   lines.push("", `Rule cross-check against the sampled audit: ${p.research.ruleViolations.length === 0 ? "0 violations" : `**${p.research.ruleViolations.length} VIOLATIONS** — ${p.research.ruleViolations.join("; ")}`}.`);
   lines.push("", "## 5. Shop pack changes (price unchanged)", "");

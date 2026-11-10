@@ -238,96 +238,98 @@ Canonical ladder order (stop condition): **12** shipped recipe(s) change.
 
 Non-canonical acquisition orders — deterministic bound, additive over the recipes (a split of this train needs no new approval): **88** shipped recipe(s).
 
-| shipped recipe | kind | max shift | caused by (shared material) |
+Approval unit (Owner R-RES-1, 2026-11-10): per ID, the stage (the shared material acquired last), the direction and the maximum shift. Nothing outside this table is approved: any other ID, stage, direction or a larger shift is a STOP in the implementation PR.
+
+| shipped recipe | stage (shared material acquired last) → direction, max shift | allowed changes | caused by |
 |---|---|---|---|
-| `aussie` | SHIFT | 3 | sfincione (onion); pizza-baiana (egg, onion); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (egg, onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); tsukimi-pizza (bacon, egg); teriyaki-chicken-pizza (onion); south-african-boerewors (onion); hokkaido-cheese-pizza (bacon) |
-| `baba-ganoush-pizza` | SHIFT | 4 | sfincione (olive-oil); jerusalem-mixed-grill-pizza (parsley); caponata-pizza (eggplant); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil); burrata-pizza (olive-oil) |
-| `bacalhau` | SHIFT | 7 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); caponata-pizza (black-olive); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (black-olive, onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); peruvian-aji-amarillo (black-olive); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `baingan-bharta-pizza` | SHIFT | 3 | sfincione (onion); pizza-baiana (onion); thai-chicken-pizza (cilantro); jerusalem-mixed-grill-pizza (onion); caponata-pizza (eggplant); keema-pizza (onion); chicken-tikka-pizza (cilantro, onion); banh-mi-pizza (cilantro); pizza-chilena (onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `bambino` | SHIFT | 2 | banh-mi-pizza (ham); pizza-salad (corn); mexican-elote-pizza (corn); hokkaido-cheese-pizza (corn) |
-| `bbq-chicken-pizza` | SHIFT | 2 | sfincione (onion); pizza-baiana (onion); thai-chicken-pizza (chicken, cilantro); jerusalem-mixed-grill-pizza (chicken, onion); keema-pizza (onion); chicken-tikka-pizza (cilantro, onion); nashville-hot-chicken-pizza (chicken); banh-mi-pizza (cilantro); pizza-chilena (onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); peruvian-aji-amarillo (chicken); teriyaki-chicken-pizza (chicken, onion); south-african-boerewors (onion) |
-| `bismarck` | SHIFT | 3 | pizza-baiana (egg); pizza-chilena (egg); tsukimi-pizza (egg) |
-| `black-truffle-pizza` | NEW_LABEL_ONLY | 0 | pizza-asparagi-limone (parmigiano) |
-| `boscaiola` | SHIFT | 4 | sfincione (olive-oil); pizza-baiana (sausage); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil); burrata-pizza (olive-oil); nduja-pizza (sausage); south-african-boerewors (sausage) |
-| `brazilian-calabresa` | SHIFT | 4 | sfincione (onion, oregano); pizza-baiana (onion, sausage); jerusalem-mixed-grill-pizza (onion); caponata-pizza (black-olive); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (black-olive, onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); peruvian-aji-amarillo (black-olive); nduja-pizza (sausage); teriyaki-chicken-pizza (onion); south-african-boerewors (onion, sausage) |
-| `brazilian-catupiry-corn-pizza` | SHIFT | 2 | pizza-salad (corn); mexican-elote-pizza (corn); hokkaido-cheese-pizza (corn) |
-| `breakfast-pizza` | SHIFT | 2 | pizza-baiana (egg); pizza-chilena (egg); tsukimi-pizza (bacon, egg); hokkaido-cheese-pizza (bacon) |
-| `buffalo-chicken` | SHIFT | 1 | thai-chicken-pizza (chicken); jerusalem-mixed-grill-pizza (chicken); nashville-hot-chicken-pizza (chicken); buffalo-cauliflower-pizza (gorgonzola); peruvian-aji-amarillo (chicken); teriyaki-chicken-pizza (chicken) |
-| `calabresa-argentina` | SHIFT | 3 | sfincione (oregano); caponata-pizza (black-olive); pizza-chilena (black-olive); peruvian-aji-amarillo (black-olive) |
-| `capricciosa` | SHIFT | 1 | sfincione (oregano); caponata-pizza (black-olive); banh-mi-pizza (ham); pizza-chilena (black-olive); peruvian-aji-amarillo (black-olive) |
-| `chilean-napolitana` | SHIFT | 1 | sfincione (oregano) |
-| `cuban-pizza` | SHIFT | 1 | nashville-hot-chicken-pizza (pickles); banh-mi-pizza (ham) |
-| `curry-pizza-japan` | SHIFT | 10 | sfincione (onion); pizza-baiana (onion); thai-chicken-pizza (chicken); jerusalem-mixed-grill-pizza (chicken, onion); keema-pizza (onion); chicken-tikka-pizza (onion); nashville-hot-chicken-pizza (chicken); pizza-chilena (onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); peruvian-aji-amarillo (chicken); teriyaki-chicken-pizza (chicken, onion); south-african-boerewors (onion) |
-| `currywurst` | NEW_LABEL_ONLY | 0 | mexican-elote-pizza (paprika-powder) |
-| `eggplant-dengaku-pizza` | NEW_LABEL_ONLY | 0 | caponata-pizza (eggplant); bulgogi-pizza (white-sesame) |
-| `eggplant-ricotta-pizza` | SHIFT | 4 | sfincione (olive-oil); caponata-pizza (eggplant); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (mint, olive-oil, ricotta); burrata-pizza (olive-oil) |
-| `eggplant-tahini-pizza` | SHIFT | 1 | jerusalem-mixed-grill-pizza (parsley); caponata-pizza (eggplant) |
-| `flammkuchen` | SHIFT | 5 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); tsukimi-pizza (bacon); teriyaki-chicken-pizza (onion); south-african-boerewors (onion); hokkaido-cheese-pizza (bacon) |
-| `frango-catupiry` | SHIFT | 5 | sfincione (oregano); thai-chicken-pizza (chicken); jerusalem-mixed-grill-pizza (chicken); nashville-hot-chicken-pizza (chicken); peruvian-aji-amarillo (chicken); teriyaki-chicken-pizza (chicken) |
-| `fugazza` | SHIFT | 5 | sfincione (olive-oil, onion, oregano); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil); pizza-chilena (onion); philly-cheesesteak-pizza (onion); burrata-pizza (olive-oil); bulgogi-pizza (onion); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `full-english-pizza` | SHIFT | 2 | pizza-baiana (egg, sausage); pizza-chilena (egg); nduja-pizza (sausage); tsukimi-pizza (bacon, egg); south-african-boerewors (sausage); hokkaido-cheese-pizza (bacon) |
-| `goulash-pizza` | SHIFT | 6 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (onion); philly-cheesesteak-pizza (beef, onion); bulgogi-pizza (beef, onion); mexican-elote-pizza (paprika-powder); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `grandma-pizza` | SHIFT | 4 | sfincione (olive-oil); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil); burrata-pizza (olive-oil) |
-| `hawaiian` | SHIFT | 1 | banh-mi-pizza (ham) |
-| `ikura-salmon-pizza` | NEW_LABEL_ONLY | 0 | mentaiko-mochi-pizza (shiso) |
-| `jalapeno-popper-pizza` | NEW_LABEL_ONLY | 0 | tsukimi-pizza (bacon); hokkaido-cheese-pizza (bacon) |
-| `jamaican-jerk-chicken-pizza` | SHIFT | 2 | thai-chicken-pizza (chicken); jerusalem-mixed-grill-pizza (chicken); nashville-hot-chicken-pizza (chicken); philly-cheesesteak-pizza (green-pepper); peruvian-aji-amarillo (chicken); teriyaki-chicken-pizza (chicken) |
-| `marinara` | SHIFT | 1 | sfincione (oregano) |
-| `meat-lovers` | SHIFT | 3 | pizza-baiana (sausage); banh-mi-pizza (ham); hot-honey-pepperoni (pepperoni); nduja-pizza (sausage); tsukimi-pizza (bacon); south-african-boerewors (sausage); hokkaido-cheese-pizza (bacon) |
-| `melanzane-pizza` | NEW_LABEL_ONLY | 0 | caponata-pizza (eggplant) |
-| `moussaka-style-pizza` | NEW_LABEL_ONLY | 0 | caponata-pizza (eggplant); mexican-elote-pizza (feta) |
-| `napoletana` | SHIFT | 1 | sfincione (anchovy, oregano) |
-| `new-haven-apizza` | NEW_LABEL_ONLY | 0 | sfincione (olive-oil); pizza-asparagi-limone (olive-oil, parmigiano); pizza-zucchine-menta (olive-oil); burrata-pizza (olive-oil); frutti-di-mare-pizzadb (clam) |
-| `nigerian-suya-pizza` | SHIFT | 3 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (onion); philly-cheesesteak-pizza (beef, green-pepper, onion); bulgogi-pizza (beef, onion); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `okonomiyaki-style-pizza` | SHIFT | 2 | mentaiko-mochi-pizza (mayo, nori); mexican-elote-pizza (mayo); teriyaki-chicken-pizza (mayo, nori) |
-| `palmito-pizza` | SHIFT | 3 | caponata-pizza (black-olive); pizza-chilena (black-olive); peruvian-aji-amarillo (black-olive) |
-| `parmigiana-pizza` | SHIFT | 1 | caponata-pizza (eggplant); pizza-asparagi-limone (parmigiano) |
-| `pepperoni` | NEW_LABEL_ONLY | 0 | hot-honey-pepperoni (pepperoni) |
-| `pescatore` | SHIFT | 1 | jerusalem-mixed-grill-pizza (parsley); frutti-di-mare-pizzadb (clam, mussel, shrimp) |
-| `pesto-burrata-pizza` | SHIFT | 4 | sfincione (olive-oil); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil); burrata-pizza (burrata, olive-oil) |
-| `pesto-gamberi` | SHIFT | 1 | frutti-di-mare-pizzadb (shrimp) |
-| `pesto-noci-pizza` | SHIFT | 2 | nashville-hot-chicken-pizza (honey); buffalo-cauliflower-pizza (gorgonzola); hot-honey-pepperoni (honey); nduja-pizza (honey) |
-| `pesto-patate` | SHIFT | 2 | tsukimi-pizza (bacon); hokkaido-cheese-pizza (bacon, potato) |
-| `pesto-pollo` | SHIFT | 4 | thai-chicken-pizza (chicken); jerusalem-mixed-grill-pizza (chicken); nashville-hot-chicken-pizza (chicken); peruvian-aji-amarillo (chicken); teriyaki-chicken-pizza (chicken) |
-| `pesto-salmone` | SHIFT | 2 | pizza-asparagi-limone (lemon); pizza-zucchine-menta (lemon) |
-| `pesto-tonno` | SHIFT | 4 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); caponata-pizza (black-olive); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (black-olive, onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); peruvian-aji-amarillo (black-olive); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `pesto-vegetariana` | NEW_LABEL_ONLY | 0 | caponata-pizza (eggplant); chicken-tikka-pizza (bell-pepper); pizza-zucchine-menta (zucchini) |
-| `pizza-alla-crudaiola` | SHIFT | 3 | sfincione (olive-oil); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil); burrata-pizza (burrata, olive-oil) |
-| `pizza-alla-norma` | NEW_LABEL_ONLY | 0 | caponata-pizza (eggplant) |
-| `pizza-bianca` | SHIFT | 4 | sfincione (olive-oil); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil); burrata-pizza (olive-oil) |
-| `pizza-bianca-ricotta` | SHIFT | 4 | sfincione (olive-oil); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil, ricotta); burrata-pizza (olive-oil) |
-| `pizza-cavolo-carote` | SHIFT | 1 | sfincione (olive-oil); banh-mi-pizza (carrot); pizza-asparagi-limone (lemon, olive-oil); pizza-zucchine-menta (lemon, olive-oil); burrata-pizza (olive-oil) |
-| `pizza-feta-eliniki` | SHIFT | 4 | sfincione (olive-oil, oregano); caponata-pizza (black-olive); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil); pizza-chilena (black-olive); burrata-pizza (olive-oil); peruvian-aji-amarillo (black-olive); mexican-elote-pizza (feta) |
-| `pizza-finocchi-salad` | SHIFT | 4 | sfincione (olive-oil); caponata-pizza (black-olive); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (mint, olive-oil); pizza-chilena (black-olive); burrata-pizza (olive-oil); peruvian-aji-amarillo (black-olive) |
-| `pizza-moscow` | SHIFT | 10 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `pizza-overload` | SHIFT | 1 | banh-mi-pizza (ham); tsukimi-pizza (bacon); hokkaido-cheese-pizza (bacon) |
-| `pizza-portuguesa` | SHIFT | 4 | sfincione (onion); pizza-baiana (egg, onion); jerusalem-mixed-grill-pizza (onion); caponata-pizza (black-olive); keema-pizza (onion); chicken-tikka-pizza (onion); banh-mi-pizza (ham); pizza-chilena (black-olive, egg, onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); peruvian-aji-amarillo (black-olive); tsukimi-pizza (egg); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `pizza-radicchio-noci` | SHIFT | 4 | sfincione (olive-oil); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil); burrata-pizza (olive-oil) |
-| `polish-kielbasa` | NEW_LABEL_ONLY | 0 | sfincione (onion); pizza-baiana (onion, sausage); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); nduja-pizza (sausage); teriyaki-chicken-pizza (onion); south-african-boerewors (onion, sausage) |
-| `porcini-pizza` | SHIFT | 1 | jerusalem-mixed-grill-pizza (parsley) |
-| `potato-mayo-pizza` | SHIFT | 2 | pizza-salad (corn); mentaiko-mochi-pizza (mayo); mexican-elote-pizza (corn, mayo); tsukimi-pizza (bacon); teriyaki-chicken-pizza (mayo); hokkaido-cheese-pizza (bacon, corn, potato) |
-| `puttanesca-pizza` | SHIFT | 1 | sfincione (anchovy); caponata-pizza (black-olive, capers); pizza-chilena (black-olive); peruvian-aji-amarillo (black-olive) |
-| `quattro-formaggi` | SHIFT | 1 | sfincione (olive-oil); buffalo-cauliflower-pizza (gorgonzola); pizza-asparagi-limone (olive-oil, parmigiano); pizza-zucchine-menta (olive-oil); burrata-pizza (olive-oil) |
-| `ratatouille-pizza` | NEW_LABEL_ONLY | 0 | sfincione (oregano); caponata-pizza (eggplant); chicken-tikka-pizza (bell-pepper); pizza-zucchine-menta (zucchini) |
-| `reina-pepiada-pizza` | NEW_LABEL_ONLY | 0 | thai-chicken-pizza (chicken, cilantro); jerusalem-mixed-grill-pizza (chicken); chicken-tikka-pizza (cilantro); nashville-hot-chicken-pizza (chicken); banh-mi-pizza (cilantro); peruvian-aji-amarillo (chicken); mentaiko-mochi-pizza (mayo); mexican-elote-pizza (mayo); teriyaki-chicken-pizza (chicken, mayo) |
-| `rendang-pizza` | SHIFT | 3 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (onion); philly-cheesesteak-pizza (beef, onion); bulgogi-pizza (beef, onion); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `salsiccia` | SHIFT | 2 | pizza-baiana (sausage); nduja-pizza (sausage); south-african-boerewors (sausage) |
-| `salsiccia-e-friarielli` | SHIFT | 3 | pizza-baiana (sausage); nduja-pizza (sausage); south-african-boerewors (sausage) |
-| `shirasu-pizza` | SHIFT | 1 | pizza-asparagi-limone (lemon); pizza-zucchine-menta (lemon); mentaiko-mochi-pizza (shiso) |
-| `sichuan-eggplant-pizza` | NEW_LABEL_ONLY | 0 | caponata-pizza (eggplant); peking-duck-pizza (green-onion); tsukimi-pizza (green-onion) |
-| `spanish-chorizo-pizza` | SHIFT | 10 | sfincione (onion); pizza-baiana (onion, sausage); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (bell-pepper, onion); pizza-chilena (onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); nduja-pizza (sausage); teriyaki-chicken-pizza (onion); south-african-boerewors (onion, sausage) |
-| `spinach-artichoke-pizza` | NEW_LABEL_ONLY | 0 | pizza-asparagi-limone (parmigiano) |
-| `supreme-pizza` | SHIFT | 6 | sfincione (onion); pizza-baiana (onion, sausage); jerusalem-mixed-grill-pizza (onion); caponata-pizza (black-olive); keema-pizza (onion); chicken-tikka-pizza (bell-pepper, onion); pizza-chilena (black-olive, onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); peruvian-aji-amarillo (black-olive); hot-honey-pepperoni (pepperoni); nduja-pizza (sausage); teriyaki-chicken-pizza (onion); south-african-boerewors (onion, sausage) |
-| `taco-pizza` | SHIFT | 2 | swedish-kebab-pizza (lettuce); pizza-salad (lettuce); philly-cheesesteak-pizza (beef); bulgogi-pizza (beef) |
-| `tandoori-paneer-pizza` | SHIFT | 6 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (onion); philly-cheesesteak-pizza (green-pepper, onion); bulgogi-pizza (onion); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `tarako-cream-pizza` | NEW_LABEL_ONLY | 0 | mentaiko-mochi-pizza (nori, shiso); teriyaki-chicken-pizza (nori) |
-| `tonno-e-cipolla` | SHIFT | 6 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (onion); philly-cheesesteak-pizza (onion); bulgogi-pizza (onion); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `ume-shiso-pizza` | NEW_LABEL_ONLY | 0 | mentaiko-mochi-pizza (shiso) |
-| `vegan-cashew-cheese-pizza` | SHIFT | 1 | chicken-tikka-pizza (bell-pepper); pizza-zucchine-menta (zucchini) |
-| `veggie-supreme-pizza` | SHIFT | 7 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); caponata-pizza (black-olive); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (black-olive, onion); philly-cheesesteak-pizza (green-pepper, onion); bulgogi-pizza (onion); peruvian-aji-amarillo (black-olive); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `vongole` | SHIFT | 4 | sfincione (olive-oil); jerusalem-mixed-grill-pizza (parsley); pizza-asparagi-limone (olive-oil); pizza-zucchine-menta (olive-oil); burrata-pizza (olive-oil); frutti-di-mare-pizzadb (clam) |
-| `wasabi-beef-pizza` | SHIFT | 10 | sfincione (onion); pizza-baiana (onion); jerusalem-mixed-grill-pizza (onion); keema-pizza (onion); chicken-tikka-pizza (onion); pizza-chilena (onion); philly-cheesesteak-pizza (beef, onion); bulgogi-pizza (beef, onion); teriyaki-chicken-pizza (onion); south-african-boerewors (onion) |
-| `yuzu-shrimp-pizza` | SHIFT | 1 | frutti-di-mare-pizzadb (shrimp); mentaiko-mochi-pizza (shiso) |
+| `aussie` | bacon: new first letter only; egg: later by at most 2; onion: later by at most 3 | (none)→A..D; X→X+1..X+3 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, tsukimi-pizza, teriyaki-chicken-pizza, south-african-boerewors, hokkaido-cheese-pizza |
+| `baba-ganoush-pizza` | eggplant: later by at most 1; olive-oil: later by at most 4; parsley: later by at most 1 | (none)→A..E; X→X+1..X+4 | sfincione, jerusalem-mixed-grill-pizza, caponata-pizza, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza |
+| `bacalhau` | black-olive: later by at most 3; onion: later by at most 7 | (none)→A..H; X→X+1..X+7 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, caponata-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, peruvian-aji-amarillo, teriyaki-chicken-pizza, south-african-boerewors |
+| `baingan-bharta-pizza` | cilantro: new first letter only; eggplant: new first letter only; onion: later by at most 3 | (none)→A..D; X→X+1..X+3 | sfincione, pizza-baiana, thai-chicken-pizza, jerusalem-mixed-grill-pizza, caponata-pizza, keema-pizza, chicken-tikka-pizza, banh-mi-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `bambino` | corn: later by at most 2; ham: later by at most 1 | (none)→A..C; X→X+1..X+2 | banh-mi-pizza, pizza-salad, mexican-elote-pizza, hokkaido-cheese-pizza |
+| `bbq-chicken-pizza` | chicken: later by at most 1; cilantro: new first letter only; onion: later by at most 2 | (none)→A..C; X→X+1..X+2 | sfincione, pizza-baiana, thai-chicken-pizza, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, nashville-hot-chicken-pizza, banh-mi-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, peruvian-aji-amarillo, teriyaki-chicken-pizza, south-african-boerewors |
+| `bismarck` | egg: later by at most 3 | (none)→A..D; X→X+1..X+3 | pizza-baiana, pizza-chilena, tsukimi-pizza |
+| `black-truffle-pizza` | parmigiano: new first letter only | (none)→A | pizza-asparagi-limone |
+| `boscaiola` | olive-oil: later by at most 4; sausage: later by at most 3 | (none)→A..E; X→X+1..X+4 | sfincione, pizza-baiana, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza, nduja-pizza, south-african-boerewors |
+| `brazilian-calabresa` | black-olive: later by at most 1; onion: later by at most 4; oregano: later by at most 1; sausage: later by at most 2 | (none)→A..E; X→X+1..X+4 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, caponata-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, peruvian-aji-amarillo, nduja-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `brazilian-catupiry-corn-pizza` | corn: later by at most 2 | (none)→A..C; X→X+1..X+2 | pizza-salad, mexican-elote-pizza, hokkaido-cheese-pizza |
+| `breakfast-pizza` | bacon: new first letter only; egg: later by at most 2 | (none)→A..C; X→X+1..X+2 | pizza-baiana, pizza-chilena, tsukimi-pizza, hokkaido-cheese-pizza |
+| `buffalo-chicken` | chicken: later by at most 1; gorgonzola: new first letter only | (none)→A..B; X→X+1 | thai-chicken-pizza, jerusalem-mixed-grill-pizza, nashville-hot-chicken-pizza, buffalo-cauliflower-pizza, peruvian-aji-amarillo, teriyaki-chicken-pizza |
+| `calabresa-argentina` | black-olive: later by at most 3; oregano: later by at most 1 | (none)→A..D; X→X+1..X+3 | sfincione, caponata-pizza, pizza-chilena, peruvian-aji-amarillo |
+| `capricciosa` | black-olive: later by at most 1; ham: new first letter only; oregano: new first letter only | (none)→A..B; X→X+1 | sfincione, caponata-pizza, banh-mi-pizza, pizza-chilena, peruvian-aji-amarillo |
+| `chilean-napolitana` | oregano: later by at most 1 | (none)→A..B; X→X+1 | sfincione |
+| `cuban-pizza` | ham: later by at most 1; pickles: later by at most 1 | (none)→A..B; X→X+1 | nashville-hot-chicken-pizza, banh-mi-pizza |
+| `curry-pizza-japan` | chicken: later by at most 5; onion: later by at most 10 | (none)→A..K; X→X+1..X+10 | sfincione, pizza-baiana, thai-chicken-pizza, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, nashville-hot-chicken-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, peruvian-aji-amarillo, teriyaki-chicken-pizza, south-african-boerewors |
+| `currywurst` | paprika-powder: new first letter only | (none)→A | mexican-elote-pizza |
+| `eggplant-dengaku-pizza` | eggplant: new first letter only; white-sesame: new first letter only | (none)→A | caponata-pizza, bulgogi-pizza |
+| `eggplant-ricotta-pizza` | eggplant: later by at most 1; mint: later by at most 1; olive-oil: later by at most 4; ricotta: later by at most 1 | (none)→A..E; X→X+1..X+4 | sfincione, caponata-pizza, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza |
+| `eggplant-tahini-pizza` | eggplant: new first letter only; parsley: later by at most 1 | (none)→A..B; X→X+1 | jerusalem-mixed-grill-pizza, caponata-pizza |
+| `flammkuchen` | bacon: new first letter only; onion: later by at most 5 | (none)→A..F; X→X+1..X+5 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, tsukimi-pizza, teriyaki-chicken-pizza, south-african-boerewors, hokkaido-cheese-pizza |
+| `frango-catupiry` | chicken: later by at most 5; oregano: later by at most 1 | (none)→A..F; X→X+1..X+5 | sfincione, thai-chicken-pizza, jerusalem-mixed-grill-pizza, nashville-hot-chicken-pizza, peruvian-aji-amarillo, teriyaki-chicken-pizza |
+| `fugazza` | olive-oil: later by at most 4; onion: later by at most 5; oregano: later by at most 1 | (none)→A..F; X→X+1..X+5 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-asparagi-limone, pizza-zucchine-menta, pizza-chilena, philly-cheesesteak-pizza, burrata-pizza, bulgogi-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `full-english-pizza` | bacon: new first letter only; egg: later by at most 2; sausage: later by at most 2 | (none)→A..C; X→X+1..X+2 | pizza-baiana, pizza-chilena, nduja-pizza, tsukimi-pizza, south-african-boerewors, hokkaido-cheese-pizza |
+| `goulash-pizza` | beef: later by at most 1; onion: later by at most 6; paprika-powder: new first letter only | (none)→A..G; X→X+1..X+6 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, mexican-elote-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `grandma-pizza` | olive-oil: later by at most 4 | (none)→A..E; X→X+1..X+4 | sfincione, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza |
+| `hawaiian` | ham: later by at most 1 | (none)→A..B; X→X+1 | banh-mi-pizza |
+| `ikura-salmon-pizza` | shiso: new first letter only | (none)→A | mentaiko-mochi-pizza |
+| `jalapeno-popper-pizza` | bacon: new first letter only | (none)→A | tsukimi-pizza, hokkaido-cheese-pizza |
+| `jamaican-jerk-chicken-pizza` | chicken: later by at most 2; green-pepper: new first letter only | (none)→A..C; X→X+1..X+2 | thai-chicken-pizza, jerusalem-mixed-grill-pizza, nashville-hot-chicken-pizza, philly-cheesesteak-pizza, peruvian-aji-amarillo, teriyaki-chicken-pizza |
+| `marinara` | oregano: later by at most 1 | (none)→A..B; X→X+1 | sfincione |
+| `meat-lovers` | bacon: new first letter only; ham: later by at most 1; pepperoni: new first letter only; sausage: later by at most 3 | (none)→A..D; X→X+1..X+3 | pizza-baiana, banh-mi-pizza, hot-honey-pepperoni, nduja-pizza, tsukimi-pizza, south-african-boerewors, hokkaido-cheese-pizza |
+| `melanzane-pizza` | eggplant: new first letter only | (none)→A | caponata-pizza |
+| `moussaka-style-pizza` | eggplant: new first letter only; feta: new first letter only | (none)→A | caponata-pizza, mexican-elote-pizza |
+| `napoletana` | anchovy: later by at most 1; oregano: later by at most 1 | (none)→A..B; X→X+1 | sfincione |
+| `new-haven-apizza` | clam: new first letter only; olive-oil: new first letter only; parmigiano: new first letter only | (none)→A | sfincione, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza, frutti-di-mare-pizzadb |
+| `nigerian-suya-pizza` | beef: new first letter only; green-pepper: new first letter only; onion: later by at most 3 | (none)→A..D; X→X+1..X+3 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `okonomiyaki-style-pizza` | mayo: later by at most 2; nori: later by at most 2 | (none)→A..C; X→X+1..X+2 | mentaiko-mochi-pizza, mexican-elote-pizza, teriyaki-chicken-pizza |
+| `palmito-pizza` | black-olive: later by at most 3 | (none)→A..D; X→X+1..X+3 | caponata-pizza, pizza-chilena, peruvian-aji-amarillo |
+| `parmigiana-pizza` | eggplant: later by at most 1; parmigiano: later by at most 1 | (none)→A..B; X→X+1 | caponata-pizza, pizza-asparagi-limone |
+| `pepperoni` | pepperoni: new first letter only | (none)→A | hot-honey-pepperoni |
+| `pescatore` | clam: later by at most 1; mussel: later by at most 1; parsley: later by at most 1; shrimp: later by at most 1 | (none)→A..B; X→X+1 | jerusalem-mixed-grill-pizza, frutti-di-mare-pizzadb |
+| `pesto-burrata-pizza` | burrata: later by at most 1; olive-oil: later by at most 4 | (none)→A..E; X→X+1..X+4 | sfincione, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza |
+| `pesto-gamberi` | shrimp: later by at most 1 | (none)→A..B; X→X+1 | frutti-di-mare-pizzadb |
+| `pesto-noci-pizza` | gorgonzola: new first letter only; honey: later by at most 2 | (none)→A..C; X→X+1..X+2 | nashville-hot-chicken-pizza, buffalo-cauliflower-pizza, hot-honey-pepperoni, nduja-pizza |
+| `pesto-patate` | bacon: later by at most 2; potato: later by at most 1 | (none)→A..C; X→X+1..X+2 | tsukimi-pizza, hokkaido-cheese-pizza |
+| `pesto-pollo` | chicken: later by at most 4 | (none)→A..E; X→X+1..X+4 | thai-chicken-pizza, jerusalem-mixed-grill-pizza, nashville-hot-chicken-pizza, peruvian-aji-amarillo, teriyaki-chicken-pizza |
+| `pesto-salmone` | lemon: later by at most 2 | (none)→A..C; X→X+1..X+2 | pizza-asparagi-limone, pizza-zucchine-menta |
+| `pesto-tonno` | black-olive: later by at most 1; onion: later by at most 4 | (none)→A..E; X→X+1..X+4 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, caponata-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, peruvian-aji-amarillo, teriyaki-chicken-pizza, south-african-boerewors |
+| `pesto-vegetariana` | bell-pepper: new first letter only; eggplant: new first letter only; zucchini: new first letter only | (none)→A | caponata-pizza, chicken-tikka-pizza, pizza-zucchine-menta |
+| `pizza-alla-crudaiola` | burrata: later by at most 1; olive-oil: later by at most 3 | (none)→A..D; X→X+1..X+3 | sfincione, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza |
+| `pizza-alla-norma` | eggplant: new first letter only | (none)→A | caponata-pizza |
+| `pizza-bianca` | olive-oil: later by at most 4 | (none)→A..E; X→X+1..X+4 | sfincione, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza |
+| `pizza-bianca-ricotta` | olive-oil: later by at most 4; ricotta: later by at most 1 | (none)→A..E; X→X+1..X+4 | sfincione, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza |
+| `pizza-cavolo-carote` | carrot: new first letter only; lemon: new first letter only; olive-oil: later by at most 1 | (none)→A..B; X→X+1 | sfincione, banh-mi-pizza, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza |
+| `pizza-feta-eliniki` | black-olive: later by at most 3; feta: new first letter only; olive-oil: later by at most 4; oregano: later by at most 1 | (none)→A..E; X→X+1..X+4 | sfincione, caponata-pizza, pizza-asparagi-limone, pizza-zucchine-menta, pizza-chilena, burrata-pizza, peruvian-aji-amarillo, mexican-elote-pizza |
+| `pizza-finocchi-salad` | black-olive: later by at most 3; mint: later by at most 1; olive-oil: later by at most 4 | (none)→A..E; X→X+1..X+4 | sfincione, caponata-pizza, pizza-asparagi-limone, pizza-zucchine-menta, pizza-chilena, burrata-pizza, peruvian-aji-amarillo |
+| `pizza-moscow` | onion: later by at most 10 | (none)→A..K; X→X+1..X+10 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `pizza-overload` | bacon: later by at most 1; ham: later by at most 1 | (none)→A..B; X→X+1 | banh-mi-pizza, tsukimi-pizza, hokkaido-cheese-pizza |
+| `pizza-portuguesa` | black-olive: later by at most 1; egg: later by at most 2; ham: later by at most 1; onion: later by at most 4 | (none)→A..E; X→X+1..X+4 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, caponata-pizza, keema-pizza, chicken-tikka-pizza, banh-mi-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, peruvian-aji-amarillo, tsukimi-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `pizza-radicchio-noci` | olive-oil: later by at most 4 | (none)→A..E; X→X+1..X+4 | sfincione, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza |
+| `polish-kielbasa` | onion: new first letter only; sausage: new first letter only | (none)→A | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, nduja-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `porcini-pizza` | parsley: later by at most 1 | (none)→A..B; X→X+1 | jerusalem-mixed-grill-pizza |
+| `potato-mayo-pizza` | bacon: later by at most 2; corn: later by at most 2; mayo: later by at most 2; potato: later by at most 1 | (none)→A..C; X→X+1..X+2 | pizza-salad, mentaiko-mochi-pizza, mexican-elote-pizza, tsukimi-pizza, teriyaki-chicken-pizza, hokkaido-cheese-pizza |
+| `puttanesca-pizza` | anchovy: later by at most 1; black-olive: later by at most 1; capers: new first letter only | (none)→A..B; X→X+1 | sfincione, caponata-pizza, pizza-chilena, peruvian-aji-amarillo |
+| `quattro-formaggi` | gorgonzola: new first letter only; olive-oil: later by at most 1; parmigiano: new first letter only | (none)→A..B; X→X+1 | sfincione, buffalo-cauliflower-pizza, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza |
+| `ratatouille-pizza` | bell-pepper: new first letter only; eggplant: new first letter only; oregano: new first letter only; zucchini: new first letter only | (none)→A | sfincione, caponata-pizza, chicken-tikka-pizza, pizza-zucchine-menta |
+| `reina-pepiada-pizza` | chicken: new first letter only; cilantro: new first letter only; mayo: new first letter only | (none)→A | thai-chicken-pizza, jerusalem-mixed-grill-pizza, chicken-tikka-pizza, nashville-hot-chicken-pizza, banh-mi-pizza, peruvian-aji-amarillo, mentaiko-mochi-pizza, mexican-elote-pizza, teriyaki-chicken-pizza |
+| `rendang-pizza` | beef: new first letter only; onion: later by at most 3 | (none)→A..D; X→X+1..X+3 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `salsiccia` | sausage: later by at most 2 | (none)→A..C; X→X+1..X+2 | pizza-baiana, nduja-pizza, south-african-boerewors |
+| `salsiccia-e-friarielli` | sausage: later by at most 3 | (none)→A..D; X→X+1..X+3 | pizza-baiana, nduja-pizza, south-african-boerewors |
+| `shirasu-pizza` | lemon: later by at most 1; shiso: new first letter only | (none)→A..B; X→X+1 | pizza-asparagi-limone, pizza-zucchine-menta, mentaiko-mochi-pizza |
+| `sichuan-eggplant-pizza` | eggplant: new first letter only; green-onion: new first letter only | (none)→A | caponata-pizza, peking-duck-pizza, tsukimi-pizza |
+| `spanish-chorizo-pizza` | bell-pepper: later by at most 1; onion: later by at most 10; sausage: later by at most 3 | (none)→A..K; X→X+1..X+10 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, nduja-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `spinach-artichoke-pizza` | parmigiano: new first letter only | (none)→A | pizza-asparagi-limone |
+| `supreme-pizza` | bell-pepper: new first letter only; black-olive: later by at most 2; onion: later by at most 6; pepperoni: new first letter only; sausage: later by at most 3 | (none)→A..G; X→X+1..X+6 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, caponata-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, peruvian-aji-amarillo, hot-honey-pepperoni, nduja-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `taco-pizza` | beef: later by at most 2; lettuce: later by at most 2 | (none)→A..C; X→X+1..X+2 | swedish-kebab-pizza, pizza-salad, philly-cheesesteak-pizza, bulgogi-pizza |
+| `tandoori-paneer-pizza` | green-pepper: new first letter only; onion: later by at most 6 | (none)→A..G; X→X+1..X+6 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `tarako-cream-pizza` | nori: new first letter only; shiso: new first letter only | (none)→A | mentaiko-mochi-pizza, teriyaki-chicken-pizza |
+| `tonno-e-cipolla` | onion: later by at most 6 | (none)→A..G; X→X+1..X+6 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `ume-shiso-pizza` | shiso: new first letter only | (none)→A | mentaiko-mochi-pizza |
+| `vegan-cashew-cheese-pizza` | bell-pepper: later by at most 1; zucchini: later by at most 1 | (none)→A..B; X→X+1 | chicken-tikka-pizza, pizza-zucchine-menta |
+| `veggie-supreme-pizza` | black-olive: later by at most 3; green-pepper: later by at most 1; onion: later by at most 7 | (none)→A..H; X→X+1..X+7 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, caponata-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, peruvian-aji-amarillo, teriyaki-chicken-pizza, south-african-boerewors |
+| `vongole` | clam: later by at most 1; olive-oil: later by at most 4; parsley: later by at most 1 | (none)→A..E; X→X+1..X+4 | sfincione, jerusalem-mixed-grill-pizza, pizza-asparagi-limone, pizza-zucchine-menta, burrata-pizza, frutti-di-mare-pizzadb |
+| `wasabi-beef-pizza` | beef: later by at most 2; onion: later by at most 10 | (none)→A..K; X→X+1..X+10 | sfincione, pizza-baiana, jerusalem-mixed-grill-pizza, keema-pizza, chicken-tikka-pizza, pizza-chilena, philly-cheesesteak-pizza, bulgogi-pizza, teriyaki-chicken-pizza, south-african-boerewors |
+| `yuzu-shrimp-pizza` | shiso: new first letter only; shrimp: later by at most 1 | (none)→A..B; X→X+1 | frutti-di-mare-pizzadb, mentaiko-mochi-pizza |
 
 Rule cross-check against the sampled audit: 0 violations.
 
