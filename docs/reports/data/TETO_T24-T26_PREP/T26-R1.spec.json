@@ -1,0 +1,67 @@
+{
+ "train": "T26-R1",
+ "recipes": [
+  {
+   "id": "nashville-hot-chicken-pizza",
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "chicken",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "honey",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "pickles",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY"
+   ]
+  },
+  {
+   "id": "nduja-pizza",
+   "nameJa": "ンドゥイヤピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "honey",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "nduja",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY",
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "NAME_SPECIFICITY_GAP"
+   ]
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "nduja",
+   "nameJa": "ンドゥイヤ",
+   "category": "topping",
+   "family": "meat"
+  }
+ ]
+}

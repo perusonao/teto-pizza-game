@@ -1,0 +1,2742 @@
+{
+ "train": "T24-T26-R1-combined",
+ "measuredOn": {
+  "recipes": 104,
+  "ingredients": 122,
+  "ladderSteps": 89
+ },
+ "recipes": [
+  {
+   "id": "peruvian-aji-amarillo",
+   "nameJa": "ペルーアヒアマリージョピザ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "aji-amarillo"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS",
+   "duplicates": [],
+   "findings": [
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "peruvian-aji-amarillo",
+     "message": "19 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "thai-chicken-pizza",
+   "nameJa": "タイチキンピザ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "peanut-sauce"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS",
+   "duplicates": [
+    {
+     "against": "bbq-chicken-pizza",
+     "againstTrain": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "reina-pepiada-pizza",
+     "againstTrain": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    }
+   ],
+   "findings": [
+    {
+     "gate": "DUPLICATE_JACCARD_GT_0_4",
+     "severity": "OWNER",
+     "recipeId": "thai-chicken-pizza",
+     "message": "JACCARD_GT_0_4 vs bbq-chicken-pizza, Jaccard 0.5: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "DUPLICATE_JACCARD_GT_0_4",
+     "severity": "OWNER",
+     "recipeId": "thai-chicken-pizza",
+     "message": "JACCARD_GT_0_4 vs reina-pepiada-pizza, Jaccard 0.429: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "thai-chicken-pizza",
+     "message": "8 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "frutti-di-mare-pizzadb",
+   "nameJa": "フルッティディマーレ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "squid"
+   ],
+   "hintRungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS",
+   "duplicates": [
+    {
+     "against": "pescatore",
+     "againstTrain": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    }
+   ],
+   "findings": [
+    {
+     "gate": "DUPLICATE_JACCARD_GT_0_4",
+     "severity": "OWNER",
+     "recipeId": "frutti-di-mare-pizzadb",
+     "message": "JACCARD_GT_0_4 vs pescatore, Jaccard 0.5: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "frutti-di-mare-pizzadb",
+     "message": "5 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "diavola-pizza",
+   "nameJa": "ディアボラ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "spicy-salami"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS",
+   "duplicates": [
+    {
+     "against": "bismarck",
+     "againstTrain": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "funghi",
+     "againstTrain": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "margherita",
+     "againstTrain": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "pepperoni",
+     "againstTrain": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    },
+    {
+     "against": "salsiccia",
+     "againstTrain": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.5
+    }
+   ],
+   "findings": [
+    {
+     "gate": "DUPLICATE_ONE_DIFF",
+     "severity": "OWNER",
+     "recipeId": "diavola-pizza",
+     "message": "ONE_DIFF vs bismarck, Jaccard 0.5: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "DUPLICATE_ONE_DIFF",
+     "severity": "OWNER",
+     "recipeId": "diavola-pizza",
+     "message": "ONE_DIFF vs funghi, Jaccard 0.5: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "DUPLICATE_ONE_DIFF",
+     "severity": "OWNER",
+     "recipeId": "diavola-pizza",
+     "message": "ONE_DIFF vs margherita, Jaccard 0.5: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "DUPLICATE_ONE_DIFF",
+     "severity": "OWNER",
+     "recipeId": "diavola-pizza",
+     "message": "ONE_DIFF vs pepperoni, Jaccard 0.5: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "DUPLICATE_ONE_DIFF",
+     "severity": "OWNER",
+     "recipeId": "diavola-pizza",
+     "message": "ONE_DIFF vs salsiccia, Jaccard 0.5: needs a D-1 exception or a spec change"
+    }
+   ]
+  },
+  {
+   "id": "south-african-boerewors",
+   "nameJa": "南アフリカボアヴォースピザ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "chutney"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS",
+   "duplicates": [
+    {
+     "against": "polish-kielbasa",
+     "againstTrain": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    },
+    {
+     "against": "spanish-chorizo-pizza",
+     "againstTrain": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    }
+   ],
+   "findings": [
+    {
+     "gate": "DUPLICATE_ONE_DIFF",
+     "severity": "OWNER",
+     "recipeId": "south-african-boerewors",
+     "message": "ONE_DIFF vs polish-kielbasa, Jaccard 0.6: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "DUPLICATE_ONE_DIFF",
+     "severity": "OWNER",
+     "recipeId": "south-african-boerewors",
+     "message": "ONE_DIFF vs spanish-chorizo-pizza, Jaccard 0.6: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "south-african-boerewors",
+     "message": "26 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "peking-duck-pizza",
+   "nameJa": "北京ダックピザ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "cucumber",
+    "peking-duck",
+    "sweet-bean-sauce"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS",
+   "duplicates": [],
+   "findings": [
+    {
+     "gate": "LADDER_KEY_MATERIAL",
+     "severity": "INFO",
+     "recipeId": "peking-duck-pizza",
+     "message": "one step unlocks 3 materials: cucumber, peking-duck, sweet-bean-sauce"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "peking-duck-pizza",
+     "message": "1 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "swedish-kebab-pizza",
+   "nameJa": "スウェディッシュケバブピザ",
+   "placement": "late",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "kebab-sauce"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS",
+   "duplicates": [],
+   "findings": [
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "swedish-kebab-pizza",
+     "message": "1 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "pizza-salad",
+   "nameJa": "ピザサラダ",
+   "placement": "late",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "cucumber",
+    "yogurt-sauce"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS",
+   "duplicates": [
+    {
+     "against": "bambino",
+     "againstTrain": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    }
+   ],
+   "findings": [
+    {
+     "gate": "LADDER_KEY_MATERIAL",
+     "severity": "INFO",
+     "recipeId": "pizza-salad",
+     "message": "one step unlocks 2 materials: cucumber, yogurt-sauce"
+    },
+    {
+     "gate": "DUPLICATE_JACCARD_GT_0_4",
+     "severity": "OWNER",
+     "recipeId": "pizza-salad",
+     "message": "JACCARD_GT_0_4 vs bambino, Jaccard 0.429: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "pizza-salad",
+     "message": "4 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "banh-mi-pizza",
+   "nameJa": "バインミーピザ",
+   "placement": "late",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "daikon",
+    "liver-pate"
+   ],
+   "hintRungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS",
+   "duplicates": [],
+   "findings": [
+    {
+     "gate": "NO_SAUCE_DECISION",
+     "severity": "OWNER",
+     "recipeId": "banh-mi-pizza",
+     "message": "no sauce: shipping it as NO_SAUCE is an explicit Owner GAMEPLAY decision (D-2: never assumed from the source)"
+    },
+    {
+     "gate": "LATE_PLACEMENT",
+     "severity": "OWNER",
+     "recipeId": "banh-mi-pizza",
+     "message": "is placed in the late catalog but has no POST_BAKE piece"
+    },
+    {
+     "gate": "LADDER_KEY_MATERIAL",
+     "severity": "INFO",
+     "recipeId": "banh-mi-pizza",
+     "message": "one step unlocks 2 materials: daikon, liver-pate"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "banh-mi-pizza",
+     "message": "11 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "buffalo-cauliflower-pizza",
+   "nameJa": "バッファローカリフラワーピザ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "cauliflower"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS",
+   "duplicates": [
+    {
+     "against": "buffalo-chicken",
+     "againstTrain": false,
+     "kind": "ONE_DIFF",
+     "jaccard": 0.6
+    }
+   ],
+   "findings": [
+    {
+     "gate": "DUPLICATE_ONE_DIFF",
+     "severity": "OWNER",
+     "recipeId": "buffalo-cauliflower-pizza",
+     "message": "ONE_DIFF vs buffalo-chicken, Jaccard 0.6: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "buffalo-cauliflower-pizza",
+     "message": "3 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "mexican-elote-pizza",
+   "nameJa": "メキシカンエロテピザ",
+   "placement": "late",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "lime"
+   ],
+   "hintRungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS",
+   "duplicates": [],
+   "findings": [
+    {
+     "gate": "NO_SAUCE_DECISION",
+     "severity": "OWNER",
+     "recipeId": "mexican-elote-pizza",
+     "message": "no sauce: shipping it as NO_SAUCE is an explicit Owner GAMEPLAY decision (D-2: never assumed from the source)"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "mexican-elote-pizza",
+     "message": "9 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "chicken-tikka-pizza",
+   "nameJa": "チキンティッカピザ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "chicken-tikka"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS",
+   "duplicates": [
+    {
+     "against": "baingan-bharta-pizza",
+     "againstTrain": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.5
+    },
+    {
+     "against": "curry-pizza-japan",
+     "againstTrain": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "rendang-pizza",
+     "againstTrain": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    },
+    {
+     "against": "spanish-chorizo-pizza",
+     "againstTrain": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    }
+   ],
+   "findings": [
+    {
+     "gate": "DUPLICATE_JACCARD_GT_0_4",
+     "severity": "OWNER",
+     "recipeId": "chicken-tikka-pizza",
+     "message": "JACCARD_GT_0_4 vs baingan-bharta-pizza, Jaccard 0.5: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "DUPLICATE_JACCARD_GT_0_4",
+     "severity": "OWNER",
+     "recipeId": "chicken-tikka-pizza",
+     "message": "JACCARD_GT_0_4 vs curry-pizza-japan, Jaccard 0.429: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "DUPLICATE_JACCARD_GT_0_4",
+     "severity": "OWNER",
+     "recipeId": "chicken-tikka-pizza",
+     "message": "JACCARD_GT_0_4 vs rendang-pizza, Jaccard 0.429: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "DUPLICATE_JACCARD_GT_0_4",
+     "severity": "OWNER",
+     "recipeId": "chicken-tikka-pizza",
+     "message": "JACCARD_GT_0_4 vs spanish-chorizo-pizza, Jaccard 0.429: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "chicken-tikka-pizza",
+     "message": "26 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "pizza-asparagi-limone",
+   "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+   "placement": "late",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "asparagus"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS",
+   "duplicates": [
+    {
+     "against": "quattro-formaggi",
+     "againstTrain": false,
+     "kind": "JACCARD_GT_0_4",
+     "jaccard": 0.429
+    }
+   ],
+   "findings": [
+    {
+     "gate": "DUPLICATE_JACCARD_GT_0_4",
+     "severity": "OWNER",
+     "recipeId": "pizza-asparagi-limone",
+     "message": "JACCARD_GT_0_4 vs quattro-formaggi, Jaccard 0.429: needs a D-1 exception or a spec change"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "pizza-asparagi-limone",
+     "message": "21 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "nashville-hot-chicken-pizza",
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS",
+   "duplicates": [],
+   "findings": [
+    {
+     "gate": "LADDER_KEY_MATERIAL",
+     "severity": "OWNER",
+     "recipeId": "nashville-hot-chicken-pizza",
+     "message": "adds no new material: it cannot be the key recipe of a ladder step (OD-REC04-1); it needs the ladderCredit / D-6 decision"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "nashville-hot-chicken-pizza",
+     "message": "9 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "nduja-pizza",
+   "nameJa": "ンドゥイヤピザ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "nduja"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS",
+   "duplicates": [],
+   "findings": [
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "nduja-pizza",
+     "message": "1 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  }
+ ],
+ "trainFindings": [
+  {
+   "gate": "SHOP_PACK",
+   "severity": "OWNER",
+   "recipeId": null,
+   "message": "pickles: pack 10 -> 20, price unchanged (raised by nashville-hot-chicken-pizza)"
+  },
+  {
+   "gate": "SHOP_PACK",
+   "severity": "OWNER",
+   "recipeId": null,
+   "message": "mussel: pack 10 -> 20, price unchanged (raised by frutti-di-mare-pizzadb)"
+  }
+ ],
+ "research": {
+  "canonical": [],
+  "nonCanonical": [
+   {
+    "recipeId": "aussie",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "onion",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "baba-ganoush-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "olive-oil",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "bacalhau",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 1
+     },
+     {
+      "material": "onion",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "baingan-bharta-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "cilantro",
+      "shift": 0
+     },
+     {
+      "material": "curry-ketchup",
+      "shift": 0
+     },
+     {
+      "material": "onion",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "thai-chicken-pizza",
+      "materials": [
+       "cilantro"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "cilantro"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "cilantro",
+       "curry-ketchup",
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "bambino",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "corn",
+      "shift": 1
+     },
+     {
+      "material": "ham",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-salad",
+      "materials": [
+       "corn"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "ham"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "mexican-elote-pizza",
+      "materials": [
+       "corn"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "bbq-chicken-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 0
+     },
+     {
+      "material": "cilantro",
+      "shift": 0
+     },
+     {
+      "material": "onion",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "thai-chicken-pizza",
+      "materials": [
+       "chicken",
+       "cilantro"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "cilantro"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "cilantro",
+       "onion"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "black-truffle-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "parmigiano",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "parmigiano"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "boscaiola",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "olive-oil",
+      "shift": 1
+     },
+     {
+      "material": "sausage",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "sausage"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "brazilian-calabresa",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 0
+     },
+     {
+      "material": "onion",
+      "shift": 0
+     },
+     {
+      "material": "sausage",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion",
+       "sausage"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "brazilian-catupiry-corn-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "corn",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-salad",
+      "materials": [
+       "corn"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "mexican-elote-pizza",
+      "materials": [
+       "corn"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "buffalo-chicken",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "buffalo-sauce",
+      "shift": 0
+     },
+     {
+      "material": "chicken",
+      "shift": 0
+     },
+     {
+      "material": "gorgonzola",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "thai-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "buffalo-cauliflower-pizza",
+      "materials": [
+       "buffalo-sauce",
+       "gorgonzola"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "calabresa-argentina",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "capricciosa",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 0
+     },
+     {
+      "material": "ham",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "ham"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "cuban-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "ham",
+      "shift": 1
+     },
+     {
+      "material": "pickles",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "ham"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "pickles"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "curry-pizza-japan",
+    "kind": "SHIFT",
+    "maxShift": 3,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 3
+     },
+     {
+      "material": "curry-ketchup",
+      "shift": 1
+     },
+     {
+      "material": "onion",
+      "shift": 2
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "thai-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "curry-ketchup",
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "currywurst",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "curry-ketchup",
+      "shift": 0
+     },
+     {
+      "material": "paprika-powder",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "mexican-elote-pizza",
+      "materials": [
+       "paprika-powder"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "curry-ketchup"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "eggplant-ricotta-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "olive-oil",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "flammkuchen",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "onion",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "frango-catupiry",
+    "kind": "SHIFT",
+    "maxShift": 3,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 3
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "thai-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "fugazza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "olive-oil",
+      "shift": 1
+     },
+     {
+      "material": "onion",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "full-english-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "sausage",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "sausage"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "goulash-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "onion",
+      "shift": 1
+     },
+     {
+      "material": "paprika-powder",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "mexican-elote-pizza",
+      "materials": [
+       "paprika-powder"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "grandma-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "olive-oil",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "hawaiian",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "ham",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "ham"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "jamaican-jerk-chicken-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "thai-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "meat-lovers",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "ham",
+      "shift": 1
+     },
+     {
+      "material": "sausage",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "sausage"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "ham"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "moussaka-style-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "feta",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "mexican-elote-pizza",
+      "materials": [
+       "feta"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "new-haven-apizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "clam",
+      "shift": 0
+     },
+     {
+      "material": "olive-oil",
+      "shift": 0
+     },
+     {
+      "material": "parmigiano",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "frutti-di-mare-pizzadb",
+      "materials": [
+       "clam"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil",
+       "parmigiano"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "nigerian-suya-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "onion",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "okonomiyaki-style-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "mayo",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "mexican-elote-pizza",
+      "materials": [
+       "mayo"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "palmito-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "parmigiana-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "parmigiano",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "parmigiano"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pescatore",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "clam",
+      "shift": 1
+     },
+     {
+      "material": "mussel",
+      "shift": 1
+     },
+     {
+      "material": "shrimp",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "frutti-di-mare-pizzadb",
+      "materials": [
+       "clam",
+       "mussel",
+       "shrimp"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pesto-burrata-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "olive-oil",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pesto-gamberi",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "shrimp",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "frutti-di-mare-pizzadb",
+      "materials": [
+       "shrimp"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pesto-noci-pizza",
+    "kind": "SHIFT",
+    "maxShift": 2,
+    "byMaterial": [
+     {
+      "material": "gorgonzola",
+      "shift": 0
+     },
+     {
+      "material": "honey",
+      "shift": 2
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "buffalo-cauliflower-pizza",
+      "materials": [
+       "gorgonzola"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "honey"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "nduja-pizza",
+      "materials": [
+       "honey"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pesto-pollo",
+    "kind": "SHIFT",
+    "maxShift": 3,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 3
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "thai-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pesto-salmone",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "lemon",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "lemon"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pesto-tonno",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 0
+     },
+     {
+      "material": "onion",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "pesto-vegetariana",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "bell-pepper",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "bell-pepper"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "pizza-alla-crudaiola",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "olive-oil",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "pizza-bianca",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "olive-oil",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pizza-bianca-ricotta",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "olive-oil",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pizza-cavolo-carote",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "carrot",
+      "shift": 0
+     },
+     {
+      "material": "lemon",
+      "shift": 0
+     },
+     {
+      "material": "olive-oil",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "carrot"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "lemon",
+       "olive-oil"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "pizza-feta-eliniki",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 1
+     },
+     {
+      "material": "feta",
+      "shift": 0
+     },
+     {
+      "material": "olive-oil",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "mexican-elote-pizza",
+      "materials": [
+       "feta"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pizza-finocchi-salad",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 1
+     },
+     {
+      "material": "olive-oil",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pizza-moscow",
+    "kind": "SHIFT",
+    "maxShift": 2,
+    "byMaterial": [
+     {
+      "material": "onion",
+      "shift": 2
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pizza-overload",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "ham",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "ham"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pizza-portuguesa",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 0
+     },
+     {
+      "material": "ham",
+      "shift": 1
+     },
+     {
+      "material": "onion",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "ham"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "pizza-radicchio-noci",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "olive-oil",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "polish-kielbasa",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "onion",
+      "shift": 0
+     },
+     {
+      "material": "sausage",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion",
+       "sausage"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "potato-mayo-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "corn",
+      "shift": 1
+     },
+     {
+      "material": "mayo",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-salad",
+      "materials": [
+       "corn"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "mexican-elote-pizza",
+      "materials": [
+       "corn",
+       "mayo"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "puttanesca-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "quattro-formaggi",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "gorgonzola",
+      "shift": 0
+     },
+     {
+      "material": "olive-oil",
+      "shift": 0
+     },
+     {
+      "material": "parmigiano",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "buffalo-cauliflower-pizza",
+      "materials": [
+       "gorgonzola"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil",
+       "parmigiano"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "ratatouille-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "bell-pepper",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "bell-pepper"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "reina-pepiada-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 0
+     },
+     {
+      "material": "cilantro",
+      "shift": 0
+     },
+     {
+      "material": "mayo",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "thai-chicken-pizza",
+      "materials": [
+       "chicken",
+       "cilantro"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "banh-mi-pizza",
+      "materials": [
+       "cilantro"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "mexican-elote-pizza",
+      "materials": [
+       "mayo"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "cilantro"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "rendang-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "curry-ketchup",
+      "shift": 0
+     },
+     {
+      "material": "onion",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "curry-ketchup",
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "salsiccia",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "sausage",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "sausage"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "salsiccia-e-friarielli",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "sausage",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "sausage"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "shirasu-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "lemon",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "lemon"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "sichuan-eggplant-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "green-onion",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peking-duck-pizza",
+      "materials": [
+       "green-onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "spanish-chorizo-pizza",
+    "kind": "SHIFT",
+    "maxShift": 2,
+    "byMaterial": [
+     {
+      "material": "bell-pepper",
+      "shift": 1
+     },
+     {
+      "material": "onion",
+      "shift": 2
+     },
+     {
+      "material": "sausage",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion",
+       "sausage"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "bell-pepper",
+       "onion"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "spinach-artichoke-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "parmigiano",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "parmigiano"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "supreme-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "bell-pepper",
+      "shift": 0
+     },
+     {
+      "material": "black-olive",
+      "shift": 1
+     },
+     {
+      "material": "onion",
+      "shift": 1
+     },
+     {
+      "material": "sausage",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion",
+       "sausage"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "bell-pepper",
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "taco-pizza",
+    "kind": "SHIFT",
+    "maxShift": 2,
+    "byMaterial": [
+     {
+      "material": "lettuce",
+      "shift": 2
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "swedish-kebab-pizza",
+      "materials": [
+       "lettuce"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "pizza-salad",
+      "materials": [
+       "lettuce"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "tandoori-paneer-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "curry-ketchup",
+      "shift": 0
+     },
+     {
+      "material": "onion",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "curry-ketchup",
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "tonno-e-cipolla",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "onion",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "vegan-cashew-cheese-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "bell-pepper",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "bell-pepper"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "veggie-supreme-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "black-olive",
+      "shift": 1
+     },
+     {
+      "material": "onion",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "peruvian-aji-amarillo",
+      "materials": [
+       "black-olive"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "vongole",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "clam",
+      "shift": 1
+     },
+     {
+      "material": "olive-oil",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "frutti-di-mare-pizzadb",
+      "materials": [
+       "clam"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "pizza-asparagi-limone",
+      "materials": [
+       "olive-oil"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "wasabi-beef-pizza",
+    "kind": "SHIFT",
+    "maxShift": 2,
+    "byMaterial": [
+     {
+      "material": "onion",
+      "shift": 2
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "south-african-boerewors",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "chicken-tikka-pizza",
+      "materials": [
+       "onion"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "yuzu-shrimp-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "shrimp",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "frutti-di-mare-pizzadb",
+      "materials": [
+       "shrimp"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   }
+  ],
+  "ruleViolations": []
+ },
+ "packChanges": [
+  {
+   "ingredientId": "pickles",
+   "before": 1,
+   "after": 2,
+   "raisedBy": [
+    "nashville-hot-chicken-pizza"
+   ]
+  },
+  {
+   "ingredientId": "mussel",
+   "before": 1,
+   "after": 2,
+   "raisedBy": [
+    "frutti-di-mare-pizzadb"
+   ]
+  }
+ ],
+ "notCovered": [
+  "Hint 5.0 alphaFamilyOnly report deltas (a report, not a gate; measured after the families are in the real taxonomy)",
+  "legacy DH4-2A re-measured counts and other measured-value follow-ups (deductionHint audits)",
+  "ladder step numbers and the frozen-step range (REC-04 tie-breaks are applied when the steps are authored)",
+  "Reference Truth piece layout, emoji uniqueness (G18), names fitting the UI, icons, E2E and iPhone HV"
+ ]
+}

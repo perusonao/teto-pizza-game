@@ -1,0 +1,269 @@
+{
+ "train": "T26-R1",
+ "measuredOn": {
+  "recipes": 104,
+  "ingredients": 122,
+  "ladderSteps": 89
+ },
+ "recipes": [
+  {
+   "id": "nashville-hot-chicken-pizza",
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS",
+   "duplicates": [],
+   "findings": [
+    {
+     "gate": "LADDER_KEY_MATERIAL",
+     "severity": "OWNER",
+     "recipeId": "nashville-hot-chicken-pizza",
+     "message": "adds no new material: it cannot be the key recipe of a ladder step (OD-REC04-1); it needs the ladderCredit / D-6 decision"
+    },
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "nashville-hot-chicken-pizza",
+     "message": "9 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  },
+  {
+   "id": "nduja-pizza",
+   "nameJa": "ンドゥイヤピザ",
+   "placement": "ordinary",
+   "verdict": "NEEDS_OWNER",
+   "newMaterials": [
+    "nduja"
+   ],
+   "hintRungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS",
+   "duplicates": [],
+   "findings": [
+    {
+     "gate": "RESEARCH_NON_CANONICAL",
+     "severity": "OWNER",
+     "recipeId": "nduja-pizza",
+     "message": "1 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)"
+    }
+   ]
+  }
+ ],
+ "trainFindings": [
+  {
+   "gate": "SHOP_PACK",
+   "severity": "OWNER",
+   "recipeId": null,
+   "message": "pickles: pack 10 -> 20, price unchanged (raised by nashville-hot-chicken-pizza)"
+  }
+ ],
+ "research": {
+  "canonical": [],
+  "nonCanonical": [
+   {
+    "recipeId": "bbq-chicken-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "buffalo-chicken",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   },
+   {
+    "recipeId": "cuban-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "pickles",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "pickles"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "curry-pizza-japan",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "frango-catupiry",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "jamaican-jerk-chicken-pizza",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pesto-noci-pizza",
+    "kind": "SHIFT",
+    "maxShift": 2,
+    "byMaterial": [
+     {
+      "material": "honey",
+      "shift": 2
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "honey"
+      ],
+      "newSortsFirst": true
+     },
+     {
+      "newRecipeId": "nduja-pizza",
+      "materials": [
+       "honey"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "pesto-pollo",
+    "kind": "SHIFT",
+    "maxShift": 1,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 1
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": true
+     }
+    ]
+   },
+   {
+    "recipeId": "reina-pepiada-pizza",
+    "kind": "NEW_LABEL_ONLY",
+    "maxShift": 0,
+    "byMaterial": [
+     {
+      "material": "chicken",
+      "shift": 0
+     }
+    ],
+    "causes": [
+     {
+      "newRecipeId": "nashville-hot-chicken-pizza",
+      "materials": [
+       "chicken"
+      ],
+      "newSortsFirst": false
+     }
+    ]
+   }
+  ],
+  "ruleViolations": []
+ },
+ "packChanges": [
+  {
+   "ingredientId": "pickles",
+   "before": 1,
+   "after": 2,
+   "raisedBy": [
+    "nashville-hot-chicken-pizza"
+   ]
+  }
+ ],
+ "notCovered": [
+  "Hint 5.0 alphaFamilyOnly report deltas (a report, not a gate; measured after the families are in the real taxonomy)",
+  "legacy DH4-2A re-measured counts and other measured-value follow-ups (deductionHint audits)",
+  "ladder step numbers and the frozen-step range (REC-04 tie-breaks are applied when the steps are authored)",
+  "Reference Truth piece layout, emoji uniqueness (G18), names fitting the UI, icons, E2E and iPhone HV"
+ ]
+}
