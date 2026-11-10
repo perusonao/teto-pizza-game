@@ -334,6 +334,7 @@ const ALL_LATE_RECIPES = [
     nameJa: "ヌテラデザートピザ",
     description: "バナナとチョコレートに、粉砂糖をふんわりかけた、あまい一枚。",
     requiredIngredients: [
+      { ingredientId: "cream-cheese", minCount: 2 },
       { ingredientId: "banana", minCount: 2 },
       { ingredientId: "chocolate", minCount: 2 },
       { ingredientId: "powdered-sugar", minCount: 2, applicationPhase: "POST_BAKE" },
@@ -347,6 +348,7 @@ const ALL_LATE_RECIPES = [
     nameJa: "スモアデザートピザ",
     description: "チョコレートとマシュマロに、グラハムクラッカーをのせた、あまい一枚。",
     requiredIngredients: [
+      { ingredientId: "cream-cheese", minCount: 2 },
       { ingredientId: "chocolate", minCount: 2 },
       { ingredientId: "graham-cracker", minCount: 2, applicationPhase: "POST_BAKE" },
       { ingredientId: "marshmallow", minCount: 2 },
@@ -702,7 +704,7 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
 ];
 
 /** Family rows of the late ingredients (OD-B8-2: `salmon-roe` is `seafood`, L1 only). Joined by ./ingredientTaxonomy.ts only when enabled, so an OFF build has no orphan row. */
-export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"], ["lettuce", "vegetable"], ["tortilla-chips", "vegetable"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"], ["fennel", "vegetable"], ["orange", "fruit"], ["carrot", "vegetable"], ["red-cabbage", "vegetable"], ["sunflower-seeds", "spice"], ["radicchio", "vegetable"], ["truffle", "vegetable"], ["banana", "fruit"], ["chocolate", "other"], ["powdered-sugar", "other"], ["graham-cracker", "other"], ["marshmallow", "other"]] as const;
+export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"], ["lettuce", "vegetable"], ["tortilla-chips", "vegetable"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"], ["fennel", "vegetable"], ["orange", "fruit"], ["carrot", "vegetable"], ["red-cabbage", "vegetable"], ["sunflower-seeds", "spice"], ["radicchio", "vegetable"], ["truffle", "vegetable"], ["banana", "fruit"], ["chocolate", "spice"], ["powdered-sugar", "spice"], ["graham-cracker", "spice"], ["marshmallow", "spice"]] as const;
 
 /** Topping size class of the late ingredients (`salmon-roe` is extra small, like the other fine garnishes). Joined by ./toppingSizeClass.ts only when enabled. */
 export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs", "lettuce": "m", "tortilla-chips": "m", "cabbage": "s", "bonito-flakes": "xs", "cheddar": "l", "fennel": "s", "orange": "s", "carrot": "s", "red-cabbage": "s", "sunflower-seeds": "xs", "radicchio": "m", "truffle": "xs", "banana": "s", "chocolate": "s", "powdered-sugar": "xs", "graham-cracker": "m", "marshmallow": "s" } as const;
