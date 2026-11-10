@@ -18,22 +18,22 @@ import { reloadApp } from "./support/diag";
 
 const SAVE_KEY = "teto-pizza-save-v1";
 const MUSHROOM_STOCK = 9;
+const SERVED_MUSHROOM_STOCK = MUSHROOM_STOCK - 3;
 /**
- * Sauce taps per pizza. G-5 and G-6 bake TWO pizzas inside one test, so they share a single 30 s budget (the default; NOT extended).
- * On the WebKit 390x844 shard 2/3 CI runner (3 workers) one pizza costs ~14-15 s, and the two-pizza tests measured 27.4 s (G-5, 91%) and
- * 30.3 s (G-6, 101% -> timeout, run 41860969123). The failure point moves between runs (waitForSelector / HOME click / reload evaluate, #680)
- * because it is wherever the budget runs out. No assertion here reads the sauce coverage, so 8 taps around the ring replace 16
- * (every other point of the same ring): ~8 fewer WebKit round trips per pizza, same spec assertions, same save/inventory behaviour.
+ * Sauce taps per pizza. G-5 bakes TWO pizzas inside one test, so both share the default 30 s budget (NOT extended).
+ * G-6 used to repeat the same two-bake setup and intermittently exhausted that budget in WebKit 390x844 shard 2/3 (#680).
+ * It now starts from the exact persistent state produced by one served funghi and bakes only the unserved pizza whose HOME refund
+ * is the contract under test. No assertion reads sauce coverage, so 8 taps retain the existing save/inventory behaviour.
  */
 const SAUCE_TAPS = 8;
 
-const missionSave = () => ({
+const missionSave = (served = false) => ({
   schemaVersion: 2,
-  dex: [{ recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+  dex: [{ recipeId: "funghi", discovered: true, bestScore: 60, bestStars: 1, timesMade: served ? 2 : 1 }],
   pitzBalance: 100,
   ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil", "mushroom"],
   missionBest: {},
-  inventory: { mushroom: MUSHROOM_STOCK },
+  inventory: { mushroom: served ? SERVED_MUSHROOM_STOCK : MUSHROOM_STOCK },
   starterGrantClaimedRecipeIds: [] as string[],
 });
 
@@ -50,7 +50,7 @@ const readSave = (page: Page) =>
 const timesMade = (save: SavedGame | null) => save?.dex.find((e) => e.recipeId === "funghi")?.timesMade;
 
 /** Same script-free seeding as e2e/r8-pending-round.spec.ts and lunch-rush-material-shortage.spec.ts (WebKit-safe). */
-async function openRun(page: Page) {
+async function openRun(page: Page, save = missionSave()) {
   await page.goto("icons/icon-16.png");
   await page.evaluate(
     ([k, v]) => {
@@ -58,7 +58,7 @@ async function openRun(page: Page) {
       sessionStorage.clear();
       localStorage.setItem(k, v);
     },
-    [SAVE_KEY, JSON.stringify(missionSave())] as const,
+    [SAVE_KEY, JSON.stringify(save)] as const,
   );
   await page.goto("./?missionDuration=300");
   await page.waitForSelector(".app-frame");
@@ -152,27 +152,28 @@ test.describe("Lunch Rush save/restore in the browser (R8 L-1)", () => {
   });
 
   test("G-6: leaving by HOME without serving gives the unserved pizza's stock back (known, Owner-approved exception); a served pizza stays consumed; a reload agrees", async ({ page }) => {
-    await openRun(page);
-    await bakeToServePanel(page);
-    await page.getByRole("button", { name: "次の注文へ" }).click();
-    await expect(page.locator(".making-step-tabs")).toBeVisible();
-    const servedStock = (await readSave(page))?.inventory.mushroom ?? 0;
-    expect(servedStock).toBeLessThan(MUSHROOM_STOCK);
+    // G-4 pins the real serve transaction. Seed that same persisted result here so G-6 spends its budget only on
+    // the distinct HOME-refund contract instead of repeating the first bake and serve.
+    await openRun(page, missionSave(true));
+    const servedBaseline = await readSave(page);
+    expect(servedBaseline?.inventory.mushroom, "the seed keeps one served pizza consumed").toBe(SERVED_MUSHROOM_STOCK);
+    expect(timesMade(servedBaseline), "the seed keeps one served pizza registered").toBe(2);
+    expect(servedBaseline?.pendingRound, "Lunch Rush never writes a pendingRound journal").toBeUndefined();
 
-    await bakeToServePanel(page); // the second pizza is baked and its result is visible, but it is never served
+    await bakeToServePanel(page); // an additional pizza is baked and visible, but it is never served
     page.on("dialog", (dialog) => void dialog.accept()); // HOME may ask for confirmation during a run
     await page.getByRole("button", { name: /ホーム/ }).click();
     await expect(page.locator(".home-screen")).toBeVisible();
 
     const left = await readSave(page);
-    expect(left?.inventory.mushroom, "leaving puts only the unserved pizza's stock back").toBe(servedStock);
+    expect(left?.inventory.mushroom, "leaving puts only the unserved pizza's stock back").toBe(SERVED_MUSHROOM_STOCK);
     expect(timesMade(left), "the unserved pizza is not registered").toBe(2);
     expect(left?.pendingRound, "Lunch Rush never writes a pendingRound journal").toBeUndefined();
     await expect(page.locator('[data-round-notice="settled"]')).toHaveCount(0);
 
     await reloadApp(page, "lunch-rush-r8");
     const after = await readSave(page);
-    expect(after?.inventory.mushroom, "the leave and a reload agree").toBe(servedStock);
+    expect(after?.inventory.mushroom, "the leave and a reload agree").toBe(SERVED_MUSHROOM_STOCK);
     expect(timesMade(after)).toBe(2);
     expect(after?.pitzBalance).toBe(left?.pitzBalance);
   });
