@@ -91,3 +91,35 @@
 | LAD-7 | R1 では late への rider を認めない扱いで良いか |
 | SAVE-6・MIG-5 | rider 入りの所持順での Deduction Hint の復元、解放記録が step 番号に依存しないこと（実コードで測定する） |
 | R2 の測定 | LAD-6（Research ラベル）・Hint 5.0・DH4・経済は staged の what-if ハーネス（`whatIfSupport.ts`）で rider 付きを実測してから判断 |
+
+---
+
+## 7. Owner 決定の反映と Gate の確定（2026-11-10）【設計案：Gate の合否基準】
+
+**決定の反映**: D-ING-1a（案 D、R1 まで）・D-ING-1b（上限 4）・DUP-7（宿主の材料に限る）・LAD-7（late への rider は R1 では認めない）は承認済み（`TETO_DING1_DECISION-PROPOSAL_2026-11-10.md` §4）。これにより上の §2 は次のとおり確定する:
+- **DUP-4**: 上限は定数 `RIDER_MAX_PER_STEP = 4`（1 か所）。テストは定数に追従し、`>=`／`>` の取り違え（M-6）を境界値（4 と 5）で検出する。
+- **DUP-7**: 「rider の食材が宿主レシピの `requiredIngredients` に含まれない」は**検証エラー**（必須ケース、設計案の候補ではなくなった）。
+- **LAD-7**: `addedInStepKey` は通常 step のみ。late step への登録は**検証エラー**（必須ケース）。late への rider は R3 以降で別途承認。
+- **基準の更新**: LAD-1（ladder のスナップショット）は B22 後の main（通常 73・全 86 step）から生成する。B23 が先に merge されるなら B23 後の main から（HOT の直列）。
+
+### Gate 1 — 保存互換（R1 の merge 条件。全部 PASS）
+| Gate | 合格基準（測定方法） |
+|---|---|
+| G1-1 | registry が空のとき、現行の保存（schema v2）の読み出しが現行実装と**バイト単位で一致**（SAVE-1・MIG-2）。保存の再書き込みも同一 |
+| G1-2 | 未知の rider id を含む保存を、registry を知らない状態で読むと、整形後の配列からは消えるが**保存領域には残る**（SAVE-2・MIG-3。`extractForwardCompatExtras`→`writeSave` の往復） |
+| G1-3 | G1-2 の保存を、rider を知っている状態で読み直すと**所持順序が完全に復元**（SAVE-3） |
+| G1-4 | `CURRENT_SCHEMA_VERSION` は 2 のまま（SAVE-4）。上げる必要が出たら**停止して報告** |
+| G1-5 | `STARTER_INGREDIENT_IDS` は rider で増えない（SAVE-5） |
+| G1-6 | 宿主が出荷された後、その rider を所持している保存は通常の食材として扱われ、所持順序・購入済み判定・在庫が不変（MIG-4・MIG-5。解放の記録が step 番号に依存しないこと） |
+| G1-7 | SAVE-6（rider 入りの所持順での Deduction Hint の復元）は **R1 では実測不要**（registry が空）。R2 の what-if で実測し、矛盾があれば R3 を止める |
+
+### Gate 2 — Research への影響（R2 の合格条件。R1 は registry 空で影響 0 を確認するだけ）
+| Gate | 合格基準 |
+|---|---|
+| G2-1（R1） | registry が空のとき、全レシピの Research ラベル（全 prefix・正準順、既定の 40 本の seeded random 順）が**現行と完全に同一**（変化 0。`researchLetterChangesAcrossOrders`） |
+| G2-2（R2） | rider を載せた what-if（`whatIfSupport.ts`）で、**正準順（ladder の順）で文字が変わる出荷済みレシピが 0**（LAD-6：rider は key 材料より前に置くので cohort キーは動かないはず）。1 件でも出れば**停止** |
+| G2-3（R2） | 非正準順で文字が変わる出荷済みレシピは、**ID 別に before→after を提示し、Owner の個別承認**を得る（B21・B22・B23 と同じ方式。承認前は merge しない） |
+| G2-4（R2） | Hint 5.0（key-free ladder、family 分布）・DH4・経済シミュレーションの既存項目が動かない（golden は挿入のみ）。動く場合は停止 |
+
+**停止条件（追加）**: G1-4 が破れる／G2-2 が 1 件でも出る／registry の自動掃除（INV-3）のテストが組めない場合は、実装を止めて報告する。
+
