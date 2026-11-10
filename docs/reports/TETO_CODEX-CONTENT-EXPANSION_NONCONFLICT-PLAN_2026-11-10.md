@@ -154,10 +154,9 @@ eggplant 専用 visual は既承認 SVG 方針で比較・検証を進めるが�
 
 ## 10. 次に必要な Owner 判断
 
-1. 食材170を維持する補充1枠を、`squid` を第一候補としてどれにするか。
-2. PR #815 完了後、次の Research Batch / ingredient batch をどの組み合わせで claim するか。
-3. STEAM S4 の比較結果と eggplant SVG を HV で最終採用するか。
-4. #804 CI修復と5契約SSOTが揃った時点で M7 D2 の正式 claim を許可するか。
-5. FRY F2 の正式 claim をいつ開き、STEAM S4 と並行開始するか。
+1. PR #815 完了後、次の Research Batch / ingredient batch をどの組み合わせで claim するか。
+2. STEAM S4 の比較結果と eggplant SVG を HV で最終採用するか。
+3. #804 CI根因修復と5契約SSOTが揃った時点で M7 D2 の正式 claim を許可するか。
+4. FRY F2 の正式 claim をいつ開き、STEAM S4 と並行開始するか。
 
 これらの判断が済むまでは、本書を実装承認や claim の代替として扱わない。
