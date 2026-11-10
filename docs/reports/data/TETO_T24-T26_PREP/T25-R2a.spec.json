@@ -1,0 +1,294 @@
+{
+ "train": "T25-R2a",
+ "recipes": [
+  {
+   "id": "swedish-kebab-pizza",
+   "nameJa": "スウェディッシュケバブピザ",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "kebab-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "lettuce",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  },
+  {
+   "id": "pizza-salad",
+   "nameJa": "ピザサラダ",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "corn",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cucumber",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "lettuce",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "yogurt-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "JACCARD_OVER_0.4_EXCEPTION"
+   ]
+  },
+  {
+   "id": "banh-mi-pizza",
+   "nameJa": "バインミーピザ",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "carrot",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cilantro",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "daikon",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "ham",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "liver-pate",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "id": "buffalo-cauliflower-pizza",
+   "nameJa": "バッファローカリフラワーピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "buffalo-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "cauliflower",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "gorgonzola",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY"
+   ]
+  },
+  {
+   "id": "mexican-elote-pizza",
+   "nameJa": "メキシカンエロテピザ",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "corn",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "feta",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "lime",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "mayo",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "paprika-powder",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "sour-cream",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY"
+   ]
+  },
+  {
+   "id": "chicken-tikka-pizza",
+   "nameJa": "チキンティッカピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "bell-pepper",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "chicken-tikka",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cilantro",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "curry-ketchup",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "PREPARED_COMPOSITE_INGREDIENT"
+   ]
+  },
+  {
+   "id": "pizza-asparagi-limone",
+   "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "asparagus",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "lemon",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "olive-oil",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "parmigiano",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "MECHANIC_INTERPRETATION"
+   ]
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "asparagus",
+   "nameJa": "アスパラガス",
+   "category": "topping",
+   "family": "vegetable"
+  },
+  {
+   "id": "cauliflower",
+   "nameJa": "カリフラワー",
+   "category": "topping",
+   "family": "vegetable"
+  },
+  {
+   "id": "chicken-tikka",
+   "nameJa": "チキンティッカ",
+   "category": "topping",
+   "family": "meat"
+  },
+  {
+   "id": "cucumber",
+   "nameJa": "きゅうり",
+   "category": "topping",
+   "family": "vegetable"
+  },
+  {
+   "id": "daikon",
+   "nameJa": "大根",
+   "category": "topping",
+   "family": "vegetable"
+  },
+  {
+   "id": "kebab-sauce",
+   "nameJa": "ケバブソース",
+   "category": "sauce",
+   "family": null
+  },
+  {
+   "id": "lime",
+   "nameJa": "ライム",
+   "category": "topping",
+   "family": "fruit"
+  },
+  {
+   "id": "liver-pate",
+   "nameJa": "レバーパテ",
+   "category": "topping",
+   "family": "meat"
+  },
+  {
+   "id": "yogurt-sauce",
+   "nameJa": "ヨーグルトソース",
+   "category": "sauce",
+   "family": null
+  }
+ ]
+}

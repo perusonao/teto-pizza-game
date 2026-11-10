@@ -2,6 +2,7 @@
 
 2026-11-10 / 基準 `main` `7a217c38`（#817 merge 後。カタログは `577dcfd7` と同一: レシピ 102／食材 117／ladder 87 step）。
 
+- **更新（同日）**: Owner 判断（C-1・C-3・C-4・C-7・26-2 承認、25-2・25-3 未承認）と、原典調査・28 件の分類・Research 追補の実測・nduja の影響は `TETO_T24-T26_OwnerDecisions-Followup_2026-11-10.md` に記録した。§4.1 の追補と §8 の 25-2・25-3 は、そちらの値と推奨が新しい。
 - **本書は準備であり、実装・HOT 編集・merge・Production ON・共有 Preview 更新の承認ではない。** 変更は本書と `docs/reports/data/TETO_T24-T26_PREP/**`（新規）のみ。
 - B23-b（#815、claim 6763341354）と content-train（#816、claim 6766203727）のファイル・branch には触れていない。#816 の道具は**スクラッチの作業ツリーで読み取り実行しただけ**で、#816 の成果物（`TETO_TRAIN-EFFICIENCY*`）は編集していない。
 - 暫定仕様・原典（pizzadb.jp）未確認。id・名前・数量・family・色は GAMEPLAY ASSUMPTION。
