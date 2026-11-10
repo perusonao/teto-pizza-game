@@ -85,7 +85,7 @@ SHIPPED_I.update(ingredient_info(parse_blocks(P("src/data/ingredients.ts")), "in
 SHIPPED_I.update(ingredient_info(late_blocks, "lateCatalog.ts"))
 SHIPPED_I.update(ingredient_oneline(P("src/data/ingredients.ts"), "ingredients.ts"))
 SHIPPED_I.update(ingredient_oneline(P("src/data/lateCatalog.ts"), "lateCatalog.ts"))
-MAIN_SHA = "300e4b16"      # the main commit this ledger is generated from (update on every refresh)
+MAIN_SHA = "d3d4ec05"      # the main commit this ledger is generated from (update on every refresh)
 
 ledger_test = open(P("src/data/catalogLedger.test.ts"), encoding="utf-8").read()
 m_r = re.search(r"recipes: pinsa \? (\d+) : (\d+)", ledger_test)
@@ -133,6 +133,7 @@ staged_ev = {s["evidenceId"] for s in S_R}
 newly_shipped_ev = sorted(set(plan87) - staged_ev)          # plan rows no longer staged = shipped since the plan (3 in-flight at the plan + every batch merged since)
 check(f"plan87 - staged == the {len(plan87) - len(S_R)} rows shipped since the plan; staged is a subset of the plan", staged_ev <= set(plan87) and len(newly_shipped_ev) == len(plan87) - len(S_R), newly_shipped_ev)
 EVIDENCE_TO_SHIPPED_MANUAL = {      # [INFERRED] aliases where the matrix canonical id differs from the shipped id (Jaccard evidence printed in matrix_map)
+    "black-truffle-pizza-pizzadb-p14": "black-truffle-pizza",     # B22 (#807): matrix row p14 shipped as black-truffle-pizza (late catalog)
     "bbq-chicken-pizzadb": "bbq-chicken-pizza",
     "supreme-pizzadb": "supreme-pizza",
     "mentaiko-cream-pizza-pizzadb-p4": "tarako-cream-pizza",

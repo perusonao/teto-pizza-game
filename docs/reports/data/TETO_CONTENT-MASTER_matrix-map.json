@@ -80,6 +80,15 @@
    "onlyBaseSauceDiffers": false
   },
   {
+   "evidenceId": "black-truffle-pizza-pizzadb-p14",
+   "shippedId": "black-truffle-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
    "evidenceId": "boscaiola-pizzadb-p12",
    "shippedId": "boscaiola",
    "mapped": true,
@@ -119,6 +128,20 @@
    "shippedOnly": [
     "mozzarella",
     "tomato-sauce"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "buffalo-chicken-pizzadb",
+   "shippedId": "buffalo-chicken",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.6,
+   "matrixOnly": [
+    "blue-cheese-dressing"
+   ],
+   "shippedOnly": [
+    "gorgonzola"
    ],
    "onlyBaseSauceDiffers": false
   },
@@ -595,8 +618,26 @@
    "shippedOnly": []
   },
   {
+   "evidenceId": "pizza-cavolo-carote-pizzadb-p8",
+   "shippedId": "pizza-cavolo-carote",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
    "evidenceId": "pizza-feta-eliniki-pizzadb-p9",
    "shippedId": "pizza-feta-eliniki",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pizza-finocchi-salad-pizzadb-p8",
+   "shippedId": "pizza-finocchi-salad",
    "mapped": true,
    "sameComposition": true,
    "jaccard": 1.0,
@@ -624,6 +665,15 @@
   {
    "evidenceId": "pizza-portuguesa-pizzadb-p9",
    "shippedId": "pizza-portuguesa",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "pizza-radicchio-noci-pizzadb-p8",
+   "shippedId": "pizza-radicchio-noci",
    "mapped": true,
    "sameComposition": true,
    "jaccard": 1.0,
@@ -756,6 +806,15 @@
   {
    "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
    "shippedId": "spanish-chorizo-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "speck-e-brie-pizzadb-p4",
+   "shippedId": "speck-e-brie",
    "mapped": true,
    "sameComposition": true,
    "jaccard": 1.0,
@@ -923,6 +982,20 @@
    "shippedOnly": [
     "mozzarella",
     "tomato-sauce"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
+   "evidenceId": "buffalo-chicken-pizzadb",
+   "shippedId": "buffalo-chicken",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.6,
+   "matrixOnly": [
+    "blue-cheese-dressing"
+   ],
+   "shippedOnly": [
+    "gorgonzola"
    ],
    "onlyBaseSauceDiffers": false
   },
