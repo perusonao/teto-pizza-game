@@ -116,7 +116,7 @@ describe("the ordinary step 64 and the supreme-pizza non-step", () => {
   });
   it("the late steps follow at 67-73 (derived; Expansion Batch 13 appended the ordinary step 65, Expansion Batch 14 step 66), and the fixed floors are unchanged", () => {
     const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
-    expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual([74, 75, 76, 77, 78, 79, 80]); // (Expansion Batch 20-A, #790: the ordinary step 71 moved the derived late numbers +1 again) // (Expansion Batch 19, #774: the ordinary step 70 moved the derived late numbers +1 again)
+    expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual([75, 76, 77, 78, 79, 80, 81]); // Expansion Batch 23 (#780): the ordinary step 74 moved the derived late numbers +1 again; // (Expansion Batch 20-A, #790: the ordinary step 71 moved the derived late numbers +1 again) // (Expansion Batch 19, #774: the ordinary step 70 moved the derived late numbers +1 again)
     // // (Expansion Batch 18 inserted the ordinary step 69: the derived late numbers moved +1 again; Expansion Batch 17 inserted the ordinary step 68: the derived late numbers moved +1 again; Expansion Batch 16 inserted the ordinary step 67: the derived late numbers moved +1; the fixed floors did not)
     expect(LATE_ENTITLEMENT_FLOORS["salmon-roe"]).toBe(57);
   });

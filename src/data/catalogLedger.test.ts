@@ -34,12 +34,13 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       // Expansion Batch 20-A (#790, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + pesto-noci-pizza (credited, chapter 4: its key is the new materials honey + walnut), + honey (a SAUCE) + walnut (a TOPPING, so `toppings` + 1), + ordinary step 71 (the late steps shift +1).
       // Expansion Batch 21 (#780, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed): + taco-pizza and okonomiyaki-style-pizza (late catalog, credited, chapter 4: one late step each, keys tortilla-chips / bonito-flakes), + six late materials: cheddar (a CHEESE), okonomiyaki-sauce (a SAUCE), lettuce / tortilla-chips / cabbage / bonito-flakes (TOPPINGS, so `toppings` + 4), + late steps 79-80 (no ordinary step; the ordinary ladder stays 71).
       // Expansion Batch 22 (#780, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed; Owner 2026-11-09): + buffalo-chicken (credited, ordinary step 72, key buffalo-sauce) and speck-e-brie (credited, ordinary step 73, key brie) and four late recipes (pizza-finocchi-salad, pizza-cavolo-carote, pizza-radicchio-noci, black-truffle-pizza: credited, one late step each, 83-86), all chapter 4; + 10 materials (brie a cheese, buffalo-sauce and balsamic-vinegar sauces, seven toppings: fennel / carrot / red-cabbage / radicchio / truffle vegetable, orange fruit, sunflower-seeds spice).
-      recipes: pinsa ? 101 : 100,
-      credited: 89,
-      ingredients: 116,
-      toppings: 80,
-      ladderSteps: 86,
-      chapterSizes: [6, 12, 19, pinsa ? 64 : 63],
+      // Expansion Batch 23 (#780, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed; Owner 2026-11-10): + apple-cinnamon-dessert (credited, ordinary step 74, key apple; NO_SAUCE, an Owner GAMEPLAY decision) and the fruit topping apple; the late steps shift +1.
+      recipes: pinsa ? 102 : 101,
+      credited: 90,
+      ingredients: 117,
+      toppings: 81,
+      ladderSteps: 87,
+      chapterSizes: [6, 12, 19, pinsa ? 65 : 64],
       lunchRushPool: 25,
     });
   });
@@ -50,6 +51,6 @@ describe("catalog ledger (the single hand-maintained total)", () => {
       const shelf = i.category === "topping" ? ingredientAttributeFamily(i.id)! : i.category;
       byShelf[shelf] = (byShelf[shelf] ?? 0) + 1;
     }
-    expect(byShelf).toEqual({ sauce: 19, cheese: 17, meat: 12, seafood: 12, vegetable: 32, fruit: 4, herb: 9, spice: 8, other: 3 }); // Expansion Batch 22 (#780): + buffalo-sauce and balsamic-vinegar (sauces), + brie (cheese), + 5 vegetables (fennel / carrot / red-cabbage / radicchio / truffle), + orange (fruit), + sunflower-seeds (spice); `other` stays 3 (OD-DH4-2-9)
+    expect(byShelf).toEqual({ sauce: 19, cheese: 17, meat: 12, seafood: 12, vegetable: 32, fruit: 5, herb: 9, spice: 8, other: 3 }); // Expansion Batch 23 (#780): + apple (fruit). // Expansion Batch 22 (#780): + buffalo-sauce and balsamic-vinegar (sauces), + brie (cheese), + 5 vegetables (fennel / carrot / red-cabbage / radicchio / truffle), + orange (fruit), + sunflower-seeds (spice); `other` stays 3 (OD-DH4-2-9)
   });
 });

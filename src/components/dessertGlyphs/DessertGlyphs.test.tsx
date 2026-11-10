@@ -52,7 +52,7 @@ describe("DessertGlyph (Batch 23, unwired)", () => {
     }
   });
 
-  it("is UNWIRED: no other module imports it, and the wiring files do not mention the new visual ids", () => {
+  it("is wired for the apple only (Expansion Batch 23, #780): IngredientGlyph.tsx is the one importer, and only `apple-dessert` is declared as a pieceVisual; the other five stay unwired until their recipes ship", () => {
     const root = join(__dirname, "..", "..");
     const walk = (dir: string): string[] =>
       readdirSync(dir).flatMap((n) => {
@@ -60,6 +60,8 @@ describe("DessertGlyph (Batch 23, unwired)", () => {
         if (p.includes("dessertGlyphs")) return [];
         return statSync(p).isDirectory() ? walk(p) : /\.(ts|tsx|css)$/.test(n) ? [p] : [];
       });
-    for (const file of walk(root)) expect(readFileSync(file, "utf8"), file).not.toMatch(/dessertGlyphs|pieceVisual: "[a-z-]+-dessert"/);
+    const importers = walk(root).filter((file) => /from\s+["'][^"']*dessertGlyphs/.test(readFileSync(file, "utf8")));
+    expect(importers.map((f) => f.slice(root.length + 1)).sort()).toEqual(["components/IngredientGlyph.tsx"]);
+    for (const file of walk(root)) expect(readFileSync(file, "utf8"), file).not.toMatch(/pieceVisual: "(banana|chocolate|graham-cracker|marshmallow|powdered-sugar)-dessert"/);
   });
 });

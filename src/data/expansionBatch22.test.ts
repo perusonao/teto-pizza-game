@@ -142,17 +142,17 @@ describe("the ten materials (Owner decisions 2026-11-09): ids, spec, art, famili
 describe("the ladder: ordinary steps 72 / 73, four new late steps, the floors, the batch manifests", () => {
   const steps = DISCOVERY_LADDER.steps;
   it("ordinary steps become 73 (72 buffalo-sauce -> buffalo-chicken, 73 brie -> speck-e-brie, no star gate); the nine earlier late steps move +2 (derived 75-83 -> kept as a tail); four new late steps are the tail", () => {
-    expect(ordinaryLadderSteps(steps)).toHaveLength(73);
+    expect(ordinaryLadderSteps(steps)).toHaveLength(74); // Expansion Batch 23 (#780) appended the ordinary step 74 (apple); the late steps below moved +1
     expect(steps.find((s) => s.step === 72)).toMatchObject({ ingredientIds: ["buffalo-sauce"], keyRecipeId: "buffalo-chicken" }); // the REC-04 rule's own order: both need one new material, the tie goes to the smaller recipe id
     expect(steps.find((s) => s.step === 73)).toMatchObject({ ingredientIds: ["brie"], keyRecipeId: "speck-e-brie" });
-    expect(steps).toHaveLength(86);
+    expect(steps).toHaveLength(87);
     expect(steps.slice(-6).map((s) => [s.step, s.ingredientIds, s.keyRecipeId])).toEqual([
-      [81, ["cheddar", "lettuce", "tortilla-chips"], "taco-pizza"],
-      [82, ["okonomiyaki-sauce", "cabbage", "bonito-flakes"], "okonomiyaki-style-pizza"],
-      [83, ["fennel", "orange"], "pizza-finocchi-salad"],
-      [84, ["carrot", "red-cabbage", "sunflower-seeds"], "pizza-cavolo-carote"],
-      [85, ["radicchio", "balsamic-vinegar"], "pizza-radicchio-noci"],
-      [86, ["truffle"], "black-truffle-pizza"],
+      [82, ["cheddar", "lettuce", "tortilla-chips"], "taco-pizza"],
+      [83, ["okonomiyaki-sauce", "cabbage", "bonito-flakes"], "okonomiyaki-style-pizza"],
+      [84, ["fennel", "orange"], "pizza-finocchi-salad"],
+      [85, ["carrot", "red-cabbage", "sunflower-seeds"], "pizza-cavolo-carote"],
+      [86, ["radicchio", "balsamic-vinegar"], "pizza-radicchio-noci"],
+      [87, ["truffle"], "black-truffle-pizza"],
     ]);
     for (const s of steps.slice(71)) expect((s as { starGates?: unknown }).starGates, `step ${s.step}`).toBeUndefined();
     expect(LATE_LADDER_STEPS.slice(-4).map((s) => s.keyRecipeId)).toEqual([...LATE_IDS]);
@@ -336,7 +336,8 @@ describe("Research: the canonical order changes 0 letters; the non-canonical cha
     "vongole": ["B->C", "C->D", "F->G", "H->J", "J->L", "L->N", "M->O", "M->P"],
   };
   it("the measured changes are exactly the pinned 35 IDs (0 canonical); any other ID or letter change is a STOP", () => {
-    const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never);
+    // Expansion Batch 23 (#780) is a LATER batch: its recipe and material are left out, so this stays the Batch 22 shipped-ladder comparison the Owner approved.
+    const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES.filter((r) => r.id !== "apple-cinnamon-dessert") as never, 40, 20261105, ["apple"]);
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
     const measured = new Map([...changes].map(([id, list]) => [id, [...new Set(list.map((c) => c.change))].sort()]));
     expect([...measured.keys()].sort()).toEqual(Object.keys(PENDING_OWNER_APPROVAL).sort());

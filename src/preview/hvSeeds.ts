@@ -27,6 +27,7 @@ import { PREVIEW_HELPER_MARK } from "./hint5PreviewOptIn";
 import { applyB18HvSeed, parseB18HvParam, type B18HvScenarioId } from "./b18HvSeeds";
 import { applyB21HvSeed, parseB21HvParam, type B21HvScenarioId } from "./b21HvSeeds";
 import { applyB22HvSeed, parseB22HvParam, type B22HvScenarioId } from "./b22HvSeeds";
+import { applyB23HvSeed, parseB23HvParam, type B23HvScenarioId } from "./b23HvSeeds";
 
 export type HvScenarioId =
   | "normal"
@@ -215,14 +216,16 @@ export function applyPreviewHvSeed(
   search: unknown,
   storage: StorageLike | null,
   navigationType: string | undefined = currentNavigationType(),
-): HvScenarioId | B18HvScenarioId | B21HvScenarioId | B22HvScenarioId | null {
+): HvScenarioId | B18HvScenarioId | B21HvScenarioId | B22HvScenarioId | B23HvScenarioId | null {
   const id = parseHvParam(search);
   const b18Id = id ? null : parseB18HvParam(search);
   const b21Id = id || b18Id ? null : parseB21HvParam(search); // Expansion Batch 21 (#780): after the Hint 5.0 and B18 ids, which are looked up first and unchanged
   const b22Id = id || b18Id || b21Id ? null : parseB22HvParam(search); // Expansion Batch 22 (#780): after the Hint 5.0, B18 and B21 ids, which are looked up first and unchanged
-  if ((!id && !b18Id && !b21Id && !b22Id) || !storage || !shouldApplyHvSeed(navigationType)) return null;
+  const b23Id = id || b18Id || b21Id || b22Id ? null : parseB23HvParam(search); // Expansion Batch 23 (#780): after the Hint 5.0, B18, B21 and B22 ids, which are looked up first and unchanged
+  if ((!id && !b18Id && !b21Id && !b22Id && !b23Id) || !storage || !shouldApplyHvSeed(navigationType)) return null;
   if (id) return applyHvSeed(id, storage) ? id : null;
   if (b18Id) return applyB18HvSeed(b18Id, storage) ? b18Id : null;
   if (b21Id) return applyB21HvSeed(b21Id, storage) ? b21Id : null;
-  return b22Id && applyB22HvSeed(b22Id, storage) ? b22Id : null;
+  if (b22Id) return applyB22HvSeed(b22Id, storage) ? b22Id : null;
+  return b23Id && applyB23HvSeed(b23Id, storage) ? b23Id : null;
 }

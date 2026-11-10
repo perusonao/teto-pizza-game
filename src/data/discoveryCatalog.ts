@@ -140,6 +140,7 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   "pesto-noci-pizza": "pesto-noci-pizzadb-p12",
   "speck-e-brie": "speck-e-brie-pizzadb-p4",
   "buffalo-chicken": "buffalo-chicken-pizzadb",
+  "apple-cinnamon-dessert": "apple-cinnamon-dessert-pizzadb",
   // Multi-Sauce S3 / Square Dough E-2 (#521): PIZZA DB evidence id from the 172 matrix.
   "grandma-pizza": "grandma-pizza-pizzadb",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).

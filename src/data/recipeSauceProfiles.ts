@@ -415,6 +415,8 @@ export const RECIPE_SAUCE_PROFILES = {
   "pizza-cavolo-carote": { recipeId: "pizza-cavolo-carote", ingredientId: "olive-oil", interaction: "PAINT_TEMPORARY" },
   "pizza-radicchio-noci": { recipeId: "pizza-radicchio-noci", ingredientId: "olive-oil", interaction: "PAINT_TEMPORARY" },
   "black-truffle-pizza": null,
+  // Expansion Batch 23 (#780, PROVISIONAL; Owner 2026-11-10, Q-1): apple-cinnamon-dessert is NO_SAUCE (the existing `null` mapping). This is an explicit Owner GAMEPLAY decision (Q-1), NOT a fact about the original (pizzadb.jp lists "デザートソース" unspecified).
+  "apple-cinnamon-dessert": null,
   "eggplant-dengaku-pizza": {
     recipeId: "eggplant-dengaku-pizza",
     ingredientId: "miso-sauce",

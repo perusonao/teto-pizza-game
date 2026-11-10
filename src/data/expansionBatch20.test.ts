@@ -133,7 +133,7 @@ describe("ordinary step 71 and the late steps", () => {
     const step = steps.find((s) => s.step === 71)!;
     expect(step).toMatchObject({ step: 71, ingredientIds: ["honey", "walnut"], keyRecipeId: PN });
     expect((step as { starGates?: unknown }).starGates).toBeUndefined();
-    expect(ordinaryLadderSteps(steps).at(-3)).toBe(step);
+    expect(ordinaryLadderSteps(steps).at(-4)).toBe(step);
     expect(steps.find((s) => s.step === 70)).toMatchObject({ ingredientIds: ["burrata"], keyRecipeId: "pesto-burrata-pizza" });
   });
   it("every other ingredient of the recipe is owned before step 71 (honey and walnut are the last unlocks)", () => {
@@ -142,8 +142,8 @@ describe("ordinary step 71 and the late steps", () => {
     expect(before.has("honey") || before.has("walnut")).toBe(false);
   });
   it("the late steps follow at 72-78 (derived; +1 again) and the late floors are unchanged", () => {
-    const late = steps.slice(73); // Expansion Batch 22 (#780): the ordinary steps 72 / 73 moved the derived late numbers +2 (74-82) and four late steps (83-86) follow
-    expect(late.map((s) => s.step)).toEqual([74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86]);
+    const late = steps.slice(74); // Expansion Batch 23 (#780): the ordinary step 74 moved the derived late numbers +1 again; Expansion Batch 22 (#780): the ordinary steps 72 / 73 moved the derived late numbers +2 (74-82) and four late steps (83-86) follow
+    expect(late.map((s) => s.step)).toEqual([75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87]);
     expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86 });
   });
   it("the batch manifest is LANDED and consistent: appended tail, append-only ladder, chapter / cohort identity, explicit declarations", () => {
@@ -236,7 +236,7 @@ const B20A_APPROVED: Readonly<Record<string, readonly string[]>> = {
   "pesto-burrata-pizza": ["B->C", "C->D", "G->H", "I->J", "J->K"],
 };
 describe("Research labels BEFORE vs AFTER Batch 20-A across acquisition orders: the exact audited scope, Owner-approved (10 IDs)", () => {
-  const changes = researchLetterChangesAcrossOrders(NEW_IDS, (RECIPES as readonly Recipe[]).filter((r) => r.id !== "taco-pizza" && r.id !== "okonomiyaki-style-pizza" && !["speck-e-brie", "buffalo-chicken", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza"].includes(r.id)), 40, 20261105, ["cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes", ...["brie", "buffalo-sauce", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "balsamic-vinegar"]]); // Expansion Batch 22 (#780) is a LATER batch too (its six recipes and ten materials are left out). Expansion Batch 21 (#780) is a LATER batch: its two recipes and its six materials are left out (the audit's seeded random orders then stay the ones this was approved against) so this stays the Batch 20-A before/after comparison (the Batch 21 audit is in expansionBatch21.test.ts)
+  const changes = researchLetterChangesAcrossOrders(NEW_IDS, (RECIPES as readonly Recipe[]).filter((r) => r.id !== "taco-pizza" && r.id !== "okonomiyaki-style-pizza" && !["speck-e-brie", "buffalo-chicken", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "apple-cinnamon-dessert"].includes(r.id)), 40, 20261105, ["cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes", ...["brie", "buffalo-sauce", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "balsamic-vinegar", "apple"]]); // Expansion Batch 22 (#780) is a LATER batch too (its six recipes and ten materials are left out). Expansion Batch 21 (#780) is a LATER batch: its two recipes and its six materials are left out (the audit's seeded random orders then stay the ones this was approved against) so this stays the Batch 20-A before/after comparison (the Batch 21 audit is in expansionBatch21.test.ts)
   it("the canonical ladder order changes no pre-existing letter (the full late catalog included)", () => {
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
   });

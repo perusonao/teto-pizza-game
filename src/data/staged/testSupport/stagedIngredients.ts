@@ -6,7 +6,6 @@ import type { StagedIngredient } from "../stagedTypes";
 
 export const STAGED_INGREDIENTS: readonly StagedIngredient[] = [
   {"id": "aji-amarillo", "nameJa": "アヒアマリージョ", "category": "sauce", "placement": "spread", "kind": "SAUCE", "family": null, "composite": false, "aliasCandidate": null, "mergedFrom": [], "usedBy": ["peruvian-aji-amarillo"], "status": "ACTIVE"},
-  {"id": "apple", "nameJa": "apple", "category": "topping", "placement": "scatter", "kind": "FRUIT", "family": "fruit", "composite": false, "aliasCandidate": null, "mergedFrom": [], "usedBy": ["apple-cinnamon-dessert"], "status": "ACTIVE"},
   {"id": "asparagus", "nameJa": "アスパラガス", "category": "topping", "placement": "scatter", "kind": "VEG", "family": "vegetable", "composite": false, "aliasCandidate": null, "mergedFrom": [], "usedBy": ["pizza-asparagi-limone"], "status": "ACTIVE"},
   {"id": "banana", "nameJa": "バナナ", "category": "topping", "placement": "scatter", "kind": "FRUIT", "family": "fruit", "composite": false, "aliasCandidate": null, "mergedFrom": [], "usedBy": ["nutella-dessert-pizza"], "status": "ACTIVE"},
   {"id": "blue-cheese-dressing", "nameJa": "blue-cheese-dressing", "category": "sauce", "placement": "spread", "kind": "SAUCE", "family": null, "composite": false, "aliasCandidate": "gorgonzola", "mergedFrom": [], "usedBy": [], "status": "ALIASED_PROVISIONAL"},

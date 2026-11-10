@@ -1,9 +1,9 @@
 {
- "dependencies": 365,
+ "dependencies": 364,
  "byStatus": {
   "RESOLVED": 24,
   "WORK": 7,
-  "SOURCE_RESEARCH": 22,
+  "SOURCE_RESEARCH": 21,
   "CANDIDATE_PENDING": 12,
   "EXCEPTION_REVIEW": 76,
   "WAITS_MECHANIC": 58,
@@ -15,19 +15,19 @@
  "byDecision": {
   "rule": 10,
   "D-1": 76,
-  "D-2": 22,
+  "D-2": 21,
   "D-3": 12,
   "D-4": 16,
   "D-5": 5
  },
- "remainingOpen": 341,
+ "remainingOpen": 340,
  "needsAdditionalOwnerDecision": {
   "total": 116,
   "perRecipeExceptions": 76,
   "exceptionRecipes": 39,
   "other": 40
  },
- "needsResearchOrConfirmation": 34,
+ "needsResearchOrConfirmation": 33,
  "nextPromotable": {
   "ready": [],
   "readyWithWork": [],
