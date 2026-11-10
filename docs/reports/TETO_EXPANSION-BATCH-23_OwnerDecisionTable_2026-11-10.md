@@ -76,3 +76,20 @@ Research の正準順で文字が変わる／保存互換に影響する／重�
 | 食材 | 116 | 122 | 48 |
 | レシピ | 101 | 104 | 73 |
 | 調理法・工程（実装済み） | 7 | 7 | 20 |
+
+---
+
+## 8. Owner 決定の記録（2026-11-10、本書の §3 への回答。上の本文は決定前の記載のまま、改変しない）
+
+| # | Owner の決定 | 補足 |
+|---|---|---|
+| Q-1 | `apple-cinnamon-dessert` と `smore-dessert-pizza` に **NO_SAUCE を明示承認**。**原典の事実ではなく、ゲーム実装上の判断**として記録する | 原典（pizzadb.jp）で分かった時点で別バッチで差し替える余地を残す。コード・テスト・Result Report では「GAMEPLAY ASSUMPTION（原典未確認）」と書く。nutella は §3 Q-2 のとおり chocolate を散らす食材とし、ソース無し（NO_SAUCE）で実装する |
+| Q-2 | nutella の chocolate は**散らす食材**。**walnut は足さない**（材料は banana 2・chocolate 2・powdered-sugar 2） | 本書の測定どおり |
+| Q-3 | apple-cinnamon は**通常 step 74**。nutella と smore は **late** | late の順は nutella → smore（REC-04 の規則: 同点は recipe id の昇順）。late の床は固定値で追加 |
+| Q-4 | 提案の 6 食材の **family・size を承認**（apple fruit／s、banana fruit／s、chocolate other／s、graham-cracker other／m、marshmallow other／s、powdered-sugar other／xs）。**色・絵文字は既存検査を必須とする** | 色・絵文字は案であって測定値ではなかった。実装時に G18（family 記号・他食材と重ならない）、H5-INV-2、既存の色検査で確かめ、通らない場合は停止して代案を提示する |
+| Q-5 | Research 非正準 **8 ID の提示された before→after を個別承認**。**正準順の変化 0 が必須** | §4 の 8 行。正準順で 1 件でも変われば停止 |
+| Q-6 | **既存 SVG を配線**。**apple と powdered-sugar の小サイズ視認性を重点 HV** | powdered-sugar は 17.6px で粒が潰れる（B23 デザート SVG Result）ため、配線時にサイズ補正（案）を入れて HV で確認する |
+| Q-7 | 日本語名は**変更しない** | |
+
+**追加の Owner 指示（同日）**: 実装前に #780 の HOT claim を確認する。既存 101 レシピの互換性・Research・在庫・保存・Hint・G18・WebKit を検証し、Codex レビューまたは Owner 承認の独立レビューを受ける。Production ON・共有 Preview の更新は禁止。**これで §3 の決定は確定。B23 の実装を開始する**（HOT claim は #780 のコメントで確認・取得）。
+
