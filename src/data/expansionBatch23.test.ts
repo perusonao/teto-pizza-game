@@ -231,8 +231,8 @@ describe("Research: the canonical order changes 0 letters; the non-canonical cha
   /**
    * OWNER-APPROVED PER ID (2026-11-10, Q-5; docs/reports/TETO_EXPANSION-BATCH-23_OwnerDecisionTable_2026-11-10.md section 4): the 8 pre-existing recipes whose letter can change in NON-canonical acquisition orders, with the presented before -> after.
    * The presented measurement assumed the full dessert train (the two late dessert recipes and five late materials were in the population). This batch ships apple-cinnamon-dessert ALONE, so the audit population differs and the (seeded random) measurement differs slightly:
-   * the same 8 IDs, 0 canonical changes, but two IDs show ONE letter change the presented table did not list (A->B for pizza-radicchio-noci and spinach-artichoke-pizza), and ikura-salmon-pizza lacks its presented A->B. Those two additions are
-   * PENDING OWNER APPROVAL (reported in the PR); everything else measured is inside the presented table.
+   * the same 8 IDs, 0 canonical changes, but two IDs show ONE letter change the presented table did not list (A->B for pizza-radicchio-noci and spinach-artichoke-pizza), and ikura-salmon-pizza lacks its presented A->B.
+   * OWNER-APPROVED (2026-11-10, PR #814): the apple-alone differences (the two additions and ikura's absent A->B) are approved; the canonical order must stay at 0 and any other ID or change is a STOP.
    */
   const PRESENTED_AND_APPROVED: Readonly<Record<string, readonly string[]>> = {
     "ikura-salmon-pizza": ["-->B", "A->B", "B->C"],
@@ -244,20 +244,20 @@ describe("Research: the canonical order changes 0 letters; the non-canonical cha
     "speck-e-brie": ["-->B", "B->C", "C->D"],
     "spinach-artichoke-pizza": ["-->B", "B->C", "C->D"],
   };
-  const PENDING_OWNER_APPROVAL_EXTRA: Readonly<Record<string, readonly string[]>> = {
+  const OWNER_APPROVED_EXTRA: Readonly<Record<string, readonly string[]>> = {
     "pizza-radicchio-noci": ["A->B"],
     "spinach-artichoke-pizza": ["A->B"],
   };
-  it("the measured changes are the same 8 IDs (0 canonical); every change is in the presented table or is one of the two PENDING additions; any other ID or letter change is a STOP", () => {
+  it("the measured changes are the same 8 IDs (0 canonical); every change is in the presented table or is one of the two Owner-approved additions; any other ID or letter change is a STOP", () => {
     const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never);
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
     const measured = new Map([...changes].map(([id, list]) => [id, [...new Set(list.map((c) => c.change))].sort()]));
     expect([...measured.keys()].sort()).toEqual(Object.keys(PRESENTED_AND_APPROVED).sort());
     for (const [id, list] of measured) {
-      const allowed = new Set([...PRESENTED_AND_APPROVED[id], ...(PENDING_OWNER_APPROVAL_EXTRA[id] ?? [])]);
+      const allowed = new Set([...PRESENTED_AND_APPROVED[id], ...(OWNER_APPROVED_EXTRA[id] ?? [])]);
       for (const change of list) expect(allowed.has(change), `${id} ${change}`).toBe(true);
     }
-    // the exact measured record of this batch (alone): the presented table minus ikura's A->B, plus the two pending additions
+    // the exact measured record of this batch (alone): the presented table minus ikura's A->B, plus the two Owner-approved additions
     expect(measured.get("ikura-salmon-pizza")).toEqual(["-->B", "B->C"]);
     expect(measured.get("pizza-radicchio-noci")).toEqual(["-->B", "A->B", "B->C"]);
     expect(measured.get("spinach-artichoke-pizza")).toEqual(["-->B", "A->B", "B->C", "C->D"]);
