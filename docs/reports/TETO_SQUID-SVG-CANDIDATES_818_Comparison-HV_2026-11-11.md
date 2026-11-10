@@ -1,8 +1,8 @@
 # PR #818 squid SVG comparison / iPhone HV runbook
 
-Date: 2026-11-11  
-Target: PR #818, SVG commit `babc1cfb`  
-Owner decision: C (`squid-c-mantle-rings.svg`) is the first candidate, **not adopted**.  
+Date: 2026-11-11
+Target: PR #818, SVG commit `babc1cfb`
+Owner decision: C (`squid-c-mantle-rings.svg`) is the first candidate, **not adopted**.
 Scope: asset-only comparison. No catalog/UI wiring, Preview deployment, Production change or merge.
 
 ## 1. Authority sizes and evidence
@@ -14,7 +14,10 @@ legibility lower bound; it is not a proposed squid production size.
 
 - A/B/C actual-size sheet: `screenshots/squid-svg-818/squid-abc-native-size-comparison.png`
 - C vs existing seafood: `screenshots/squid-svg-818/squid-c-seafood-discrimination.png`
-- Backgrounds: transparent white, dough `#efd49d`, baked dough `#c9904f`, melted cheese `#f3cf70`
+- iPhone-width sheets: `squid-iphone-390x844.png` and `squid-iphone-360x800.png`
+- Backgrounds: representative flat comparison colours only — light dough-like `#efd49d`, dark
+  baked-dough-like `#c9904f`, cheese-like `#f3cf70`. These are not sampled production colours and
+  do not reproduce the runtime bake filter.
 - Existing comparisons: approved/reference shrimp, whitebait, sardine and the retained clam valve
 
 The PNGs are deterministic rasterizations of the committed SVG files. The 28/26/20 px icons are
@@ -61,24 +64,28 @@ planning sizes; any CSS size correction is a later integration decision.
 This is an **asset HV**, not gameplay/integration HV. It cannot authorize wiring or prove the
 future in-game bake filter. Use the exact PR #818 head containing this report.
 
-1. Download both committed PNGs from PR #818 using Safari. Do not use a GitHub thumbnail or an
-   image viewer that auto-upscales; open the downloaded image at 100% / Actual Size.
-2. Record device model, iOS version, Safari version, viewport and PR head SHA.
-3. On `squid-abc-native-size-comparison.png`, inspect the native 28 px and 26 px rows first. The
-   4x row may be used only to explain a defect, never to pass legibility.
+1. Record device model, iOS version, Safari version, viewport and PR head SHA.
+2. Use `squid-iphone-390x844.png` only on a 390 CSS px viewport and
+   `squid-iphone-360x800.png` only on a 360 CSS px viewport. Open the raw image in Safari, with no
+   reader/GitHub chrome, and confirm it spans the viewport width exactly with no horizontal crop,
+   pinch zoom or fit-to-page reduction. The source width then equals the viewport CSS width, so
+   its 28/26/20 px boxes preserve the intended CSS-pixel comparison. If this cannot be proven,
+   stop; do not infer an actual-size result from the 1200 px overview sheets.
+3. Inspect the native 28 px and 26 px rows first. The 1200 px sheets and enlarged row may be used
+   only to explain a defect, never to pass legibility.
 4. For each background, answer: (a) mantle is visible, (b) ring stays detached, (c) outline does
    not disappear, (d) C is not mistaken for a person/rocket/onion ring.
 5. On `squid-c-seafood-discrimination.png`, compare C against shrimp, whitebait, sardine and clam
    without reading the labels for two seconds; then check the label. Record any mistaken identity.
 6. Repeat in iPhone grayscale accessibility mode. Confirm C vs shrimp and C vs clam from silhouette.
-7. Capture one screenshot of each sheet at 100%, plus a short screen recording that moves through
+7. Capture one screenshot of the matching viewport sheet, plus a short screen recording that moves through
    28 px → 26 px → 20 px without pinch zoom. Video stays outside the repository and is delivered
    directly to the Owner.
 8. Owner records one result: `PASS C as integration candidate`, `NEEDS FIX`, or `NO-GO`. This is
    not final adoption. Final adoption requires a separately claimed wired build and the normal
    pizza/tray/BAKE/RESULT iPhone HV.
 
-Stop conditions: the viewer cannot prove 100% scale; the ring merges into the mantle at 26 px; the
+Stop conditions: the image width does not exactly match the CSS viewport; the ring merges into the mantle at 26 px; the
 outline disappears on baked dough or cheese; C is repeatedly confused with shrimp/clam; or the
 exact head/device facts are missing.
 
