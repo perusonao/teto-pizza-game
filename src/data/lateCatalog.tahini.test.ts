@@ -143,9 +143,9 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(stepOf(POM)).toBe(mine);
     expect(mine.starGates).toBeUndefined();
     expect(mine.step).toBe(stepOf("miso-sauce").step + 1);
-    expect(steps.at(-10)).toBe(mine); // (BBQ Chicken / PR-2 late4 / Expansion Batch 21: the later late steps follow it)
-    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 9); // ordinary length + the four late steps up to and including this one (the bbq step follows)
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", TAHINI_PIZZA, "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza"]);
+    expect(steps.at(-12)).toBe(mine); // (BBQ Chicken / PR-2 late4 / Expansion Batch 21: the later late steps follow it)
+    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 11); // ordinary length + the four late steps up to and including this one (the bbq step follows)
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", TAHINI_PIZZA, "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza"]);
   });
 
   it("Shop: both materials are T4 (the sauce pack 120 / refill 60), from the tahini late step", () => {
@@ -166,7 +166,7 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
   });
 
   it("the compatibility floors are FIXED at 60 for both materials (never later than the step the ladder derives); the earlier floors are unchanged", () => {
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, [SAUCE]: 60, [POM]: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86 });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, [SAUCE]: 60, [POM]: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86, banana: 88, chocolate: 88, "powdered-sugar": 88, "graham-cracker": 89, marshmallow: 89 });
     for (const id of [SAUCE, POM]) expect(LATE_ENTITLEMENT_FLOORS[id]).toBeLessThanOrEqual(stepOf(id).step);
   });
 });
