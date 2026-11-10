@@ -14,6 +14,7 @@ Owner の 2026-11-10 の判断（step 順 72=buffalo-chicken／73=speck-e-brie�
 | parmigiano・gorgonzola のショップパック 20→30 | **条件付き承認**（既存の購入・在庫テストの成功） | **条件を確認**【実測】: `materialShop.test.ts`・`ShopOverlay.test.tsx`・`w1LadderEconomy.test.ts` と `src/state` の shop／purchase／stock／inventory／material／economy 系を合わせた **16 ファイル・559 件が全て成功**（HEAD `c54e9fae`、ローカル）。全 Vitest は CI の `build` でも成功。価格（60／100 Pitz）は不変、1 パックの個数だけ増える |
 | Research 非正準 35 ID | **未承認（個別承認待ち）** | §2 |
 | 長い名前（逸脱 7）・その他の逸脱 | 今回の判断に含まれていない | 引き続き確認待ち |
+| **新規の逸脱 10**: `resultNearMiss.p2.test.ts` の「truthfulness」の 1 本を 6 本に分割 | 未確認（Owner 判断待ち。replayAudit の分割と同じ方式） | §3 |
 
 ## 2. Research の非正準文字変更 35 ID（個別承認が必要）
 
@@ -78,6 +79,7 @@ Owner の 2026-11-10 の判断（step 順 72=buffalo-chicken／73=speck-e-brie�
 | CI（HEAD `867ebeb8`、実装の確認点） | 11/11 成功 |
 | ローカルの全 Vitest（`867ebeb8`） | 12,066 件成功／13 件 skip／失敗 0。E2E `b22.spec.ts` は Chromium 390×844・360×800 とも 6/6 |
 | 独立レビュー | 別セッションによる**読取り専用**のレビュー（PR コメント 6752504312）。ブロッカー無し、指摘は古いコメントの修正のみで `c54e9fae` で反映済み。**実行していない範囲**: replayAudit、E2E／WebKit、`src/**` の残り |
+| **CI の失敗（HEAD `eb37889b`）と対応** | `build` の全 Vitest で `src/state/resultNearMiss.p2.test.ts` の 1 本（"ADD_ONE / REMOVE_ONE / SAUCE_ONLY / CLOSE lines never point at an unreachable recipe"）が **60 秒の上限を超えて失敗**（他の 12,065 件は成功）。**ローカルでも再現**: B22 の HEAD で 60.7 秒、B21 までの main では同ファイルが 42 秒。原因【実測】: このテストは「各レシピから 1 編集離れた全ピザ」（B22 で 11,565 通り）ごとに旧版の近さ判定（本番の呼出し元が無い `legacyResultNearMiss`、1 回約 4 ms、合計約 47.7 秒）を呼ぶため、レシピ数×食材数×レシピ数で増える。B22 の追加（レシピ +6・食材 +10）で上限を越えた。以前の CI／ローカルでは上限の手前で通っていた。**対応（テストのみ、本番コードは変更なし）**: 同じピザ集合・同じアサーション・同じ 60 秒の上限のまま、**6 本の部分（round-robin）に分割**し、「合計で 200 超を確認」の下限を別の 1 本で残した（分割後は各部分が約 8〜9 秒、ファイル全体 23/23 成功、約 51 秒）。あわせて、同じピザの判定結果を保存する（`outcomeOf` の memo、署名は位置に依存しないため安全）。skip・上限の延長・アサーションの弱化なし。replayAudit の分割（承認済み）と同じ方式 |
 | **Codex レビュー** | **未実施**（利用上限）。**レビュー済みとは扱わない** |
 | iPhone Safari HV | 専用 PR ページを公開（URL は PR コメント）。Owner の実機結果待ち |
 
