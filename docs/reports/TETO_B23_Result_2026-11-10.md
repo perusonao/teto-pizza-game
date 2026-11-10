@@ -45,7 +45,7 @@ Owner の決定（Q-1〜Q-7）で 3 レシピ・6 食材を実装したところ
 ## 5. テスト結果【実測】
 - 全 Vitest（ローカル）: 12,122 件中、失敗は 2 件（旧 DH4-2A の 291→257、ordinaryRecipes の件数）で、修正後に両ファイル 25/25 成功。修正後の全件再実行は CI の `build`（全 Vitest 込み）で確認する。`tsc -b` エラー 0。
 - E2E（Chromium、`e2e/b23.spec.ts`）: **390×844・360×800 の各 1/1 成功**（Shop NEW → 購入 → Research（正体の漏れなし）→ 各ピースを Reference の位置に → 焼成 → NEW DISCOVERY → Dex）。スクリーンショット: `docs/reports/screenshots/b23/`（apple の chip とピースの拡大は `compare-parts/`）。
-- 新規テスト: `expansionBatch23.test.ts`（28 件）、`b23HvSeeds.test.ts`。
+- 新規テスト: `expansionBatch23.test.ts` と `b23HvSeeds.test.ts`（2 ファイル合計 24 件、全て成功）。
 
 ## 6. B23-b（nutella・smore）の解決案 — Owner の選択
 - 衝突 1: (a) dessert の 4 食材を既存の family に割り当てる（cinnamon・walnut・mayo の前例のとおり spice を推奨）／(b) `other` を許すようにゲートを緩める（Hint 3.0 の仕様変更）／(c) 新しい family を足す（全レシピの Hint 5.0 に影響）。
