@@ -496,26 +496,35 @@ describe("save / load (matrix 29-32, 40)", () => {
 describe("privacy (matrix 33-35)", () => {
   const candidates = RECIPES.filter((r) => r.id !== "margherita").map((r) => r.id);
 
-  it("33 no negative fact: the selectable view of a fresh target carries no 'not used' line", () => {
-    for (const id of candidates) {
+  // #811: one sheet per target costs ~35 ms, so the loops over EVERY candidate grew with the catalog to ~3.4 s of the 5 s default (34 timed out on a slow CI runner; 33 is the same loop).
+  // They run as consecutive slices of the same candidates, one test per slice: the same targets, order and assertions; no timeout was raised and nothing is sampled.
+  const slices = Array.from({ length: Math.ceil(candidates.length / 20) }, (_, i) => [`${i * 20 + 1}-${Math.min((i + 1) * 20, candidates.length)}`, candidates.slice(i * 20, (i + 1) * 20)] as const);
+  it("the slices cover every candidate exactly once, in order", () => {
+    expect(slices.flatMap(([, ids]) => ids)).toEqual(candidates);
+  });
+
+  it.each(slices)("33 no negative fact: the selectable view of a fresh target carries no 'not used' line: %s", (_label, ids) => {
+    for (const id of ids) {
       expect(JSON.stringify(view(sheetOn(id, 100))), id).not.toMatch(/じゃない|使わない/);
     }
   });
 
-  it("34 no category availability / remaining count: every target shows the same shape at the same paid count", () => {
-    const shape = (s: GameState) => {
-      const v = view(s);
-      return {
-        keys: Object.keys(v.presentation).sort(),
-        rows: v.presentation.rows.map((r) => r.category),
-        preferences: v.presentation.preferences,
-        nextPrice: v.presentation.nextPrice,
-        affordable: v.presentation.affordable,
-        viewKeys: Object.keys(v).sort(),
-      };
+  const shape = (s: GameState) => {
+    const v = view(s);
+    return {
+      keys: Object.keys(v.presentation).sort(),
+      rows: v.presentation.rows.map((r) => r.category),
+      preferences: v.presentation.preferences,
+      nextPrice: v.presentation.nextPrice,
+      affordable: v.presentation.affordable,
+      viewKeys: Object.keys(v).sort(),
     };
+  };
+  it.each(slices)("34 no category availability / remaining count: every target shows the same shape at the same paid count: %s", (_label, ids) => {
     const reference = shape(sheetOn("funghi", 100));
-    for (const id of candidates) expect(shape(sheetOn(id, 100)), id).toEqual(reference);
+    for (const id of ids) expect(shape(sheetOn(id, 100)), id).toEqual(reference);
+  });
+  it("34 no category availability / remaining count: every target shows the same shape at the same paid count", () => {
     const json = JSON.stringify(view(sheetOn("capricciosa", 100)));
     expect(json).not.toMatch(/remaining|reserved|purchasable|capricciosa/);
   });
