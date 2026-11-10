@@ -1,0 +1,40 @@
+{
+ "train": "b23a-replay",
+ "recipes": [
+  {
+   "id": "apple-cinnamon-dessert",
+   "nameJa": "アップルシナモンデザートピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "apple",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cinnamon",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cream-cheese",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "walnut",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ]
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "apple",
+   "nameJa": "apple",
+   "category": "topping",
+   "family": "fruit"
+  }
+ ]
+}

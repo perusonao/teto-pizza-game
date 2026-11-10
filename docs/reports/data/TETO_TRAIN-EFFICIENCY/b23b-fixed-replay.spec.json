@@ -1,0 +1,94 @@
+{
+ "train": "b23b-fixed-replay",
+ "recipes": [
+  {
+   "id": "nutella-dessert-pizza",
+   "nameJa": "ヌテラデザートピザ",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "banana",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "chocolate",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "powdered-sugar",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "cream-cheese",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  },
+  {
+   "id": "smore-dessert-pizza",
+   "nameJa": "スモアデザートピザ",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "chocolate",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "graham-cracker",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "marshmallow",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cream-cheese",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ]
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "banana",
+   "nameJa": "バナナ",
+   "category": "topping",
+   "family": "fruit"
+  },
+  {
+   "id": "chocolate",
+   "nameJa": "チョコレート",
+   "category": "topping",
+   "family": "spice"
+  },
+  {
+   "id": "graham-cracker",
+   "nameJa": "グラハムクラッカー",
+   "category": "topping",
+   "family": "spice"
+  },
+  {
+   "id": "marshmallow",
+   "nameJa": "マシュマロ",
+   "category": "topping",
+   "family": "spice"
+  },
+  {
+   "id": "powdered-sugar",
+   "nameJa": "粉砂糖",
+   "category": "topping",
+   "family": "spice"
+  }
+ ]
+}
