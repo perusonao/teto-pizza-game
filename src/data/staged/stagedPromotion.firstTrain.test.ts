@@ -61,7 +61,7 @@ describe("First train after promotion: the production late catalog equals staged
   });
 
   it("the late ladder steps, key-free Hint roles, discovery target ids, families and size classes are shipped as declared, except the PINNED tortilla-chips family deviation (`vegetable`, not `other`: OD-DH4-2-9; Owner confirmation pending)", () => {
-    expect(LATE_LADDER_STEPS.slice(-CANDIDATE_LADDER_STEPS.length)).toEqual(CANDIDATE_LADDER_STEPS);
+    expect(LATE_LADDER_STEPS.slice(-CANDIDATE_LADDER_STEPS.length - 4, -4)).toEqual(CANDIDATE_LADDER_STEPS); // Expansion Batch 22 (#780) appended four late steps after these two
     for (const id of NEW_IDS) {
       expect(RECIPE_HINT_ROLES[id as never], id).toEqual(CANDIDATE_HINT_ROLES[id as keyof typeof CANDIDATE_HINT_ROLES]);
       expect(LATE_DISCOVERY_TARGET_IDS[id], id).toBe(CANDIDATE_DISCOVERY_TARGET_IDS[id as keyof typeof CANDIDATE_DISCOVERY_TARGET_IDS]);

@@ -164,7 +164,7 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
     vi.resetModules();
     vi.doMock("../../data/ingredientTaxonomy", async (importOriginal) => {
       const real = await importOriginal<typeof import("../../data/ingredientTaxonomy")>();
-      return { ...real, ingredientAttributeFamily: (id: unknown) => (id === "white-sesame" || id === "paprika-powder" || id === "wasabi" || id === "mayo" || id === "cinnamon" || id === "walnut" ? "herb" : real.ingredientAttributeFamily(id)) };
+      return { ...real, ingredientAttributeFamily: (id: unknown) => (id === "white-sesame" || id === "paprika-powder" || id === "wasabi" || id === "mayo" || id === "cinnamon" || id === "walnut" || id === "sunflower-seeds" ? "herb" : real.ingredientAttributeFamily(id)) };
     });
     try {
       const synth = await import("../../data/ingredientTaxonomy");
@@ -173,7 +173,7 @@ describe("AC-1 (primary): the last unclassified sub-topping is still classified"
       const singletons = toppings.filter((i) => toppings.filter((j) => synth.ingredientAttributeFamily(j.id) === synth.ingredientAttributeFamily(i.id)).length === 1).map((i) => i.id);
       expect(singletons.sort()).toEqual(["capers"]); // the synthetic shape: the old real catalog's only singleton
       for (const id of singletons) expect(synthClass(id), id).toBe("spice");
-      expect(synthClass("white-sesame")).toBe("herb"); // the synthetic reassignments (white-sesame, paprika-powder, wasabi, mayo, cinnamon, walnut) are what make capers alone
+      expect(synthClass("white-sesame")).toBe("herb"); // the synthetic reassignments (white-sesame, paprika-powder, wasabi, mayo, cinnamon, walnut, sunflower-seeds) are what make capers alone
     } finally {
       vi.doUnmock("../../data/ingredientTaxonomy");
       vi.resetModules();

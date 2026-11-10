@@ -155,7 +155,8 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
     // hypotheses are drawn from gains two recipes). Every hardened-guard assertion of this file is unchanged and still passes (the guard never leaks).
     // Re-measured again at Expansion Batch 21 (#780; 106 ingredients: cheddar (a cheese), lettuce / tortilla-chips / cabbage / bonito-flakes (toppings) and okonomiyaki-sauce (a sauce) join, plus taco-pizza and okonomiyaki-style-pizza, two key-free late recipes).
     // Every hardened-guard assertion of this file passed unchanged (leak 0). Only this LEGACY DH4-2A count moves, 225 -> 321, for the same effects (the synthetic families are cut from TOPPINGS by array index; `zeroTopping` iterates every sauce; the public catalog the hypotheses are drawn from gains two recipes). The per-material split was NOT measured separately.
-    expect(dh42aLeaks).toBe(321);
+    // Re-measured again at Expansion Batch 22 (#780; 116 ingredients: ten materials (brie, buffalo-sauce, balsamic-vinegar and seven toppings) join, plus six recipes, two ordinary and four late). Every hardened-guard assertion of this file passed unchanged (leak 0). Only this LEGACY DH4-2A count moves, 321 -> 291, for the same effects (the synthetic families are cut from TOPPINGS by array index, so more toppings re-shape them).
+    expect(dh42aLeaks).toBe(291);
   }, 120_000);
 });
 

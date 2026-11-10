@@ -1,8 +1,8 @@
 {
- "dependencies": 373,
+ "dependencies": 365,
  "byStatus": {
-  "RESOLVED": 30,
-  "WORK": 9,
+  "RESOLVED": 24,
+  "WORK": 7,
   "SOURCE_RESEARCH": 22,
   "CANDIDATE_PENDING": 12,
   "EXCEPTION_REVIEW": 76,
@@ -17,10 +17,10 @@
   "D-1": 76,
   "D-2": 22,
   "D-3": 12,
-  "D-4": 21,
-  "D-5": 8
+  "D-4": 16,
+  "D-5": 5
  },
- "remainingOpen": 343,
+ "remainingOpen": 341,
  "needsAdditionalOwnerDecision": {
   "total": 116,
   "perRecipeExceptions": 76,
@@ -29,16 +29,8 @@
  },
  "needsResearchOrConfirmation": 34,
  "nextPromotable": {
-  "ready": [
-   "pizza-finocchi-salad",
-   "pizza-cavolo-carote",
-   "pizza-radicchio-noci",
-   "black-truffle-pizza"
-  ],
-  "readyWithWork": [
-   "buffalo-chicken-pizzadb",
-   "speck-e-brie-pizzadb"
-  ],
+  "ready": [],
+  "readyWithWork": [],
   "researchBlockedButOtherwiseReady": []
  },
  "d5PostBake": [
@@ -52,19 +44,6 @@
    "id": "pizza-carciofi-salad",
    "postBake": [
     "lemon"
-   ]
-  },
-  {
-   "id": "pizza-finocchi-salad",
-   "postBake": [
-    "orange"
-   ]
-  },
-  {
-   "id": "pizza-cavolo-carote",
-   "postBake": [
-    "lemon",
-    "red-cabbage"
    ]
   },
   {
@@ -86,12 +65,6 @@
     "chicory",
     "lemon"
    ]
-  },
-  {
-   "id": "pizza-radicchio-noci",
-   "postBake": [
-    "radicchio"
-   ]
   }
  ],
  "d4ProposedIds": [
@@ -99,8 +72,6 @@
   "greek-style-pizzadb -> greek-style",
   "chicago-deep-dish-pizzadb -> chicago-deep-dish",
   "siciliana-pizzadb -> siciliana",
-  "buffalo-chicken-pizzadb -> buffalo-chicken",
-  "speck-e-brie-pizzadb -> speck-e-brie",
   "frutti-di-mare-pizzadb -> frutti-di-mare"
  ],
  "d1Dossier": {

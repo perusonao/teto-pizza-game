@@ -43,7 +43,19 @@ function fullOwnership(ids: readonly string[], over: Partial<ResultNearMissInput
     ...over,
   };
 }
-const outcomeOf = (ids: readonly string[]) => evaluateDiscovery(signatureOfPizza(pizzaOf(ids)), RECIPE_DISCOVERY_CATALOG, []);
+// The outcome depends only on the multiset of ingredient ids (`signatureOfPizza` reads counts and the sauce set, never the positions), so it is
+// memoised on the sorted ids. The truthfulness walk below asks for the same pizza many times (every edit of every pizza of every recipe);
+// without this it grows with recipes x ingredients^2 and crossed its 60 s limit at Batch 22. Same pizzas, same assertions, same limit.
+const outcomeCache = new Map<string, DiscoveryOutcome>();
+const outcomeOf = (ids: readonly string[]): DiscoveryOutcome => {
+  const key = [...ids].sort().join("|");
+  let out = outcomeCache.get(key);
+  if (!out) {
+    out = evaluateDiscovery(signatureOfPizza(pizzaOf(ids)), RECIPE_DISCOVERY_CATALOG, []);
+    outcomeCache.set(key, out);
+  }
+  return out;
+};
 
 describe("P2-B no-sauce wording", () => {
   it("a pizza with no sauce, one sauce short of margherita, keeps the directional sauce line (real catalog)", () => {
@@ -192,7 +204,7 @@ describe("P2-D no component feedback, no Hint 5.0 substitution", () => {
   });
 });
 
-describe("P2-B truthfulness: every directional line is followed to a real discovery (25 recipes, real matcher)", () => {
+describe("P2-B truthfulness: every directional line is followed to a real discovery (101 recipes, real matcher)", () => {
   const nonSauce = ALL_IDS.filter((id) => !isSauce(id));
   const sauces = ALL_IDS.filter(isSauce);
 
@@ -200,8 +212,12 @@ describe("P2-B truthfulness: every directional line is followed to a real discov
     return edits.some((e) => outcomeOf(e).kind === "NEW_DISCOVERY");
   }
 
-  it("ADD_ONE / REMOVE_ONE / SAUCE_ONLY / CLOSE lines never point at an unreachable recipe", () => {
-    let checked = 0;
+  // Every distinct ORIGINAL pizza one edit away from some recipe (remove a piece / add a piece / swap the sauce / drop the sauce). Same walk and same
+  // de-duplication as before; it is computed once and shared by the parts below.
+  let walked: { key: string; ids: string[] }[] | null = null;
+  function walk(): { key: string; ids: string[] }[] {
+    if (walked) return walked;
+    const out: { key: string; ids: string[] }[] = [];
     const seen = new Set<string>();
     for (const r of RECIPES) {
       const set: string[] = [...new Set<string>(r.requiredIngredients.map((q) => q.ingredientId))];
@@ -218,32 +234,61 @@ describe("P2-B truthfulness: every directional line is followed to a real discov
         if (seen.has(key)) continue;
         seen.add(key);
         if (outcomeOf(ids).kind !== "ORIGINAL") continue;
-        const line = resultNearMiss(fullOwnership(ids));
-        if (!line) continue;
-        const has = new Set(ids);
-        const hasSauce = ids.some(isSauce);
-        if (line.kind === "ADD_ONE") {
-          // adding one ingredient (a piece, or a sauce when the pizza has none) reaches a discovery
-          const edits = [...nonSauce.filter((x) => !has.has(x)), ...(hasSauce ? [] : sauces)].map((x) => [...ids, x]);
-          expect(reaches(edits), `ADD_ONE for ${key}`).toBe(true);
-        } else if (line.kind === "REMOVE_ONE") {
-          const edits = ids.map((x) => ids.filter((y) => y !== x));
-          expect(reaches(edits), `REMOVE_ONE for ${key}`).toBe(true);
-        } else if (line.kind === "SAUCE_ONLY") {
-          const pieceIds = ids.filter((y) => !isSauce(y));
-          const edits = sauces.map((s) => [...pieceIds, s]);
-          // Multi-Sauce S3: when the pieces are those of an allowlisted TWO-sauce recipe, "change the sauce" is also true if the right PAIR of sauces
-          // reaches it (a single swap cannot). Every other pizza must still be reachable by a single sauce swap, exactly as before.
-          for (const id of MULTI_SAUCE_RECIPE_IDS) {
-            const need = requiredSauceIds(id);
-            const recipePieces = RECIPES.find((x) => x.id === id)!.requiredIngredients.map((q) => q.ingredientId).filter((q) => !isSauce(q));
-            if ([...recipePieces].sort().join() === [...pieceIds].sort().join()) edits.push([...pieceIds, ...need]);
-          }
-          expect(reaches(edits), `SAUCE_ONLY for ${key}`).toBe(true);
-        }
-        checked++;
+        out.push({ key, ids });
       }
     }
-    expect(checked).toBeGreaterThan(200);
-  }, 60_000); // walks every recipe with the real matcher: ~3.9s locally, over the 5s default under CI load as the catalog grows (Batch 4)
+    walked = out;
+    return out;
+  }
+
+  /** The assertions of the original test, unchanged, for one pizza. Returns true when the pizza got a directional line (it counts as checked). */
+  function verify(key: string, ids: string[]): boolean {
+    const line = resultNearMiss(fullOwnership(ids));
+    if (!line) return false;
+    const has = new Set(ids);
+    const hasSauce = ids.some(isSauce);
+    if (line.kind === "ADD_ONE") {
+      // adding one ingredient (a piece, or a sauce when the pizza has none) reaches a discovery
+      const edits = [...nonSauce.filter((x) => !has.has(x)), ...(hasSauce ? [] : sauces)].map((x) => [...ids, x]);
+      expect(reaches(edits), `ADD_ONE for ${key}`).toBe(true);
+    } else if (line.kind === "REMOVE_ONE") {
+      const edits = ids.map((x) => ids.filter((y) => y !== x));
+      expect(reaches(edits), `REMOVE_ONE for ${key}`).toBe(true);
+    } else if (line.kind === "SAUCE_ONLY") {
+      const pieceIds = ids.filter((y) => !isSauce(y));
+      const edits = sauces.map((s) => [...pieceIds, s]);
+      // Multi-Sauce S3: when the pieces are those of an allowlisted TWO-sauce recipe, "change the sauce" is also true if the right PAIR of sauces
+      // reaches it (a single swap cannot). Every other pizza must still be reachable by a single sauce swap, exactly as before.
+      for (const id of MULTI_SAUCE_RECIPE_IDS) {
+        const need = requiredSauceIds(id);
+        const recipePieces = RECIPES.find((x) => x.id === id)!.requiredIngredients.map((q) => q.ingredientId).filter((q) => !isSauce(q));
+        if ([...recipePieces].sort().join() === [...pieceIds].sort().join()) edits.push([...pieceIds, ...need]);
+      }
+      expect(reaches(edits), `SAUCE_ONLY for ${key}`).toBe(true);
+    }
+    return true;
+  }
+
+  // This walk calls the pool-distance classifier once per pizza (~11.5k pizzas at Batch 22, ~4 ms each), so it grows with recipes x ingredients x recipes and
+  // crossed its 60 s limit at Batch 22 (62 s locally; 42 s for the whole file at Batch 21). It is split into PARTS round-robin slices of the same pizzas, each under
+  // the same 60 s limit, with the same assertions on every pizza and the same ">200 pizzas checked" floor over all parts together. Nothing is skipped or loosened.
+  const PARTS = 6;
+  let checkedTotal = 0;
+  let partsRun = 0;
+  for (let part = 0; part < PARTS; part += 1) {
+    it(`ADD_ONE / REMOVE_ONE / SAUCE_ONLY / CLOSE lines never point at an unreachable recipe (part ${part + 1}/${PARTS})`, () => {
+      let checked = 0;
+      walk().forEach((p, index) => {
+        if (index % PARTS !== part) return;
+        if (verify(p.key, p.ids)) checked += 1;
+      });
+      checkedTotal += checked;
+      partsRun += 1;
+    }, 60_000);
+  }
+
+  it("the parts together checked more than 200 directional lines", (ctx) => {
+    if (partsRun < PARTS) ctx.skip(); // only when the parts above were filtered out (-t); a failing part already fails the run
+    expect(checkedTotal).toBeGreaterThan(200);
+  });
 });

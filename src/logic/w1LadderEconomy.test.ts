@@ -154,7 +154,7 @@ describe("25-ladder economy parity (pure; not wired to the runtime Shop)", () =>
     ["bacon", 2, "T1", 3, 30, 60, 30],
     ["mushroom", 3, "T1", 3, 30, 60, 30],
     ["eggplant", 4, "T1", 3, 30, 60, 30],
-    ["parmigiano", 5, "T1", 2, 20, 60, 30],
+    ["parmigiano", 5, "T1", 3, 30, 60, 30], // Expansion Batch 22 (#780): black-truffle-pizza needs 3 (k was 2)
     ["pepperoni", 6, "T2", 4, 40, 80, 40],
     ["sausage", 7, "T2", 3, 30, 80, 40],
     ["ham", 8, "T2", 3, 30, 80, 40],
@@ -175,7 +175,7 @@ describe("25-ladder economy parity (pure; not wired to the runtime Shop)", () =>
     ["rosemary", 22, "T3", 3, 30, 100, 50],
     ["capers", 23, "T3", 2, 20, 100, 50],
     ["fontina", 24, "T3", 2, 20, 100, 50],
-    ["gorgonzola", 24, "T3", 2, 20, 100, 50],
+    ["gorgonzola", 24, "T3", 3, 30, 100, 50], // Expansion Batch 22 (#780): buffalo-chicken needs 3 (k was 2)
   ];
 
   it.each(EXPECTED_W1_OFFERS)(
