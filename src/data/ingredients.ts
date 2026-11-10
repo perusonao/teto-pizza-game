@@ -27,6 +27,14 @@ export type DedicatedIngredientVisual =
   | "ricotta-mound"
   | "burrata-torn-ball"
   | "walnut-kernel"
+  | "brie-wedge"
+  | "fennel-slices"
+  | "orange-slices"
+  | "carrot-rounds"
+  | "red-cabbage-shreds"
+  | "sunflower-kernels"
+  | "radicchio-leaf"
+  | "truffle-shavings"
   | "lettuce-leaf"
   | "cabbage-shreds"
   | "tortilla-chip-triangles"
@@ -1296,6 +1304,34 @@ const BASE_INGREDIENTS: Ingredient[] = [
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pieceVisual: "walnut-kernel",
+  },
+  /**
+   * Expansion Batch 22 (#780; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; Owner 2026-11-09): `brie` (ブリーチーズ), a finite ladder material (ordinary step 73, T4, no star gate), a scatter cheese (no topping family), size class `l` (Owner: like mozzarella / feta / cheddar).
+   * Dedicated art `brie-wedge` = the #797 staged glyph (src/components/stagedGlyphs/, PROVISIONAL), wired here; so the `emoji` is only the hidden text fallback (G18 keeps it unique). `color` follows the glyph fill and is PROVISIONAL.
+   */
+  {
+    id: "brie",
+    category: "cheese",
+    nameJa: "ブリーチーズ",
+    color: "#f6edc6",
+    emoji: "\u{1F315}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "brie-wedge",
+  },
+  /**
+   * Expansion Batch 22 (#780; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; Owner 2026-11-09): `buffalo-sauce` (バッファローソース), a finite ladder material (ordinary step 72, T4, no star gate), the PRIMARY sauce of buffalo-chicken, painted BEFORE the bake with the existing PAINT gesture
+   * (Owner: a pre-bake PAINT sauce, NOT a post-bake liquid and NOT on the M7 allow-list). Sauces carry no topping family. No dedicated art: the `emoji` (🦬, Owner-accepted provisionally) IS DISPLAYED as the tray / shop chip face. `color` `#ec5a12` (Owner-approved value) keeps dE >= 25 from every other sauce (measured:
+   * tomato-sauce 26.0, curry-ketchup 31.3, doubanjiang 42.8). PROVISIONAL until the Owner HV on a real device.
+   */
+  {
+    id: "buffalo-sauce",
+    category: "sauce",
+    nameJa: "バッファローソース",
+    color: "#ec5a12",
+    emoji: "\u{1F9AC}",
+    placement: "spread",
+    unlockCondition: { minTotalStars: 0 },
   },
 
 

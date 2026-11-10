@@ -192,10 +192,10 @@ describe("late material compatibility floor against the production ladder (Expan
   const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
 
   it("the late steps now derive from the longer ordinary ladder, and the floors stay at their shipped numbers", () => {
-    expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 15); // Expansion Batch 20-A appended 71, Expansion Batch 19 appended 70, Expansion Batch 18 appended 69, Expansion Batch 17 appended 68, B10 PR-1 appended 57-61, B11 S1 appended 62-63, Expansion Batch 12 appended 64, Expansion Batch 13 appended 65, Expansion Batch 14 appended 66, Expansion Batch 16 appended 67
-    expect(stepOf(ROE)).toBe(72); // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 moved the derived late numbers +1 again; // (Expansion Batch 18 moved the derived numbers +1 again)
-    expect(stepOf("tahini")).toBe(75);
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80 }); // PR-2 late4: 67 / 68; BBQ Chicken (#611) shipped after Batch 10: 61 ordinary + 5 late = 66
+    expect(ordinary()).toBe(SHIPPED_ORDINARY_STEPS + 17); // Expansion Batch 22 appended 72 and 73, // Expansion Batch 20-A appended 71, Expansion Batch 19 appended 70, Expansion Batch 18 appended 69, Expansion Batch 17 appended 68, B10 PR-1 appended 57-61, B11 S1 appended 62-63, Expansion Batch 12 appended 64, Expansion Batch 13 appended 65, Expansion Batch 14 appended 66, Expansion Batch 16 appended 67
+    expect(stepOf(ROE)).toBe(74); // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 moved the derived late numbers +1 again; // (Expansion Batch 18 moved the derived numbers +1 again)
+    expect(stepOf("tahini")).toBe(77);
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86 }); // PR-2 late4: 67 / 68; BBQ Chicken (#611) shipped after Batch 10: 61 ordinary + 5 late = 66
   });
 
   it.each([
@@ -224,7 +224,7 @@ describe("late floors after Expansion Batch 14 (BBQ 66, wasabi 67, tarako 68 aga
   const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((st) => st.ingredientIds.includes(id))!.step;
 
   it("derived numbers moved +8 (Expansion Batch 18 +1, B11 S1 +2, Expansion Batch 12 +1, Expansion Batch 13 +1, Expansion Batch 14 +1, Expansion Batch 16 +1, Expansion Batch 17 +1) and the floors did not", () => {
-    expect([stepOf("bbq-sauce"), stepOf("wasabi"), stepOf("nori")]).toEqual([76, 77, 78]); // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 moved the derived late numbers +1 again;
+    expect([stepOf("bbq-sauce"), stepOf("wasabi"), stepOf("nori")]).toEqual([78, 79, 80]); // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 moved the derived late numbers +1 again;
     expect([LATE_ENTITLEMENT_FLOORS["bbq-sauce"], LATE_ENTITLEMENT_FLOORS.wasabi, LATE_ENTITLEMENT_FLOORS.nori]).toEqual([66, 67, 68]);
   });
 

@@ -16,16 +16,16 @@ import { STAGED_INGREDIENTS } from "./testSupport/stagedIngredients";
 import { STAGED_MECHANICS } from "./stagedMechanics";
 import { STAGED_RECIPES } from "./testSupport/stagedRecipes";
 
-const B21_SHIPPED_EVIDENCE_IDS = ["taco-pizza-pizzadb", "okonomiyaki-style-pizza-pizzadb-p1"];
-const B21_SHIPPED_INGREDIENT_IDS = ["cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes"];
+const B21_SHIPPED_EVIDENCE_IDS = ["taco-pizza-pizzadb", "okonomiyaki-style-pizza-pizzadb-p1", "speck-e-brie-pizzadb-p4", "buffalo-chicken-pizzadb", "pizza-finocchi-salad-pizzadb-p8", "pizza-cavolo-carote-pizzadb-p8", "pizza-radicchio-noci-pizzadb-p8", "black-truffle-pizza-pizzadb-p14"]; // B21 + Expansion Batch 22 (#780)
+const B21_SHIPPED_INGREDIENT_IDS = ["cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "brie", "buffalo-sauce", "balsamic-vinegar"]; // B21 + Expansion Batch 22 (#780)
 const SHIPPED: ShippedView = { recipes: RECIPES, ingredientIds: INGREDIENTS.map((i) => i.id) };
 const PLAN = JSON.parse(
   readFileSync(join(__dirname, "..", "..", "..", "docs", "reports", "data", "TETO_FULL-EXPANSION-177_plan.json"), "utf8"),
 ) as { recipes: { evidenceId: string; inFlight: string | null }[]; ingredients: { id: string }[] };
 
 describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
-  it("registers all 82 recipes: the 87 unshipped plan rows minus the 5 owned by in-flight work (177 = shipped + 87)", () => {
-    expect(STAGED_RECIPES).toHaveLength(82);
+  it("registers all 76 recipes: the 87 unshipped plan rows minus the 11 owned by in-flight / shipped work (177 = shipped + 87)", () => {
+    expect(STAGED_RECIPES).toHaveLength(76);
     // The plan JSON is the frozen 2026-11-07 snapshot (3 in flight then); Expansion Batch 21 (#780) shipped two more of its rows (taco-pizza / okonomiyaki-style-pizza), so they leave the staged set too.
     const planned = PLAN.recipes.filter((r) => !r.inFlight && !B21_SHIPPED_EVIDENCE_IDS.includes(r.evidenceId)).map((r) => r.evidenceId).sort();
     expect(STAGED_RECIPES.map((r) => r.evidenceId).sort()).toEqual(planned);
@@ -33,13 +33,13 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
     // In-flight ids that have shipped (pesto-burrata-pizza / pizza-alla-crudaiola via PR #783, pesto-noci-pizza via Batch 20-A #790) are already inside RECIPES: count them once.
     const shippedIds = new Set(RECIPES.map((r) => r.id as string));
     const shippedInFlight = Object.keys(IN_FLIGHT_RECIPE_IDS).filter((id) => shippedIds.has(id));
-    expect(shippedInFlight).toEqual(["pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "taco-pizza", "okonomiyaki-style-pizza"]);
+    expect(shippedInFlight).toEqual(["pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "taco-pizza", "okonomiyaki-style-pizza", "speck-e-brie", "buffalo-chicken", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza"]);
     expect(RECIPES.length + PLAN.recipes.length - shippedInFlight.length).toBe(pinsaEnabled() ? 177 : 176);
-    expect(Object.keys(IN_FLIGHT_RECIPE_IDS).sort()).toEqual(["okonomiyaki-style-pizza", "pesto-burrata-pizza", "pesto-noci-pizza", "pizza-alla-crudaiola", "taco-pizza"]);
+    expect(Object.keys(IN_FLIGHT_RECIPE_IDS).sort()).toEqual(["black-truffle-pizza", "buffalo-chicken", "okonomiyaki-style-pizza", "pesto-burrata-pizza", "pesto-noci-pizza", "pizza-alla-crudaiola", "pizza-cavolo-carote", "pizza-finocchi-salad", "pizza-radicchio-noci", "speck-e-brie", "taco-pizza"]);
   });
 
-  it("registers all 64 ingredient candidates (the 73 minus burrata / honey / walnut and the six B21 materials); provisional I-1 / I-2 only change their status", () => {
-    expect(STAGED_INGREDIENTS).toHaveLength(64);
+  it("registers all 54 ingredient candidates (the 73 minus burrata / honey / walnut, the six B21 materials and the ten B22 materials); provisional I-1 / I-2 only change their status", () => {
+    expect(STAGED_INGREDIENTS).toHaveLength(54);
     const planned = PLAN.ingredients.map((i) => i.id).filter((i) => !["burrata", "honey", "walnut", ...B21_SHIPPED_INGREDIENT_IDS].includes(i)).sort();
     expect(STAGED_INGREDIENTS.map((i) => i.id).sort()).toEqual(planned);
     const byStatus = Object.fromEntries(["ACTIVE", "ALIASED_PROVISIONAL", "MERGED_PROVISIONAL"].map((s) => [s, STAGED_INGREDIENTS.filter((i) => i.status === s).map((i) => i.id)]));
@@ -49,14 +49,10 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
           "aji-amarillo",
           "apple",
           "asparagus",
-          "balsamic-vinegar",
           "banana",
           "blueberry",
           "brick-cheese",
-          "brie",
-          "buffalo-sauce",
           "caciocavallo",
-          "carrot",
           "cauliflower",
           "celery",
           "cheese-curd",
@@ -69,7 +65,6 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
           "cumin",
           "daikon",
           "eel",
-          "fennel",
           "french-fries",
           "graham-cracker",
           "gravy-sauce",
@@ -85,21 +80,16 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
           "mochi",
           "natto",
           "okra",
-          "orange",
           "peanut-sauce",
           "pecorino",
           "peking-duck",
           "powdered-sugar",
-          "radicchio",
-          "red-cabbage",
           "rock-salt",
           "sansho-pepper",
           "spicy-salami",
           "squid",
           "strawberry",
-          "sunflower-seeds",
           "sweet-bean-sauce",
-          "truffle",
           "yakiniku-sauce",
           "yogurt-sauce",
           "zaatar",

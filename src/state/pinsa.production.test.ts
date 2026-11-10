@@ -70,8 +70,8 @@ describe.runIf(pinsaEnabled())("Production switches (gate open)", () => {
     expect(LATE_CATALOG_PRODUCTION).toBe(true);
     expect(FREE_COOK_FINISH_PRODUCTION).toBe(true);
     // New Sauces Phase B U1 (#578): yuzu-shrimp-pizza (late, credited) sits between ikura and Pinsa, so Pinsa stays the tail; the last ladder step is yuzu's late step (still no Pinsa step).
-    expect(RECIPES.slice(-10).map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", PINSA]); // (Expansion Batch 21: taco-pizza and okonomiyaki-style-pizza follow tarako, still before Pinsa) // (BBQ Chicken #611 follows tahini) // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza follow yuzu, still before Pinsa)
-    expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "okonomiyaki-style-pizza" }); // no Pinsa step (Expansion Batch 21: okonomiyaki's late step is the last)
+    expect(RECIPES.slice(-14).map((r) => r.id)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", PINSA]); // (Expansion Batch 21: taco-pizza and okonomiyaki-style-pizza follow tarako, still before Pinsa) // (BBQ Chicken #611 follows tahini) // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza follow yuzu, still before Pinsa)
+    expect(DISCOVERY_LADDER.steps.at(-1)).toMatchObject({ step: DISCOVERY_LADDER.steps.length, keyRecipeId: "black-truffle-pizza" }); // no Pinsa step (Expansion Batch 22: the black-truffle late step is the last)
     expect(countsTowardLadder(PINSA)).toBe(false);
     const grandma = RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === "grandma-pizza")!;
     expect(grandma.identityDimensions).toMatchObject({ pan: "tray" });

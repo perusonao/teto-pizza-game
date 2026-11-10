@@ -13,7 +13,7 @@ export type SauceInteractionKind = "PAINT" | "PAINT_TEMPORARY";
 
 export interface RecipeSauceProfile {
   recipeId: RecipeId;
-  ingredientId: "tomato-sauce" | "okonomiyaki-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce" | "soy-sauce" | "fresh-cream-sauce" | "umeboshi-paste" | "sour-cream";
+  ingredientId: "tomato-sauce" | "okonomiyaki-sauce" | "buffalo-sauce" | "pesto" | "olive-oil" | "fromage-blanc-sauce" | "doubanjiang" | "yuzu-kosho" | "miso-sauce" | "tahini" | "curry-ketchup" | "mustard" | "bbq-sauce" | "soy-sauce" | "fresh-cream-sauce" | "umeboshi-paste" | "sour-cream";
   interaction: SauceInteractionKind;
 }
 
@@ -391,6 +391,9 @@ export const RECIPE_SAUCE_PROFILES = {
   "pizza-alla-crudaiola": { recipeId: "pizza-alla-crudaiola", ingredientId: "tomato-sauce", interaction: "PAINT" },
   // Expansion Batch 20-A (#790, PROVISIONAL, ORIGINAL NOT CONFIRMED): the PRIMARY sauce only (pesto, the Reference target). The secondary honey has no profile entry and is scored by presence (Multi-Sauce S3 / Batch 19 precedent); NOT NO_SAUCE.
   "pesto-noci-pizza": { recipeId: "pesto-noci-pizza", ingredientId: "pesto", interaction: "PAINT" },
+  // Expansion Batch 22 (#780, PROVISIONAL, ORIGINAL NOT CONFIRMED; Owner 2026-11-09): speck-e-brie is NO_SAUCE (the existing `null` mapping, cheese base, like aussie); buffalo-chicken paints buffalo-sauce BEFORE the bake (PAINT, a recipe-specific mapping; NOT a post-bake liquid).
+  "speck-e-brie": null,
+  "buffalo-chicken": { recipeId: "buffalo-chicken", ingredientId: "buffalo-sauce", interaction: "PAINT" },
   "ikura-salmon-pizza": null,
   // New Sauces Phase B U1 (late catalog): yuzu-kosho painted before the bake (PROVISIONAL, not confirmed by the original).
   "yuzu-shrimp-pizza": {
@@ -407,6 +410,11 @@ export const RECIPE_SAUCE_PROFILES = {
   "tarako-cream-pizza": { recipeId: "tarako-cream-pizza", ingredientId: "fresh-cream-sauce", interaction: "PAINT" },
   "taco-pizza": { recipeId: "taco-pizza", ingredientId: "tomato-sauce", interaction: "PAINT" },
   "okonomiyaki-style-pizza": { recipeId: "okonomiyaki-style-pizza", ingredientId: "okonomiyaki-sauce", interaction: "PAINT" },
+  // Expansion Batch 22 (#780, late catalog, PROVISIONAL, ORIGINAL NOT CONFIRMED; Owner 2026-11-09): olive-oil is each recipe's OWN sauce-slot mapping (PAINT_TEMPORARY, like pizza-bianca / vongole / pizza-feta-eliniki), NOT a general "no-sauce family = olive-oil" rule. pizza-radicchio-noci paints TWO layers (balsamic-vinegar, then olive-oil): the PRIMARY sauce only (olive-oil, the Reference target); balsamic has no profile entry and is scored by presence (Multi-Sauce S3 / Batch 19 / 20-A precedent). black-truffle-pizza is NO_SAUCE (the existing `null` mapping, cheese base).
+  "pizza-finocchi-salad": { recipeId: "pizza-finocchi-salad", ingredientId: "olive-oil", interaction: "PAINT_TEMPORARY" },
+  "pizza-cavolo-carote": { recipeId: "pizza-cavolo-carote", ingredientId: "olive-oil", interaction: "PAINT_TEMPORARY" },
+  "pizza-radicchio-noci": { recipeId: "pizza-radicchio-noci", ingredientId: "olive-oil", interaction: "PAINT_TEMPORARY" },
+  "black-truffle-pizza": null,
   "eggplant-dengaku-pizza": {
     recipeId: "eggplant-dengaku-pizza",
     ingredientId: "miso-sauce",

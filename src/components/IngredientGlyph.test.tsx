@@ -120,7 +120,9 @@ const B19_DEDICATED: Record<string, DedicatedIngredientVisual> = { burrata: "bur
 const B20A_DEDICATED: Record<string, DedicatedIngredientVisual> = { walnut: "walnut-kernel" };
 /** Expansion Batch 21 (#780, Owner 2026-11-09): lettuce / cabbage draw the dedicated #797 art (src/components/stagedGlyphs/, PROVISIONAL). */
 const B21_DEDICATED: Record<string, DedicatedIngredientVisual> = { lettuce: "lettuce-leaf", cabbage: "cabbage-shreds", "tortilla-chips": "tortilla-chip-triangles" };
-const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B21_DEDICATED, ...B20A_DEDICATED, ...B19_DEDICATED, ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
+// Expansion Batch 22 (#780, Owner 2026-11-09): brie (ordinary) and seven late toppings draw the #797 art.
+const B22_DEDICATED: Record<string, DedicatedIngredientVisual> = { brie: "brie-wedge", fennel: "fennel-slices", orange: "orange-slices", carrot: "carrot-rounds", "red-cabbage": "red-cabbage-shreds", "sunflower-seeds": "sunflower-kernels", radicchio: "radicchio-leaf", truffle: "truffle-shavings" };
+const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B22_DEDICATED, ...B21_DEDICATED, ...B20A_DEDICATED, ...B19_DEDICATED, ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
 

@@ -1656,6 +1656,41 @@ const BASE_RECIPES = [
     lunchRush: false,
   },
 
+  {
+    id: "buffalo-chicken",
+    nameJa: "バッファローチキンピザ",
+    description: "ピリ辛のバッファローソースに、チキンとチーズをのせた一枚。",
+    // Expansion Batch 22 (Issue #780; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; id (D-4: the `-pizzadb` suffix dropped) and Japanese name (the staged "（PIZZA DB版）" suffix dropped with it) are PROVISIONAL). SOURCE AUTHORITY: the 172 matrix row `buffalo-chicken-pizzadb` only (Owner-relayed); the row's blue-cheese dressing is the shipped `gorgonzola` (I-1 reuse).
+    // OWNER (2026-11-09, M7-d): buffalo-sauce is a PRE-bake PAINT sauce (NOT a post-bake liquid; it is not on the M7 allow-list), so this is an ORDINARY recipe (ordinary step 72, the new sauce `buffalo-sauce`) with no POST_BAKE requirement.
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source): buffalo-sauce 1 (PAINT, the Reference target) / mozzarella 3 / gorgonzola 3 / chicken 2 (the staged counts), bake 58-78, 100 Pitz, `lunchRush: false`, no CUT, permanently key-free (Hint), ladder-credited (the key of ordinary step 72). The description names no moment or quantity (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "buffalo-sauce", minCount: 1 },
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "gorgonzola", minCount: 3 },
+      { ingredientId: "chicken", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "speck-e-brie",
+    nameJa: "スペックエブリー",
+    description: "ブリーチーズに生ハムとくるみをあわせた、コクのある一枚。",
+    // Expansion Batch 22 (Issue #780; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; id (D-4: the `-pizzadb` suffix dropped) and Japanese name are PROVISIONAL). SOURCE AUTHORITY: the 172 matrix row `speck-e-brie-pizzadb-p4` only (comparison table p4, Owner-relayed, never independently re-fetched).
+    // OWNER (2026-11-09): ordinary catalog, ordinary step 73 (the new cheese `brie`, size `l`); NO_SAUCE (the existing TQ-1D `null` mapping, cheese base, like aussie); every piece BEFORE the bake (the staged row lists no post-bake step).
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source): brie 3 / mozzarella 3 / prosciutto-crudo 2 / walnut 2 (the staged counts), bake 58-78 (the generic Free Cooking window), 100 Pitz, `lunchRush: false`, no CUT, permanently key-free (Hint), ladder-credited (the key of ordinary step 73). The description names no moment or quantity (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "brie", minCount: 3 },
+      { ingredientId: "mozzarella", minCount: 3 },
+      { ingredientId: "prosciutto-crudo", minCount: 2 },
+      { ingredientId: "walnut", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+
 ] as const;
 
 /**

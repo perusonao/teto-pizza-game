@@ -1,5 +1,5 @@
 {
- "blockingDependencies": 397,
+ "blockingDependencies": 389,
  "byVerdict": {
   "AUTO_RESOLVED": 8,
   "RULE_DECIDED_WORK": 2,
@@ -9,7 +9,7 @@
   "AXIS_CONDITIONAL": 30,
   "STAGED_PAIR": 94,
   "EXCEPTION_NEEDED": 76,
-  "OWNER_DECISION": 103
+  "OWNER_DECISION": 95
  },
  "autoResolved": 8,
  "byKind": {
@@ -20,7 +20,7 @@
    "OWNER_DECISION": 6
   },
   "ID_SUFFIXED": {
-   "OWNER_DECISION": 7
+   "OWNER_DECISION": 5
   },
   "MECHANIC": {
    "AUTO_RESOLVED": 1,
@@ -32,7 +32,7 @@
    "WAITS_IN_FLIGHT": 1,
    "AXIS_CONDITIONAL": 13,
    "EXCEPTION_NEEDED": 25,
-   "OWNER_DECISION": 71
+   "OWNER_DECISION": 65
   },
   "SAUCE_UNSPECIFIED": {
    "DUPLICATE_COUNT": 24
@@ -60,11 +60,11 @@
    "EXCEPTION_NEEDED": 16
   },
   "R-5": {
-   "OWNER_DECISION": 14
+   "OWNER_DECISION": 11
   },
   "R-6": {
    "AUTO_RESOLVED": 1,
-   "OWNER_DECISION": 9
+   "OWNER_DECISION": 6
   },
   "R-7": {
    "WAITS_IN_FLIGHT": 1,
@@ -669,14 +669,6 @@
    ]
   },
   {
-   "id": "buffalo-chicken-pizzadb",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-5",
-    "OWNER_DECISION:ID_SUFFIXED:buffalo-chicken-pizzadb"
-   ]
-  },
-  {
    "id": "pizza-baiana",
    "proposals": [],
    "open": [
@@ -743,14 +735,6 @@
     "WAITS_MECHANIC:MECHANIC:ENCLOSE",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged"
-   ]
-  },
-  {
-   "id": "speck-e-brie-pizzadb",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-5",
-    "OWNER_DECISION:ID_SUFFIXED:speck-e-brie-pizzadb"
    ]
   },
   {
@@ -1048,20 +1032,6 @@
    ]
   },
   {
-   "id": "pizza-finocchi-salad",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-6"
-   ]
-  },
-  {
-   "id": "pizza-cavolo-carote",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-6"
-   ]
-  },
-  {
    "id": "pizza-zucchine-menta",
    "proposals": [],
    "open": [
@@ -1088,13 +1058,6 @@
     "OWNER_DECISION:OWNER_RULE:R-6",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
-   ]
-  },
-  {
-   "id": "pizza-radicchio-noci",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-6"
    ]
   },
   {
@@ -1378,13 +1341,6 @@
     "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped"
-   ]
-  },
-  {
-   "id": "black-truffle-pizza",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-5"
    ]
   },
   {

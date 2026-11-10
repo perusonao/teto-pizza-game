@@ -148,6 +148,8 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "pesto-burrata-pizza": { keyFree: true },
   "pizza-alla-crudaiola": { keyFree: true },
   "pesto-noci-pizza": { keyFree: true },
+  "speck-e-brie": { keyFree: true },
+  "buffalo-chicken": { keyFree: true },
   // Multi-Sauce S3 / Square Dough E-2: permanently key-free.
   "grandma-pizza": { keyFree: true },
   // FIN-E4b-ikura (#621, late catalog): permanently key-free.
@@ -161,6 +163,10 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "tarako-cream-pizza": { keyFree: true },
   "taco-pizza": { keyFree: true },
   "okonomiyaki-style-pizza": { keyFree: true },
+  "pizza-finocchi-salad": { keyFree: true },
+  "pizza-cavolo-carote": { keyFree: true },
+  "pizza-radicchio-noci": { keyFree: true },
+  "black-truffle-pizza": { keyFree: true },
   // Pinsa Romana (#577 P3-b-1, late catalog): permanently key-free, like jamon-serrano-pizza.
   "pinsa-romana": { keyFree: true },
 };

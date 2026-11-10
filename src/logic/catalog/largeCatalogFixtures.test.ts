@@ -50,7 +50,7 @@ describe("LC-1b scale fixtures", () => {
 
   it("runtime fixture is the real catalog: 13 sauces / every cheese / every topping, and the real chapter sizes", () => {
     const f = largeCatalogFixture("runtime-29x25");
-    expect(f.split).toEqual({ sauce: 17 /* Expansion Batch 21: + okonomiyaki-sauce */, cheese: INGREDIENTS.filter((i) => i.category === "cheese").length, topping: CATALOG_COUNTS.toppings });
+    expect(f.split).toEqual({ sauce: 19 /* Expansion Batch 21: + okonomiyaki-sauce */, cheese: INGREDIENTS.filter((i) => i.category === "cheese").length, topping: CATALOG_COUNTS.toppings });
     expect(f.chapterSizes).toEqual(CATALOG_COUNTS.chapterSizes);
     expect(f.starterIds).toEqual(["tomato-sauce", "mozzarella", "basil"]);
   });

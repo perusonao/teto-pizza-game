@@ -46,9 +46,9 @@ describe("staged glyphs B21/B22 (unwired, PROVISIONAL)", () => {
     expect(contrast(p.outline, "#f1dcae")).toBeGreaterThan(3);
   });
 
-  it("only lettuce-leaf, cabbage-shreds and tortilla-chip-triangles are wired into IngredientGlyph.tsx (Owner 2026-11-09, #799 and the follow-up); the other ten visual ids are still unknown to it", () => {
+  it("lettuce-leaf, cabbage-shreds, tortilla-chip-triangles (#799 and the follow-up) and the eight B22 glyphs (Owner 2026-11-09) are wired into IngredientGlyph.tsx; the two remaining visual ids (cheddar-cubes, bonito-flake-curls) are still unknown to it", () => {
     const src = readFileSync(join(__dirname, "..", "IngredientGlyph.tsx"), "utf8");
-    const WIRED = ["lettuce-leaf", "cabbage-shreds", "tortilla-chip-triangles"];
+    const WIRED = ["lettuce-leaf", "cabbage-shreds", "tortilla-chip-triangles", "brie-wedge", "fennel-slices", "orange-slices", "carrot-rounds", "red-cabbage-shreds", "sunflower-kernels", "radicchio-leaf", "truffle-shavings"];
     for (const id of STAGED_GLYPH_IDS) {
       if (WIRED.includes(id)) expect(src).toContain(`"${id}"`);
       else expect(src).not.toContain(`"${id}"`);

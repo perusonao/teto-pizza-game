@@ -224,6 +224,10 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["burrata"], keyRecipeId: "pesto-burrata-pizza" },
   // Step 71 (Expansion Batch 20-A, #790, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED): the two new materials `honey` (the second sauce layer) and `walnut`, key recipe `pesto-noci-pizza` (it also needs pesto and gorgonzola from earlier steps). Steps 1-70 frozen; the late derived numbers move +1 and `LATE_ENTITLEMENT_FLOORS` are unchanged.
   { ingredientIds: ["honey", "walnut"], keyRecipeId: "pesto-noci-pizza" },
+  // Step 72 (Expansion Batch 22, #780, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; Owner 2026-11-09): the one new material `buffalo-sauce` (a pre-bake PAINT sauce), key recipe `buffalo-chicken` (it also needs chicken and gorgonzola from earlier steps; mozzarella is a starter). Steps 1-71 frozen; the late derived numbers move +1 and `LATE_ENTITLEMENT_FLOORS` is unchanged. (The order of steps 72 / 73 is the REC-04 rule's own: both recipes need one new material, and the tie goes to the smaller recipe id.)
+  { ingredientIds: ["buffalo-sauce"], keyRecipeId: "buffalo-chicken" },
+  // Step 73 (Expansion Batch 22, #780, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; Owner 2026-11-09): the one new material `brie`, key recipe `speck-e-brie` (it also needs prosciutto-crudo and walnut from earlier steps; mozzarella is a starter). Steps 1-72 frozen; the late derived numbers move +1 and `LATE_ENTITLEMENT_FLOORS` is unchanged.
+  { ingredientIds: ["brie"], keyRecipeId: "speck-e-brie" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

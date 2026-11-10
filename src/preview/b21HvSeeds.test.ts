@@ -39,7 +39,7 @@ describe("B21 HV seeds", () => {
       for (const q of r.requiredIngredients) if (isFinite(q.ingredientId)) expect(snap.ownedIngredientIds, `${r.id}/${q.ingredientId}`).toContain(q.ingredientId);
     }
     for (const id of snap.ownedIngredientIds.filter(isFinite)) expect(snap.inventory[id], id).toBeGreaterThan(0);
-    expect(dexIds.length).toBe(RECIPES.length - B21_NEW_RECIPE_IDS.length);
+    expect(dexIds.length).toBe(RECIPES.length - B21_NEW_RECIPE_IDS.length - 4); // Expansion Batch 22 (#780): the four B22 late recipes need late materials that come after the B21 materials, so they are not makeable in this seed
   });
 
   it("the load-time entitlement grants all six materials (the Shop offers them as NEW)", () => {

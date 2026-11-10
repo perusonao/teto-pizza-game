@@ -21,7 +21,7 @@ export const NEXT_RECIPE_BATCH: RecipeBatchManifest = {
     { recipeId: "currywurst", keyIngredientId: "wurstel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "cuban-pizza", keyIngredientId: "swiss-cheese", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["boscaiola", "porcini-pizza", "pescatore", "jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"], // (B11 S1 is appended after cuban-pizza, B12 after B11 S1, Expansion Batch 12 after B12, Expansion Batch 13 after Expansion Batch 12)
+  followedBy: ["boscaiola", "porcini-pizza", "pescatore", "jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (B11 S1 is appended after cuban-pizza, B12 after B11 S1, Expansion Batch 12 after B12, Expansion Batch 13 after Expansion Batch 12)
 };
 
 /**
@@ -37,7 +37,7 @@ export const B11_S1_BATCH: RecipeBatchManifest = {
     { recipeId: "porcini-pizza", keyIngredientId: "porcini", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "pescatore", keyIngredientId: "mussel", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"], // (B12 is appended after pescatore; Expansion Batch 12 after B12; Expansion Batch 13 after Expansion Batch 12)
+  followedBy: ["jamaican-jerk-chicken-pizza", "supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (B12 is appended after pescatore; Expansion Batch 12 after B12; Expansion Batch 13 after Expansion Batch 12)
 };
 
 /**
@@ -50,7 +50,7 @@ export const B12_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "pescatore",
   recipes: [{ recipeId: "jamaican-jerk-chicken-pizza", keyIngredientId: "green-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"], // (Expansion Batch 12 is appended after B12; Expansion Batch 13 after Expansion Batch 12)
+  followedBy: ["supreme-pizza", "pizza-alla-norma", "potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (Expansion Batch 12 is appended after B12; Expansion Batch 13 after Expansion Batch 12)
   acceptedLetterShifts: { "veggie-supreme-pizza": "-->B" },
 };
 
@@ -67,7 +67,7 @@ export const B12B_BATCH: RecipeBatchManifest = {
     { recipeId: "supreme-pizza", keyIngredientId: "bell-pepper", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "pizza-alla-norma", keyIngredientId: "ricotta-salata", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"], // (Expansion Batch 13 is appended after this batch, Expansion Batch 14 after that)
+  followedBy: ["potato-mayo-pizza", "moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (Expansion Batch 13 is appended after this batch, Expansion Batch 14 after that)
   acceptedLetterShifts: { "spanish-chorizo-pizza": "-->B" },
 };
 
@@ -80,7 +80,7 @@ export const B13_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "pizza-alla-norma",
   recipes: [{ recipeId: "potato-mayo-pizza", keyIngredientId: "mayo", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"], // (Expansion Batch 14 is appended after this batch, Expansion Batch 15 after that)
+  followedBy: ["moussaka-style-pizza", "nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (Expansion Batch 14 is appended after this batch, Expansion Batch 15 after that)
 };
 
 /**
@@ -92,7 +92,7 @@ export const B14_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "potato-mayo-pizza",
   recipes: [{ recipeId: "moussaka-style-pizza", keyIngredientId: "cinnamon", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"], // (Expansion Batch 15 is appended after this batch)
+  followedBy: ["nigerian-suya-pizza", "ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (Expansion Batch 15 is appended after this batch)
 };
 
 /**
@@ -106,7 +106,7 @@ export const B15_BATCH: RecipeBatchManifest = {
   afterRecipeId: "moussaka-style-pizza",
   recipes: [{ recipeId: "nigerian-suya-pizza", keyIngredientId: "beef", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
   acceptedLetterShifts: { "rendang-pizza": "-->B" },
-  followedBy: ["ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"], // (Expansion Batch 16 is appended after this batch)
+  followedBy: ["ume-shiso-pizza", "goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (Expansion Batch 16 is appended after this batch)
 };
 
 /**
@@ -117,7 +117,7 @@ export const B16_BATCH: RecipeBatchManifest = {
   batchId: "expansion-batch-16",
   status: "landed",
   afterRecipeId: "nigerian-suya-pizza",
-  followedBy: ["goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"], // (Expansion Batch 17 is appended after this batch)
+  followedBy: ["goulash-pizza", "baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (Expansion Batch 17 is appended after this batch)
   recipes: [{ recipeId: "ume-shiso-pizza", keyIngredientId: "umeboshi-paste", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
 };
 
@@ -129,7 +129,7 @@ export const B17_BATCH: RecipeBatchManifest = {
   batchId: "expansion-batch-17",
   status: "landed",
   afterRecipeId: "ume-shiso-pizza",
-  followedBy: ["baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"], // (Expansion Batch 18 is appended after this batch)
+  followedBy: ["baingan-bharta-pizza", "reina-pepiada-pizza", "pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (Expansion Batch 18 is appended after this batch)
   recipes: [{ recipeId: "goulash-pizza", keyIngredientId: "sour-cream", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
 };
 
@@ -199,7 +199,7 @@ export const B18_BATCH: RecipeBatchManifest = {
   batchId: "expansion-batch-18",
   status: "landed",
   afterRecipeId: "goulash-pizza",
-  followedBy: ["pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza"], // (Expansion Batch 19 is appended after this batch)
+  followedBy: ["pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (Expansion Batch 19 is appended after this batch)
   recipes: [
     { recipeId: "baingan-bharta-pizza", keyIngredientId: "cilantro", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "reina-pepiada-pizza", keyIngredientId: "cilantro", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
@@ -215,7 +215,7 @@ export const B19_BATCH: RecipeBatchManifest = {
   batchId: "expansion-batch-19",
   status: "landed",
   afterRecipeId: "reina-pepiada-pizza",
-  followedBy: ["pesto-noci-pizza"], // (Expansion Batch 20-A is appended after this batch)
+  followedBy: ["pesto-noci-pizza", "buffalo-chicken", "speck-e-brie"], // (Expansion Batch 20-A is appended after this batch)
   recipes: [
     { recipeId: "pesto-burrata-pizza", keyIngredientId: "burrata", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "pizza-alla-crudaiola", keyIngredientId: "burrata", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" },
@@ -231,9 +231,24 @@ export const B20A_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "pizza-alla-crudaiola",
   recipes: [{ recipeId: "pesto-noci-pizza", keyIngredientId: "walnut", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
+  followedBy: ["buffalo-chicken", "speck-e-brie"], // (Expansion Batch 22 is appended after this batch)
 };
 
-export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B14_BATCH, B15_BATCH, B16_BATCH, B17_BATCH, B18_BATCH, B19_BATCH, B20A_BATCH];
+/**
+ * Expansion Batch 22, ordinary part (Issue #780, PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; Owner 2026-11-09): buffalo-chicken (credited; the key of ordinary step 72: the new sauce `buffalo-sauce`, a pre-bake PAINT sauce) and speck-e-brie (credited; the key of ordinary step 73: the new cheese `brie`).
+ * Research: brie / buffalo-sauce are in no existing recipe, so no existing label shifts in the canonical ladder order; the non-canonical changes are the IDs the Owner approves per ID (expansionBatch22.test.ts). The four late recipes of Batch 22 are in `B22_LATE_BATCH` (NOT in `RECIPE_BATCHES`, like the other late batches).
+ */
+export const B22_BATCH: RecipeBatchManifest = {
+  batchId: "expansion-batch-22",
+  status: "landed",
+  afterRecipeId: "pesto-noci-pizza",
+  recipes: [
+    { recipeId: "buffalo-chicken", keyIngredientId: "buffalo-sauce", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "speck-e-brie", keyIngredientId: "brie", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+  ],
+};
+
+export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B14_BATCH, B15_BATCH, B16_BATCH, B17_BATCH, B18_BATCH, B19_BATCH, B20A_BATCH, B22_BATCH];
 
 /**
  * Pinsa Romana (#577 P3-b-3, Owner Q7): the manifest the validator checks in a build where the Pinsa gate (src/data/pinsaGate.ts) is OPEN. Deliberately NOT in
@@ -244,7 +259,7 @@ export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH
 export const PINSA_ROMANA_BATCH: RecipeBatchManifest = {
   batchId: "pinsa-romana",
   status: "landed",
-  afterRecipeId: "okonomiyaki-style-pizza", // (Expansion Batch 21: taco-pizza and okonomiyaki-style-pizza are appended after tarako-cream-pizza.) (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza.) (New Sauces Phase B U1 / U2 / U3 and BBQ Chicken: yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza and bbq-chicken-pizza are appended after ikura, before Pinsa, so Pinsa stays the last late recipe)
+  afterRecipeId: "black-truffle-pizza", // (Expansion Batch 22: the four late recipes are appended after okonomiyaki-style-pizza.) (Expansion Batch 21: taco-pizza and okonomiyaki-style-pizza are appended after tarako-cream-pizza.) (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza.) (New Sauces Phase B U1 / U2 / U3 and BBQ Chicken: yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza and bbq-chicken-pizza are appended after ikura, before Pinsa, so Pinsa stays the last late recipe)
   recipes: [{ recipeId: "pinsa-romana", keyIngredientId: "arugula", ladderCredit: false, lunchRush: false, cut: false, hint: "key-free" }],
   acceptedLetterShifts: { "jamon-serrano-pizza": "-->B" },
 };
@@ -260,7 +275,7 @@ export const YUZU_SHRIMP_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "ikura-salmon-pizza",
   recipes: [{ recipeId: "yuzu-shrimp-pizza", keyIngredientId: "yuzu-kosho", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza are appended after yuzu-shrimp-pizza)
+  followedBy: ["eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza are appended after yuzu-shrimp-pizza)
 };
 
 /**
@@ -274,7 +289,7 @@ export const EGGPLANT_DENGAKU_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "yuzu-shrimp-pizza",
   recipes: [{ recipeId: "eggplant-dengaku-pizza", keyIngredientId: "white-sesame", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U3 / BBQ Chicken: eggplant-tahini-pizza and bbq-chicken-pizza are appended after eggplant-dengaku-pizza)
+  followedBy: ["eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U3 / BBQ Chicken: eggplant-tahini-pizza and bbq-chicken-pizza are appended after eggplant-dengaku-pizza)
 };
 
 /**
@@ -288,7 +303,7 @@ export const EGGPLANT_TAHINI_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "eggplant-dengaku-pizza",
   recipes: [{ recipeId: "eggplant-tahini-pizza", keyIngredientId: "pomegranate", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (BBQ Chicken is appended after eggplant-tahini-pizza)
+  followedBy: ["bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (BBQ Chicken is appended after eggplant-tahini-pizza)
 };
 
 /**
@@ -303,7 +318,7 @@ export const BBQ_CHICKEN_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "eggplant-tahini-pizza",
   recipes: [{ recipeId: "bbq-chicken-pizza", keyIngredientId: "bbq-sauce", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza)
+  followedBy: ["wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza)
 };
 
 /**
@@ -319,7 +334,7 @@ export const LATE4_BATCH: RecipeBatchManifest = {
     { recipeId: "wasabi-beef-pizza", keyIngredientId: "wasabi", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "tarako-cream-pizza", keyIngredientId: "nori", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["taco-pizza", "okonomiyaki-style-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 21 is appended after this batch)
+  followedBy: ["taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 21 is appended after this batch)
 };
 
 /**
@@ -333,6 +348,23 @@ export const B21_BATCH: RecipeBatchManifest = {
   recipes: [
     { recipeId: "taco-pizza", keyIngredientId: "tortilla-chips", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "okonomiyaki-style-pizza", keyIngredientId: "bonito-flakes", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+  ],
+  followedBy: ["pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 22 is appended after this batch)
+};
+
+/**
+ * Expansion Batch 22, late part (#780, late catalog, PROVISIONAL SPEC, original pizzadb.jp NOT confirmed; Owner 2026-11-09): `pizza-finocchi-salad`, `pizza-cavolo-carote`, `pizza-radicchio-noci` and `black-truffle-pizza`, each credited with its own late ladder step (after the okonomiyaki step); Research cohort keys
+ * `orange` / `sunflower-seeds` / `balsamic-vinegar` / `truffle` (the last material of each step), single-member cohorts. Like the other late batches it is deliberately NOT in `RECIPE_BATCHES`; `expansionBatch22.test.ts` evaluates it over the full catalog.
+ */
+export const B22_LATE_BATCH: RecipeBatchManifest = {
+  batchId: "b22-late",
+  status: "landed",
+  afterRecipeId: "okonomiyaki-style-pizza",
+  recipes: [
+    { recipeId: "pizza-finocchi-salad", keyIngredientId: "orange", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "pizza-cavolo-carote", keyIngredientId: "sunflower-seeds", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "pizza-radicchio-noci", keyIngredientId: "balsamic-vinegar", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
+    { recipeId: "black-truffle-pizza", keyIngredientId: "truffle", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
   followedBy: pinsaEnabled() ? ["pinsa-romana"] : [],
 };
