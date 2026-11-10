@@ -35,6 +35,12 @@ export type DedicatedIngredientVisual =
   | "sunflower-kernels"
   | "radicchio-leaf"
   | "truffle-shavings"
+  | "apple-dessert"
+  | "banana-dessert"
+  | "chocolate-dessert"
+  | "graham-cracker-dessert"
+  | "marshmallow-dessert"
+  | "powdered-sugar-dessert"
   | "lettuce-leaf"
   | "cabbage-shreds"
   | "tortilla-chip-triangles"
@@ -1332,6 +1338,20 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F9AC}",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
+  },
+  /**
+   * Expansion Batch 23 (#780; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; Owner 2026-11-10): `apple` (りんご), a finite ladder material (ordinary step 74, T4, no star gate), a scatter topping, family `fruit`, size class `s`. Dedicated art `apple-dessert` = the B23 dessert glyph (src/components/dessertGlyphs/, PROVISIONAL),
+   * wired here; so the `emoji` is only the hidden text fallback (G18 keeps it unique). `color` follows the glyph fill and is PROVISIONAL. The Owner's priority HV item: small-size legibility on the pizza.
+   */
+  {
+    id: "apple",
+    category: "topping",
+    nameJa: "りんご",
+    color: "#d9453a",
+    emoji: "\u{1F34E}",
+    placement: "scatter",
+    unlockCondition: { minTotalStars: 0 },
+    pieceVisual: "apple-dessert",
   },
 
 

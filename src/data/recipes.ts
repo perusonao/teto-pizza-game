@@ -1690,6 +1690,23 @@ const BASE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  {
+    id: "apple-cinnamon-dessert",
+    nameJa: "アップルシナモンデザートピザ",
+    description: "りんごとシナモンに、クリームチーズとくるみをあわせた、あまい一枚。",
+    // Expansion Batch 23 (Issue #780; PROVISIONAL SPEC, ORIGINAL (pizzadb.jp) NOT CONFIRMED; id and Japanese name unchanged, Owner Q-7). SOURCE AUTHORITY: the 172 matrix row `apple-cinnamon-dessert-pizzadb` only (comparison table sample; the original lists the base sauce as "デザートソース", unspecified).
+    // OWNER (2026-11-10, Q-1): NO_SAUCE is an explicit GAMEPLAY decision, NOT a fact about the original. Ordinary catalog, ordinary step 74 (the new fruit `apple`, size `s`); every piece BEFORE the bake (no post-bake step is recorded).
+    // GAMEPLAY ASSUMPTION / CALIBRATION (not source): apple 2 / cinnamon 2 / cream-cheese 3 / walnut 2 (the staged counts), bake 58-78, 100 Pitz, `lunchRush: false`, no CUT, permanently key-free (Hint), ladder-credited. The description names no moment or quantity (Anti-Oracle).
+    requiredIngredients: [
+      { ingredientId: "apple", minCount: 2 },
+      { ingredientId: "cinnamon", minCount: 2 },
+      { ingredientId: "cream-cheese", minCount: 3 },
+      { ingredientId: "walnut", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
 
 ] as const;
 

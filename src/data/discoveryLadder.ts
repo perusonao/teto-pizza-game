@@ -228,6 +228,8 @@ export const POST_W1_APPENDED_STEPS: readonly AppendedLadderStep[] = [
   { ingredientIds: ["buffalo-sauce"], keyRecipeId: "buffalo-chicken" },
   // Step 73 (Expansion Batch 22, #780, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; Owner 2026-11-09): the one new material `brie`, key recipe `speck-e-brie` (it also needs prosciutto-crudo and walnut from earlier steps; mozzarella is a starter). Steps 1-72 frozen; the late derived numbers move +1 and `LATE_ENTITLEMENT_FLOORS` is unchanged.
   { ingredientIds: ["brie"], keyRecipeId: "speck-e-brie" },
+  // Step 74 (Expansion Batch 23, #780, T4, no star gate; PROVISIONAL SPEC, ORIGINAL NOT CONFIRMED; Owner 2026-11-10): the one new material `apple`, key recipe `apple-cinnamon-dessert` (it also needs cinnamon, cream-cheese and walnut from earlier steps). Steps 1-73 frozen (the REC-04 rule alone would sort this step before the shipped 72 / 73 by recipe id); the late derived numbers move +1 and `LATE_ENTITLEMENT_FLOORS` stay fixed.
+  { ingredientIds: ["apple"], keyRecipeId: "apple-cinnamon-dessert" },
 ];
 
 /** The ladder for the content currently shipped. I4b read `SHIPPED_15_DISCOVERY_LADDER`; since

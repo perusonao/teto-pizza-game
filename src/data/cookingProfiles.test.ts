@@ -182,6 +182,7 @@ const RECIPE_STEP_MATRIX: Record<BaseRecipeId, readonly MakingStep[]> = {
   "pesto-noci-pizza": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
   "speck-e-brie": ["DOUGH", "CHEESE", "TOPPING"], // Expansion Batch 22 (#780): NO_SAUCE (cheese base) -> no SAUCE step
   "buffalo-chicken": ["DOUGH", "SAUCE", "CHEESE", "TOPPING"],
+  "apple-cinnamon-dessert": ["DOUGH", "CHEESE", "TOPPING"], // Expansion Batch 23 (#780): NO_SAUCE (Owner Q-1, a GAMEPLAY decision) -> no SAUCE step; cream-cheese is the cheese
   // TQ-1D: the first no-sauce recipe has no SAUCE step (mozzarella = cheese, bacon / egg / onion = toppings); no CUT.
   aussie: ["DOUGH", "CHEESE", "TOPPING"],
   // Multi-Sauce S3 / Square Dough E-2: grandma-pizza paints both its sauces (tomato-sauce, olive-oil) in the one SAUCE step; no CUT (square pan).
