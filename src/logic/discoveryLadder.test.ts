@@ -471,6 +471,8 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       "../preview/b22HvSeeds.ts",
       // Expansion Batch 23 (#780): the Preview-only B23 HV seed (`?hv=b23-apple-cinnamon`, the B18 / B21 / B22 approach) reads the ladder to find the materials of the target recipe's own step (read-only, no numbers of their own). Reached only from ../preview/hvSeeds.ts `applyPreviewHvSeed` (behind `import.meta.env.VITE_PREVIEW_MODE`); ../preview/previewIsolation.gate.test.ts proves a production bundle contains none of it.
       "../preview/b23HvSeeds.ts",
+      // Expansion Batch 23-b (#780): the Preview-only B23-b HV seeds (`?hv=b23b-nutella`, `?hv=b23b-smore`; the same read-only approach as B23) read the ladder for the materials of the target recipe's own step. Reached only from ../preview/hvSeeds.ts (behind `VITE_PREVIEW_MODE`).
+      "../preview/b23bHvSeeds.ts",
       // Hint 5.0 H5-5: the Preview-only Human Verification seeds read the ladder to build a valid Dex and
       // material set for their target recipe (read-only, no numbers of their own). ../main.tsx calls
       // them only behind `import.meta.env.VITE_PREVIEW_MODE`, and ../preview/previewIsolation.gate.test.ts
