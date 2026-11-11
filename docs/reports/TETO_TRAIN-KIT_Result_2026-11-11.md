@@ -98,7 +98,10 @@
 `tsc` は生成コード 0 エラー。`sweep` 5 分 22 秒で追従リスト: TYPE 1・TEST 37 ファイル（95 件）・GOLDEN 8
 （`docs/reports/data/TETO_TRAIN-KIT/t24-trial.sweep.txt`）。この試験で「新ソースは profile の型に 1 語足す」必要が見つかり、生成器に入れた。
 
-**このブランチ自体** — `tsc -b` 0 エラー、`src/trainKit`＋`src/contentTrain` のテスト合格、全 Vitest の結果は PR に記載。
+**このブランチ自体** — `tsc -b` 0 エラー、oxlint 0。全 Vitest（ローカル、1,612 秒）: 662 ファイル中 658 合格・3 skip・**1 失敗**、テスト 12,201 合格・1 失敗。
+失敗は本 PR のテスト内のダミー文字列（`pieceVisual: "…-dessert"`）が、既存の `DessertGlyphs.test.tsx`（`src/` 全体を走査し、dessert の宣言を出荷済みの 6 か所に限定する Gate）に
+数えられたもの。Gate は変えず、ダミー文字列を実行時に組み立てる形に直した。修正後は該当テストと関連 143 ファイル（`src/trainKit`・`src/contentTrain`・`src/components`・`src/preview` ほか）
+2,320 件が合格。修正後の全件実行は CI に委ねる（同じ HEAD をローカルで再実行していない）。
 
 ### 3.2 残作業（優先順）
 

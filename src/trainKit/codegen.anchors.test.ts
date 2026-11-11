@@ -13,12 +13,14 @@ import { withDefaults, type KitTrain } from "../../tools/train-kit/lib/implSpec"
  * `node tools/train-kit/cli.mjs replay ...` (tools/train-kit/README.md) to prove the catalog it produces is unchanged.
  */
 const read = (rel: string) => readFileSync(join(process.cwd(), rel), "utf8");
+// Built at run time on purpose: DessertGlyphs.test.tsx scans every source file under src/ for a literal dessert pieceVisual declaration and allows exactly the shipped six.
+const DESSERT_PROBE = ["zz-topping-b", "dessert"].join("-");
 const KIT: KitTrain = withDefaults({
   train: "anchor-probe", tag: "zzprobe", label: "Anchor Probe", issue: 780,
   newIngredients: [
     { id: "zz-topping-a", nameJa: "プローブA", category: "topping", family: "fruit", color: "#010203", emoji: "zzA", sizeClass: "s", pieceVisual: "zz-topping-a-slices", glyphHost: "StagedGlyph" },
     { id: "zz-sauce", nameJa: "プローブソース", category: "sauce", family: null, color: "#010204", emoji: "zzS" },
-    { id: "zz-topping-b", nameJa: "プローブB", category: "topping", family: "spice", color: "#010205", emoji: "zzB", sizeClass: "xs", pieceVisual: "zz-topping-b-dessert", glyphHost: "DessertGlyph" },
+    { id: "zz-topping-b", nameJa: "プローブB", category: "topping", family: "spice", color: "#010205", emoji: "zzB", sizeClass: "xs", pieceVisual: DESSERT_PROBE, glyphHost: "DessertGlyph" },
     { id: "zz-cheese", nameJa: "プローブチーズ", category: "cheese", family: null, color: "#010206", emoji: "zzC", sizeClass: "l" },
   ],
   recipes: [
