@@ -325,6 +325,38 @@ const ALL_LATE_RECIPES = [
     baseRewardPitz: 100,
     lunchRush: false,
   },
+  // Expansion Batch 23 (#780, Owner decisions 2026-11-10, Q-1..Q-7): two late dessert recipes promoted from the Staged Catalog (src/data/staged/testSupport/stagedRecipes.ts) with the Owner-approved provisional spec. SOURCE: the 172-recipe matrix comparison-table rows `nutella-dessert-pizza-pizzadb-p6` and `smore-dessert-pizza-pizzadb-p4` (Owner-relayed, never independently verified).
+  // ORIGINAL (pizzadb.jp) NOT CONFIRMED: ids, names (Japanese names unchanged, Q-7), counts and colours are GAMEPLAY ASSUMPTIONS. Placement: LATE catalog (each has a POST_BAKE requirement; the finishing powdered sugar and graham cracker go on after the bake). NO_SAUCE is an explicit Owner GAMEPLAY decision (Q-1; for smore the original lists "デザートソース",
+  // unspecified), NOT a fact about the original; nutella's chocolate is a SCATTERED topping, not a sauce layer, and no walnut is added (Q-2). B23-b (Owner 2026-11-10): each of nutella / smore also carries cream-cheese 2 BEFORE the bake (a cheese base: the existing Hint 5.0 gates require a NO_SAUCE recipe to start with a CHEESE rung).
+  // GAMEPLAY CALIBRATION (not source): the staged counts, late-catalog convention (bake 58-78, 100 Pitz, `lunchRush: false`, no CUT, key-free Hint, ladder-credited with one late step each). The descriptions name no moment or quantity (Anti-Oracle).
+  {
+    id: "nutella-dessert-pizza",
+    nameJa: "ヌテラデザートピザ",
+    description: "バナナとチョコレートに、粉砂糖をふんわりかけた、あまい一枚。",
+    requiredIngredients: [
+      { ingredientId: "cream-cheese", minCount: 2 },
+      { ingredientId: "banana", minCount: 2 },
+      { ingredientId: "chocolate", minCount: 2 },
+      { ingredientId: "powdered-sugar", minCount: 2, applicationPhase: "POST_BAKE" },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
+  {
+    id: "smore-dessert-pizza",
+    nameJa: "スモアデザートピザ",
+    description: "チョコレートとマシュマロに、グラハムクラッカーをのせた、あまい一枚。",
+    requiredIngredients: [
+      { ingredientId: "cream-cheese", minCount: 2 },
+      { ingredientId: "chocolate", minCount: 2 },
+      { ingredientId: "graham-cracker", minCount: 2, applicationPhase: "POST_BAKE" },
+      { ingredientId: "marshmallow", minCount: 2 },
+    ],
+    bakeTarget: { start: 58, end: 78 },
+    baseRewardPitz: 100,
+    lunchRush: false,
+  },
   // Pinsa Romana (#577 P3-b-1, Owner L1 / D4 / R2). Gated by ./pinsaGate.ts (`PINSA_PRODUCTION`): absent at runtime while it is false.
   // SOURCE AUTHORITY (Owner-relayed, not independently verified; PK-0 items 2/4/5 stay open until the Production gate): tomato sauce, mozzarella baked, prosciutto before or after,
   // arugula best added last. The prosciutto is placed BEFORE the bake (L1: a game-design choice, consistent with the source) and only the arugula is POST_BAKE.
@@ -445,6 +477,18 @@ const ALL_LATE_ORDERS = [
     recipeId: "black-truffle-pizza",
     requestedBy: "mito",
     lineJa: "香りのいいキノコのピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-nutella-dessert-pizza",
+    recipeId: "nutella-dessert-pizza",
+    requestedBy: "mito",
+    lineJa: "バナナとチョコのデザートピザ、おいしそう！食べてみたいな！",
+  },
+  {
+    id: "order-smore-dessert-pizza",
+    recipeId: "smore-dessert-pizza",
+    requestedBy: "mito",
+    lineJa: "チョコとマシュマロのあまいピザ、食べてみたいな！",
   },
   {
     id: "order-pinsa-romana",
@@ -648,13 +692,22 @@ export const LATE_INGREDIENTS: readonly Ingredient[] = [
   { id: "radicchio", category: "topping", nameJa: "ラディッキオ", color: "#a42a40", emoji: "\u{1F339}", pieceVisual: "radicchio-leaf", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "truffle", category: "topping", nameJa: "トリュフ", color: "#4a382e", emoji: "\u{1F344}\u{200D}\u{1F7EB}", pieceVisual: "truffle-shavings", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
   { id: "balsamic-vinegar", category: "sauce", nameJa: "バルサミコ酢", color: "#3c1a4a", emoji: "\u{1F3FA}", placement: "spread", unlockCondition: { minTotalStars: 0 } },
+  /**
+   * Expansion Batch 23 (#780): five late-only dessert materials, promoted from the Staged Catalog with the Owner-approved provisional spec (2026-11-10): id / nameJa / `color` / `emoji` / placement are GAMEPLAY ASSUMPTIONS (original pizzadb.jp NOT confirmed). `color` follows the dedicated art's fill (src/components/dessertGlyphs/dessertPalette.ts, PROVISIONAL).
+   * `emoji` is unique in the catalog and differs from every Hint 5.0 family symbol (G18 / H5-INV-2). All five draw their dedicated art (`pieceVisual`, the B23 dessert glyphs), so their emoji is only the hidden text fallback. Families / sizes (Owner Q-4): banana `fruit` (s); chocolate / marshmallow / powdered-sugar / graham-cracker `spice` (Owner 2026-11-10, B23-b: `other` is rejected by the DH4-PROD gate OD-DH4-2-9; cinnamon / walnut / mayo precedent) (chocolate s, marshmallow s, powdered-sugar xs, graham-cracker m).
+   */
+  { id: "banana", category: "topping", nameJa: "バナナ", color: "#f2d24a", emoji: "\u{1F34C}", pieceVisual: "banana-dessert", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "chocolate", category: "topping", nameJa: "チョコレート", color: "#6b3f26", emoji: "\u{1F36B}", pieceVisual: "chocolate-dessert", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "powdered-sugar", category: "topping", nameJa: "粉砂糖", color: "#ffffff", emoji: "\u{1F9C1}", pieceVisual: "powdered-sugar-dessert", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "graham-cracker", category: "topping", nameJa: "グラハムクラッカー", color: "#d9a85f", emoji: "\u{1F960}", pieceVisual: "graham-cracker-dessert", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
+  { id: "marshmallow", category: "topping", nameJa: "マシュマロ", color: "#fbf4ee", emoji: "\u{1F361}", pieceVisual: "marshmallow-dessert", placement: "scatter", unlockCondition: { minTotalStars: 0 } },
 ];
 
 /** Family rows of the late ingredients (OD-B8-2: `salmon-roe` is `seafood`, L1 only). Joined by ./ingredientTaxonomy.ts only when enabled, so an OFF build has no orphan row. */
-export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"], ["lettuce", "vegetable"], ["tortilla-chips", "vegetable"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"], ["fennel", "vegetable"], ["orange", "fruit"], ["carrot", "vegetable"], ["red-cabbage", "vegetable"], ["sunflower-seeds", "spice"], ["radicchio", "vegetable"], ["truffle", "vegetable"]] as const;
+export const LATE_TAXONOMY_ROWS = [["salmon-roe", "seafood"], ["white-sesame", "spice"], ["pomegranate", "fruit"], ["wasabi", "spice"], ["cod-roe", "seafood"], ["nori", "vegetable"], ["lettuce", "vegetable"], ["tortilla-chips", "vegetable"], ["cabbage", "vegetable"], ["bonito-flakes", "seafood"], ["fennel", "vegetable"], ["orange", "fruit"], ["carrot", "vegetable"], ["red-cabbage", "vegetable"], ["sunflower-seeds", "spice"], ["radicchio", "vegetable"], ["truffle", "vegetable"], ["banana", "fruit"], ["chocolate", "spice"], ["powdered-sugar", "spice"], ["graham-cracker", "spice"], ["marshmallow", "spice"]] as const;
 
 /** Topping size class of the late ingredients (`salmon-roe` is extra small, like the other fine garnishes). Joined by ./toppingSizeClass.ts only when enabled. */
-export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs", "lettuce": "m", "tortilla-chips": "m", "cabbage": "s", "bonito-flakes": "xs", "cheddar": "l", "fennel": "s", "orange": "s", "carrot": "s", "red-cabbage": "s", "sunflower-seeds": "xs", "radicchio": "m", "truffle": "xs" } as const;
+export const LATE_TOPPING_SIZE_CLASS = { "salmon-roe": "xs", "white-sesame": "xs", "pomegranate": "xs", "wasabi": "xs", "cod-roe": "xs", "nori": "xs", "lettuce": "m", "tortilla-chips": "m", "cabbage": "s", "bonito-flakes": "xs", "cheddar": "l", "fennel": "s", "orange": "s", "carrot": "s", "red-cabbage": "s", "sunflower-seeds": "xs", "radicchio": "m", "truffle": "xs", "banana": "s", "chocolate": "s", "powdered-sugar": "xs", "graham-cracker": "m", "marshmallow": "s" } as const;
 
 /** Discovery target id (PIZZA DB evidence id) of every late recipe. */
 export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
@@ -671,6 +724,8 @@ export const LATE_DISCOVERY_TARGET_IDS: Readonly<Record<string, string>> = {
   "pizza-cavolo-carote": "pizza-cavolo-carote-pizzadb-p8",
   "pizza-radicchio-noci": "pizza-radicchio-noci-pizzadb-p8",
   "black-truffle-pizza": "black-truffle-pizza-pizzadb-p14",
+  "nutella-dessert-pizza": "nutella-dessert-pizza-pizzadb-p6",
+  "smore-dessert-pizza": "smore-dessert-pizza-pizzadb-p4",
   ...(pinsaEnabled() ? { "pinsa-romana": "pinsa-romana-pizzadb-p9" } : {}),
 };
 
@@ -701,6 +756,9 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
   { ingredientIds: ["carrot", "red-cabbage", "sunflower-seeds"], keyRecipeId: "pizza-cavolo-carote" },
   { ingredientIds: ["radicchio", "balsamic-vinegar"], keyRecipeId: "pizza-radicchio-noci" },
   { ingredientIds: ["truffle"], keyRecipeId: "black-truffle-pizza" },
+  // Expansion Batch 23 (#780): after the truffle step (ordinary length + 14 / + 15; the new ORDINARY step 74 comes first, so the derived numbers of the earlier late steps moved +1 and their floors stayed). nutella first, then smore: the REC-04 tie-break (equal new-material counts) is the smaller recipe id. Cohort keys: powdered-sugar / marshmallow (the last material of each step). Numbers are DERIVED, never authored; no star gate.
+  { ingredientIds: ["banana", "chocolate", "powdered-sugar"], keyRecipeId: "nutella-dessert-pizza" },
+  { ingredientIds: ["graham-cracker", "marshmallow"], keyRecipeId: "smore-dessert-pizza" },
 ];
 
 /**
@@ -709,7 +767,7 @@ export const LATE_LADDER_STEPS: readonly LateLadderStep[] = [
  * save that reached the E5-era step but had not launched since (its ledger has no entry yet) still gets the material. A floor only ever grants earlier; the ledger never re-locks.
  * `salmon-roe`: 57 = the 56 ordinary steps + 1 when E5 shipped. `yuzu-kosho`: 58 = the 56 ordinary steps + 2 when it shipped (New Sauces Phase B U1). `miso-sauce` / `white-sesame`: 59 = the 56 ordinary steps + 3 when they shipped (New Sauces Phase B U2). `tahini` / `pomegranate`: 60 = the 56 ordinary steps + 4 when they shipped (New Sauces Phase B U3). `bbq-sauce` / `cilantro`: 66 = the 61 ordinary steps + 5 when they shipped (BBQ Chicken #611, after Expansion Batch 10 PR-1); `cilantro` is an ordinary material since Expansion Batch 18 (ordinary step 69) and KEEPS this floor on purpose: a floor only grants earlier and never re-locks, so a stale save at 66+ keeps the entitlement it had. `soy-sauce` / `wasabi`: 67 and `cod-roe` / `fresh-cream-sauce` / `nori`: 68 = the 61 ordinary steps + the 5 earlier late steps + 1..2 when PR-2 late4 shipped. RULE for every future late material: add its row here, with the number the ladder derives at the moment it ships.
  */
-export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60, "bbq-sauce": 66, "cilantro": 66, "soy-sauce": 67, "wasabi": 67, "cod-roe": 68, "fresh-cream-sauce": 68, "nori": 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, "fennel": 83, "orange": 83, "carrot": 84, "red-cabbage": 84, "sunflower-seeds": 84, "radicchio": 85, "balsamic-vinegar": 85, "truffle": 86 };
+export const LATE_ENTITLEMENT_FLOORS: Readonly<Record<string, number>> = { "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, "tahini": 60, "pomegranate": 60, "bbq-sauce": 66, "cilantro": 66, "soy-sauce": 67, "wasabi": 67, "cod-roe": 68, "fresh-cream-sauce": 68, "nori": 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, "fennel": 83, "orange": 83, "carrot": 84, "red-cabbage": 84, "sunflower-seeds": 84, "radicchio": 85, "balsamic-vinegar": 85, "truffle": 86, "banana": 88, "chocolate": 88, "powdered-sugar": 88, "graham-cracker": 89, "marshmallow": 89 };
 
 /** True for a recipe whose own gate is closed (Pinsa while `PINSA_PRODUCTION` is false): the id is in type-keyed tables but the recipe does not exist in this build. */
 export function isGatedOffRecipeId(id: string): boolean {

@@ -64,22 +64,24 @@ describe("E5: the Production switches", () => {
 
   it("the catalog ends with the late content: ikura-salmon-pizza + salmon-roe + its late ladder step (ordinary length + 1), then yuzu-shrimp-pizza + yuzu-kosho + its late step (New Sauces Phase B U1), then eggplant-dengaku-pizza + miso-sauce + white-sesame + their shared late step (U2), then eggplant-tahini-pizza + tahini + pomegranate + their shared late step (U3)", () => {
     // (with the Pinsa gate open, pinsa-romana follows them as the last recipe: it adds no material and no ladder step)
-    expect(RECIPES.slice(-(pinsaEnabled() ? 14 : 13)).map((r) => r.id)).toEqual([IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
-    expect(INGREDIENTS.slice(-26).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate", "bbq-sauce", "soy-sauce", "wasabi", "cod-roe", "fresh-cream-sauce", "nori", "cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "balsamic-vinegar"]); // (Expansion Batch 21: + six materials)
+    expect(RECIPES.slice(-(pinsaEnabled() ? 16 : 15)).map((r) => r.id)).toEqual([IKURA, "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])]);
+    expect(INGREDIENTS.slice(-31).map((i) => i.id)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "white-sesame", "tahini", "pomegranate", "bbq-sauce", "soy-sauce", "wasabi", "cod-roe", "fresh-cream-sauce", "nori", "cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "balsamic-vinegar", "banana", "chocolate", "powdered-sugar", "graham-cracker", "marshmallow"]); // (Expansion Batch 23-b: + five dessert materials) (Expansion Batch 21: + six materials)
     const steps = DISCOVERY_LADDER.steps;
-    expect(steps.at(-13)).toMatchObject({ step: steps.length - 12, ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });
-    expect(steps.at(-12)).toMatchObject({ step: steps.length - 11, ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" });
-    expect(steps.at(-11)).toMatchObject({ step: steps.length - 10, ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" });
-    expect(steps.at(-10)).toMatchObject({ step: steps.length - 9, ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" });
-    expect(steps.at(-9)).toMatchObject({ step: steps.length - 8, ingredientIds: ["bbq-sauce"], keyRecipeId: "bbq-chicken-pizza" }); // BBQ Chicken (#611)
-    expect(steps.at(-8)).toMatchObject({ step: steps.length - 7, ingredientIds: ["soy-sauce", "wasabi"], keyRecipeId: "wasabi-beef-pizza" }); // PR-2 late4
-    expect(steps.at(-7)).toMatchObject({ step: steps.length - 6, ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: "tarako-cream-pizza" });
-    expect(steps.at(-6)).toMatchObject({ step: steps.length - 5, ingredientIds: ["cheddar", "lettuce", "tortilla-chips"], keyRecipeId: "taco-pizza" }); // Expansion Batch 21 (#780)
-    expect(steps.at(-5)).toMatchObject({ step: steps.length - 4, ingredientIds: ["okonomiyaki-sauce", "cabbage", "bonito-flakes"], keyRecipeId: "okonomiyaki-style-pizza" });
-    expect(steps.at(-4)).toMatchObject({ step: steps.length - 3, ingredientIds: ["fennel", "orange"], keyRecipeId: "pizza-finocchi-salad" }); // Expansion Batch 22 (#780)
-    expect(steps.at(-3)).toMatchObject({ step: steps.length - 2, ingredientIds: ["carrot", "red-cabbage", "sunflower-seeds"], keyRecipeId: "pizza-cavolo-carote" });
-    expect(steps.at(-2)).toMatchObject({ step: steps.length - 1, ingredientIds: ["radicchio", "balsamic-vinegar"], keyRecipeId: "pizza-radicchio-noci" });
-    expect(steps.at(-1)).toMatchObject({ step: steps.length, ingredientIds: ["truffle"], keyRecipeId: "black-truffle-pizza" });
+    expect(steps.at(-15)).toMatchObject({ step: steps.length - 14, ingredientIds: ["salmon-roe"], keyRecipeId: IKURA });
+    expect(steps.at(-14)).toMatchObject({ step: steps.length - 13, ingredientIds: ["yuzu-kosho"], keyRecipeId: "yuzu-shrimp-pizza" });
+    expect(steps.at(-13)).toMatchObject({ step: steps.length - 12, ingredientIds: ["miso-sauce", "white-sesame"], keyRecipeId: "eggplant-dengaku-pizza" });
+    expect(steps.at(-12)).toMatchObject({ step: steps.length - 11, ingredientIds: ["tahini", "pomegranate"], keyRecipeId: "eggplant-tahini-pizza" });
+    expect(steps.at(-11)).toMatchObject({ step: steps.length - 10, ingredientIds: ["bbq-sauce"], keyRecipeId: "bbq-chicken-pizza" }); // BBQ Chicken (#611)
+    expect(steps.at(-10)).toMatchObject({ step: steps.length - 9, ingredientIds: ["soy-sauce", "wasabi"], keyRecipeId: "wasabi-beef-pizza" }); // PR-2 late4
+    expect(steps.at(-9)).toMatchObject({ step: steps.length - 8, ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: "tarako-cream-pizza" });
+    expect(steps.at(-8)).toMatchObject({ step: steps.length - 7, ingredientIds: ["cheddar", "lettuce", "tortilla-chips"], keyRecipeId: "taco-pizza" }); // Expansion Batch 21 (#780)
+    expect(steps.at(-7)).toMatchObject({ step: steps.length - 6, ingredientIds: ["okonomiyaki-sauce", "cabbage", "bonito-flakes"], keyRecipeId: "okonomiyaki-style-pizza" });
+    expect(steps.at(-6)).toMatchObject({ step: steps.length - 5, ingredientIds: ["fennel", "orange"], keyRecipeId: "pizza-finocchi-salad" }); // Expansion Batch 22 (#780)
+    expect(steps.at(-5)).toMatchObject({ step: steps.length - 4, ingredientIds: ["carrot", "red-cabbage", "sunflower-seeds"], keyRecipeId: "pizza-cavolo-carote" });
+    expect(steps.at(-4)).toMatchObject({ step: steps.length - 3, ingredientIds: ["radicchio", "balsamic-vinegar"], keyRecipeId: "pizza-radicchio-noci" });
+    expect(steps.at(-3)).toMatchObject({ step: steps.length - 2, ingredientIds: ["truffle"], keyRecipeId: "black-truffle-pizza" });
+    expect(steps.at(-2)).toMatchObject({ step: steps.length - 1, ingredientIds: ["banana", "chocolate", "powdered-sugar"], keyRecipeId: "nutella-dessert-pizza" }); // Expansion Batch 23-b (#780)
+    expect(steps.at(-1)).toMatchObject({ step: steps.length, ingredientIds: ["graham-cracker", "marshmallow"], keyRecipeId: "smore-dessert-pizza" });
   });
 });
 

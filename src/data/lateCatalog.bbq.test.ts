@@ -122,10 +122,10 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
   });
 
   it("catalog counts after PR-2 late4 (which follows this recipe): 90 recipes (89 with the Pinsa gate off), 97 ingredients, 76 ladder steps (7 late; Expansion Batch 18 added two recipes and ordinary step 69 with the promoted cilantro, no new ingredient id; B11 S1 added three recipes, two materials and ordinary steps 62-63; B12 added one recipe; Expansion Batch 12 added two recipes, one material and ordinary step 64; Expansion Batch 14 added one recipe, one material and ordinary step 66; Expansion Batch 15 added one recipe, no material and no step; Expansion Batch 16 added one recipe, one material and ordinary step 67; Expansion Batch 17 added one recipe, one material and ordinary step 68)", () => {
-    expect(RECIPES.length).toBe(pinsaEnabled() ? 102 : 101); // (Expansion Batch 23: + apple-cinnamon-dessert) (Expansion Batch 22: + speck-e-brie, buffalo-chicken and four late recipes) // (Expansion Batch 21: + taco-pizza and okonomiyaki-style-pizza) // (Expansion Batch 20-A: + pesto-noci-pizza) // (Expansion Batch 19: + pesto-burrata-pizza and pizza-alla-crudaiola) // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
-    expect(INGREDIENTS.length).toBe(117); // (Expansion Batch 23: + apple) // (Expansion Batch 22: + ten materials) // (Expansion Batch 21: + cheddar, lettuce, tortilla-chips, okonomiyaki-sauce, cabbage and bonito-flakes) // (Expansion Batch 20-A: + honey and walnut) // (Expansion Batch 19: + burrata)
-    expect(DISCOVERY_LADDER.steps.length).toBe(87); // (Expansion Batch 23: + ordinary step 74) // (Expansion Batch 22: + ordinary steps 72 / 73 and late steps 83-86) // (Expansion Batch 21: + late steps 79 and 80) // (Expansion Batch 20-A: + ordinary step 71) // (Expansion Batch 19: + ordinary step 70)
-    expect(LATE_LADDER_STEPS.length).toBe(13); // (Expansion Batch 22: + the finocchi / cavolo / radicchio / truffle steps) // (Expansion Batch 21: + taco and okonomiyaki)
+    expect(RECIPES.length).toBe(pinsaEnabled() ? 104 : 103); // (Expansion Batch 23: + apple-cinnamon-dessert) (Expansion Batch 22: + speck-e-brie, buffalo-chicken and four late recipes) // (Expansion Batch 21: + taco-pizza and okonomiyaki-style-pizza) // (Expansion Batch 20-A: + pesto-noci-pizza) // (Expansion Batch 19: + pesto-burrata-pizza and pizza-alla-crudaiola) // Pinsa Romana joins RECIPES only while its own gate is open (as in catalogLedger.test.ts)
+    expect(INGREDIENTS.length).toBe(122); // (Expansion Batch 23: + apple) // (Expansion Batch 22: + ten materials) // (Expansion Batch 21: + cheddar, lettuce, tortilla-chips, okonomiyaki-sauce, cabbage and bonito-flakes) // (Expansion Batch 20-A: + honey and walnut) // (Expansion Batch 19: + burrata)
+    expect(DISCOVERY_LADDER.steps.length).toBe(89); // (Expansion Batch 23: + ordinary step 74) // (Expansion Batch 22: + ordinary steps 72 / 73 and late steps 83-86) // (Expansion Batch 21: + late steps 79 and 80) // (Expansion Batch 20-A: + ordinary step 71) // (Expansion Batch 19: + ordinary step 70)
+    expect(LATE_LADDER_STEPS.length).toBe(15); // (Expansion Batch 23-b: + the nutella and smore late steps) (Expansion Batch 22: + the finocchi / cavolo / radicchio / truffle steps) // (Expansion Batch 21: + taco and okonomiyaki)
   });
 
   it("tables: PAINT bbq-sauce, key-free hint, a Reference of 8 pieces on the RT-01 layout in requiredIngredients order (the 2 cilantro last, one on the dough centre), no shared slot, no piece-count limit asserted", () => {
@@ -166,9 +166,9 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
     expect(stepOf(CIL).step).toBeLessThan(mine.step);
     expect(mine.starGates).toBeUndefined();
     expect(mine.step).toBe(stepOf("tahini").step + 1);
-    expect(steps.at(-9)).toBe(mine); // (PR-2 late4: the wasabi-beef and tarako-cream late steps, then Expansion Batch 21: the taco and okonomiyaki late steps follow it)
-    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 8); // ordinary length + the five late steps up to and including this one
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", BBQ, "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza"]);
+    expect(steps.at(-11)).toBe(mine); // (PR-2 late4: the wasabi-beef and tarako-cream late steps, then Expansion Batch 21: the taco and okonomiyaki late steps follow it)
+    expect(mine.step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 10); // ordinary length + the five late steps up to and including this one
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", BBQ, "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza"]);
   });
 
   it("Shop: both materials are T4 (the sauce pack 120 / refill 60); the sauce from the BBQ late step, the cilantro from its ordinary step 69", () => {
@@ -189,7 +189,7 @@ describe("ladder, Shop, Research and the entitlement floor", () => {
   });
 
   it("the compatibility floors are FIXED at 66 for both materials (never later than the step the ladder derives; the cilantro keeps its floor on purpose after its Batch 18 promotion); the earlier floors are unchanged", () => {
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, [SAUCE]: 66, [CIL]: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86 });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, [SAUCE]: 66, [CIL]: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86, banana: 88, chocolate: 88, "powdered-sugar": 88, "graham-cracker": 89, marshmallow: 89 });
     for (const id of [SAUCE, CIL]) expect(LATE_ENTITLEMENT_FLOORS[id]).toBeLessThanOrEqual(stepOf(id).step);
   });
 });
