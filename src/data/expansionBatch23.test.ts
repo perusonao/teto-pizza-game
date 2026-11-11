@@ -103,13 +103,13 @@ describe("the ladder: ordinary step 74, the floors, the batch manifest", () => {
     expect(steps.find((s) => s.step === 72)).toMatchObject({ ingredientIds: ["buffalo-sauce"], keyRecipeId: "buffalo-chicken" });
     expect(steps.find((s) => s.step === 73)).toMatchObject({ ingredientIds: ["brie"], keyRecipeId: "speck-e-brie" });
     expect(steps.find((s) => s.step === 74)).toMatchObject({ ingredientIds: ["apple"], keyRecipeId: "apple-cinnamon-dessert" });
-    expect(steps).toHaveLength(87);
-    expect(steps.slice(-2).map((s) => [s.step, s.ingredientIds, s.keyRecipeId])).toEqual([
+    expect(steps).toHaveLength(89); // Expansion Batch 23-b (#780) appended the nutella / smore late steps 88 / 89 after these
+    expect(steps.slice(-4, -2).map((s) => [s.step, s.ingredientIds, s.keyRecipeId])).toEqual([
       [86, ["radicchio", "balsamic-vinegar"], "pizza-radicchio-noci"],
       [87, ["truffle"], "black-truffle-pizza"],
     ]);
     for (const s of steps.slice(71)) expect((s as { starGates?: unknown }).starGates, `step ${s.step}`).toBeUndefined();
-    expect(LATE_LADDER_STEPS).toHaveLength(13);
+    expect(LATE_LADDER_STEPS).toHaveLength(15); // (Expansion Batch 23-b: + nutella and smore)
   });
   it("every other ingredient of the recipe is owned before its step (the apple is unlocked at its own step)", () => {
     const owned = (n: number) => new Set<string>([...STARTER_INGREDIENT_IDS, ...steps.slice(0, n).flatMap((s) => s.ingredientIds)]);
@@ -124,7 +124,7 @@ describe("the ladder: ordinary step 74, the floors, the batch manifest", () => {
     expect(LATE_ENTITLEMENT_FLOORS).toEqual({
       "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68,
       cheddar: 79, lettuce: 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, cabbage: 80, "bonito-flakes": 80,
-      fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86,
+      fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86, banana: 88, chocolate: 88, "powdered-sugar": 88, "graham-cracker": 89, marshmallow: 89,
     });
   });
   it("B23_BATCH is LANDED and consistent over the catalog: credit, key ingredient, cohort identity, append-only ladder", () => {
@@ -249,7 +249,7 @@ describe("Research: the canonical order changes 0 letters; the non-canonical cha
     "spinach-artichoke-pizza": ["A->B"],
   };
   it("the measured changes are the same 8 IDs (0 canonical); every change is in the presented table or is one of the two Owner-approved additions; any other ID or letter change is a STOP", () => {
-    const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never);
+    const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES.filter((r) => !["nutella-dessert-pizza", "smore-dessert-pizza"].includes(r.id)) as never, 40, 20261105, ["banana", "chocolate", "powdered-sugar", "graham-cracker", "marshmallow"]); // Expansion Batch 23-b (#780) is a LATER batch (its two recipes and five materials are left out): this stays the B23-a shipped-ladder comparison the Owner approved
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
     const measured = new Map([...changes].map(([id, list]) => [id, [...new Set(list.map((c) => c.change))].sort()]));
     expect([...measured.keys()].sort()).toEqual(Object.keys(PRESENTED_AND_APPROVED).sort());

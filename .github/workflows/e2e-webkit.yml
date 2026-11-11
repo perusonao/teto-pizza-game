@@ -80,7 +80,9 @@ permissions:
 
 jobs:
   classify:
-    runs-on: ubuntu-latest
+    # Pinned (2026-11-10): `ubuntu-latest` moved to Ubuntu 26.04, where Playwright 1.56.1 cannot install its browsers and the apt process checks of
+    # scripts/ci/test-webkit-ci.sh fail. Move this pin only together with a Playwright version that supports the newer image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
       contents: read
@@ -122,7 +124,7 @@ jobs:
     # `!cancelled()` (not the default success()) so a FAILED classify still runs WebKit: only an
     # explicit, successful "false" skips it.
     if: ${{ !cancelled() && (needs.classify.result != 'success' || needs.classify.outputs.webkit_required != 'false') }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # 35, not 20: the job has to fit setup (~1 min) + the install step's own cap (17 min, below) + list (~0.2 min)
     # + the slowest shard's tests (15.1 min observed) = ~33.3 min. At 20, an install slower than ~4 min
     # (4.8 min on 2026-10-22) already cancelled webkit-390x844 shard 1/3 mid-test. See
@@ -295,7 +297,7 @@ jobs:
     name: layout-chromium
     needs: classify
     if: ${{ !cancelled() && (needs.classify.result != 'success' || needs.classify.outputs.webkit_required != 'false') }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # 20, not 10: the job has to fit setup (~1.5 min) + the install step's own cap (12 min, below) + list/run (~3 min measured) + margin.
     # At 10, a slow Ubuntu mirror (25.9 MB of Chromium system deps at ~70 KB/s, main run 39993155550) cancelled the job inside the install.
     timeout-minutes: 20
@@ -406,7 +408,7 @@ jobs:
     needs: [classify, layout-chromium]
     # always(): like WebKit Gate, this must report a conclusion in every case.
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Check out CI scripts
@@ -447,7 +449,7 @@ jobs:
     # Every step below is also `if: always()`, so a cancelled run cannot skip the evaluation and
     # leave an empty, green gate job behind.
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Check out CI scripts
