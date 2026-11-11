@@ -21,7 +21,9 @@ jobs:
   # failure or empty output -- leaves `docs_only` != 'true', so every step runs exactly as before.
   # scripts/ci/test-ci-docs-only.sh pins these invariants (including this file's own shape).
   build:
-    runs-on: ubuntu-latest
+    # Pinned (2026-11-10): `ubuntu-latest` moved to Ubuntu 26.04, where Playwright 1.56.1 cannot install its browsers and the apt process checks of
+    # scripts/ci/test-webkit-ci.sh fail. Move this pin only together with a Playwright version that supports the newer image.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
