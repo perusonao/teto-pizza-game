@@ -168,7 +168,7 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
     : []),
   // Expansion Batch 22 (#780): the late steps 83 sells the fennel (k=2) and the orange (k=2); 84 the carrot (k=2), the red-cabbage (k=2) and the sunflower-seeds (k=2); 85 the radicchio (k=2) and the balsamic-vinegar (a sauce: k=1); 86 the truffle (k=2); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["fennel", 84, "T4", 2, 20, 120, 60], ["orange", 84, "T4", 2, 20, 120, 60], ["carrot", 85, "T4", 2, 20, 120, 60], ["red-cabbage", 85, "T4", 2, 20, 120, 60], ["sunflower-seeds", 85, "T4", 2, 20, 120, 60], ["radicchio", 86, "T4", 2, 20, 120, 60], ["balsamic-vinegar", 86, "T4", 1, 10, 120, 60], ["truffle", 87, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["fennel", 84, "T4", 2, 20, 120, 60], ["orange", 84, "T4", 2, 20, 120, 60], ["carrot", 85, "T4", 2, 20, 120, 60], ["red-cabbage", 85, "T4", 2, 20, 120, 60], ["sunflower-seeds", 85, "T4", 2, 20, 120, 60], ["radicchio", 86, "T4", 2, 20, 120, 60], ["balsamic-vinegar", 86, "T4", 1, 10, 120, 60], ["truffle", 87, "T4", 2, 20, 120, 60], ["banana", 88, "T4", 2, 20, 120, 60], ["chocolate", 88, "T4", 2, 20, 120, 60], ["powdered-sugar", 88, "T4", 2, 20, 120, 60], ["graham-cracker", 89, "T4", 2, 20, 120, 60], ["marshmallow", 89, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
 ];
 
@@ -327,7 +327,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(29)).toEqual({ discoveriesNeeded: 1, step: 30 });
     expect(nextMaterialHint(30)).toEqual({ discoveriesNeeded: 1, step: 31 });
     expect(nextMaterialHint(31)).toEqual({ discoveriesNeeded: 1, step: 32 });
-    const last = 74 + (lateCatalogEnabled() ? 13 : 0); // Expansion Batch 22: + ordinary steps 72 / 73 and the four late steps; Expansion Batch 21: + the taco and okonomiyaki late steps; // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step; BBQ Chicken: + the bbq-sauce / cilantro late step
+    const last = 74 + (lateCatalogEnabled() ? 15 : 0); // Expansion Batch 23-b: + the nutella and smore late steps (88 / 89); Expansion Batch 22: + ordinary steps 72 / 73 and the four late steps; Expansion Batch 21: + the taco and okonomiyaki late steps; // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step; BBQ Chicken: + the bbq-sauce / cilantro late step
     for (let n = 32; n < last; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
     expect(nextMaterialHint(last)).toBeNull();
     expect(nextMaterialHint(last)).toBeNull();

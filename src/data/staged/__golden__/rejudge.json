@@ -1,15 +1,15 @@
 {
- "blockingDependencies": 387,
+ "blockingDependencies": 382,
  "byVerdict": {
   "AUTO_RESOLVED": 8,
   "RULE_DECIDED_WORK": 2,
-  "DUPLICATE_COUNT": 23,
+  "DUPLICATE_COUNT": 22,
   "WAITS_MECHANIC": 58,
-  "WAITS_IN_FLIGHT": 2,
+  "WAITS_IN_FLIGHT": 0,
   "AXIS_CONDITIONAL": 30,
   "STAGED_PAIR": 94,
   "EXCEPTION_NEEDED": 76,
-  "OWNER_DECISION": 94
+  "OWNER_DECISION": 92
  },
  "autoResolved": 8,
  "byKind": {
@@ -29,23 +29,21 @@
   "OWNER_RULE": {
    "AUTO_RESOLVED": 7,
    "RULE_DECIDED_WORK": 2,
-   "WAITS_IN_FLIGHT": 1,
    "AXIS_CONDITIONAL": 13,
    "EXCEPTION_NEEDED": 25,
-   "OWNER_DECISION": 64
+   "OWNER_DECISION": 62
   },
   "SAUCE_UNSPECIFIED": {
-   "DUPLICATE_COUNT": 23
+   "DUPLICATE_COUNT": 22
   },
   "UNRESOLVED_TOKEN": {
-   "WAITS_IN_FLIGHT": 1,
    "OWNER_DECISION": 19
   }
  },
  "ownerRules": {
   "R-1": {
    "RULE_DECIDED_WORK": 2,
-   "OWNER_DECISION": 21
+   "OWNER_DECISION": 20
   },
   "R-2": {
    "AXIS_CONDITIONAL": 10,
@@ -60,14 +58,13 @@
    "EXCEPTION_NEEDED": 16
   },
   "R-5": {
-   "OWNER_DECISION": 11
+   "OWNER_DECISION": 10
   },
   "R-6": {
    "AUTO_RESOLVED": 1,
    "OWNER_DECISION": 6
   },
   "R-7": {
-   "WAITS_IN_FLIGHT": 1,
    "OWNER_DECISION": 16
   },
   "R-8": {
@@ -731,13 +728,6 @@
    ]
   },
   {
-   "id": "smore-dessert-pizza",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1"
-   ]
-  },
-  {
    "id": "st-louis-style-pizza",
    "proposals": [],
    "open": [
@@ -953,15 +943,6 @@
     "AXIS_CONDITIONAL:DUPLICATE_GATE:SUBSET@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:SUBSET@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
-   ]
-  },
-  {
-   "id": "nutella-dessert-pizza",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-5",
-    "WAITS_IN_FLIGHT:OWNER_RULE:R-7",
-    "WAITS_IN_FLIGHT:UNRESOLVED_TOKEN:ナッツ"
    ]
   },
   {

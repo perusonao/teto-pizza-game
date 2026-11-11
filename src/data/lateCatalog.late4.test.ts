@@ -179,10 +179,10 @@ describe("ladder, Shop, Research and the entitlement floors", () => {
     expect(stepOf("nori").step).toBe(stepOf("wasabi").step + 1);
     expect([stepOf("wasabi").step, stepOf("nori").step]).toEqual([80, 81]); // Expansion Batch 23 (#780): the ordinary step 74 moved the derived late numbers +1 again; // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 moved the derived late numbers +1 again;
     // // (Expansion Batch 18's ordinary step 69 moved the derived numbers +1 again; Expansion Batch 17's ordinary step 68 moved the derived numbers +1 again; Expansion Batch 16's ordinary step 67 moved the derived numbers +1; the floors are unchanged)
-    expect(steps.at(-7)).toBe(stepOf("nori")); // (Expansion Batch 21: the taco and okonomiyaki late steps follow it)
+    expect(steps.at(-9)).toBe(stepOf("nori")); // (Expansion Batch 21: the taco and okonomiyaki late steps follow it)
     for (const id of ["wasabi", "nori"]) expect(stepOf(id).starGates).toBeUndefined();
-    expect(stepOf("nori").step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 6);
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", WASABI_BEEF, TARAKO, "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza"]);
+    expect(stepOf("nori").step).toBe(ordinaryLadderSteps(steps).length + LATE_LADDER_STEPS.length - 8);
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", WASABI_BEEF, TARAKO, "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza"]);
   });
 
   it("Shop: every new material is T4 (sauce pack 120 / refill 60), from its own late step", () => {
@@ -206,7 +206,7 @@ describe("ladder, Shop, Research and the entitlement floors", () => {
     expect(LATE_ENTITLEMENT_FLOORS).toEqual({
       "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66,
       "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68,
-      cheddar: 79, lettuce: 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, cabbage: 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86,
+      cheddar: 79, lettuce: 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, cabbage: 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86, banana: 88, chocolate: 88, "powdered-sugar": 88, "graham-cracker": 89, marshmallow: 89,
     });
     for (const id of NEW_INGREDIENTS) expect(LATE_ENTITLEMENT_FLOORS[id]).toBeLessThanOrEqual(stepOf(id).step);
   });

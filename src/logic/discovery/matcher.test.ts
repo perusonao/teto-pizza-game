@@ -270,6 +270,9 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       ownerApproved.add("black-truffle-pizza-pizzadb-p14");
       // Expansion Batch 23 (Issue #780): apple-cinnamon-dessert-pizzadb is a BLOCKED_PRODUCT_DECISION row (BASE_SAUCE_UNSPECIFIED) Owner-approved to ship as NO_SAUCE (a GAMEPLAY decision, 2026-11-10, Q-1).
       ownerApproved.add("apple-cinnamon-dessert-pizzadb");
+      // Expansion Batch 23-b (Issue #780): nutella-dessert-pizza-pizzadb-p6 and smore-dessert-pizza-pizzadb-p4 are BLOCKED_PRODUCT_DECISION rows (BASE_SAUCE_UNSPECIFIED) Owner-approved to ship as NO_SAUCE with cream-cheese 2 (a GAMEPLAY decision: Q-1 2026-11-10, plan A approved 2026-11-10).
+      ownerApproved.add("nutella-dessert-pizza-pizzadb-p6"); // (blocked on the unspecified sauce / "ナッツ" token; shipped with NO_SAUCE + cream-cheese 2 and no walnut, Q-1 / Q-2)
+      ownerApproved.add("smore-dessert-pizza-pizzadb-p4");
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(
