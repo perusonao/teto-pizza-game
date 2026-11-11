@@ -115,6 +115,7 @@ const DEFAULT_RECIPE_ORDER = new Map(
     .sort((a, b) => compareHintCandidates(a, b, RECIPES))
     .map((recipe, index) => [recipe.id, index]),
 );
+const DEFAULT_RECIPE_OBJECTS = new Set<Recipe>(RECIPES);
 const DEFAULT_TARGETS_BY_RECIPE = new Map<string, (typeof RECIPE_DISCOVERY_CATALOG)[number][]>();
 for (const target of RECIPE_DISCOVERY_CATALOG) {
   const targets = DEFAULT_TARGETS_BY_RECIPE.get(target.recipeId);
@@ -136,9 +137,10 @@ export function classifyNearMiss(
   const recipes = options.recipes ?? RECIPES;
   const usesDefaultCatalog = catalog === RECIPE_DISCOVERY_CATALOG;
   const usesDefaultRecipes = recipes === RECIPES;
+  const usesDefaultCandidateObjects = usesDefaultRecipes && discoverableRecipes.every((recipe) => DEFAULT_RECIPE_OBJECTS.has(recipe));
   const colliding = usesDefaultCatalog ? DEFAULT_COLLIDING_IDENTITY_KEYS : collidingIdentityKeys(catalog);
   const ordered = [...discoverableRecipes].sort(
-    usesDefaultRecipes
+    usesDefaultCandidateObjects
       ? (a, b) => {
           const aOrder = DEFAULT_RECIPE_ORDER.get(a.id);
           const bOrder = DEFAULT_RECIPE_ORDER.get(b.id);
