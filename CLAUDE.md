@@ -24,3 +24,10 @@ Do not copy the policy's full text elsewhere; reference this file/the policy doc
 
 Claims, the read-only Owner Gate report and the HV / Preview operating rules are in
 `docs/decisions/TETO_SESSION-OPERATIONS_1.0.md` (incl. §8 Efficient flow). Check for overlapping PRs/claims before starting work.
+
+## Content trains (recipes / ingredients) — use the kit, do not hand-write
+
+Adding recipes or ingredients (Issue #780) follows `tools/train-kit/README.md` §1, top to bottom: approval spec → preflight
+(`tools/content-train/`) → `scaffold` → fill the authored values → `claims` → `apply` → `sweep` → full tests → generated E2E → Draft PR.
+The implementation spec is the single description of a train; catalog files are generated from it, not edited by hand.
+Never update an expectation to make a gate pass: a failure that is not a count / position / new-row follow-up is a finding to report.

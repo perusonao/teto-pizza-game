@@ -1,0 +1,403 @@
+{
+ "train": "replay-b22",
+ "tag": "b22",
+ "label": "Expansion Batch 22",
+ "issue": 780,
+ "recipes": [
+  {
+   "id": "buffalo-chicken",
+   "nameJa": "バッファローチキンピザ",
+   "description": "ピリ辛のバッファローソースに、チキンとチーズをのせた一枚。",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "buffalo-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "gorgonzola",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "chicken",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "buffalo-chicken-pizzadb",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "ピリッとからいチキンのピザ、食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "buffalo-sauce",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "buffalo-sauce"
+    ]
+   }
+  },
+  {
+   "id": "speck-e-brie",
+   "nameJa": "スペックエブリー",
+   "description": "ブリーチーズに生ハムとくるみをあわせた、コクのある一枚。",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "brie",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "prosciutto-crudo",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "walnut",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "speck-e-brie-pizzadb-p4",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "とろっとしたチーズに生ハムがのったピザ、おいしそう！"
+   },
+   "sauceProfile": null,
+   "ladderStep": {
+    "ingredientIds": [
+     "brie"
+    ]
+   }
+  },
+  {
+   "id": "pizza-finocchi-salad",
+   "nameJa": "ピッツァ・コン・インサラータ・ディ・フィノッキ",
+   "description": "フェンネルとオリーブ、ミントに、オレンジをあわせた、さっぱりした一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "olive-oil",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "black-olive",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "fennel",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mint",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "orange",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "pizza-finocchi-salad-pizzadb-p8",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "フェンネルのさっぱりしたピザ、食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "olive-oil",
+    "interaction": "PAINT_TEMPORARY"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "fennel",
+     "orange"
+    ]
+   }
+  },
+  {
+   "id": "pizza-cavolo-carote",
+   "nameJa": "ピッツァ・コン・カーヴォロ・ロッソ・エ・カローテ",
+   "description": "にんじんとひまわりの種に、紫キャベツとレモンをあわせた、シャキッとした一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "olive-oil",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "carrot",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "sunflower-seeds",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "lemon",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "red-cabbage",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "pizza-cavolo-carote-pizzadb-p8",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "紫キャベツとにんじんのカラフルなピザ、おいしそう！"
+   },
+   "sauceProfile": {
+    "ingredientId": "olive-oil",
+    "interaction": "PAINT_TEMPORARY"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "carrot",
+     "red-cabbage",
+     "sunflower-seeds"
+    ]
+   }
+  },
+  {
+   "id": "pizza-radicchio-noci",
+   "nameJa": "ピッツァ・コン・ラディッキオ・クルード・エ・ノーチ",
+   "description": "オリーブオイルとバルサミコを重ねた生地に、くるみとラディッキオをのせた一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "olive-oil",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "balsamic-vinegar",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "walnut",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "radicchio",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "pizza-radicchio-noci-pizzadb-p8",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "ほろ苦い葉っぱとくるみのピザ、大人の味かな？食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "olive-oil",
+    "interaction": "PAINT_TEMPORARY"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "radicchio",
+     "balsamic-vinegar"
+    ]
+   }
+  },
+  {
+   "id": "black-truffle-pizza",
+   "nameJa": "黒トリュフピザ",
+   "description": "モッツァレラとパルミジャーノに、トリュフをあわせた、香り高い一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "parmigiano",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "truffle",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "black-truffle-pizza-pizzadb-p14",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "香りのいいキノコのピザ、おいしそう！食べてみたいな！"
+   },
+   "sauceProfile": null,
+   "ladderStep": {
+    "ingredientIds": [
+     "truffle"
+    ]
+   }
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "brie",
+   "nameJa": "ブリーチーズ",
+   "category": "cheese",
+   "family": null,
+   "color": "#f6edc6",
+   "emoji": "🌕",
+   "sizeClass": "l",
+   "pieceVisual": "brie-wedge",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "buffalo-sauce",
+   "nameJa": "バッファローソース",
+   "category": "sauce",
+   "family": null,
+   "color": "#ec5a12",
+   "emoji": "🦬"
+  },
+  {
+   "id": "fennel",
+   "nameJa": "フェンネル",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#e4edc2",
+   "emoji": "🪻",
+   "sizeClass": "s",
+   "pieceVisual": "fennel-slices",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "orange",
+   "nameJa": "オレンジ",
+   "category": "topping",
+   "family": "fruit",
+   "color": "#f59a1c",
+   "emoji": "🍊",
+   "sizeClass": "s",
+   "pieceVisual": "orange-slices",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "carrot",
+   "nameJa": "にんじん",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#ee7d28",
+   "emoji": "🥕",
+   "sizeClass": "s",
+   "pieceVisual": "carrot-rounds",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "red-cabbage",
+   "nameJa": "紫キャベツ",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#9a4a9e",
+   "emoji": "🫐",
+   "sizeClass": "s",
+   "pieceVisual": "red-cabbage-shreds",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "sunflower-seeds",
+   "nameJa": "ひまわりの種",
+   "category": "topping",
+   "family": "spice",
+   "color": "#e6d49a",
+   "emoji": "🌻",
+   "sizeClass": "xs",
+   "pieceVisual": "sunflower-kernels",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "radicchio",
+   "nameJa": "ラディッキオ",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#a42a40",
+   "emoji": "🌹",
+   "sizeClass": "m",
+   "pieceVisual": "radicchio-leaf",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "truffle",
+   "nameJa": "トリュフ",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#4a382e",
+   "emoji": "🍄‍🟫",
+   "sizeClass": "xs",
+   "pieceVisual": "truffle-shavings",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "balsamic-vinegar",
+   "nameJa": "バルサミコ酢",
+   "category": "sauce",
+   "family": null,
+   "color": "#3c1a4a",
+   "emoji": "🏺"
+  }
+ ]
+}
