@@ -110,7 +110,9 @@ describe("P2-1 reproduced: the DH4-2A one-sauce prior drops a sauceless reserve 
   // #811: the sweep below visits every synthetic recipe of every family at every inventory step. The families are cut from the production
   // TOPPINGS / CHEESES / SAUCES, so the sweep grows with every catalog batch (117 ingredients: 1,212 recipes x 7 steps = 8,484 states, 94-121 s in ONE test,
   // i.e. at its 120 s limit). It is run as consecutive slices of at most SWEEP_SLICE recipes, one test per slice: the SAME recipes, states, order and
-  // assertions, but the time of one test no longer grows with the catalog (more slices appear instead). No timeout was raised and nothing is sampled.
+  // assertions, but one test now covers at most SWEEP_SLICE recipes, so its time no longer grows with the NUMBER of synthetic recipes (more slices appear instead).
+  // The cost of one state still grows with the catalog (more owned ingredients and public recipes to search), only far more slowly: the longest slice takes
+  // about 14 s of its 120 s limit today. No timeout was raised and nothing is sampled.
   const SWEEP_SLICE = 100;
   const SLICES = Object.entries(FAMILIES).flatMap(([family, recipes]) =>
     Array.from({ length: Math.ceil(recipes.length / SWEEP_SLICE) }, (_, i) => ({ family, from: i * SWEEP_SLICE, recipes: recipes.slice(i * SWEEP_SLICE, (i + 1) * SWEEP_SLICE) })),

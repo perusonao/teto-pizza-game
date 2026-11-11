@@ -72,7 +72,7 @@ function reload(storage: StorageLike): GameState {
 
 /** OD-H5-M2 = all 25 (round 6): every paid target, the 「なし」 targets included. */
 const TARGETS = RECIPES.filter((r) => r.id !== "margherita").map((r) => r.id);
-/** #811: TARGETS in consecutive slices of at most 20, for the per-target sweeps (the time of one test stays flat as the catalog grows). */
+/** #811: TARGETS in consecutive slices of at most 20, for the per-target sweeps (one test covers at most 20 targets, so its time no longer grows with the number of recipes; opening one sheet still gets slower as the catalog grows). */
 const TARGET_SLICES = Array.from({ length: Math.ceil(TARGETS.length / 20) }, (_, i) => ({ label: `${i * 20 + 1}-${Math.min((i + 1) * 20, TARGETS.length)}`, ids: TARGETS.slice(i * 20, (i + 1) * 20) }));
 const NONE_TARGETS = TARGETS.filter((id) => hint5EmptyFixedRungs(id)!.length > 0);
 
@@ -175,7 +175,7 @@ describe("flag ON: the ladder through the reducer", () => {
       expect(act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: 1 }), id).toBe(s);
     }
   });
-  it("insufficient Pitz is refused with no change, uniformly for every target", () => {
+  it("insufficient Pitz is refused with no change once the wallet is spent: hawaiian after three rungs (30 -> 0)", () => {
     let s = sheetOn("hawaiian", 30);
     s = buy(buy(buy(s))); // 30 -> 0
     expect(s.pitzBalance).toBe(0);

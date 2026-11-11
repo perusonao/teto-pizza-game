@@ -524,7 +524,7 @@ describe("privacy (matrix 33-35)", () => {
     const reference = shape(sheetOn("funghi", 100));
     for (const id of ids) expect(shape(sheetOn(id, 100)), id).toEqual(reference);
   });
-  it("34 no category availability / remaining count: every target shows the same shape at the same paid count", () => {
+  it("34 no category availability / remaining count: the view carries no remaining / reserved / purchasable field and not the target id (capricciosa)", () => {
     const json = JSON.stringify(view(sheetOn("capricciosa", 100)));
     expect(json).not.toMatch(/remaining|reserved|purchasable|capricciosa/);
   });
