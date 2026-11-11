@@ -15,6 +15,8 @@ legibility lower bound; it is not a proposed squid production size.
 - A/B/C actual-size sheet: `screenshots/squid-svg-818/squid-abc-native-size-comparison.png`
 - C vs existing seafood: `screenshots/squid-svg-818/squid-c-seafood-discrimination.png`
 - iPhone-width sheets: `squid-iphone-390x844.png` and `squid-iphone-360x800.png`
+- iPhone-width seafood sheets: `squid-seafood-iphone-390x844.png` and
+  `squid-seafood-iphone-360x800.png`
 - Backgrounds: representative flat comparison colours only — light dough-like `#efd49d`, dark
   baked-dough-like `#c9904f`, cheese-like `#f3cf70`. These are not sampled production colours and
   do not reproduce the runtime bake filter.
@@ -75,8 +77,11 @@ future in-game bake filter. Use the exact PR #818 head containing this report.
    only to explain a defect, never to pass legibility.
 4. For each background, answer: (a) mantle is visible, (b) ring stays detached, (c) outline does
    not disappear, (d) C is not mistaken for a person/rocket/onion ring.
-5. On `squid-c-seafood-discrimination.png`, compare C against shrimp, whitebait, sardine and clam
+5. On the matching-width `squid-seafood-iphone-390x844.png` or
+   `squid-seafood-iphone-360x800.png`, compare C against shrimp, whitebait, sardine and clam
    without reading the labels for two seconds; then check the label. Record any mistaken identity.
+   The 1200 px `squid-c-seafood-discrimination.png` is an overview only and cannot pass actual-size
+   iPhone identification.
 6. Repeat in iPhone grayscale accessibility mode. Confirm C vs shrimp and C vs clam from silhouette.
 7. Capture one screenshot of the matching viewport sheet, plus a short screen recording that moves through
    28 px → 26 px → 20 px without pinch zoom. Video stays outside the repository and is delivered
@@ -101,7 +106,7 @@ No further rerun and no timeout/Gate relaxation are permitted without fixing tha
 
 ## 6. Final Gate boundary
 
-- Asset diff: three SVGs plus this report and two PNG evidence files; existing files unchanged.
+- Asset diff: three SVGs plus this report and six PNG evidence files; existing files unchanged.
 - Local: XML parse PASS, forbidden SVG constructs absent, `git diff --check` PASS.
 - CI: FAILED as described above.
 - Independent review: required on the final report commit.
