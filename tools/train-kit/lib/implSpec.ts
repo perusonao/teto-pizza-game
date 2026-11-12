@@ -65,6 +65,7 @@ export interface KitRecipe {
   readonly hvAlias?: string;
 }
 
+
 export interface KitTrain {
   readonly train: string;
   /** Lowercase tag for file names / HV ids, e.g. `b23b`, `t24`. */
@@ -74,6 +75,8 @@ export interface KitTrain {
   readonly issue: number;
   readonly recipes: readonly KitRecipe[];
   readonly newIngredients: readonly KitIngredient[];
+  /** Entitlement floors of the NEW late materials, recorded by `apply` at the moment they shipped (derived ladder numbers, frozen afterwards). `trainContract.test.ts` asserts them exactly. */
+  readonly floors?: Readonly<Record<string, number>>;
 }
 
 /** The late-catalog / T4 convention every batch since B8 has used; a spec may omit these and `withDefaults` fills them in. */
@@ -135,6 +138,9 @@ export function validateKitTrain(kit: KitTrain, shipped: ShippedFacts): string[]
   todo(kit.recipes, "recipes");
   todo(kit.newIngredients, "newIngredients");
   if (problems.length > 0) return problems;
+  // `train` and `label` are written into `//` and `/** */` comments of the catalog files: nothing that could end a comment or a line.
+  const unsafe = /(\*\/|[\r\n`]|\/\*)/;
+  for (const [name, value] of [["train", kit.train], ["label", kit.label]] as const) if (typeof value === "string" && unsafe.test(value)) say(`${name} contains a character sequence that could escape a generated comment ("*/", "/*", a backtick or a line break)`);
   if (!kit.train) say("train name is missing");
   if (!TAG_PATTERN.test(kit.tag ?? "")) say(`tag "${kit.tag}" must match ${TAG_PATTERN} (it becomes a file name and an identifier)`);
   if (!kit.label) say("label is missing");
@@ -178,7 +184,11 @@ export function validateKitTrain(kit: KitTrain, shipped: ShippedFacts): string[]
     if (!r.nameJa || !r.description) say(`nameJa / description of ${r.id}`);
     if (!r.order?.lineJa) say(`order line of ${r.id}`);
     if (!r.evidenceId) say(`evidenceId of ${r.id}`);
-    if (!(r.bakeTarget.start < r.bakeTarget.end)) say(`bakeTarget of ${r.id}`);
+    if (!Number.isInteger(r.bakeTarget?.start) || !Number.isInteger(r.bakeTarget?.end) || !(r.bakeTarget.start < r.bakeTarget.end)) say(`bakeTarget of ${r.id} must be two integers, start < end`);
+    if (!Number.isInteger(r.baseRewardPitz) || r.baseRewardPitz < 0) say(`baseRewardPitz of ${r.id} must be a non-negative integer`);
+    if (typeof r.lunchRush !== "boolean" || typeof r.ladderCredit !== "boolean") say(`lunchRush / ladderCredit of ${r.id} must be booleans`);
+    if (r.sauceProfile !== null && !["PAINT", "PAINT_TEMPORARY"].includes(r.sauceProfile?.interaction)) say(`sauceProfile.interaction of ${r.id} must be PAINT or PAINT_TEMPORARY`);
+    if (typeof r.order?.requestedBy !== "string" || r.order.requestedBy.length === 0) say(`order.requestedBy of ${r.id}`);
     const ids = r.requiredIngredients.map((q) => q.ingredientId);
     if (ids.length === 0) say(`recipe without ingredients: ${r.id}`);
     if (new Set(ids).size !== ids.length) say(`repeated ingredient in ${r.id}`);

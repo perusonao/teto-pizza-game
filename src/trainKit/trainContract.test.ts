@@ -48,10 +48,12 @@ describe.each(LANDED.map((kit) => [kit.tag, kit] as const))("landed train %s", (
     }
   });
 
-  it("every late material has an entitlement floor that grants no later than its ladder step", () => {
-    for (const i of kit.newIngredients.filter((x) => isLateIngredient(kit, x.id))) {
+  it("every late material has the entitlement floor the spec recorded when it shipped, and it grants no later than its ladder step", () => {
+    const late = kit.newIngredients.filter((x) => isLateIngredient(kit, x.id));
+    expect(Object.keys(kit.floors ?? {}).sort(), "the spec records exactly its late materials' floors").toEqual(late.map((i) => i.id).sort());
+    for (const i of late) {
       const step = DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(i.id))!.step;
-      expect(LATE_ENTITLEMENT_FLOORS[i.id], i.id).toBeGreaterThan(0);
+      expect(LATE_ENTITLEMENT_FLOORS[i.id], i.id).toBe(kit.floors![i.id]);
       expect(LATE_ENTITLEMENT_FLOORS[i.id], i.id).toBeLessThanOrEqual(step);
     }
   });

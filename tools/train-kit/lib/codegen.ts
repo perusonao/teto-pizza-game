@@ -51,10 +51,10 @@ export const DEFAULT_PIECE_STYLE: PieceStyle = { interaction: { family: "TAP_PLA
 
 /* ---------- text primitives ---------- */
 
-function once(text: string, needle: string, what: string, from = 0): number {
-  const at = text.indexOf(needle, from);
+function once(text: string, needle: string, what: string): number {
+  const at = text.indexOf(needle);
   if (at < 0) throw new AnchorError(`anchor not found: ${what} (${JSON.stringify(needle)})`);
-  if (text.indexOf(needle, at + needle.length) >= 0 && from === 0) throw new AnchorError(`anchor is ambiguous: ${what} (${JSON.stringify(needle)})`);
+  if (text.indexOf(needle, at + needle.length) >= 0) throw new AnchorError(`anchor is ambiguous: ${what} (${JSON.stringify(needle)})`);
   return at;
 }
 

@@ -80,6 +80,8 @@ function git(args, cwd = ROOT) {
  */
 function replay(flags) {
   for (const f of ["base", "target", "ids", "tag", "label", "out"]) if (typeof flags[f] !== "string") throw new Error(`replay needs --${f}`);
+  if (!/^[a-z][a-z0-9]*$/.test(flags.tag)) throw new Error(`--tag "${flags.tag}" must match [a-z][a-z0-9]* (it becomes a file name)`);
+  for (const f of ["base", "target"]) if (flags[f].startsWith("-")) throw new Error(`--${f} must be a commit, not an option`);
   const outDir = resolve(flags.out);
   mkdirSync(outDir, { recursive: true });
   const work = mkdtempSync(join(tmpdir(), "train-kit-replay-"));

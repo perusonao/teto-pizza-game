@@ -119,7 +119,8 @@ export function extractTrain(recipeIds: readonly string[], meta: { train: string
     unsupported.push(...x.unsupported.map((u) => `${id}: ${u}`));
     return x.ingredient;
   });
-  return { kit: { ...meta, recipes, newIngredients }, unsupported };
+  const floors = Object.fromEntries(newIngredients.filter((i) => LATE_ENTITLEMENT_FLOORS[i.id] !== undefined).map((i) => [i.id, LATE_ENTITLEMENT_FLOORS[i.id]]));
+  return { kit: { ...meta, recipes, newIngredients, ...(Object.keys(floors).length > 0 ? { floors } : {}) }, unsupported };
 }
 
 /** The one interaction / matching style every shipped Reference gives an ingredient (measured: no ingredient has two). */

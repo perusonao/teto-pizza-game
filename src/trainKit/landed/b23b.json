@@ -152,5 +152,12 @@
    "pieceVisual": "marshmallow-dessert",
    "glyphHost": "DessertGlyph"
   }
- ]
+ ],
+ "floors": {
+  "banana": 88,
+  "chocolate": 88,
+  "powdered-sugar": 88,
+  "graham-cracker": 89,
+  "marshmallow": 89
+ }
 }

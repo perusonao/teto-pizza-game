@@ -104,6 +104,9 @@ node tools/train-kit/cli.mjs replay --base d3d4ec0~1 --target d3d4ec0 --ids buff
 
 どちらも `catalog differences 0` でなければならない（B21・B23-a も同様。結果は `docs/reports/data/TETO_TRAIN-KIT/*.replay.result.json`）。
 
+`codegen.anchors.test.ts` が確かめるのは「アンカーが見つかり挿入できる」ことまでで、**挿入位置が正しいか**は `replay`（CI には入っていない）が証明する。
+生成器かカタログの構造を触った PR では、上の `replay` 2 本を手元で実行して結果を PR に書く。
+
 ## 6. ファイル構成
 
 | パス | 役割 |
