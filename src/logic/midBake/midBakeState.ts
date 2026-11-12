@@ -130,6 +130,10 @@ export function midBakeReducer(state: MidBakeState, event: MidBakeEvent): MidBak
   if (state.status === "finished") return state;
   if (event.type === "START") return state;
 
+  // A stale (< lastAt) or non-finite clock makes the whole event a no-op. Without this guard
+  // advance() returns the old state and ADD would be judged against that old window stage.
+  if (event.type === "ADD" && progressAt(state, event.now) === null) return state;
+
   const advanced = advance(state, event.now);
   if (advanced.status !== "baking") return advanced;
   if (event.type === "TICK") return advanced;

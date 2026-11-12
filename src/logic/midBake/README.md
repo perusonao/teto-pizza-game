@@ -12,8 +12,11 @@ inventory, Research, Hint, Preview, or shared-Preview integration.
   `0.90`, the pizza is already rebaking and no more ingredients can be added.
 - A direct placement and T9's alternative operation both dispatch `ADD`; the input origin is
   retained only for audit/telemetry and cannot change eligibility or completion.
-- Required counts are capped. Unknown, early, late, excess, stale-clock, and wrong-state inputs
-  are no-ops.
+- Required counts are capped. Unknown, early, late, excess, and wrong-state inputs are no-ops.
+- An `ADD` whose `now` is earlier than the last accepted clock (`lastAt`) or is not finite
+  (`NaN`, `±Infinity`) is a complete no-op: the original state object is returned unchanged
+  (additions, stage, progress and `lastAt` are untouched), for direct and alternative input alike.
+  An `ADD` with `now === lastAt` is valid. Stale or non-finite `TICK`/`FINISH` are no-ops too.
 - Completion records either `complete` or `missing-additions`; it does not award score or alter
   recipe identity.
 - `CANCEL` returns to a fresh idle state with the same immutable plan.
