@@ -9,6 +9,10 @@ export const PAN_PROFILE_REGISTRY = {
     id: "tray", vessel: "sheet", depth: "shallow", directHeatContact: true,
     defaultDoughShapeTargetId: "square", compatibleDoughShapeTargetIds: ["square", "rectangle"],
   },
+  pan: {
+    id: "pan", vessel: "round-pan", depth: "shallow", directHeatContact: true,
+    defaultDoughShapeTargetId: "round", compatibleDoughShapeTargetIds: ["round", "square"],
+  },
   "shallow-pan": {
     id: "shallow-pan", vessel: "round-pan", depth: "shallow", directHeatContact: true,
     defaultDoughShapeTargetId: "round", compatibleDoughShapeTargetIds: ["round"],
@@ -17,9 +21,9 @@ export const PAN_PROFILE_REGISTRY = {
     id: "deep-pan", vessel: "round-pan", depth: "deep", directHeatContact: true,
     defaultDoughShapeTargetId: "round", compatibleDoughShapeTargetIds: ["round"],
   },
-  griddle: {
-    id: "griddle", vessel: "griddle", depth: "none", directHeatContact: true,
-    defaultDoughShapeTargetId: "round", compatibleDoughShapeTargetIds: ["round", "oval", "boat"],
+  "steel-pan": {
+    id: "steel-pan", vessel: "steel-pan", depth: "shallow", directHeatContact: true,
+    defaultDoughShapeTargetId: "square", compatibleDoughShapeTargetIds: ["square", "rectangle"],
   },
 } as const satisfies Record<PanProfileId, PanProfile>;
 

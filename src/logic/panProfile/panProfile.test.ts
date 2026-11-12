@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DOUGH_SHAPE_TARGET_REGISTRY } from "../doughShapeTarget";
 import { checkPanShapeCompatibility } from "./compatibility";
-import { legacyPanFromProfile, panProfileIdFromLegacy } from "./legacyAdapter";
+import { legacyPanFieldsFromProfile, panProfileIdFromLegacy } from "./legacyAdapter";
 import { PAN_PROFILE_REGISTRY } from "./registry";
 import { PAN_PROFILE_IDS, type PanProfile } from "./types";
 import { validatePanProfileRegistry } from "./validator";
@@ -22,7 +22,7 @@ describe("PAN_PROFILE registry", () => {
   it("returns an explicit compatibility result without silently substituting a target", () => {
     expect(checkPanShapeCompatibility("tray", "rectangle")).toEqual({ compatible: true });
     expect(checkPanShapeCompatibility("tray", "round")).toEqual({ compatible: false, reason: "SHAPE_NOT_SUPPORTED" });
-    expect(checkPanShapeCompatibility("griddle", "boat")).toEqual({ compatible: true });
+    expect(checkPanShapeCompatibility("steel-pan", "rectangle")).toEqual({ compatible: true });
   });
 });
 
@@ -47,6 +47,19 @@ describe("pure validator", () => {
     ]));
     expect(JSON.stringify(broken)).toBe(before);
   });
+
+  it.each([null, [], { tray: null }, { tray: { id: "tray", compatibleDoughShapeTargetIds: null } }])(
+    "returns issues instead of throwing for malformed input %#",
+    (input) => {
+      expect(() => validatePanProfileRegistry(input)).not.toThrow();
+      expect(validatePanProfileRegistry(input).length).toBeGreaterThan(0);
+    },
+  );
+
+  it("rejects an unknown default even when the same unknown id is listed as compatible", () => {
+    const input = { ...PAN_PROFILE_REGISTRY, tray: { ...PAN_PROFILE_REGISTRY.tray, defaultDoughShapeTargetId: "future", compatibleDoughShapeTargetIds: ["future"] } };
+    expect(validatePanProfileRegistry(input).map((issue) => issue.code)).toEqual(expect.arrayContaining(["UNKNOWN_SHAPE_TARGET", "UNKNOWN_DEFAULT_SHAPE_TARGET"]));
+  });
 });
 
 describe("legacy-round / tray / square adapter", () => {
@@ -60,8 +73,8 @@ describe("legacy-round / tray / square adapter", () => {
   });
 
   it("only projects profiles that have an exact legacy representation", () => {
-    expect(legacyPanFromProfile("legacy-round")).toBe("round");
-    expect(legacyPanFromProfile("tray")).toBe("tray");
-    expect(legacyPanFromProfile("deep-pan")).toBeNull();
+    expect(legacyPanFieldsFromProfile("legacy-round")).toEqual({ pan: null, panShape: "round" });
+    expect(legacyPanFieldsFromProfile("tray")).toEqual({ pan: "tray", panShape: "square" });
+    expect(legacyPanFieldsFromProfile("deep-pan")).toBeNull();
   });
 });

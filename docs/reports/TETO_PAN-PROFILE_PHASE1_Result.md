@@ -11,7 +11,7 @@ Production未配線の純粋基盤として、`PanProfileId` / `PanProfile`、5 
 - PAN_PROFILEは容器・深さ・熱接触と「許容するshape target ID」だけを持つ。
 - DOUGH_SHAPE_TARGETは形状族・aspect ratio・closedだけを持ち、pan IDを持たない。
 - compatibilityは`checkPanShapeCompatibility(profileId, targetId)`で明示的に評価し、推論・fallbackを行わない。
-- legacy adapterは既存意味だけを投影する: 未指定/round → `legacy-round`、trayまたはsquare → `tray`。新profileからlegacyへ正確に戻せない場合は`null`。
+- legacy adapterは既存意味だけを投影する: 未指定/round → `legacy-round`、trayまたはsquare → `tray`。逆変換は`legacy-round` → `{ pan: null, panShape: "round" }`、`tray` → `{ pan: "tray", panShape: "square" }`で、既存`PizzaState.pan`に存在しない`"round"`を生成しない。新profileから正確に戻せない場合は`null`。
 - 既存`src/logic/pan/panProfile.ts`は改名・変更していない。
 
 ## Compatibility / parity
@@ -30,7 +30,7 @@ Production未配線の純粋基盤として、`PanProfileId` / `PanProfile`、5 
 
 | Gate | Result |
 |---|---|
-| Focused Vitest (`src/logic/panProfile`, `src/logic/doughShapeTarget`) | PASS — 3 files / 14 tests |
+| Focused Vitest (`src/logic/panProfile`, `src/logic/doughShapeTarget`) | PASS — 3 files / 19 tests |
 | Architecture test | PASS — focused runに含む |
 | Type check (`tsc -b --pretty false`) | PASS |
 | Lint (new modules) | PASS |

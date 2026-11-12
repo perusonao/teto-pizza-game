@@ -9,8 +9,13 @@ export function panProfileIdFromLegacy(pan: LegacyPanValue, panShape?: LegacyPan
   return "legacy-round";
 }
 
-export function legacyPanFromProfile(profileId: PanProfileId): "round" | "tray" | null {
-  if (profileId === "legacy-round") return "round";
-  if (profileId === "tray") return "tray";
+export interface LegacyPanFields {
+  readonly pan: "tray" | null;
+  readonly panShape: "round" | "square";
+}
+
+export function legacyPanFieldsFromProfile(profileId: PanProfileId): LegacyPanFields | null {
+  if (profileId === "legacy-round") return { pan: null, panShape: "round" };
+  if (profileId === "tray") return { pan: "tray", panShape: "square" };
   return null;
 }

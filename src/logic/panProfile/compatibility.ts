@@ -8,7 +8,7 @@ export type PanShapeCompatibility =
 
 /** The only Phase-1 relationship between the two independent registries. No inference in either direction. */
 export function checkPanShapeCompatibility(profileId: PanProfileId, targetId: DoughShapeTargetId): PanShapeCompatibility {
-  return getPanProfile(profileId).compatibleDoughShapeTargetIds.includes(targetId)
+  return (getPanProfile(profileId).compatibleDoughShapeTargetIds as readonly DoughShapeTargetId[]).includes(targetId)
     ? { compatible: true }
     : { compatible: false, reason: "SHAPE_NOT_SUPPORTED" };
 }
