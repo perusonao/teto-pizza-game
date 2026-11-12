@@ -1,0 +1,10 @@
+{
+ "_comment": "The Owner's totals for Issue #780. The only authored numbers of the progress ledger; change them only on an Owner decision.",
+ "ingredients": 170,
+ "recipes": 177,
+ "methods": 27,
+ "notes": [
+  "Ingredients: `nutella-spread` was merged into the shipped `chocolate` (B23-b) and the Owner assigned the freed slot to `squid` (2026-11-10, docs/reports/TETO_CODEX-CONTENT-EXPANSION_NONCONFLICT-PLAN_2026-11-10.md). `unplanned` > 0 means a target slot still has no staged row.",
+  "Methods: the count is the 27 candidate rows of docs/reports/data/TETO_CONTENT-MASTER_methods.csv; `shipped` = status IMPLEMENTED."
+ ]
+}

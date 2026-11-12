@@ -1,0 +1,180 @@
+{
+ "train": "replay-b21",
+ "tag": "b21",
+ "label": "Expansion Batch 21",
+ "issue": 780,
+ "recipes": [
+  {
+   "id": "taco-pizza",
+   "nameJa": "タコピザ",
+   "description": "牛ひき肉とチェダーに、レタスとトルティーヤチップスをあわせた一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "cheddar",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "beef",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "fresh-tomato",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "lettuce",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "tortilla-chips",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "taco-pizza-pizzadb",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "タコピザ、ぱりぱりしておいしそう！食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "tomato-sauce",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "cheddar",
+     "lettuce",
+     "tortilla-chips"
+    ]
+   }
+  },
+  {
+   "id": "okonomiyaki-style-pizza",
+   "nameJa": "お好み焼き風ピザ",
+   "description": "お好み焼きソースにキャベツと豚肉、マヨネーズとかつお節をのせた一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "okonomiyaki-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "cabbage",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "pork",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "mayo",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "bonito-flakes",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "nori",
+     "minCount": 1,
+     "applicationPhase": "POST_BAKE"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "お好み焼き風ピザ、ソースの香りがおいしそう！食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "okonomiyaki-sauce",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "okonomiyaki-sauce",
+     "cabbage",
+     "bonito-flakes"
+    ]
+   }
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "cheddar",
+   "nameJa": "チェダーチーズ",
+   "category": "cheese",
+   "family": null,
+   "color": "#f2a33a",
+   "emoji": "🔶",
+   "sizeClass": "l"
+  },
+  {
+   "id": "lettuce",
+   "nameJa": "レタス",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#9fd36b",
+   "emoji": "🍏",
+   "sizeClass": "m",
+   "pieceVisual": "lettuce-leaf",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "tortilla-chips",
+   "nameJa": "トルティーヤチップス",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#e8c25a",
+   "emoji": "🔺",
+   "sizeClass": "m"
+  },
+  {
+   "id": "okonomiyaki-sauce",
+   "nameJa": "お好み焼きソース",
+   "category": "sauce",
+   "family": null,
+   "color": "#5a3420",
+   "emoji": "🍶"
+  },
+  {
+   "id": "cabbage",
+   "nameJa": "キャベツ",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#c9e3a3",
+   "emoji": "🪷",
+   "sizeClass": "s",
+   "pieceVisual": "cabbage-shreds",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "bonito-flakes",
+   "nameJa": "かつお節",
+   "category": "topping",
+   "family": "seafood",
+   "color": "#c98f5a",
+   "emoji": "🪶",
+   "sizeClass": "xs"
+  }
+ ]
+}

@@ -1,0 +1,14 @@
+{
+ "base": "5444db2b6a6a89246b7e117fc6e1761a1888b994",
+ "target": "9ad689c059c58b49a0723f3428a12189c5a031cc",
+ "ids": [
+  "nutella-dessert-pizza",
+  "smore-dessert-pizza"
+ ],
+ "catalogDifferences": [],
+ "hvSeedsWiringIdentical": true,
+ "previewGateIdentical": true,
+ "tsc": "0 errors",
+ "unsupported": [],
+ "typeFollowUps": []
+}

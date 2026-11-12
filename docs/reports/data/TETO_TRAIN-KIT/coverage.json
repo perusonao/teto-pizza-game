@@ -1,0 +1,707 @@
+{
+ "summary": {
+  "recipes": 104,
+  "expressible": 75,
+  "sameReference": 88,
+  "both": 74
+ },
+ "rows": [
+  {
+   "id": "margherita",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "marinara",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "quattro-formaggi",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "genovese",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "bismarck",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "funghi",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "fugazza",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "recipe field mysteryLock",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "salsiccia",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "pepperoni",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "napoletana",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "tonno-e-cipolla",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "pizza-bianca",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "breakfast-pizza",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "capricciosa",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "meat-lovers",
+   "expressible": false,
+   "unsupported": [
+    "recipe field unlockCondition",
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "melanzane-pizza",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "parmigiana-pizza",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "bambino",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "hawaiian",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "pizza-portuguesa",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "pesto-tonno",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "new-haven-apizza",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "pesto-caprese",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "pesto-patate",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "puttanesca-pizza",
+   "expressible": false,
+   "unsupported": [
+    "hint roles are not { keyFree: true }"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "brazilian-calabresa",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pesto-pollo",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pesto-gamberi",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "vongole",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pesto-vegetariana",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "ratatouille-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "aussie",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pesto-trapanese",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "baba-ganoush-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "prosciutto-funghi",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "veggie-supreme-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "jamon-serrano-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "calabresa-argentina",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "rucola-e-grana",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "vegan-cashew-cheese-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pesto-salmone",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "bacalhau",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "full-english-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "palmito-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "polish-kielbasa",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "porchetta-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "salsiccia-e-friarielli",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "brazilian-catupiry-corn-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "jalapeno-popper-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pizza-feta-eliniki",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pizza-moscow",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pizza-bianca-ricotta",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pizza-overload",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "california-style-pizza",
+   "expressible": false,
+   "unsupported": [
+    "ladder step has a star gate"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "spinach-artichoke-pizza",
+   "expressible": false,
+   "unsupported": [
+    "ladder step has a star gate"
+   ],
+   "sameReference": true
+  },
+  {
+   "id": "eggplant-ricotta-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "new-zealand-lamb-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "chilean-napolitana",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "spanish-chorizo-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "frango-catupiry",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "shirasu-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "flammkuchen",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "sichuan-eggplant-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "grandma-pizza",
+   "expressible": false,
+   "unsupported": [
+    "recipe field panShape"
+   ],
+   "sameReference": false
+  },
+  {
+   "id": "curry-pizza-japan",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "rendang-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "tandoori-paneer-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "currywurst",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "cuban-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "boscaiola",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "porcini-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pescatore",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "jamaican-jerk-chicken-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "supreme-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pizza-alla-norma",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "potato-mayo-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "moussaka-style-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "nigerian-suya-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "ume-shiso-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "goulash-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "baingan-bharta-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "reina-pepiada-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pesto-burrata-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pizza-alla-crudaiola",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pesto-noci-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "buffalo-chicken",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "speck-e-brie",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "apple-cinnamon-dessert",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "ikura-salmon-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": false
+  },
+  {
+   "id": "yuzu-shrimp-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "eggplant-dengaku-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "eggplant-tahini-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "bbq-chicken-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "wasabi-beef-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "tarako-cream-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "taco-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "okonomiyaki-style-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pizza-finocchi-salad",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pizza-cavolo-carote",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pizza-radicchio-noci",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "black-truffle-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "nutella-dessert-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "smore-dessert-pizza",
+   "expressible": true,
+   "unsupported": [],
+   "sameReference": true
+  },
+  {
+   "id": "pinsa-romana",
+   "expressible": false,
+   "unsupported": [
+    "recipe field doughKind"
+   ],
+   "sameReference": true
+  }
+ ]
+}
