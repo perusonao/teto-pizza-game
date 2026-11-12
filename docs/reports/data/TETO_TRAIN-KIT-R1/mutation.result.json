@@ -1,8 +1,14 @@
 {
  "summary": {
-  "mutations": 20,
-  "detectedOld": 17,
-  "detectedNew": 18,
+  "verdict": "PASS",
+  "mutations": 22,
+  "detectedOld": 19,
+  "detectedNew": 20,
+  "missedOld": 3,
+  "missedNew": 2,
+  "timeoutOld": 0,
+  "timeoutNew": 0,
+  "indeterminate": [],
   "lost": [],
   "gained": [
    "M20"
@@ -35,21 +41,24 @@
    "description": "swap the ordinary steps 72 and 73 (buffalo-sauce / brie)",
    "file": "src/data/discoveryLadder.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/expansionBatch22.test.ts",
-    "firstMessage": "AssertionError: expected { step: 72, kind: 'MATERIAL', …(2) } to match object { …(2) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { step: 72, kind: 'MATERIAL', …(2) } to match object { …(2) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/expansionBatch22.test.ts",
-    "firstMessage": "AssertionError: expected { step: 72, kind: 'MATERIAL', …(2) } to match object { …(2) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { step: 72, kind: 'MATERIAL', …(2) } to match object { …(2) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -58,21 +67,24 @@
    "description": "a shipped late floor changes (truffle 86 -> 87)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/expansionBatch22.test.ts",
-    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(31) } to deeply equal { 'salmon-roe': 57, …(31) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(31) } to deeply equal { 'salmon-roe': 57, …(31) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/expansionBatch22.test.ts",
-    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(31) } to deeply equal { 'salmon-roe': 57, …(31) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(31) } to deeply equal { 'salmon-roe': 57, …(31) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -81,21 +93,24 @@
    "description": "a late floor is dropped (nori)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/expansionBatch17.test.ts",
-    "firstMessage": "AssertionError: expected [ 68, 68, undefined ] to deeply equal [ 68, 68, 68 ]",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected [ 68, 68, undefined ] to deeply equal [ 68, 68, 68 ]"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/expansionBatch17.test.ts",
-    "firstMessage": "AssertionError: expected [ 68, 68, undefined ] to deeply equal [ 68, 68, 68 ]",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected [ 68, 68, undefined ] to deeply equal [ 68, 68, 68 ]"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -104,21 +119,24 @@
    "description": "a landed late floor changes (banana 88 -> 90)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/data/lateCatalog.late4.test.ts",
-    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(31) } to deeply equal { 'salmon-roe': 57, …(31) }",
-    "timeoutOnly": false
+    "firstFailingFile": "src/data/lateCatalog.bbq.test.ts",
+    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(31) } to deeply equal { 'salmon-roe': 57, …(31) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/data/lateCatalog.late4.test.ts",
-    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(31) } to deeply equal { 'salmon-roe': 57, …(31) }",
-    "timeoutOnly": false
+    "firstFailingFile": "src/data/lateCatalog.bbq.test.ts",
+    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(31) } to deeply equal { 'salmon-roe': 57, …(31) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -127,21 +145,24 @@
    "description": "swap two late steps (taco / okonomiyaki)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/data/lateCatalog.late4.test.ts",
-    "firstMessage": "AssertionError: expected [ 'ikura-salmon-pizza', …(14) ] to deeply equal [ 'ikura-salmon-pizza', …(14) ]",
-    "timeoutOnly": false
+    "firstFailingFile": "src/logic/materialShop.test.ts",
+    "firstMessage": "AssertionError: expected { ingredientId: 'cheddar', …(6) } to deeply equal { ingredientId: 'cheddar', …(6) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/data/lateCatalog.late4.test.ts",
-    "firstMessage": "AssertionError: expected [ 'ikura-salmon-pizza', …(14) ] to deeply equal [ 'ikura-salmon-pizza', …(14) ]",
-    "timeoutOnly": false
+    "firstFailingFile": "src/logic/materialShop.test.ts",
+    "firstMessage": "AssertionError: expected { ingredientId: 'cheddar', …(6) } to deeply equal { ingredientId: 'cheddar', …(6) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -150,21 +171,24 @@
    "description": "drop the last pre-B23 late step (black-truffle-pizza)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/logic/materialShop.test.ts",
-    "firstMessage": "AssertionError: expected null to deeply equal { ingredientId: 'truffle', …(6) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected null to deeply equal { ingredientId: 'truffle', …(6) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/logic/materialShop.test.ts",
-    "firstMessage": "AssertionError: expected null to deeply equal { ingredientId: 'truffle', …(6) }",
-    "timeoutOnly": false
+    "firstFailingFile": "src/logic/catalog/catalogComposition.test.ts",
+    "firstMessage": "AssertionError: expected [ …(14) ] to deeply equal [ …(15) ]"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -173,21 +197,24 @@
    "description": "a late step unlocks fewer materials (finocchi: fennel only)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/logic/materialShop.test.ts",
-    "firstMessage": "AssertionError: expected null to deeply equal { ingredientId: 'orange', …(6) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected null to deeply equal { ingredientId: 'orange', …(6) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/logic/materialShop.test.ts",
-    "firstMessage": "AssertionError: expected null to deeply equal { ingredientId: 'orange', …(6) }",
-    "timeoutOnly": false
+    "firstFailingFile": "src/logic/catalog/catalogComposition.test.ts",
+    "firstMessage": "AssertionError: expected [ …(15) ] to deeply equal [ …(15) ]"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -196,21 +223,24 @@
    "description": "swap the two B23-b late steps (nutella / smore)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/logic/materialShop.test.ts",
-    "firstMessage": "AssertionError: expected { ingredientId: 'banana', …(6) } to deeply equal { ingredientId: 'banana', …(6) }",
-    "timeoutOnly": false
+    "firstFailingFile": "src/data/lateCatalog.bbq.test.ts",
+    "firstMessage": "AssertionError: expected [ 'ikura-salmon-pizza', …(14) ] to deeply equal [ 'ikura-salmon-pizza', …(14) ]"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/logic/materialShop.test.ts",
-    "firstMessage": "AssertionError: expected { ingredientId: 'banana', …(6) } to deeply equal { ingredientId: 'banana', …(6) }",
-    "timeoutOnly": false
+    "firstFailingFile": "src/logic/catalog/catalogComposition.test.ts",
+    "firstMessage": "AssertionError: expected [ …(15) ] to deeply equal [ …(15) ]"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -219,21 +249,24 @@
    "description": "a topping moves family (apple fruit -> spice)",
    "file": "src/data/ingredientTaxonomy.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { Object (sauce, cheese, ...) } to deeply equal { sauce: 19, cheese: 17, …(7) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { Object (sauce, cheese, ...) } to deeply equal { sauce: 19, cheese: 17, …(7) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
-    "failedTests": 1,
-    "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { Object (sauce, cheese, ...) } to deeply equal { Object (sauce, cheese, ...) }",
-    "timeoutOnly": false
+    "failedTests": 0,
+    "firstFailingFile": null,
+    "firstMessage": "(non-zero exit; no assertion parsed)"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -242,21 +275,24 @@
    "description": "a late topping moves family (banana fruit -> vegetable)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { Object (sauce, cheese, ...) } to deeply equal { sauce: 19, cheese: 17, …(7) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { Object (sauce, cheese, ...) } to deeply equal { sauce: 19, cheese: 17, …(7) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { Object (sauce, cheese, ...) } to deeply equal { Object (sauce, cheese, ...) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { Object (sauce, cheese, ...) } to deeply equal { Object (sauce, cheese, ...) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -265,21 +301,24 @@
    "description": "a late topping changes size class (banana s -> l)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "pass",
     "detected": false,
+    "timeoutOnly": false,
     "exitCode": 0,
     "failedTests": 0,
     "firstFailingFile": null,
-    "firstMessage": null,
-    "timeoutOnly": false
+    "firstMessage": null
    },
    "new": {
+    "outcome": "pass",
     "detected": false,
+    "timeoutOnly": false,
     "exitCode": 0,
     "failedTests": 0,
     "firstFailingFile": null,
-    "firstMessage": null,
-    "timeoutOnly": false
+    "firstMessage": null
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -288,21 +327,24 @@
    "description": "a shipped recipe quantity changes (smore marshmallow 2 -> 3)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/logic/materialShop.test.ts",
-    "firstMessage": "AssertionError: expected { ingredientId: 'marshmallow', …(6) } to deeply equal { ingredientId: 'marshmallow', …(6) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { ingredientId: 'marshmallow', …(6) } to deeply equal { ingredientId: 'marshmallow', …(6) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/logic/materialShop.test.ts",
-    "firstMessage": "AssertionError: expected { ingredientId: 'marshmallow', …(6) } to deeply equal { ingredientId: 'marshmallow', …(6) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected 3 to be 2 // Object.is equality"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -311,21 +353,24 @@
    "description": "a NO_SAUCE recipe gains a sauce profile (nutella)",
    "file": "src/data/recipeSauceProfiles.ts",
    "old": {
+    "outcome": "pass",
     "detected": false,
+    "timeoutOnly": false,
     "exitCode": 0,
     "failedTests": 0,
     "firstFailingFile": null,
-    "firstMessage": null,
-    "timeoutOnly": false
+    "firstMessage": null
    },
    "new": {
+    "outcome": "pass",
     "detected": false,
+    "timeoutOnly": false,
     "exitCode": 0,
     "failedTests": 0,
     "firstFailingFile": null,
-    "firstMessage": null,
-    "timeoutOnly": false
+    "firstMessage": null
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -334,21 +379,24 @@
    "description": "drop the ordinary step 74 (apple)",
    "file": "src/data/discoveryLadder.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/data/expansionBatch17.test.ts",
-    "firstMessage": "AssertionError: expected [ { step: 1, …(3) }, …(72) ] to have a length of 74 but got 73",
-    "timeoutOnly": false
+    "firstFailingFile": "src/data/expansionBatch21.test.ts",
+    "firstMessage": "AssertionError: cheddar: expected { ingredientId: 'cheddar', …(6) } to match object { ingredientId: 'cheddar', …(6) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/data/expansionBatch16.test.ts",
-    "firstMessage": "AssertionError: expected [ { step: 1, …(3) }, …(72) ] to have a length of 74 but got 73",
-    "timeoutOnly": false
+    "firstFailingFile": "src/data/expansionBatch21.test.ts",
+    "firstMessage": "AssertionError: cheddar: expected { ingredientId: 'cheddar', …(6) } to match object { ingredientId: 'cheddar', …(6) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -357,21 +405,24 @@
    "description": "a credited late recipe loses its credit (pizza-radicchio-noci)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { recipes: 104, credited: 91, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { recipes: 104, credited: 91, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { recipes: 104, credited: 91, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { recipes: 104, credited: 91, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -380,21 +431,24 @@
    "description": "an unapproved late ingredient appears",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { recipes: 104, credited: 92, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { recipes: 104, credited: 92, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { recipes: 104, credited: 92, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { recipes: 104, credited: 92, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -403,21 +457,24 @@
    "description": "an unapproved floor entry appears",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/expansionBatch18.test.ts",
-    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(32) } to deeply equal { 'salmon-roe': 57, …(31) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(32) } to deeply equal { 'salmon-roe': 57, …(31) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
-    "firstFailingFile": "src/data/expansionBatch22.test.ts",
-    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(32) } to deeply equal { 'salmon-roe': 57, …(31) }",
-    "timeoutOnly": false
+    "firstFailingFile": "src/data/expansionBatch21.test.ts",
+    "firstMessage": "AssertionError: expected { 'salmon-roe': 57, …(32) } to deeply equal { 'salmon-roe': 57, …(31) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -426,21 +483,24 @@
    "description": "a late ingredient changes category (banana topping -> cheese)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { recipes: 104, credited: 92, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { recipes: 104, credited: 92, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { recipes: 104, credited: 92, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { recipes: 104, credited: 92, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -449,21 +509,24 @@
    "description": "a landed recipe loses its credit (nutella)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { recipes: 104, credited: 91, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { recipes: 104, credited: 91, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }"
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/data/catalogLedger.test.ts",
-    "firstMessage": "AssertionError: expected { recipes: 104, credited: 91, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected { recipes: 104, credited: 91, …(5) } to deeply equal { recipes: 104, credited: 92, …(5) }"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": false
   },
@@ -472,23 +535,78 @@
    "description": "the materials of a landed late step change order (nutella step)",
    "file": "src/data/lateCatalog.ts",
    "old": {
+    "outcome": "pass",
     "detected": false,
+    "timeoutOnly": false,
     "exitCode": 0,
     "failedTests": 0,
     "firstFailingFile": null,
-    "firstMessage": null,
-    "timeoutOnly": false
+    "firstMessage": null
    },
    "new": {
+    "outcome": "detected",
     "detected": true,
+    "timeoutOnly": false,
     "exitCode": 1,
     "failedTests": 1,
     "firstFailingFile": "src/logic/catalog/catalogComposition.test.ts",
-    "firstMessage": "AssertionError: expected [ …(15) ] to deeply equal [ …(15) ]",
-    "timeoutOnly": false
+    "firstMessage": "AssertionError: expected [ …(15) ] to deeply equal [ …(15) ]"
    },
+   "indeterminate": false,
    "lost": false,
    "gained": true
+  },
+  {
+   "id": "M21",
+   "description": "a shipped landed material's pack multiplier changes silently (apple k 2 -> 3 via its landed recipe)",
+   "file": "src/data/recipes.ts",
+   "old": {
+    "outcome": "detected",
+    "detected": true,
+    "timeoutOnly": false,
+    "exitCode": 1,
+    "failedTests": 1,
+    "firstFailingFile": "src/logic/materialShop.test.ts",
+    "firstMessage": "AssertionError: expected { ingredientId: 'apple', …(6) } to deeply equal { ingredientId: 'apple', …(6) }"
+   },
+   "new": {
+    "outcome": "detected",
+    "detected": true,
+    "timeoutOnly": false,
+    "exitCode": 1,
+    "failedTests": 1,
+    "firstFailingFile": "src/logic/materialShop.test.ts",
+    "firstMessage": "AssertionError: expected 3 to be 2 // Object.is equality"
+   },
+   "indeterminate": false,
+   "lost": false,
+   "gained": false
+  },
+  {
+   "id": "M22",
+   "description": "a shipped landed late material's pack multiplier changes silently (marshmallow k 2 -> 3)",
+   "file": "src/data/lateCatalog.ts",
+   "old": {
+    "outcome": "detected",
+    "detected": true,
+    "timeoutOnly": false,
+    "exitCode": 1,
+    "failedTests": 1,
+    "firstFailingFile": "src/logic/materialShop.test.ts",
+    "firstMessage": "AssertionError: expected { ingredientId: 'marshmallow', …(6) } to deeply equal { ingredientId: 'marshmallow', …(6) }"
+   },
+   "new": {
+    "outcome": "detected",
+    "detected": true,
+    "timeoutOnly": false,
+    "exitCode": 1,
+    "failedTests": 1,
+    "firstFailingFile": "src/logic/materialShop.test.ts",
+    "firstMessage": "AssertionError: expected 3 to be 2 // Object.is equality"
+   },
+   "indeterminate": false,
+   "lost": false,
+   "gained": false
   }
  ]
 }

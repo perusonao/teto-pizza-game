@@ -88,7 +88,7 @@ late なのに step 無し など）は**ファイルを 1 つも書く前に**�
 
 - Research の非正準差分の ID 別承認表（`expansionBatch18〜22.test.ts` の「pinned … IDs」）
 - 重複 Gate の例外（`OD-B18-3` など）
-- 既存食材のパック変更（`materialShop.test.ts` の `EXPECTED_OFFERS` の k。Owner 承認済みの変更であり、プリフライトのパケット §5 に出る）
+- 既存食材のパック変更（`materialShop.test.ts` の `LANDED_SHOP_CONTRACT`〔着地した食材の k を凍結した手書き表。着地時に行を足す〕と `APPROVED_PACK_CHANGES`〔後続列車による変更〕。k は landed スペックや実装から導出しない。Owner 承認済みの変更であり、プリフライトのパケット §5 に出る）
 - ランク外のレシピがチャプター 4 以外に入る場合の `chapter`（スペックに書く。`catalogComposition.test.ts` が検証する）
 
 これらを「導出」してはいけない（承認の記録を実装から逆算すると、承認が要らなくなる）。

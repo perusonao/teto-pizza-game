@@ -20,7 +20,7 @@ Owner の条件付き実装 GO（2026-11-12）に基づく第 1 弾。claim: #78
 | 床値 | `LATE_ENTITLEMENT_FLOORS` の全体一致（9 か所に同じ 32 項目） | 手書きのコピー | `COMPOSED.floors` |
 | 末尾からの位置 | `steps.at(-9)`、`slice(-8, -2)` | 末尾基準（列車が増えるとずれる） | キー recipe で検索＋合成した番号。先頭基準の凍結位置（`indexOf(step) == 69`）は定数のまま |
 | 総数の重複 | `toHaveLength(74)` が 8 ファイル | 手書き | 合成した長さ |
-| ショップ行 | `EXPECTED_OFFERS` の late 行と、着地済み食材の行 | 手書き（step 番号は late なので毎回ずれる） | late 行の step は合成、着地済み食材の行は着地済みスペックから生成 |
+| ショップ行 | `EXPECTED_OFFERS` の late 行と、着地済み食材の行 | 手書き（step 番号は late なので毎回ずれる） | late 行の step は合成、着地済み食材の行は **凍結した手書き契約表（id → k）**＋合成した step（k は landed スペックからも実装からも導出しない。後続列車によるパック変更は `APPROVED_PACK_CHANGES` に Owner 承認として手で書く。独立監査 P2 の修正） |
 
 ## 2. 設計 — なぜ回帰検出能力が落ちないか
 
@@ -45,18 +45,20 @@ Owner の条件付き実装 GO（2026-11-12）に基づく第 1 弾。claim: #78
 ## 4. 検証【実測】
 
 ### 4.1 変異テスト（回帰検出能力の証明）
-`node tools/train-kit/cli.mjs mutation`: カタログの実ソースに 20 種類の現実的な回帰（ladder の入れ替え・削除・材料変更、床値の変更・削除・追加、family・サイズ・分類の変更、レシピの数量・クレジット変更、未承認食材の追加 など、`tools/train-kit/mutations.json`）を 1 つずつ加え、**同じ変異**を ① 旧テスト（main）と ② 新テスト（R-1）の 2 つの作業コピーで、変換した 17 ファイル（新は＋`catalogComposition.test.ts`・`composedCatalog.test.ts`）に対して実行。無変異の対照は両方成功。
+`node tools/train-kit/cli.mjs mutation`: カタログの実ソースに 22 種類の現実的な回帰（M21・M22 は監査 P2 修正で追加した「着地済み食材の k の無断変更」）（ladder の入れ替え・削除・材料変更、床値の変更・削除・追加、family・サイズ・分類の変更、レシピの数量・クレジット変更、未承認食材の追加 など、`tools/train-kit/mutations.json`）を 1 つずつ加え、**同じ変異**を ① 旧テスト（main）と ② 新テスト（R-1）の 2 つの作業コピーで、変換した 17 ファイル（新は＋`catalogComposition.test.ts`・`composedCatalog.test.ts`）に対して実行。無変異の対照は両方成功。
 
 | | 検出 |
 |---|---|
-| 旧テスト（手書き） | **17 / 20** |
-| 新テスト（合成） | **18 / 20** |
+| 旧テスト（手書き） | **19 / 22** |
+| 新テスト（合成） | **20 / 22** |
 | 旧が検出し新が見逃した | **0** |
 | 新だけが検出 | 1（M20: 着地済み late step の材料の並び替え） |
 | 新旧とも見逃し | 2（M11: 食材のサイズ分類、M13: NO_SAUCE レシピへのソース追加。変換対象外のテストが担当する領域で、対象 17 ファイルの検出範囲を変えていない） |
 
 証跡: `docs/reports/data/TETO_TRAIN-KIT-R1/mutation.result.json`（各変異の検出ファイル・失敗メッセージ・終了コード）。
 **ハーネスの信頼性**: 最初の実行は旧・新を並行して走らせ、負荷によるタイムアウトを検出と数えたため結果が不安定だった（M11・M13 が「検出」と出た）。単体で再現して原因を確認し、(1) 旧・新を直列に実行、(2) タイムアウトのみの失敗は検出と数えず 1 回やり直す、(3) 終了コードが非 0 でタイムアウトのみでなければ検出とする、に直して再実行した。上の表は直列版の結果。
+**fail-closed 化（独立監査 P2）**: 判定を `pass` / `detected` / `timeout` の 3 値に分離した。無変異の対照は終了コード 0 必須（失敗も timeout-only も FAIL）。変異が再試行後も timeout-only なら判定不能として FAIL（終了コード 1、`lost` を空で成功報告しない）。証跡の `summary` に `verdict`・`missed*`・`timeout*`・`indeterminate` を記録（今回: timeout 0・判定不能 0・`verdict: PASS`）。自己テストは `tools/train-kit/kit.test.mjs`。
+**P2 回帰の実証**: 後続列車が apple を×3 で使う状況（レシピと landed スペックを同時に変更）で、修正前（`ae86e78`）の `materialShop.test.ts` は 164 件すべて合格（見逃し）、修正後は apple の 2 件が失敗（検出）。
 
 ### 4.2 未出荷の列車での試験（T24: 7 品・食材 9 種、使い捨てワークツリー）
 - 変換した 18 ファイルの失敗: **88 件（17 ファイル）→ 13 件（7 ファイル）**。残りはすべて Owner の承認記録: Research の ID 別承認（batch 18・19・20・21・22）、重複 Gate の例外（batch 18）、既存食材のパック変更（mussel の k、batch 11.s1 と `materialShop`）。
