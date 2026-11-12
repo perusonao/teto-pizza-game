@@ -70,6 +70,37 @@ describe("MID_BAKE state transitions", () => {
     expect(midBakeReducer(state, { type: "TICK", now: 20000 })).toBe(state);
   });
 
+  describe("ADD with a stale or non-finite clock is a complete no-op", () => {
+    const add = (now: number, input: "direct" | "alternative"): MidBakeEvent => ({ type: "ADD", now, ingredientId: "natto", ingredientState: "ready", input });
+    const windowOpen = (): MidBakeState => reduce([{ type: "START", now: 0 }, { type: "TICK", now: 7000 }]);
+
+    for (const input of ["direct", "alternative"] as const) {
+      it(`START(0) -> TICK(7000) -> ADD(6999) returns the same state (${input})`, () => {
+        const state = windowOpen();
+        expect(midBakeReducer(state, add(6999, input))).toBe(state);
+      });
+
+      for (const now of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+        it(`ADD(${now}) returns the same state (${input})`, () => {
+          const state = windowOpen();
+          const next = midBakeReducer(state, add(now, input));
+          expect(next).toBe(state);
+          expect(next).toMatchObject({ status: "baking", lastAt: 7000, progress: 0.7, stage: "window-open", additions: [] });
+        });
+      }
+    }
+
+    it("keeps valid timing: equal-to-lastAt ADD works, window start is inclusive, end is exclusive, misses still finish", () => {
+      const equal = midBakeReducer(windowOpen(), add(7000, "direct"));
+      expect(equal.status === "baking" && equal.additions).toHaveLength(1);
+      const start = midBakeReducer(reduce([{ type: "START", now: 0 }]), add(6500, "alternative"));
+      expect(start.status === "baking" && start.additions).toHaveLength(1);
+      const end = midBakeReducer(reduce([{ type: "START", now: 0 }]), add(9000, "direct"));
+      expect(end.status === "baking" && end.additions).toHaveLength(0);
+      expect(reduce([{ type: "START", now: 0 }, { type: "TICK", now: 10000 }])).toMatchObject({ status: "finished", completion: "missing-additions" });
+    });
+  });
+
   it("cancels back to the same plan and validates plans at construction", () => {
     const running = reduce([{ type: "START", now: 0 }]);
     expect(midBakeReducer(running, { type: "CANCEL" })).toEqual({ status: "idle", plan: PLAN });
