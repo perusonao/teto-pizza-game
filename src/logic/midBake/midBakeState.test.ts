@@ -76,4 +76,24 @@ describe("MID_BAKE state transitions", () => {
     expect(() => createMidBakeState({ ...PLAN, requirements: [] })).toThrow("at least one");
     expect(() => createMidBakeState({ ...PLAN, totalBakeMs: 0 })).toThrow("Invalid MID_BAKE plan");
   });
+
+  describe("rejects ADD with a stale or non-finite clock", () => {
+    const openWindow = () => reduce([{ type: "START", now: 0 }, { type: "TICK", now: 7000 }]);
+
+    it.each(["direct", "alternative"] as const)("keeps state untouched for %s input", (input) => {
+      for (const now of [6999, NaN, Infinity, -Infinity]) {
+        const state = openWindow();
+        expect(state).toMatchObject({ status: "baking", stage: "window-open", lastAt: 7000 });
+        const next = midBakeReducer(state, { type: "ADD", now, ingredientId: "natto", ingredientState: "ready", input });
+        expect(next, `ADD(${now})`).toBe(state);
+      }
+    });
+
+    it.each(["direct", "alternative"] as const)("still accepts a valid ADD afterwards for %s input", (input) => {
+      let state = openWindow();
+      state = midBakeReducer(state, { type: "ADD", now: NaN, ingredientId: "natto", ingredientState: "ready", input });
+      state = midBakeReducer(state, { type: "ADD", now: 7000, ingredientId: "natto", ingredientState: "ready", input });
+      expect(state.status === "baking" && state.additions).toHaveLength(1);
+    });
+  });
 });
