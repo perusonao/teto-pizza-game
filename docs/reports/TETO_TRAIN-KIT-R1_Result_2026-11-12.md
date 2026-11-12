@@ -1,6 +1,6 @@
 # TETO Train Kit R-1 — 既存テストの固定値を「凍結基準＋承認済みスペック」から導出する Result（#780）
 
-2026-11-12 / ブランチ `claude/train-kit-r1-derived-expectations-780`（#823 の HEAD `b4c170a` ＋ main `4314ca2` の上）。`Depends-on: #823`。
+2026-11-12 / ブランチ `claude/train-kit-r1-derived-expectations-780`（main `6df4748`＝#823 の Squash merge 後の上）。#823（Train Kit 本体）は merge 済みで、本 PR は R-1 固有の差分だけ。
 Owner の条件付き実装 GO（2026-11-12）に基づく第 1 弾。claim: #780 のコメント 6823639362。
 
 凡例: 【実測】この環境で測った値、【推論】実測からの解釈。
@@ -83,6 +83,6 @@ Owner の条件付き実装 GO（2026-11-12）に基づく第 1 弾。claim: #78
 
 ## 6. Result Report（四項目）
 - **完了**: 凍結基準・合成・突き合わせテスト、既存テスト 17 本の変換、変異テスト 20 件（旧 17／新 18、喪失 0）、T24 試験（88→13）、README・ハーネスの単体テスト。
-- **未完了**: 第 2 弾（§5）。Codex・独立レビュー、CI（push 後）。
-- **ブロッカー**: `Depends-on: #823`（着地済みスペックと kit が #823 に載っている。#823 は Owner の merge 判断待ち）。#823 の claim と `tools/train-kit/**`・`src/trainKit/**` が重なる（同一セッション保有）。
-- **次の行動**: Draft PR を作成し、独立レビューと Codex を実施。#823 の merge 後に main へ追従。
+- **未完了**: 第 2 弾（§5）。Codex レビュー。独立レビュー（別コンテキスト・読み取り専用、Codex ではない）は `NO BLOCKING ISSUES`（指摘 4 件はすべて非ブロッキング。うち「着地済み step の star gate を見ていない」は `catalogComposition.test.ts` を直して反映）。
+- **ブロッカー**: Owner の merge 判断（Final Gate 後）。
+- **次の行動**: Draft PR で CI・独立レビュー・Codex を実施し、Owner の判断を待つ。

@@ -48,9 +48,11 @@ describe("the shipped catalog equals FROZEN BASELINE (+) the landed train specs"
     expect(ordinary.map((s) => [s.step, [...s.ingredientIds], s.keyRecipeId])).toEqual(composed.ordinarySteps.map((s) => [s.step, [...s.ingredientIds], s.keyRecipeId]));
     expect(steps.slice(ordinary.length).map((s) => [s.step, [...s.ingredientIds], s.keyRecipeId])).toEqual(composed.lateSteps.map((s) => [s.step, [...s.ingredientIds], s.keyRecipeId]));
     expect(steps).toHaveLength(composed.steps.length);
-    for (const row of [...FROZEN.ordinaryLadder, ...FROZEN.lateLadder]) {
-      const real = steps.find((s) => s.keyRecipeId === row.keyRecipeId)!;
-      expect((real as { starGates?: unknown }).starGates, row.keyRecipeId).toEqual(row.starGates);
+    // Star gates: a frozen step keeps exactly the gates it was recorded with; a LANDED step has none (a train spec has no star-gate field, so a gate on a landed step is an unapproved change).
+    const frozenGates = new Map([...FROZEN.ordinaryLadder, ...FROZEN.lateLadder].map((row) => [row.keyRecipeId, row.starGates]));
+    for (const expected of composed.steps) {
+      const real = steps.find((s) => s.keyRecipeId === expected.keyRecipeId)!;
+      expect((real as { starGates?: unknown }).starGates, expected.keyRecipeId).toEqual(frozenGates.get(expected.keyRecipeId));
     }
   });
 
