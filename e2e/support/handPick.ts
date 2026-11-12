@@ -52,6 +52,14 @@ export async function trayToFirstPage(page: Page): Promise<void> {
   }
 }
 
+/** Pages the tray forward to its last page (a no-op when it has no pager or is already there); every press goes through `pressPager`. */
+export async function trayToLastPage(page: Page): Promise<void> {
+  const next = page.getByRole("button", { name: "次のページ" });
+  for (let i = 0; i < 16 && (await next.isVisible().catch(() => false)); i += 1) {
+    if (!(await pressPager(page, next))) break; // disabled at the moment of the press: already on the last page
+  }
+}
+
 /** Pages forward until `chip` is on screen, or the pager runs out (the caller decides what a chip that is still missing means). */
 export async function pageTrayUntilVisible(page: Page, chip: Locator): Promise<void> {
   const next = page.getByRole("button", { name: "次のページ" });
