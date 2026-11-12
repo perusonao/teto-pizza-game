@@ -6,6 +6,7 @@ import { bakeToTarget, completeDoughStep, tapDoughPercent } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { expectResearchLead } from "./support/hintNote";
 import { materialsUpTo, CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
+import { chipOnTray } from "./support/handPick";
 
 /**
  * Batch 8a representative E2E: three non-credit, zero-material recipes (no new ingredient, no new step, NO_SAUCE), each played end to end through the
@@ -64,15 +65,7 @@ async function open(page: Page, json: string) {
 /** The chip whose NAME is exactly `name` (「トマト」 must not match チェリートマト / トマトソース), paged through the All-Owned Tray. */
 async function chipNamed(page: Page, name: string) {
   const chip = page.locator(".ingredient-chip").filter({ has: page.locator(".ingredient-chip__name", { hasText: new RegExp(`^${name}$`) }) }).first();
-  const next = page.getByRole("button", { name: "次のページ" });
-  const prev = page.getByRole("button", { name: "前のページ" });
-  for (let i = 0; i < 8 && (await prev.isVisible().catch(() => false)) && (await prev.isEnabled().catch(() => false)); i += 1) await prev.click();
-  for (let i = 0; i < 8 && !(await chip.isVisible()); i += 1) {
-    if (!(await next.isEnabled().catch(() => false))) break;
-    await next.click();
-  }
-  await expect(chip).toBeVisible();
-  return chip;
+  return chipOnTray(page, chip);
 }
 async function place(page: Page, picks: [string, number][], startSpot: number) {
   let spot = startSpot;

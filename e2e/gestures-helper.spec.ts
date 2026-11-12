@@ -8,7 +8,7 @@ import {
   startFreshMargherita,
   tapDoughPercent,
 } from "./gestures";
-import { chipOnTrayOrPin } from "./support/handPick";
+import { chipOnTray, chipOnTrayOrPin, pressPager, trayToFirstPage } from "./support/handPick";
 
 /**
  * #394 Phase 1: regression coverage for the two `e2e/gestures.ts` helper families that the WebKit
@@ -236,5 +236,32 @@ test.describe("chipOnTrayOrPin: the tray re-renders between the check and the pr
     await expect(await chipOnTrayOrPin(page, "B2")).toBeVisible();
     await expect(page.locator(".ingredient-page-nav__label")).toHaveText("2 / 3");
     await expect(chipOnTrayOrPin(page, "Z9")).rejects.toThrow(/toBeVisible|not found|element\(s\) not found/i);
+  });
+
+  // #828: the specs kept their own copies of the old loop; they now use these shared helpers, so the same race has to be closed for them too.
+  test("chipOnTray (a Locator, e.g. an exact-name chip): the tray jumps to the last page while the 次のページ press is pending", async ({ page }) => {
+    await open(page, 0);
+    await page.evaluate(() => (window as unknown as { armRace: (b: Element, to: number) => void }).armRace(document.getElementById("next")!, 2));
+    const exact = page.locator(".ingredient-chip").filter({ hasText: /^C1$/ }).first();
+    await expect(await chipOnTray(page, exact)).toBeVisible();
+    await expect(page.locator(".ingredient-page-nav__label")).toHaveText("3 / 3");
+  });
+
+  test("trayToFirstPage: the tray jumps to page 1 while the 前のページ press is pending; a tray already on page 1 is left alone", async ({ page }) => {
+    await open(page, 2);
+    await page.evaluate(() => (window as unknown as { armRace: (b: Element, to: number) => void }).armRace(document.getElementById("prev")!, 0));
+    await trayToFirstPage(page);
+    await expect(page.locator(".ingredient-page-nav__label")).toHaveText("1 / 3");
+    await trayToFirstPage(page); // 前のページ is disabled now: nothing to press, and nothing to wait for
+    await expect(page.locator(".ingredient-page-nav__label")).toHaveText("1 / 3");
+  });
+
+  test("pressPager does not press (and does not wait) when the button is disabled or missing, and presses an enabled one", async ({ page }) => {
+    await open(page, 0);
+    expect(await pressPager(page, page.getByRole("button", { name: "前のページ" }))).toBe(false); // disabled on page 1
+    expect(await pressPager(page, page.getByRole("button", { name: "存在しないボタン" }))).toBe(false); // no such button (a tray without a pager)
+    await expect(page.locator(".ingredient-page-nav__label")).toHaveText("1 / 3");
+    expect(await pressPager(page, page.getByRole("button", { name: "次のページ" }))).toBe(true);
+    await expect(page.locator(".ingredient-page-nav__label")).toHaveText("2 / 3");
   });
 });
