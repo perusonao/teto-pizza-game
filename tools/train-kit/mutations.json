@@ -238,6 +238,30 @@
      "to": "{ ingredientIds: [\"chocolate\", \"banana\", \"powdered-sugar\"], keyRecipeId: \"nutella-dessert-pizza\" }"
     }
    ]
+  },
+  {
+   "id": "M21",
+   "description": "a shipped landed material's pack multiplier changes silently (apple k 2 -> 3 via its landed recipe)",
+   "file": "src/data/recipes.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "      { ingredientId: \"apple\", minCount: 2 },\n",
+     "to": "      { ingredientId: \"apple\", minCount: 3 },\n"
+    }
+   ]
+  },
+  {
+   "id": "M22",
+   "description": "a shipped landed late material's pack multiplier changes silently (marshmallow k 2 -> 3)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "      { ingredientId: \"marshmallow\", minCount: 2 },",
+     "to": "      { ingredientId: \"marshmallow\", minCount: 3 },"
+    }
+   ]
   }
  ]
 }

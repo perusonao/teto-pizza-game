@@ -30,12 +30,23 @@ function ing(id: string): Ingredient {
 
 /** R-1: the late materials' steps are DERIVED (ordinary steps first), so the expectation is the composed ladder (frozen baseline + landed specs), not a number. */
 const lateStep = (id: string): number => COMPOSED.stepOfMaterial(id)!;
-const LANDED_OFFERS: [string, number, string, number, number, number, number][] = LANDED.flatMap((train) =>
-  train.newIngredients.map((i): [string, number, string, number, number, number, number] => {
-    const k = Math.max(...LANDED.flatMap((t) => t.recipes).flatMap((r) => r.requiredIngredients).filter((q) => q.ingredientId === i.id).map((q) => q.minCount));
-    return [i.id, COMPOSED.stepOfMaterial(i.id)!, "T4", k, 10 * k, 120, 60];
-  }),
-);
+/**
+ * R-1: the shop contract of every material a landed train introduced -- a FROZEN, hand-recorded expectation (id -> k), NOT derived from the landed specs or from any recipe population.
+ * The step comes from the composed ladder (frozen baseline + landed specs); k is the pack multiplier at landing time. A later train that uses an already-shipped material more heavily
+ * changes the implementation's materialK, so this table fails until the Owner-approved pack change is written below, explicitly (README §3.5).
+ * Landing a train adds its rows here (the completeness test below fails otherwise): that hand-written record IS the approval record.
+ */
+const LANDED_SHOP_CONTRACT: Readonly<Record<string, number>> = {
+  apple: 2, // Batch 23 (a fruit topping)
+  banana: 2, chocolate: 2, "powdered-sugar": 2, "graham-cracker": 2, marshmallow: 2, // Batch 23-b
+};
+/** Owner-approved pack changes of a shipped material by a LATER train: id -> the new k. Empty until the Owner approves one; written by hand in the train's PR, never computed. */
+const APPROVED_PACK_CHANGES: Readonly<Record<string, number>> = {};
+const contractK = (id: string): number => APPROVED_PACK_CHANGES[id] ?? LANDED_SHOP_CONTRACT[id]!;
+const LANDED_OFFERS: [string, number, string, number, number, number, number][] = Object.keys(LANDED_SHOP_CONTRACT).map((id) => {
+  const k = contractK(id);
+  return [id, COMPOSED.stepOfMaterial(id)!, "T4", k, 10 * k, 120, 60];
+});
 
 /** Expected offer for every material of the production ladder -- the 25-recipe W1 ladder since
  *  I5b-3 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §4-§6): [id, step, tier, k, qty, pack, refill]. */
@@ -250,6 +261,27 @@ describe("k and pack quantity (10 x k)", () => {
       { requiredIngredients: [{ ingredientId: "egg", minCount: 2 }] },
     ];
     expect(materialK("egg", recipes)).toBe(2);
+  });
+});
+
+describe("frozen shop contract of landed materials (R-1 audit P2)", () => {
+  it("every landed new ingredient has a hand-recorded contract row, and nothing else does", () => {
+    const landedIds = LANDED.flatMap((t) => t.newIngredients.map((i) => i.id)).sort();
+    expect(Object.keys(LANDED_SHOP_CONTRACT).sort()).toEqual(landedIds);
+    for (const id of Object.keys(APPROVED_PACK_CHANGES)) expect(LANDED_SHOP_CONTRACT).toHaveProperty(id);
+  });
+
+  it("the expectation is independent of the recipe population: a later recipe using a landed material more heavily is NOT absorbed", () => {
+    for (const id of Object.keys(LANDED_SHOP_CONTRACT)) {
+      const later = [...RECIPES, { requiredIngredients: [{ ingredientId: id, minCount: contractK(id) + 1 }] }];
+      expect(materialK(id, later)).toBe(contractK(id) + 1); // the implementation follows the heavier recipe ...
+      expect(materialK(id, later)).not.toBe(contractK(id)); // ... while the frozen contract does not move, so the offer row fails until the Owner-approved change is written by hand
+    }
+  });
+
+  it.each(Object.keys(LANDED_SHOP_CONTRACT))("%s: the shipped catalog still sells exactly the landed k (a silent pack change is detected)", (id) => {
+    expect(materialK(id)).toBe(contractK(id));
+    expect(packQuantity(id)).toBe(10 * contractK(id));
   });
 });
 
