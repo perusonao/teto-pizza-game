@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getIngredient } from "./ingredients";
-import { canFryIngredient, FRY_TARGET_INGREDIENT_IDS } from "./fryIngredients";
+import { canFryIngredient, fryTargetStatus, FRY_TARGET_INGREDIENT_IDS } from "./fryIngredients";
 import { canSteamIngredient, STEAM_TARGET_INGREDIENT_IDS } from "./steamIngredients";
 import { canSearIngredient, SEAR_TARGET_INGREDIENT_IDS } from "./searIngredients";
 import { canPrepIngredient, PREP_TARGET_INGREDIENT_IDS } from "./prepIngredients";
@@ -30,5 +30,23 @@ describe("canFryIngredient", () => {
       expect(canPrepIngredient(id) || canSearIngredient(id) || canSteamIngredient(id)).toBe(false);
     }
     for (const id of [...PREP_TARGET_INGREDIENT_IDS, ...SEAR_TARGET_INGREDIENT_IDS, ...STEAM_TARGET_INGREDIENT_IDS]) expect(canFryIngredient(id, () => "x")).toBe(false);
+  });
+});
+
+describe("fry registration integrity", () => {
+  it("every target is a real, unique, exact-case topping of the catalog (a typo or a retired id fails here, not silently as 'dormant')", () => {
+    expect(new Set(FRY_TARGET_INGREDIENT_IDS).size).toBe(FRY_TARGET_INGREDIENT_IDS.length);
+    for (const id of FRY_TARGET_INGREDIENT_IDS) {
+      expect(getIngredient(id), id).toBeDefined();
+      expect(getIngredient(id)?.category, id).toBe("topping");
+    }
+  });
+  it("names the reason: not-target / dormant / active (same rule as canFryIngredient, never an unknown state)", () => {
+    expect(fryTargetStatus("eggplant")).toBe("dormant");
+    expect(fryTargetStatus("eggplant", () => "eggplant-slice")).toBe("active");
+    expect(fryTargetStatus("shrimp", () => "x")).toBe("not-target");
+    for (const id of ["eggplant", "shrimp", "nope", ""]) for (const visual of [undefined, "x"]) {
+      expect(canFryIngredient(id, () => visual)).toBe(fryTargetStatus(id, () => visual) === "active");
+    }
   });
 });

@@ -17,6 +17,8 @@ export interface FryOfferInput {
   ownedIngredientIds: readonly string[];
   /** Ingredient ids already fried this round (the keys of the kept looks). */
   friedIngredientIds: readonly string[];
+  /** Test seam (what the catalog says about the dedicated drawing); production callers leave it out. */
+  pieceVisualOf?: (id: string) => string | undefined;
 }
 
 export interface FryOffer {
@@ -31,6 +33,6 @@ export function fryOffer(input: FryOfferInput): FryOffer | null {
   // Lunch Rush (ranking fairness) and Dinner (no fixed recipe until START_BAKE) never offer it.
   if (input.roundKind !== "GUIDED" && input.roundKind !== "FREE_COOK") return null;
   const id = input.selectedIngredientId;
-  if (id === null || !canFryIngredient(id) || !input.ownedIngredientIds.includes(id)) return null;
+  if (id === null || !canFryIngredient(id, input.pieceVisualOf) || !input.ownedIngredientIds.includes(id)) return null;
   return { ingredientId: id, done: input.friedIngredientIds.includes(id) };
 }
