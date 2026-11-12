@@ -42,6 +42,7 @@ describe("implementation spec", () => {
     expect(broken((k) => delete k.newIngredients[0].glyphHost).join()).toContain("go together");
     expect(broken((k) => (k.label = "x */ injected")).join()).toContain("escape a generated comment");
     expect(broken((k) => (k.train = "a\nb")).join()).toContain("escape a generated comment");
+    expect(broken((k) => (k.label = "a\u2028b")).join()).toContain("escape a generated comment");
     expect(broken((k) => (k.recipes[0].baseRewardPitz = "100")).join()).toContain("baseRewardPitz");
     expect(broken((k) => (k.recipes[0].bakeTarget = { start: "58", end: 78 })).join()).toContain("bakeTarget");
     expect(broken((k) => (k.recipes[0].sauceProfile.interaction = "DRIZZLE")).join()).toContain("PAINT or PAINT_TEMPORARY");

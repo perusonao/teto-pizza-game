@@ -65,7 +65,6 @@ export interface KitRecipe {
   readonly hvAlias?: string;
 }
 
-
 export interface KitTrain {
   readonly train: string;
   /** Lowercase tag for file names / HV ids, e.g. `b23b`, `t24`. */
@@ -139,7 +138,7 @@ export function validateKitTrain(kit: KitTrain, shipped: ShippedFacts): string[]
   todo(kit.newIngredients, "newIngredients");
   if (problems.length > 0) return problems;
   // `train` and `label` are written into `//` and `/** */` comments of the catalog files: nothing that could end a comment or a line.
-  const unsafe = /(\*\/|[\r\n`]|\/\*)/;
+  const unsafe = /(\*\/|[\r\n\u2028\u2029`]|\/\*)/;
   for (const [name, value] of [["train", kit.train], ["label", kit.label]] as const) if (typeof value === "string" && unsafe.test(value)) say(`${name} contains a character sequence that could escape a generated comment ("*/", "/*", a backtick or a line break)`);
   if (!kit.train) say("train name is missing");
   if (!TAG_PATTERN.test(kit.tag ?? "")) say(`tag "${kit.tag}" must match ${TAG_PATTERN} (it becomes a file name and an identifier)`);
