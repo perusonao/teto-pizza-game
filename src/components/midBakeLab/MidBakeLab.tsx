@@ -45,8 +45,21 @@ function LabBody({ initial, onRestart, search }: { initial: () => LabSession; on
       }
       raf = requestAnimationFrame(loop);
     };
+    // The browser may stop rAF entirely while hidden, so the loop alone cannot notice the pause: any visibility / focus change
+    // forgets the last frame time, and the first frame after it starts a fresh interval (never one that spans the absence).
+    const reset = () => {
+      lastRef.current = null;
+    };
+    document.addEventListener("visibilitychange", reset);
+    window.addEventListener("blur", reset);
+    window.addEventListener("focus", reset);
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener("visibilitychange", reset);
+      window.removeEventListener("blur", reset);
+      window.removeEventListener("focus", reset);
+    };
   }, [finished]);
 
   const snap = labSnapshot(session);

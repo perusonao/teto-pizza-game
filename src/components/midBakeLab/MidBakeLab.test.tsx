@@ -76,6 +76,24 @@ describe("<MidBakeLab />", () => {
     expect(status()).toBe("holding"); // a fresh interval starts on return; the timeout (1 s) has not elapsed
   });
 
+  it("rAF stopped while hidden: the absence is never fed to the clock (a nearly spent hold timeout is not eaten on return)", () => {
+    render(<MidBakeLab search="?dev=midbake&hold=500" />);
+    advance(2200);
+    advance(200); // ~450 ms of the 500 ms hold is spent: less than one capped frame (100 ms) remains
+    expect(status()).toBe("holding");
+    // Hidden: the browser runs no frames at all, and the page announces it.
+    act(() => {
+      window.dispatchEvent(new Event("blur"));
+    });
+    clockMs += 60_000; // a long absence, no frame executed
+    act(() => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    advance(50); // first frame back: sets the new base only; without the reset it would add a capped 100 ms and end the hold
+    expect(status()).toBe("holding");
+    expect(screen.getByTestId("lab-chip-natto")).toBeEnabled();
+  });
+
   it("'もう一度' starts a brand-new session", () => {
     render(<MidBakeLab search="?dev=midbake&hold=500" />);
     advance(5000);
