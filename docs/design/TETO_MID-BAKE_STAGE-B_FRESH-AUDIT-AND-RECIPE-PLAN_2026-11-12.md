@@ -13,16 +13,16 @@ claim: Issue #795 コメント 6823593886（`:stage-b`）
 
 ### 1.1 確認した事実
 
-1. **在庫の消費は `CONFIRM_BAKE` ただ 1 か所。** `gameReducer.ts` の `CONFIRM_BAKE` にコメント「CONFIRM_BAKE is the sole inventory-consumption transaction boundary … PREPARE-time placement never touches `inventory`」。`state.phase !== "BAKE"` なら何もしない（二重消費の防止）。
-2. **消費量は「ピザに実際に置かれた数」から計算される。** `inventory.ts` の `consumePizzaInventory`（`CONFIRM_BAKE` が呼ぶ）は、`PlacedTopping` の実数を数える（レシピの `minCount` ではない）。
+1. **焼成前の分の在庫消費は `CONFIRM_BAKE`。** `gameReducer.ts` の `CONFIRM_BAKE` にコメント「CONFIRM_BAKE is the sole inventory-consumption transaction boundary … PREPARE-time placement never touches `inventory`」。`state.phase !== "BAKE"` なら何もしない（二重消費の防止）。**ただし FINISH を通る回では、後乗せ分（`stage === "post"`）は別の経路で消費される。** FINISH を離れる `CONFIRM_MAKING_STEP` が `finalizeRound({ finalization: "FINAL", … })` を呼び、`finalizeRound.ts` が Free Cooking の FINAL で `consumePostBakeInventory`（post の駒だけを数える）を実行する。Guided の PROVISIONAL は「焼成前の駒を今消費する」（`finalizeRound.ts` のコメント）。つまり **「焼成前・焼成中の分は CONFIRM_BAKE、FINISH の分は FINISH 確定時」**（Codex 指摘 3）。
+2. **消費量は「ピザに実際に置かれた数」から計算される。** `consumePizzaInventory` は `PlacedTopping` の実数を数える（レシピの `minCount` ではない）。`consumePostBakeInventory` は post の駒だけを数え、`CONFIRM_BAKE` で消費済みの分を二重に数えない。**mid_bake の駒に `stage: "post"` を付けると FINISH 側で消費され、付けなければ `CONFIRM_BAKE` で消費される。どちらの値を持たせるかが消費の境界を決める**（設計判断）。
 3. **置く時点のゲート `canPlaceIngredient` は、消費ではなく「在庫を超えないか」の確認だけ。** 散らす食材は `pizza.toppings` 中の同 ID の数を毎回数え直す（別カウンタを持たない）。ゲートと消費が食い違わない設計だとコメントに明記。
 4. **保存は `CONFIRM_BAKE` の後。** `pendingRound`（Save R8）は `CONFIRM_BAKE` の時点で、post-BAKE ステップ（CUT／FINISH）が残る Guided／Free の回にだけ作られる。`pendingRound` のコメントに「消費した在庫と同じ `setItem` で焼いたピザを書く」とある。Lunch Rush は `unservedConsumption` を提供まで保持、Dinner は journal を持たない。
-5. **BAKE 中の途中状態を保存する仕組みは見つからなかった。** `bakeState`／`bakeValue` は transient とコメントされ、`progressionSnapshotOf` は `pendingRound` を取るが BAKE 中のピザは取らない。
+5. **BAKE 中の途中状態を保存する仕組みは見つからなかった。** 一方、**アプリがバックグラウンドへ移っても（ページが破棄されない限り）メモリ上の回とピザは保持される**: `BakeOverlay` の visibility／blur 処理は時計を一時停止するだけで、`App.tsx` の対応処理も表示・フォーカス状態を更新するだけ（Codex 指摘 2）。破棄されるのは再読み込み・ページ再生成の場合。 `bakeState`／`bakeValue` は transient とコメントされ、`progressionSnapshotOf` は `pendingRound` を取るが BAKE 中のピザは取らない。
 
 ### 1.2 結論（案）
 
 - **MID_BAKE の追加を「`stage` を持つ `PlacedTopping` として `state.pizza.toppings` に追加する」設計にすれば、在庫は既存の仕組みでそのまま足りる。** ADD 時に `canPlaceIngredient` を呼べば（置く時点のゲート）、`CONFIRM_BAKE` の消費が実数から計算され、「予約」状態を新設する必要はない。判断表 §2 D6 の「予約」案は不要になる見込み。
-- **BAKE 中に離脱・再読み込みすると、その回は保存されず在庫は減らない**（1.1 の 1・5 から読める挙動）。追加済みの食材が消えるのは「回の破棄」であり、在庫の不整合にはならない見込み。ただし**実機・実行テストでは未確認**。段階 D の前に確認テストが必要。
+- **BAKE 中に再読み込み（ページ再生成）すると、その回は保存されず在庫は減らない**（1.1 の 1・5 から読める挙動）。**バックグラウンド復帰（ページ保持）では回が残り、時計が一時停止するだけ**なので、Lab では 2 つを別のケースとして検証する（判断表 §11）。追加済みの食材が消えるのは「回の破棄」であり、在庫の不整合にはならない見込み。ただし**実機・実行テストでは未確認**。段階 D の前に確認テストが必要。
 - 保存スキーマ変更は不要の見込み。`pendingRound` は `PlacedTopping[]` を保存するため、**新しい `stage` 値を足す場合、`pendingRound` の読み戻し検証（`PendingRoundPizza.toppings` の検証）が新しい値を受け入れる必要がある**（要確認。受け入れなければ保存済みの回が復元されない）。
 
 ### 1.3 リスク・要確認

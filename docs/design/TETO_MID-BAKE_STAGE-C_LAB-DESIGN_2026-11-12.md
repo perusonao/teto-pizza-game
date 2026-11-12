@@ -25,7 +25,7 @@ Lab は FRY Lab（#749）と同じ位置づけ: 独立した Preview/DEV 限定�
 | 入口 | `?cookMidBakeHv=1`（DEV/Preview のみ、使い捨てのメモリ内セーブ） | `src/preview/midBakeLab*.ts` ＋ `src/main.tsx` への数行（FRY Lab 等と同じ追加箇所） |
 | ログ | 窓の実時間、追加回数、成功／取り逃し、誤タップを画面外に出力（HV の記録用） | `src/components/midBakeLab/**` |
 
-- **時計の扱い**: エンジンの `now` には BAKE の時計（積算した経過秒）を渡す。壁時計は使わない（`BAKE_MAX_FRAME_DT_S` によるフレーム上限のため）。停止中は `now` が不変で、`now === lastAt` の ADD は有効（エンジンの契約）。
+- **時計の扱い**: エンジンの `now` には BAKE の時計（積算した能動時間）を**ミリ秒**で渡す（`labClockEngineNow` は `elapsedMs`。エンジンの `totalBakeMs` と同じ単位で、秒を渡すと進捗が 1/1000 になり窓が開かない）。壁時計は使わない（`BAKE_MAX_FRAME_DT_S` によるフレーム上限のため）。停止中は `now` が不変で、`now === lastAt` の ADD は有効（エンジンの契約）。
 - **ゲート**: `MID_BAKE_EXPERIENCE_PRODUCTION` は `false` のまま。Lab 用の opt-in は PREP／FRY と同じ構造（静的ゲート）で足し、本番ビルドでは除去される。ゲート追加のテストは `midBakeGate` の隣に置く。
 - **エンジンの変更は不要の見込み。** 停止・再開は統合側の時計で表現できる。窓は「止まっている間だけ追加を提示」するので、再開後に ADD を提示しなければエンジンの窓判定は安全網にとどまる。
 
@@ -59,3 +59,32 @@ Lab は FRY Lab（#749）と同じ位置づけ: 独立した Preview/DEV 限定�
 ## 6. 触らないもの
 
 HOT ファイル、catalog、golden、PREP／FRY の実装（FRY の純粋ロジックは import せず、`requiredState` の値だけを使う）、本番ゲート、共有 Preview。
+
+## 7. C-2／C-3 の HOT 競合確認と入口設計（2026-11-12 追記）
+
+### 7.1 競合の確認結果（`main` `4314ca2`、open PR のファイル一覧）
+
+| ファイル | 触る open PR | 備考 |
+|---|---|---|
+| `src/main.tsx` | **#738**（蒸す S3、+3 行: `activateCookSteamHv`）、**#746**（DRIZZLE Lab）、予定の FRY Lab | `hot-files.json` の HOT には入っていないが、複数の入口が追記する共有箇所。追記は同じ領域で、後から merge する側が取り込む |
+| `src/App.tsx`・`src/components/PizzaStage.tsx`・`src/screens/GameScreen.tsx` | **#738** ほか | HOT。C-2／C-3 は触らない設計にする |
+| `src/logic/midBake/**` | なし（旧 Codex 側 claim は release 済み、C-1 は #829 の別 claim） | — |
+
+#738 のファイル一覧は 2 ページ（100 件超）を読んだ。**他の open PR の一覧は全件は読んでいない**ため、着手直前に再確認する。
+
+### 7.2 入口の方式（案）
+
+| 案 | 内容 | メリット | デメリット |
+|---|---|---|---|
+| **(a) 独立画面（推奨）** | `main.tsx` の既存の `?dev=postlayer` と同じ形で、`?dev=midbake`（仮称）を静的な DEV/Preview ゲートの背後に置き、`import('./dev/…')` で Lab 画面だけを描く。`App`・実セーブ・`GameScreen` を読まない | HOT に触れない。実セーブに触れない。`main.tsx` への追記は 1 条件＋1 動的 import。Q9 の在庫検証は `inventory.ts` の純粋関数をメモリ上で使えば足りる | 通常 BAKE の回帰（ラウンド C）は実ゲーム側で別に確認する必要がある。`main.tsx` の追記は #738／#746 と同じ箇所のため merge 順の調整が要る |
+| (b) cook\*Hv 型 | 使い捨てのメモリ保存＋starter で実ゲームの PREPARE→BAKE に入る | 実ゲームに近い | `App.tsx`・`GameScreen.tsx`（HOT）の変更が要る。#738 と直接競合 |
+
+**推奨は (a)。** Lab の目的（窓の手触り・タップ追加・代替操作・在庫）は実ゲーム画面を必要としない。実ゲームでの確認は段階 D の後。
+入口の名前（`?dev=midbake` か `?midBakeLab=1`）は Owner の希望に合わせる。
+
+### 7.3 着手前の条件
+
+1. 入口方式 (a)／(b) の Owner 確認。
+2. `src/main.tsx` を触る open PR（#738・#746 ほか）の最新状態と merge 順の再確認。claim には「どの PR が先に merge されるか」を書く。
+3. C-3（E2E）は `e2e/support/**`（HOT）を読むだけにして変更しない。`playwright.config.ts`（HOT）も変更しない。新しい spec が既存の設定で拾われるかを確認してから書く。
+4. 新しい claim（C-2: `src/components/midBakeLab/**`・`src/dev/…`・`src/main.tsx`、C-3: `e2e/mid-bake-lab*.spec.ts`）。
