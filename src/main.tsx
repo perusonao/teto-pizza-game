@@ -27,12 +27,18 @@ const postLayerBenchRequested =
   (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) &&
   new URLSearchParams(window.location.search).get('dev') === 'postlayer'
 
-// An Inspector / DEV State Editor / post-layer bench request never seeds: both are read-only on open, and a seed would reset / write the Preview save.
+// MID_BAKE Lab (Issue #795, C-2): a DEV / Preview only, independent screen for the window hold and tap-add checks, opened with
+// `?dev=midbake` (same static gate). It loads no <App /> and no real save, so it never seeds either.
+const midBakeLabRequested =
+  (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) &&
+  new URLSearchParams(window.location.search).get('dev') === 'midbake'
+
+// An Inspector / DEV State Editor / post-layer bench / MID_BAKE Lab request never seeds: both are read-only on open, and a seed would reset / write the Preview save.
 // Discovery Hint 5.0 H5-5: Preview builds only. `?hv=<scenario>` seeds the Preview save before the
 // app loads it. `import.meta.env.VITE_PREVIEW_MODE` is set only by the Preview build pipeline and is
 // replaced statically, so a production build drops this call and ./preview/hvSeeds.ts with it.
 // Cooking Prep HV entry (`?cookPrepHv=1`): DEV / Preview only, same static gate; swaps in a disposable in-memory save, never touching the real one.
-if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
+if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequested && !devStateRequested && !postLayerBenchRequested && !midBakeLabRequested) {
   try {
     // The two HV entries are exclusive: the 炒める one wins when both are asked for.
     if (!activateCookPrepHv(window)) activateCookSearHv(window)
@@ -40,7 +46,7 @@ if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequ
     // A failing entry must never stop the game from starting.
   }
 }
-if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
+if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested && !postLayerBenchRequested && !midBakeLabRequested) {
   try {
     applyPreviewHvSeed(window.location.search, window.localStorage)
   } catch {
@@ -63,6 +69,14 @@ if (inspectorRequested) {
     root.render(
       <StrictMode>
         <PostLayerBench />
+      </StrictMode>,
+    )
+  })
+} else if (midBakeLabRequested) {
+  void import('./components/midBakeLab/MidBakeLab').then(({ MidBakeLab }) => {
+    root.render(
+      <StrictMode>
+        <MidBakeLab />
       </StrictMode>,
     )
   })

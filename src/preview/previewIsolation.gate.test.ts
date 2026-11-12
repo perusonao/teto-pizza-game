@@ -67,6 +67,7 @@ const PREVIEW_ONLY_STRINGS = [
   "teto-pizza-preview-save-v1", // the Preview save namespace (already compiled out before H5-5)
   "teto.dev.hint5Ladder", // the DEV opt-in key (already compiled out before H5-5)
   "post-layer-bench-v1", // POST_LAYER_BENCH_MARK: the DEV / Preview-only post-bake layer bench (src/dev/PostLayerBench.tsx, FINISH D2-2a)
+  "mid-bake-lab-v1", // MID_BAKE_LAB_MARK: the DEV / Preview-only MID_BAKE Lab (src/components/midBakeLab, Issue #795 C-2)
   "discovery-progression-inspector-v1", // INSPECTOR_MARK: the DEV / Preview-only Discovery Progression Inspector (src/dev)
   // Issue #403: the DEV / Preview-only State Editor (src/devtools): its mark, title, backup-key suffix and preset labels / ids.
   DEV_STATE_EDITOR_MARK,

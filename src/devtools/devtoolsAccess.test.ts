@@ -65,7 +65,7 @@ describe("DEV State Editor access (source)", () => {
     expect(mainSource).toMatch(guard);
     expect(mainSource).toMatch(/import\('\.\/devtools\/StateEditorShell'\)/);
     expect(mainSource).not.toMatch(/^import .* from ['"]\.\/devtools/m);
-    expect(mainSource).toMatch(/if \(import\.meta\.env\.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested && !postLayerBenchRequested\) \{/);
+    expect(mainSource).toMatch(/if \(import\.meta\.env\.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested && !postLayerBenchRequested && !midBakeLabRequested\) \{/);
     // the request is decided BEFORE the seed
     expect(mainSource.indexOf("const devStateRequested")).toBeLessThan(mainSource.indexOf("applyPreviewHvSeed(window"));
   });
