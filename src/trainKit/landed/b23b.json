@@ -1,0 +1,163 @@
+{
+ "train": "B23-b",
+ "tag": "b23b",
+ "label": "Expansion Batch 23-b",
+ "issue": 780,
+ "recipes": [
+  {
+   "id": "nutella-dessert-pizza",
+   "nameJa": "ヌテラデザートピザ",
+   "description": "バナナとチョコレートに、粉砂糖をふんわりかけた、あまい一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "cream-cheese",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "banana",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "chocolate",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "powdered-sugar",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "nutella-dessert-pizza-pizzadb-p6",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "バナナとチョコのデザートピザ、おいしそう！食べてみたいな！"
+   },
+   "sauceProfile": null,
+   "ladderStep": {
+    "ingredientIds": [
+     "banana",
+     "chocolate",
+     "powdered-sugar"
+    ]
+   },
+   "hvAlias": "nutella"
+  },
+  {
+   "id": "smore-dessert-pizza",
+   "nameJa": "スモアデザートピザ",
+   "description": "チョコレートとマシュマロに、グラハムクラッカーをのせた、あまい一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "cream-cheese",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "chocolate",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "graham-cracker",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "marshmallow",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "smore-dessert-pizza-pizzadb-p4",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "チョコとマシュマロのあまいピザ、食べてみたいな！"
+   },
+   "sauceProfile": null,
+   "ladderStep": {
+    "ingredientIds": [
+     "graham-cracker",
+     "marshmallow"
+    ]
+   },
+   "hvAlias": "smore"
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "banana",
+   "nameJa": "バナナ",
+   "category": "topping",
+   "family": "fruit",
+   "color": "#f2d24a",
+   "emoji": "🍌",
+   "sizeClass": "s",
+   "pieceVisual": "banana-dessert",
+   "glyphHost": "DessertGlyph"
+  },
+  {
+   "id": "chocolate",
+   "nameJa": "チョコレート",
+   "category": "topping",
+   "family": "spice",
+   "color": "#6b3f26",
+   "emoji": "🍫",
+   "sizeClass": "s",
+   "pieceVisual": "chocolate-dessert",
+   "glyphHost": "DessertGlyph"
+  },
+  {
+   "id": "powdered-sugar",
+   "nameJa": "粉砂糖",
+   "category": "topping",
+   "family": "spice",
+   "color": "#ffffff",
+   "emoji": "🧁",
+   "sizeClass": "xs",
+   "pieceVisual": "powdered-sugar-dessert",
+   "glyphHost": "DessertGlyph"
+  },
+  {
+   "id": "graham-cracker",
+   "nameJa": "グラハムクラッカー",
+   "category": "topping",
+   "family": "spice",
+   "color": "#d9a85f",
+   "emoji": "🥠",
+   "sizeClass": "m",
+   "pieceVisual": "graham-cracker-dessert",
+   "glyphHost": "DessertGlyph"
+  },
+  {
+   "id": "marshmallow",
+   "nameJa": "マシュマロ",
+   "category": "topping",
+   "family": "spice",
+   "color": "#fbf4ee",
+   "emoji": "🍡",
+   "sizeClass": "s",
+   "pieceVisual": "marshmallow-dessert",
+   "glyphHost": "DessertGlyph"
+  }
+ ],
+ "floors": {
+  "banana": 88,
+  "chocolate": 88,
+  "powdered-sugar": 88,
+  "graham-cracker": 89,
+  "marshmallow": 89
+ }
+}

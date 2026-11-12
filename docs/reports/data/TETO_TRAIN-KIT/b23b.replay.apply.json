@@ -1,0 +1,32 @@
+{
+ "train": "replay-b23b",
+ "tag": "b23b",
+ "dryRun": false,
+ "edited": [
+  "src/components/IngredientGlyph.tsx",
+  "src/data/ingredients.ts",
+  "src/data/lateCatalog.ts",
+  "src/data/recipeHintRoles.ts",
+  "src/data/recipeSauceProfiles.ts",
+  "src/data/referencePizza.ts",
+  "src/preview/hvSeeds.ts",
+  "src/preview/previewIsolation.gate.test.ts"
+ ],
+ "generated": [
+  "e2e/b23b.spec.ts",
+  "src/preview/b23bHvSeeds.test.ts",
+  "src/preview/b23bHvSeeds.ts",
+  "src/trainKit/landed/b23b.json"
+ ],
+ "floors": {
+  "banana": 88,
+  "chocolate": 88,
+  "powdered-sugar": 88,
+  "graham-cracker": 89,
+  "marshmallow": 89
+ },
+ "hvIds": [
+  "b23b-nutella-dessert-pizza",
+  "b23b-smore-dessert-pizza"
+ ]
+}

@@ -1,0 +1,30 @@
+{
+ "train": "replay-b23",
+ "tag": "b23",
+ "dryRun": false,
+ "edited": [
+  "src/components/IngredientGlyph.tsx",
+  "src/data/discoveryCatalog.ts",
+  "src/data/discoveryLadder.ts",
+  "src/data/ingredientTaxonomy.ts",
+  "src/data/ingredients.ts",
+  "src/data/orders.ts",
+  "src/data/recipeHintRoles.ts",
+  "src/data/recipeSauceProfiles.ts",
+  "src/data/recipes.ts",
+  "src/data/referencePizza.ts",
+  "src/data/toppingSizeClass.ts",
+  "src/preview/hvSeeds.ts",
+  "src/preview/previewIsolation.gate.test.ts"
+ ],
+ "generated": [
+  "e2e/b23.spec.ts",
+  "src/preview/b23HvSeeds.test.ts",
+  "src/preview/b23HvSeeds.ts",
+  "src/trainKit/landed/b23.json"
+ ],
+ "floors": {},
+ "hvIds": [
+  "b23-apple-cinnamon-dessert"
+ ]
+}
