@@ -1,0 +1,189 @@
+/**
+ * Issue #215 Fresh Audit -- TEMPORARY simulation harness (never committed as a .ts file; a
+ * .txt copy lives under docs/reports/data/). Reads production code only; changes nothing.
+ *
+ * For every shipped recipe and every scatter requirement, it builds the "ideal" pizza (ideal
+ * sauce fixture, every Reference piece on its exact position, perfect bake = bakeTarget midpoint)
+ * and then varies ONE group's piece count c = 0..n+2 (n = Reference positions.length):
+ *  - c <= n: keeps the first c Reference positions (best-case placement for an under-count)
+ *  - c  > n: keeps all n exact positions and adds (c - n) extras near the centre
+ * It reports the current gate status, the current Scoring 2.0 total/stars, and three candidate
+ * Pieces formulas recomputed from the SAME production metrics (`scorePieceGroup`).
+ */
+import { it } from "vitest";
+import { writeFileSync } from "node:fs";
+import { RECIPES, type Recipe } from "./data/recipes";
+import { INGREDIENTS, getIngredient } from "./data/ingredients";
+import { buildIdealSauceFixture, getReferencePizza } from "./data/referencePizza";
+import { createEmptyPizza, type PizzaState, type PlacedTopping } from "./state/pizzaState";
+import { evaluatePizzaCompletion } from "./logic/completionGate";
+import { computeScoringV2, toLegacyScoreBreakdown } from "./logic/scoringV2";
+import { scorePieceGroup } from "./logic/referenceMatching";
+import { calculatePitzReward } from "./logic/pitzReward";
+import { starsFromTotal } from "./logic/scoring";
+
+const OUT = process.env.ISSUE215_OUT ?? "/tmp/issue215_sim.json";
+
+type Counts = Record<string, number>;
+
+function buildPizza(recipe: Recipe, counts: Counts): PizzaState {
+  const reference = getReferencePizza(recipe.id)!;
+  const toppings: PlacedTopping[] = [];
+  reference.pieceGroups.forEach((group, gi) => {
+    const n = group.positions.length;
+    const c = counts[group.ingredientId] ?? n;
+    for (let i = 0; i < c; i += 1) {
+      const p =
+        i < n
+          ? group.positions[i]
+          : { x: 50 + ((i - n) % 3) * 4 - 4, y: 50 + Math.floor((i - n) / 3) * 4 - 4 };
+      toppings.push({ id: `${recipe.id}-${gi}-${i}`, ingredientId: group.ingredientId, x: p.x, y: p.y } as PlacedTopping);
+    }
+  });
+  const sauceIds = recipe.requiredIngredients
+    .map((r) => getIngredient(r.ingredientId))
+    .filter((ing) => ing?.placement === "spread")
+    .map((ing) => ing!.id);
+  return {
+    ...createEmptyPizza(),
+    sauceIds,
+    sauceDeposits: sauceIds.length > 0 ? (buildIdealSauceFixture() as PizzaState["sauceDeposits"]) : [],
+    toppings,
+    bakeResult: (recipe.bakeTarget.start + recipe.bakeTarget.end) / 2,
+  };
+}
+
+/** Candidate Pieces group formulas. All reuse production `scorePieceGroup` metrics. */
+function groupScore(variant: "S0" | "S1" | "S2", m: ReturnType<typeof scorePieceGroup>): number {
+  const n = m.targetCount;
+  const c = m.playerCount;
+  let q = m.quantitySimilarity;
+  let placement = m.placementSimilarity ?? 0;
+  if (variant !== "S0" && c < n) placement = placement * (c / n); // missing Reference slots score 0
+  if (variant === "S2" && c < n) q = c === 0 ? 0 : Math.max(0, 1 - (n - c) / n); // steeper shortage curve
+  const gate = c <= n ? 1 : q;
+  return Math.min(100, Math.max(0, q * 30 + placement * 70 * gate));
+}
+
+function variantTotal(variant: "S0" | "S1" | "S2", recipe: Recipe, pizza: PizzaState): number | null {
+  const r = computeScoringV2(recipe, pizza);
+  if (!r.available || r.totalScore === null) return null;
+  const { sauce, recipe: rc, bake } = r.components;
+  if (!sauce.available || !rc.available || !bake.available) return null;
+  const reference = getReferencePizza(recipe.id)!;
+  const groups = reference.pieceGroups.map((g) => groupScore(variant, scorePieceGroup(pizza.toppings, g)));
+  const pieces = groups.length === 0 ? 100 : groups.reduce((a, b) => a + b, 0) / groups.length;
+  return (sauce.score * 52 + pieces * 16 + rc.score * 12 + bake.score * 20) / 100;
+}
+
+/** Candidate quantity factor (Q) on the whole total: worst-group shortage / excess ratio. */
+function quantityRatios(recipe: Recipe, pizza: PizzaState): { short: number; excess: number } {
+  const reference = getReferencePizza(recipe.id)!;
+  let short = 0;
+  let excess = 0;
+  for (const g of reference.pieceGroups) {
+    const n = g.positions.length;
+    const c = pizza.toppings.filter((t) => t.ingredientId === g.ingredientId).length;
+    if (c < n) short = Math.max(short, (n - c) / n);
+    if (c > n) excess = Math.max(excess, Math.min(1, (c - n) / n));
+  }
+  return { short, excess };
+}
+const Q_SHORT = 0.5;
+const Q_EXCESS_OPTIONS = [0, 0.15, 0.25] as const;
+function qFactor(r: { short: number; excess: number }, kExcess: number): number {
+  return Math.max(0, 1 - Q_SHORT * r.short - kExcess * r.excess);
+}
+/** Star-cap band alternative (S4): worst shortage ratio -> max total (keeps Pitz consistent). */
+function capTotal(total: number, r: { short: number }): number {
+  const kept = 1 - r.short;
+  const ceiling = kept >= 1 ? 100 : kept >= 2 / 3 ? 89.9 : kept >= 1 / 2 ? 74.9 : kept > 0 ? 59.9 : 39.9;
+  return Math.min(total, ceiling);
+}
+
+function round1(x: number | null): number | null {
+  return x === null ? null : Math.round(x * 10) / 10;
+}
+
+it("issue215 simulation", () => {
+  const rows: unknown[] = [];
+  const recipes: unknown[] = [];
+  for (const recipe of RECIPES) {
+    const reference = getReferencePizza(recipe.id);
+    if (!reference) continue;
+    const idealPizza = buildPizza(recipe, {});
+    const ideal = {
+      S0: variantTotal("S0", recipe, idealPizza)!,
+      S1: variantTotal("S1", recipe, idealPizza)!,
+      S2: variantTotal("S2", recipe, idealPizza)!,
+    };
+    const scatter = reference.pieceGroups.map((g) => ({ id: g.ingredientId, n: g.positions.length }));
+    const minCountDrift = recipe.requiredIngredients
+      .filter((r) => getIngredient(r.ingredientId)?.placement === "scatter")
+      .map((r) => ({ id: r.ingredientId, minCount: r.minCount, n: scatter.find((s) => s.id === r.ingredientId)?.n ?? null }))
+      .filter((x) => x.minCount !== x.n);
+
+    const evalCounts = (counts: Counts) => {
+      const pizza = buildPizza(recipe, counts);
+      const gate = evaluatePizzaCompletion(recipe, pizza);
+      const legacy = toLegacyScoreBreakdown(computeScoringV2(recipe, pizza), pizza.bakeResult, recipe.bakeTarget);
+      const s1 = variantTotal("S1", recipe, pizza)!;
+      const s2 = variantTotal("S2", recipe, pizza)!;
+      const qr = quantityRatios(recipe, pizza);
+      const q = Object.fromEntries(
+        Q_EXCESS_OPTIONS.map((k) => {
+          const t = legacy.total * qFactor(qr, k);
+          return [`Q${k}`, { total: round1(t), stars: starsFromTotal(t), pitz: calculatePitzReward(recipe.baseRewardPitz, t).earnedPitz }];
+        }),
+      );
+      const cap = capTotal(legacy.total, qr);
+      return {
+        short: round1(qr.short),
+        excess: round1(qr.excess),
+        ...q,
+        S4cap: { total: round1(cap), stars: starsFromTotal(cap), pitz: calculatePitzReward(recipe.baseRewardPitz, cap).earnedPitz },
+        gate: gate.status === "PASS" ? "PASS" : gate.reason,
+        S0: round1(legacy.total),
+        S0stars: legacy.stars,
+        S0delta: round1(legacy.total - ideal.S0),
+        S1: round1(s1),
+        S1stars: starsFromTotal(s1),
+        S1delta: round1(s1 - ideal.S1),
+        S2: round1(s2),
+        S2stars: starsFromTotal(s2),
+        S2delta: round1(s2 - ideal.S2),
+        pitzS0: calculatePitzReward(recipe.baseRewardPitz, legacy.total).earnedPitz,
+        pitzS1: calculatePitzReward(recipe.baseRewardPitz, s1).earnedPitz,
+        pitzS2: calculatePitzReward(recipe.baseRewardPitz, s2).earnedPitz,
+      };
+    };
+
+    for (const g of scatter) {
+      for (let c = 0; c <= g.n + 2; c += 1) {
+        rows.push({ recipeId: recipe.id, ingredientId: g.id, ideal: g.n, count: c, groups: scatter.length, ...evalCounts({ [g.id]: c }) });
+      }
+    }
+    const allOne: Counts = Object.fromEntries(scatter.map((s) => [s.id, 1]));
+    const allHalf: Counts = Object.fromEntries(scatter.map((s) => [s.id, Math.ceil(s.n / 2)]));
+    const allMinusOne: Counts = Object.fromEntries(scatter.map((s) => [s.id, Math.max(1, s.n - 1)]));
+    recipes.push({
+      recipeId: recipe.id,
+      scatter,
+      spreads: recipe.requiredIngredients.map((r) => getIngredient(r.ingredientId)).filter((i) => i?.placement === "spread").map((i) => i!.id),
+      minCountDrift,
+      idealTotal: { S0: round1(ideal.S0), S1: round1(ideal.S1), S2: round1(ideal.S2) },
+      idealPieces: scatter.reduce((a, s) => a + s.n, 0),
+      allMinusOne: { pieces: Object.values(allMinusOne).reduce((a, b) => a + b, 0), ...evalCounts(allMinusOne) },
+      allHalf: { pieces: Object.values(allHalf).reduce((a, b) => a + b, 0), ...evalCounts(allHalf) },
+      allOne: { pieces: Object.values(allOne).reduce((a, b) => a + b, 0), ...evalCounts(allOne) },
+    });
+  }
+  const ingredients = INGREDIENTS.map((i) => ({
+    id: i.id,
+    placement: i.placement,
+    finite: Boolean(i.unlockCondition),
+    pricePitz: i.pricePitz ?? null,
+    restockQuantity: i.restockQuantity ?? null,
+  }));
+  writeFileSync(OUT, JSON.stringify({ rows, recipes, ingredients }, null, 1));
+});
