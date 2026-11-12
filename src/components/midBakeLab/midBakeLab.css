@@ -8,7 +8,8 @@
   height: 100dvh;
   margin: 0 auto;
   padding: 10px 16px 12px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   font-family: system-ui, -apple-system, sans-serif;
   color: #3a2a1a;
   background: #fff7ea;
