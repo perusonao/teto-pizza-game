@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { runOnlyOnWidth } from "./support/projectGuard";
 
 /**
  * MID_BAKE Lab E2E (Issue #795, stage C-3). The Lab is the DEV / Preview-only independent screen `?dev=midbake`
@@ -93,3 +94,74 @@ test.describe("MID_BAKE Lab (#795 C-3)", () => {
     expect(keys).toEqual([]);
   });
 });
+
+/**
+ * Ported from the independently audited #832 (Owner decision: #834 is the adopted axis; #832 is not merged). Only checks that map onto the behaviour #834 already has
+ * are ported -- take-out refusal, the stand-in stock knob and the Lab-wide timeout knob have no counterpart here and are NOT added (no unrequested features).
+ */
+test.describe("MID_BAKE Lab: storage isolation, entry exclusivity, short viewports (ported from #832)", () => {
+  test("writes nothing to localStorage or sessionStorage across a whole round, including restart", async ({ page }) => {
+    await open(page);
+    await waitHolding(page);
+    await page.getByTestId("lab-chip-natto").click();
+    await page.getByTestId("lab-chip-natto").click();
+    await expect(page.getByTestId("lab-result")).toBeVisible({ timeout: 8000 });
+    await page.getByTestId("lab-restart").click();
+    await expect(page.getByTestId("lab-status")).toHaveAttribute("data-lab-status", "running");
+    const stored = await page.evaluate(() => ({ local: Object.keys(window.localStorage), session: Object.keys(window.sessionStorage) }));
+    expect(stored).toEqual({ local: [], session: [] });
+  });
+
+  test("restart gives a fresh round (no pieces counted, tray closed, no result)", async ({ page }) => {
+    await open(page);
+    await waitHolding(page);
+    await page.getByTestId("lab-chip-natto").click();
+    await page.getByTestId("lab-close").click();
+    await expect(page.getByTestId("lab-result")).toBeVisible({ timeout: 8000 });
+    await page.getByTestId("lab-restart").click();
+    await expect(page.getByTestId("lab-result")).toHaveCount(0);
+    await expect(page.getByTestId("lab-chip-natto")).toBeDisabled();
+    await expect(page.getByTestId("lab-chip-natto")).toContainText("0/2");
+  });
+
+  test("a hv= seed next to the Lab entry seeds nothing (the Lab never seeds the save)", async ({ page }) => {
+    await open(page, "&hv=normal");
+    await waitHolding(page);
+    const keys = await page.evaluate(() => [...Object.keys(window.localStorage), ...Object.keys(window.sessionStorage)]);
+    expect(keys).toEqual([]);
+  });
+
+  test("without the entry, with a wrong value, different case, or another dev entry, the Lab is not shown", async ({ page }) => {
+    for (const query of ["", "?dev=", "?dev=midbake2", "?dev=MidBake", "?midbake=1", "?dev=postlayer", "?dev=state", "?cookMidBakeHv=1"]) {
+      await page.goto(`./${query}`);
+      await expect(page.locator("#root")).not.toBeEmpty();
+      await expect(page.locator("[data-mid-bake-lab]"), query).toHaveCount(0);
+    }
+  });
+
+  for (const forced of [
+    { w: 390, h: 664 },
+    { w: 360, h: 640 },
+  ] as const) {
+    test(`${forced.w}x${forced.h}: the Lab controls stay on screen at a short viewport`, async ({ page }, testInfo) => {
+      runOnlyOnWidth(testInfo, forced.w);
+      await page.setViewportSize({ width: forced.w, height: forced.h });
+      await open(page);
+      await waitHolding(page);
+      const view = await page.evaluate(() => ({ w: window.innerWidth, h: window.innerHeight, sw: document.documentElement.scrollWidth }));
+      expect(view.sw).toBeLessThanOrEqual(view.w);
+      for (const id of ["lab-gauge", "lab-chip-natto", "lab-close"]) {
+        const box = await page.getByTestId(id).boundingBox();
+        if (!box) throw new Error(`no box for ${id}`);
+        expect(box.x, id).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width, id).toBeLessThanOrEqual(view.w);
+        expect(box.y, id).toBeGreaterThanOrEqual(0);
+        expect(box.y + box.height, id).toBeLessThanOrEqual(view.h);
+      }
+      for (const id of ["lab-chip-natto", "lab-close"]) {
+        expect((await page.getByTestId(id).boundingBox())!.height, id).toBeGreaterThanOrEqual(44);
+      }
+    });
+  }
+});
+
