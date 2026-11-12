@@ -6,7 +6,7 @@ Base: `cf0c8652` (`origin/main`, 2026-11-13)
 
 ## Result
 
-Production未配線の純粋基盤として、`PanProfileId` / `PanProfile`、5 profile registry、純粋validator、独立したDOUGH_SHAPE_TARGET registry、両registry間の明示的compatibility契約、legacy adapterを追加した。
+Production未配線の純粋基盤として、`PanProfileId` / `PanProfile`、6 profile registry、純粋validator、独立したDOUGH_SHAPE_TARGET registry、両registry間の明示的compatibility契約、legacy adapterを追加した。
 
 - PAN_PROFILEは容器・深さ・熱接触と「許容するshape target ID」だけを持つ。
 - DOUGH_SHAPE_TARGETは形状族・aspect ratio・closedだけを持ち、pan IDを持たない。
@@ -30,7 +30,7 @@ Production未配線の純粋基盤として、`PanProfileId` / `PanProfile`、5 
 
 | Gate | Result |
 |---|---|
-| Focused Vitest (`src/logic/panProfile`, `src/logic/doughShapeTarget`) | PASS — 3 files / 19 tests |
+| Focused Vitest (`src/logic/panProfile`, `src/logic/doughShapeTarget`) | PASS — 3 files / 20 tests |
 | Architecture test | PASS — focused runに含む |
 | Type check (`tsc -b --pretty false`) | PASS |
 | Lint (new modules) | PASS |

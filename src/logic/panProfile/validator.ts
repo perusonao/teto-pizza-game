@@ -23,7 +23,9 @@ export function validatePanProfileRegistry(registry: PanProfileRegistryInput): r
       continue;
     }
     const profile = value;
-    const id = typeof profile.id === "string" ? profile.id : key;
+    const hasValidId = typeof profile.id === "string";
+    const id = hasValidId ? profile.id as string : key;
+    if (!hasValidId) issues.push({ code: "INVALID_FIELD", profileId: key, detail: "id must be a string" });
     if (!knownProfileIds.has(key) || !knownProfileIds.has(id)) issues.push({ code: "UNKNOWN_PROFILE", profileId: id, detail: `unknown profile key/id ${key}/${id}` });
     if (seenIds.has(id)) issues.push({ code: "DUPLICATE_PROFILE_ID", profileId: id, detail: `profile id ${id} occurs more than once` });
     seenIds.add(id);

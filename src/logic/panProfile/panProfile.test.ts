@@ -60,6 +60,12 @@ describe("pure validator", () => {
     const input = { ...PAN_PROFILE_REGISTRY, tray: { ...PAN_PROFILE_REGISTRY.tray, defaultDoughShapeTargetId: "future", compatibleDoughShapeTargetIds: ["future"] } };
     expect(validatePanProfileRegistry(input).map((issue) => issue.code)).toEqual(expect.arrayContaining(["UNKNOWN_SHAPE_TARGET", "UNKNOWN_DEFAULT_SHAPE_TARGET"]));
   });
+
+  it("rejects a profile whose required id field is absent, keeping the type guard sound", () => {
+    const { id: _id, ...trayWithoutId } = PAN_PROFILE_REGISTRY.tray;
+    const input = { ...PAN_PROFILE_REGISTRY, tray: trayWithoutId };
+    expect(validatePanProfileRegistry(input)).toEqual(expect.arrayContaining([expect.objectContaining({ code: "INVALID_FIELD", profileId: "tray" })]));
+  });
 });
 
 describe("legacy-round / tray / square adapter", () => {

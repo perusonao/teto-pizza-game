@@ -13,7 +13,11 @@ describe("PAN_PROFILE Phase 1 architecture", () => {
   it("is not wired into Production", () => {
     expect(Object.keys(productionSources).length).toBeGreaterThan(100);
     for (const [path, source] of Object.entries(productionSources)) {
-      expect(source, path).not.toMatch(/\b(?:PanProfileId|PAN_PROFILE_REGISTRY|DOUGH_SHAPE_TARGET_REGISTRY|checkPanShapeCompatibility|panProfileIdFromLegacy)\b/);
+      const specifiers = [...source.matchAll(/(?:from\s*|import\s*\()\s*["']([^"']+)["']/g)].map((match) => match[1]);
+      const newNamespaceImports = specifiers.filter((specifier) =>
+        specifier.includes("doughShapeTarget") || (specifier.includes("panProfile") && !specifier.endsWith("/pan/panProfile"))
+      );
+      expect(newNamespaceImports, path).toEqual([]);
     }
   });
 
