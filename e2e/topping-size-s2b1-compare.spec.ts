@@ -3,6 +3,7 @@ import { writeFileSync } from "node:fs";
 import { completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { base, HAND_ON_OWNED, openWith } from "./support/familyTray";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
+import { chipOnTray } from "./support/handPick";
 
 /**
  * #479 S2b-1 capture (NOT a regression test): the six pilot ingredients on one pizza at the current sizes (no switch = 1.0) and under the
@@ -27,15 +28,8 @@ const PILOT = [
 
 async function chooseChip(page: Page, name: RegExp) {
   const chip = page.getByRole("button", { name }).first();
-  const prev = page.getByRole("button", { name: "前のページ" }).first();
-  const next = page.getByRole("button", { name: "次のページ" }).first();
   // the tray is paged: go back to the first page, then forward until the chip is on screen
-  for (let i = 0; i < 20 && (await prev.isEnabled().catch(() => false)); i += 1) await prev.click();
-  for (let i = 0; i < 20 && !(await chip.isVisible().catch(() => false)); i += 1) {
-    if (!(await next.isEnabled().catch(() => false))) break;
-    await next.click();
-  }
-  await chip.click();
+  await (await chipOnTray(page, chip)).click();
 }
 
 test.describe.configure({ mode: "serial" });
