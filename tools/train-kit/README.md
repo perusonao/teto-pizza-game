@@ -53,6 +53,8 @@ late なのに step 無し など）は**ファイルを 1 つも書く前に**�
 | `replay --base --target --ids --tag --label --out [--tsc]` | 出荷済みバッチを生成器で再現し、カタログの完全一致を検査（同値性の証明） | 約 1〜2 分 |
 | `e2e <スペック> --out e2e/<名前>.spec.ts` | E2E だけをテンプレートから作り直す | 約 3 秒 |
 | `coverage --out` | スペック形式と生成 Reference が既存カタログをどこまで再現するかの測定 | 約 4 秒 |
+| `freeze --at <commit> --out <json>` | 凍結基準を記録する（§3.5）。通常は実行しない | 約 20 秒 |
+| `mutation --old <tree> --new <tree> --files "<tests>" --out <json>` | 旧テストと新テストが同じ変異を検出するかを比べる（20 件、`mutations.json`） | 約 20〜30 分 |
 | `pins --commits <sha,...>` | 追従対象の一覧（`pin-files.json`）を、出荷済みバッチの commit から作り直す | 1 秒未満 |
 
 ## 3. 実装スペックの書き方
@@ -70,6 +72,26 @@ late なのに step 無し など）は**ファイルを 1 つも書く前に**�
 - `landingStyle`: 葉もののハーブだけ `LIGHT_LEAF`。出荷済み食材は既存の値が自動で引き継がれる。
 - 省略すると入る値: `bakeTarget 58–78`・`baseRewardPitz 100`・`lunchRush false`・`ladderCredit true`・`requestedBy "mito"`。
 - `description`／`order.lineJa` は Anti-Oracle（数量・タイミング・手順を言わない）。既存レシピの文体に合わせる。
+
+## 3.5 期待値は「凍結基準＋着地済みスペック」から合成される（R-1）
+
+台帳・ladder の件数と位置・late の step 番号・床値・チャプター・Lunch Rush プール・late 食材のショップ行は、テストに数字を書かず、次の 2 つの記録から合成する
+（`src/logic/catalog/testSupport/composedCatalog.ts`）。実装の値は一切読まない。
+
+| 記録 | 中身 | 変わるとき |
+|---|---|---|
+| 凍結基準 `src/logic/catalog/testSupport/frozenBaseline.json` | B23 直前（`577dcfd~1`）の出荷済みカタログ。`node tools/train-kit/cli.mjs freeze --at 577dcfd~1 --out <json>` で記録した履歴 | 出荷済みバッチを後から変えたとき以外は変えない（変えるなら JSON の差分をレビューする） |
+| 着地済みスペック `src/trainKit/landed/*.json` | Owner が承認した各列車の記述。`apply` が書く（`seq` = 着地順、`floors` = 着地時の床値） | 列車が着地するたび 1 ファイル増える（同じ PR で） |
+
+比較は**完全一致**なので、手書きの数字と検出力は同じ（証明は変異テスト: `node tools/train-kit/cli.mjs mutation ...`、結果は `docs/reports/data/TETO_TRAIN-KIT-R1/mutation.result.json`）。
+列車の PR で人が書くのは、**Owner の承認そのものが内容になる記録だけ**になる:
+
+- Research の非正準差分の ID 別承認表（`expansionBatch18〜22.test.ts` の「pinned … IDs」）
+- 重複 Gate の例外（`OD-B18-3` など）
+- 既存食材のパック変更（`materialShop.test.ts` の `EXPECTED_OFFERS` の k。Owner 承認済みの変更であり、プリフライトのパケット §5 に出る）
+- ランク外のレシピがチャプター 4 以外に入る場合の `chapter`（スペックに書く。`catalogComposition.test.ts` が検証する）
+
+これらを「導出」してはいけない（承認の記録を実装から逆算すると、承認が要らなくなる）。
 
 ## 4. sweep の追従リストの直し方
 

@@ -23,6 +23,7 @@ import { materialOffer } from "../logic/materialShop";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { discoveredRecipeIds, EMPTY_DEX, registerScoreToDex } from "../state/dex";
 import matrix from "../../docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json";
+import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 
 /**
  * Expansion Batch 18 (Issue #748): baingan-bharta-pizza (credited) + reina-pepiada-pizza (NOT credited) + `cilantro` PROMOTED from the late catalog to an ordinary material (ordinary step 69). PROVISIONAL SPEC: the original pizzadb.jp pages were NOT
@@ -166,7 +167,7 @@ describe("differentiation (the global 0.4 Jaccard guideline is NOT changed; the 
 describe("ordinary step 69 and the late steps", () => {
   const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
   it("steps 1-68 are frozen; step 69 is cilantro alone, no star gate, keyed to baingan-bharta-pizza (reina adds no step)", () => {
-    expect(steps).toHaveLength(74); // Expansion Batch 23 (#780): the ordinary step 74 moved the derived late numbers +1 again; // Expansion Batch 20-A (#790) appended the ordinary step 71 (honey + walnut) after it; // Expansion Batch 19 (#774) appended the ordinary step 70 (burrata) after it;
+    expect(steps).toHaveLength(COMPOSED.ordinarySteps.length); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
     expect(steps[66]).toMatchObject({ step: 67, ingredientIds: ["umeboshi-paste"], keyRecipeId: "ume-shiso-pizza" });
     expect(steps[67]).toMatchObject({ step: 68, ingredientIds: ["sour-cream"], keyRecipeId: "goulash-pizza" });
     expect(steps[68]).toMatchObject({ step: 69, kind: "MATERIAL", ingredientIds: ["cilantro"], keyRecipeId: BAINGAN });
@@ -180,10 +181,10 @@ describe("ordinary step 69 and the late steps", () => {
   });
   it("the late steps follow at 70-76 (derived; +1 again) and name no cilantro; the BBQ late step is bbq-sauce alone; the late floors are unchanged", () => {
     const late = DISCOVERY_LADDER.steps.slice(69);
-    expect(late.map((s) => s.step)).toEqual([70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89]); // Expansion Batch 23-b (#780): the nutella / smore late steps 88 / 89 follow; Expansion Batch 22 (#780): the ordinary steps 72 / 73 moved the derived late numbers +2 and four late steps (83-86) follow; // Expansion Batch 20-A (#790): the ordinary step 71 moved the derived late numbers +1 again; // Expansion Batch 19 (#774): the ordinary step 70 (burrata) now opens this slice and moved the derived late numbers +1 again (71-77)
+    expect(late.map((s) => s.step)).toEqual(COMPOSED.steps.slice(69).map((s) => s.step)); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
     expect(late.some((s) => s.ingredientIds.includes("cilantro"))).toBe(false);
-    expect(late.find((s) => s.keyRecipeId === BBQ)).toMatchObject({ step: 79, ingredientIds: ["bbq-sauce"] }); // (Expansion Batch 19: 74 -> 75; Expansion Batch 20-A: 75 -> 76; Expansion Batch 22: 76 -> 78; Expansion Batch 23: 78 -> 79)
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86, banana: 88, chocolate: 88, "powdered-sugar": 88, "graham-cracker": 89, marshmallow: 89 });
+    expect(late.find((s) => s.keyRecipeId === BBQ)).toMatchObject({ step: COMPOSED.stepOfKey(BBQ), ingredientIds: ["bbq-sauce"] }); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual(COMPOSED.floors); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
   });
 });
 

@@ -27,6 +27,7 @@ import { researchCohortLetters, researchEntryLabel } from "../logic/discovery/re
 import { buildHint5Ladder, hint5Presentation, HINT5_RUNG_MARKER, HINT5_RUNG_PRICE } from "../logic/discovery/hint5Ladder";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { EMPTY_DEX } from "../state/dex";
+import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 
 /**
  * Expansion Batch 19 (Issue #774): `burrata` (ブッラータ, a cheese, ordinary step 70) + pesto-burrata-pizza (credited, the step's key) + pizza-alla-crudaiola (NOT credited). PROVISIONAL SPEC: the original pizzadb.jp is NOT confirmed; the only evidence is the 172 matrix rows
@@ -150,7 +151,7 @@ describe("ordinary step 70 and the late steps", () => {
     expect(step).toMatchObject({ step: 70, ingredientIds: ["burrata"], keyRecipeId: PB });
     expect((step as { starGates?: unknown }).starGates).toBeUndefined();
     expect(steps.filter((s) => s.keyRecipeId === CR)).toEqual([]);
-    expect(ordinaryLadderSteps(steps).at(-5)).toBe(step); // (Expansion Batch 20-A, #790, appended the ordinary step 71 after it; Expansion Batch 23, #780, the ordinary step 74)
+    expect(ordinaryLadderSteps(steps).indexOf(step)).toBe(69); // R-1 (#780): the 70th ordinary step (steps 1-69 are frozen); its position from the end moves with every landing train, its position from the start does not
   });
   it("every other ingredient of both recipes is owned before step 70 (burrata is the last unlock)", () => {
     const before = new Set<string>([...STARTER_INGREDIENT_IDS, ...steps.slice(0, 69).flatMap((s) => s.ingredientIds)]);
@@ -158,9 +159,9 @@ describe("ordinary step 70 and the late steps", () => {
     expect(before.has("burrata")).toBe(false);
   });
   it("the late steps follow at 72-78 (derived; +1 again by Expansion Batch 20-A's ordinary step 71) and the late floors are unchanged", () => {
-    const late = steps.slice(74); // Expansion Batch 22 (#780): the ordinary steps 72 / 73 moved the derived late numbers +2 (74-82) and four late steps (83-86) follow
-    expect(late.map((s) => s.step)).toEqual([75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89]); // (Expansion Batch 23-b: the nutella / smore late steps 88 / 89 follow)
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86, banana: 88, chocolate: 88, "powdered-sugar": 88, "graham-cracker": 89, marshmallow: 89 });
+    const late = steps.slice(COMPOSED.ordinarySteps.length); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
+    expect(late.map((s) => s.step)).toEqual(COMPOSED.lateSteps.map((s) => s.step));
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual(COMPOSED.floors); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
     expect(LATE_RECIPES.length).toBeGreaterThan(0);
   });
   it("the batch manifest is LANDED and consistent: appended tail, append-only ladder, chapter / cohort identity, explicit declarations", () => {

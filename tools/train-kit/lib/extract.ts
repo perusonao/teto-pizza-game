@@ -14,10 +14,11 @@ import { ALL_LATE_RECIPE_IDS, LATE_DISCOVERY_TARGET_IDS, LATE_ENTITLEMENT_FLOORS
 import { ORDERS } from "../../../src/data/orders";
 import { RECIPE_HINT_ROLES } from "../../../src/data/recipeHintRoles";
 import { RECIPE_SAUCE_PROFILES } from "../../../src/data/recipeSauceProfiles";
-import { RECIPES } from "../../../src/data/recipes";
+import { RECIPES, participatesInLunchRush } from "../../../src/data/recipes";
 import { getReferencePizza } from "../../../src/data/referencePizza";
 import { TOPPING_SIZE_CLASS_BY_ID } from "../../../src/data/toppingSizeClass";
 import { assignReferenceSlots } from "../../../src/logic/pizzaReferenceLayout";
+import { buildRecipeChapters } from "../../../src/state/recipeChapters";
 import { DEFAULT_PIECE_STYLE, type Derived, type PieceStyle, type ReferenceGroup } from "./codegen";
 import type { KitIngredient, KitRecipe, KitSizeClass, KitTrain, ShippedFacts } from "./implSpec";
 
@@ -172,6 +173,8 @@ export function catalogDump(): Record<string, unknown> {
     sizeClasses: TOPPING_SIZE_CLASS_BY_ID,
     hintRoles: RECIPE_HINT_ROLES,
     sauceProfiles: RECIPE_SAUCE_PROFILES,
+    chapterSizes: buildRecipeChapters().map((c) => c.recipes.length),
+    lunchRushPool: recipeRows.filter((r) => participatesInLunchRush(r.id)).length,
     evidenceIds: Object.fromEntries(recipeRows.map((r) => [r.id, evidenceIdOf(r.id)])),
     references: Object.fromEntries(recipeRows.map((r) => [r.id, getReferencePizza(r.id)])),
   });

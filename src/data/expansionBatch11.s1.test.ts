@@ -12,6 +12,7 @@ import { LATE_ENTITLEMENT_FLOORS } from "./lateCatalog";
 import { materialOffer } from "../logic/materialShop";
 import { ordinaryLadderSteps } from "../logic/catalog/testSupport/lateIds";
 import { getReferenceSlots } from "../logic/pizzaReferenceLayout";
+import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 
 /**
  * B11 S1 (boscaiola / porcini-pizza / pescatore). PROVISIONAL SPEC: the original pizzadb.jp pages were NOT confirmed, so the counts, bake window, colours, glyphs, names and the SVG shapes are GAMEPLAY ASSUMPTIONS / CALIBRATION.
@@ -107,9 +108,9 @@ describe("the two ordinary steps (62 and 63), derived by the REC-04 rule", () =>
   });
   it("the late steps follow them at 67-73 (derived; Expansion Batch 12 inserted the ordinary step 64, Expansion Batch 13 step 65, Expansion Batch 14 step 66), and the fixed floors are unchanged", () => {
     const stepOf = (id: string) => DISCOVERY_LADDER.steps.find((s) => s.ingredientIds.includes(id))!.step;
-    expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual([75, 76, 77, 78, 79, 80, 81]); // Expansion Batch 23 (#780): the ordinary step 74 moved the derived late numbers +1 again; // (Expansion Batch 20-A, #790: the ordinary step 71 moved the derived late numbers +1 again) // (Expansion Batch 19, #774: the ordinary step 70 moved the derived late numbers +1 again)
+    expect(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map(stepOf)).toEqual(["salmon-roe", "yuzu-kosho", "miso-sauce", "tahini", "bbq-sauce", "wasabi", "nori"].map((id) => COMPOSED.stepOfMaterial(id))); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
     // // (Expansion Batch 18 inserted the ordinary step 69: the derived late numbers moved +1 again; Expansion Batch 17 inserted the ordinary step 68: the derived late numbers moved +1 again; Expansion Batch 16 inserted the ordinary step 67: the derived late numbers moved +1; the fixed floors did not)
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({ "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68, "cheddar": 79, "lettuce": 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, "cabbage": 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86, banana: 88, chocolate: 88, "powdered-sugar": 88, "graham-cracker": 89, marshmallow: 89 });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual(COMPOSED.floors); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
   });
 });
 

@@ -19,12 +19,23 @@ import {
 import { REC04_W1_25_LADDER_FIXTURE } from "./testSupport/discoveryLadderRule";
 import type { InventoryState } from "../state/inventory";
 import { lateCatalogEnabled } from "../data/lateCatalog";
+import { COMPOSED } from "./catalog/testSupport/composedForBuild";
+import { LANDED } from "./catalog/testSupport/composedCatalog";
 
 function ing(id: string): Ingredient {
   const found = getIngredient(id);
   if (!found) throw new Error(`unknown ingredient ${id}`);
   return found;
 }
+
+/** R-1: the late materials' steps are DERIVED (ordinary steps first), so the expectation is the composed ladder (frozen baseline + landed specs), not a number. */
+const lateStep = (id: string): number => COMPOSED.stepOfMaterial(id)!;
+const LANDED_OFFERS: [string, number, string, number, number, number, number][] = LANDED.flatMap((train) =>
+  train.newIngredients.map((i): [string, number, string, number, number, number, number] => {
+    const k = Math.max(...LANDED.flatMap((t) => t.recipes).flatMap((r) => r.requiredIngredients).filter((q) => q.ingredientId === i.id).map((q) => q.minCount));
+    return [i.id, COMPOSED.stepOfMaterial(i.id)!, "T4", k, 10 * k, 120, 60];
+  }),
+);
 
 /** Expected offer for every material of the production ladder -- the 25-recipe W1 ladder since
  *  I5b-3 (docs/reports/TETO_PROGRESS2_W1_I5B_FRESH-AUDIT.md §4-§6): [id, step, tier, k, qty, pack, refill]. */
@@ -141,35 +152,36 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ["buffalo-sauce", 72, "T4", 1, 10, 120, 60], // Expansion Batch 22 (#780): the ordinary step 72 sells the buffalo-sauce (a sauce: k=1)
   ["brie", 73, "T4", 3, 30, 120, 60], // Expansion Batch 22 (#780): the ordinary step 73 sells the brie (k=3)
   // Expansion Batch 23 (#780, PROVISIONAL SPEC; Owner 2026-11-10): the ordinary step 74 sells the apple (a fruit topping: k=2); the late steps below it moved +1 (the floors did not). cream-cheese's pack follows the new largest count (apple-cinnamon-dessert uses 3): k 2 -> 3.
-  ["apple", 74, "T4", 2, 20, 120, 60],
   // E5 (late catalog on): the late step is "ordinary ladder length + 1" (FIN-E4b-ikura); salmon-roe is the late recipe's finite material, k = 2 (its two roe), T4 like the step before it.
-  ...(lateCatalogEnabled() ? [["salmon-roe", 75, "T4", 2, 20, 120, 60] as [string, number, string, number, number, number, number]] : []),
+  ...(lateCatalogEnabled() ? [["salmon-roe", lateStep("salmon-roe"), "T4", 2, 20, 120, 60] as [string, number, string, number, number, number, number]] : []),
   // New Sauces Phase B U1 (#578, late catalog on): the next late step ("ordinary length + 2"); yuzu-kosho is the late recipe's finite sauce, k = 1 (one painted use), T4 like the steps before it.
-  ...(lateCatalogEnabled() ? [["yuzu-kosho", 76, "T4", 1, 10, 120, 60] as [string, number, string, number, number, number, number]] : []),
+  ...(lateCatalogEnabled() ? [["yuzu-kosho", lateStep("yuzu-kosho"), "T4", 1, 10, 120, 60] as [string, number, string, number, number, number, number]] : []),
   // New Sauces Phase B U2 (#578): the late step 59 sells the miso-sauce (a sauce: k=1) and the white-sesame (a fine garnish: k=1, like the shiso); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["miso-sauce", 77, "T4", 1, 10, 120, 60], ["white-sesame", 77, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["miso-sauce", lateStep("miso-sauce"), "T4", 1, 10, 120, 60], ["white-sesame", lateStep("white-sesame"), "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
   // New Sauces Phase B U3 (#578): the late step 60 sells the tahini (a sauce: k=1) and the pomegranate (a finite topping: k=2, like the roe); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["tahini", 78, "T4", 1, 10, 120, 60], ["pomegranate", 78, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["tahini", lateStep("tahini"), "T4", 1, 10, 120, 60], ["pomegranate", lateStep("pomegranate"), "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
   // BBQ Chicken (#611): the late step 68 sells the bbq-sauce (a sauce: k=1) and the cilantro (a finite topping: k=2, like the pomegranate); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["bbq-sauce", 79, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["bbq-sauce", lateStep("bbq-sauce"), "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
   // PR-2 late4 (#578 / #611): the late step 69 sells the soy-sauce (a sauce: k=1) and the wasabi (a finite topping: k=1), the late step 70 the cod-roe (k=2), the fresh-cream-sauce (a sauce: k=1) and the nori (k=1); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["soy-sauce", 80, "T4", 1, 10, 120, 60], ["wasabi", 80, "T4", 1, 10, 120, 60], ["cod-roe", 81, "T4", 2, 20, 120, 60], ["fresh-cream-sauce", 81, "T4", 1, 10, 120, 60], ["nori", 81, "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["soy-sauce", lateStep("soy-sauce"), "T4", 1, 10, 120, 60], ["wasabi", lateStep("wasabi"), "T4", 1, 10, 120, 60], ["cod-roe", lateStep("cod-roe"), "T4", 2, 20, 120, 60], ["fresh-cream-sauce", lateStep("fresh-cream-sauce"), "T4", 1, 10, 120, 60], ["nori", lateStep("nori"), "T4", 1, 10, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
   // Expansion Batch 21 (#780): the late step 79 sells the cheddar (k=2), the lettuce (k=2) and the tortilla-chips (k=2); the late step 80 the okonomiyaki-sauce (a sauce: k=1), the cabbage (k=3) and the bonito-flakes (k=2); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["cheddar", 82, "T4", 2, 20, 120, 60], ["lettuce", 82, "T4", 2, 20, 120, 60], ["tortilla-chips", 82, "T4", 2, 20, 120, 60], ["okonomiyaki-sauce", 83, "T4", 1, 10, 120, 60], ["cabbage", 83, "T4", 3, 30, 120, 60], ["bonito-flakes", 83, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["cheddar", lateStep("cheddar"), "T4", 2, 20, 120, 60], ["lettuce", lateStep("lettuce"), "T4", 2, 20, 120, 60], ["tortilla-chips", lateStep("tortilla-chips"), "T4", 2, 20, 120, 60], ["okonomiyaki-sauce", lateStep("okonomiyaki-sauce"), "T4", 1, 10, 120, 60], ["cabbage", lateStep("cabbage"), "T4", 3, 30, 120, 60], ["bonito-flakes", lateStep("bonito-flakes"), "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
   // Expansion Batch 22 (#780): the late steps 83 sells the fennel (k=2) and the orange (k=2); 84 the carrot (k=2), the red-cabbage (k=2) and the sunflower-seeds (k=2); 85 the radicchio (k=2) and the balsamic-vinegar (a sauce: k=1); 86 the truffle (k=2); T4 pack 120 / refill 60
   ...(lateCatalogEnabled()
-    ? ([["fennel", 84, "T4", 2, 20, 120, 60], ["orange", 84, "T4", 2, 20, 120, 60], ["carrot", 85, "T4", 2, 20, 120, 60], ["red-cabbage", 85, "T4", 2, 20, 120, 60], ["sunflower-seeds", 85, "T4", 2, 20, 120, 60], ["radicchio", 86, "T4", 2, 20, 120, 60], ["balsamic-vinegar", 86, "T4", 1, 10, 120, 60], ["truffle", 87, "T4", 2, 20, 120, 60], ["banana", 88, "T4", 2, 20, 120, 60], ["chocolate", 88, "T4", 2, 20, 120, 60], ["powdered-sugar", 88, "T4", 2, 20, 120, 60], ["graham-cracker", 89, "T4", 2, 20, 120, 60], ["marshmallow", 89, "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
+    ? ([["fennel", lateStep("fennel"), "T4", 2, 20, 120, 60], ["orange", lateStep("orange"), "T4", 2, 20, 120, 60], ["carrot", lateStep("carrot"), "T4", 2, 20, 120, 60], ["red-cabbage", lateStep("red-cabbage"), "T4", 2, 20, 120, 60], ["sunflower-seeds", lateStep("sunflower-seeds"), "T4", 2, 20, 120, 60], ["radicchio", lateStep("radicchio"), "T4", 2, 20, 120, 60], ["balsamic-vinegar", lateStep("balsamic-vinegar"), "T4", 1, 10, 120, 60], ["truffle", lateStep("truffle"), "T4", 2, 20, 120, 60]] as [string, number, string, number, number, number, number][])
     : []),
+  // R-1 (#780): the materials of every landed train (src/trainKit/landed/*.json) -- step from the composed ladder, T4 (appended steps), k = the largest count any landed recipe asks for. A landing train adds its rows by landing its spec.
+  ...LANDED_OFFERS,
 ];
 
 describe("price tiers (REC-04 OD-REC04-3)", () => {
@@ -327,7 +339,7 @@ describe("nextMaterialHint", () => {
     expect(nextMaterialHint(29)).toEqual({ discoveriesNeeded: 1, step: 30 });
     expect(nextMaterialHint(30)).toEqual({ discoveriesNeeded: 1, step: 31 });
     expect(nextMaterialHint(31)).toEqual({ discoveriesNeeded: 1, step: 32 });
-    const last = 74 + (lateCatalogEnabled() ? 15 : 0); // Expansion Batch 23-b: + the nutella and smore late steps (88 / 89); Expansion Batch 22: + ordinary steps 72 / 73 and the four late steps; Expansion Batch 21: + the taco and okonomiyaki late steps; // E5: + the late step; New Sauces Phase B U1: + the yuzu-kosho late step; U2: + the miso-sauce / white-sesame late step; U3: + the tahini / pomegranate late step; BBQ Chicken: + the bbq-sauce / cilantro late step
+    const last = COMPOSED.ordinarySteps.length + (lateCatalogEnabled() ? COMPOSED.lateSteps.length : 0); // R-1 (#780): composed from the frozen baseline and the landed specs
     for (let n = 32; n < last; n += 1) expect(nextMaterialHint(n)).toEqual({ discoveriesNeeded: 1, step: n + 1 });
     expect(nextMaterialHint(last)).toBeNull();
     expect(nextMaterialHint(last)).toBeNull();

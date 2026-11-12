@@ -3,6 +3,7 @@
  "tag": "b23b",
  "label": "Expansion Batch 23-b",
  "issue": 780,
+ "seq": 2,
  "recipes": [
   {
    "id": "nutella-dessert-pizza",

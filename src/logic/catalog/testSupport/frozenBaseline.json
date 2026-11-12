@@ -1,0 +1,1798 @@
+{
+ "_comment": "FROZEN BASELINE: the shipped catalog at `commit`, recorded by `node tools/train-kit/cli.mjs freeze`. History, not a measurement of the current build. Do not edit by hand.",
+ "commit": "3d06dce47b19aafa72acd89f1836016304f24d54",
+ "recipes": [
+  {
+   "id": "margherita",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "marinara",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "quattro-formaggi",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "genovese",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "bismarck",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "funghi",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "fugazza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "salsiccia",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pepperoni",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "napoletana",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "tonno-e-cipolla",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pizza-bianca",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "breakfast-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "capricciosa",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "meat-lovers",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "melanzane-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "parmigiana-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "bambino",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "hawaiian",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pizza-portuguesa",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pesto-tonno",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "new-haven-apizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pesto-caprese",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pesto-patate",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "puttanesca-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "brazilian-calabresa",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "pesto-pollo",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pesto-gamberi",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "vongole",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pesto-vegetariana",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "ratatouille-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "aussie",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "pesto-trapanese",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "baba-ganoush-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "prosciutto-funghi",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "veggie-supreme-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "jamon-serrano-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "calabresa-argentina",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "rucola-e-grana",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "vegan-cashew-cheese-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pesto-salmone",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "bacalhau",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "full-english-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "palmito-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "polish-kielbasa",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "porchetta-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "salsiccia-e-friarielli",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "brazilian-catupiry-corn-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "jalapeno-popper-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pizza-feta-eliniki",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pizza-moscow",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pizza-bianca-ricotta",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pizza-overload",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "california-style-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "spinach-artichoke-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "eggplant-ricotta-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "new-zealand-lamb-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "chilean-napolitana",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "spanish-chorizo-pizza",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "frango-catupiry",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "shirasu-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "flammkuchen",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "sichuan-eggplant-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "grandma-pizza",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "curry-pizza-japan",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "rendang-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "tandoori-paneer-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "currywurst",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "cuban-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "boscaiola",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "porcini-pizza",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "pescatore",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "jamaican-jerk-chicken-pizza",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "supreme-pizza",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "pizza-alla-norma",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "potato-mayo-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "moussaka-style-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "nigerian-suya-pizza",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "ume-shiso-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "goulash-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "baingan-bharta-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "reina-pepiada-pizza",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "pesto-burrata-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "pizza-alla-crudaiola",
+   "credited": false,
+   "late": false
+  },
+  {
+   "id": "pesto-noci-pizza",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "buffalo-chicken",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "speck-e-brie",
+   "credited": true,
+   "late": false
+  },
+  {
+   "id": "ikura-salmon-pizza",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "yuzu-shrimp-pizza",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "eggplant-dengaku-pizza",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "eggplant-tahini-pizza",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "bbq-chicken-pizza",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "wasabi-beef-pizza",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "tarako-cream-pizza",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "taco-pizza",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "okonomiyaki-style-pizza",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "pizza-finocchi-salad",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "pizza-cavolo-carote",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "pizza-radicchio-noci",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "black-truffle-pizza",
+   "credited": true,
+   "late": true
+  },
+  {
+   "id": "pinsa-romana",
+   "credited": false,
+   "late": true
+  }
+ ],
+ "ingredients": [
+  {
+   "id": "tomato-sauce",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "olive-oil",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "pesto",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "mozzarella",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "gorgonzola",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "parmigiano",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "fontina",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "basil",
+   "category": "topping",
+   "family": "herb",
+   "late": false
+  },
+  {
+   "id": "garlic",
+   "category": "topping",
+   "family": "herb",
+   "late": false
+  },
+  {
+   "id": "oregano",
+   "category": "topping",
+   "family": "herb",
+   "late": false
+  },
+  {
+   "id": "cherry-tomato",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "egg",
+   "category": "topping",
+   "family": "other",
+   "late": false
+  },
+  {
+   "id": "mushroom",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "onion",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "sausage",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "pepperoni",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "anchovy",
+   "category": "topping",
+   "family": "seafood",
+   "late": false
+  },
+  {
+   "id": "tuna",
+   "category": "topping",
+   "family": "seafood",
+   "late": false
+  },
+  {
+   "id": "rosemary",
+   "category": "topping",
+   "family": "herb",
+   "late": false
+  },
+  {
+   "id": "bacon",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "ham",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "black-olive",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "capers",
+   "category": "topping",
+   "family": "spice",
+   "late": false
+  },
+  {
+   "id": "clam",
+   "category": "topping",
+   "family": "seafood",
+   "late": false
+  },
+  {
+   "id": "corn",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "eggplant",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "fresh-tomato",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "pineapple",
+   "category": "topping",
+   "family": "fruit",
+   "late": false
+  },
+  {
+   "id": "potato",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "chicken",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "shrimp",
+   "category": "topping",
+   "family": "seafood",
+   "late": false
+  },
+  {
+   "id": "parsley",
+   "category": "topping",
+   "family": "herb",
+   "late": false
+  },
+  {
+   "id": "bell-pepper",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "zucchini",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "almond",
+   "category": "topping",
+   "family": "other",
+   "late": false
+  },
+  {
+   "id": "pine-nuts",
+   "category": "topping",
+   "family": "other",
+   "late": false
+  },
+  {
+   "id": "prosciutto-crudo",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "green-pepper",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "cashew-cheese",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "salami",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "arugula",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "grana-padano",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "cream-cheese",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "lemon",
+   "category": "topping",
+   "family": "fruit",
+   "late": false
+  },
+  {
+   "id": "salmon",
+   "category": "topping",
+   "family": "seafood",
+   "late": false
+  },
+  {
+   "id": "salt-cod",
+   "category": "topping",
+   "family": "seafood",
+   "late": false
+  },
+  {
+   "id": "baked-beans",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "palm-heart",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "sauerkraut",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "pork",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "friarielli",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "catupiry",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "jalapeno",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "feta",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "sardine",
+   "category": "topping",
+   "family": "seafood",
+   "late": false
+  },
+  {
+   "id": "ricotta",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "hot-dog",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "avocado",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "goat-cheese",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "artichoke",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "spinach",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "mint",
+   "category": "topping",
+   "family": "herb",
+   "late": false
+  },
+  {
+   "id": "lamb",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "sweet-potato",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "shiso",
+   "category": "topping",
+   "family": "herb",
+   "late": false
+  },
+  {
+   "id": "whitebait",
+   "category": "topping",
+   "family": "seafood",
+   "late": false
+  },
+  {
+   "id": "fromage-blanc-sauce",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "doubanjiang",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "green-onion",
+   "category": "topping",
+   "family": "herb",
+   "late": false
+  },
+  {
+   "id": "curry-ketchup",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "beef",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "paprika-powder",
+   "category": "topping",
+   "family": "spice",
+   "late": false
+  },
+  {
+   "id": "wurstel",
+   "category": "topping",
+   "family": "meat",
+   "late": false
+  },
+  {
+   "id": "paneer",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "mustard",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "pickles",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "swiss-cheese",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "porcini",
+   "category": "topping",
+   "family": "vegetable",
+   "late": false
+  },
+  {
+   "id": "mussel",
+   "category": "topping",
+   "family": "seafood",
+   "late": false
+  },
+  {
+   "id": "ricotta-salata",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "mayo",
+   "category": "topping",
+   "family": "spice",
+   "late": false
+  },
+  {
+   "id": "cinnamon",
+   "category": "topping",
+   "family": "spice",
+   "late": false
+  },
+  {
+   "id": "umeboshi-paste",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "sour-cream",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "cilantro",
+   "category": "topping",
+   "family": "herb",
+   "late": false
+  },
+  {
+   "id": "burrata",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "honey",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "walnut",
+   "category": "topping",
+   "family": "spice",
+   "late": false
+  },
+  {
+   "id": "brie",
+   "category": "cheese",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "buffalo-sauce",
+   "category": "sauce",
+   "family": null,
+   "late": false
+  },
+  {
+   "id": "salmon-roe",
+   "category": "topping",
+   "family": "seafood",
+   "late": true
+  },
+  {
+   "id": "yuzu-kosho",
+   "category": "sauce",
+   "family": null,
+   "late": true
+  },
+  {
+   "id": "miso-sauce",
+   "category": "sauce",
+   "family": null,
+   "late": true
+  },
+  {
+   "id": "white-sesame",
+   "category": "topping",
+   "family": "spice",
+   "late": true
+  },
+  {
+   "id": "tahini",
+   "category": "sauce",
+   "family": null,
+   "late": true
+  },
+  {
+   "id": "pomegranate",
+   "category": "topping",
+   "family": "fruit",
+   "late": true
+  },
+  {
+   "id": "bbq-sauce",
+   "category": "sauce",
+   "family": null,
+   "late": true
+  },
+  {
+   "id": "soy-sauce",
+   "category": "sauce",
+   "family": null,
+   "late": true
+  },
+  {
+   "id": "wasabi",
+   "category": "topping",
+   "family": "spice",
+   "late": true
+  },
+  {
+   "id": "cod-roe",
+   "category": "topping",
+   "family": "seafood",
+   "late": true
+  },
+  {
+   "id": "fresh-cream-sauce",
+   "category": "sauce",
+   "family": null,
+   "late": true
+  },
+  {
+   "id": "nori",
+   "category": "topping",
+   "family": "vegetable",
+   "late": true
+  },
+  {
+   "id": "cheddar",
+   "category": "cheese",
+   "family": null,
+   "late": true
+  },
+  {
+   "id": "lettuce",
+   "category": "topping",
+   "family": "vegetable",
+   "late": true
+  },
+  {
+   "id": "tortilla-chips",
+   "category": "topping",
+   "family": "vegetable",
+   "late": true
+  },
+  {
+   "id": "okonomiyaki-sauce",
+   "category": "sauce",
+   "family": null,
+   "late": true
+  },
+  {
+   "id": "cabbage",
+   "category": "topping",
+   "family": "vegetable",
+   "late": true
+  },
+  {
+   "id": "bonito-flakes",
+   "category": "topping",
+   "family": "seafood",
+   "late": true
+  },
+  {
+   "id": "fennel",
+   "category": "topping",
+   "family": "vegetable",
+   "late": true
+  },
+  {
+   "id": "orange",
+   "category": "topping",
+   "family": "fruit",
+   "late": true
+  },
+  {
+   "id": "carrot",
+   "category": "topping",
+   "family": "vegetable",
+   "late": true
+  },
+  {
+   "id": "red-cabbage",
+   "category": "topping",
+   "family": "vegetable",
+   "late": true
+  },
+  {
+   "id": "sunflower-seeds",
+   "category": "topping",
+   "family": "spice",
+   "late": true
+  },
+  {
+   "id": "radicchio",
+   "category": "topping",
+   "family": "vegetable",
+   "late": true
+  },
+  {
+   "id": "truffle",
+   "category": "topping",
+   "family": "vegetable",
+   "late": true
+  },
+  {
+   "id": "balsamic-vinegar",
+   "category": "sauce",
+   "family": null,
+   "late": true
+  }
+ ],
+ "ordinaryLadder": [
+  {
+   "ingredientIds": [
+    "egg"
+   ],
+   "keyRecipeId": "bismarck"
+  },
+  {
+   "ingredientIds": [
+    "bacon"
+   ],
+   "keyRecipeId": "breakfast-pizza"
+  },
+  {
+   "ingredientIds": [
+    "mushroom"
+   ],
+   "keyRecipeId": "funghi"
+  },
+  {
+   "ingredientIds": [
+    "eggplant"
+   ],
+   "keyRecipeId": "melanzane-pizza"
+  },
+  {
+   "ingredientIds": [
+    "parmigiano"
+   ],
+   "keyRecipeId": "parmigiana-pizza"
+  },
+  {
+   "ingredientIds": [
+    "pepperoni"
+   ],
+   "keyRecipeId": "pepperoni"
+  },
+  {
+   "ingredientIds": [
+    "sausage"
+   ],
+   "keyRecipeId": "salsiccia"
+  },
+  {
+   "ingredientIds": [
+    "ham"
+   ],
+   "keyRecipeId": "meat-lovers"
+  },
+  {
+   "ingredientIds": [
+    "corn"
+   ],
+   "keyRecipeId": "bambino"
+  },
+  {
+   "ingredientIds": [
+    "pineapple"
+   ],
+   "keyRecipeId": "hawaiian"
+  },
+  {
+   "ingredientIds": [
+    "black-olive",
+    "oregano"
+   ],
+   "keyRecipeId": "capricciosa"
+  },
+  {
+   "ingredientIds": [
+    "onion"
+   ],
+   "keyRecipeId": "pizza-portuguesa"
+  },
+  {
+   "ingredientIds": [
+    "olive-oil"
+   ],
+   "keyRecipeId": "fugazza"
+  },
+  {
+   "ingredientIds": [
+    "garlic"
+   ],
+   "keyRecipeId": "marinara"
+  },
+  {
+   "ingredientIds": [
+    "anchovy"
+   ],
+   "keyRecipeId": "napoletana"
+  },
+  {
+   "ingredientIds": [
+    "tuna"
+   ],
+   "keyRecipeId": "tonno-e-cipolla"
+  },
+  {
+   "ingredientIds": [
+    "pesto"
+   ],
+   "keyRecipeId": "pesto-tonno"
+  },
+  {
+   "ingredientIds": [
+    "cherry-tomato"
+   ],
+   "keyRecipeId": "genovese"
+  },
+  {
+   "ingredientIds": [
+    "clam"
+   ],
+   "keyRecipeId": "new-haven-apizza"
+  },
+  {
+   "ingredientIds": [
+    "fresh-tomato"
+   ],
+   "keyRecipeId": "pesto-caprese"
+  },
+  {
+   "ingredientIds": [
+    "potato"
+   ],
+   "keyRecipeId": "pesto-patate"
+  },
+  {
+   "ingredientIds": [
+    "rosemary"
+   ],
+   "keyRecipeId": "pizza-bianca"
+  },
+  {
+   "ingredientIds": [
+    "capers"
+   ],
+   "keyRecipeId": "puttanesca-pizza"
+  },
+  {
+   "ingredientIds": [
+    "fontina",
+    "gorgonzola"
+   ],
+   "keyRecipeId": "quattro-formaggi"
+  },
+  {
+   "ingredientIds": [
+    "chicken"
+   ],
+   "keyRecipeId": "pesto-pollo"
+  },
+  {
+   "ingredientIds": [
+    "shrimp"
+   ],
+   "keyRecipeId": "pesto-gamberi"
+  },
+  {
+   "ingredientIds": [
+    "parsley"
+   ],
+   "keyRecipeId": "vongole"
+  },
+  {
+   "ingredientIds": [
+    "bell-pepper",
+    "zucchini"
+   ],
+   "keyRecipeId": "pesto-vegetariana"
+  },
+  {
+   "ingredientIds": [
+    "almond"
+   ],
+   "keyRecipeId": "pesto-trapanese"
+  },
+  {
+   "ingredientIds": [
+    "pine-nuts"
+   ],
+   "keyRecipeId": "baba-ganoush-pizza"
+  },
+  {
+   "ingredientIds": [
+    "prosciutto-crudo"
+   ],
+   "keyRecipeId": "prosciutto-funghi"
+  },
+  {
+   "ingredientIds": [
+    "green-pepper"
+   ],
+   "keyRecipeId": "veggie-supreme-pizza"
+  },
+  {
+   "ingredientIds": [
+    "arugula"
+   ],
+   "keyRecipeId": "jamon-serrano-pizza"
+  },
+  {
+   "ingredientIds": [
+    "salami"
+   ],
+   "keyRecipeId": "calabresa-argentina"
+  },
+  {
+   "ingredientIds": [
+    "grana-padano"
+   ],
+   "keyRecipeId": "rucola-e-grana"
+  },
+  {
+   "ingredientIds": [
+    "cashew-cheese"
+   ],
+   "keyRecipeId": "vegan-cashew-cheese-pizza"
+  },
+  {
+   "ingredientIds": [
+    "cream-cheese",
+    "lemon",
+    "salmon"
+   ],
+   "keyRecipeId": "pesto-salmone"
+  },
+  {
+   "ingredientIds": [
+    "salt-cod"
+   ],
+   "keyRecipeId": "bacalhau"
+  },
+  {
+   "ingredientIds": [
+    "baked-beans"
+   ],
+   "keyRecipeId": "full-english-pizza"
+  },
+  {
+   "ingredientIds": [
+    "palm-heart"
+   ],
+   "keyRecipeId": "palmito-pizza"
+  },
+  {
+   "ingredientIds": [
+    "sauerkraut"
+   ],
+   "keyRecipeId": "polish-kielbasa"
+  },
+  {
+   "ingredientIds": [
+    "pork"
+   ],
+   "keyRecipeId": "porchetta-pizza"
+  },
+  {
+   "ingredientIds": [
+    "friarielli"
+   ],
+   "keyRecipeId": "salsiccia-e-friarielli"
+  },
+  {
+   "ingredientIds": [
+    "catupiry"
+   ],
+   "keyRecipeId": "brazilian-catupiry-corn-pizza"
+  },
+  {
+   "ingredientIds": [
+    "jalapeno"
+   ],
+   "keyRecipeId": "jalapeno-popper-pizza"
+  },
+  {
+   "ingredientIds": [
+    "feta"
+   ],
+   "keyRecipeId": "pizza-feta-eliniki"
+  },
+  {
+   "ingredientIds": [
+    "sardine"
+   ],
+   "keyRecipeId": "pizza-moscow"
+  },
+  {
+   "ingredientIds": [
+    "ricotta"
+   ],
+   "keyRecipeId": "pizza-bianca-ricotta"
+  },
+  {
+   "ingredientIds": [
+    "hot-dog"
+   ],
+   "keyRecipeId": "pizza-overload"
+  },
+  {
+   "ingredientIds": [
+    "avocado",
+    "goat-cheese"
+   ],
+   "keyRecipeId": "california-style-pizza",
+   "starGates": {
+    "goat-cheese": 120
+   }
+  },
+  {
+   "ingredientIds": [
+    "artichoke",
+    "spinach"
+   ],
+   "keyRecipeId": "spinach-artichoke-pizza",
+   "starGates": {
+    "spinach": 130
+   }
+  },
+  {
+   "ingredientIds": [
+    "mint"
+   ],
+   "keyRecipeId": "eggplant-ricotta-pizza"
+  },
+  {
+   "ingredientIds": [
+    "lamb",
+    "sweet-potato"
+   ],
+   "keyRecipeId": "new-zealand-lamb-pizza"
+  },
+  {
+   "ingredientIds": [
+    "shiso",
+    "whitebait"
+   ],
+   "keyRecipeId": "shirasu-pizza"
+  },
+  {
+   "ingredientIds": [
+    "fromage-blanc-sauce"
+   ],
+   "keyRecipeId": "flammkuchen"
+  },
+  {
+   "ingredientIds": [
+    "doubanjiang",
+    "green-onion"
+   ],
+   "keyRecipeId": "sichuan-eggplant-pizza"
+  },
+  {
+   "ingredientIds": [
+    "curry-ketchup"
+   ],
+   "keyRecipeId": "curry-pizza-japan"
+  },
+  {
+   "ingredientIds": [
+    "beef"
+   ],
+   "keyRecipeId": "rendang-pizza"
+  },
+  {
+   "ingredientIds": [
+    "paneer"
+   ],
+   "keyRecipeId": "tandoori-paneer-pizza"
+  },
+  {
+   "ingredientIds": [
+    "paprika-powder",
+    "wurstel"
+   ],
+   "keyRecipeId": "currywurst"
+  },
+  {
+   "ingredientIds": [
+    "mustard",
+    "pickles",
+    "swiss-cheese"
+   ],
+   "keyRecipeId": "cuban-pizza"
+  },
+  {
+   "ingredientIds": [
+    "porcini"
+   ],
+   "keyRecipeId": "boscaiola"
+  },
+  {
+   "ingredientIds": [
+    "mussel"
+   ],
+   "keyRecipeId": "pescatore"
+  },
+  {
+   "ingredientIds": [
+    "ricotta-salata"
+   ],
+   "keyRecipeId": "pizza-alla-norma"
+  },
+  {
+   "ingredientIds": [
+    "mayo"
+   ],
+   "keyRecipeId": "potato-mayo-pizza"
+  },
+  {
+   "ingredientIds": [
+    "cinnamon"
+   ],
+   "keyRecipeId": "moussaka-style-pizza"
+  },
+  {
+   "ingredientIds": [
+    "umeboshi-paste"
+   ],
+   "keyRecipeId": "ume-shiso-pizza"
+  },
+  {
+   "ingredientIds": [
+    "sour-cream"
+   ],
+   "keyRecipeId": "goulash-pizza"
+  },
+  {
+   "ingredientIds": [
+    "cilantro"
+   ],
+   "keyRecipeId": "baingan-bharta-pizza"
+  },
+  {
+   "ingredientIds": [
+    "burrata"
+   ],
+   "keyRecipeId": "pesto-burrata-pizza"
+  },
+  {
+   "ingredientIds": [
+    "honey",
+    "walnut"
+   ],
+   "keyRecipeId": "pesto-noci-pizza"
+  },
+  {
+   "ingredientIds": [
+    "buffalo-sauce"
+   ],
+   "keyRecipeId": "buffalo-chicken"
+  },
+  {
+   "ingredientIds": [
+    "brie"
+   ],
+   "keyRecipeId": "speck-e-brie"
+  }
+ ],
+ "lateLadder": [
+  {
+   "ingredientIds": [
+    "salmon-roe"
+   ],
+   "keyRecipeId": "ikura-salmon-pizza"
+  },
+  {
+   "ingredientIds": [
+    "yuzu-kosho"
+   ],
+   "keyRecipeId": "yuzu-shrimp-pizza"
+  },
+  {
+   "ingredientIds": [
+    "miso-sauce",
+    "white-sesame"
+   ],
+   "keyRecipeId": "eggplant-dengaku-pizza"
+  },
+  {
+   "ingredientIds": [
+    "tahini",
+    "pomegranate"
+   ],
+   "keyRecipeId": "eggplant-tahini-pizza"
+  },
+  {
+   "ingredientIds": [
+    "bbq-sauce"
+   ],
+   "keyRecipeId": "bbq-chicken-pizza"
+  },
+  {
+   "ingredientIds": [
+    "soy-sauce",
+    "wasabi"
+   ],
+   "keyRecipeId": "wasabi-beef-pizza"
+  },
+  {
+   "ingredientIds": [
+    "cod-roe",
+    "fresh-cream-sauce",
+    "nori"
+   ],
+   "keyRecipeId": "tarako-cream-pizza"
+  },
+  {
+   "ingredientIds": [
+    "cheddar",
+    "lettuce",
+    "tortilla-chips"
+   ],
+   "keyRecipeId": "taco-pizza"
+  },
+  {
+   "ingredientIds": [
+    "okonomiyaki-sauce",
+    "cabbage",
+    "bonito-flakes"
+   ],
+   "keyRecipeId": "okonomiyaki-style-pizza"
+  },
+  {
+   "ingredientIds": [
+    "fennel",
+    "orange"
+   ],
+   "keyRecipeId": "pizza-finocchi-salad"
+  },
+  {
+   "ingredientIds": [
+    "carrot",
+    "red-cabbage",
+    "sunflower-seeds"
+   ],
+   "keyRecipeId": "pizza-cavolo-carote"
+  },
+  {
+   "ingredientIds": [
+    "radicchio",
+    "balsamic-vinegar"
+   ],
+   "keyRecipeId": "pizza-radicchio-noci"
+  },
+  {
+   "ingredientIds": [
+    "truffle"
+   ],
+   "keyRecipeId": "black-truffle-pizza"
+  }
+ ],
+ "floors": {
+  "salmon-roe": 57,
+  "yuzu-kosho": 58,
+  "miso-sauce": 59,
+  "white-sesame": 59,
+  "tahini": 60,
+  "pomegranate": 60,
+  "bbq-sauce": 66,
+  "cilantro": 66,
+  "soy-sauce": 67,
+  "wasabi": 67,
+  "cod-roe": 68,
+  "fresh-cream-sauce": 68,
+  "nori": 68,
+  "cheddar": 79,
+  "lettuce": 79,
+  "tortilla-chips": 79,
+  "okonomiyaki-sauce": 80,
+  "cabbage": 80,
+  "bonito-flakes": 80,
+  "fennel": 83,
+  "orange": 83,
+  "carrot": 84,
+  "red-cabbage": 84,
+  "sunflower-seeds": 84,
+  "radicchio": 85,
+  "balsamic-vinegar": 85,
+  "truffle": 86
+ },
+ "chapterSizes": [
+  6,
+  12,
+  19,
+  64
+ ],
+ "lunchRushPool": 25
+}

@@ -60,3 +60,16 @@ test("progress: shipped / staged / target arithmetic and the CSV reader", () => 
   assert.deepEqual(s.pendingRecipesByMechanic, { "(none: catalog-only)": 1, FRY: 1, PREP: 1 });
   assert.match(renderProgress(s, "abc1234"), /\| recipes \| 2 \| 2 \| 5 \| 3 \| 1 \| 40% \|/);
 });
+
+import { applyOps } from "./mutation.mjs";
+
+test("mutation: every operation must match exactly once, and a stale mutation throws instead of passing", () => {
+  const text = "a\nb\nc\nb2\n";
+  assert.equal(applyOps(text, [{ type: "replace", from: "c", to: "C" }]), "a\nb\nC\nb2\n");
+  assert.equal(applyOps(text, [{ type: "swapLines", a: "a", b: "c" }]), "c\nb\na\nb2\n");
+  assert.equal(applyOps(text, [{ type: "deleteLine", line: "b" }]), "a\nc\nb2\n");
+  assert.throws(() => applyOps(text, [{ type: "replace", from: "b", to: "x" }]), /matches 2x/); // "b" is also inside "b2"
+  assert.throws(() => applyOps(text, [{ type: "replace", from: "zzz", to: "x" }]), /matches 0x/);
+  assert.throws(() => applyOps(text, [{ type: "deleteLine", line: "nope" }]), /matches 0x/);
+  assert.throws(() => applyOps(text, [{ type: "boom" }]), /unknown operation/);
+});

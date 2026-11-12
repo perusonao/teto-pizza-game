@@ -63,6 +63,8 @@ export interface KitRecipe {
   readonly ladderStep: { readonly ingredientIds: readonly string[] } | null;
   /** Short id used by the HV seed (`?hv=<tag>-<hvAlias>`) and the E2E screenshots; default = the recipe id. */
   readonly hvAlias?: string;
+  /** Recipe chapter (1-4) the recipe lands in. Omitted = 4, which is where every credited key recipe and every late recipe of the T4 tier lands; a rider that joins an older cohort (e.g. a non-credit recipe made makeable at an old step) must say so, and `catalogComposition.test.ts` fails if the stated chapter is wrong. */
+  readonly chapter?: 1 | 2 | 3 | 4;
 }
 
 export interface KitTrain {
@@ -74,6 +76,8 @@ export interface KitTrain {
   readonly issue: number;
   readonly recipes: readonly KitRecipe[];
   readonly newIngredients: readonly KitIngredient[];
+  /** Landing order of the train (1 = the first train that went through the kit). `apply` assigns it; the composed test expectations (`src/logic/catalog/testSupport/composedCatalog.ts`) append trains in this order. */
+  readonly seq?: number;
   /** Entitlement floors of the NEW late materials, recorded by `apply` at the moment they shipped (derived ladder numbers, frozen afterwards). `trainContract.test.ts` asserts them exactly. */
   readonly floors?: Readonly<Record<string, number>>;
 }
@@ -140,6 +144,7 @@ export function validateKitTrain(kit: KitTrain, shipped: ShippedFacts): string[]
   // `train` and `label` are written into `//` and `/** */` comments of the catalog files: nothing that could end a comment or a line.
   const unsafe = /(\*\/|[\r\n\u2028\u2029`]|\/\*)/;
   for (const [name, value] of [["train", kit.train], ["label", kit.label]] as const) if (typeof value === "string" && unsafe.test(value)) say(`${name} contains a character sequence that could escape a generated comment ("*/", "/*", a backtick or a line break)`);
+  if (kit.seq !== undefined && (!Number.isInteger(kit.seq) || kit.seq < 1)) say("seq must be a positive integer");
   if (!kit.train) say("train name is missing");
   if (!TAG_PATTERN.test(kit.tag ?? "")) say(`tag "${kit.tag}" must match ${TAG_PATTERN} (it becomes a file name and an identifier)`);
   if (!kit.label) say("label is missing");
@@ -184,6 +189,7 @@ export function validateKitTrain(kit: KitTrain, shipped: ShippedFacts): string[]
     if (!r.order?.lineJa) say(`order line of ${r.id}`);
     if (!r.evidenceId) say(`evidenceId of ${r.id}`);
     if (!Number.isInteger(r.bakeTarget?.start) || !Number.isInteger(r.bakeTarget?.end) || !(r.bakeTarget.start < r.bakeTarget.end)) say(`bakeTarget of ${r.id} must be two integers, start < end`);
+    if (r.chapter !== undefined && ![1, 2, 3, 4].includes(r.chapter)) say(`chapter of ${r.id} must be 1-4`);
     if (!Number.isInteger(r.baseRewardPitz) || r.baseRewardPitz < 0) say(`baseRewardPitz of ${r.id} must be a non-negative integer`);
     if (typeof r.lunchRush !== "boolean" || typeof r.ladderCredit !== "boolean") say(`lunchRush / ladderCredit of ${r.id} must be booleans`);
     if (r.sauceProfile !== null && !["PAINT", "PAINT_TEMPORARY"].includes(r.sauceProfile?.interaction)) say(`sauceProfile.interaction of ${r.id} must be PAINT or PAINT_TEMPORARY`);

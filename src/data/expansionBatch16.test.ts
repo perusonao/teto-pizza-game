@@ -19,6 +19,7 @@ import { researchCohortLetters, researchEntryLabel } from "../logic/discovery/re
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { discoveredRecipeIds, EMPTY_DEX, registerScoreToDex } from "../state/dex";
 import matrix from "../../docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json";
+import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 
 /**
  * Expansion Batch 16 (Issue #736): ume-shiso-pizza + one new material, `umeboshi-paste`. PROVISIONAL SPEC: the original pizzadb.jp page was NOT confirmed (unreachable); the only evidence is the 172 matrix row `ume-shiso-pizza-pizzadb-p14`
@@ -150,7 +151,7 @@ describe("the Batch 16 differentiation (B16-only exception; the global 0.4 crite
 describe("ordinary step 67", () => {
   const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
   it("is appended after step 66 (steps 1-66 frozen): umeboshi-paste alone, no star gate, keyed to ume-shiso-pizza", () => {
-    expect(steps).toHaveLength(74); // Expansion Batch 23 (#780): the ordinary step 74 moved the derived late numbers +1 again; // Expansion Batch 20-A (#790) appended the ordinary step 71 (honey + walnut) after it; // Expansion Batch 19 (#774) appended the ordinary step 70 (burrata) after it; // Expansion Batch 18 appended the ordinary step 69; Expansion Batch 17 appended the ordinary step 68 after it
+    expect(steps).toHaveLength(COMPOSED.ordinarySteps.length); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
     expect(steps[65]).toMatchObject({ step: 66, ingredientIds: ["cinnamon"], keyRecipeId: "moussaka-style-pizza" });
     expect(steps[66]).toMatchObject({ step: 67, kind: "MATERIAL", ingredientIds: ["umeboshi-paste"], keyRecipeId: ID });
     expect(steps[66].starGates).toBeUndefined();
