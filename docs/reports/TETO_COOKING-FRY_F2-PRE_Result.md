@@ -26,7 +26,7 @@ Claim: Issue #749 コメント 6831100109（専用 claim、〜2026-11-19）。
 ## 4. 検証
 - 検出力: `App.css` に `--fry-` を追記 → architecture test が失敗、`FRY_EXPERIENCE_PRODUCTION=true` に変更 → 失敗（いずれも元に戻して確認）。
 - 対象 Vitest（fry / fryIngredients / fryPreview / midBake / drizzle）: 15 files・190 tests pass。`tsc -b` clean、`oxlint` は既存警告のみ。
-- 全 Vitest: PR 本文に記載。
+- 全 Vitest（ローカル）: 663 files passed | 3 skipped、12283 tests passed | 20 skipped | 2 todo、失敗 0。
 
 ## 5. HV
 UI / ゲームプレイ / 見た目の変更なし（未配線のロジックとテストのみ）のため、HV 動画・スクリーンショットは対象外（`TETO_HUMAN-VERIFICATION-POLICY.md` の適用範囲外）。実機 iPhone の確認は主張しない。
