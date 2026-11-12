@@ -23,6 +23,42 @@ async function toHold(page: Page) {
 }
 const position = (page: Page) => page.getByTestId("mb-needle").getAttribute("data-position");
 
+/** Resolves once React has committed what is already scheduled (its Scheduler runs from a MessageChannel, which `page.clock` does not fake). */
+async function flush(page: Page) {
+  for (let i = 0; i < 2; i += 1) {
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          const channel = new MessageChannel();
+          channel.port1.onmessage = () => resolve();
+          channel.port2.postMessage(null);
+        }),
+    );
+  }
+}
+/** Opens the Lab with the virtual clock paused, so a take-out lands at an exact bake position instead of racing the real clock. */
+async function openLabPaused(page: Page, query = "?cookMidBakeHv=1") {
+  await page.clock.install();
+  await page.goto(`/${query}`);
+  await expect(lab(page)).toBeVisible();
+  let paused = false;
+  for (const buffer of [300, 800, 2000]) {
+    try {
+      await page.clock.pauseAt(Date.now() + buffer);
+      paused = true;
+      break;
+    } catch (error) {
+      if (!String(error).includes("to the past")) throw error;
+    }
+  }
+  if (!paused) throw new Error("openLabPaused: could not pause the clock (every pauseAt landed in the past)");
+}
+/** A DOM click: Playwright's own actionability wait would need a running animation frame while the clock is paused. */
+async function domClick(page: Page, testId: string) {
+  await page.getByTestId(testId).evaluate((el) => (el as HTMLButtonElement).click());
+  await flush(page);
+}
+
 for (const forced of [{ w: 390, h: 664 }, { w: 360, h: 640 }]) {
   test(`${forced.w}x${forced.h}: the primary controls stay on screen at a short viewport`, async ({ page }, testInfo) => {
     runOnlyOnWidth(testInfo, forced.w as 390 | 360);
@@ -65,23 +101,27 @@ test.describe("MID_BAKE Lab (?cookMidBakeHv=1)", () => {
     await expect(page.getByTestId("mb-status")).toHaveAttribute("data-hold", "1");
   });
 
-  test("two taps add two natto, the bake resumes by itself, and the take-out ends the round as complete", async ({ page }) => {
-    await openLab(page);
-    await toHold(page);
-    const chip = page.getByTestId("mb-chip-natto");
-    await expect(chip).toBeEnabled();
-    await chip.click();
+  test("two taps add two natto, the bake resumes by itself, and the take-out ends the round as complete (virtual clock, exact positions)", async ({ page }) => {
+    await openLabPaused(page);
+    await domClick(page, "mb-start");
+    await page.clock.runFor(2100); // past the window start (1950 ms): the needle is holding
+    await flush(page);
+    await expect(lab(page)).toHaveAttribute("data-clock", "holding");
+    await domClick(page, "mb-chip-natto");
     await expect(page.getByTestId("mb-piece")).toHaveCount(1);
     await expect(page.getByTestId("mb-count")).toHaveText("2");
-    await chip.click();
+    await domClick(page, "mb-chip-natto");
     await expect(page.getByTestId("mb-piece")).toHaveCount(2);
     await expect(lab(page)).toHaveAttribute("data-clock", "running");
-    await page.getByTestId("mb-takeout").click();
+    await page.clock.runFor(100); // ~3 points on from 65, well inside the Lab's plain 55-75 target
+    await flush(page);
+    await domClick(page, "mb-takeout");
     const result = page.getByTestId("mb-result");
     await expect(result).toBeVisible();
     await expect(result).toHaveAttribute("data-completion", "complete");
     await expect(result).toHaveAttribute("data-bake", "perfect");
     await expect(lab(page)).toHaveAttribute("data-phase", "finished");
+    await page.clock.resume();
   });
 
   test("the take-out is refused while holding and the bake goes on", async ({ page }) => {
@@ -158,8 +198,7 @@ test.describe("MID_BAKE Lab isolation", () => {
     await toHold(page);
     await page.getByTestId("mb-chip-natto").click();
     await page.getByTestId("mb-chip-natto").click();
-    await page.getByTestId("mb-takeout").click();
-    await expect(page.getByTestId("mb-result")).toBeVisible();
+    await expect(page.getByTestId("mb-result")).toBeVisible(PHASE_WAIT); // the bake runs out by itself: no race with a take-out click
     const stored = await page.evaluate(() => ({ local: Object.keys(window.localStorage), session: Object.keys(window.sessionStorage) }));
     expect(stored).toEqual({ local: [], session: [] });
   });

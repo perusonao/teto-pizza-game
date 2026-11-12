@@ -76,18 +76,27 @@ test.describe("MID_BAKE Lab: normal BAKE regression", () => {
     expect(atTwoSeconds).toBeGreaterThan(65);
     expect(atTwoSeconds).toBeLessThan(BAKE_SPEED_PCT_PER_S * 2.0 + 6);
     expect(atTwoSeconds).toBeGreaterThan(BAKE_SPEED_PCT_PER_S * 2.0 - 6);
-    // The bake ends at 100 by BAKE_DURATION_S (+ a margin for the frame cap), and stays there.
+    // The deadline is BAKE_DURATION_S plus one explicit frame margin, NOT a second bake length: the sample at 3.2 s must already be 100
+    // (a slowed-down bake that crosses 2.0 s on time would still be short of 100 here).
+    const frameMarginS = 0.2;
+    expect(samples[Math.round((BAKE_DURATION_S + frameMarginS) / 0.2) - 1], `samples ${samples.join(",")}`).toBe(100);
+    // ... and it stays there.
     await page.clock.runFor(BAKE_DURATION_S * 1000);
     expect(await needle(page)).toBe(100);
     await page.clock.resume();
   });
 
-  test("the normal take-out is not blocked at the window start: the bake button stays enabled while the needle passes 65", async ({ page }) => {
+  test("the normal take-out works at the window start: pressing 取り出す！ at ~65 really leaves BAKE", async ({ page }) => {
     await reachBake(page);
-    await page.clock.runFor(1960); // 65% of the 3 s bake
-    await needle(page);
-    await expect(page.locator(".cta-button--bake")).toBeEnabled();
-    await expect(page.getByTestId("mb-takeout")).toHaveCount(0);
+    await page.clock.runFor(1960); // 65% of the 3 s bake, the clock still paused
+    const atWindowStart = await needle(page);
+    expect(atWindowStart).toBeGreaterThan(60);
+    expect(atWindowStart).toBeLessThan(72);
+    // A DOM click (the clock is paused): the real onConfirm -> handleConfirmBake path, not just an enabled button.
+    await page.getByRole("button", { name: "取り出す！" }).evaluate((el) => (el as HTMLButtonElement).click());
     await page.clock.resume();
+    await expect(page.locator(".bake-gauge__needle")).toHaveCount(0); // BAKE was left for the next screen
+    await expect(page.getByRole("button", { name: "取り出す！" })).toHaveCount(0);
+    await expect(page.getByTestId("mb-takeout")).toHaveCount(0);
   });
 });
