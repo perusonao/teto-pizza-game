@@ -14,7 +14,7 @@ claim: Issue #795 コメント 6823593886（`:stage-b`）
 ### 1.1 確認した事実
 
 1. **焼成前の分の在庫消費は `CONFIRM_BAKE`。** `gameReducer.ts` の `CONFIRM_BAKE` にコメント「CONFIRM_BAKE is the sole inventory-consumption transaction boundary … PREPARE-time placement never touches `inventory`」。`state.phase !== "BAKE"` なら何もしない（二重消費の防止）。**ただし FINISH を通る回では、後乗せ分（`stage === "post"`）は別の経路で消費される。** FINISH を離れる `CONFIRM_MAKING_STEP` が `finalizeRound({ finalization: "FINAL", … })` を呼び、`finalizeRound.ts` が Free Cooking の FINAL で `consumePostBakeInventory`（post の駒だけを数える）を実行する。Guided の PROVISIONAL は「焼成前の駒を今消費する」（`finalizeRound.ts` のコメント）。つまり **「焼成前・焼成中の分は CONFIRM_BAKE、FINISH の分は FINISH 確定時」**（Codex 指摘 3）。
-2. **消費量は「ピザに実際に置かれた数」から計算される。** `consumePizzaInventory` は `PlacedTopping` の実数を数える（レシピの `minCount` ではない）。`consumePostBakeInventory` は post の駒だけを数え、`CONFIRM_BAKE` で消費済みの分を二重に数えない。**mid_bake の駒に `stage: "post"` を付けると FINISH 側で消費され、付けなければ `CONFIRM_BAKE` で消費される。どちらの値を持たせるかが消費の境界を決める**（設計判断）。
+2. **消費量は「ピザに実際に置かれた数」から計算される。** `consumePizzaInventory` は `PlacedTopping` の実数を数える（レシピの `minCount` ではない）。`consumePostBakeInventory` は post の駒だけを数え、`CONFIRM_BAKE` で消費済みの分を二重に数えない。**`consumePizzaInventory` は `stage` で絞らず全 topping を数える**（`CONFIRM_BAKE` の時点で FINISH の駒はまだ無いので通常は問題にならない）。したがって **mid_bake の駒は `CONFIRM_BAKE` の前に置かれ、必ずそこで消費される。`stage` の値で消費の境界を後ろへ送ることはできない。さらに mid_bake の駒に `stage: "post"` を付けると、FINISH を通る回で `CONFIRM_BAKE` と FINISH 確定時（`consumePostBakeInventory`）の両方で消費され、二重消費になる。** 制約: mid_bake の駒は `stage: "post"` にしない（Codex 指摘 4）。post を使いたい場合は、`CONFIRM_BAKE` の消費対象の変更が要る（HOT の `gameReducer.ts`／`inventory.ts` を含む別判断）。
 3. **置く時点のゲート `canPlaceIngredient` は、消費ではなく「在庫を超えないか」の確認だけ。** 散らす食材は `pizza.toppings` 中の同 ID の数を毎回数え直す（別カウンタを持たない）。ゲートと消費が食い違わない設計だとコメントに明記。
 4. **保存は `CONFIRM_BAKE` の後。** `pendingRound`（Save R8）は `CONFIRM_BAKE` の時点で、post-BAKE ステップ（CUT／FINISH）が残る Guided／Free の回にだけ作られる。`pendingRound` のコメントに「消費した在庫と同じ `setItem` で焼いたピザを書く」とある。Lunch Rush は `unservedConsumption` を提供まで保持、Dinner は journal を持たない。
 5. **BAKE 中の途中状態を保存する仕組みは見つからなかった。** 一方、**アプリがバックグラウンドへ移っても（ページが破棄されない限り）メモリ上の回とピザは保持される**: `BakeOverlay` の visibility／blur 処理は時計を一時停止するだけで、`App.tsx` の対応処理も表示・フォーカス状態を更新するだけ（Codex 指摘 2）。破棄されるのは再読み込み・ページ再生成の場合。 `bakeState`／`bakeValue` は transient とコメントされ、`progressionSnapshotOf` は `pendingRound` を取るが BAKE 中のピザは取らない。
@@ -29,7 +29,7 @@ claim: Issue #795 コメント 6823593886（`:stage-b`）
 
 | 項目 | 内容 |
 |---|---|
-| `PlacedTopping.stage` | 現在は `"pre" \| "post"`（`pizzaState.ts`）。mid_bake 用に値を足すか、別の印を付けるかは設計判断。HOT ではないが、採点・保存・描画の多くが読む型 |
+| `PlacedTopping.stage` | 現在は `"pre" \| "post"`（`pizzaState.ts`）。mid_bake 用に値を足すか、別の印を付けるかは設計判断。**`"post"` は使えない**（FINISH を通る回で二重消費。§1.1 の 2）。HOT ではないが、採点・保存・描画の多くが読む型 |
 | `pendingRound` の検証 | 上記。新しい値の読み戻し可否 |
 | 追加後の「半焼き」表現 | `pieceBakeClass` は PRE／POST の 2 値で、POST は焼き色を付けない。mid_bake の食材は「途中から焼く」見た目が要る（`bakeProgressForPiece` の拡張が必要） |
 | 在庫不足時 | ADD のゲートで拒否する場合、BAKE 中に在庫不足が判明する。PREPARE の別枠選択時点で確認する方が安全（段階 C 設計で扱う） |
