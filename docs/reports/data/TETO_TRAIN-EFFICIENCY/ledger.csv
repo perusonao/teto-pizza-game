@@ -1,0 +1,7 @@
+train,recipes,ingredients,method,packet_created_utc,owner_decisions_listed,stop_predicted,owner_round_trips,impl_started_utc,pr,first_ci_green,spec_changed_after_impl_start,research_reapproval,hv_first_pass,merged_utc,output_tokens,cost_usd,notes
+B22,6,10,current,,,,unmeasured(>=5),,807,yes(867ebeb8),yes(10 deviations),no(35 IDs approved after impl),6/6,2026-11-10T02:24:49Z,unmeasured,unmeasured,baseline from TETO_B22_* reports
+B23-a,1,1,current,,,,unmeasured(>=4),,814,unmeasured,yes(split a/b after 2 gate collisions),yes(apple-alone diff),unmeasured,2026-11-10,unmeasured,unmeasured,baseline from TETO_B23_Result
+B23-b,2,5,current,,,,unmeasured(>=3),,815,no(deductionGuard.gate 120s timeout),yes(family other->spice + cream-cheese),no,pending,,unmeasured,unmeasured,open Draft
+T24,7,9,train,2026-11-10T11:55:00Z,8,0,0,,,,,,,,,,packet waits for Owner
+T25,6,8,train,2026-11-10T11:55:00Z,10,0,0,,,,,,,,,,packet waits for Owner; 2 items wait for source research
+T26,3,0,train,2026-11-10T11:55:00Z,8,0,0,,,,,,,,,,packet waits for Owner
