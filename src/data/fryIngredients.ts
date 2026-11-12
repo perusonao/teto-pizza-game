@@ -14,8 +14,18 @@ import { getIngredient } from "./ingredients";
 
 export const FRY_TARGET_INGREDIENT_IDS: readonly string[] = ["eggplant"];
 
+export type FryTargetStatus = "not-target" | "dormant" | "active";
+
+/**
+ * Why the fry is (not) available for an id: `not-target` (not on the list), `dormant` (on the list but no dedicated drawing yet) or `active`. Same inputs and
+ * the same rule as `canFryIngredient`; the split only lets a report / test name the reason. Reads the ingredient id alone, never a recipe, target, round or mode.
+ */
+export function fryTargetStatus(ingredientId: string, pieceVisualOf: (id: string) => string | undefined = (id) => getIngredient(id)?.pieceVisual): FryTargetStatus {
+  if (!FRY_TARGET_INGREDIENT_IDS.includes(ingredientId)) return "not-target";
+  return pieceVisualOf(ingredientId) !== undefined ? "active" : "dormant";
+}
+
 /** `pieceVisualOf` is a test seam (what the catalog says about the dedicated drawing); production callers pass only the id. */
 export function canFryIngredient(ingredientId: string, pieceVisualOf: (id: string) => string | undefined = (id) => getIngredient(id)?.pieceVisual): boolean {
-  if (!FRY_TARGET_INGREDIENT_IDS.includes(ingredientId)) return false;
-  return pieceVisualOf(ingredientId) !== undefined;
+  return fryTargetStatus(ingredientId, pieceVisualOf) === "active";
 }
