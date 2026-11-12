@@ -41,7 +41,7 @@ vi.mock("../data/ingredientTaxonomy", async (importOriginal) => {
 
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { ingredientAttributeFamily } from "../data/ingredientTaxonomy";
-import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
+import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPE_HINT_ROLES } from "../data/recipeHintRoles";
 import { RECIPES } from "../data/recipes";
 import { ordinaryLadderSteps } from "../logic/catalog/testSupport/lateIds";
@@ -61,9 +61,13 @@ const NOT_COVERED = [
 ];
 
 describe.skipIf(!SPEC_PATH)("content train preflight (tool run)", () => {
-  it("measures the spec against the shipped catalog and writes the Owner packet", () => {
+  it("measures the spec against the shipped catalog and writes the Owner packet", async () => {
     const spec = JSON.parse(readFileSync(SPEC_PATH, "utf8")) as TrainSpec;
-    const shippedIngredientIds = INGREDIENTS.map((i) => i.id).filter((id) => !spec.newIngredients.some((n) => n.id === id));
+    // The REAL catalog's ingredient ids, read before this process appended the spec's ingredients. A spec that still lists an ingredient a
+    // landed train already shipped is STALE and must be rejected by `validateTrainSpec` ("already shipped"); filtering the spec's own ids out of
+    // this list (as an earlier version did) hid exactly that and treated the shipped ingredient as a new ladder key material (Codex P2 on #816).
+    const { INGREDIENTS: REAL_INGREDIENTS } = await vi.importActual<typeof import("../data/ingredients")>("../data/ingredients");
+    const shippedIngredientIds = REAL_INGREDIENTS.map((i) => i.id);
     expect(validateTrainSpec(spec, { recipeIds: RECIPES.map((r) => r.id), ingredientIds: shippedIngredientIds }), "spec problems").toEqual([]);
 
     const fresh = new Set(spec.newIngredients.map((i) => i.id));
