@@ -9,7 +9,7 @@ Verdicts: READY 0 / NEEDS_OWNER 16 / BLOCKED 14 (of 30).
 | recipe | placement | verdict | new materials | Hint 5.0 rungs | duplicate gate | findings |
 |---|---|---|---|---|---|---|
 | `sfincione` | ordinary | **BLOCKED** | - | SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS | JACCARD_GT_0_4 brazilian-calabresa 0.429; SUPERSET fugazza 0.6; JACCARD_GT_0_4 napoletana 0.5 | [OWNER] LADDER_KEY_MATERIAL; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_SUPERSET; [OWNER] DUPLICATE_JACCARD_GT_0_4; [STOP] RESEARCH_CANONICAL; [OWNER] RESEARCH_NON_CANONICAL |
-| `pizza-baiana` | ordinary | **BLOCKED** | - | SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS | JACCARD_GT_0_4 aussie 0.5; SUPERSET bismarck 0.6; JACCARD_GT_0_4 brazilian-calabresa 0.429; JACCARD_GT_0_4 breakfast-pizza 0.5; JACCARD_GT_0_4 full-english-pizza 0.429; SUPERSET keema-pizza (train) 0.4; ONE_DIFF pizza-chilena (train) 0.667; JACCARD_GT_0_4 pizza-portuguesa 0.571; JACCARD_GT_0_4 polish-kielbasa 0.5; SUPERSET salsiccia 0.6; JACCARD_GT_0_4 south-african-boerewors (train) 0.5; JACCARD_GT_0_4 spanish-chorizo-pizza 0.5; JACCARD_GT_0_4 tonno-e-cipolla 0.5 | [INFO] DH4_OTHER_RISK; [OWNER] LADDER_KEY_MATERIAL; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_SUPERSET; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_SUPERSET; [OWNER] DUPLICATE_ONE_DIFF; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_SUPERSET; [INFO] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [STOP] RESEARCH_CANONICAL; [OWNER] RESEARCH_NON_CANONICAL |
+| `pizza-baiana` | ordinary | **BLOCKED** | - | SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS | JACCARD_GT_0_4 aussie 0.5; SUPERSET bismarck 0.6; JACCARD_GT_0_4 brazilian-calabresa 0.429; JACCARD_GT_0_4 breakfast-pizza 0.5; JACCARD_GT_0_4 full-english-pizza 0.429; SUPERSET keema-pizza (train) 0.4; ONE_DIFF pizza-chilena (train) 0.667; JACCARD_GT_0_4 pizza-portuguesa 0.571; JACCARD_GT_0_4 polish-kielbasa 0.5; SUPERSET salsiccia 0.6; JACCARD_GT_0_4 south-african-boerewors (train) 0.5; JACCARD_GT_0_4 spanish-chorizo-pizza 0.5; JACCARD_GT_0_4 tonno-e-cipolla 0.5 | [INFO] DH4_OTHER_RISK; [OWNER] LADDER_KEY_MATERIAL; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_SUPERSET; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_SUPERSET; [OWNER] DUPLICATE_ONE_DIFF; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_SUPERSET; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [STOP] RESEARCH_CANONICAL; [OWNER] RESEARCH_NON_CANONICAL |
 | `swedish-kebab-pizza` | late | **NEEDS_OWNER** | kebab-sauce | SAUCE,CHEESE,STRUCTURE,SUB_CLASS | 0 | [OWNER] LATE_PLACEMENT; [OWNER] RESEARCH_NON_CANONICAL |
 | `thai-chicken-pizza` | ordinary | **NEEDS_OWNER** | peanut-sauce | SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS | JACCARD_GT_0_4 bbq-chicken-pizza 0.5; JACCARD_GT_0_4 reina-pepiada-pizza 0.429 | [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] RESEARCH_NON_CANONICAL |
 | `jerusalem-mixed-grill-pizza` | ordinary | **BLOCKED** | cumin | STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS | 0 | [OWNER] NO_SAUCE_DECISION; [STOP] TQ1D_G7_CHEESE_FIRST; [OWNER] RESEARCH_NON_CANONICAL |
@@ -36,7 +36,7 @@ Verdicts: READY 0 / NEEDS_OWNER 16 / BLOCKED 14 (of 30).
 | `nduja-pizza` | ordinary | **NEEDS_OWNER** | - | SAUCE,CHEESE,STRUCTURE,SUB_CLASS | ONE_DIFF salsiccia 0.5; ONE_DIFF salsiccia-e-friarielli 0.5 | [OWNER] LADDER_KEY_MATERIAL; [OWNER] DUPLICATE_ONE_DIFF; [OWNER] DUPLICATE_ONE_DIFF; [OWNER] RESEARCH_NON_CANONICAL |
 | `tsukimi-pizza` | ordinary | **BLOCKED** | - | CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS | ONE_DIFF aussie 0.6; ONE_DIFF breakfast-pizza 0.6; JACCARD_GT_0_4 full-english-pizza 0.5 | [INFO] DH4_OTHER_RISK; [OWNER] NO_SAUCE_DECISION; [OWNER] LADDER_KEY_MATERIAL; [OWNER] DUPLICATE_ONE_DIFF; [OWNER] DUPLICATE_ONE_DIFF; [OWNER] DUPLICATE_JACCARD_GT_0_4; [STOP] RESEARCH_CANONICAL; [OWNER] RESEARCH_NON_CANONICAL |
 | `teriyaki-chicken-pizza` | late | **BLOCKED** | - | STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS | 0 | [OWNER] NO_SAUCE_DECISION; [STOP] TQ1D_G7_CHEESE_FIRST; [OWNER] LADDER_KEY_MATERIAL; [STOP] RESEARCH_CANONICAL; [OWNER] RESEARCH_NON_CANONICAL |
-| `south-african-boerewors` | ordinary | **NEEDS_OWNER** | chutney | SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS | SUPERSET keema-pizza (train) 0.5; JACCARD_GT_0_4 pizza-baiana (train) 0.5; ONE_DIFF polish-kielbasa 0.6; ONE_DIFF spanish-chorizo-pizza 0.6 | [OWNER] DUPLICATE_SUPERSET; [INFO] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_ONE_DIFF; [OWNER] DUPLICATE_ONE_DIFF; [OWNER] RESEARCH_NON_CANONICAL |
+| `south-african-boerewors` | ordinary | **NEEDS_OWNER** | chutney | SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS | SUPERSET keema-pizza (train) 0.5; JACCARD_GT_0_4 pizza-baiana (train) 0.5; ONE_DIFF polish-kielbasa 0.6; ONE_DIFF spanish-chorizo-pizza 0.6 | [OWNER] DUPLICATE_SUPERSET; [OWNER] DUPLICATE_JACCARD_GT_0_4; [OWNER] DUPLICATE_ONE_DIFF; [OWNER] DUPLICATE_ONE_DIFF; [OWNER] RESEARCH_NON_CANONICAL |
 | `hokkaido-cheese-pizza` | ordinary | **BLOCKED** | - | STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS | SUBSET potato-mayo-pizza 0.6 | [OWNER] NO_SAUCE_DECISION; [STOP] TQ1D_G7_CHEESE_FIRST; [OWNER] LADDER_KEY_MATERIAL; [OWNER] DUPLICATE_SUBSET; [STOP] RESEARCH_CANONICAL; [OWNER] RESEARCH_NON_CANONICAL |
 
 ## 2. STOP — a known gate would fail (fix the spec before implementing)
@@ -83,6 +83,7 @@ Verdicts: READY 0 / NEEDS_OWNER 16 / BLOCKED 14 (of 30).
 - `pizza-baiana` — **DUPLICATE_JACCARD_GT_0_4**: JACCARD_GT_0_4 vs pizza-portuguesa, Jaccard 0.571: needs a D-1 exception or a spec change
 - `pizza-baiana` — **DUPLICATE_JACCARD_GT_0_4**: JACCARD_GT_0_4 vs polish-kielbasa, Jaccard 0.5: needs a D-1 exception or a spec change
 - `pizza-baiana` — **DUPLICATE_SUPERSET**: SUPERSET vs salsiccia, Jaccard 0.6: needs a D-1 exception or a spec change
+- `pizza-baiana` — **DUPLICATE_JACCARD_GT_0_4**: JACCARD_GT_0_4 vs south-african-boerewors (same train), Jaccard 0.5: needs a D-1 exception or a spec change
 - `pizza-baiana` — **DUPLICATE_JACCARD_GT_0_4**: JACCARD_GT_0_4 vs spanish-chorizo-pizza, Jaccard 0.5: needs a D-1 exception or a spec change
 - `pizza-baiana` — **DUPLICATE_JACCARD_GT_0_4**: JACCARD_GT_0_4 vs tonno-e-cipolla, Jaccard 0.5: needs a D-1 exception or a spec change
 - `pizza-baiana` — **RESEARCH_NON_CANONICAL**: 28 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)
@@ -200,6 +201,7 @@ Verdicts: READY 0 / NEEDS_OWNER 16 / BLOCKED 14 (of 30).
 - `teriyaki-chicken-pizza` — **LADDER_KEY_MATERIAL**: adds no new material: it cannot be the key recipe of a ladder step (OD-REC04-1); it needs the ladderCredit / D-6 decision
 - `teriyaki-chicken-pizza` — **RESEARCH_NON_CANONICAL**: 29 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)
 - `south-african-boerewors` — **DUPLICATE_SUPERSET**: SUPERSET vs keema-pizza (same train), Jaccard 0.5: needs a D-1 exception or a spec change
+- `south-african-boerewors` — **DUPLICATE_JACCARD_GT_0_4**: JACCARD_GT_0_4 vs pizza-baiana (same train), Jaccard 0.5: needs a D-1 exception or a spec change
 - `south-african-boerewors` — **DUPLICATE_ONE_DIFF**: ONE_DIFF vs polish-kielbasa, Jaccard 0.6: needs a D-1 exception or a spec change
 - `south-african-boerewors` — **DUPLICATE_ONE_DIFF**: ONE_DIFF vs spanish-chorizo-pizza, Jaccard 0.6: needs a D-1 exception or a spec change
 - `south-african-boerewors` — **RESEARCH_NON_CANONICAL**: 26 shipped recipe(s) can be re-lettered in non-canonical orders (section 4; never saved, display only)
@@ -211,14 +213,12 @@ Verdicts: READY 0 / NEEDS_OWNER 16 / BLOCKED 14 (of 30).
 ### Notes (no decision needed)
 
 - `pizza-baiana` — DH4_OTHER_RISK: shipped topping egg is in family "other": whether a new recipe makes that answer reachable depends on the hint states -- run deductionProduction.gate first in the implementation PR
-- `pizza-baiana` — DUPLICATE_JACCARD_GT_0_4: JACCARD_GT_0_4 vs south-african-boerewors (same train), Jaccard 0.5: needs a D-1 exception or a spec change
 - `banh-mi-pizza` — LADDER_KEY_MATERIAL: one step unlocks 2 materials: daikon, liver-pate
 - `pizza-salad` — LADDER_KEY_MATERIAL: one step unlocks 2 materials: cucumber, yogurt-sauce
 - `pizza-chilena` — DH4_OTHER_RISK: shipped topping egg is in family "other": whether a new recipe makes that answer reachable depends on the hint states -- run deductionProduction.gate first in the implementation PR
 - `peking-duck-pizza` — LADDER_KEY_MATERIAL: one step unlocks 3 materials: cucumber, peking-duck, sweet-bean-sauce
 - `mentaiko-mochi-pizza` — LADDER_KEY_MATERIAL: one step unlocks 2 materials: mentaiko, mochi
 - `tsukimi-pizza` — DH4_OTHER_RISK: shipped topping egg is in family "other": whether a new recipe makes that answer reachable depends on the hint states -- run deductionProduction.gate first in the implementation PR
-- `south-african-boerewors` — DUPLICATE_JACCARD_GT_0_4: JACCARD_GT_0_4 vs pizza-baiana (same train), Jaccard 0.5: needs a D-1 exception or a spec change
 
 ## 4. Research letters
 

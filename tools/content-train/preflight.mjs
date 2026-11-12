@@ -11,18 +11,27 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseArgs, runnerInvocation, USAGE } from "./launch.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const args = process.argv.slice(2);
-const spec = args.find((a) => !a.startsWith("--") && args[args.indexOf(a) - 1] !== "--out");
-const outDir = args.includes("--out") ? args[args.indexOf("--out") + 1] : undefined;
-if (!spec || !outDir) {
-  console.error("usage: preflight.mjs <spec.json> --out <dir>");
+const parsed = parseArgs(process.argv.slice(2));
+if (!parsed) {
+  console.error(USAGE);
   process.exit(2);
 }
-const run = spawnSync("npx", ["vitest", "run", "--project", "default", "src/contentTrain/trainPreflight.run.test.ts"], {
-  cwd: ROOT, stdio: "inherit", env: { ...process.env, TETO_TRAIN_SPEC: resolve(spec), TETO_TRAIN_OUT: resolve(outDir) },
-});
+const { spec, outDir } = parsed;
+let invocation;
+try {
+  invocation = runnerInvocation({ root: ROOT, spec, outDir });
+} catch (error) {
+  console.error(error.message);
+  process.exit(2);
+}
+const run = spawnSync(invocation.command, invocation.args, invocation.options);
+if (run.error) {
+  console.error(`could not start the runner (${invocation.command}): ${run.error.message}`);
+  process.exit(2);
+}
 if (run.status !== 0) process.exit(2);
 const train = JSON.parse(readFileSync(resolve(spec), "utf8")).train;
 const packet = JSON.parse(readFileSync(join(resolve(outDir), `${train}.preflight.json`), "utf8"));

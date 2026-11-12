@@ -49,7 +49,7 @@ import { researchLetterChangesAcrossOrders } from "../logic/catalog/testSupport/
 import { buildHint5Ladder } from "../logic/discovery/hint5Ladder";
 import { researchCohortLetters } from "../logic/discovery/researchEntry";
 import {
-  changeWithinImpact, distinctIds, duplicateHits, packChanges, renderPacketMarkdown, researchImpact, structuralFindings, validateTrainSpec, verdictOf,
+  changeWithinImpact, distinctIds, duplicateFinding, duplicateHits, packChanges, renderPacketMarkdown, researchImpact, structuralFindings, validateTrainSpec, verdictOf,
   type Finding, type PreflightPacket, type TrainRecipe, type TrainSpec,
 } from "./trainSpec";
 
@@ -128,7 +128,7 @@ describe.skipIf(!SPEC_PATH)("content train preflight (tool run)", () => {
       const findings = structuralFindings(r, categoryOf, (id) => ingredientAttributeFamily(id), (id) => fresh.has(id));
       if (r.placement === "ordinary" && usesLateMaterial(r)) findings.push({ gate: "LATE_PLACEMENT", severity: "OWNER", recipeId: r.id, message: `needs late-ladder material(s) ${r.requiredIngredients.map((q) => q.ingredientId).filter((id) => lateMaterials.has(id)).join(", ")}: it can only be a late-catalog recipe (measured as late)` });
       const duplicates = duplicateHits(r, RECIPES, spec.recipes);
-      for (const d of duplicates) findings.push({ gate: `DUPLICATE_${d.kind}`, severity: d.againstTrain && d.kind === "JACCARD_GT_0_4" ? "INFO" : "OWNER", recipeId: r.id, message: `${d.kind} vs ${d.against}${d.againstTrain ? " (same train)" : ""}, Jaccard ${d.jaccard}: needs a D-1 exception or a spec change` });
+      for (const d of duplicates) findings.push(duplicateFinding(r.id, d));
       const ladder = buildHint5Ladder(r.id, all, roles);
       const rungs = ladder ? ladder.rungs.map((g) => g.kind) : null;
       if (!rungs) findings.push({ gate: "HINT5_T-COV", severity: "STOP", recipeId: r.id, message: "not a key-free Hint 5.0 target (a topping has no family, or the roles are invalid)" });

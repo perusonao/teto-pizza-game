@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  changeWithinImpact, compareSets, duplicateHits, packChanges, renderPacketMarkdown, researchImpact, structuralFindings, validateTrainSpec, verdictOf,
+  changeWithinImpact, compareSets, duplicateFinding, duplicateHits, packChanges, renderPacketMarkdown, researchImpact, structuralFindings, validateTrainSpec, verdictOf,
   type PreflightPacket, type TrainRecipe, type TrainSpec,
 } from "./trainSpec";
 
@@ -45,6 +45,28 @@ describe("Duplicate Gate comparison (the staged gate's rule)", () => {
       { against: "m", againstTrain: true, kind: "ONE_DIFF", jaccard: 0.5 },
       { against: "s", againstTrain: false, kind: "SUPERSET", jaccard: 0.667 },
     ]);
+  });
+});
+
+describe("duplicate findings are Owner decisions, against a shipped recipe AND inside the train (review of #816, P2)", () => {
+  const kinds = ["IDENTICAL", "SUBSET", "SUPERSET", "ONE_DIFF", "JACCARD_GT_0_4"] as const;
+  it("every kind, shipped or same-train, is OWNER (never INFO), so a verdict cannot read READY", () => {
+    for (const kind of kinds) {
+      for (const againstTrain of [false, true]) {
+        const f = duplicateFinding("n", { against: "o", againstTrain, kind, jaccard: 0.5 });
+        expect(f, `${kind} ${againstTrain}`).toMatchObject({ gate: `DUPLICATE_${kind}`, severity: "OWNER", recipeId: "n" });
+        expect(verdictOf([f])).toBe("NEEDS_OWNER");
+        expect(f.message).toContain(againstTrain ? "(same train)" : "Jaccard 0.5");
+      }
+    }
+  });
+  it("two recipes of one train with Jaccard 0.5 and no other kind: the hit is found and the verdict needs the Owner", () => {
+    // {x,y,z,p} vs {x,y,z,q,r}: 3 shared of 6 -> Jaccard 0.5; different sizes and neither contains the other, so no other kind applies
+    const c = recipe("c", ["x", "y", "z", "p"]);
+    const d = recipe("d", ["x", "y", "z", "q", "r"]);
+    const real = duplicateHits(c, [], [c, d]);
+    expect(real.map((h) => [h.kind, h.againstTrain])).toEqual([["JACCARD_GT_0_4", true]]);
+    expect(verdictOf(real.map((h) => duplicateFinding("c", h)))).toBe("NEEDS_OWNER");
   });
 });
 
