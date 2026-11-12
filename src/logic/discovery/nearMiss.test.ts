@@ -101,6 +101,27 @@ describe("classifyNearMiss -- candidates, ties and parity (T-10 / T-11)", () => 
     expect(classifyNearMiss(sig, [late, early], options)).toEqual({ kind: "ADD_ONE", distance: 1 });
   });
 
+  it("catalog-only injection keeps the generic ordering when a candidate reuses a shipped id", () => {
+    const modifiedMargherita: Recipe = {
+      ...recipe("margherita"),
+      requiredIngredients: [
+        { ingredientId: "pesto", minCount: 1 },
+        { ingredientId: "mozzarella", minCount: 1 },
+      ],
+    };
+    const candidates = [modifiedMargherita, recipe("bismarck")];
+    const catalog = catalogOf(candidates);
+    const sig = signatureOfPizza(pizzaOf(["tomato-sauce", "mozzarella"]));
+
+    // Omitting `options.recipes` historically compares the actual candidate objects against the
+    // default recipe declaration order. A cached rank for the shipped margherita object must not
+    // override the modified candidate's later pesto key step.
+    expect(classifyNearMiss(sig, candidates, { catalog })).toEqual(
+      classifyNearMiss(sig, candidates, { catalog, recipes: RECIPES }),
+    );
+    expect(classifyNearMiss(sig, candidates, { catalog })).toEqual({ kind: "ADD_ONE", distance: 1 });
+  });
+
   it("T-10 synthetic duplicate identity (AMBIGUOUS for the matcher): exact -> null, near -> null (P2: unreachable, never a line)", () => {
     const a = fake("dup-a", ["tomato-sauce", "mozzarella", "egg"]);
     const b = fake("dup-b", ["tomato-sauce", "egg", "mozzarella"]);
