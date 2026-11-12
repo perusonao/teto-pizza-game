@@ -144,6 +144,16 @@ export function duplicateHits(recipe: IdSet, shipped: readonly IdSet[], train: r
 }
 
 /**
+ * The finding for one Duplicate Gate hit. EVERY kind is an Owner decision, against a shipped recipe AND inside the train: the existing staged gate
+ * treats any staged-vs-staged overlap as an unresolved `STAGED_PAIR`, and the plan's gate table says "both shipped and in-train" (review of #816, P2).
+ * An in-train overlap is flagged OWNER too, so a train of two near-duplicates can never read READY.
+ */
+export function duplicateFinding(recipeId: string, hit: DuplicateHit): Finding {
+  const where = hit.againstTrain ? " (same train)" : "";
+  return { gate: `DUPLICATE_${hit.kind}`, severity: "OWNER", recipeId, message: `${hit.kind} vs ${hit.against}${where}, Jaccard ${hit.jaccard}: needs a D-1 exception or a spec change` };
+}
+
+/**
  * Research cohort letters -- the deterministic impact of adding recipes (no sampling).
  *
  * `researchCohortLetters` groups recipes by their unlock fact (the finite material the player acquired last) and letters a

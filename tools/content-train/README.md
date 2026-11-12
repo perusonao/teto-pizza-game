@@ -16,7 +16,7 @@ node tools/content-train/preflight.mjs /tmp/T24.spec.json --out /tmp/T24
 | ファイル | 役割 |
 |---|---|
 | `make-spec.mjs` | `src/data/staged/testSupport/*.ts` の行（1 行 1 JSON）を**テキストとして**読み、自己完結のスペック JSON を作る（staged を import しない＝`stagedIsolation.test.ts` を守る） |
-| `preflight.mjs` | `src/contentTrain/trainPreflight.run.test.ts` を環境変数つきで起動し、判定を表示 |
+| `preflight.mjs`／`launch.mjs` | `src/contentTrain/trainPreflight.run.test.ts` を環境変数つきで起動し、判定を表示。起動は `process.execPath` + vitest 自身の `vitest.mjs`（`npx` は使わない: Windows で `npx.cmd` を解決できず無言で失敗するため）。`launcher.test.ts` が起動方法と実プロセスの終了コードを検査 |
 | `src/contentTrain/trainSpec.ts` | 純粋ロジック（スペック検証・重複ゲート・Research の決定的上界・構造的な Gate 予測・パケット描画）。合成データの単体テストのみで、カタログの値を固定しない |
 | `src/contentTrain/trainPreflight.run.test.ts` | 実カタログでの測定。`TETO_TRAIN_SPEC` が無い通常のテスト実行では skip |
 
