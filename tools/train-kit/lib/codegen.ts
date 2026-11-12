@@ -63,6 +63,8 @@ export function insertBeforeClose(text: string, decl: string, close: string, blo
   const start = once(text, decl, `declaration ${decl}`);
   const closeAt = text.indexOf(`\n${close}`, start);
   if (closeAt < 0) throw new AnchorError(`closing ${JSON.stringify(close)} of ${decl} not found`);
+  // The closer must belong to THIS declaration: if another top-level declaration starts first, ours has no closer and we must not borrow the next one's.
+  if (/\n(?:export\s+)?(?:const|let|var|function|type|interface|class)\s/.test(text.slice(start + decl.length, closeAt))) throw new AnchorError(`closing ${JSON.stringify(close)} of ${decl} not found before the next declaration`);
   let at = closeAt;
   while (text[at - 1] === "\n") at -= 1;
   return `${text.slice(0, at)}\n${block.replace(/\n+$/, "")}${text.slice(at)}`;
