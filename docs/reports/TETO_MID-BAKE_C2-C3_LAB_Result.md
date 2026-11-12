@@ -32,7 +32,7 @@ claim: Issue #795 コメント 6825109936（`:c2` / `:c3`）。`Depends-on: #829
 | 型（`tsc -b`） | クリーン |
 | lint（`npm run lint`） | 新規ファイルの警告なし |
 | MID_BAKE／Lab／main 関連 vitest | 全件成功（midBake・components/midBakeLab・devtools・dev・previewIsolation） |
-| 全 vitest | §5 に記録 |
+| 全 vitest | 12287 passed、失敗 0（§5） |
 | E2E（Chromium、390×844・360×800） | 7 本 ×2 viewport、`--repeat-each=2` で 28/28 成功（実時間。針が 65% で停止・停止中は不動・2 タップで再開し complete・「とじる」で missing・タイムアウトで再開・代替操作が同結果・スクロールなし／タップ 44px 以上・localStorage 空） |
 | WebKit | **ローカル未実施**（この環境の Playwright は WebKit を持たない）。CI の WebKit shard の結果を最新 HEAD で確認する |
 | 本番バンドル | 入口名・マークが本番に残らないことは `previewIsolation.gate.test.ts`（`"mid-bake-lab-v1"` 追記）で検証 |
@@ -48,7 +48,7 @@ claim: Issue #795 コメント 6825109936（`:c2` / `:c3`）。`Depends-on: #829
 
 ## 5. 全 vitest
 
-（実行結果は PR 本文に最終値を記録）
+`npx vitest run`: Test Files 663 passed / 2 skipped（665）、Tests 12287 passed / 14 skipped / 2 todo。失敗 0。
 
 ## 6. 競合・前提・未了
 
