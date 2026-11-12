@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { RECIPES } from "../../data/recipes";
-import { DEFAULT_DOUGH_KIND, DOUGH_KINDS, isDoughKind, resolveDoughKind } from "./doughKind";
+import { DEFAULT_DOUGH_KIND, DOUGH_KINDS, isDoughKind, resolveDoughKind, type DoughKind } from "./doughKind";
 import { pinsaEnabled } from "../../data/pinsaGate";
 
 describe("DoughKind (Dough Kind P1, #577)", () => {
@@ -12,6 +12,30 @@ describe("DoughKind (Dough Kind P1, #577)", () => {
   it("recognises only the two kinds", () => {
     for (const v of DOUGH_KINDS) expect(isDoughKind(v)).toBe(true);
     for (const v of [undefined, null, "", "pinsa", "Standard", 1, {}, []]) expect(isDoughKind(v)).toBe(false);
+  });
+
+  it("PD-1a: isDoughKind reads DOUGH_KINDS and answers exactly like the old two-literal comparison for every input", () => {
+    // The pre-PD-1a implementation, kept here only as the behaviour oracle (the current vocabulary is two kinds).
+    const legacy = (value: unknown): boolean => value === "standard" || value === "material-multigrain-long-ferment";
+    const inputs: unknown[] = [
+      ...DOUGH_KINDS,
+      "standard ", " standard", "STANDARD", "Standard", "material-multigrain-long-ferment ", "material", "pinsa", "pinsa-romana", "flatbread-unleavened",
+      "", " ", "__proto__", "constructor", "toString", "length", "0", "1",
+      undefined, null, 0, 1, -1, NaN, true, false, {}, [], ["standard"], { toString: () => "standard" },
+      new String("standard"), Symbol("standard"), () => "standard", 10n,
+    ];
+    inputs.forEach((v, i) => expect(isDoughKind(v), `input #${i} (${typeof v})`).toBe(legacy(v)));
+    // Declared once, no duplicates, 'standard' stays the default and is a known kind.
+    expect(new Set(DOUGH_KINDS).size).toBe(DOUGH_KINDS.length);
+    expect(DOUGH_KINDS).toContain(DEFAULT_DOUGH_KIND);
+  });
+
+  it("PD-1a: every kind in DOUGH_KINDS survives resolveDoughKind, and DoughKind is derived from DOUGH_KINDS (compile-time)", () => {
+    for (const kind of DOUGH_KINDS) expect(resolveDoughKind({ doughKind: kind })).toBe(kind);
+    // Both directions must compile: DoughKind <-> (typeof DOUGH_KINDS)[number]. A divergence breaks `tsc -b`, not just this test.
+    const fromTuple: (typeof DOUGH_KINDS)[number] = "standard" satisfies DoughKind;
+    const toTuple: DoughKind = fromTuple;
+    expect(toTuple).toBe("standard");
   });
 
   it("resolveDoughKind: absent / unknown / malformed resolve to standard, never throw", () => {
