@@ -35,6 +35,7 @@ describe("implementation spec", () => {
     expect(broken((k) => (k.recipes[0].sauceProfile = null)).join()).toContain("NO_SAUCE");
     expect(broken((k) => { k.recipes[0].sauceProfile = null; k.recipes[0].requiredIngredients = [{ ingredientId: "yuzu", minCount: 1, applicationPhase: "POST_BAKE" }]; k.recipes[0].ladderStep = { ingredientIds: ["yuzu"] }; }).join()).toContain("G7");
     expect(broken((k) => (k.recipes[0].placement = "ordinary")).join()).toContain("late catalog");
+    expect(broken((k) => (k.recipes[0].requiredIngredients[1] = { ingredientId: "mozzarella", minCount: 2, applicationPhase: "POST_BAKE" })).join()).toContain("FINISH places toppings only");
     expect(broken((k) => (k.recipes[0].ladderStep = null)).join()).toContain("exactly one ladder step");
     expect(broken((k) => (k.recipes[0].id = "margherita")).join()).toContain("already shipped");
     expect(broken((k) => (k.recipes[0].order.lineJa = "")).join()).toContain("order line");
@@ -76,6 +77,8 @@ describe("text primitives fail closed", () => {
   });
   it("throw on a missing or ambiguous anchor instead of guessing", () => {
     expect(() => insertBeforeClose(file, "const C = [", "];", "x")).toThrow(AnchorError);
+    // A's own closer is gone: the next declaration's `];` must not be borrowed.
+    expect(() => insertBeforeClose("const A = [\n  1,\n] as const;\nconst B = [\n  2,\n];\n", "const A = [", "];", "  9,")).toThrow(AnchorError);
     expect(() => insertBeforeLine(`${file}const B = [\n`, "const B = [", "x")).toThrow(/ambiguous/);
     expect(() => appendInline(file, "export const ROW = [", "];", "x")).toThrow(AnchorError);
     expect(() => fillTemplate("a __X__ b", { Y: "1" })).toThrow(/no placeholder Y/);

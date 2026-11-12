@@ -196,6 +196,7 @@ export function validateKitTrain(kit: KitTrain, shipped: ShippedFacts): string[]
       if (!Number.isInteger(q.minCount) || q.minCount < 1) say(`minCount ${r.id}/${q.ingredientId}`);
       if (categoryOf(q.ingredientId) === null) say(`unknown ingredient ${q.ingredientId} in ${r.id}`);
       if (q.applicationPhase === "POST_BAKE" && categoryOf(q.ingredientId) === "sauce") say(`${r.id}: ${q.ingredientId} is a post-bake sauce (needs M7 / DRIZZLE, #579)`);
+      else if (q.applicationPhase === "POST_BAKE" && categoryOf(q.ingredientId) !== null && categoryOf(q.ingredientId) !== "topping") say(`${r.id}: ${q.ingredientId} is a ${categoryOf(q.ingredientId)} with applicationPhase POST_BAKE; FINISH places toppings only (gameReducer)`);
     }
     const sauces = ids.filter((id) => categoryOf(id) === "sauce");
     if (r.sauceProfile === null && sauces.length > 0) say(`${r.id}: sauceProfile is null (NO_SAUCE) but the recipe requires ${sauces.join(", ")}`);
