@@ -77,7 +77,6 @@ function tabStorage(): TabStorage | null {
   }
 }
 
-const previewOrDev = (): boolean => Boolean(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE);
 const currentSearch = (): string => (typeof window === "undefined" ? "" : window.location.search);
 
 let cachedOptIn: boolean | undefined;
@@ -91,22 +90,36 @@ export function resetSteamPreviewForTest(): void {
   cachedMs = undefined;
 }
 
+/** Cooking Steam HV entry (`?cookSteamHv=1`, ./cookSteamHv.ts): turns the steam on for this page load without the query or the tab memory. Preview / DEV only
+ *  (the caller sits behind the same static gate). */
+export function forceSteamOptInForHv(): void {
+  cachedOptIn = true;
+}
+
+// Each reader below tests `import.meta.env.DEV || VITE_PREVIEW_MODE` INLINE: the bundler replaces both statically, so in a production build the branch (and with it
+// the query names) is dead code and drops out. A shared helper function would hide the condition from it.
 export function steamPreviewOptedIn(): boolean {
-  if (!previewOrDev()) return false;
-  if (cachedOptIn === undefined) cachedOptIn = resolveSteamOptInSticky(currentSearch(), tabStorage());
-  return cachedOptIn;
+  if (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) {
+    if (cachedOptIn === undefined) cachedOptIn = resolveSteamOptInSticky(currentSearch(), tabStorage());
+    return cachedOptIn;
+  }
+  return false;
 }
 
 /** The operation(s) asked for by the Preview / DEV query; "both" otherwise (and always in production, where nothing is offered anyway). */
 export function steamVariantChoice(): SteamVariantChoice {
-  if (!previewOrDev()) return "both";
-  if (cachedVariant === undefined) cachedVariant = resolveSteamVariant(currentSearch());
-  return cachedVariant;
+  if (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) {
+    if (cachedVariant === undefined) cachedVariant = resolveSteamVariant(currentSearch());
+    return cachedVariant;
+  }
+  return "both";
 }
 
 /** The comparison lid-on time, or `null` for the default. Read once per page load; never in production. */
 export function steamFullMsOverride(): number | null {
-  if (!previewOrDev()) return null;
-  if (cachedMs === undefined) cachedMs = resolveSteamFullMs(currentSearch());
-  return cachedMs;
+  if (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) {
+    if (cachedMs === undefined) cachedMs = resolveSteamFullMs(currentSearch());
+    return cachedMs;
+  }
+  return null;
 }
