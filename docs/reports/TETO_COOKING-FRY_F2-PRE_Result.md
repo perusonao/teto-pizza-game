@@ -1,7 +1,7 @@
 # Cooking Fry — F2 前の非 HOT 拡張 Result Report (Issue #749)
 
 Status: **MERGED**（Owner 承認の Squash merge、PR #839、main `03f32e1941b45e9e12fc213a8dc089181a97f700`、承認対象 HEAD `6d9499ab864fc76c4aaa0b710d2049466e3500e4`）。Production OFF・未配線。PR 作成時の base = `main` `cf0c865`（merge 時の base は `81974d0`）。
-Claim: Issue #749 コメント 6831100109（#839 専用。本訂正 PR の後に release）。
+Claim: Issue #749 コメント 6831100109 は #839 専用で、release 済み（#749 コメント 6842576288）。
 
 > 訂正（2026-11-13）: 初版は PR 作成時点の「Draft PR・merge は Owner 承認待ち」のままだった。上記の merge 済みの状態と、下の §4 の merge 後 CI・Codex の記録に改めた。§1〜§3 の監査・変更の記述は初版のまま（監査は main `cf0c865` 時点）。
 
@@ -34,7 +34,7 @@ Claim: Issue #749 コメント 6831100109（#839 専用。本訂正 PR の後に
 
 ### Codex レビューの扱い
 - **採用した根拠**: HEAD `6d9499a` への有効な receipt「Didn't find any major issues」（2026-11-12 18:05 UTC、コメント 6831804531）、サマリーは `status: completed` / `has_unresolved_findings: false`。未解決レビュースレッド 0 件。
-- **自動レビューの失敗**: Draft 解除（23:10:08 UTC）で Codex が同じ HEAD に対して自動実行され、23:10:10 に Failed。理由は Codex の利用上限（「You have reached your Codex usage limits for code reviews」）で、レビュー指摘ではない。サマリーの `has_unresolved_findings: true` は失敗時の表示。この通知は merge（23:10:20）の約 10 秒前で、merge 前には確認できていなかった。HEAD は変わらず、新しい指摘もないため、18:05 の同一 HEAD の有効 receipt を採用した。Owner は 2026-11-13 に merge 後 Gate を GREEN と判定し、この扱い（利用上限による失敗であること、18:05 の同一 HEAD の有効 receipt を採用したこと）を記録するよう指示した。
+- **自動レビューの失敗**: Draft 解除後に、Codex が同じ HEAD に対して自動実行され、利用上限による失敗通知が発生した（「You have reached your Codex usage limits for code reviews」）。これはレビュー指摘ではない。サマリーの `has_unresolved_findings: true` は失敗時の表示。この通知は merge の直前に出ており、merge 前には確認できなかった（秒単位の前後関係は一次証跡が不足するため断定しない）。HEAD は変わらず、新しい指摘もないため、18:05 の同一 HEAD の有効 receipt を採用した。Owner は 2026-11-13 に merge 後 Gate を GREEN と判定し、この扱い（利用上限による失敗であること、18:05 の同一 HEAD の有効 receipt を採用したこと）を記録するよう指示した。
 
 ## 5. HV
 UI / ゲームプレイ / 見た目の変更なし（未配線のロジックとテストのみ）のため、HV 動画・スクリーンショットは対象外（`TETO_HUMAN-VERIFICATION-POLICY.md` の適用範囲外）。実機 iPhone の確認は主張しない。
