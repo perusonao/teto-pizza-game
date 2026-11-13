@@ -1,6 +1,15 @@
 {
  "matrixMap": [
   {
+   "evidenceId": "apple-cinnamon-dessert-pizzadb",
+   "shippedId": "apple-cinnamon-dessert",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
    "evidenceId": "aussie-pizzadb",
    "shippedId": "aussie",
    "mapped": true,
@@ -444,6 +453,21 @@
    "shippedOnly": []
   },
   {
+   "evidenceId": "nutella-dessert-pizza-pizzadb-p6",
+   "shippedId": "nutella-dessert-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.4,
+   "matrixOnly": [
+    "nutella-spread"
+   ],
+   "shippedOnly": [
+    "chocolate",
+    "cream-cheese"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
    "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
    "shippedId": "okonomiyaki-style-pizza",
    "mapped": true,
@@ -804,6 +828,18 @@
    "shippedOnly": []
   },
   {
+   "evidenceId": "smore-dessert-pizza-pizzadb-p4",
+   "shippedId": "smore-dessert-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.75,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "cream-cheese"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
    "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
    "shippedId": "spanish-chorizo-pizza",
    "mapped": true,
@@ -1091,6 +1127,21 @@
    "onlyBaseSauceDiffers": true
   },
   {
+   "evidenceId": "nutella-dessert-pizza-pizzadb-p6",
+   "shippedId": "nutella-dessert-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.4,
+   "matrixOnly": [
+    "nutella-spread"
+   ],
+   "shippedOnly": [
+    "chocolate",
+    "cream-cheese"
+   ],
+   "onlyBaseSauceDiffers": false
+  },
+  {
    "evidenceId": "okonomiyaki-style-pizza-pizzadb-p1",
    "shippedId": "okonomiyaki-style-pizza",
    "mapped": true,
@@ -1152,6 +1203,18 @@
     "curry-ketchup"
    ],
    "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "smore-dessert-pizza-pizzadb-p4",
+   "shippedId": "smore-dessert-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.75,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "cream-cheese"
+   ],
+   "onlyBaseSauceDiffers": false
   },
   {
    "evidenceId": "taco-pizza-pizzadb",
