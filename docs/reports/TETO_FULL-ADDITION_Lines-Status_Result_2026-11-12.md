@@ -1,7 +1,7 @@
 # 全量追加 — 各ラインの状況と T24 実装前 preflight（Result Report Rev 2、docs のみ）
 
 - Rev 1: 2026-11-12 / **Rev 2: 2026-11-13**（独立監査と Owner 判断を反映）
-- 基準: main `03f32e1`（#839 まで取り込み済み。カタログ・ladder は `cf0c865` と同一: レシピ 104 / 食材 122 / ladder 89 step【実測: preflight の出力】）
+- 基準: main `03f32e1`（#839 まで取り込み済み。なお T25-R2c／T24-T26 の preflight の実行は `cf0c865` で行い、`03f32e1` ではカタログ・ladder 不変のため結果は同じ。カタログ・ladder は `cf0c865` と同一: レシピ 104 / 食材 122 / ladder 89 step【実測: preflight の出力】）
 - Issue: #780 / 範囲: docs のみ（本書、`T25-R2c.*`）。`src/**`・`e2e/**`・HOT・golden・staged・`tools/**` は未編集
 - 禁止事項は守っている: Draft 解除・merge・Production ON・共有 Preview 更新・force-push・他セッションの claim 領域の編集はしていない
 
