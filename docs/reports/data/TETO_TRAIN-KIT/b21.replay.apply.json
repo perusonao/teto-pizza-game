@@ -1,0 +1,33 @@
+{
+ "train": "replay-b21",
+ "tag": "b21",
+ "dryRun": false,
+ "edited": [
+  "src/components/IngredientGlyph.tsx",
+  "src/data/ingredients.ts",
+  "src/data/lateCatalog.ts",
+  "src/data/recipeHintRoles.ts",
+  "src/data/recipeSauceProfiles.ts",
+  "src/data/referencePizza.ts",
+  "src/preview/hvSeeds.ts",
+  "src/preview/previewIsolation.gate.test.ts"
+ ],
+ "generated": [
+  "e2e/b21.spec.ts",
+  "src/preview/b21HvSeeds.test.ts",
+  "src/preview/b21HvSeeds.ts",
+  "src/trainKit/landed/b21.json"
+ ],
+ "floors": {
+  "cheddar": 79,
+  "lettuce": 79,
+  "tortilla-chips": 79,
+  "okonomiyaki-sauce": 80,
+  "cabbage": 80,
+  "bonito-flakes": 80
+ },
+ "hvIds": [
+  "b21-taco-pizza",
+  "b21-okonomiyaki-style-pizza"
+ ]
+}

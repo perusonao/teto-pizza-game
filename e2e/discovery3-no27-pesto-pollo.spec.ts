@@ -3,6 +3,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
+import { chipOnTray } from "./support/handPick";
 
 /**
  * Discovery 3.0 No.27 Vertical Slice (pesto-pollo + chicken), played for real on both iPhone widths.
@@ -62,16 +63,8 @@ async function noOverflow(page: Page) {
 /** Selects a tray chip, paging the tray (the free-cook tray has several pages). */
 async function pickChip(page: Page, name: RegExp) {
   const chip = page.locator(".ingredient-chip").filter({ hasText: name }).first();
-  const prev = page.getByRole("button", { name: "前のページ" });
-  const next = page.getByRole("button", { name: "次のページ" });
-  // The sauce / cheese trays have no pager, so never wait on a pager button that is not there.
-  const enabled = async (b: ReturnType<Page["getByRole"]>) => (await b.count()) > 0 && (await b.isEnabled());
-  for (let i = 0; i < 8 && (await enabled(prev)); i += 1) await prev.click();
-  for (let i = 0; i < 8 && !(await chip.isVisible()); i += 1) {
-    if (!(await enabled(next))) break;
-    await next.click();
-  }
-  await chip.click();
+  // The sauce / cheese trays have no pager: the helper never waits on a pager button that is not there.
+  await (await chipOnTray(page, chip)).click();
 }
 
 /** One FREE round: pesto, mozzarella x2, tomato x2, chicken x`chicken` (+ oregano x`oregano` as an extra, making an ORIGINAL). */

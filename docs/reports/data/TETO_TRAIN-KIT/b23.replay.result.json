@@ -1,0 +1,15 @@
+{
+ "base": "3d06dce47b19aafa72acd89f1836016304f24d54",
+ "target": "577dcfd7a2557901db5f4683c35b8c6bdef5f6a4",
+ "ids": [
+  "apple-cinnamon-dessert"
+ ],
+ "catalogDifferences": [],
+ "hvSeedsWiringIdentical": true,
+ "previewGateIdentical": true,
+ "tsc": "0 errors in generated / edited code; 1 existing test file(s) need a row for the new id (follow-up)",
+ "unsupported": [],
+ "typeFollowUps": [
+  "src/data/cookingProfiles.test.ts"
+ ]
+}

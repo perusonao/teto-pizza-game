@@ -21,6 +21,7 @@ import { researchCohortLetters, researchEntryLabel } from "../logic/discovery/re
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { discoveredRecipeIds, EMPTY_DEX, registerScoreToDex } from "../state/dex";
 import matrix from "../../docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json";
+import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 
 /**
  * Expansion Batch 14: moussaka-style-pizza (one new material, `cinnamon`). PROVISIONAL SPEC: the original pizzadb.jp page was NOT confirmed. The 172 matrix row's sauce field is 'ホワイトソース', which the canonicalizer leaves
@@ -104,7 +105,7 @@ describe(ID, () => {
 describe("the ordinary step 66", () => {
   it("is appended after step 65 (steps 1-65 frozen): cinnamon alone, no star gate, keyed to moussaka-style-pizza", () => {
     const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
-    expect(steps).toHaveLength(73); // Expansion Batch 20-A (#790) appended the ordinary step 71 (honey + walnut) after it; // Expansion Batch 19 (#774) appended the ordinary step 70 (burrata) after it; // Expansion Batch 18 appended the ordinary step 69; Expansion Batch 16 appended the ordinary step 67 and Expansion Batch 17 the step 68 after it
+    expect(steps).toHaveLength(COMPOSED.ordinarySteps.length); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
     expect(steps[64]).toMatchObject({ step: 65, ingredientIds: ["mayo"], keyRecipeId: "potato-mayo-pizza" });
     expect(steps[65]).toMatchObject({ step: 66, kind: "MATERIAL", ingredientIds: ["cinnamon"], keyRecipeId: ID });
     expect(steps[65].starGates).toBeUndefined();

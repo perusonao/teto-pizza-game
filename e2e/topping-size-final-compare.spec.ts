@@ -6,6 +6,7 @@ import { startTargetlessFreeCook } from "./support/startFreeCook";
 import { getReferencePizza } from "../src/data/referencePizza";
 import { INGREDIENTS } from "../src/data/ingredients";
 import { toppingSizeClass } from "../src/data/toppingSizeClass";
+import { chipOnTray } from "./support/handPick";
 
 /**
  * #479 final-adjustment capture (NOT a regression test): representative recipes laid out at their reviewed Reference coordinates, under
@@ -23,14 +24,7 @@ const byId = new Map(INGREDIENTS.map((i) => [i.id, i]));
 
 async function chooseChip(page: Page, nameJa: string) {
   const chip = page.getByRole("button", { name: new RegExp(nameJa) }).first();
-  const prev = page.getByRole("button", { name: "前のページ" }).first();
-  const next = page.getByRole("button", { name: "次のページ" }).first();
-  for (let i = 0; i < 20 && (await prev.isEnabled().catch(() => false)); i += 1) await prev.click();
-  for (let i = 0; i < 20 && !(await chip.isVisible().catch(() => false)); i += 1) {
-    if (!(await next.isEnabled().catch(() => false))) break;
-    await next.click();
-  }
-  await chip.click();
+  await (await chipOnTray(page, chip)).click();
 }
 
 test.describe.configure({ mode: "serial" });

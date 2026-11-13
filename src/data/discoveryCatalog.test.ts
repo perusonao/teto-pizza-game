@@ -46,6 +46,7 @@ const BATCH17_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["goulash-pizza
 // Expansion Batch 18 (Issue #748): the Phase-2 matrix classifies these two rows BLOCKED_PRODUCT_DECISION (BASE_SAUCE_UNSPECIFIED: 'カレー' / 'ホワイトソース'). Shipped with the EXISTING curry-ketchup / fromage-blanc-sauce standing in for the unspecified base,
 // as RECIPE-SPECIFIC Owner decisions (2026-11-04; the same stand-ins as the Batch 10 curry recipes / moussaka-style-pizza); NOT NO_SAUCE and NOT a general rule, and no other BASE_SAUCE_UNSPECIFIED row is exempted here. PROVISIONAL SPEC, original pizzadb.jp NOT confirmed.
 const BATCH18_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["baingan-bharta-pizza", "reina-pepiada-pizza"];
+const BATCH23_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["apple-cinnamon-dessert"]; // Expansion Batch 23 (#780, Owner 2026-11-10)
 const BATCH22_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["speck-e-brie", "buffalo-chicken"]; // Expansion Batch 22 (#780, Owner 2026-11-09)
 
 describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
@@ -70,6 +71,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       if (BATCH16_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (BATCH17_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (BATCH18_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
+      if (BATCH23_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue; // Expansion Batch 23 (#780): the ordinary B23 target is a Phase-2 row the Owner individually approved to ship (2026-11-10, NO_SAUCE as a GAMEPLAY decision); expansionBatch23.test.ts pins its exact set
       if (BATCH22_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue; // Expansion Batch 22 (#780): the two ordinary B22 targets are Phase-2 rows the Owner individually approved to ship (2026-11-09); expansionBatch22.test.ts pins their exact sets
       if (isLateRecipeId(t.recipeId)) continue; // E5: the late target has no Phase-2 row; lateCatalog.ikura.test.ts pins it
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);

@@ -5,6 +5,7 @@ import { validateAppendOnlyExtension } from "../logic/discoveryLadder";
 import type { DexEntry, DexState } from "./dex";
 import { resolveShopEntitlement } from "./materialEntitlement";
 import { ordinaryLadderSteps } from "../logic/catalog/testSupport/lateIds";
+import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 
 /**
  * Batch 6 PR-2 (#420, OD-420-1): the production star gates -- goat-cheese = step 50 AND 120 cumulative
@@ -32,7 +33,7 @@ describe("Batch 6 PR-2 production star gates", () => {
     const [s50, s51] = [DISCOVERY_LADDER.steps[49], DISCOVERY_LADDER.steps[50]];
     expect(s50).toEqual({ step: 50, kind: "MATERIAL", ingredientIds: ["avocado", "goat-cheese"], starGates: { "goat-cheese": GATE_GOAT_CHEESE }, keyRecipeId: "california-style-pizza" });
     expect(s51).toEqual({ step: 51, kind: "MATERIAL", ingredientIds: ["artichoke", "spinach"], starGates: { spinach: GATE_SPINACH }, keyRecipeId: "spinach-artichoke-pizza" });
-    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps)).toHaveLength(73); // Expansion Batch 20-A (#790) appended the ordinary step 71 (honey + walnut) after it; // Expansion Batch 19 (#774) appended the ordinary step 70 (burrata) after it; // + Expansion Batch 18's step 69 (cilantro, promoted from the late catalog), Expansion Batch 17's step 68 (sour-cream), Expansion Batch 16's step 67 (umeboshi-paste), Expansion Batch 14's step 66 (cinnamon), Expansion Batch 13's step 65 (mayo), Expansion Batch 12's step 64 (ricotta-salata), B11 S1's steps 62-63 (porcini, mussel), Batch 7a's steps 52-53, Batch 8b's step 54, New Sauces Phase A's step 55, Phase B-1's step 56 and Expansion Batch 10 PR-1's steps 57-61 (no star gate)
+    expect(ordinaryLadderSteps(DISCOVERY_LADDER.steps)).toHaveLength(COMPOSED.ordinarySteps.length); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
   });
 
   it("keeps the frozen steps 1..49 byte-identical in meaning (append-only extension)", () => {

@@ -84,6 +84,32 @@ describe("a relative import cannot connect to the fry (resolved from the importi
   });
 });
 
+describe("the fry registration is a closed, unwired list (F2-pre)", () => {
+  it("the fry's CSS custom properties and class live only in the fry's own files (no stylesheet, screen or other module defines or reads them yet)", () => {
+    const offenders = all.filter((f) => !OWN(f) && !LATER_SLICES.has(f) && /--fry-|ingredient-piece--fried/.test(read(f)));
+    expect(offenders).toEqual([]);
+  });
+  it("only the fry's own files read the fry opt-in names, so a production build has nothing to keep", () => {
+    const offenders = all.filter((f) => !OWN(f) && !LATER_SLICES.has(f) && /cookFry|teto:cookFry/.test(read(f)));
+    expect(offenders).toEqual([]);
+  });
+  it("the production switch is literally false, and the gate has no other way on than the Preview / DEV opt-in", () => {
+    const gate = read("data/fryExperienceGate.ts");
+    expect(gate).toMatch(/export const FRY_EXPERIENCE_PRODUCTION = false;/);
+    expect(gate).toMatch(/return FRY_EXPERIENCE_PRODUCTION \|\| fryPreviewOptedIn\(\);/);
+  });
+  it("the fry offer and registration read only ids and round facts: no recipe, score, target or Research input", () => {
+    for (const f of ["logic/fry/fryOffer.ts", "data/fryIngredients.ts"]) {
+      expect(read(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, ""), f).not.toMatch(/recipe|score|(?<!not-)target\b|research|hint|discover|\bdex\b|pitz/i);
+    }
+  });
+  it("the fry registration does not edit or import the ingredient catalog beyond a read-only lookup", () => {
+    const text = read("data/fryIngredients.ts");
+    expect(text).toMatch(/import \{ getIngredient \} from "\.\/ingredients";/);
+    expect(text.match(/^import /gm)?.length).toBe(1);
+  });
+});
+
 describe("independent of the 炒める prep, the 炙り sear and the 蒸す steam (both directions)", () => {
   const OTHER_NAMES =
     /preparedIngredientIds|preparedLook|PREP_INGREDIENT|prepExperienceGate|prepIngredients|searedLook|SEAR_INGREDIENT|searExperienceGate|searIngredients|logic\/sear|logic\/prep|searPreview|cookPrep|cookSear|steamedLook|STEAM_INGREDIENT|steamExperienceGate|steamPreview|steamIngredients|logic\/steam|cookSteam/;

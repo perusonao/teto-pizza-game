@@ -85,13 +85,21 @@ SHIPPED_I.update(ingredient_info(parse_blocks(P("src/data/ingredients.ts")), "in
 SHIPPED_I.update(ingredient_info(late_blocks, "lateCatalog.ts"))
 SHIPPED_I.update(ingredient_oneline(P("src/data/ingredients.ts"), "ingredients.ts"))
 SHIPPED_I.update(ingredient_oneline(P("src/data/lateCatalog.ts"), "lateCatalog.ts"))
-MAIN_SHA = "4c275c2b"      # the main commit this ledger is generated from (update on every refresh)
+MAIN_SHA = "3bed288"      # the main commit this ledger is generated from (update on every refresh)
+# Owner decision 2026-11-13: the 170th ingredient is `nduja` (reserved, NOT registered anywhere). It is deliberately absent from
+# src/data/staged (no unapproved staged addition); T26-R1 registers it in the catalog. MERGED = candidates folded into a shipped id.
+RESERVED_I = [{"id": "nduja", "nameJa": "ンドゥイヤ", "category": "topping", "kind": "MEAT", "family": "meat", "train": "T26-R1", "usedBy": ["nduja-pizza"]}]
+MERGED_I = {"nutella-spread": "chocolate"}      # merged into the shipped `chocolate` by B23-b (#815); not an independent ingredient (Owner 2026-11-11)
 
-ledger_test = open(P("src/data/catalogLedger.test.ts"), encoding="utf-8").read()
-m_r = re.search(r"recipes: pinsa \? (\d+) : (\d+)", ledger_test)
-m_i = re.search(r"ingredients: (\d+)", ledger_test)
-check("shipped recipes parsed == catalogLedger.test.ts (Pinsa open)", len(SHIPPED_R) == int(m_r.group(1)), f"{len(SHIPPED_R)} vs {m_r.group(1)}")
-check("shipped ingredients parsed == catalogLedger.test.ts", len(SHIPPED_I) == int(m_i.group(1)), f"{len(SHIPPED_I)} vs {m_i.group(1)}")
+# catalogLedger.test.ts no longer pins totals (#833, R-1): it compares the catalog with frozenBaseline.json + src/trainKit/landed/*.json.
+# The cross-check of this parser therefore uses the same two independent records (never the catalog itself).
+import glob
+_base = json.load(open(P("src/logic/catalog/testSupport/frozenBaseline.json"), encoding="utf-8"))
+_landed = [json.load(open(g, encoding="utf-8")) for g in sorted(glob.glob(P("src/trainKit/landed/*.json")))]
+_exp_r = len(_base["recipes"]) + sum(len(x["recipes"]) for x in _landed)
+_exp_i = len(_base["ingredients"]) + sum(len(x["newIngredients"]) for x in _landed)
+check("shipped recipes parsed == frozen baseline + landed specs (Pinsa open)", len(SHIPPED_R) == _exp_r, f"{len(SHIPPED_R)} vs {_exp_r}")
+check("shipped ingredients parsed == frozen baseline + landed specs", len(SHIPPED_I) == _exp_i, f"{len(SHIPPED_I)} vs {_exp_i}")
 
 # ---------------------------------------------------------------- staged + goldens ------------------------------
 def load_ts_rows(path):
@@ -118,7 +126,9 @@ for _s in S_R:
         _s["mechanics"] = list(_s["mechanics"]) + ["POSTBAKE_SAUCE"]     # [MEASURED] FINISH accepts toppings only (gameReducer PLACE_TOPPING; validateLateCatalog)
         POSTBAKE_SAUCE_RECIPES.append(_s["id"])
 check(f"staged recipes == 177 - {len(SHIPPED_R)} shipped = {177 - len(SHIPPED_R)}", len(S_R) == 177 - len(SHIPPED_R), len(S_R))
-check(f"staged ingredient candidates == 170 - {len(SHIPPED_I)} shipped = {170 - len(SHIPPED_I)}", len(S_I) == 170 - len(SHIPPED_I), len(S_I))
+check(f"staged ingredient candidates == 170 - {len(SHIPPED_I)} shipped - {len(RESERVED_I)} reserved = {170 - len(SHIPPED_I) - len(RESERVED_I)}", len(S_I) == 170 - len(SHIPPED_I) - len(RESERVED_I), len(S_I))
+check("reserved ingredients are in neither the shipped catalog nor staged (no unapproved staged addition)", not ({r["id"] for r in RESERVED_I} & (set(SHIPPED_I) | {x["id"] for x in S_I})), sorted({r["id"] for r in RESERVED_I} & (set(SHIPPED_I) | {x["id"] for x in S_I})))
+check("merged candidates are not independent shipped or staged ingredients", not (set(MERGED_I) & (set(SHIPPED_I) | {x["id"] for x in S_I})) and all(t in SHIPPED_I for t in MERGED_I.values()), sorted(set(MERGED_I) & (set(SHIPPED_I) | {x["id"] for x in S_I})))
 check("staged ingredients disjoint from shipped", not ({s["id"] for s in S_I} & set(SHIPPED_I)), sorted({s["id"] for s in S_I} & set(SHIPPED_I)))
 check("staged recipes disjoint from shipped", not ({s["id"] for s in S_R} & set(SHIPPED_R)), sorted({s["id"] for s in S_R} & set(SHIPPED_R)))
 check("staged recipe ids unique", len({s["id"] for s in S_R}) == len(S_R))
@@ -144,6 +154,7 @@ EVIDENCE_TO_SHIPPED_MANUAL = {      # [INFERRED] aliases where the matrix canoni
     "pesto-burrata-pizzadb-p12": "pesto-burrata-pizza",
     "pizza-alla-crudaiola-pizzadb-p8": "pizza-alla-crudaiola",
     "pesto-noci-pizzadb-p12": "pesto-noci-pizza",
+    "nutella-dessert-pizza-pizzadb-p6": "nutella-dessert-pizza",     # B23-b (#815): matrix row p6 shipped as nutella-dessert-pizza (nutella-spread merged into chocolate)
 }
 matrix_map = []     # evidenceId -> shipped id + composition comparison
 linked = [e for e in ROWS if e not in staged_ev]
@@ -360,11 +371,19 @@ for s in S_I:
                      "firstRecipeBatch": first_batch(iid), "ingredientBatch": BATCH_OF_I[iid], "dependsOn": " | ".join(deps),
                      "issuePr": "#780 (staged #787/#788/#789); art #417 line (SVG)", "ownerDecision": " / ".join(owner),
                      "doneCondition": "in main catalog + ladder step + taxonomy/size/alias rows + icon (SVG or approved emoji) + Hint5/Research/DH4 goldens green + Owner HV (train sample)"})
-check(f"ingredient universe == {len(SHIPPED_I)} shipped + {len(S_I)} candidates = 170", len(ing_rows) == 170 and len({r['id'] for r in ing_rows}) == 170, len(ing_rows))
+for r_ in RESERVED_I:
+    ing_rows.append({"id": r_["id"], "nameJa": r_["nameJa"], "state": "RESERVED_OWNER_APPROVED", "category": r_["category"], "kind": r_["kind"],
+                     "svg": "none (emoji fallback only)", "source": "reserved (not staged)", "usedByRemainingRecipes": ";".join(r_["usedBy"]),
+                     "firstRecipeBatch": r_["train"], "ingredientBatch": "-", "dependsOn": f"{r_['train']} implementation (HOT claim, after T25)",
+                     "issuePr": "#780; T26-R1 (docs/reports/data/TETO_T24-T26_PREP/T26-R1.spec.md)",
+                     "ownerDecision": "170th ingredient fixed by the Owner (2026-11-13); do NOT add to src/data/staged; registered by the T26 implementation PR",
+                     "doneCondition": "in main catalog + ladder step + taxonomy/size rows + icon + goldens green + Owner HV (T26)"})
+check(f"ingredient universe == {len(SHIPPED_I)} shipped + {len(S_I)} staged + {len(RESERVED_I)} reserved = 170", len(ing_rows) == 170 and len({r['id'] for r in ing_rows}) == 170, len(ing_rows))
 check("the 3 formerly in-flight ingredients (burrata honey walnut) are shipped, not candidates", all(x in SHIPPED_I for x in ("burrata", "honey", "walnut")) and not ({"burrata", "honey", "walnut"} & {s["id"] for s in S_I}))
 plan_ing = {i["id"] for i in plan["ingredients"]}
 _shipped_since_plan = plan_ing - {s["id"] for s in S_I}
-check(f"plan's 73 candidates == {len(S_I)} staged + {len(_shipped_since_plan)} now-shipped (every non-staged plan ingredient is in the shipped catalog)", len(plan_ing) == 73 and {s["id"] for s in S_I} <= plan_ing and _shipped_since_plan <= set(SHIPPED_I) and {"burrata", "honey", "walnut"} <= _shipped_since_plan, sorted(_shipped_since_plan - set(SHIPPED_I)))
+_merged_since_plan = _shipped_since_plan & set(MERGED_I)
+check(f"plan's 73 candidates == {len(S_I)} staged + {len(_shipped_since_plan) - len(_merged_since_plan)} now-shipped + {len(_merged_since_plan)} merged (every non-staged plan ingredient is shipped or merged); the reserved nduja is not in the plan", len(plan_ing) == 73 and {s["id"] for s in S_I} <= plan_ing and (_shipped_since_plan - _merged_since_plan) <= set(SHIPPED_I) and {"burrata", "honey", "walnut"} <= _shipped_since_plan and not ({r["id"] for r in RESERVED_I} & plan_ing), sorted(_shipped_since_plan - _merged_since_plan - set(SHIPPED_I)))
 
 # ---------------------------------------------------------------- recipe ledger ----------------------------------
 rec_rows = []
@@ -479,7 +498,7 @@ json.dump({"matrixMap": matrix_map, "variantsComposition": variants}, open(os.pa
 summary = {
     "recipes": {"total": len(rec_rows), "shipped": len(SHIPPED_R), "remaining": len(S_R), "byState": Counter(STATE_OF.values()), "batches": len(RB),
                 "batchSizes": {b: len(ids) for b, _, ids, _ in RB}},
-    "ingredients": {"total": len(ing_rows), "shipped": len(SHIPPED_I), "remaining": len(S_I), "byKind": Counter(s["kind"] for s in S_I),
+    "ingredients": {"total": len(ing_rows), "shipped": len(SHIPPED_I), "remaining": len(S_I) + len(RESERVED_I), "staged": len(S_I), "reserved": len(RESERVED_I), "byKind": Counter(s["kind"] for s in S_I),
                     "byStatus": Counter(s["status"] for s in S_I), "batches": len(IB), "batchSizes": {b: len(ids) for b, _, ids in IB},
                     "shippedWithDedicatedSvg": sum(1 for v in SHIPPED_I.values() if v["svg"])},
     "methods": {"total": len(M), "byStatus": Counter(r["status"] for r in M)},
@@ -526,8 +545,8 @@ def write_md(name, title, intro, rows, cols, heads):
 
 
 GEN = f"Generated by `docs/reports/data/TETO_CONTENT-MASTER_gen.py.txt` from main `{MAIN_SHA}`; machine checks in `TETO_CONTENT-MASTER_verification.json` (all must PASS). Do not edit by hand."
-write_md("TETO_CONTENT-MASTER_LEDGER_ingredients.md", f"全食材マスター台帳（170 = 出荷済み {len(SHIPPED_I)} + 候補 {len(S_I)}）",
-         GEN + " 状態: SHIPPED=main に存在。CANDIDATE_ACTIVE=staged レシピが参照。CANDIDATE_ALIASED/MERGED_PROVISIONAL=Owner 規則 I-1/I-2 で既存 id を再利用または統合する暫定候補（追加不要になりうる）。",
+write_md("TETO_CONTENT-MASTER_LEDGER_ingredients.md", f"全食材マスター台帳（170 = 出荷済み {len(SHIPPED_I)} + staged 候補 {len(S_I)} + 予約 {len(RESERVED_I)}）",
+         GEN + " 状態: SHIPPED=main に存在。RESERVED_OWNER_APPROVED=Owner 確定の予約枠（staged 未追加・カタログ未登録、T26 で登録）。CANDIDATE_ACTIVE=staged レシピが参照。CANDIDATE_ALIASED/MERGED_PROVISIONAL=Owner 規則 I-1/I-2 で既存 id を再利用または統合する暫定候補（追加不要になりうる）。",
          [r for r in ing_rows if r["state"] != "SHIPPED"] + [r for r in ing_rows if r["state"] == "SHIPPED"],
          ["id", "nameJa", "state", "category", "kind", "svg", "usedByRemainingRecipes", "firstRecipeBatch", "ingredientBatch", "ownerDecision", "issuePr"],
          ["ID", "名称", "現状", "区分", "種別", "SVG", "依存（使うレシピ）", "最初に要る列車", "食材バッチ", "必要なOwner判断", "Issue/PR"])

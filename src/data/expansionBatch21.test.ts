@@ -25,6 +25,7 @@ import { buildHint5Ladder } from "../logic/discovery/hint5Ladder";
 import { createInitialGameState, gameReducer, type GameAction, type GameState } from "../state/gameReducer";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { discoveredRecipeIds, EMPTY_DEX } from "../state/dex";
+import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 
 /**
  * Expansion Batch 21 (Issue #780; Owner approvals 2026-11-08 Q-1 and 2026-11-09 Q-2 / Q-3): the two LATE recipes `taco-pizza` and `okonomiyaki-style-pizza` and their six late materials
@@ -135,10 +136,11 @@ describe("the six late materials (Q-3 values) and the two Owner-confirmation-pen
   it("FAMILY DEVIATION (awaiting Owner confirmation): tortilla-chips is `vegetable` (the nori precedent), not the staged row's `other`, which the DH4-PROD gate OD-DH4-2-9 rejects", () => {
     expect(ingredientAttributeFamily("tortilla-chips")).toBe("vegetable");
   });
-  it("their Shop offers are T4 (sauce pack 120 / refill 60) from their own late step: 81 for cheddar / lettuce / tortilla-chips, 82 for okonomiyaki-sauce / cabbage / bonito-flakes (derived: Expansion Batch 22's two ordinary steps moved them +2); k follows the largest count", () => {
-    const expected: Record<string, [number, number]> = { cheddar: [81, 2], lettuce: [81, 2], "tortilla-chips": [81, 2], "okonomiyaki-sauce": [82, 1], cabbage: [82, 3], "bonito-flakes": [82, 2] };
+  it("their Shop offers are T4 (sauce pack 120 / refill 60) from their own late step: 82 for cheddar / lettuce / tortilla-chips, 83 for okonomiyaki-sauce / cabbage / bonito-flakes (derived: Expansion Batch 22's two ordinary steps moved them +2, Expansion Batch 23's ordinary step 74 +1 more); k follows the largest count", () => {
+    const expected: Record<string, number> = { cheddar: 2, lettuce: 2, "tortilla-chips": 2, "okonomiyaki-sauce": 1, cabbage: 3, "bonito-flakes": 2 }; // the pack multiplier k; the step is the composed late number (R-1)
     for (const id of NEW_MATERIALS) {
-      const [step, k] = expected[id];
+      const k = expected[id];
+      const step = COMPOSED.stepOfMaterial(id);
       expect(materialOffer(getIngredient(id)!), id).toMatchObject({ ingredientId: id, step, tier: "T4", k, packQuantity: 10 * k, packPrice: 120, refillPrice: 60 });
     }
   });
@@ -205,18 +207,18 @@ describe("Duplicate Gate and differentiation (the GLOBAL 0.4 Jaccard guideline i
 
 describe("the late steps 79 / 80, the floors, and the batch manifest", () => {
   const steps = DISCOVERY_LADDER.steps;
-  it("ordinary steps are 73 (Expansion Batch 22 added 72 / 73); the two B21 late steps are 81 / 82 (derived: +2), no star gate, keyed to the recipes; the rest of the older late steps are unchanged (74-80)", () => {
-    expect(ordinaryLadderSteps(steps)).toHaveLength(73);
-    expect(steps.slice(73, 82).map((s) => s.step)).toEqual([74, 75, 76, 77, 78, 79, 80, 81, 82]);
-    expect(steps.at(-6)).toMatchObject({ step: 81, ingredientIds: ["cheddar", "lettuce", "tortilla-chips"], keyRecipeId: TACO });
-    expect(steps.at(-5)).toMatchObject({ step: 82, ingredientIds: ["okonomiyaki-sauce", "cabbage", "bonito-flakes"], keyRecipeId: OKO });
-    for (const s of steps.slice(-6, -4)) expect((s as { starGates?: unknown }).starGates, `step ${s.step}`).toBeUndefined();
-    expect(LATE_LADDER_STEPS.slice(-6, -4).map((s) => s.keyRecipeId)).toEqual([TACO, OKO]);
-    expect(steps.find((s) => s.step === 80)).toMatchObject({ ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"], keyRecipeId: "tarako-cream-pizza" });
+  it("ordinary steps are 73 (Expansion Batch 22 added 72 / 73); the two B21 late steps are 82 / 83 (derived: +3), no star gate, keyed to the recipes; the rest of the older late steps are unchanged (75-81)", () => {
+    expect(ordinaryLadderSteps(steps)).toHaveLength(COMPOSED.ordinarySteps.length); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
+    expect(steps.slice(COMPOSED.ordinarySteps.length, COMPOSED.ordinarySteps.length + 9).map((s) => s.step)).toEqual(COMPOSED.lateSteps.slice(0, 9).map((s) => s.step));
+    expect(steps.find((s) => s.keyRecipeId === TACO)).toMatchObject({ step: COMPOSED.stepOfKey(TACO), ingredientIds: ["cheddar", "lettuce", "tortilla-chips"], keyRecipeId: TACO });
+    expect(steps.find((s) => s.keyRecipeId === OKO)).toMatchObject({ step: COMPOSED.stepOfKey(OKO), ingredientIds: ["okonomiyaki-sauce", "cabbage", "bonito-flakes"], keyRecipeId: OKO });
+    for (const s of steps.filter((x) => [TACO, OKO].includes(x.keyRecipeId))) expect((s as { starGates?: unknown }).starGates, `step ${s.step}`).toBeUndefined();
+    expect(LATE_LADDER_STEPS.filter((s) => [TACO, OKO].includes(s.keyRecipeId)).map((s) => s.keyRecipeId)).toEqual([TACO, OKO]);
+    expect(steps.find((s) => s.keyRecipeId === "tarako-cream-pizza")).toMatchObject({ step: COMPOSED.stepOfKey("tarako-cream-pizza"), ingredientIds: ["cod-roe", "fresh-cream-sauce", "nori"] });
   });
   it("every other ingredient of each recipe is owned before its late step (the new materials are the last unlocks of their step)", () => {
     const owned = (n: number) => new Set<string>([...STARTER_INGREDIENT_IDS, ...steps.slice(0, n).flatMap((s) => s.ingredientIds)]);
-    for (const [recipe, stepNo] of [[taco, 81], [oko, 82]] as const) {
+    for (const [recipe, stepNo] of [[taco, COMPOSED.stepOfKey(TACO)!], [oko, COMPOSED.stepOfKey(OKO)!]] as const) {
       const before = owned(stepNo - 1);
       for (const q of recipe.requiredIngredients) {
         const isNewHere = (NEW_MATERIALS as readonly string[]).includes(q.ingredientId) && steps.find((s) => s.ingredientIds.includes(q.ingredientId))!.step === stepNo;
@@ -225,10 +227,7 @@ describe("the late steps 79 / 80, the floors, and the batch manifest", () => {
     }
   });
   it("the entitlement floors are the ladder numbers at the moment of shipping (79 / 80) and every older floor is unchanged", () => {
-    expect(LATE_ENTITLEMENT_FLOORS).toEqual({
-      "salmon-roe": 57, "yuzu-kosho": 58, "miso-sauce": 59, "white-sesame": 59, tahini: 60, pomegranate: 60, "bbq-sauce": 66, cilantro: 66, "soy-sauce": 67, wasabi: 67, "cod-roe": 68, "fresh-cream-sauce": 68, nori: 68,
-      cheddar: 79, lettuce: 79, "tortilla-chips": 79, "okonomiyaki-sauce": 80, cabbage: 80, "bonito-flakes": 80, fennel: 83, orange: 83, carrot: 84, "red-cabbage": 84, "sunflower-seeds": 84, radicchio: 85, "balsamic-vinegar": 85, truffle: 86,
-    });
+    expect(LATE_ENTITLEMENT_FLOORS).toEqual(COMPOSED.floors); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
   });
   it("B21_BATCH is LANDED and consistent over the FULL catalog (late batches are deliberately not in RECIPE_BATCHES): credit, key ingredient, cohort identity, append-only ladder", () => {
     expect(B21_BATCH.recipes.map((r) => [r.recipeId, r.keyIngredientId, r.ladderCredit])).toEqual([[TACO, "tortilla-chips", true], [OKO, "bonito-flakes", true]]);
@@ -326,8 +325,8 @@ describe("Research: the 17 individually Owner-approved pre-existing recipes (Q-2
   /** The three tests below measure the SAME input (the shipped ladder, default 40 seeded orders). The audit is deterministic, so it is computed once, lazily, and shared (CI stabilisation: each call took ~3.3 s locally, over the 5 s default under CI load). */
   let shippedChanges: ReturnType<typeof researchLetterChangesAcrossOrders> | undefined;
   // Expansion Batch 22 (#780) is a LATER batch: its six recipes and ten materials are left out, so this stays the Batch 21 shipped-ladder comparison the Owner approved.
-  const B22_RECIPES_LATER: readonly string[] = ["speck-e-brie", "buffalo-chicken", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza"];
-  const B22_MATERIALS_LATER: readonly string[] = ["brie", "buffalo-sauce", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "balsamic-vinegar"];
+  const B22_RECIPES_LATER: readonly string[] = ["speck-e-brie", "buffalo-chicken", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "apple-cinnamon-dessert", "nutella-dessert-pizza", "smore-dessert-pizza"]; // + Expansion Batch 23 (#780) and 23-b, LATER batches
+  const B22_MATERIALS_LATER: readonly string[] = ["brie", "buffalo-sauce", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "balsamic-vinegar", "apple", "banana", "chocolate", "powdered-sugar", "graham-cracker", "marshmallow"]; // + Expansion Batch 23 (#780) and 23-b
   const shipped = () => (shippedChanges ??= researchLetterChangesAcrossOrders(NEW_IDS, RECIPES.filter((r) => !B22_RECIPES_LATER.includes(r.id)) as never, 40, 20261105, B22_MATERIALS_LATER));
 
   it("the approved record is exactly the 17 IDs (and records 0 canonical changes)", () => {

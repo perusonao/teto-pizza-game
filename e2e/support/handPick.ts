@@ -16,7 +16,7 @@ const pagerLabel = (page: Page) => page.evaluate(() => document.querySelector(".
  * click makes (the topmost element at the button's centre is the button), so a pager hidden behind an overlay is still a failure, not a silent skip.
  * After a press the helper waits for the label to change: the page really moved, and the next read sees the new page.
  */
-async function pressPager(page: Page, button: Locator): Promise<boolean> {
+export async function pressPager(page: Page, button: Locator): Promise<boolean> {
   const before = await pagerLabel(page);
   const pressed = await button
     .evaluate(
@@ -42,21 +42,49 @@ async function pressPager(page: Page, button: Locator): Promise<boolean> {
 }
 
 /**
+ * Pages the tray back to page 1 (a no-op when it has no pager or is already there). Every press goes through `pressPager`, so a tray that re-renders between
+ * the check and the press can no longer park a click on a disabled button (#828: the same race as #394 Phase 1b, in the specs' own copies of this loop).
+ */
+export async function trayToFirstPage(page: Page): Promise<void> {
+  const prev = page.getByRole("button", { name: "前のページ" });
+  for (let i = 0; i < 16 && (await prev.isVisible().catch(() => false)); i += 1) {
+    if (!(await pressPager(page, prev))) break; // disabled at the moment of the press: already on page 1
+  }
+}
+
+/** Pages the tray forward to its last page (a no-op when it has no pager or is already there); every press goes through `pressPager`. */
+export async function trayToLastPage(page: Page): Promise<void> {
+  const next = page.getByRole("button", { name: "次のページ" });
+  for (let i = 0; i < 16 && (await next.isVisible().catch(() => false)); i += 1) {
+    if (!(await pressPager(page, next))) break; // disabled at the moment of the press: already on the last page
+  }
+}
+
+/** Pages forward until `chip` is on screen, or the pager runs out (the caller decides what a chip that is still missing means). */
+export async function pageTrayUntilVisible(page: Page, chip: Locator): Promise<void> {
+  const next = page.getByRole("button", { name: "次のページ" });
+  for (let i = 0; i < 16 && !(await chip.isVisible()); i += 1) {
+    if (!(await pressPager(page, next))) break;
+  }
+}
+
+/**
+ * The paged FREE Cooking tray: go back to page 1, then page forward until `chip` is on screen, and fail (not hang) if it never is. Use this instead of a
+ * spec-local `while (isEnabled) click()` loop; `chipOnTrayOrPin` is the by-name form of it.
+ */
+export async function chipOnTray(page: Page, chip: Locator) {
+  await trayToFirstPage(page); // always search from page 1
+  await pageTrayUntilVisible(page, chip);
+  await expect(chip).toBeVisible();
+  return chip;
+}
+
+/**
  * All-Owned Cooking Tray (食材庫廃止): the FREE Cooking tray lists every owned ingredient, paged. Specs that only need "this
  * topping chip, wherever it is" use this: go back to page 1, then page forward until the chip is on screen. (It used to fall
  * back to pinning from the pantry while the Hand held only 12; the Hand and the pantry are gone.) Returns the chip, on screen.
  * Every pager press goes through `pressPager`, so a tray that re-renders between the check and the press can no longer park a click on a disabled button.
  */
 export async function chipOnTrayOrPin(page: Page, name: string | RegExp) {
-  const chip = page.locator(".ingredient-chip").filter({ hasText: name }).first();
-  const next = page.getByRole("button", { name: "次のページ" });
-  const prev = page.getByRole("button", { name: "前のページ" });
-  for (let i = 0; i < 16 && (await prev.isVisible().catch(() => false)); i += 1) {
-    if (!(await pressPager(page, prev))) break; // always search from page 1
-  }
-  for (let i = 0; i < 16 && !(await chip.isVisible()); i += 1) {
-    if (!(await pressPager(page, next))) break;
-  }
-  await expect(chip).toBeVisible();
-  return chip;
+  return chipOnTray(page, page.locator(".ingredient-chip").filter({ hasText: name }).first());
 }

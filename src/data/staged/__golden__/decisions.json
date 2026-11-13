@@ -1,13 +1,13 @@
 {
- "dependencies": 365,
+ "dependencies": 360,
  "byStatus": {
-  "RESOLVED": 24,
+  "RESOLVED": 23,
   "WORK": 7,
-  "SOURCE_RESEARCH": 22,
+  "SOURCE_RESEARCH": 20,
   "CANDIDATE_PENDING": 12,
   "EXCEPTION_REVIEW": 76,
   "WAITS_MECHANIC": 58,
-  "WAITS_IN_FLIGHT": 2,
+  "WAITS_IN_FLIGHT": 0,
   "AXIS_WITH_M1": 30,
   "STAGED_PAIR": 94,
   "OWNER_DECISION": 40
@@ -15,19 +15,19 @@
  "byDecision": {
   "rule": 10,
   "D-1": 76,
-  "D-2": 22,
+  "D-2": 20,
   "D-3": 12,
-  "D-4": 16,
+  "D-4": 15,
   "D-5": 5
  },
- "remainingOpen": 341,
+ "remainingOpen": 337,
  "needsAdditionalOwnerDecision": {
   "total": 116,
   "perRecipeExceptions": 76,
   "exceptionRecipes": 39,
   "other": 40
  },
- "needsResearchOrConfirmation": 34,
+ "needsResearchOrConfirmation": 32,
  "nextPromotable": {
   "ready": [],
   "readyWithWork": [],

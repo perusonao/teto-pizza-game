@@ -1,0 +1,113 @@
+{
+ "head": "1e497e7",
+ "lines": [
+  {
+   "line": "ingredients",
+   "shipped": 122,
+   "staged": 47,
+   "target": 170,
+   "remaining": 48,
+   "unplanned": 1,
+   "percent": 71.8
+  },
+  {
+   "line": "recipes",
+   "shipped": 104,
+   "staged": 73,
+   "target": 177,
+   "remaining": 73,
+   "unplanned": 0,
+   "percent": 58.8
+  },
+  {
+   "line": "methods",
+   "shipped": 7,
+   "staged": 20,
+   "target": 27,
+   "remaining": 20,
+   "unplanned": 0,
+   "percent": 25.9
+  }
+ ],
+ "methodsByStatus": {
+  "IMPLEMENTED": 7,
+  "PARTIAL": 7,
+  "UNIMPLEMENTED": 4,
+  "HOLD": 1,
+  "ADOPTION_UNDECIDED": 6,
+  "DUPLICATE": 2
+ },
+ "pendingRecipesByMechanic": {
+  "DOUGH_VARIANT": 31,
+  "(none: catalog-only)": 30,
+  "PAN_PROFILE": 6,
+  "ENCLOSE": 5,
+  "DOUGH_SHAPE_TARGET": 5,
+  "MID_BAKE": 3,
+  "PREP": 3,
+  "STEP_ORDER": 2,
+  "ZONED": 1,
+  "FRY": 1,
+  "LAMINATE": 1,
+  "MULTI_SPREAD_3": 1
+ },
+ "catalogOnlyReady": [
+  "banh-mi-pizza",
+  "buffalo-cauliflower-pizza",
+  "bulgogi-pizza",
+  "burrata-pizza",
+  "caponata-pizza",
+  "chicken-tikka-pizza",
+  "diavola-pizza",
+  "frutti-di-mare-pizzadb",
+  "hokkaido-cheese-pizza",
+  "hot-honey-pepperoni",
+  "jerusalem-mixed-grill-pizza",
+  "keema-pizza",
+  "mentaiko-mochi-pizza",
+  "mexican-elote-pizza",
+  "nashville-hot-chicken-pizza",
+  "nduja-pizza",
+  "peking-duck-pizza",
+  "peruvian-aji-amarillo",
+  "philly-cheesesteak-pizza",
+  "pizza-asparagi-limone",
+  "pizza-baiana",
+  "pizza-chilena",
+  "pizza-salad",
+  "pizza-zucchine-menta",
+  "sfincione",
+  "south-african-boerewors",
+  "swedish-kebab-pizza",
+  "teriyaki-chicken-pizza",
+  "thai-chicken-pizza",
+  "tsukimi-pizza"
+ ],
+ "landedTrains": [
+  {
+   "tag": "b23",
+   "train": "B23-a",
+   "recipes": 1,
+   "ingredients": 1
+  },
+  {
+   "tag": "b23b",
+   "train": "B23-b",
+   "recipes": 2,
+   "ingredients": 5
+  }
+ ],
+ "notes": [
+  "Ingredients: `nutella-spread` was merged into the shipped `chocolate` (B23-b) and the Owner assigned the freed slot to `squid` (2026-11-10, docs/reports/TETO_CODEX-CONTENT-EXPANSION_NONCONFLICT-PLAN_2026-11-10.md). `unplanned` > 0 means a target slot still has no staged row.",
+  "Methods: the count is the 27 candidate rows of docs/reports/data/TETO_CONTENT-MASTER_methods.csv; `shipped` = status IMPLEMENTED."
+ ],
+ "masterLedger": {
+  "failed": [
+   "staged ingredient candidates == 170 - 122 shipped = 48  -> 47",
+   "every non-staged matrix row maps to a shipped recipe (99 rows)  -> ['nutella-dessert-pizza-pizzadb-p6']",
+   "shipped recipes without a 172 row == the 5 known (funghi napoletana pepperoni pizza-bianca salsiccia)  -> ['funghi', 'napoletana', 'nutella-dessert-pizza', 'pepperoni', 'pizza-bianca', 'salsiccia']",
+   "ingredient universe == 122 shipped + 47 candidates = 170  -> 169",
+   "plan's 73 candidates == 47 staged + 26 now-shipped (every non-staged plan ingredient is in the shipped catalog)  -> ['nutella-spread']"
+  ]
+ }
+}

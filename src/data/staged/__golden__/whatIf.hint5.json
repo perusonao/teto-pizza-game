@@ -1,12 +1,7 @@
 {
- "targets": 76,
+ "targets": 73,
  "notTarget": [],
  "rows": [
-  {
-   "id": "apple-cinnamon-dessert",
-   "target": true,
-   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
   {
    "id": "calzone-pizzadb",
    "target": true,
@@ -76,11 +71,6 @@
    "id": "scacciata-ragusana",
    "target": true,
    "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
-  },
-  {
-   "id": "smore-dessert-pizza",
-   "target": true,
-   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "st-louis-style-pizza",
@@ -176,11 +166,6 @@
    "id": "new-england-bar-pizza",
    "target": true,
    "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
-  },
-  {
-   "id": "nutella-dessert-pizza",
-   "target": true,
-   "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "banh-mi-pizza",

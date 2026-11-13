@@ -4,6 +4,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
 import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
+import { chipOnTray } from "./support/handPick";
 
 /**
  * Discovery 3.0 PR-4b-B: the first production Discovery pool > 1, played for real (a pool of 3 since TQ-1D).
@@ -63,14 +64,7 @@ async function capture(page: Page, name: string, projectName: string) {
 /** Selects a tray chip, paging the tray (the free-cook tray has several pages). */
 async function pickChip(page: Page, name: RegExp) {
   const chip = page.locator(".ingredient-chip").filter({ hasText: name }).first();
-  const prev = page.getByRole("button", { name: "前のページ" });
-  const next = page.getByRole("button", { name: "次のページ" });
-  for (let i = 0; i < 6 && (await prev.isEnabled().catch(() => false)); i += 1) await prev.click();
-  for (let i = 0; i < 6 && !(await chip.isVisible()); i += 1) {
-    if (!(await next.isEnabled().catch(() => false))) break;
-    await next.click();
-  }
-  await chip.click();
+  await (await chipOnTray(page, chip)).click();
 }
 
 /** One FREE Cooking round: sausage x`sausage`, onion x2, olive x2, oregano x`oregano`, no cheese. */

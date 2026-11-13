@@ -1,15 +1,15 @@
 {
  "summary": {
-  "recipes": 76,
+  "recipes": 73,
   "readyForPromotion": [],
-  "recipesWithBlockingDeps": 76,
-  "blockingDeps": 389,
+  "recipesWithBlockingDeps": 73,
+  "blockingDeps": 382,
   "byKind": {
-   "OWNER_RULE": 113,
+   "OWNER_RULE": 109,
    "MECHANIC": 59,
    "INGREDIENT_IN_FLIGHT": 0,
-   "UNRESOLVED_TOKEN": 20,
-   "SAUCE_UNSPECIFIED": 24,
+   "UNRESOLVED_TOKEN": 19,
+   "SAUCE_UNSPECIFIED": 22,
    "DUPLICATE_GATE": 168,
    "ID_SUFFIXED": 5
   },
@@ -33,25 +33,13 @@
     "ONE_DIFF": 27,
     "JACCARD_GT_0_4": 18
    },
-   "recipesWithNoHit": 22,
-   "recipesWithNoShippedHit": 28,
+   "recipesWithNoHit": 19,
+   "recipesWithNoShippedHit": 25,
    "hitsVsShipped": 249
   },
-  "stagedIngredientRefs": 51
+  "stagedIngredientRefs": 44
  },
  "perRecipe": [
-  {
-   "id": "apple-cinnamon-dessert",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-1",
-    "SAUCE_UNSPECIFIED:apple-cinnamon-dessert"
-   ],
-   "staged": [
-    "apple"
-   ],
-   "dup": []
-  },
   {
    "id": "calzone-pizzadb",
    "lane": "R-C",
@@ -1439,20 +1427,6 @@
      "jaccard": 0.5
     }
    ]
-  },
-  {
-   "id": "smore-dessert-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-1",
-    "SAUCE_UNSPECIFIED:smore-dessert-pizza"
-   ],
-   "staged": [
-    "chocolate",
-    "graham-cracker",
-    "marshmallow"
-   ],
-   "dup": []
   },
   {
    "id": "st-louis-style-pizza",
@@ -3162,21 +3136,6 @@
      "jaccard": 0.667
     }
    ]
-  },
-  {
-   "id": "nutella-dessert-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-5",
-    "OWNER_RULE:R-7",
-    "UNRESOLVED_TOKEN:ナッツ"
-   ],
-   "staged": [
-    "banana",
-    "chocolate",
-    "powdered-sugar"
-   ],
-   "dup": []
   },
   {
    "id": "banh-mi-pizza",

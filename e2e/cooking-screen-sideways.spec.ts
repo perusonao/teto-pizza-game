@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
-import { chipOnTrayOrPin } from "./support/handPick";
+import { chipOnTrayOrPin, pressPager, trayToFirstPage } from "./support/handPick";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
@@ -100,18 +100,11 @@ const pagerLabel = (page: Page) => page.evaluate(() => document.querySelector(".
 /** Every page of the current tray, first to last: the cooking screen never scrolls sideways on any of them (a long name may sit on any page). */
 async function expectEveryTrayPage(page: Page, where: string) {
   const next = page.getByRole("button", { name: "次のページ" });
-  const prev = page.getByRole("button", { name: "前のページ" });
-  for (let i = 0; i < 16 && (await prev.isVisible().catch(() => false)) && (await prev.isEnabled().catch(() => false)); i += 1) {
-    const before = await pagerLabel(page);
-    await prev.click();
-    await expect.poll(() => pagerLabel(page)).not.toBe(before);
-  }
+  await trayToFirstPage(page);
   for (let i = 0; i < 16; i += 1) {
     await expectNoSideways(page, `${where} tray page ${(await pagerLabel(page)) ?? "1"}`);
-    if (!(await next.isVisible().catch(() => false)) || !(await next.isEnabled().catch(() => false))) break;
-    const before = await pagerLabel(page);
-    await next.click();
-    await expect.poll(() => pagerLabel(page)).not.toBe(before);
+    if (!(await next.isVisible().catch(() => false))) break;
+    if (!(await pressPager(page, next))) break; // pressed only if enabled at that instant; waits for the label to change
   }
 }
 

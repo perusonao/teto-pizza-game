@@ -105,6 +105,24 @@ function collidingIdentityKeys(catalog: readonly Parameters<typeof identityKey>[
   return colliding;
 }
 
+// The shipped catalog and recipe declaration order are immutable for the lifetime of a Vitest
+// worker/browser bundle. Building these indexes once avoids repeating the same catalog-wide
+// collision scan, recipe-order comparisons and per-recipe target filters for every pizza. Custom
+// catalogs/recipe arrays used by focused tests keep the generic path below.
+const DEFAULT_COLLIDING_IDENTITY_KEYS = collidingIdentityKeys(RECIPE_DISCOVERY_CATALOG);
+const DEFAULT_RECIPE_ORDER = new Map(
+  [...RECIPES]
+    .sort((a, b) => compareHintCandidates(a, b, RECIPES))
+    .map((recipe, index) => [recipe.id, index]),
+);
+const DEFAULT_RECIPE_OBJECTS = new Set<Recipe>(RECIPES);
+const DEFAULT_TARGETS_BY_RECIPE = new Map<string, (typeof RECIPE_DISCOVERY_CATALOG)[number][]>();
+for (const target of RECIPE_DISCOVERY_CATALOG) {
+  const targets = DEFAULT_TARGETS_BY_RECIPE.get(target.recipeId);
+  if (targets) targets.push(target);
+  else DEFAULT_TARGETS_BY_RECIPE.set(target.recipeId, [target]);
+}
+
 function classify(d: Distance): NearMissKind {
   if (d.total === 1) return d.missing === 1 ? "ADD_ONE" : d.extra === 1 ? "REMOVE_ONE" : d.lateWrong ? "LATE_ONLY" : "SAUCE_ONLY";
   return d.total === 2 ? "CLOSE" : "FAR";
@@ -117,8 +135,21 @@ export function classifyNearMiss(
 ): NearMiss | null {
   const catalog = options.catalog ?? RECIPE_DISCOVERY_CATALOG;
   const recipes = options.recipes ?? RECIPES;
-  const colliding = collidingIdentityKeys(catalog);
-  const ordered = [...discoverableRecipes].sort((a, b) => compareHintCandidates(a, b, recipes));
+  const usesDefaultCatalog = catalog === RECIPE_DISCOVERY_CATALOG;
+  const usesDefaultRecipes = recipes === RECIPES;
+  const usesDefaultCandidateObjects = usesDefaultRecipes && discoverableRecipes.every((recipe) => DEFAULT_RECIPE_OBJECTS.has(recipe));
+  const colliding = usesDefaultCatalog ? DEFAULT_COLLIDING_IDENTITY_KEYS : collidingIdentityKeys(catalog);
+  const ordered = [...discoverableRecipes].sort(
+    usesDefaultCandidateObjects
+      ? (a, b) => {
+          const aOrder = DEFAULT_RECIPE_ORDER.get(a.id);
+          const bOrder = DEFAULT_RECIPE_ORDER.get(b.id);
+          return aOrder !== undefined && bOrder !== undefined
+            ? aOrder - bOrder
+            : compareHintCandidates(a, b, recipes);
+        }
+      : (a, b) => compareHintCandidates(a, b, recipes),
+  );
   // Square Dough E-2: a target on another pan (grandma-pizza declares `pan: "tray"`) cannot be reached by adding / removing an ingredient, so it is never a near-miss
   // candidate for a pizza cooked on a different pan -- the line would otherwise promise a discovery the matcher refuses. A pizza and a target both without a pan (every
   // other recipe) compare equal, so their behaviour is unchanged. (The pan itself is never hinted at: the pan axis is not a distance.)
@@ -127,7 +158,10 @@ export function classifyNearMiss(
 
   let best: { recipe: Recipe; d: Distance } | null = null;
   for (const recipe of ordered) {
-    for (const target of catalog.filter((t) => t.recipeId === recipe.id)) {
+    const targets = usesDefaultCatalog
+      ? (DEFAULT_TARGETS_BY_RECIPE.get(recipe.id) ?? [])
+      : catalog.filter((target) => target.recipeId === recipe.id);
+    for (const target of targets) {
       if ((target.identityDimensions?.pan ?? null) !== pizzaPan) continue;
       const d = distance(signature, target.items, target.sauceBase ?? [], target.identityDimensions?.late ?? []);
       if (d.total === 0) return null;

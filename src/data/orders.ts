@@ -533,6 +533,12 @@ const BASE_ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "とろっとしたチーズに生ハムがのったピザ、おいしそう！",
   },
+  {
+    id: "order-apple-cinnamon-dessert",
+    recipeId: "apple-cinnamon-dessert",
+    requestedBy: "mito",
+    lineJa: "あまいりんごのデザートピザ、食べてみたいな！",
+  },
 
 ];
 

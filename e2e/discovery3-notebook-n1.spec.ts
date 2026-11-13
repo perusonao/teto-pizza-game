@@ -4,6 +4,7 @@ import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
 import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
+import { chipOnTray } from "./support/handPick";
 
 /**
  * Discovery 3.0 Notebook N1: the read-only 試作ノート, opened from the Hint sheet, played for real on both iPhone widths.
@@ -79,16 +80,8 @@ async function capture(page: Page, name: string, projectName: string) {
 
 async function pickChip(page: Page, name: RegExp) {
   const chip = page.locator(".ingredient-chip").filter({ hasText: name }).first();
-  const prev = page.getByRole("button", { name: "前のページ" });
-  const next = page.getByRole("button", { name: "次のページ" });
-  // The tray only has a pager when it has several pages (Dex 12); never wait for one that is not there.
-  const enabled = async (b: typeof prev) => (await b.count()) > 0 && (await b.isEnabled());
-  for (let i = 0; i < 6 && (await enabled(prev)); i += 1) await prev.click();
-  for (let i = 0; i < 6 && !(await chip.isVisible()); i += 1) {
-    if (!(await enabled(next))) break;
-    await next.click();
-  }
-  await chip.click();
+  // The tray only has a pager when it has several pages (Dex 12): the helper never waits for one that is not there.
+  await (await chipOnTray(page, chip)).click();
 }
 
 async function startFree(page: Page, from: "HOME" | "RESULT") {

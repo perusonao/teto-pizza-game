@@ -72,6 +72,8 @@ function reload(storage: StorageLike): GameState {
 
 /** OD-H5-M2 = all 25 (round 6): every paid target, the 「なし」 targets included. */
 const TARGETS = RECIPES.filter((r) => r.id !== "margherita").map((r) => r.id);
+/** #811: TARGETS in consecutive slices of at most 20, for the per-target sweeps (one test covers at most 20 targets, so its time no longer grows with the number of recipes; opening one sheet still gets slower as the catalog grows). */
+const TARGET_SLICES = Array.from({ length: Math.ceil(TARGETS.length / 20) }, (_, i) => ({ label: `${i * 20 + 1}-${Math.min((i + 1) * 20, TARGETS.length)}`, ids: TARGETS.slice(i * 20, (i + 1) * 20) }));
 const NONE_TARGETS = TARGETS.filter((id) => hint5EmptyFixedRungs(id)!.length > 0);
 
 describe("#360 S3: wallet below the normal price through the reducer", () => {
@@ -162,11 +164,18 @@ describe("flag ON: the ladder through the reducer", () => {
     expect(act(once, action)).toBe(once);
   });
 
-  it("insufficient Pitz is refused with no change, uniformly for every target", () => {
-    for (const id of TARGETS) {
+  // #811: one sheet per target costs ~35 ms, so the loop over EVERY target grew with the catalog to ~3.5 s of the 5 s default (it timed out on a slow CI runner).
+  // It runs as consecutive slices of the same TARGETS, one test per slice: the same targets, order and assertion; no timeout was raised and nothing is sampled.
+  it("the slices cover every target exactly once, in order", () => {
+    expect(TARGET_SLICES.flatMap((s) => s.ids)).toEqual(TARGETS);
+  });
+  it.each(TARGET_SLICES.map((s) => [s.label, s.ids] as const))("insufficient Pitz is refused with no change, uniformly for every target: %s", (_label, ids) => {
+    for (const id of ids) {
       const s = sheetOn(id, 9);
       expect(act(s, { type: "PURCHASE_HINT5_RUNG", expectedRungIndex: 1 }), id).toBe(s);
     }
+  });
+  it("insufficient Pitz is refused with no change once the wallet is spent: hawaiian after three rungs (30 -> 0)", () => {
     let s = sheetOn("hawaiian", 30);
     s = buy(buy(buy(s))); // 30 -> 0
     expect(s.pitzBalance).toBe(0);

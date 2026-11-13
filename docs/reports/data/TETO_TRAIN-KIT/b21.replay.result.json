@@ -1,0 +1,14 @@
+{
+ "base": "348b1e4820f6119a219d9a9ee0503d734e75de43",
+ "target": "e74383b45d945e38dafb7c3b314a4c2c0602f699",
+ "ids": [
+  "taco-pizza",
+  "okonomiyaki-style-pizza"
+ ],
+ "catalogDifferences": [],
+ "hvSeedsWiringIdentical": true,
+ "previewGateIdentical": true,
+ "tsc": "0 errors",
+ "unsupported": [],
+ "typeFollowUps": []
+}

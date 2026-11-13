@@ -52,7 +52,7 @@ describe("DessertGlyph (Batch 23, unwired)", () => {
     }
   });
 
-  it("is UNWIRED: no other module imports it, and the wiring files do not mention the new visual ids", () => {
+  it("is wired for all six (Expansion Batch 23 apple, 23-b the five late dessert materials, #780): IngredientGlyph.tsx is the one importer, and each `<id>-dessert` is declared as a pieceVisual exactly once, in its ingredient data file", () => {
     const root = join(__dirname, "..", "..");
     const walk = (dir: string): string[] =>
       readdirSync(dir).flatMap((n) => {
@@ -60,6 +60,16 @@ describe("DessertGlyph (Batch 23, unwired)", () => {
         if (p.includes("dessertGlyphs")) return [];
         return statSync(p).isDirectory() ? walk(p) : /\.(ts|tsx|css)$/.test(n) ? [p] : [];
       });
-    for (const file of walk(root)) expect(readFileSync(file, "utf8"), file).not.toMatch(/dessertGlyphs|pieceVisual: "[a-z-]+-dessert"/);
+    const importers = walk(root).filter((file) => /from\s+["'][^"']*dessertGlyphs/.test(readFileSync(file, "utf8")));
+    expect(importers.map((f) => f.slice(root.length + 1)).sort()).toEqual(["components/IngredientGlyph.tsx"]);
+    const declared = walk(root).flatMap((file) => [...readFileSync(file, "utf8").matchAll(/pieceVisual: "([a-z-]+-dessert)"/g)].map((m) => `${file.slice(root.length + 1)}:${m[1]}`)).sort();
+    expect(declared).toEqual([
+      "data/ingredients.ts:apple-dessert",
+      "data/lateCatalog.ts:banana-dessert",
+      "data/lateCatalog.ts:chocolate-dessert",
+      "data/lateCatalog.ts:graham-cracker-dessert",
+      "data/lateCatalog.ts:marshmallow-dessert",
+      "data/lateCatalog.ts:powdered-sugar-dessert",
+    ]);
   });
 });

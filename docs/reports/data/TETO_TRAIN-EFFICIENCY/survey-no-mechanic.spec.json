@@ -1,0 +1,991 @@
+{
+ "train": "survey-no-mechanic",
+ "recipes": [
+  {
+   "id": "sfincione",
+   "nameJa": "スフィンチョーネ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "anchovy",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "olive-oil",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "oregano",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "NAMING_CLUSTER",
+    "SUPERSET_OF_SHIPPED_FORBIDDEN"
+   ]
+  },
+  {
+   "id": "pizza-baiana",
+   "nameJa": "ピッツァ・バイアーナ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "egg",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "sausage",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  },
+  {
+   "id": "swedish-kebab-pizza",
+   "nameJa": "スウェディッシュケバブピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "kebab-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "lettuce",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  },
+  {
+   "id": "thai-chicken-pizza",
+   "nameJa": "タイチキンピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "chicken",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cilantro",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "peanut-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  },
+  {
+   "id": "jerusalem-mixed-grill-pizza",
+   "nameJa": "エルサレムミックスグリルピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "chicken",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cumin",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "parsley",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "id": "caponata-pizza",
+   "nameJa": "カポナータピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "black-olive",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "capers",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "eggplant",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "id": "keema-pizza",
+   "nameJa": "キーマピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "SUBSET_OF_SHIPPED_FORBIDDEN",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  },
+  {
+   "id": "chicken-tikka-pizza",
+   "nameJa": "チキンティッカピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "bell-pepper",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "chicken-tikka",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cilantro",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "PREPARED_COMPOSITE_INGREDIENT"
+   ]
+  },
+  {
+   "id": "diavola-pizza",
+   "nameJa": "ディアボラ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "spicy-salami",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  },
+  {
+   "id": "nashville-hot-chicken-pizza",
+   "nameJa": "ナッシュビルホットチキンピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "chicken",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "honey",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "pickles",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY"
+   ]
+  },
+  {
+   "id": "banh-mi-pizza",
+   "nameJa": "バインミーピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "carrot",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cilantro",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "daikon",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "ham",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "liver-pate",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "id": "buffalo-cauliflower-pizza",
+   "nameJa": "バッファローカリフラワーピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "cauliflower",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "gorgonzola",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY"
+   ]
+  },
+  {
+   "id": "pizza-salad",
+   "nameJa": "ピザサラダ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "corn",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cucumber",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "lettuce",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "yogurt-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "JACCARD_OVER_0.4_EXCEPTION"
+   ]
+  },
+  {
+   "id": "pizza-asparagi-limone",
+   "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "asparagus",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "lemon",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "olive-oil",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "parmigiano",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "id": "pizza-zucchine-menta",
+   "nameJa": "ピッツァ・コン・ズッキーネ・クルーデ・エ・メンタ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "lemon",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mint",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "olive-oil",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "ricotta",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "zucchini",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "MECHANIC_INTERPRETATION"
+   ]
+  },
+  {
+   "id": "pizza-chilena",
+   "nameJa": "ピッツァ・チレーナ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "black-olive",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "egg",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "SUBSET_OF_SHIPPED_FORBIDDEN",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  },
+  {
+   "id": "philly-cheesesteak-pizza",
+   "nameJa": "フィリーチーズステーキピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "beef",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "green-pepper",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "SUBSET_OF_SHIPPED_FORBIDDEN",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  },
+  {
+   "id": "burrata-pizza",
+   "nameJa": "ブラータピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "basil",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "burrata",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "olive-oil",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": []
+  },
+  {
+   "id": "bulgogi-pizza",
+   "nameJa": "プルコギピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "beef",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "white-sesame",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "JACCARD_OVER_0.4_EXCEPTION"
+   ]
+  },
+  {
+   "id": "frutti-di-mare-pizzadb",
+   "nameJa": "フルッティディマーレ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "clam",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mussel",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "shrimp",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "squid",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "COMPOSITION_CONFLICT_CANDIDATE",
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "NAMING_CLUSTER"
+   ]
+  },
+  {
+   "id": "peruvian-aji-amarillo",
+   "nameJa": "ペルーアヒアマリージョピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "aji-amarillo",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "black-olive",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "chicken",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED"
+   ]
+  },
+  {
+   "id": "hot-honey-pepperoni",
+   "nameJa": "ホットハニーペパロニピザ",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "honey",
+     "minCount": 1,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "pepperoni",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "CANDIDATE_CAPABILITY",
+    "SUPERSET_OF_SHIPPED_FORBIDDEN"
+   ]
+  },
+  {
+   "id": "peking-duck-pizza",
+   "nameJa": "北京ダックピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "cucumber",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "green-onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "peking-duck",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "sweet-bean-sauce",
+     "minCount": 1
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "PREPARED_COMPOSITE_INGREDIENT"
+   ]
+  },
+  {
+   "id": "mentaiko-mochi-pizza",
+   "nameJa": "明太子もちピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "mayo",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mentaiko",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mochi",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "nori",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "shiso",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY"
+   ]
+  },
+  {
+   "id": "mexican-elote-pizza",
+   "nameJa": "メキシカンエロテピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "corn",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "feta",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "lime",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mayo",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "paprika-powder",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY"
+   ]
+  },
+  {
+   "id": "nduja-pizza",
+   "nameJa": "ンドゥイヤピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "honey",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "sausage",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY",
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "NAME_SPECIFICITY_GAP"
+   ]
+  },
+  {
+   "id": "tsukimi-pizza",
+   "nameJa": "月見ピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "bacon",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "egg",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "green-onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "JACCARD_OVER_0.4_EXCEPTION"
+   ]
+  },
+  {
+   "id": "teriyaki-chicken-pizza",
+   "nameJa": "照り焼きチキンピザ",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "chicken",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mayo",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "nori",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY",
+    "COMPOSITION_CONFLICT_CANDIDATE"
+   ]
+  },
+  {
+   "id": "south-african-boerewors",
+   "nameJa": "南アフリカボアヴォースピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "chutney",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "sausage",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "BASE_SAUCE_UNSPECIFIED",
+    "CANDIDATE_CAPABILITY",
+    "JACCARD_OVER_0.4_EXCEPTION",
+    "NAME_SPECIFICITY_GAP"
+   ]
+  },
+  {
+   "id": "hokkaido-cheese-pizza",
+   "nameJa": "北海道チーズピザ",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "bacon",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "corn",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "potato",
+     "minCount": 2
+    }
+   ],
+   "mechanics": [],
+   "ownerReasons": [
+    "SUBSET_OF_SHIPPED_FORBIDDEN",
+    "UNRESOLVED_INGREDIENT"
+   ]
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "aji-amarillo",
+   "nameJa": "アヒアマリージョ",
+   "category": "sauce",
+   "family": null
+  },
+  {
+   "id": "asparagus",
+   "nameJa": "アスパラガス",
+   "category": "topping",
+   "family": "vegetable"
+  },
+  {
+   "id": "cauliflower",
+   "nameJa": "カリフラワー",
+   "category": "topping",
+   "family": "vegetable"
+  },
+  {
+   "id": "chicken-tikka",
+   "nameJa": "チキンティッカ",
+   "category": "topping",
+   "family": "meat"
+  },
+  {
+   "id": "chutney",
+   "nameJa": "チャツネ",
+   "category": "sauce",
+   "family": null
+  },
+  {
+   "id": "cucumber",
+   "nameJa": "きゅうり",
+   "category": "topping",
+   "family": "vegetable"
+  },
+  {
+   "id": "cumin",
+   "nameJa": "クミン",
+   "category": "topping",
+   "family": "spice"
+  },
+  {
+   "id": "daikon",
+   "nameJa": "大根",
+   "category": "topping",
+   "family": "vegetable"
+  },
+  {
+   "id": "kebab-sauce",
+   "nameJa": "ケバブソース",
+   "category": "sauce",
+   "family": null
+  },
+  {
+   "id": "lime",
+   "nameJa": "ライム",
+   "category": "topping",
+   "family": "fruit"
+  },
+  {
+   "id": "liver-pate",
+   "nameJa": "レバーパテ",
+   "category": "topping",
+   "family": "meat"
+  },
+  {
+   "id": "mentaiko",
+   "nameJa": "明太子",
+   "category": "topping",
+   "family": "seafood"
+  },
+  {
+   "id": "mochi",
+   "nameJa": "もち",
+   "category": "topping",
+   "family": "other"
+  },
+  {
+   "id": "peanut-sauce",
+   "nameJa": "ピーナッツソース",
+   "category": "sauce",
+   "family": null
+  },
+  {
+   "id": "peking-duck",
+   "nameJa": "北京ダック",
+   "category": "topping",
+   "family": "meat"
+  },
+  {
+   "id": "spicy-salami",
+   "nameJa": "サラミピカンテ",
+   "category": "topping",
+   "family": "meat"
+  },
+  {
+   "id": "squid",
+   "nameJa": "イカ",
+   "category": "topping",
+   "family": "seafood"
+  },
+  {
+   "id": "sweet-bean-sauce",
+   "nameJa": "甜麺醤",
+   "category": "sauce",
+   "family": null
+  },
+  {
+   "id": "yogurt-sauce",
+   "nameJa": "ヨーグルトソース",
+   "category": "sauce",
+   "family": null
+  }
+ ]
+}

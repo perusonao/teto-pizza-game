@@ -1,0 +1,65 @@
+{
+ "train": "B23-a",
+ "tag": "b23",
+ "label": "Expansion Batch 23",
+ "issue": 780,
+ "seq": 1,
+ "recipes": [
+  {
+   "id": "apple-cinnamon-dessert",
+   "nameJa": "アップルシナモンデザートピザ",
+   "description": "りんごとシナモンに、クリームチーズとくるみをあわせた、あまい一枚。",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "apple",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cinnamon",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cream-cheese",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "walnut",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "apple-cinnamon-dessert-pizzadb",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "あまいりんごのデザートピザ、食べてみたいな！"
+   },
+   "sauceProfile": null,
+   "ladderStep": {
+    "ingredientIds": [
+     "apple"
+    ]
+   },
+   "hvAlias": "apple-cinnamon"
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "apple",
+   "nameJa": "りんご",
+   "category": "topping",
+   "family": "fruit",
+   "color": "#d9453a",
+   "emoji": "🍎",
+   "sizeClass": "s",
+   "pieceVisual": "apple-dessert",
+   "glyphHost": "DessertGlyph"
+  }
+ ]
+}

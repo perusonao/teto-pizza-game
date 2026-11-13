@@ -2,70 +2,68 @@
  "summary": {
   "recipes": {
    "total": 177,
-   "shipped": 101,
-   "remaining": 76,
+   "shipped": 104,
+   "remaining": 73,
    "byState": {
-    "NEEDS_D2_SOURCE_RESEARCH": 10,
     "WAITS_MECHANIC": 44,
     "STOP_D6_RESEARCH": 10,
+    "NEEDS_D2_SOURCE_RESEARCH": 8,
     "NEEDS_D1_EXCEPTION_JUDGEMENT": 10,
-    "NEEDS_CANDIDATE_SELECTION": 1,
     "NEEDS_OWNER_DECISION": 1
    },
-   "batches": 18,
+   "batches": 17,
    "batchSizes": {
     "RB-01": 0,
     "RB-02": 0,
-    "RB-03": 2,
-    "RB-04": 5,
+    "RB-03": 1,
+    "RB-04": 8,
     "RB-05": 5,
     "RB-06": 5,
     "RB-07": 5,
     "RB-08": 5,
-    "RB-09": 5,
+    "RB-09": 7,
     "RB-10": 7,
-    "RB-11": 7,
-    "RB-12": 6,
-    "RB-13": 3,
-    "RB-14": 5,
-    "RB-15": 7,
-    "RB-16": 3,
-    "RB-17": 4,
-    "RB-18": 2
+    "RB-11": 6,
+    "RB-12": 3,
+    "RB-13": 5,
+    "RB-14": 7,
+    "RB-15": 3,
+    "RB-16": 4,
+    "RB-17": 2
    }
   },
   "ingredients": {
    "total": 170,
-   "shipped": 116,
-   "remaining": 54,
+   "shipped": 122,
+   "remaining": 48,
+   "staged": 47,
+   "reserved": 1,
    "byKind": {
-    "SAUCE": 11,
-    "FRUIT": 6,
+    "SAUCE": 10,
     "VEG": 9,
+    "FRUIT": 4,
     "CHEESE": 6,
     "COMPOSITE": 6,
     "SPICE": 5,
-    "DESSERT": 4,
     "LIQUID": 2,
     "SEAFOOD": 3,
     "MEAT": 2
    },
    "byStatus": {
-    "ACTIVE": 47,
+    "ACTIVE": 41,
     "ALIASED_PROVISIONAL": 5,
-    "MERGED_PROVISIONAL": 2
+    "MERGED_PROVISIONAL": 1
    },
-   "batches": 7,
+   "batches": 6,
    "batchSizes": {
-    "IB-01": 9,
+    "IB-01": 10,
     "IB-02": 9,
-    "IB-03": 7,
+    "IB-03": 8,
     "IB-04": 8,
-    "IB-05": 8,
-    "IB-06": 6,
-    "IB-07": 7
+    "IB-05": 6,
+    "IB-06": 6
    },
-   "shippedWithDedicatedSvg": 52
+   "shippedWithDedicatedSvg": 58
   },
   "methods": {
    "total": 27,
@@ -80,8 +78,8 @@
   },
   "matrix": {
    "rows": 172,
-   "shippedLinked": 96,
-   "staged": 76,
+   "shippedLinked": 99,
+   "staged": 73,
    "shippedWithoutRow": [
     "funghi",
     "napoletana",
@@ -89,9 +87,9 @@
     "pizza-bianca",
     "salsiccia"
    ],
-   "linkedWithDifferentComposition": 19,
+   "linkedWithDifferentComposition": 21,
    "differOnlyInBaseSauce": 10,
-   "differInNonSauceIngredients": 9,
+   "differInNonSauceIngredients": 11,
    "differInNonSauceIngredientsIds": [
     "bismarck-pizza-pizzadb-p7",
     "breakfast-pizza-pizzadb-p11",
@@ -99,8 +97,10 @@
     "capricciosa-pizzadb",
     "fugazza-pizzadb-p10",
     "meat-lovers-pizza-pizzadb-p13",
+    "nutella-dessert-pizza-pizzadb-p6",
     "okonomiyaki-style-pizza-pizzadb-p1",
     "pesto-genovese-pizza-pizzadb-p11",
+    "smore-dessert-pizza-pizzadb-p4",
     "taco-pizza-pizzadb"
    ],
    "capabilityRows": {
@@ -121,7 +121,7 @@
    "identicalSubsetSuperset": 26,
    "oneDiffOrJaccardOnly": 22,
    "anyHit": 48,
-   "noShippedHit": 28
+   "noShippedHit": 25
   },
   "postBakeSauceRecipes": [
    "detroit-style-pizza",
@@ -144,24 +144,34 @@
  },
  "checks": [
   {
-   "name": "shipped recipes parsed == catalogLedger.test.ts (Pinsa open)",
+   "name": "shipped recipes parsed == frozen baseline + landed specs (Pinsa open)",
    "ok": true,
-   "detail": "101 vs 101"
+   "detail": "104 vs 104"
   },
   {
-   "name": "shipped ingredients parsed == catalogLedger.test.ts",
+   "name": "shipped ingredients parsed == frozen baseline + landed specs",
    "ok": true,
-   "detail": "116 vs 116"
+   "detail": "122 vs 122"
   },
   {
-   "name": "staged recipes == 177 - 101 shipped = 76",
+   "name": "staged recipes == 177 - 104 shipped = 73",
    "ok": true,
-   "detail": 76
+   "detail": 73
   },
   {
-   "name": "staged ingredient candidates == 170 - 116 shipped = 54",
+   "name": "staged ingredient candidates == 170 - 122 shipped - 1 reserved = 47",
    "ok": true,
-   "detail": 54
+   "detail": 47
+  },
+  {
+   "name": "reserved ingredients are in neither the shipped catalog nor staged (no unapproved staged addition)",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "merged candidates are not independent shipped or staged ingredients",
+   "ok": true,
+   "detail": []
   },
   {
    "name": "staged ingredients disjoint from shipped",
@@ -194,11 +204,13 @@
    "detail": 87
   },
   {
-   "name": "plan87 - staged == the 11 rows shipped since the plan; staged is a subset of the plan",
+   "name": "plan87 - staged == the 14 rows shipped since the plan; staged is a subset of the plan",
    "ok": true,
    "detail": [
+    "apple-cinnamon-dessert-pizzadb",
     "black-truffle-pizza-pizzadb-p14",
     "buffalo-chicken-pizzadb",
+    "nutella-dessert-pizza-pizzadb-p6",
     "okonomiyaki-style-pizza-pizzadb-p1",
     "pesto-burrata-pizzadb-p12",
     "pesto-noci-pizzadb-p12",
@@ -206,12 +218,13 @@
     "pizza-cavolo-carote-pizzadb-p8",
     "pizza-finocchi-salad-pizzadb-p8",
     "pizza-radicchio-noci-pizzadb-p8",
+    "smore-dessert-pizza-pizzadb-p4",
     "speck-e-brie-pizzadb-p4",
     "taco-pizza-pizzadb"
    ]
   },
   {
-   "name": "every non-staged matrix row maps to a shipped recipe (96 rows)",
+   "name": "every non-staged matrix row maps to a shipped recipe (99 rows)",
    "ok": true,
    "detail": []
   },
@@ -232,12 +245,12 @@
    ]
   },
   {
-   "name": "172 = 96 shipped-linked + 76 staged",
+   "name": "172 = 99 shipped-linked + 73 staged",
    "ok": true,
    "detail": ""
   },
   {
-   "name": "177 = 101 shipped + 76 staged (distinct ids)",
+   "name": "177 = 104 shipped + 73 staged (distinct ids)",
    "ok": true,
    "detail": ""
   },
@@ -249,7 +262,7 @@
   {
    "name": "status tally reproduces decisions.json byStatus[SOURCE_RESEARCH]",
    "ok": true,
-   "detail": "22 vs 22"
+   "detail": "20 vs 20"
   },
   {
    "name": "status tally reproduces decisions.json byStatus[CANDIDATE_PENDING]",
@@ -269,7 +282,7 @@
   {
    "name": "status tally reproduces decisions.json byStatus[WAITS_IN_FLIGHT]",
    "ok": true,
-   "detail": "2 vs 2"
+   "detail": "0 vs 0"
   },
   {
    "name": "status tally reproduces decisions.json byStatus[AXIS_WITH_M1]",
@@ -289,7 +302,7 @@
   {
    "name": "RESOLVED in open list + 11 auto-resolved == decisions RESOLVED 33",
    "ok": true,
-   "detail": "16+8"
+   "detail": "15+8"
   },
   {
    "name": "READY set reproduces decisions.nextPromotable.ready (6)",
@@ -309,12 +322,12 @@
   {
    "name": "every staged recipe is in exactly one recipe batch (no omission / no double count)",
    "ok": true,
-   "detail": "76 placed"
+   "detail": "73 placed"
   },
   {
    "name": "every candidate ingredient is in exactly one ingredient batch",
    "ok": true,
-   "detail": "54 placed"
+   "detail": "47 placed"
   },
   {
    "name": "every ACTIVE candidate ingredient is used by >=1 remaining staged recipe (no orphan)",
@@ -327,7 +340,7 @@
    "detail": []
   },
   {
-   "name": "ingredient universe == 116 shipped + 54 candidates = 170",
+   "name": "ingredient universe == 122 shipped + 47 staged + 1 reserved = 170",
    "ok": true,
    "detail": 170
   },
@@ -337,12 +350,12 @@
    "detail": ""
   },
   {
-   "name": "plan's 73 candidates == 54 staged + 19 now-shipped (every non-staged plan ingredient is in the shipped catalog)",
+   "name": "plan's 73 candidates == 47 staged + 25 now-shipped + 1 merged (every non-staged plan ingredient is shipped or merged); the reserved nduja is not in the plan",
    "ok": true,
    "detail": []
   },
   {
-   "name": "recipe universe == 101 shipped + 76 candidates = 177",
+   "name": "recipe universe == 104 shipped + 73 candidates = 177",
    "ok": true,
    "detail": 177
   },

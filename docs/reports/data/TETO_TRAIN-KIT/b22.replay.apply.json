@@ -1,0 +1,44 @@
+{
+ "train": "replay-b22",
+ "tag": "b22",
+ "dryRun": false,
+ "edited": [
+  "src/components/IngredientGlyph.tsx",
+  "src/data/discoveryCatalog.ts",
+  "src/data/discoveryLadder.ts",
+  "src/data/ingredients.ts",
+  "src/data/lateCatalog.ts",
+  "src/data/orders.ts",
+  "src/data/recipeHintRoles.ts",
+  "src/data/recipeSauceProfiles.ts",
+  "src/data/recipes.ts",
+  "src/data/referencePizza.ts",
+  "src/data/toppingSizeClass.ts",
+  "src/preview/hvSeeds.ts",
+  "src/preview/previewIsolation.gate.test.ts"
+ ],
+ "generated": [
+  "e2e/b22.spec.ts",
+  "src/preview/b22HvSeeds.test.ts",
+  "src/preview/b22HvSeeds.ts",
+  "src/trainKit/landed/b22.json"
+ ],
+ "floors": {
+  "fennel": 83,
+  "orange": 83,
+  "carrot": 84,
+  "red-cabbage": 84,
+  "sunflower-seeds": 84,
+  "radicchio": 85,
+  "balsamic-vinegar": 85,
+  "truffle": 86
+ },
+ "hvIds": [
+  "b22-buffalo-chicken",
+  "b22-speck-e-brie",
+  "b22-pizza-finocchi-salad",
+  "b22-pizza-cavolo-carote",
+  "b22-pizza-radicchio-noci",
+  "b22-black-truffle-pizza"
+ ]
+}

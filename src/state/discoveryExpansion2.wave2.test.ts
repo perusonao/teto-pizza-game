@@ -252,7 +252,7 @@ describe("Expansion Wave 2 ladder: steps 27 / 28 appended; steps 1..26 frozen", 
   it("progression has no softlock: every recipe is discovered by repeatedly picking any DISCOVERABLE one (all pick policies)", () => {
     for (const pick of [(p: string[]) => p[0], (p: string[]) => p[p.length - 1]]) {
       const order: string[] = ["margherita"];
-      for (let guard = 0; guard < 100; guard += 1) {
+      for (let guard = 0; guard < 120; guard += 1) { // Expansion Batch 23 (#780): the bound is only a loop guard and must exceed the recipe count (102)
         const s = walkState(order);
         const left = remainingOf(s);
         if (left.length === 0) break;

@@ -21,6 +21,7 @@ import { researchCohortLetters, researchEntryLabel } from "../logic/discovery/re
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { discoveredRecipeIds, EMPTY_DEX, registerScoreToDex } from "../state/dex";
 import matrix from "../../docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json";
+import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 
 /**
  * Expansion Batch 13 (Issue #708): potato-mayo-pizza (one new material, `mayo`; NO_SAUCE for this ONE row by the Owner exception of 2026-10-30).
@@ -101,7 +102,7 @@ describe(ID, () => {
 describe("the ordinary step 65", () => {
   it("is appended after step 64 (steps 1-65 frozen; Expansion Batch 14 appended step 66 after it): mayo alone, no star gate, keyed to potato-mayo-pizza", () => {
     const steps = ordinaryLadderSteps(DISCOVERY_LADDER.steps);
-    expect(steps).toHaveLength(73); // Expansion Batch 20-A (#790) appended the ordinary step 71 (honey + walnut) after it; // Expansion Batch 19 (#774) appended the ordinary step 70 (burrata) after it; // Expansion Batch 18 appended the ordinary step 69, Expansion Batch 17 appended the ordinary step 68, Expansion Batch 16 the step 67, Expansion Batch 14 the step 66; steps 1-65 are unchanged
+    expect(steps).toHaveLength(COMPOSED.ordinarySteps.length); // R-1 (#780): composed from the frozen baseline and the landed specs (composedCatalog.ts); a landing train needs no edit here.
     expect(steps[63]).toMatchObject({ step: 64, ingredientIds: ["ricotta-salata"], keyRecipeId: "pizza-alla-norma" });
     expect(steps[64]).toMatchObject({ step: 65, kind: "MATERIAL", ingredientIds: ["mayo"], keyRecipeId: ID });
     expect(steps[64].starGates).toBeUndefined();
