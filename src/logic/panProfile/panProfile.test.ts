@@ -66,6 +66,15 @@ describe("pure validator", () => {
     const input = { ...PAN_PROFILE_REGISTRY, tray: trayWithoutId };
     expect(validatePanProfileRegistry(input)).toEqual(expect.arrayContaining([expect.objectContaining({ code: "INVALID_FIELD", profileId: "tray" })]));
   });
+
+  it.each([
+    ["deep-pan", { depth: "shallow" }],
+    ["shallow-pan", { depth: "deep" }],
+    ["tray", { vessel: "round-pan" }],
+  ] as const)("rejects semantic drift for %s", (id, mutation) => {
+    const input = { ...PAN_PROFILE_REGISTRY, [id]: { ...PAN_PROFILE_REGISTRY[id], ...mutation } };
+    expect(validatePanProfileRegistry(input)).toEqual(expect.arrayContaining([expect.objectContaining({ code: "INVALID_PROFILE_SEMANTICS", profileId: id })]));
+  });
 });
 
 describe("legacy-round / tray / square adapter", () => {

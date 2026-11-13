@@ -30,12 +30,14 @@ Production未配線の純粋基盤として、`PanProfileId` / `PanProfile`、6 
 
 | Gate | Result |
 |---|---|
-| Focused Vitest (`src/logic/panProfile`, `src/logic/doughShapeTarget`) | PASS — 3 files / 20 tests |
+| Focused Vitest (`src/logic/panProfile`, `src/logic/doughShapeTarget`) | PASS — 3 files / 23 tests |
 | Architecture test | PASS — focused runに含む |
-| Type check (`tsc -b --pretty false`) | PASS |
+| Type check (`tsc -b --force --pretty false`) | PASS |
 | Lint (new modules) | PASS |
 | Vite production build | PASS — 372 modules |
-| Full Vitest local | 実行したが長時間suiteのPTYが失効し最終summaryを回収できず。途中で既存suiteのfailure記号を観測。Draft PR CIをauthorityとして確認する |
+| Full Vitest (PR CI, HEAD `f82a1523`) | PASS — 666 files / 12,286 tests; 20 skipped, 2 todo |
+| PR CI build (HEAD `f82a1523`) | Vitest後のtypecheckでparity testのunion narrowing 3件が失敗。次HEADで修正 |
+| WebKit Gate (HEAD `f82a1523`) | PASS — 390×844 / 360×800、各3 shard + Layout Contract Gate |
 | `git diff --check` | PASS |
 
 ## HV / deployment

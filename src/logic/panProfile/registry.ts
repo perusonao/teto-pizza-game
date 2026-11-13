@@ -10,7 +10,7 @@ export const PAN_PROFILE_REGISTRY = {
     defaultDoughShapeTargetId: "square", compatibleDoughShapeTargetIds: ["square", "rectangle"],
   },
   pan: {
-    id: "pan", vessel: "round-pan", depth: "shallow", directHeatContact: true,
+    id: "pan", vessel: "pan", depth: "shallow", directHeatContact: true,
     defaultDoughShapeTargetId: "round", compatibleDoughShapeTargetIds: ["round", "square"],
   },
   "shallow-pan": {

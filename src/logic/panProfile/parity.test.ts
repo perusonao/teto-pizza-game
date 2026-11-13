@@ -4,6 +4,9 @@ import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { pinsaEnabled } from "../../data/pinsaGate";
 import { panProfileIdFromLegacy } from "./legacyAdapter";
 
+const panShapeOf = (recipe: object): "round" | "square" | undefined =>
+  "panShape" in recipe && (recipe.panShape === "round" || recipe.panShape === "square") ? recipe.panShape : undefined;
+
 describe("existing recipe parity", () => {
   it("grandma keeps the existing tray/square meaning", () => {
     const grandma = RECIPES.find((recipe) => recipe.id === "grandma-pizza");
@@ -19,7 +22,7 @@ describe("existing recipe parity", () => {
     if (pinsaEnabled()) {
       expect(pinsa).toBeDefined();
       expect(pinsa?.doughKind).toBe("material-multigrain-long-ferment");
-      expect(panProfileIdFromLegacy(undefined, pinsa?.panShape)).toBe("legacy-round");
+      expect(panProfileIdFromLegacy(undefined, panShapeOf(pinsa!))).toBe("legacy-round");
     } else {
       expect(pinsa).toBeUndefined();
       expect(panProfileIdFromLegacy(undefined, undefined)).toBe("legacy-round");
@@ -28,8 +31,9 @@ describe("existing recipe parity", () => {
 
   it("every existing non-square recipe resolves to legacy-round", () => {
     for (const recipe of RECIPES) {
-      if (recipe.panShape === "square") continue;
-      expect(panProfileIdFromLegacy(undefined, recipe.panShape), recipe.id).toBe("legacy-round");
+      const panShape = panShapeOf(recipe);
+      if (panShape === "square") continue;
+      expect(panProfileIdFromLegacy(undefined, panShape), recipe.id).toBe("legacy-round");
     }
   });
 });

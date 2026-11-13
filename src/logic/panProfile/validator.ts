@@ -4,8 +4,16 @@ import { PAN_PROFILE_IDS, type PanProfile, type PanProfileId, type PanProfileVal
 export type PanProfileRegistryInput = unknown;
 
 const knownProfileIds = new Set<string>(PAN_PROFILE_IDS);
-const knownVessels = new Set(["none", "sheet", "round-pan", "steel-pan"]);
+const knownVessels = new Set(["none", "sheet", "pan", "round-pan", "steel-pan"]);
 const knownDepths = new Set(["none", "shallow", "deep"]);
+const canonicalSemantics: Readonly<Record<PanProfileId, { readonly vessel: string; readonly depth: string }>> = {
+  "legacy-round": { vessel: "none", depth: "none" },
+  tray: { vessel: "sheet", depth: "shallow" },
+  pan: { vessel: "pan", depth: "shallow" },
+  "shallow-pan": { vessel: "round-pan", depth: "shallow" },
+  "deep-pan": { vessel: "round-pan", depth: "deep" },
+  "steel-pan": { vessel: "steel-pan", depth: "shallow" },
+};
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 
 export function validatePanProfileRegistry(registry: PanProfileRegistryInput): readonly PanProfileValidationIssue[] {
@@ -33,6 +41,12 @@ export function validatePanProfileRegistry(registry: PanProfileRegistryInput): r
     if (!knownVessels.has(String(profile.vessel)) || !knownDepths.has(String(profile.depth)) || typeof profile.directHeatContact !== "boolean") {
       issues.push({ code: "INVALID_FIELD", profileId: id, detail: "vessel, depth or directHeatContact is invalid" });
     }
+    if (knownProfileIds.has(id)) {
+      const expected = canonicalSemantics[id as PanProfileId];
+      if (profile.vessel !== expected.vessel || profile.depth !== expected.depth) {
+        issues.push({ code: "INVALID_PROFILE_SEMANTICS", profileId: id, detail: `${id} requires vessel=${expected.vessel}, depth=${expected.depth}` });
+      }
+    }
     const compatible = Array.isArray(profile.compatibleDoughShapeTargetIds) ? profile.compatibleDoughShapeTargetIds : null;
     if (!compatible) {
       issues.push({ code: "INVALID_FIELD", profileId: id, detail: "compatibleDoughShapeTargetIds must be an array" });
@@ -53,7 +67,7 @@ export function validatePanProfileRegistry(registry: PanProfileRegistryInput): r
     if (typeof defaultId !== "string" || !(defaultId in DOUGH_SHAPE_TARGET_REGISTRY)) issues.push({ code: "UNKNOWN_DEFAULT_SHAPE_TARGET", profileId: id, detail: `unknown default target ${String(defaultId)}` });
     if (typeof defaultId === "string" && !shapes.has(defaultId as DoughShapeTargetId)) issues.push({ code: "DEFAULT_NOT_COMPATIBLE", profileId: id, detail: `${defaultId} is not compatible` });
     if (profile.vessel === "none" && profile.depth !== "none") issues.push({ code: "INVALID_DEPTH", profileId: id, detail: `${profile.vessel} must have depth none` });
-    if ((profile.vessel === "sheet" || profile.vessel === "round-pan" || profile.vessel === "steel-pan") && profile.depth === "none") issues.push({ code: "INVALID_DEPTH", profileId: id, detail: `${profile.vessel} must declare depth` });
+    if ((profile.vessel === "sheet" || profile.vessel === "pan" || profile.vessel === "round-pan" || profile.vessel === "steel-pan") && profile.depth === "none") issues.push({ code: "INVALID_DEPTH", profileId: id, detail: `${profile.vessel} must declare depth` });
   }
   return issues;
 }

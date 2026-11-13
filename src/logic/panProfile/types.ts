@@ -3,7 +3,7 @@ import type { DoughShapeTargetId } from "../doughShapeTarget";
 export const PAN_PROFILE_IDS = ["legacy-round", "tray", "pan", "shallow-pan", "deep-pan", "steel-pan"] as const;
 
 export type PanProfileId = (typeof PAN_PROFILE_IDS)[number];
-export type PanVessel = "none" | "sheet" | "round-pan" | "steel-pan";
+export type PanVessel = "none" | "sheet" | "pan" | "round-pan" | "steel-pan";
 export type PanDepth = "none" | "shallow" | "deep";
 
 /** Pure M-PAN authoring contract. It is intentionally not part of Recipe, PizzaState or persistence. */
@@ -23,6 +23,7 @@ export type PanProfileValidationCode =
   | "UNKNOWN_PROFILE"
   | "ID_KEY_MISMATCH"
   | "INVALID_FIELD"
+  | "INVALID_PROFILE_SEMANTICS"
   | "EMPTY_COMPATIBILITY"
   | "DUPLICATE_SHAPE_TARGET"
   | "DEFAULT_NOT_COMPATIBLE"
