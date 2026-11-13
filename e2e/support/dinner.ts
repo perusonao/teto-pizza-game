@@ -1,5 +1,6 @@
 import { expect, type Page } from "@playwright/test";
 import { completeDoughStep, cutThreeLines, enterBakePaused, landNeedleAndTakeOut, paintSauceRing, tapDoughPercent } from "../gestures";
+import { chipOnTray } from "./handPick";
 
 /**
  * Dinner Mission DM-3 (Issue #242, ported from PR #243) / DM-3R-2 (Issue #250) E2E support: seeded
@@ -61,13 +62,8 @@ async function next(page: Page) {
 }
 
 async function selectChip(page: Page, name: RegExp) {
-  const chip = page.locator(".ingredient-chip").filter({ hasText: name });
-  for (let i = 0; i < 12 && !(await chip.count()); i += 1) {
-    const nextPage = page.getByRole("button", { name: "次のページ" });
-    if ((await nextPage.count()) && (await nextPage.isEnabled())) await nextPage.click();
-    else await page.getByRole("button", { name: "前のページ" }).click();
-  }
-  await chip.first().click();
+  // From page 1, forward until the chip is on screen; every pager press is decided and made in one browser task (#835), and a tray without a pager is not waited on.
+  await (await chipOnTray(page, page.locator(".ingredient-chip").filter({ hasText: name }).first())).click();
 }
 
 /** Spots at least MIN_TOPPING_DISTANCE apart, inside the dough. */
