@@ -7,7 +7,7 @@ import {
   paintSauceRing,
   tapDoughPercent,
 } from "./gestures";
-import { chipOnTrayOrPin } from "./support/handPick";
+import { chipOnTray, chipOnTrayOrPin, trayToFirstPage, trayToLastPage } from "./support/handPick";
 import { COOKING_SLOTS, LayoutContract, measureLayout, type SlotSelectors, type StateLabel } from "./support/layoutContract";
 import { compareStable, evaluateInvariants, type InvariantId } from "./support/layoutInvariants";
 import { PROFILES, readViewport, SAFE_AREA_INSET } from "./support/layoutProfiles";
@@ -119,13 +119,9 @@ async function next(page: Page) {
 
 /** Selects a chip wherever it is in the paged tray (pages forward, wrapping to page 1 once). */
 async function selectChip(page: Page, name: RegExp) {
-  const chip = page.locator(".ingredient-chip").filter({ hasText: name });
-  for (let i = 0; i < 12 && !(await chip.count()); i += 1) {
-    const nextPage = page.getByRole("button", { name: "次のページ" });
-    if ((await nextPage.count()) && (await nextPage.isEnabled())) await nextPage.click();
-    else await page.getByRole("button", { name: "前のページ" }).click();
-  }
-  await chip.first().click();
+  // From page 1, forward until the chip is on screen. Every pager press is decided and made in one browser task (#835: the old `isEnabled()` then `click()`
+  // could park a click on a button the tray had just disabled), and a tray without a pager (sauce / cheese) is not waited on.
+  await (await chipOnTray(page, page.locator(".ingredient-chip").filter({ hasText: name }).first())).click();
 }
 
 async function place(page: Page, name: RegExp, spots: [number, number][]) {
@@ -141,12 +137,8 @@ async function placeHandTopping(page: Page, spots: [number, number][]) {
 }
 
 async function goToTrayPage(page: Page, target: "first" | "last") {
-  const label = target === "first" ? "前のページ" : "次のページ";
-  for (let i = 0; i < 8; i += 1) {
-    const b = page.getByRole("button", { name: label });
-    if (!(await b.count()) || !(await b.isEnabled())) return;
-    await b.click();
-  }
+  if (target === "first") await trayToFirstPage(page);
+  else await trayToLastPage(page);
 }
 
 async function trayPageLabel(page: Page) {

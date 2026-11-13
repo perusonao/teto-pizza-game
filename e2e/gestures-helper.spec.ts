@@ -8,7 +8,7 @@ import {
   startFreshMargherita,
   tapDoughPercent,
 } from "./gestures";
-import { chipOnTray, chipOnTrayOrPin, pressPager, trayToFirstPage } from "./support/handPick";
+import { chipOnTray, chipOnTrayOrPin, pressPager, trayToFirstPage, trayToLastPage } from "./support/handPick";
 
 /**
  * #394 Phase 1: regression coverage for the two `e2e/gestures.ts` helper families that the WebKit
@@ -254,6 +254,26 @@ test.describe("chipOnTrayOrPin: the tray re-renders between the check and the pr
     await expect(page.locator(".ingredient-page-nav__label")).toHaveText("1 / 3");
     await trayToFirstPage(page); // 前のページ is disabled now: nothing to press, and nothing to wait for
     await expect(page.locator(".ingredient-page-nav__label")).toHaveText("1 / 3");
+  });
+
+  // #835: layout-contract.spec.ts and support/dinner.ts had the same loops (`goToTrayPage`, `selectChip`); they use these helpers now.
+  test("trayToLastPage: the tray jumps to the last page while the 次のページ press is pending; a tray already on the last page is left alone", async ({ page }) => {
+    await open(page, 0);
+    await page.evaluate(() => (window as unknown as { armRace: (b: Element, to: number) => void }).armRace(document.getElementById("next")!, 2));
+    await trayToLastPage(page);
+    await expect(page.locator(".ingredient-page-nav__label")).toHaveText("3 / 3");
+    await trayToLastPage(page); // 次のページ is disabled now: nothing to press, nothing to wait for
+    await expect(page.locator(".ingredient-page-nav__label")).toHaveText("3 / 3");
+  });
+
+  test("a tray without a pager (sauce / cheese): trayToFirstPage, trayToLastPage and chipOnTray neither press nor wait", async ({ page }) => {
+    await page.goto("about:blank");
+    await page.setContent('<div id="tray"><button class="ingredient-chip">トマトソース</button></div>');
+    const started = Date.now();
+    await trayToFirstPage(page);
+    await trayToLastPage(page);
+    await expect(await chipOnTray(page, page.locator(".ingredient-chip").filter({ hasText: /トマトソース/ }).first())).toBeVisible();
+    expect(Date.now() - started).toBeLessThan(3000);
   });
 
   test("pressPager does not press (and does not wait) when the button is disabled or missing, and presses an enabled one", async ({ page }) => {
