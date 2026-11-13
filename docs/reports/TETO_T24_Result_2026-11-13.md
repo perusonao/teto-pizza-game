@@ -31,11 +31,11 @@ staged の件数は 73→67 レシピ、47→39 食材（`nduja` は staged に�
 |---|---|
 | `tsc -b` | 0 エラー |
 | `oxlint` | 新規の指摘なし（既存の warning のみ） |
-| 全 Vitest（ローカル、最終版） | RESULT_VITEST |
+| 全 Vitest（ローカル） | 1 回目: 13 件失敗（9 ファイル）→ 追従で解消。2 回目: 12,432 件合格・1 件失敗（Reference の並び: `requiredIngredients` を並べ替えた後に `referencePizza.ts` を再生成していなかった）→ 正しい並びで `apply` し直した結果と突き合わせ、`referencePizza.ts` のみ差し替えて解消。**修正後の全件の再実行はしていない**（修正後は、関連 105 ファイル 1,631 件が合格。全件は CI が authority） |
 | E2E（Chromium、`e2e/t24.spec.ts`、390×844＋360×800） | **12/12 合格**（6 レシピ × 2 プロファイル。Shop NEW → 購入 → 図鑑の Research 入口（漏れなし）→ ソース → Reference の位置に具材 → 焼き → 新発見 → 図鑑） |
 | iPhone Safari 実機 HV | **未実施**（PR 専用ページの公開は Owner の指示後） |
-| CI（PR） | RESULT_CI |
-| 独立レビュー（別コンテキスト・読み取り専用、Codex ではない） | RESULT_REVIEW |
+| CI（PR #848） | 最終 HEAD の結果を PR に記録（この報告の commit で CI が走り直すため、ここには書かない） |
+| 独立レビュー（別コンテキスト・読み取り専用、Codex ではない。HEAD `864abebf`） | **NO BLOCKING ISSUES**（範囲・Gate の非緩和・承認記録・件数・floor の主張を確認。78 ファイル 1,463 件合格。E2E の 12/12 と「測定 42 ID」は再実行していない）。軽微 4 点は §6-5 に記録 |
 | スクリーンショット | `docs/reports/screenshots/t24/`（111 枚、390×844・360×800）。動画は Owner へ直接（リポジトリには入れない、HV Policy） |
 
 ローカルの E2E は、サンドボックスの Chromium（`/opt/pw-browsers`）を使う**未コミットのローカル設定**で実行した（リポジトリの `playwright.config.ts` は変更していない）。
@@ -66,6 +66,7 @@ staged の件数は 73→67 レシピ、47→39 食材（`nduja` は staged に�
 2. **絵文字（暫定）**: `squid` は 🦑 を Batch 8b のテストが「却下済みの初稿の絵文字」として禁止しているため、フォールバックは 🐙。`cucumber` は 🥒 が `zucchini` で使用済みのため 🥝（**キウイに見える**。専用 SVG が出るまでの暫定で、iPhone HV で判断してほしい）。他は aji-amarillo 🟨、chutney 🥭、peanut-sauce 🥄、sweet-bean-sauce 🟪、peking-duck 🦆、spicy-salami 🍒。専用 SVG は T25/T26 の SVG ライン（別 claim）の対象で、未配線の `squid` の候補は #818
 3. **色（HV で最終判断）**: 承認済みの暫定色 4 ソース（aji-amarillo `#ffe60f`、peanut-sauce `#faa078`、chutney `#876e00`、sweet-bean-sauce `#50001e`）。具材 4 種は実装 PR で決める項目で、cucumber `#7fae5a`、peking-duck `#a6542b`、spicy-salami `#b3261e`、squid `#e8dccb`
 4. 説明文・注文セリフは実装者の著作（Anti-Oracle の検査に合格。数量・手順なし）
+5. 独立レビューの軽微指摘（対応は不要と判断、記録のみ）: ① `discoveryCatalog.test` の `BATCH24_PHASE2_NOT_IN_PHASE2_MATRIX` は B22／B23 の先例どおり、6 件の Phase-2 行との比較を飛ばす（6 件は 172 行の matrix 由来で、`matcher.test` の ownerApproved が BLOCKED 行だけを扱う）。② Research の形の検査は「ID × 形（最初の文字／A〜B または 1 つ後ろ／A〜C または 2 つ後ろ）」で、**ID ごとの stage（共有材料）までは検査しない**（承認の単位は stage を含むが、パケットの上界は決定的で、表の外の ID は検査で落ちる）。③ 具材 4 色・サイズ・絵文字は実装者の選択（上記）。④ `mussel` のパック変更は `LANDED_SHOP_CONTRACT` に行が無い既存食材なので `APPROVED_PACK_CHANGES`（空のまま）ではなく、`EXPECTED_OFFERS` の行を手書きで更新した（#833 の契約表の対象外）
 
 ## 7. 次の依存条件
 
