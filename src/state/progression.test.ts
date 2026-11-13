@@ -296,9 +296,11 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "cuban-pizza",
         "curry-pizza-japan",
         "currywurst",
+        "diavola-pizza", // Expansion Batch 24 (#780)
         "eggplant-ricotta-pizza",
         "flammkuchen",
         "frango-catupiry",
+        "frutti-di-mare", // Expansion Batch 24 (#780)
         "full-english-pizza",
         "goulash-pizza",
         "grandma-pizza",
@@ -313,6 +315,8 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "nigerian-suya-pizza",
         "palmito-pizza",
         "parmigiana-pizza",
+        "peking-duck-pizza", // Expansion Batch 24 (#780)
+        "peruvian-aji-amarillo", // Expansion Batch 24 (#780)
         "pescatore",
         "pesto-burrata-pizza",
         "pesto-caprese",
@@ -344,11 +348,13 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "salsiccia-e-friarielli",
         "shirasu-pizza",
         "sichuan-eggplant-pizza",
+        "south-african-boerewors", // Expansion Batch 24 (#780)
         "spanish-chorizo-pizza",
         "speck-e-brie",
         "spinach-artichoke-pizza",
         "supreme-pizza",
         "tandoori-paneer-pizza",
+        "thai-chicken-pizza", // Expansion Batch 24 (#780)
         "ume-shiso-pizza",
         "vegan-cashew-cheese-pizza",
         "veggie-supreme-pizza",

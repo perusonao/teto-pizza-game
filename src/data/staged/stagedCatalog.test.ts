@@ -16,16 +16,16 @@ import { STAGED_INGREDIENTS } from "./testSupport/stagedIngredients";
 import { STAGED_MECHANICS } from "./stagedMechanics";
 import { STAGED_RECIPES } from "./testSupport/stagedRecipes";
 
-const B21_SHIPPED_EVIDENCE_IDS = ["apple-cinnamon-dessert-pizzadb", "taco-pizza-pizzadb", "okonomiyaki-style-pizza-pizzadb-p1", "speck-e-brie-pizzadb-p4", "buffalo-chicken-pizzadb", "pizza-finocchi-salad-pizzadb-p8", "pizza-cavolo-carote-pizzadb-p8", "pizza-radicchio-noci-pizzadb-p8", "black-truffle-pizza-pizzadb-p14", "nutella-dessert-pizza-pizzadb-p6", "smore-dessert-pizza-pizzadb-p4"]; // B21 + Expansion Batch 22 + 23 + 23-b (#780)
-const B21_SHIPPED_INGREDIENT_IDS = ["apple", "cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "brie", "buffalo-sauce", "balsamic-vinegar", "banana", "chocolate", "powdered-sugar", "graham-cracker", "marshmallow", "nutella-spread"]; // B21 + Expansion Batch 22 + 23 + 23-b (#780); nutella-spread merged into the shipped chocolate (generator I-2), so it leaves the staged set with it
+const B21_SHIPPED_EVIDENCE_IDS = ["apple-cinnamon-dessert-pizzadb", "taco-pizza-pizzadb", "okonomiyaki-style-pizza-pizzadb-p1", "speck-e-brie-pizzadb-p4", "buffalo-chicken-pizzadb", "pizza-finocchi-salad-pizzadb-p8", "pizza-cavolo-carote-pizzadb-p8", "pizza-radicchio-noci-pizzadb-p8", "black-truffle-pizza-pizzadb-p14", "nutella-dessert-pizza-pizzadb-p6", "smore-dessert-pizza-pizzadb-p4", "diavola-pizza-pizzadb-p5", "frutti-di-mare-pizzadb-p11", "peruvian-aji-amarillo-pizzadb-p12", "south-african-boerewors-pizzadb-p14", "thai-chicken-pizza-pizzadb-p4", "peking-duck-pizza"]; // B21 + Expansion Batch 22 + 23 + 23-b + 24 (#780)
+const B21_SHIPPED_INGREDIENT_IDS = ["apple", "cheddar", "lettuce", "tortilla-chips", "okonomiyaki-sauce", "cabbage", "bonito-flakes", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "brie", "buffalo-sauce", "balsamic-vinegar", "banana", "chocolate", "powdered-sugar", "graham-cracker", "marshmallow", "nutella-spread", "aji-amarillo", "chutney", "cucumber", "peanut-sauce", "peking-duck", "spicy-salami", "squid", "sweet-bean-sauce"]; // B21 + Expansion Batch 22 + 23 + 23-b + 24 (#780); nutella-spread merged into the shipped chocolate (generator I-2), so it leaves the staged set with it
 const SHIPPED: ShippedView = { recipes: RECIPES, ingredientIds: INGREDIENTS.map((i) => i.id) };
 const PLAN = JSON.parse(
   readFileSync(join(__dirname, "..", "..", "..", "docs", "reports", "data", "TETO_FULL-EXPANSION-177_plan.json"), "utf8"),
 ) as { recipes: { evidenceId: string; inFlight: string | null }[]; ingredients: { id: string }[] };
 
 describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
-  it("registers all 73 recipes: the 87 unshipped plan rows minus the 13 owned by in-flight / shipped work (177 = shipped + 87)", () => {
-    expect(STAGED_RECIPES).toHaveLength(73); // (Expansion Batch 23-b, #780: nutella-dessert-pizza and smore-dessert-pizza shipped; was 75)
+  it("registers all 67 recipes: the 87 unshipped plan rows minus the 19 owned by in-flight / shipped work (177 = shipped + 87)", () => {
+    expect(STAGED_RECIPES).toHaveLength(67); // (Expansion Batch 24, #780: the six T24-R1 recipes shipped; was 73) (Expansion Batch 23-b, #780: nutella-dessert-pizza and smore-dessert-pizza shipped; was 75)
     // The plan JSON is the frozen 2026-11-07 snapshot (3 in flight then); Expansion Batch 21 (#780) shipped two more of its rows (taco-pizza / okonomiyaki-style-pizza), so they leave the staged set too.
     const planned = PLAN.recipes.filter((r) => !r.inFlight && !B21_SHIPPED_EVIDENCE_IDS.includes(r.evidenceId)).map((r) => r.evidenceId).sort();
     expect(STAGED_RECIPES.map((r) => r.evidenceId).sort()).toEqual(planned);
@@ -33,20 +33,19 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
     // In-flight ids that have shipped (pesto-burrata-pizza / pizza-alla-crudaiola via PR #783, pesto-noci-pizza via Batch 20-A #790) are already inside RECIPES: count them once.
     const shippedIds = new Set(RECIPES.map((r) => r.id as string));
     const shippedInFlight = Object.keys(IN_FLIGHT_RECIPE_IDS).filter((id) => shippedIds.has(id));
-    expect(shippedInFlight).toEqual(["pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "taco-pizza", "okonomiyaki-style-pizza", "speck-e-brie", "buffalo-chicken", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "apple-cinnamon-dessert", "nutella-dessert-pizza", "smore-dessert-pizza"]);
+    expect(shippedInFlight).toEqual(["pesto-burrata-pizza", "pizza-alla-crudaiola", "pesto-noci-pizza", "taco-pizza", "okonomiyaki-style-pizza", "speck-e-brie", "buffalo-chicken", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "apple-cinnamon-dessert", "nutella-dessert-pizza", "smore-dessert-pizza", "diavola-pizza", "frutti-di-mare", "peruvian-aji-amarillo", "south-african-boerewors", "thai-chicken-pizza", "peking-duck-pizza"]);
     expect(RECIPES.length + PLAN.recipes.length - shippedInFlight.length).toBe(pinsaEnabled() ? 177 : 176);
-    expect(Object.keys(IN_FLIGHT_RECIPE_IDS).sort()).toEqual(["apple-cinnamon-dessert", "black-truffle-pizza", "buffalo-chicken", "nutella-dessert-pizza", "okonomiyaki-style-pizza", "pesto-burrata-pizza", "pesto-noci-pizza", "pizza-alla-crudaiola", "pizza-cavolo-carote", "pizza-finocchi-salad", "pizza-radicchio-noci", "smore-dessert-pizza", "speck-e-brie", "taco-pizza"]);
+    expect(Object.keys(IN_FLIGHT_RECIPE_IDS).sort()).toEqual(["apple-cinnamon-dessert", "black-truffle-pizza", "buffalo-chicken", "diavola-pizza", "frutti-di-mare", "nutella-dessert-pizza", "okonomiyaki-style-pizza", "peking-duck-pizza", "peruvian-aji-amarillo", "pesto-burrata-pizza", "pesto-noci-pizza", "pizza-alla-crudaiola", "pizza-cavolo-carote", "pizza-finocchi-salad", "pizza-radicchio-noci", "smore-dessert-pizza", "south-african-boerewors", "speck-e-brie", "taco-pizza", "thai-chicken-pizza"]);
   });
 
   it("registers all 47 ingredient candidates (the 73 minus burrata / honey / walnut, the six B21 materials, the ten B22 materials, the B23 apple, the five B23-b dessert materials and the nutella-spread merged into chocolate); provisional I-1 / I-2 only change their status", () => {
-    expect(STAGED_INGREDIENTS).toHaveLength(47);
+    expect(STAGED_INGREDIENTS).toHaveLength(39); // (Expansion Batch 24, #780: the eight T24-R1 materials shipped; was 47)
     const planned = PLAN.ingredients.map((i) => i.id).filter((i) => !["burrata", "honey", "walnut", ...B21_SHIPPED_INGREDIENT_IDS].includes(i)).sort();
     expect(STAGED_INGREDIENTS.map((i) => i.id).sort()).toEqual(planned);
     const byStatus = Object.fromEntries(["ACTIVE", "ALIASED_PROVISIONAL", "MERGED_PROVISIONAL"].map((s) => [s, STAGED_INGREDIENTS.filter((i) => i.status === s).map((i) => i.id)]));
     expect(byStatus).toMatchInlineSnapshot(`
       {
         "ACTIVE": [
-          "aji-amarillo",
           "asparagus",
           "blueberry",
           "brick-cheese",
@@ -56,9 +55,7 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
           "cheese-curd",
           "chicken-tikka",
           "chicory",
-          "chutney",
           "condensed-milk",
-          "cucumber",
           "cumin",
           "daikon",
           "eel",
@@ -75,15 +72,10 @@ describe("Staged Catalog — WS-R / WS-I registration (Issue #780)", () => {
           "mochi",
           "natto",
           "okra",
-          "peanut-sauce",
           "pecorino",
-          "peking-duck",
           "rock-salt",
           "sansho-pepper",
-          "spicy-salami",
-          "squid",
           "strawberry",
-          "sweet-bean-sauce",
           "yakiniku-sauce",
           "yogurt-sauce",
           "zaatar",

@@ -99,14 +99,14 @@ describe("the material (Owner decisions 2026-11-10): ids, spec, art, families, s
 describe("the ladder: ordinary step 74, the floors, the batch manifest", () => {
   const steps = DISCOVERY_LADDER.steps;
   it("ordinary steps become 74 (74 apple -> apple-cinnamon-dessert, no star gate); the thirteen late steps move +1 and stay the tail", () => {
-    expect(ordinaryLadderSteps(steps)).toHaveLength(74);
+    expect(ordinaryLadderSteps(steps)).toHaveLength(80); // Expansion Batch 24 (#780) appended the six ordinary steps 75-80 after step 74 (the late steps moved +6; steps 1-74 are unchanged)
     expect(steps.find((s) => s.step === 72)).toMatchObject({ ingredientIds: ["buffalo-sauce"], keyRecipeId: "buffalo-chicken" });
     expect(steps.find((s) => s.step === 73)).toMatchObject({ ingredientIds: ["brie"], keyRecipeId: "speck-e-brie" });
     expect(steps.find((s) => s.step === 74)).toMatchObject({ ingredientIds: ["apple"], keyRecipeId: "apple-cinnamon-dessert" });
-    expect(steps).toHaveLength(89); // Expansion Batch 23-b (#780) appended the nutella / smore late steps 88 / 89 after these
+    expect(steps).toHaveLength(95); // Expansion Batch 23-b (#780) appended the nutella / smore late steps after these; Expansion Batch 24 (#780) inserted six ordinary steps 75-80, so the late steps moved +6 (89 -> 95)
     expect(steps.slice(-4, -2).map((s) => [s.step, s.ingredientIds, s.keyRecipeId])).toEqual([
-      [86, ["radicchio", "balsamic-vinegar"], "pizza-radicchio-noci"],
-      [87, ["truffle"], "black-truffle-pizza"],
+      [92, ["radicchio", "balsamic-vinegar"], "pizza-radicchio-noci"], // (86 before Expansion Batch 24)
+      [93, ["truffle"], "black-truffle-pizza"], // (87 before Expansion Batch 24)
     ]);
     for (const s of steps.slice(71)) expect((s as { starGates?: unknown }).starGates, `step ${s.step}`).toBeUndefined();
     expect(LATE_LADDER_STEPS).toHaveLength(15); // (Expansion Batch 23-b: + nutella and smore)
