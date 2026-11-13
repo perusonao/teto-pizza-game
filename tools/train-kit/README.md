@@ -54,7 +54,7 @@ late なのに step 無し など）は**ファイルを 1 つも書く前に**�
 | `e2e <スペック> --out e2e/<名前>.spec.ts` | E2E だけをテンプレートから作り直す | 約 3 秒 |
 | `coverage --out` | スペック形式と生成 Reference が既存カタログをどこまで再現するかの測定 | 約 4 秒 |
 | `freeze --at <commit> --out <json>` | 凍結基準を記録する（§3.5）。通常は実行しない | 約 20 秒 |
-| `mutation --old <tree> --new <tree> --files "<tests>" --out <json>` | 旧テストと新テストが同じ変異を検出するかを比べる（20 件、`mutations.json`） | 約 20〜30 分 |
+| `mutation --old <tree> --new <tree> --files "<tests>" --out <json>` | 旧テストと新テストが同じ変異を検出するかを比べる（22 件、`mutations.json`） | 約 20〜30 分 |
 | `pins --commits <sha,...>` | 追従対象の一覧（`pin-files.json`）を、出荷済みバッチの commit から作り直す | 1 秒未満 |
 
 ## 3. 実装スペックの書き方
