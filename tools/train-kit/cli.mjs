@@ -9,6 +9,8 @@
  *   node tools/train-kit/cli.mjs coverage --out coverage.json
  *   node tools/train-kit/cli.mjs replay   --base <commit> --target <commit> --ids a,b --tag t --label "..." --out <dir> [--tsc]
  *   node tools/train-kit/cli.mjs sweep    [--min 2] [--no-tsc]             (after apply: the follow-up worklist in existing tests)
+ *   node tools/train-kit/cli.mjs freeze   --at <commit> --out <file>      (record the frozen baseline the composed test expectations start from)
+ *   node tools/train-kit/cli.mjs mutation --old <tree> --new <tree> --files "<tests>" --out <json>   (regression-detection parity of old vs composed tests)
  *   node tools/train-kit/cli.mjs pins     --commits <sha,...>              (re-learn the pin list from shipped batch commits)
  *   node tools/train-kit/cli.mjs plan     <spec.json> --out <dir>          (verification packet: gates, E2E, HV checklist)
  *   node tools/train-kit/cli.mjs claims   --files <a,b|@report.json> --claims <comments.json> [--prs <prs.json>] [--session <id>]
@@ -68,10 +70,24 @@ export function deepDiff(a, b, path = "", out = []) {
 
 const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1").replace(/\s+/g, " ").trim();
 
-function git(args, cwd = ROOT) {
+export function git(args, cwd = ROOT) {
   const run = spawnSync("git", args, { cwd, encoding: "utf8" });
   if (run.status !== 0) throw new Error(`git ${args.join(" ")}: ${run.stderr}`);
   return run.stdout.trim();
+}
+
+/** A detached worktree of `commit` at `tree`, with this checkout's kit copied in (the commits being replayed / frozen predate it; the kit's own gates and landed specs are not copied). */
+export function prepareTree(commit, tree) {
+  git(["worktree", "add", "--detach", tree, commit]);
+  symlinkSync(join(ROOT, "node_modules"), join(tree, "node_modules"), "dir");
+  for (const dir of ["src/trainKit", "src/contentTrain", "tools/train-kit"]) {
+    rmSync(join(tree, dir), { recursive: true, force: true });
+    cpSync(join(ROOT, dir), join(tree, dir), { recursive: true, filter: (src) => !/trainKit\/landed|trainContract\.test|codegen\.anchors\.test|trainSpec\.test|roundtrip\.test|codegen\.test/.test(src.replace(/\\/g, "/")) });
+  }
+}
+
+export function removeTree(tree) {
+  spawnSync("git", ["worktree", "remove", "--force", tree], { cwd: ROOT });
 }
 
 /**
@@ -89,15 +105,7 @@ function replay(flags) {
   const meta = { TETO_KIT_IDS: flags.ids, TETO_KIT_TRAIN: `replay-${flags.tag}`, TETO_KIT_TAG: flags.tag, TETO_KIT_LABEL: flags.label, TETO_KIT_ISSUE: String(flags.issue ?? 780) };
   const result = { base: git(["rev-parse", flags.base]), target: git(["rev-parse", flags.target]), ids: flags.ids.split(","), catalogDifferences: [], hvSeedsWiringIdentical: null, previewGateIdentical: null, tsc: "not run", unsupported: [] };
   try {
-    for (const [name, tree] of Object.entries(trees)) {
-      git(["worktree", "add", "--detach", tree, flags[name]]);
-      symlinkSync(join(ROOT, "node_modules"), join(tree, "node_modules"), "dir");
-      // The kit itself comes from THIS checkout (the commits being replayed predate it); its own gates are not copied.
-      for (const dir of ["src/trainKit", "src/contentTrain", "tools/train-kit"]) {
-        rmSync(join(tree, dir), { recursive: true, force: true });
-        cpSync(join(ROOT, dir), join(tree, dir), { recursive: true, filter: (src) => !/trainKit\/landed|trainContract\.test|codegen\.anchors\.test|trainSpec\.test|roundtrip\.test|codegen\.test/.test(src.replace(/\\/g, "/")) });
-      }
-    }
+    for (const [name, tree] of Object.entries(trees)) prepareTree(flags[name], tree);
     const spec = join(outDir, `${flags.tag}.replay.spec.json`);
     if (!runner("extract", { ...meta, TETO_KIT_OUT: spec }, trees.target)) throw new Error("extract failed on the target commit");
     if (!runner("dump", { TETO_KIT_OUT: join(work, "target.json") }, trees.target, true)) throw new Error("dump failed on the target commit");
@@ -148,6 +156,10 @@ async function main() {
       return runner("coverage", { TETO_KIT_OUT: abs(flags.out ?? "coverage.json") }) ? 0 : 2;
     case "replay":
       return replay(flags);
+    case "freeze":
+      return (await import("./freeze.mjs")).freeze(flags);
+    case "mutation":
+      return (await import("./mutation.mjs")).mutation(flags);
     case "pins":
       return (await import("./sweep.mjs")).pins(flags);
     case "sweep":
@@ -159,7 +171,7 @@ async function main() {
     case "progress":
       return (await import("./progress.mjs")).progress(flags);
     default:
-      console.error(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 19).join("\n"));
+      console.error(readFileSync(fileURLToPath(import.meta.url), "utf8").split("\n").slice(1, 21).join("\n"));
       return 2;
   }
 }

@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
@@ -66,7 +66,12 @@ describe.skipIf(MODE === "")("train kit runner", () => {
       const of = (id: string) => fresh.get(id) ?? shipped.get(id)!;
       generated[`e2e/${kit.tag}.spec.ts`] = fillTemplate(readFileSync(join(TEMPLATES, "e2e.spec.ts.tmpl"), "utf8"), e2eValues(kit, { nameJa: (id) => of(id).nameJa, category: (id) => of(id).category as "sauce" | "cheese" | "topping", pieceVisual: (id) => of(id).pieceVisual ?? null }));
     }
-    generated[`src/trainKit/landed/${kit.tag}.json`] = `${JSON.stringify(Object.keys(derived.floors).length > 0 ? { ...kit, floors: derived.floors } : kit, null, 1)}\n`;
+    // The landing order: one after the highest `seq` already landed (specs landed before the kit existed are 1, 2, ... by their `seq` field).
+    const landedDir = join(ROOT, "src", "trainKit", "landed");
+    const seqs = existsSync(landedDir) ? readdirSync(landedDir).filter((f) => f.endsWith(".json")).map((f) => (JSON.parse(readFileSync(join(landedDir, f), "utf8")) as { seq?: number }).seq ?? 0) : [];
+    const landed = { ...kit, seq: kit.seq ?? Math.max(0, ...seqs) + 1, ...(Object.keys(derived.floors).length > 0 ? { floors: derived.floors } : {}) };
+    if (seqs.includes(landed.seq)) throw new Error(`seq ${landed.seq} is already used by a landed train`);
+    generated[`src/trainKit/landed/${kit.tag}.json`] = `${JSON.stringify(landed, null, 1)}\n`;
     for (const rel of Object.keys(generated)) if (existsSync(join(ROOT, rel))) throw new Error(`refusing to overwrite ${rel}: the tag "${kit.tag}" is already used`);
     if (!dry) for (const [rel, text] of Object.entries({ ...edited, ...generated })) write(join(ROOT, rel), text);
     const report = { train: kit.train, tag: kit.tag, dryRun: dry, edited: Object.keys(edited).sort(), generated: Object.keys(generated).sort(), floors: derived.floors, hvIds: kit.recipes.filter((r) => r.ladderStep).map((r) => `${kit.tag}-${r.hvAlias ?? r.id}`) };

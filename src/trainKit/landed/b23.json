@@ -3,6 +3,7 @@
  "tag": "b23",
  "label": "Expansion Batch 23",
  "issue": 780,
+ "seq": 1,
  "recipes": [
   {
    "id": "apple-cinnamon-dessert",

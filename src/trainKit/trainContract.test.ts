@@ -24,7 +24,11 @@ const plain = (v: unknown) => JSON.parse(JSON.stringify(v));
 
 describe.each(LANDED.map((kit) => [kit.tag, kit] as const))("landed train %s", (_tag, kit) => {
   const meta = { train: kit.train, tag: kit.tag, label: kit.label, issue: kit.issue };
-  const strip = (k: KitTrain) => ({ ...k, recipes: k.recipes.map(({ hvAlias: _h, ...r }) => r) });
+  // `hvAlias` / `chapter` / `seq` are authored or assigned, not read back from the catalog (catalogComposition.test.ts checks chapters and the landing order).
+  const strip = (k: KitTrain) => {
+    const { seq: _seq, ...rest } = k;
+    return { ...rest, recipes: k.recipes.map(({ hvAlias: _h, chapter: _c, ...r }) => r) };
+  };
 
   it("the shipped catalog is exactly what the spec says (recipes, materials, order, sauce profile, hint role, ladder step, evidence id)", () => {
     const now = extractTrain(kit.recipes.map((r) => r.id), meta);

@@ -1,0 +1,267 @@
+{
+ "_comment": "Realistic regressions applied to catalog source files by `node tools/train-kit/cli.mjs mutation`. Each operation must match exactly once.",
+ "mutations": [
+  {
+   "id": "M01",
+   "description": "swap the ordinary steps 72 and 73 (buffalo-sauce / brie)",
+   "file": "src/data/discoveryLadder.ts",
+   "ops": [
+    {
+     "type": "swapLines",
+     "a": "  { ingredientIds: [\"buffalo-sauce\"], keyRecipeId: \"buffalo-chicken\" },",
+     "b": "  { ingredientIds: [\"brie\"], keyRecipeId: \"speck-e-brie\" },"
+    }
+   ]
+  },
+  {
+   "id": "M02",
+   "description": "a shipped late floor changes (truffle 86 -> 87)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "\"truffle\": 86",
+     "to": "\"truffle\": 87"
+    }
+   ]
+  },
+  {
+   "id": "M03",
+   "description": "a late floor is dropped (nori)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "\"nori\": 68, ",
+     "to": ""
+    }
+   ]
+  },
+  {
+   "id": "M04",
+   "description": "a landed late floor changes (banana 88 -> 90)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "\"banana\": 88",
+     "to": "\"banana\": 90"
+    }
+   ]
+  },
+  {
+   "id": "M05",
+   "description": "swap two late steps (taco / okonomiyaki)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "swapLines",
+     "a": "  { ingredientIds: [\"cheddar\", \"lettuce\", \"tortilla-chips\"], keyRecipeId: \"taco-pizza\" },",
+     "b": "  { ingredientIds: [\"okonomiyaki-sauce\", \"cabbage\", \"bonito-flakes\"], keyRecipeId: \"okonomiyaki-style-pizza\" },"
+    }
+   ]
+  },
+  {
+   "id": "M06",
+   "description": "drop the last pre-B23 late step (black-truffle-pizza)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "deleteLine",
+     "line": "  { ingredientIds: [\"truffle\"], keyRecipeId: \"black-truffle-pizza\" },"
+    }
+   ]
+  },
+  {
+   "id": "M07",
+   "description": "a late step unlocks fewer materials (finocchi: fennel only)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "  { ingredientIds: [\"fennel\", \"orange\"], keyRecipeId: \"pizza-finocchi-salad\" },",
+     "to": "  { ingredientIds: [\"fennel\"], keyRecipeId: \"pizza-finocchi-salad\" },"
+    }
+   ]
+  },
+  {
+   "id": "M08",
+   "description": "swap the two B23-b late steps (nutella / smore)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "swapLines",
+     "a": "  { ingredientIds: [\"banana\", \"chocolate\", \"powdered-sugar\"], keyRecipeId: \"nutella-dessert-pizza\" },",
+     "b": "  { ingredientIds: [\"graham-cracker\", \"marshmallow\"], keyRecipeId: \"smore-dessert-pizza\" },"
+    }
+   ]
+  },
+  {
+   "id": "M09",
+   "description": "a topping moves family (apple fruit -> spice)",
+   "file": "src/data/ingredientTaxonomy.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "[\"apple\", \"fruit\"]",
+     "to": "[\"apple\", \"spice\"]"
+    }
+   ]
+  },
+  {
+   "id": "M10",
+   "description": "a late topping moves family (banana fruit -> vegetable)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "[\"banana\", \"fruit\"]",
+     "to": "[\"banana\", \"vegetable\"]"
+    }
+   ]
+  },
+  {
+   "id": "M11",
+   "description": "a late topping changes size class (banana s -> l)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "\"banana\": \"s\"",
+     "to": "\"banana\": \"l\""
+    }
+   ]
+  },
+  {
+   "id": "M12",
+   "description": "a shipped recipe quantity changes (smore marshmallow 2 -> 3)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "{ ingredientId: \"marshmallow\", minCount: 2 }",
+     "to": "{ ingredientId: \"marshmallow\", minCount: 3 }"
+    }
+   ]
+  },
+  {
+   "id": "M13",
+   "description": "a NO_SAUCE recipe gains a sauce profile (nutella)",
+   "file": "src/data/recipeSauceProfiles.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "\"nutella-dessert-pizza\": null,",
+     "to": "\"nutella-dessert-pizza\": { recipeId: \"nutella-dessert-pizza\", ingredientId: \"olive-oil\", interaction: \"PAINT_TEMPORARY\" },"
+    }
+   ]
+  },
+  {
+   "id": "M14",
+   "description": "drop the ordinary step 74 (apple)",
+   "file": "src/data/discoveryLadder.ts",
+   "ops": [
+    {
+     "type": "deleteLine",
+     "line": "  { ingredientIds: [\"apple\"], keyRecipeId: \"apple-cinnamon-dessert\" },"
+    }
+   ]
+  },
+  {
+   "id": "M15",
+   "description": "a credited late recipe loses its credit (pizza-radicchio-noci)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "    id: \"pizza-radicchio-noci\",\n",
+     "to": "    id: \"pizza-radicchio-noci\",\n    ladderCredit: false,\n"
+    }
+   ]
+  },
+  {
+   "id": "M16",
+   "description": "an unapproved late ingredient appears",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "  { id: \"powdered-sugar\", category: \"topping\"",
+     "to": "  { id: \"zz-mutant\", category: \"topping\", nameJa: \"ミュータント\", color: \"#123456\", emoji: \"\\u{1F9EA}\", placement: \"scatter\", unlockCondition: { minTotalStars: 0 } },\n  { id: \"powdered-sugar\", category: \"topping\""
+    }
+   ]
+  },
+  {
+   "id": "M17",
+   "description": "an unapproved floor entry appears",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "\"banana\": 88",
+     "to": "\"zz-extra\": 90, \"banana\": 88"
+    }
+   ]
+  },
+  {
+   "id": "M18",
+   "description": "a late ingredient changes category (banana topping -> cheese)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "{ id: \"banana\", category: \"topping\"",
+     "to": "{ id: \"banana\", category: \"cheese\""
+    }
+   ]
+  },
+  {
+   "id": "M19",
+   "description": "a landed recipe loses its credit (nutella)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "    id: \"nutella-dessert-pizza\",\n    nameJa:",
+     "to": "    id: \"nutella-dessert-pizza\",\n    ladderCredit: false,\n    nameJa:"
+    }
+   ]
+  },
+  {
+   "id": "M20",
+   "description": "the materials of a landed late step change order (nutella step)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "{ ingredientIds: [\"banana\", \"chocolate\", \"powdered-sugar\"], keyRecipeId: \"nutella-dessert-pizza\" }",
+     "to": "{ ingredientIds: [\"chocolate\", \"banana\", \"powdered-sugar\"], keyRecipeId: \"nutella-dessert-pizza\" }"
+    }
+   ]
+  },
+  {
+   "id": "M21",
+   "description": "a shipped landed material's pack multiplier changes silently (apple k 2 -> 3 via its landed recipe)",
+   "file": "src/data/recipes.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "      { ingredientId: \"apple\", minCount: 2 },\n",
+     "to": "      { ingredientId: \"apple\", minCount: 3 },\n"
+    }
+   ]
+  },
+  {
+   "id": "M22",
+   "description": "a shipped landed late material's pack multiplier changes silently (marshmallow k 2 -> 3)",
+   "file": "src/data/lateCatalog.ts",
+   "ops": [
+    {
+     "type": "replace",
+     "from": "      { ingredientId: \"marshmallow\", minCount: 2 },",
+     "to": "      { ingredientId: \"marshmallow\", minCount: 3 },"
+    }
+   ]
+  }
+ ]
+}
