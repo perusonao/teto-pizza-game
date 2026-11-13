@@ -4,6 +4,7 @@ import { PAN_PROFILE_IDS, type PanProfile, type PanProfileId, type PanProfileVal
 export type PanProfileRegistryInput = unknown;
 
 const knownProfileIds = new Set<string>(PAN_PROFILE_IDS);
+const knownShapeTargetIds = new Set<string>(Object.keys(DOUGH_SHAPE_TARGET_REGISTRY));
 const knownVessels = new Set(["none", "sheet", "pan", "round-pan", "steel-pan"]);
 const knownDepths = new Set(["none", "shallow", "deep"]);
 const canonicalSemantics: Readonly<Record<PanProfileId, { readonly vessel: string; readonly depth: string }>> = {
@@ -61,10 +62,10 @@ export function validatePanProfileRegistry(registry: PanProfileRegistryInput): r
       }
       if (shapes.has(targetId as DoughShapeTargetId)) issues.push({ code: "DUPLICATE_SHAPE_TARGET", profileId: id, detail: `${targetId} occurs more than once` });
       shapes.add(targetId as DoughShapeTargetId);
-      if (!(targetId in DOUGH_SHAPE_TARGET_REGISTRY)) issues.push({ code: "UNKNOWN_SHAPE_TARGET", profileId: id, detail: `unknown target ${targetId}` });
+      if (!knownShapeTargetIds.has(targetId)) issues.push({ code: "UNKNOWN_SHAPE_TARGET", profileId: id, detail: `unknown target ${targetId}` });
     }
     const defaultId = profile.defaultDoughShapeTargetId;
-    if (typeof defaultId !== "string" || !(defaultId in DOUGH_SHAPE_TARGET_REGISTRY)) issues.push({ code: "UNKNOWN_DEFAULT_SHAPE_TARGET", profileId: id, detail: `unknown default target ${String(defaultId)}` });
+    if (typeof defaultId !== "string" || !knownShapeTargetIds.has(defaultId)) issues.push({ code: "UNKNOWN_DEFAULT_SHAPE_TARGET", profileId: id, detail: `unknown default target ${String(defaultId)}` });
     if (typeof defaultId === "string" && !shapes.has(defaultId as DoughShapeTargetId)) issues.push({ code: "DEFAULT_NOT_COMPATIBLE", profileId: id, detail: `${defaultId} is not compatible` });
     if (profile.vessel === "none" && profile.depth !== "none") issues.push({ code: "INVALID_DEPTH", profileId: id, detail: `${profile.vessel} must have depth none` });
     if ((profile.vessel === "sheet" || profile.vessel === "pan" || profile.vessel === "round-pan" || profile.vessel === "steel-pan") && profile.depth === "none") issues.push({ code: "INVALID_DEPTH", profileId: id, detail: `${profile.vessel} must declare depth` });
