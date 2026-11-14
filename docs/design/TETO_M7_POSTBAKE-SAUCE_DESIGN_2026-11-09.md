@@ -5,6 +5,17 @@
 
 2026-11-09 / 基準 `origin/main` = `348b1e4`。**設計案であり実装承認ではない。** 既存の DRIZZLE（#579、PR #776 = D1 純粋ロジック、PR #746 = Gesture Lab、いずれも open・未 merge）を**重複実装しない**ことを最優先にした分担を示す。
 
+## 0. Owner 決定による改訂（2026-11-09、docs-only・ソース変更なし・本番有効化なし）
+本書の初版（§1〜§5）は、buffalo-chicken を M7 の最初の利用者としていた。Owner が次を決定したため、以下のとおり改訂する。**以降、§1〜§5 の記述と食い違う箇所は本節を優先する。**
+- **buffalo-chicken を M7 の対象から除外する。** buffalo-sauce は B22 で**焼成前の PAINT ソース**として出荷する（後乗せは不可。ソースは後乗せにできない late カタログ規則に合う）。buffalo-chicken は通常カタログ（step 72・73 の系）に置く。台帳では RB-18 から RB-02（B22）へ移り、buffalo-sauce は IB-08 から IB-02 へ移る。
+- **balsamic-vinegar は焼成前の第 2 ソース層**（案 A）。M7 の対象ではない。
+- **M7 の初号機は hot-honey-pepperoni の honey。** honey は出荷済み（B20-A、焼成前の第 2 ソース）で、新食材を要さない。焼成後の honey を置く工程だけが M7 の中身になる（M7-2 の利用者が buffalo-chicken から hot-honey-pepperoni に変わる。§3 の段階表の M7-2／M7-3 を入れ替え、M7-3 は detroit-style のみとする）。
+- M7 の対象レシピは **2 品**（hot-honey-pepperoni・detroit-style-pizza。台帳 `postBakeSauceRecipes` は 3→2）。detroit-style は M1・M2 の後（変更なし）。
+- **事実の更新**: DRIZZLE D1（PR #776）は 2026-11-09 15:39 UTC に Owner が merge 済み（main `1d5f5a1e`、純粋ロジックのみ・未配線・`DRIZZLE_EXPERIENCE_PRODUCTION = false`）。本書が「open」と書く箇所は merge 済みに読み替える。D2〜D5 は未承認のまま。
+- **§5 M7-b の読み替え**: 許可リスト拡張の対象は「honey（初号機）→ 後続でトマト（M1・M2 の後）」。buffalo-sauce は対象外。
+- **変えていないもの**: 液体の許可リスト（現状 olive-oil のみ）、DRIZZLE の D2〜D5 の Owner ゲート、本番の挙動。許可リストへ honey を足すのは Owner 承認後の別 PR で、本書では実施しない。
+- 台帳の反映: 生成器 `TETO_CONTENT-MASTER_gen.py.txt` に Owner 決定の上書き（`OWNER_PREBAKE_OVERRIDES`）を 1 件追加し、台帳 3 本（md）と data（csv・json）を再生成した（基準は台帳と同じ main `348b1e4`、41 件の機械検査 PASS）。再生成の差分は buffalo-chicken・buffalo-sauce・M-DRIZZLE の行と、バッチ件数（RB-02 5→6、RB-18 3→2、IB-02 7→8、IB-08 7→6）に限られる。生成器が導出した RB-02 の 6 レシピ・10 食材は B22 の準備資料（#801）と一致する。staged のデータ（T-FX の担当）は変更していない。
+
 ## 1. 何が M7 か【実測】
 候補レシピのうち、**焼成後にソース（`category: "sauce"`）を置く**ものが 3 品ある（台帳の `postBakeSauceRecipes`、生成器が `applicationPhase: "POST_BAKE"` かつ非トッピングで検出）:
 
