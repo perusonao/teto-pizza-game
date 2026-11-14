@@ -10,7 +10,7 @@ import { expectResearchLead } from "./support/hintNote";
 import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
 /**
- * Expansion Batch 23-b representative E2E (Issue #780; PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION; Owner decisions 2026-11-10, plan A): the two LATE dessert recipes nutella-dessert-pizza (late step 88) and smore-dessert-pizza (late step 89),
+ * Expansion Batch 23-b representative E2E (Issue #780; PROVISIONAL SPEC, ORIGINAL pizzadb.jp NOT CONFIRMED; GAMEPLAY ASSUMPTION; Owner decisions 2026-11-10, plan A): the two LATE dessert recipes nutella-dessert-pizza (late step 94) and smore-dessert-pizza (late step 95),
  * both NO_SAUCE with cream-cheese 2 (Owner GAMEPLAY decisions), played end to end at 390x844 and 360x800:
  * Shop NEW (every material of the step) -> purchase -> Dex Research entry (no identity leak) -> every pre-bake piece at the Reference's own slot -> bake -> FINISH (the POST_BAKE piece) -> NEW DISCOVERY -> Dex.
  * Dedicated SVGs (the B23 dessert glyphs, via IngredientGlyph) on the tray chip AND on the pizza. The Owner's priority HV items: small-size legibility of chocolate (s) and powdered-sugar (xs) (close-up captures in compare-parts).
@@ -113,14 +113,14 @@ const PLANS: Plan[] = [
   {
     id: "nutella-dessert-pizza", name: "ヌテラデザートピザ", tag: "b23b-nutella", ref: NUTELLA_DESSERT_PIZZA_REFERENCE,
     materials: [["banana", "バナナ"], ["chocolate", "チョコレート"], ["powdered-sugar", "粉砂糖"]], cohortKey: "粉砂糖", sauces: [],
-    notYet: ["smore-dessert-pizza"], ownedUpToStep: 87,
+    notYet: ["smore-dessert-pizza"], ownedUpToStep: 93,
     pre: [{ id: "cream-cheese", chip: /クリームチーズ/, tab: "チーズ" }, { id: "banana", chip: /バナナ/, tab: "具材" }, { id: "chocolate", chip: /チョコレート/, tab: "具材" }],
     post: [{ id: "powdered-sugar", chip: /粉砂糖/ }],
   },
   {
     id: "smore-dessert-pizza", name: "スモアデザートピザ", tag: "b23b-smore", ref: SMORE_DESSERT_PIZZA_REFERENCE,
     materials: [["graham-cracker", "グラハムクラッカー"], ["marshmallow", "マシュマロ"]], cohortKey: "マシュマロ", sauces: [],
-    notYet: [], ownedUpToStep: 89,
+    notYet: [], ownedUpToStep: 95,
     pre: [{ id: "cream-cheese", chip: /クリームチーズ/, tab: "チーズ" }, { id: "chocolate", chip: /チョコレート/, tab: "具材" }, { id: "marshmallow", chip: /マシュマロ/, tab: "具材" }],
     post: [{ id: "graham-cracker", chip: /グラハムクラッカー/ }],
   },
@@ -142,7 +142,8 @@ test.describe("Expansion Batch 23-b (late dessert recipes, played end to end)", 
       const owned = DISCOVERY_LADDER.steps.filter((s) => s.step <= plan.ownedUpToStep).flatMap((s) => s.ingredientIds as readonly string[]).filter((id) => !own.includes(id));
       await open(page, saveJson(discovered, owned));
       await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${discovered.length}/${CATALOG_COUNTS.recipes}`));
-      expect(stepOf(plan.materials[0][0])).toBe(plan.id === "nutella-dessert-pizza" ? 88 : 89);
+      // T24 appends six credited ordinary steps before the late catalog; REC-04 keeps both B23-b steps late, so 88/89 derive to 94/95.
+      expect(stepOf(plan.materials[0][0])).toBe(plan.id === "nutella-dessert-pizza" ? 94 : 95);
       await hold(page);
 
       // 1. Shop: the step's materials are NEW; buy them.
