@@ -85,7 +85,7 @@ SHIPPED_I.update(ingredient_info(parse_blocks(P("src/data/ingredients.ts")), "in
 SHIPPED_I.update(ingredient_info(late_blocks, "lateCatalog.ts"))
 SHIPPED_I.update(ingredient_oneline(P("src/data/ingredients.ts"), "ingredients.ts"))
 SHIPPED_I.update(ingredient_oneline(P("src/data/lateCatalog.ts"), "lateCatalog.ts"))
-MAIN_SHA = "3bed288"      # the main commit this ledger is generated from (update on every refresh)
+MAIN_SHA = "3c5b433a"      # the main commit this ledger is generated from (update on every refresh)
 # Owner decision 2026-11-13: the 170th ingredient is `nduja` (reserved, NOT registered anywhere). It is deliberately absent from
 # src/data/staged (no unapproved staged addition); T26-R1 registers it in the catalog. MERGED = candidates folded into a shipped id.
 RESERVED_I = [{"id": "nduja", "nameJa": "ンドゥイヤ", "category": "topping", "kind": "MEAT", "family": "meat", "train": "T26-R1", "usedBy": ["nduja-pizza"]}]
@@ -143,6 +143,7 @@ staged_ev = {s["evidenceId"] for s in S_R}
 newly_shipped_ev = sorted(set(plan87) - staged_ev)          # plan rows no longer staged = shipped since the plan (3 in-flight at the plan + every batch merged since)
 check(f"plan87 - staged == the {len(plan87) - len(S_R)} rows shipped since the plan; staged is a subset of the plan", staged_ev <= set(plan87) and len(newly_shipped_ev) == len(plan87) - len(S_R), newly_shipped_ev)
 EVIDENCE_TO_SHIPPED_MANUAL = {      # [INFERRED] aliases where the matrix canonical id differs from the shipped id (Jaccard evidence printed in matrix_map)
+    "diavola-pizza-pizzadb-p5": "diavola-pizza",                 # T24 (#848): matrix row p5 shipped as diavola-pizza
     "black-truffle-pizza-pizzadb-p14": "black-truffle-pizza",     # B22 (#807): matrix row p14 shipped as black-truffle-pizza (late catalog)
     "bbq-chicken-pizzadb": "bbq-chicken-pizza",
     "supreme-pizzadb": "supreme-pizza",
@@ -477,7 +478,7 @@ check("registered technique ids are all ledgered", set(tech_ids) >= {"no-sauce",
 # ---------------------------------------------------------------- write ledgers -----------------------------------
 def write_csv(name, rows, cols):
     with open(os.path.join(OUT, name), "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=cols)
+        w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
         w.writeheader()
         for r in rows:
             w.writerow({c: r.get(c, "") for c in cols})
