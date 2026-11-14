@@ -21,13 +21,13 @@ Base: `a5a228d8` (`main`, PR #840 merge)
 
 | Gate | Result |
 |---|---|
-| Focused Vitest | PASS — 3 files / 39 tests |
+| Focused Vitest | PASS — 4 files / 41 tests（architecture gate含む） |
 | Existing recipes unspecified parity | PASS — 全`RECIPES` entryが両field未指定かつvalidator PASS |
 | Unknown / unsupported inputs | PASS — unknown、型不正、prototype-chain ID、incompatible pair |
 | TypeScript (`tsc -b --force`) | PASS |
 | Lint | PASS（既存warningのみ） |
 | `git diff --check` | PASS |
-| Full Vitest local attempt | resource-constrained runで既存heavy suitesが5秒timeoutを多数発生したため中断。focused failureなし。PR CIをauthorityとする |
+| Full Vitest first CI | 668 files / 12,342 tests PASS、architecture gate 1件FAIL。P2-1のtype-only Recipe importをruntime wiringと誤判定したためgateを型import許容へ修正 |
 | WebKit / CI | Draft PRで確認 |
 
 ## Remaining gate
