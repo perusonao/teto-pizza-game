@@ -172,4 +172,10 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "smore-dessert-pizza": { keyFree: true },
   // Pinsa Romana (#577 P3-b-1, late catalog): permanently key-free, like jamon-serrano-pizza.
   "pinsa-romana": { keyFree: true },
+  "diavola-pizza": { keyFree: true },
+  "frutti-di-mare": { keyFree: true },
+  "peruvian-aji-amarillo": { keyFree: true },
+  "south-african-boerewors": { keyFree: true },
+  "thai-chicken-pizza": { keyFree: true },
+  "peking-duck-pizza": { keyFree: true },
 };

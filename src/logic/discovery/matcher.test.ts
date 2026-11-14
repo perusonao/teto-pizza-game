@@ -273,6 +273,8 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       // Expansion Batch 23-b (Issue #780): nutella-dessert-pizza-pizzadb-p6 and smore-dessert-pizza-pizzadb-p4 are BLOCKED_PRODUCT_DECISION rows (BASE_SAUCE_UNSPECIFIED) Owner-approved to ship as NO_SAUCE with cream-cheese 2 (a GAMEPLAY decision: Q-1 2026-11-10, plan A approved 2026-11-10).
       ownerApproved.add("nutella-dessert-pizza-pizzadb-p6"); // (blocked on the unspecified sauce / "ナッツ" token; shipped with NO_SAUCE + cream-cheese 2 and no walnut, Q-1 / Q-2)
       ownerApproved.add("smore-dessert-pizza-pizzadb-p4");
+      // Expansion Batch 24 (Issue #780, train spec T24-R1): the six ordinary B24 recipes are rows of the 172 design matrix, several of them Phase-2 BLOCKED_* rows (an unspecified / unresolved base sauce); each is Owner-approved to ship in the T24-R1 approval packet (docs/reports/TETO_T24-T26_OwnerDecisions-Followup_2026-11-10.md §7, 2026-11-10) with its own sauce (a PAINT layer), not NO_SAUCE.
+      for (const id of ["diavola-pizza-pizzadb-p5", "frutti-di-mare-pizzadb-p11", "peruvian-aji-amarillo-pizzadb-p12", "south-african-boerewors-pizzadb-p14", "thai-chicken-pizza-pizzadb-p4", "peking-duck-pizza"]) ownerApproved.add(id);
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(

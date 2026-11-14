@@ -132,6 +132,10 @@ const BASE_TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[
   ["walnut", "spice"],
   // Expansion Batch 23 (#780; PROVISIONAL SPEC, Owner 2026-11-10, Q-4): apple = fruit (L1 only). The five late dessert materials carry their rows in LATE_TAXONOMY_ROWS (./lateCatalog.ts).
   ["apple", "fruit"],
+  ["cucumber", "vegetable"], // Expansion Batch 24 (#780)
+  ["peking-duck", "meat"], // Expansion Batch 24 (#780)
+  ["spicy-salami", "meat"], // Expansion Batch 24 (#780)
+  ["squid", "seafood"], // Expansion Batch 24 (#780)
 ];
 
 /** The base rows, plus the late-catalog ingredients' rows (./lateCatalog.ts) when that catalog is enabled; otherwise the base rows themselves. */

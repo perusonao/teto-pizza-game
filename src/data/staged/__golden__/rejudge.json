@@ -1,49 +1,49 @@
 {
- "blockingDependencies": 382,
+ "blockingDependencies": 359,
  "byVerdict": {
-  "AUTO_RESOLVED": 8,
+  "AUTO_RESOLVED": 7,
   "RULE_DECIDED_WORK": 2,
-  "DUPLICATE_COUNT": 22,
+  "DUPLICATE_COUNT": 20,
   "WAITS_MECHANIC": 58,
   "WAITS_IN_FLIGHT": 0,
   "AXIS_CONDITIONAL": 30,
-  "STAGED_PAIR": 94,
-  "EXCEPTION_NEEDED": 76,
-  "OWNER_DECISION": 92
+  "STAGED_PAIR": 90,
+  "EXCEPTION_NEEDED": 70,
+  "OWNER_DECISION": 82
  },
- "autoResolved": 8,
+ "autoResolved": 7,
  "byKind": {
   "DUPLICATE_GATE": {
    "AXIS_CONDITIONAL": 17,
-   "STAGED_PAIR": 94,
-   "EXCEPTION_NEEDED": 51,
+   "STAGED_PAIR": 90,
+   "EXCEPTION_NEEDED": 47,
    "OWNER_DECISION": 6
   },
   "ID_SUFFIXED": {
-   "OWNER_DECISION": 5
+   "OWNER_DECISION": 4
   },
   "MECHANIC": {
    "AUTO_RESOLVED": 1,
    "WAITS_MECHANIC": 58
   },
   "OWNER_RULE": {
-   "AUTO_RESOLVED": 7,
+   "AUTO_RESOLVED": 6,
    "RULE_DECIDED_WORK": 2,
    "AXIS_CONDITIONAL": 13,
-   "EXCEPTION_NEEDED": 25,
-   "OWNER_DECISION": 62
+   "EXCEPTION_NEEDED": 23,
+   "OWNER_DECISION": 55
   },
   "SAUCE_UNSPECIFIED": {
-   "DUPLICATE_COUNT": 22
+   "DUPLICATE_COUNT": 20
   },
   "UNRESOLVED_TOKEN": {
-   "OWNER_DECISION": 19
+   "OWNER_DECISION": 17
   }
  },
  "ownerRules": {
   "R-1": {
    "RULE_DECIDED_WORK": 2,
-   "OWNER_DECISION": 20
+   "OWNER_DECISION": 18
   },
   "R-2": {
    "AXIS_CONDITIONAL": 10,
@@ -54,25 +54,25 @@
    "OWNER_DECISION": 2
   },
   "R-4": {
-   "AUTO_RESOLVED": 6,
-   "EXCEPTION_NEEDED": 16
+   "AUTO_RESOLVED": 5,
+   "EXCEPTION_NEEDED": 14
   },
   "R-5": {
-   "OWNER_DECISION": 10
+   "OWNER_DECISION": 8
   },
   "R-6": {
    "AUTO_RESOLVED": 1,
    "OWNER_DECISION": 6
   },
   "R-7": {
-   "OWNER_DECISION": 16
+   "OWNER_DECISION": 14
   },
   "R-8": {
-   "OWNER_DECISION": 8
+   "OWNER_DECISION": 7
   }
  },
  "duplicateGate": {
-  "dependencies": 168,
+  "dependencies": 160,
   "byType": {
    "IDENTICAL@shipped": {
     "AXIS_CONDITIONAL": 3,
@@ -82,17 +82,17 @@
     "STAGED_PAIR": 8
    },
    "JACCARD_GT_0_4@shipped": {
-    "EXCEPTION_NEEDED": 23
+    "EXCEPTION_NEEDED": 21
    },
    "JACCARD_GT_0_4@staged": {
-    "STAGED_PAIR": 18
+    "STAGED_PAIR": 17
    },
    "ONE_DIFF@shipped": {
-    "EXCEPTION_NEEDED": 16,
+    "EXCEPTION_NEEDED": 14,
     "OWNER_DECISION": 2
    },
    "ONE_DIFF@staged": {
-    "STAGED_PAIR": 27
+    "STAGED_PAIR": 26
    },
    "SUBSET@shipped": {
     "AXIS_CONDITIONAL": 9,
@@ -107,7 +107,7 @@
     "EXCEPTION_NEEDED": 6
    },
    "SUPERSET@staged": {
-    "STAGED_PAIR": 28
+    "STAGED_PAIR": 26
    }
   },
   "exceptionsNeeded": [
@@ -169,6 +169,7 @@
      "SUBSET:breakfast-pizza(0.5)",
      "SUBSET:calabresa-argentina(0.4)",
      "SUBSET:capricciosa(0.333)",
+     "SUBSET:diavola-pizza(0.667)",
      "SUBSET:funghi(0.667)",
      "SUBSET:grandma-pizza(0.5)",
      "SUBSET:hawaiian(0.5)",
@@ -201,6 +202,7 @@
      "JACCARD_GT_0_4:pizza-portuguesa(0.571)",
      "JACCARD_GT_0_4:polish-kielbasa(0.5)",
      "SUPERSET:salsiccia(0.6)",
+     "JACCARD_GT_0_4:south-african-boerewors(0.5)",
      "JACCARD_GT_0_4:spanish-chorizo-pizza(0.5)",
      "JACCARD_GT_0_4:tonno-e-cipolla(0.5)"
     ]
@@ -235,13 +237,6 @@
     ]
    },
    {
-    "id": "thai-chicken-pizza",
-    "shippedHits": [
-     "JACCARD_GT_0_4:bbq-chicken-pizza(0.5)",
-     "JACCARD_GT_0_4:reina-pepiada-pizza(0.429)"
-    ]
-   },
-   {
     "id": "keema-pizza",
     "shippedHits": [
      "SUBSET:aussie(0.5)",
@@ -254,6 +249,7 @@
      "SUBSET:pizza-portuguesa(0.333)",
      "SUBSET:polish-kielbasa(0.5)",
      "SUBSET:rendang-pizza(0.5)",
+     "SUBSET:south-african-boerewors(0.5)",
      "SUBSET:spanish-chorizo-pizza(0.5)",
      "SUBSET:tandoori-paneer-pizza(0.4)",
      "SUBSET:tonno-e-cipolla(0.5)",
@@ -265,6 +261,7 @@
     "id": "chicago-stuffed-pizza",
     "shippedHits": [
      "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:diavola-pizza(0.5)",
      "ONE_DIFF:funghi(0.5)",
      "ONE_DIFF:margherita(0.5)",
      "SUBSET:meat-lovers(0.5)",
@@ -281,16 +278,6 @@
     ]
    },
    {
-    "id": "diavola-pizza",
-    "shippedHits": [
-     "ONE_DIFF:bismarck(0.5)",
-     "ONE_DIFF:funghi(0.5)",
-     "ONE_DIFF:margherita(0.5)",
-     "ONE_DIFF:pepperoni(0.5)",
-     "ONE_DIFF:salsiccia(0.5)"
-    ]
-   },
-   {
     "id": "detroit-style-pizza",
     "shippedHits": [
      "ONE_DIFF:pepperoni(0.5)"
@@ -300,6 +287,7 @@
     "id": "new-england-bar-pizza",
     "shippedHits": [
      "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:diavola-pizza(0.5)",
      "ONE_DIFF:funghi(0.5)",
      "ONE_DIFF:margherita(0.5)",
      "SUBSET:meat-lovers(0.5)",
@@ -358,6 +346,7 @@
     "id": "pizza-al-taglio-romana",
     "shippedHits": [
      "ONE_DIFF:bismarck(0.5)",
+     "ONE_DIFF:diavola-pizza(0.5)",
      "ONE_DIFF:funghi(0.5)",
      "IDENTICAL:margherita(1)",
      "SUBSET:melanzane-pizza(0.75)",
@@ -391,12 +380,6 @@
      "ONE_DIFF:nigerian-suya-pizza(0.6)",
      "ONE_DIFF:rendang-pizza(0.6)",
      "JACCARD_GT_0_4:wasabi-beef-pizza(0.5)"
-    ]
-   },
-   {
-    "id": "frutti-di-mare-pizzadb",
-    "shippedHits": [
-     "JACCARD_GT_0_4:pescatore(0.5)"
     ]
    },
    {
@@ -448,13 +431,6 @@
     ]
    },
    {
-    "id": "south-african-boerewors",
-    "shippedHits": [
-     "ONE_DIFF:polish-kielbasa(0.6)",
-     "ONE_DIFF:spanish-chorizo-pizza(0.6)"
-    ]
-   },
-   {
     "id": "hokkaido-cheese-pizza",
     "shippedHits": [
      "SUBSET:potato-mayo-pizza(0.6)"
@@ -463,21 +439,21 @@
   ],
   "stagedUniquePairs": {
    "IDENTICAL": 8,
-   "SUBSET_SUPERSET": 103,
-   "ONE_DIFF": 38,
-   "JACCARD_GT_0_4": 16
+   "SUBSET_SUPERSET": 98,
+   "ONE_DIFF": 33,
+   "JACCARD_GT_0_4": 15
   },
   "stagedPairsByRecipe": {
-   "trenton-tomato-pie": 24,
-   "ny-style": 24,
-   "quad-cities-style-pizza": 24,
-   "colorado-mountain-pie": 24,
-   "keema-pizza": 15,
-   "new-england-bar-pizza": 14,
-   "fathead-pizza-keto": 14,
-   "chicago-stuffed-pizza": 13,
+   "trenton-tomato-pie": 23,
+   "ny-style": 23,
+   "quad-cities-style-pizza": 23,
+   "colorado-mountain-pie": 23,
+   "keema-pizza": 14,
+   "new-england-bar-pizza": 13,
+   "fathead-pizza-keto": 13,
+   "chicago-stuffed-pizza": 12,
    "chicago-deep-dish-pizzadb": 11,
-   "pizza-baiana": 11
+   "st-louis-style-pizza": 11
   }
  },
  "recipesFullyRuleResolvable": [],
@@ -741,16 +717,6 @@
    ]
   },
   {
-   "id": "thai-chicken-pizza",
-   "proposals": [],
-   "open": [
-    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
-    "OWNER_DECISION:OWNER_RULE:R-7",
-    "OWNER_DECISION:UNRESOLVED_TOKEN:赤唐辛子",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped"
-   ]
-  },
-  {
    "id": "argentine-napolitana",
    "proposals": [],
    "open": [
@@ -882,18 +848,6 @@
     "EXCEPTION_NEEDED:OWNER_RULE:R-4",
     "OWNER_DECISION:OWNER_RULE:R-8",
     "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
-   ]
-  },
-  {
-   "id": "diavola-pizza",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-5",
-    "OWNER_DECISION:OWNER_RULE:R-7",
-    "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:ONE_DIFF@staged",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
   },
@@ -1184,23 +1138,6 @@
    ]
   },
   {
-   "id": "frutti-di-mare-pizzadb",
-   "proposals": [],
-   "open": [
-    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
-    "OWNER_DECISION:OWNER_RULE:R-5",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "OWNER_DECISION:ID_SUFFIXED:frutti-di-mare-pizzadb"
-   ]
-  },
-  {
-   "id": "peruvian-aji-amarillo",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1"
-   ]
-  },
-  {
    "id": "hot-honey-pepperoni",
    "proposals": [],
    "open": [
@@ -1217,13 +1154,6 @@
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-1",
     "WAITS_MECHANIC:MECHANIC:MID_BAKE"
-   ]
-  },
-  {
-   "id": "peking-duck-pizza",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-8"
    ]
   },
   {
@@ -1325,16 +1255,6 @@
    "open": [
     "RULE_DECIDED_WORK:OWNER_RULE:R-1",
     "OWNER_DECISION:OWNER_RULE:R-5"
-   ]
-  },
-  {
-   "id": "south-african-boerewors",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1",
-    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:ONE_DIFF@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
    ]
   },
   {

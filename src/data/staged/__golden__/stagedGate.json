@@ -1,20 +1,20 @@
 {
  "summary": {
-  "recipes": 73,
+  "recipes": 67,
   "readyForPromotion": [],
-  "recipesWithBlockingDeps": 73,
-  "blockingDeps": 382,
+  "recipesWithBlockingDeps": 67,
+  "blockingDeps": 359,
   "byKind": {
-   "OWNER_RULE": 109,
+   "OWNER_RULE": 99,
    "MECHANIC": 59,
    "INGREDIENT_IN_FLIGHT": 0,
-   "UNRESOLVED_TOKEN": 19,
-   "SAUCE_UNSPECIFIED": 22,
-   "DUPLICATE_GATE": 168,
-   "ID_SUFFIXED": 5
+   "UNRESOLVED_TOKEN": 17,
+   "SAUCE_UNSPECIFIED": 20,
+   "DUPLICATE_GATE": 160,
+   "ID_SUFFIXED": 4
   },
   "recipesBlockedOnlyBy": {
-   "OWNER_RULE": 1,
+   "OWNER_RULE": 0,
    "MECHANIC": 2,
    "DUPLICATE_GATE": 1
   },
@@ -23,21 +23,21 @@
     "IDENTICAL": 5,
     "SUBSET": 17,
     "SUPERSET": 11,
-    "ONE_DIFF": 18,
-    "JACCARD_GT_0_4": 23
+    "ONE_DIFF": 16,
+    "JACCARD_GT_0_4": 21
    },
    "recipesVsStaged": {
     "IDENTICAL": 8,
     "SUBSET": 13,
-    "SUPERSET": 28,
-    "ONE_DIFF": 27,
-    "JACCARD_GT_0_4": 18
+    "SUPERSET": 26,
+    "ONE_DIFF": 26,
+    "JACCARD_GT_0_4": 17
    },
-   "recipesWithNoHit": 19,
-   "recipesWithNoShippedHit": 25,
-   "hitsVsShipped": 249
+   "recipesWithNoHit": 17,
+   "recipesWithNoShippedHit": 23,
+   "hitsVsShipped": 250
   },
-  "stagedIngredientRefs": 44
+  "stagedIngredientRefs": 35
  },
  "perRecipe": [
   {
@@ -588,7 +588,7 @@
     },
     {
      "against": "diavola-pizza",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "SUBSET",
      "jaccard": 0.667
     },
@@ -891,7 +891,7 @@
     },
     {
      "against": "diavola-pizza",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "SUBSET",
      "jaccard": 0.667
     },
@@ -1238,7 +1238,7 @@
     },
     {
      "against": "south-african-boerewors",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "JACCARD_GT_0_4",
      "jaccard": 0.5
     },
@@ -1529,33 +1529,6 @@
    ]
   },
   {
-   "id": "thai-chicken-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-4",
-    "OWNER_RULE:R-7",
-    "UNRESOLVED_TOKEN:赤唐辛子",
-    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped"
-   ],
-   "staged": [
-    "peanut-sauce"
-   ],
-   "dup": [
-    {
-     "against": "bbq-chicken-pizza",
-     "againstStaged": false,
-     "kind": "JACCARD_GT_0_4",
-     "jaccard": 0.5
-    },
-    {
-     "against": "reina-pepiada-pizza",
-     "againstStaged": false,
-     "kind": "JACCARD_GT_0_4",
-     "jaccard": 0.429
-    }
-   ]
-  },
-  {
    "id": "argentine-napolitana",
    "lane": "R-C",
    "blocking": [
@@ -1752,7 +1725,7 @@
     },
     {
      "against": "diavola-pizza",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "ONE_DIFF",
      "jaccard": 0.5
     },
@@ -1980,7 +1953,7 @@
     },
     {
      "against": "south-african-boerewors",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "SUBSET",
      "jaccard": 0.5
     },
@@ -2118,7 +2091,7 @@
     },
     {
      "against": "diavola-pizza",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "SUBSET",
      "jaccard": 0.667
     },
@@ -2416,7 +2389,7 @@
     },
     {
      "against": "diavola-pizza",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "SUBSET",
      "jaccard": 0.667
     },
@@ -2692,7 +2665,7 @@
     },
     {
      "against": "diavola-pizza",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "ONE_DIFF",
      "jaccard": 0.5
     },
@@ -2820,107 +2793,6 @@
      "againstStaged": false,
      "kind": "JACCARD_GT_0_4",
      "jaccard": 0.5
-    }
-   ]
-  },
-  {
-   "id": "diavola-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-5",
-    "OWNER_RULE:R-7",
-    "UNRESOLVED_TOKEN:唐辛子",
-    "DUPLICATE_GATE:ONE_DIFF@shipped",
-    "DUPLICATE_GATE:ONE_DIFF@staged",
-    "DUPLICATE_GATE:SUPERSET@staged"
-   ],
-   "staged": [
-    "spicy-salami"
-   ],
-   "dup": [
-    {
-     "against": "bismarck",
-     "againstStaged": false,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.5
-    },
-    {
-     "against": "cauliflower-crust-pizza",
-     "againstStaged": true,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.5
-    },
-    {
-     "against": "chicago-stuffed-pizza",
-     "againstStaged": true,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.5
-    },
-    {
-     "against": "colorado-mountain-pie",
-     "againstStaged": true,
-     "kind": "SUPERSET",
-     "jaccard": 0.667
-    },
-    {
-     "against": "fathead-pizza-keto",
-     "againstStaged": true,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.5
-    },
-    {
-     "against": "funghi",
-     "againstStaged": false,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.5
-    },
-    {
-     "against": "margherita",
-     "againstStaged": false,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.5
-    },
-    {
-     "against": "new-england-bar-pizza",
-     "againstStaged": true,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.5
-    },
-    {
-     "against": "ny-style",
-     "againstStaged": true,
-     "kind": "SUPERSET",
-     "jaccard": 0.667
-    },
-    {
-     "against": "pepperoni",
-     "againstStaged": false,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.5
-    },
-    {
-     "against": "pizza-al-taglio-romana",
-     "againstStaged": true,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.5
-    },
-    {
-     "against": "quad-cities-style-pizza",
-     "againstStaged": true,
-     "kind": "SUPERSET",
-     "jaccard": 0.667
-    },
-    {
-     "against": "salsiccia",
-     "againstStaged": false,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.5
-    },
-    {
-     "against": "trenton-tomato-pie",
-     "againstStaged": true,
-     "kind": "SUPERSET",
-     "jaccard": 0.667
     }
    ]
   },
@@ -3053,7 +2925,7 @@
     },
     {
      "against": "diavola-pizza",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "ONE_DIFF",
      "jaccard": 0.5
     },
@@ -3207,7 +3079,6 @@
     "DUPLICATE_GATE:SUPERSET@staged"
    ],
    "staged": [
-    "cucumber",
     "yogurt-sauce"
    ],
    "dup": [
@@ -3607,7 +3478,7 @@
     },
     {
      "against": "diavola-pizza",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "ONE_DIFF",
      "jaccard": 0.5
     },
@@ -3775,7 +3646,7 @@
     },
     {
      "against": "diavola-pizza",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "ONE_DIFF",
      "jaccard": 0.5
     },
@@ -4062,39 +3933,6 @@
    ]
   },
   {
-   "id": "frutti-di-mare-pizzadb",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-4",
-    "OWNER_RULE:R-5",
-    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "ID_SUFFIXED:frutti-di-mare-pizzadb"
-   ],
-   "staged": [
-    "squid"
-   ],
-   "dup": [
-    {
-     "against": "pescatore",
-     "againstStaged": false,
-     "kind": "JACCARD_GT_0_4",
-     "jaccard": 0.5
-    }
-   ]
-  },
-  {
-   "id": "peruvian-aji-amarillo",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-1",
-    "SAUCE_UNSPECIFIED:peruvian-aji-amarillo"
-   ],
-   "staged": [
-    "aji-amarillo"
-   ],
-   "dup": []
-  },
-  {
    "id": "hot-honey-pepperoni",
    "lane": "R-B",
    "blocking": [
@@ -4185,19 +4023,6 @@
    "staged": [
     "natto",
     "okra"
-   ],
-   "dup": []
-  },
-  {
-   "id": "peking-duck-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-8"
-   ],
-   "staged": [
-    "cucumber",
-    "peking-duck",
-    "sweet-bean-sauce"
    ],
    "dup": []
   },
@@ -4547,47 +4372,6 @@
    ],
    "staged": [],
    "dup": []
-  },
-  {
-   "id": "south-african-boerewors",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-1",
-    "OWNER_RULE:R-4",
-    "SAUCE_UNSPECIFIED:south-african-boerewors",
-    "DUPLICATE_GATE:JACCARD_GT_0_4@staged",
-    "DUPLICATE_GATE:ONE_DIFF@shipped",
-    "DUPLICATE_GATE:SUPERSET@staged"
-   ],
-   "staged": [
-    "chutney"
-   ],
-   "dup": [
-    {
-     "against": "keema-pizza",
-     "againstStaged": true,
-     "kind": "SUPERSET",
-     "jaccard": 0.5
-    },
-    {
-     "against": "pizza-baiana",
-     "againstStaged": true,
-     "kind": "JACCARD_GT_0_4",
-     "jaccard": 0.5
-    },
-    {
-     "against": "polish-kielbasa",
-     "againstStaged": false,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.6
-    },
-    {
-     "against": "spanish-chorizo-pizza",
-     "againstStaged": false,
-     "kind": "ONE_DIFF",
-     "jaccard": 0.6
-    }
-   ]
   },
   {
    "id": "hokkaido-cheese-pizza",

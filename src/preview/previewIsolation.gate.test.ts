@@ -10,6 +10,7 @@ import { B21_HV_SCENARIOS } from "./b21HvSeeds";
 import { B22_HV_SCENARIOS } from "./b22HvSeeds";
 import { B23_HV_SCENARIOS } from "./b23HvSeeds";
 import { B23B_HV_SCENARIOS } from "./b23bHvSeeds";
+import { T24_HV_SCENARIOS } from "./t24HvSeeds";
 
 /**
  * Discovery Hint 5.0 H5-5, gates P1 / P4 (bundle level): the production bundle contains none of the
@@ -64,6 +65,9 @@ const PREVIEW_ONLY_STRINGS = [
   // Expansion Batch 23-b (#780): the B23-b HV seed ids and labels (./b23bHvSeeds.ts).
   ...B23B_HV_SCENARIOS.map((s) => s.id),
   ...B23B_HV_SCENARIOS.map((s) => s.labelJa),
+  // Expansion Batch 24 (#780): the HV seed ids and labels (./t24HvSeeds.ts).
+  ...T24_HV_SCENARIOS.map((s) => s.id),
+  ...T24_HV_SCENARIOS.map((s) => s.labelJa),
   "teto-pizza-preview-save-v1", // the Preview save namespace (already compiled out before H5-5)
   "teto.dev.hint5Ladder", // the DEV opt-in key (already compiled out before H5-5)
   "post-layer-bench-v1", // POST_LAYER_BENCH_MARK: the DEV / Preview-only post-bake layer bench (src/dev/PostLayerBench.tsx, FINISH D2-2a)

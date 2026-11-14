@@ -108,12 +108,12 @@ describe("the five materials (Owner decisions 2026-11-10): ids, spec, art, famil
 describe("the ladder: two new late steps, the floors, the batch manifest", () => {
   const steps = DISCOVERY_LADDER.steps;
   it("the ordinary ladder is unchanged (74); two new late steps are the tail (88 nutella, 89 smore: the REC-04 tie goes to the smaller recipe id), no star gate", () => {
-    expect(ordinaryLadderSteps(steps)).toHaveLength(74);
-    expect(steps).toHaveLength(89);
+    expect(ordinaryLadderSteps(steps)).toHaveLength(80); // Expansion Batch 24 (#780) appended the six ordinary steps 75-80 (the ordinary ladder was 74 here); the late steps moved +6
+    expect(steps).toHaveLength(95); // (89 before Expansion Batch 24)
     expect(steps.slice(-3).map((s) => [s.step, s.ingredientIds, s.keyRecipeId])).toEqual([
-      [87, ["truffle"], "black-truffle-pizza"],
-      [88, ["banana", "chocolate", "powdered-sugar"], "nutella-dessert-pizza"],
-      [89, ["graham-cracker", "marshmallow"], "smore-dessert-pizza"],
+      [93, ["truffle"], "black-truffle-pizza"], // (87 before Expansion Batch 24)
+      [94, ["banana", "chocolate", "powdered-sugar"], "nutella-dessert-pizza"], // (88 before Expansion Batch 24)
+      [95, ["graham-cracker", "marshmallow"], "smore-dessert-pizza"], // (89 before Expansion Batch 24)
     ]);
     for (const s of steps.slice(-2)) expect((s as { starGates?: unknown }).starGates, `step ${s.step}`).toBeUndefined();
     expect(LATE_LADDER_STEPS.slice(-2).map((s) => s.keyRecipeId)).toEqual([...LATE_IDS]);
@@ -265,7 +265,7 @@ describe("Research: the canonical order changes 0 letters; the non-canonical cha
     "ikura-salmon-pizza": ["-->A"],
   };
   it("the measured changes are exactly the pinned 5 IDs (0 canonical); any other ID or letter change is a STOP", () => {
-    const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never);
+    const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES.filter((r) => !["diavola-pizza", "frutti-di-mare", "peruvian-aji-amarillo", "south-african-boerewors", "thai-chicken-pizza", "peking-duck-pizza"].includes(r.id)) as never, 40, 20261105, ["aji-amarillo", "chutney", "cucumber", "peanut-sauce", "peking-duck", "spicy-salami", "squid", "sweet-bean-sauce"]); // Expansion Batch 24 (#780) is a LATER batch: its six recipes and eight materials are left out so this stays the Batch 23-b before/after comparison (defaults 40 / 20261105 are unchanged)
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
     const measured = new Map([...changes].map(([id, list]) => [id, [...new Set(list.map((c) => c.change))].sort()]));
     expect([...measured.keys()].sort()).toEqual(Object.keys(OWNER_APPROVED_B23B).sort());

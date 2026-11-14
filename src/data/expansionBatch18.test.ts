@@ -41,8 +41,10 @@ const NEW_IDS: readonly string[] = [BAINGAN, REINA];
 const ORDINARY = ordinaryRecipes(RECIPES);
 // Expansion Batch 21 (#780) is a LATER batch: its two late recipes are left out of the Research measurements that must keep Batch 18 meaning (the Batch 21 audit is in expansionBatch21.test.ts).
 // Expansion Batch 22 (#780) is a LATER batch (like Batch 21): its six recipes and ten materials are left out of this Batch 18 before/after comparison, so it stays the sample Batch 18 was approved against.
-const B22_RECIPES_LATER: readonly string[] = ["speck-e-brie", "buffalo-chicken", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "apple-cinnamon-dessert"]; // + Expansion Batch 23 (#780), a LATER batch
-const B22_MATERIALS_LATER: readonly string[] = ["brie", "buffalo-sauce", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "balsamic-vinegar", "apple"]; // + Expansion Batch 23 (#780)
+const B22_RECIPES_LATER: readonly string[] = ["speck-e-brie", "buffalo-chicken", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "apple-cinnamon-dessert", "diavola-pizza", "frutti-di-mare", "peruvian-aji-amarillo", "south-african-boerewors", "thai-chicken-pizza", "peking-duck-pizza"]; // + Expansion Batch 23 (#780), a LATER batch
+const B22_MATERIALS_LATER: readonly string[] = ["brie", "buffalo-sauce", "fennel", "orange", "carrot", "red-cabbage", "sunflower-seeds", "radicchio", "truffle", "balsamic-vinegar", "apple", "aji-amarillo", "chutney", "cucumber", "peanut-sauce", "peking-duck", "spicy-salami", "squid", "sweet-bean-sauce"]; // + Expansion Batch 23 (#780)
+const B24_RECIPES: readonly string[] = ["diavola-pizza", "frutti-di-mare", "peruvian-aji-amarillo", "south-african-boerewors", "thai-chicken-pizza", "peking-duck-pizza"]; // Expansion Batch 24 (#780), a LATER batch: left out of the Batch 18 before/after comparisons (thai-chicken-pizza also uses cilantro; its own Research and duplicate-gate approvals are pinned in expansionBatch24 / the T24-R1 packet)
+const WITHOUT_B24 = (RECIPES as readonly Recipe[]).filter((r) => !B24_RECIPES.includes(r.id));
 const WITHOUT_B21 = (RECIPES as readonly Recipe[]).filter((r) => r.id !== "taco-pizza" && r.id !== "okonomiyaki-style-pizza" && !B22_RECIPES_LATER.includes(r.id));
 const idsOf = (r: Recipe) => r.requiredIngredients.map((q) => q.ingredientId as string);
 const jaccard = (a: readonly string[], b: readonly string[]) => {
@@ -152,7 +154,7 @@ describe("differentiation (the global 0.4 Jaccard guideline is NOT changed; the 
     }
   });
   it("Owner OD-B18-3 APPROVED exception only for baingan-bharta-pizza: 0.43 vs two curry recipes; global Jaccard 0.4 guideline and unique ingredient identity remain unchanged", () => {
-    const over = (r: Recipe) => ORDINARY.filter((o) => o.id !== r.id && jaccard(idsOf(r), idsOf(o)) >= 0.4).map((o) => o.id).sort();
+    const over = (r: Recipe) => ORDINARY.filter((o) => !B24_RECIPES.includes(o.id) && o.id !== r.id && jaccard(idsOf(r), idsOf(o)) >= 0.4).map((o) => o.id).sort();
     expect(over(reina)).toEqual([]);
     expect(over(baingan)).toEqual(["curry-pizza-japan", "rendang-pizza"]);
     expect(jaccard(idsOf(baingan), idsOf(RECIPES.find((r) => r.id === "rendang-pizza")! as Recipe))).toBeCloseTo(3 / 7, 5);
@@ -316,8 +318,8 @@ describe("Research: cilantro now unlocks a NEW lettered cohort of two; no pre-ex
     expect(B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS).toEqual({ [BBQ]: "-->B" });
     const allLadder = DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds);
     const floorOrder = [...STARTER_INGREDIENT_IDS, ...allLadder.filter((m) => m !== "cilantro" && m !== "bbq-sauce"), "bbq-sauce", "cilantro"];
-    const now = researchCohortLetters(floorOrder, RECIPES);
-    const before = researchCohortLetters(floorOrder, RECIPES.filter((r) => !NEW_IDS.includes(r.id)));
+    const now = researchCohortLetters(floorOrder, WITHOUT_B24); // Expansion Batch 24 (#780): a later batch is left out (thai-chicken-pizza joins the cilantro cohort)
+    const before = researchCohortLetters(floorOrder, WITHOUT_B24.filter((r) => !NEW_IDS.includes(r.id)));
     expect(before.has(BBQ)).toBe(false); // before Batch 18 the cilantro cohort was the BBQ chicken alone: no letter
     const observedShift = `${before.get(BBQ) ?? "-"}->${now.get(BBQ) ?? "-"}`;
     expect(observedShift).toBe(B18_APPROVED_ALTERNATE_ORDER_LETTER_SHIFTS[BBQ]);
