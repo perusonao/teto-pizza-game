@@ -109,6 +109,10 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   friarielli: "xl",
   basil: "xl",
   "prosciutto-crudo": "xl",
+  cucumber: "s", // Expansion Batch 24 (#780)
+  "peking-duck": "m", // Expansion Batch 24 (#780)
+  "spicy-salami": "m", // Expansion Batch 24 (#780)
+  squid: "s", // Expansion Batch 24 (#780)
 };
 
 /** The base table, plus the late-catalog ingredients' classes (./lateCatalog.ts) when that catalog is enabled; otherwise the base table itself. */

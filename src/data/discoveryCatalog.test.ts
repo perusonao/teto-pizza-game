@@ -47,6 +47,7 @@ const BATCH17_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["goulash-pizza
 // as RECIPE-SPECIFIC Owner decisions (2026-11-04; the same stand-ins as the Batch 10 curry recipes / moussaka-style-pizza); NOT NO_SAUCE and NOT a general rule, and no other BASE_SAUCE_UNSPECIFIED row is exempted here. PROVISIONAL SPEC, original pizzadb.jp NOT confirmed.
 const BATCH18_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["baingan-bharta-pizza", "reina-pepiada-pizza"];
 const BATCH23_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["apple-cinnamon-dessert"]; // Expansion Batch 23 (#780, Owner 2026-11-10)
+const BATCH24_PHASE2_NOT_IN_PHASE2_MATRIX: readonly string[] = ["peruvian-aji-amarillo", "thai-chicken-pizza", "frutti-di-mare", "diavola-pizza", "south-african-boerewors", "peking-duck-pizza"]; // Expansion Batch 24 (#780, Owner-approved T24-R1 packet 2026-11-10): the six ordinary B24 targets come from the 172-row matrix, which the older Phase-2 SHIPPED_KEEP set does not contain (no Phase-2 row to compare with)
 const BATCH22_PHASE2_BLOCKED_OWNER_APPROVED: readonly string[] = ["speck-e-brie", "buffalo-chicken"]; // Expansion Batch 22 (#780, Owner 2026-11-09)
 
 describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
@@ -72,6 +73,7 @@ describe("RECIPE_DISCOVERY_CATALOG (P3-1 runtime catalog)", () => {
       if (BATCH17_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (BATCH18_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue;
       if (BATCH23_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue; // Expansion Batch 23 (#780): the ordinary B23 target is a Phase-2 row the Owner individually approved to ship (2026-11-10, NO_SAUCE as a GAMEPLAY decision); expansionBatch23.test.ts pins its exact set
+      if (BATCH24_PHASE2_NOT_IN_PHASE2_MATRIX.includes(t.recipeId)) continue; // Expansion Batch 24 (#780)
       if (BATCH22_PHASE2_BLOCKED_OWNER_APPROVED.includes(t.recipeId)) continue; // Expansion Batch 22 (#780): the two ordinary B22 targets are Phase-2 rows the Owner individually approved to ship (2026-11-09); expansionBatch22.test.ts pins their exact sets
       if (isLateRecipeId(t.recipeId)) continue; // E5: the late target has no Phase-2 row; lateCatalog.ikura.test.ts pins it
       const expected = phase2.get(RECIPE_DISCOVERY_TARGET_IDS[t.recipeId as BaseRecipeId]);

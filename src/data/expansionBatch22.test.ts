@@ -335,7 +335,7 @@ describe("Research: the canonical order changes 0 letters; the non-canonical cha
   };
   it("the measured changes are exactly the pinned 35 IDs (0 canonical); any other ID or letter change is a STOP", () => {
     // Expansion Batch 23 and 23-b (#780) are LATER batches: their recipes and materials are left out, so this stays the Batch 22 shipped-ladder comparison the Owner approved.
-    const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES.filter((r) => !["apple-cinnamon-dessert", "nutella-dessert-pizza", "smore-dessert-pizza"].includes(r.id)) as never, 40, 20261105, ["apple", "banana", "chocolate", "powdered-sugar", "graham-cracker", "marshmallow"]);
+    const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES.filter((r) => !["apple-cinnamon-dessert", "nutella-dessert-pizza", "smore-dessert-pizza", "diavola-pizza", "frutti-di-mare", "peruvian-aji-amarillo", "south-african-boerewors", "thai-chicken-pizza", "peking-duck-pizza"].includes(r.id)) as never, 40, 20261105, ["apple", "banana", "chocolate", "powdered-sugar", "graham-cracker", "marshmallow", "aji-amarillo", "chutney", "cucumber", "peanut-sauce", "peking-duck", "spicy-salami", "squid", "sweet-bean-sauce"]); // Expansion Batch 24 (#780) is a LATER batch: its six recipes and eight materials are left out so this stays the Batch 22 before/after comparison
     expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
     const measured = new Map([...changes].map(([id, list]) => [id, [...new Set(list.map((c) => c.change))].sort()]));
     expect([...measured.keys()].sort()).toEqual(Object.keys(PENDING_OWNER_APPROVAL).sort());

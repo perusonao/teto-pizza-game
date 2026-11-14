@@ -145,6 +145,12 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   "grandma-pizza": "grandma-pizza-pizzadb",
   // TQ-1D: the first NO_SAUCE recipe (PIZZA DB evidence id from the 172 matrix).
   aussie: "aussie-pizzadb",
+  "diavola-pizza": "diavola-pizza-pizzadb-p5",
+  "frutti-di-mare": "frutti-di-mare-pizzadb-p11",
+  "peruvian-aji-amarillo": "peruvian-aji-amarillo-pizzadb-p12",
+  "south-african-boerewors": "south-african-boerewors-pizzadb-p14",
+  "thai-chicken-pizza": "thai-chicken-pizza-pizzadb-p4",
+  "peking-duck-pizza": "peking-duck-pizza",
 };
 
 // FIN-E4 foundation: an enabled late catalog is checked once, here (the first module that sees recipes, ingredients and targets together).

@@ -1,33 +1,33 @@
 {
- "dependencies": 360,
+ "dependencies": 339,
  "byStatus": {
-  "RESOLVED": 23,
-  "WORK": 7,
-  "SOURCE_RESEARCH": 20,
-  "CANDIDATE_PENDING": 12,
-  "EXCEPTION_REVIEW": 76,
+  "RESOLVED": 20,
+  "WORK": 6,
+  "SOURCE_RESEARCH": 18,
+  "CANDIDATE_PENDING": 8,
+  "EXCEPTION_REVIEW": 70,
   "WAITS_MECHANIC": 58,
   "WAITS_IN_FLIGHT": 0,
   "AXIS_WITH_M1": 30,
-  "STAGED_PAIR": 94,
-  "OWNER_DECISION": 40
+  "STAGED_PAIR": 90,
+  "OWNER_DECISION": 39
  },
  "byDecision": {
-  "rule": 10,
-  "D-1": 76,
-  "D-2": 20,
-  "D-3": 12,
-  "D-4": 15,
+  "rule": 9,
+  "D-1": 70,
+  "D-2": 18,
+  "D-3": 8,
+  "D-4": 12,
   "D-5": 5
  },
- "remainingOpen": 337,
+ "remainingOpen": 319,
  "needsAdditionalOwnerDecision": {
-  "total": 116,
-  "perRecipeExceptions": 76,
-  "exceptionRecipes": 39,
-  "other": 40
+  "total": 109,
+  "perRecipeExceptions": 70,
+  "exceptionRecipes": 35,
+  "other": 39
  },
- "needsResearchOrConfirmation": 32,
+ "needsResearchOrConfirmation": 26,
  "nextPromotable": {
   "ready": [],
   "readyWithWork": [],
@@ -71,13 +71,12 @@
   "calzone-pizzadb -> calzone",
   "greek-style-pizzadb -> greek-style",
   "chicago-deep-dish-pizzadb -> chicago-deep-dish",
-  "siciliana-pizzadb -> siciliana",
-  "frutti-di-mare-pizzadb -> frutti-di-mare"
+  "siciliana-pizzadb -> siciliana"
  ],
  "d1Dossier": {
-  "recipes": 39,
+  "recipes": 35,
   "withProcessDifference": 21,
-  "withoutProcessDifference": 18,
+  "withoutProcessDifference": 14,
   "alsoResearchBlocked": 19,
   "rows": [
    {
@@ -193,6 +192,7 @@
       "breakfast-pizza(0.5)",
       "calabresa-argentina(0.4)",
       "capricciosa(0.333)",
+      "diavola-pizza(0.667)",
       "funghi(0.667)",
       "grandma-pizza(0.5)",
       "hawaiian(0.5)",
@@ -230,6 +230,7 @@
       "full-english-pizza(0.429)",
       "pizza-portuguesa(0.571)",
       "polish-kielbasa(0.5)",
+      "south-african-boerewors(0.5)",
       "spanish-chorizo-pizza(0.5)",
       "tonno-e-cipolla(0.5)"
      ],
@@ -306,18 +307,6 @@
     "researchBlocked": false
    },
    {
-    "id": "thai-chicken-pizza",
-    "shippedOverlaps": {
-     "JACCARD_GT_0_4": [
-      "bbq-chicken-pizza(0.5)",
-      "reina-pepiada-pizza(0.429)"
-     ]
-    },
-    "processDifference": [],
-    "judgementBasis": "NO_PROCESS_DIFFERENCE",
-    "researchBlocked": false
-   },
-   {
     "id": "keema-pizza",
     "shippedOverlaps": {
      "SUBSET": [
@@ -331,6 +320,7 @@
       "pizza-portuguesa(0.333)",
       "polish-kielbasa(0.5)",
       "rendang-pizza(0.5)",
+      "south-african-boerewors(0.5)",
       "spanish-chorizo-pizza(0.5)",
       "tandoori-paneer-pizza(0.4)",
       "tonno-e-cipolla(0.5)",
@@ -347,6 +337,7 @@
     "shippedOverlaps": {
      "ONE_DIFF": [
       "bismarck(0.5)",
+      "diavola-pizza(0.5)",
       "funghi(0.5)",
       "margherita(0.5)",
       "pepperoni(0.5)",
@@ -379,21 +370,6 @@
     "researchBlocked": false
    },
    {
-    "id": "diavola-pizza",
-    "shippedOverlaps": {
-     "ONE_DIFF": [
-      "bismarck(0.5)",
-      "funghi(0.5)",
-      "margherita(0.5)",
-      "pepperoni(0.5)",
-      "salsiccia(0.5)"
-     ]
-    },
-    "processDifference": [],
-    "judgementBasis": "NO_PROCESS_DIFFERENCE",
-    "researchBlocked": false
-   },
-   {
     "id": "detroit-style-pizza",
     "shippedOverlaps": {
      "ONE_DIFF": [
@@ -414,6 +390,7 @@
     "shippedOverlaps": {
      "ONE_DIFF": [
       "bismarck(0.5)",
+      "diavola-pizza(0.5)",
       "funghi(0.5)",
       "margherita(0.5)",
       "salsiccia(0.5)"
@@ -524,6 +501,7 @@
     "shippedOverlaps": {
      "ONE_DIFF": [
       "bismarck(0.5)",
+      "diavola-pizza(0.5)",
       "funghi(0.5)",
       "pepperoni(0.5)",
       "salsiccia(0.5)"
@@ -593,17 +571,6 @@
     "processDifference": [],
     "judgementBasis": "NO_PROCESS_DIFFERENCE",
     "researchBlocked": true
-   },
-   {
-    "id": "frutti-di-mare-pizzadb",
-    "shippedOverlaps": {
-     "JACCARD_GT_0_4": [
-      "pescatore(0.5)"
-     ]
-    },
-    "processDifference": [],
-    "judgementBasis": "NO_PROCESS_DIFFERENCE",
-    "researchBlocked": false
    },
    {
     "id": "hot-honey-pepperoni",
@@ -700,18 +667,6 @@
     "processDifference": [],
     "judgementBasis": "NO_PROCESS_DIFFERENCE",
     "researchBlocked": true
-   },
-   {
-    "id": "south-african-boerewors",
-    "shippedOverlaps": {
-     "ONE_DIFF": [
-      "polish-kielbasa(0.6)",
-      "spanish-chorizo-pizza(0.6)"
-     ]
-    },
-    "processDifference": [],
-    "judgementBasis": "NO_PROCESS_DIFFERENCE",
-    "researchBlocked": false
    },
    {
     "id": "hokkaido-cheese-pizza",

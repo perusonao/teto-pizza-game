@@ -539,6 +539,42 @@ const BASE_ORDERS: Order[] = [
     requestedBy: "mito",
     lineJa: "あまいりんごのデザートピザ、食べてみたいな！",
   },
+  {
+    id: "order-diavola-pizza",
+    recipeId: "diavola-pizza",
+    requestedBy: "mito",
+    lineJa: "ディアボラ、名前からして辛そう！食べてみたいな！",
+  },
+  {
+    id: "order-frutti-di-mare",
+    recipeId: "frutti-di-mare",
+    requestedBy: "mito",
+    lineJa: "フルッティ・ディ・マーレ、海の幸がいっぱいだね！食べてみたいな！",
+  },
+  {
+    id: "order-peruvian-aji-amarillo",
+    recipeId: "peruvian-aji-amarillo",
+    requestedBy: "mito",
+    lineJa: "ペルーのアヒアマリージョのピザ、黄色いソースが気になるな！食べてみたいな！",
+  },
+  {
+    id: "order-south-african-boerewors",
+    recipeId: "south-african-boerewors",
+    requestedBy: "mito",
+    lineJa: "南アフリカのボアヴォースピザ、チャツネの甘酸っぱさが楽しみ！食べてみたいな！",
+  },
+  {
+    id: "order-thai-chicken-pizza",
+    recipeId: "thai-chicken-pizza",
+    requestedBy: "mito",
+    lineJa: "タイ風チキンピザ、ピーナッツの香りがしそう！食べてみたいな！",
+  },
+  {
+    id: "order-peking-duck-pizza",
+    recipeId: "peking-duck-pizza",
+    requestedBy: "mito",
+    lineJa: "北京ダックのピザ、甘いたれが合いそう！食べてみたいな！",
+  },
 
 ];
 

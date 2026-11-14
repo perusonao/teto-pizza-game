@@ -18,7 +18,7 @@ describe("Staged Catalog — re-judgement under the provisional blanket rules (I
     const dup = stagedDuplicateGate(SHIPPED);
     const blocking = STAGED_RECIPES.reduce((n, r) => n + stagedDependencies(r, dup[r.id], undefined, SHIPPED.ingredientIds).filter(isBlocking).length, 0);
     expect(all).toHaveLength(blocking);
-    expect(STAGED_RECIPES).toHaveLength(73); // (Expansion Batch 23-b, #780: nutella-dessert-pizza and smore-dessert-pizza shipped; was 75) (Expansion Batch 22, #780: six more shipped; Expansion Batch 21, #780: taco-pizza and okonomiyaki-style-pizza shipped; was 84)
+    expect(STAGED_RECIPES).toHaveLength(67); // (Expansion Batch 24, #780: the six T24-R1 recipes shipped; was 73) (Expansion Batch 23-b, #780: nutella-dessert-pizza and smore-dessert-pizza shipped; was 75) (Expansion Batch 22, #780: six more shipped; Expansion Batch 21, #780: taco-pizza and okonomiyaki-style-pizza shipped; was 84)
   });
 
   it.skipIf(!pinsaEnabled())("measured verdicts, duplicate types, exceptions and the parallel mechanic plan (golden)", async () => {

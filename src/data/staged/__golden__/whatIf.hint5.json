@@ -1,5 +1,5 @@
 {
- "targets": 73,
+ "targets": 67,
  "notTarget": [],
  "rows": [
   {
@@ -78,11 +78,6 @@
    "rungs": "SAUCE,STRUCTURE,SUB_CLASS"
   },
   {
-   "id": "thai-chicken-pizza",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
-  },
-  {
    "id": "argentine-napolitana",
    "target": true,
    "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
@@ -141,11 +136,6 @@
    "id": "chicken-tikka-pizza",
    "target": true,
    "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "diavola-pizza",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
   },
   {
    "id": "detroit-style-pizza",
@@ -283,16 +273,6 @@
    "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
-   "id": "frutti-di-mare-pizzadb",
-   "target": true,
-   "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "peruvian-aji-amarillo",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
-  },
-  {
    "id": "hot-honey-pepperoni",
    "target": true,
    "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
@@ -301,11 +281,6 @@
    "id": "natto-pizza",
    "target": true,
    "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "peking-duck-pizza",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "mentaiko-mochi-pizza",
@@ -356,11 +331,6 @@
    "id": "teriyaki-chicken-pizza",
    "target": true,
    "rungs": "STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "south-african-boerewors",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "hokkaido-cheese-pizza",

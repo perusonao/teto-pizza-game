@@ -39,6 +39,8 @@ const lateStep = (id: string): number => COMPOSED.stepOfMaterial(id)!;
 const LANDED_SHOP_CONTRACT: Readonly<Record<string, number>> = {
   apple: 2, // Batch 23 (a fruit topping)
   banana: 2, chocolate: 2, "powdered-sugar": 2, "graham-cracker": 2, marshmallow: 2, // Batch 23-b
+  // Batch 24 (T24-R1, Owner-approved packet 2026-11-10; k = the largest minCount over the recipes that use it): four sauces (k = 1) and cucumber / peking-duck / spicy-salami / squid (k = 2)
+  "aji-amarillo": 1, chutney: 1, "peanut-sauce": 1, "sweet-bean-sauce": 1, cucumber: 2, "peking-duck": 2, "spicy-salami": 2, squid: 2,
 };
 /** Owner-approved pack changes of a shipped material by a LATER train: id -> the new k. Empty until the Owner approves one; written by hand in the train's PR, never computed. */
 const APPROVED_PACK_CHANGES: Readonly<Record<string, number>> = {};
@@ -141,7 +143,7 @@ const EXPECTED_OFFERS: readonly [string, number, string, number, number, number,
   ["swiss-cheese", 61, "T4", 2, 20, 120, 60],
   // B11 S1 (PROVISIONAL SPEC): appended ordinary steps 62-63 (T4, no star gate); k = count in the key recipe (porcini 3 in boscaiola / porcini-pizza, mussel 1 in pescatore). The late steps below shift +2.
   ["porcini", 62, "T4", 3, 30, 120, 60],
-  ["mussel", 63, "T4", 1, 10, 120, 60],
+  ["mussel", 63, "T4", 2, 20, 120, 60], // Expansion Batch 24 (#780): frutti-di-mare needs 2 (k = the largest minCount over all recipes; was 1) -- Owner-approved pack change 10 -> 20, price unchanged (T24-R1 packet 2026-11-10, confirmed 2026-11-13)
   // Expansion Batch 12 (PROVISIONAL SPEC): appended ordinary step 64 (T4, no star gate); k = count in the key recipe pizza-alla-norma (ricotta-salata 3). The late steps below shift +1.
   ["ricotta-salata", 64, "T4", 3, 30, 120, 60],
   // Expansion Batch 13 (#708, PROVISIONAL SPEC): appended ordinary step 65 (T4, no star gate); k = count in the key recipe potato-mayo-pizza (mayo 2). The late steps below shift +1 again.

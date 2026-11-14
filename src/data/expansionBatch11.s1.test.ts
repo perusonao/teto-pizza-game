@@ -39,9 +39,9 @@ describe("the two new materials (provisional spec)", () => {
     expect(TOPPING_SIZE_CLASS_BY_ID.porcini).toBe("m");
     expect(TOPPING_SIZE_CLASS_BY_ID.mussel).toBe("s");
   });
-  it("both are ordinary finite materials (not late, no star gate), sold at the T4 price at their own step (first pack 120 Pitz, refill 60): porcini step 62 (k=3 -> 30), mussel step 63 (k=1 -> 10)", () => {
+  it("both are ordinary finite materials (not late, no star gate), sold at the T4 price at their own step (first pack 120 Pitz, refill 60): porcini step 62 (k=3 -> 30), mussel step 63 (k=1 -> 10; Expansion Batch 24 (#780): k=2 -> 20, Owner-approved pack change, price unchanged)", () => {
     expect(materialOffer(getIngredient("porcini")!)).toEqual({ ingredientId: "porcini", step: 62, tier: "T4", k: 3, packQuantity: 30, packPrice: 120, refillPrice: 60 });
-    expect(materialOffer(getIngredient("mussel")!)).toEqual({ ingredientId: "mussel", step: 63, tier: "T4", k: 1, packQuantity: 10, packPrice: 120, refillPrice: 60 });
+    expect(materialOffer(getIngredient("mussel")!)).toEqual({ ingredientId: "mussel", step: 63, tier: "T4", k: 2, packQuantity: 20, packPrice: 120, refillPrice: 60 } /* Expansion Batch 24 (#780): frutti-di-mare uses 2 (was k 1 / 10); Owner-approved, price unchanged */);
     for (const id of ["porcini", "mussel"]) expect(id in LATE_ENTITLEMENT_FLOORS, id).toBe(false);
   });
   it("the plain mushroom, clam and shrimp keep their own rows (porcini / mussel replace nothing)", () => {

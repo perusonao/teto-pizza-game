@@ -1,0 +1,355 @@
+{
+ "train": "T24-R1",
+ "tag": "t24",
+ "label": "Expansion Batch 24",
+ "issue": 780,
+ "recipes": [
+  {
+   "id": "diavola-pizza",
+   "nameJa": "ディアボラ",
+   "description": "トマトソースの生地に、ぴりっと辛いサラミとモッツァレラをのせた、悪魔の名を持つ一枚。",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "spicy-salami",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "diavola-pizza-pizzadb-p5",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "ディアボラ、名前からして辛そう！食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "tomato-sauce",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "spicy-salami"
+    ]
+   }
+  },
+  {
+   "id": "frutti-di-mare",
+   "nameJa": "フルッティディマーレ",
+   "description": "トマトソースの生地に、あさりとムール貝、エビ、イカをたっぷりのせた、海の幸そろい踏みの一枚。",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "clam",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mussel",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "shrimp",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "squid",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "frutti-di-mare-pizzadb-p11",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "フルッティ・ディ・マーレ、海の幸がいっぱいだね！食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "tomato-sauce",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "squid"
+    ]
+   }
+  },
+  {
+   "id": "peruvian-aji-amarillo",
+   "nameJa": "ペルーアヒアマリージョピザ",
+   "description": "アヒアマリージョを塗った生地に、チキンとブラックオリーブ、モッツァレラをのせた、フルーティーな辛さのペルー風の一枚。",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "aji-amarillo",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "black-olive",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "chicken",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "peruvian-aji-amarillo-pizzadb-p12",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "ペルーのアヒアマリージョのピザ、黄色いソースが気になるな！食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "aji-amarillo",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "aji-amarillo"
+    ]
+   }
+  },
+  {
+   "id": "south-african-boerewors",
+   "nameJa": "南アフリカボアヴォースピザ",
+   "description": "チャツネを塗った生地に、ソーセージと玉ねぎ、モッツァレラをのせた、甘酸っぱい南アフリカ風の一枚。",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "chutney",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "sausage",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "south-african-boerewors-pizzadb-p14",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "南アフリカのボアヴォースピザ、チャツネの甘酸っぱさが楽しみ！食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "chutney",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "chutney"
+    ]
+   }
+  },
+  {
+   "id": "thai-chicken-pizza",
+   "nameJa": "タイチキンピザ",
+   "description": "ピーナッツソースを塗った生地に、チキンとパクチー、モッツァレラをのせた、甘辛いタイ風の一枚。",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "peanut-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "chicken",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cilantro",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "thai-chicken-pizza-pizzadb-p4",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "タイ風チキンピザ、ピーナッツの香りがしそう！食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "peanut-sauce",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "peanut-sauce"
+    ]
+   }
+  },
+  {
+   "id": "peking-duck-pizza",
+   "nameJa": "北京ダックピザ",
+   "description": "甜麺醤を塗った生地に、北京ダックときゅうり、青ねぎ、モッツァレラをのせた、中華風の一枚。",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "sweet-bean-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "cucumber",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "green-onion",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "peking-duck",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "peking-duck-pizza",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "北京ダックのピザ、甘いたれが合いそう！食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "sweet-bean-sauce",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "cucumber",
+     "peking-duck",
+     "sweet-bean-sauce"
+    ]
+   }
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "aji-amarillo",
+   "nameJa": "アヒアマリージョ",
+   "category": "sauce",
+   "family": null,
+   "color": "#ffe60f",
+   "emoji": "🟨"
+  },
+  {
+   "id": "chutney",
+   "nameJa": "チャツネ",
+   "category": "sauce",
+   "family": null,
+   "color": "#876e00",
+   "emoji": "🥭"
+  },
+  {
+   "id": "cucumber",
+   "nameJa": "きゅうり",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#7fae5a",
+   "emoji": "🥝",
+   "sizeClass": "s"
+  },
+  {
+   "id": "peanut-sauce",
+   "nameJa": "ピーナッツソース",
+   "category": "sauce",
+   "family": null,
+   "color": "#faa078",
+   "emoji": "🥄"
+  },
+  {
+   "id": "peking-duck",
+   "nameJa": "北京ダック",
+   "category": "topping",
+   "family": "meat",
+   "color": "#a6542b",
+   "emoji": "🦆",
+   "sizeClass": "m"
+  },
+  {
+   "id": "spicy-salami",
+   "nameJa": "サラミピカンテ",
+   "category": "topping",
+   "family": "meat",
+   "color": "#b3261e",
+   "emoji": "🍒",
+   "sizeClass": "m"
+  },
+  {
+   "id": "squid",
+   "nameJa": "イカ",
+   "category": "topping",
+   "family": "seafood",
+   "color": "#e8dccb",
+   "emoji": "🐙",
+   "sizeClass": "s"
+  },
+  {
+   "id": "sweet-bean-sauce",
+   "nameJa": "甜麺醤",
+   "category": "sauce",
+   "family": null,
+   "color": "#50001e",
+   "emoji": "🟪"
+  }
+ ],
+ "seq": 3
+}

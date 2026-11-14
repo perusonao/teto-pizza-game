@@ -478,6 +478,8 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       // them only behind `import.meta.env.VITE_PREVIEW_MODE`, and ../preview/previewIsolation.gate.test.ts
       // proves a production bundle contains none of it.
       "../preview/hvSeeds.ts",
+      // Expansion Batch 24 (#780; train spec T24-R1): the HV seeds (Preview-only, behind ?hv=t24-*) walk the ladder exactly like the earlier batches' seeds.
+      "../preview/t24HvSeeds.ts",
       "../state/gameReducer.ts",
       "../state/materialEntitlement.ts",
       "../state/recipeChapters.ts",
