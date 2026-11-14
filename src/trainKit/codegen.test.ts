@@ -73,6 +73,7 @@ describe("text primitives fail closed", () => {
     expect(insertBeforeLine(file, "const B = [", "// x")).toContain("];\n// x\nconst B = [");
     expect(insertAfterLine(file, "const B = [", "  0,")).toContain("const B = [\n  0,\n  2,");
     expect(appendInline(file, "export const ROW = [", "] as const;", "[3, 4]")).toContain("export const ROW = [[1, 2], [3, 4]] as const;\n// tail");
+    expect(appendInline("x\r\nexport const ROW = [\r\n  [1, 2],\r\n] as const;\r\n", "export const ROW = [", "] as const;", "[3, 4]")).toContain("[1, 2], [3, 4]] as const;\r\n");
     expect(appendInline("x\nexport const O = { a: 1 };\n", "export const O = {", " };", "b: 2")).toContain("export const O = { a: 1, b: 2 };");
   });
   it("throw on a missing or ambiguous anchor instead of guessing", () => {
