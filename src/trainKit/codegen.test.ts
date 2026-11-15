@@ -66,9 +66,11 @@ describe("renderers", () => {
   });
 
   it("generates a normal ring only for the primary sauce and one presence dab for a secondary sauce", () => {
-    const k = kit();
-    k.newIngredients.push({ id: "yogurt-sauce", nameJa: "ヨーグルトソース", category: "sauce", family: null, color: "#fff", emoji: "Y" });
-    k.recipes[0].requiredIngredients.splice(1, 0, { ingredientId: "yogurt-sauce", minCount: 1 });
+    const base = kit();
+    const yogurt = { id: "yogurt-sauce", nameJa: "ヨーグルトソース", category: "sauce", family: null, color: "#fff", emoji: "Y" } as const;
+    const required = [...base.recipes[0].requiredIngredients];
+    required.splice(1, 0, { ingredientId: "yogurt-sauce", minCount: 1 });
+    const k = { ...base, newIngredients: [...base.newIngredients, yogurt], recipes: [{ ...base.recipes[0], requiredIngredients: required }, ...base.recipes.slice(1)] };
     const values = e2eValues(k, {
       nameJa: (id) => ({ ponzu: "ポン酢", "yogurt-sauce": "ヨーグルトソース", mozzarella: "モッツァレラ", yuzu: "ゆず" })[id]!,
       category: (id) => id === "ponzu" || id === "yogurt-sauce" ? "sauce" : id === "mozzarella" ? "cheese" : "topping",
