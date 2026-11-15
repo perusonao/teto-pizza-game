@@ -280,6 +280,7 @@ export const B24_BATCH: RecipeBatchManifest = {
     { recipeId: "thai-chicken-pizza", keyIngredientId: "peanut-sauce", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "peking-duck-pizza", keyIngredientId: "sweet-bean-sauce", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
+  followedBy: ["buffalo-cauliflower-pizza"], // (Expansion Batch 25 / T25 is appended after this batch: its one ordinary recipe; its five late recipes follow the late catalog)
 };
 
 export const RECIPE_BATCHES: readonly RecipeBatchManifest[] = [NEXT_RECIPE_BATCH, B11_S1_BATCH, B12_BATCH, B12B_BATCH, B13_BATCH, B14_BATCH, B15_BATCH, B16_BATCH, B17_BATCH, B18_BATCH, B19_BATCH, B20A_BATCH, B22_BATCH, B23_BATCH, B24_BATCH];
