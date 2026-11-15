@@ -309,7 +309,7 @@ export const YUZU_SHRIMP_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "ikura-salmon-pizza",
   recipes: [{ recipeId: "yuzu-shrimp-pizza", keyIngredientId: "yuzu-kosho", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza are appended after yuzu-shrimp-pizza)
+  followedBy: ["eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U2 / U3: eggplant-dengaku-pizza and eggplant-tahini-pizza are appended after yuzu-shrimp-pizza)
 };
 
 /**
@@ -323,7 +323,7 @@ export const EGGPLANT_DENGAKU_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "yuzu-shrimp-pizza",
   recipes: [{ recipeId: "eggplant-dengaku-pizza", keyIngredientId: "white-sesame", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U3 / BBQ Chicken: eggplant-tahini-pizza and bbq-chicken-pizza are appended after eggplant-dengaku-pizza)
+  followedBy: ["eggplant-tahini-pizza", "bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (New Sauces Phase B U3 / BBQ Chicken: eggplant-tahini-pizza and bbq-chicken-pizza are appended after eggplant-dengaku-pizza)
 };
 
 /**
@@ -337,7 +337,7 @@ export const EGGPLANT_TAHINI_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "eggplant-dengaku-pizza",
   recipes: [{ recipeId: "eggplant-tahini-pizza", keyIngredientId: "pomegranate", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (BBQ Chicken is appended after eggplant-tahini-pizza)
+  followedBy: ["bbq-chicken-pizza", "wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (BBQ Chicken is appended after eggplant-tahini-pizza)
 };
 
 /**
@@ -352,7 +352,7 @@ export const BBQ_CHICKEN_BATCH: RecipeBatchManifest = {
   status: "landed",
   afterRecipeId: "eggplant-tahini-pizza",
   recipes: [{ recipeId: "bbq-chicken-pizza", keyIngredientId: "bbq-sauce", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" }],
-  followedBy: ["wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza)
+  followedBy: ["wasabi-beef-pizza", "tarako-cream-pizza", "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (PR-2 late4: wasabi-beef-pizza and tarako-cream-pizza are appended after bbq-chicken-pizza)
 };
 
 /**
@@ -368,7 +368,7 @@ export const LATE4_BATCH: RecipeBatchManifest = {
     { recipeId: "wasabi-beef-pizza", keyIngredientId: "wasabi", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "tarako-cream-pizza", keyIngredientId: "nori", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 21 is appended after this batch)
+  followedBy: ["taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 21 is appended after this batch)
 };
 
 /**
@@ -383,7 +383,7 @@ export const B21_BATCH: RecipeBatchManifest = {
     { recipeId: "taco-pizza", keyIngredientId: "tortilla-chips", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "okonomiyaki-style-pizza", keyIngredientId: "bonito-flakes", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 22 is appended after this batch)
+  followedBy: ["pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 22 is appended after this batch)
 };
 
 /**
@@ -400,7 +400,7 @@ export const B22_LATE_BATCH: RecipeBatchManifest = {
     { recipeId: "pizza-radicchio-noci", keyIngredientId: "balsamic-vinegar", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "black-truffle-pizza", keyIngredientId: "truffle", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: ["nutella-dessert-pizza", "smore-dessert-pizza", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 23 is appended after this batch)
+  followedBy: ["nutella-dessert-pizza", "smore-dessert-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad", ...(pinsaEnabled() ? ["pinsa-romana"] : [])], // (Expansion Batch 23 is appended after this batch)
 };
 
 /**
@@ -415,5 +415,5 @@ export const B23_LATE_BATCH: RecipeBatchManifest = {
     { recipeId: "nutella-dessert-pizza", keyIngredientId: "powdered-sugar", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
     { recipeId: "smore-dessert-pizza", keyIngredientId: "marshmallow", ladderCredit: true, lunchRush: false, cut: false, hint: "key-free" },
   ],
-  followedBy: pinsaEnabled() ? ["pinsa-romana"] : [],
+  followedBy: ["swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad", ...(pinsaEnabled() ? ["pinsa-romana"] : [])],
 };
