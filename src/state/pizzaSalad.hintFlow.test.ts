@@ -15,8 +15,10 @@ const FIRST_FALLBACK = "まずはソースを塗ってみて！ピザを指で�
 const hint = (s: GameState) => buildHintLine(salad, s.pizza, s.makingStep, false).textJa;
 
 function start(): GameState {
+  const base = createGuidedInitialState("margherita", { ownedIngredientIds: ["tomato-sauce", "yogurt-sauce"] });
   return {
-    ...createGuidedInitialState("margherita", { ownedIngredientIds: ["tomato-sauce", "yogurt-sauce"] }),
+    ...base,
+    inventory: { ...base.inventory, "tomato-sauce": 5, "yogurt-sauce": 5 }, // the EP3 stock gate: both sauces are in stock
     phase: "PREPARE",
     makingStep: "SAUCE",
     pizza: createEmptyPizza(),
