@@ -1,0 +1,25 @@
+{
+ "train": "T25-I7-final",
+ "tag": "t25i7",
+ "dryRun": false,
+ "edited": [
+  "src/data/lateCatalog.ts",
+  "src/data/recipeHintRoles.ts",
+  "src/data/recipeSauceProfiles.ts",
+  "src/data/referencePizza.ts",
+  "src/preview/hvSeeds.ts",
+  "src/preview/previewIsolation.gate.test.ts"
+ ],
+ "generated": [
+  "e2e/t25i7.spec.ts",
+  "src/preview/t25i7HvSeeds.test.ts",
+  "src/preview/t25i7HvSeeds.ts",
+  "src/trainKit/landed/t25i7.json"
+ ],
+ "floors": {
+  "yogurt-sauce": 101
+ },
+ "hvIds": [
+  "t25i7-pizza-salad"
+ ]
+}

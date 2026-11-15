@@ -7,27 +7,27 @@ import { DISCOVERY_LADDER } from "./discoveryLadder";
 import { getIngredient } from "./ingredients";
 import { RECIPES, type Recipe } from "./recipes";
 
-const NEW_IDS = ["buffalo-cauliflower-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone"] as const;
-const NEW_MATERIALS = ["cauliflower", "kebab-sauce", "daikon", "liver-pate", "lime", "asparagus"] as const;
+const NEW_IDS = ["buffalo-cauliflower-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad"] as const;
+const NEW_MATERIALS = ["cauliflower", "kebab-sauce", "daikon", "liver-pate", "lime", "asparagus", "yogurt-sauce"] as const;
 const recipe = (id: string) => RECIPES.find((r) => r.id === id)! as Recipe;
 
 describe("T25 independent content contract", () => {
-  it("lands five recipes and six materials while pizza-salad/yogurt stay behind I-7", () => {
+  it("lands all six recipes and seven materials after the I-7 runtime Gate", () => {
     for (const id of NEW_IDS) expect(recipe(id).id).toBe(id);
     for (const id of NEW_MATERIALS) expect(getIngredient(id)?.id).toBe(id);
-    expect(RECIPES.some((r) => (r.id as string) === "pizza-salad")).toBe(false);
-    expect(getIngredient("yogurt-sauce")).toBeUndefined();
+    expect(recipe("pizza-salad").requiredIngredients.some((r) => r.ingredientId === "yogurt-sauce")).toBe(true);
+    expect(getIngredient("yogurt-sauce")?.color).toBe("#f7f3e8");
     expect(RECIPES.some((r) => (r.id as string) === "chicken-tikka-pizza")).toBe(false);
   });
 
-  it("records the REC-04 mismatch that keeps L-2 on HOLD: ordinary 81, new late steps 97-100", () => {
-    // MERGE BLOCK: Owner L-2 requires a new decision for this measured ordering; Draft/HOLD must remain until then.
+  it("records the Owner-reapproved REC-04 order: ordinary 81, new late steps 97-101", () => {
     expect(DISCOVERY_LADDER.steps.filter((s) => NEW_IDS.includes(s.keyRecipeId as typeof NEW_IDS[number])).map((s) => [s.step, s.ingredientIds, s.keyRecipeId])).toEqual([
       [81, ["cauliflower"], "buffalo-cauliflower-pizza"],
       [97, ["kebab-sauce"], "swedish-kebab-pizza"],
       [98, ["daikon", "liver-pate"], "banh-mi-pizza"],
       [99, ["lime"], "mexican-elote-pizza"],
       [100, ["asparagus"], "pizza-asparagi-limone"],
+      [101, ["yogurt-sauce"], "pizza-salad"],
     ]);
   });
 
@@ -45,7 +45,7 @@ describe("T25 independent content contract", () => {
   });
 });
 
-describe("T25 Research approval pins (R-00/R-01/R-42; pizza-salad's R-41 remains HOLD)", () => {
+describe("T25 Research approval pins (R-00/R-01/R-42)", () => {
   const APPROVED_STAGES: Readonly<Record<string, readonly string[]>> = {
     "baba-ganoush-pizza": ["olive-oil"], "baingan-bharta-pizza": ["cilantro"], bambino: ["corn", "ham"],
     "bbq-chicken-pizza": ["cilantro"], "black-truffle-pizza": ["parmigiano"], boscaiola: ["olive-oil"],
@@ -55,6 +55,7 @@ describe("T25 Research approval pins (R-00/R-01/R-42; pizza-salad's R-41 remains
     // Fresh partial-slice audit affects new-haven at parmigiano only; olive-oil remains within the broader Owner ceiling but is not an actual change here.
     "moussaka-style-pizza": ["feta"], "new-haven-apizza": ["parmigiano"], "okonomiyaki-style-pizza": ["mayo"],
     "parmigiana-pizza": ["parmigiano"], "pesto-burrata-pizza": ["olive-oil"], "pesto-noci-pizza": ["gorgonzola"],
+    "peking-duck-pizza": ["cucumber"],
     "pesto-salmone": ["lemon"], "pizza-alla-crudaiola": ["olive-oil"], "pizza-bianca": ["olive-oil"],
     "pizza-bianca-ricotta": ["olive-oil"], "pizza-cavolo-carote": ["carrot", "lemon", "olive-oil"],
     "pizza-feta-eliniki": ["feta", "olive-oil"], "pizza-finocchi-salad": ["olive-oil"], "pizza-overload": ["ham"],
@@ -70,11 +71,11 @@ describe("T25 Research approval pins (R-00/R-01/R-42; pizza-salad's R-41 remains
     expect([...changes.values()].flat().filter((change) => change.canonical)).toEqual([]);
   });
 
-  it("requires exactly the 41 approved affected IDs and every approved stage; pizza-salad/R-41 is explicitly absent", () => {
+  it("requires exactly the 42 approved affected IDs and every approved stage", () => {
     const approvedIds = Object.keys(APPROVED_STAGES).sort();
-    expect(approvedIds).toHaveLength(41);
+    expect(approvedIds).toHaveLength(42);
     expect([...changes.keys()].sort()).toEqual(approvedIds);
-    expect(approvedIds).not.toContain("peking-duck-pizza");
+    expect(approvedIds).toContain("peking-duck-pizza");
     const actualStages = Object.fromEntries([...changes].map(([id, list]) => [id, [...new Set(list.map((item) => /, ([a-z0-9-]+) last$/.exec(item.example)?.[1]).filter((stage): stage is string => !!stage))].sort()]));
     expect(actualStages).toEqual(Object.fromEntries(Object.entries(APPROVED_STAGES).map(([id, stages]) => [id, [...stages].sort()])));
   }, 60_000);
