@@ -20,6 +20,12 @@ export const STAGED_GLYPH_PALETTE = {
   "radicchio-leaf": { fill: "#a42a40", light: "#f0d6dc", detail: "#6e1626", outline: "#3c0a16" },
   "truffle-shavings": { fill: "#4a382e", light: "#9a8672", detail: "#2a1d16", outline: "#17100b" },
   "brie-wedge": { fill: "#f6edc6", light: "#fffaf0", detail: "#d8c98a", outline: "#7a6a34" },
+  "cauliflower-floret": { fill: "#f1ead2", light: "#fffdf3", detail: "#9fb67b", outline: "#65704f" },
+  "kebab-sauce-swirl": { fill: "#d86a35", light: "#f3aa79", detail: "#a74325", outline: "#6f2919" },
+  "daikon-matchsticks": { fill: "#f3f0df", light: "#ffffff", detail: "#c9cbb6", outline: "#46503e" },
+  "liver-pate-quenelle": { fill: "#8b5a4a", light: "#c48a76", detail: "#6d3f35", outline: "#40231f" },
+  "lime-wedge": { fill: "#7fbd38", light: "#d8ee8d", detail: "#4d8d28", outline: "#2f5d1c" },
+  "asparagus-spears": { fill: "#4f8a3a", light: "#9bc56f", detail: "#315f29", outline: "#23451e" },
 } as const satisfies Record<string, GlyphColors>;
 
 export type StagedGlyphId = keyof typeof STAGED_GLYPH_PALETTE;
@@ -40,4 +46,10 @@ export const STAGED_GLYPH_FOR_INGREDIENT: Record<string, StagedGlyphId> = {
   radicchio: "radicchio-leaf",
   truffle: "truffle-shavings",
   brie: "brie-wedge",
+  cauliflower: "cauliflower-floret",
+  "kebab-sauce": "kebab-sauce-swirl",
+  daikon: "daikon-matchsticks",
+  "liver-pate": "liver-pate-quenelle",
+  lime: "lime-wedge",
+  asparagus: "asparagus-spears",
 };

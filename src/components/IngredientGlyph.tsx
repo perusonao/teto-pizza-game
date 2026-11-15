@@ -23,14 +23,22 @@ import type { DessertGlyphId } from "./dessertGlyphs/dessertPalette";
  * Gate candidates (docs/reports/TETO_PROGRESS2_W1_HUMAN_VISUAL_VERIFICATION_SYNC.md), ported as-is:
  * no `id`/gradient attributes, so any number of them can share a page.
  */
-export function IngredientGlyph({ ingredient }: { ingredient: Ingredient }) {
+export type IngredientGlyphVariant = "selection" | "placed";
+
+export function IngredientGlyph({ ingredient, variant = "selection" }: { ingredient: Ingredient; variant?: IngredientGlyphVariant }) {
   if (!ingredient.pieceVisual) return <>{ingredient.emoji}</>;
-  return <DedicatedIngredientSvg visual={ingredient.pieceVisual} />;
+  return <DedicatedIngredientSvg visual={ingredient.pieceVisual} variant={variant} />;
 }
 
 /** Style Lock v2 §4.2: the original 3 visuals keep their 32x32 art; Ingredient Icons 2.0 art is 64x64.
  *  Both render at 1em, so callers' font-size applies unchanged. */
 const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
+  "cauliflower-floret": "0 0 64 64",
+  "kebab-sauce-swirl": "0 0 64 64",
+  "daikon-matchsticks": "0 0 64 64",
+  "liver-pate-quenelle": "0 0 64 64",
+  "lime-wedge": "0 0 64 64",
+  "asparagus-spears": "0 0 64 64",
   "tomato-slice": "0 0 32 32",
   "caper-cluster": "0 0 32 32",
   "clam-valve": "0 0 32 32",
@@ -91,7 +99,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "artichoke-quarter": "0 0 64 64",
 };
 
-function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual }) {
+function DedicatedIngredientSvg({ visual, variant }: { visual: DedicatedIngredientVisual; variant: IngredientGlyphVariant }) {
   // Expansion Batch 20-A (#790): the walnut is the PR #777 `WalnutGlyph` re-used unchanged (it renders its own 64x64 / 1em <svg> with the same `ingredient-glyph ingredient-glyph--<visual>` class and `data-ingredient-visual`, raw state), not wrapped a second time.
   if (visual === "walnut-kernel") return <WalnutGlyph state="raw" />;
   // Expansion Batch 21 (#780, Owner 2026-11-09): lettuce and cabbage use the dedicated art made unwired in #797 (src/components/stagedGlyphs/, PROVISIONAL), which renders its own 64x64 / 1em <svg> with the same `ingredient-glyph ingredient-glyph--<visual>` class and `data-ingredient-visual`, like the walnut above.
@@ -101,11 +109,12 @@ function DedicatedIngredientSvg({ visual }: { visual: DedicatedIngredientVisual 
     visual === "graham-cracker-dessert" || visual === "marshmallow-dessert" || visual === "powdered-sugar-dessert"
   ) return <DessertGlyph id={visual.slice(0, -"-dessert".length) as DessertGlyphId} />;
   if (
+    visual === "cauliflower-floret" || visual === "kebab-sauce-swirl" || visual === "daikon-matchsticks" || visual === "liver-pate-quenelle" || visual === "lime-wedge" || visual === "asparagus-spears" || // Expansion Batch 25 independent (#780)
     visual === "lettuce-leaf" || visual === "cabbage-shreds" || visual === "tortilla-chip-triangles" ||
     // Expansion Batch 22 (#780, Owner 2026-11-09): the eight B22 glyphs made unwired in #797 (PROVISIONAL), wired the same way.
     visual === "brie-wedge" || visual === "fennel-slices" || visual === "orange-slices" || visual === "carrot-rounds" ||
     visual === "red-cabbage-shreds" || visual === "sunflower-kernels" || visual === "radicchio-leaf" || visual === "truffle-shavings"
-  ) return <StagedGlyph id={visual} />;
+  ) return <StagedGlyph id={visual} variant={variant} />;
   return (
     <svg
       className={`ingredient-glyph ingredient-glyph--${visual}`}

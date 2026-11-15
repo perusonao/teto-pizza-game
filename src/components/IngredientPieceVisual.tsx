@@ -51,7 +51,7 @@ export function IngredientPieceVisual({ ingredient, className, style }: Ingredie
         .join(" ")}
       style={isCheese ? ({ "--cheese-color": ingredient.color, ...style } as CSSProperties) : style}
     >
-      <IngredientGlyph ingredient={ingredient} />
+      <IngredientGlyph ingredient={ingredient} variant="placed" />
     </span>
   );
 }

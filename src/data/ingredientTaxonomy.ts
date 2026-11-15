@@ -136,6 +136,7 @@ const BASE_TOPPING_FAMILY_ROWS: readonly (readonly [string, AttributeFamilyId])[
   ["peking-duck", "meat"], // Expansion Batch 24 (#780)
   ["spicy-salami", "meat"], // Expansion Batch 24 (#780)
   ["squid", "seafood"], // Expansion Batch 24 (#780)
+  ["cauliflower", "vegetable"], // Expansion Batch 25 independent (#780)
 ];
 
 /** The base rows, plus the late-catalog ingredients' rows (./lateCatalog.ts) when that catalog is enabled; otherwise the base rows themselves. */
