@@ -5,6 +5,7 @@ import {
 } from "../logic/sauceQuantity";
 import { sanitizeSauceDeposits, sanitizeStringArray, type SafeSauceDeposit } from "../logic/scoringV2/boundary";
 import type { PizzaState, SauceDeposit } from "./pizzaState";
+import { sauceQuantityCap } from "../logic/sauceInteractionPolicy";
 
 /**
  * Sauce B1 (Issue #489 line): the per-kind sauce ledger -- pure, total functions over `sauceIds` + `sauceDeposits`.
@@ -96,7 +97,7 @@ export function currentSauceId(pizza: SauceLedgerPizza): string | null {
  * stroke's kind and counts toward both). With one kind this is `max(0, SAUCE_MAX_QUANTITY - (used + pending))`, the old cap.
  */
 export function sauceHeadroom(pizza: SauceLedgerPizza, ingredientId: string, pendingForKind = 0): number {
-  const kindLeft = SAUCE_MAX_QUANTITY - ((sauceUsedByKind(pizza)[ingredientId] ?? 0) + pendingForKind);
+  const kindLeft = sauceQuantityCap(ingredientId) - ((sauceUsedByKind(pizza)[ingredientId] ?? 0) + pendingForKind);
   const totalLeft = SAUCE_TOTAL_MAX_QUANTITY - (sauceUsedTotal(pizza) + pendingForKind);
   return Math.max(0, Math.min(kindLeft, totalLeft));
 }
