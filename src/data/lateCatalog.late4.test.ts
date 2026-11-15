@@ -183,7 +183,7 @@ describe("ladder, Shop, Research and the entitlement floors", () => {
     expect(steps.indexOf(stepOf("nori"))).toBe(COMPOSED.stepOfKey(TARAKO)! - 1); // R-1 (#780): the composed position (the later late steps follow it)
     for (const id of ["wasabi", "nori"]) expect(stepOf(id).starGates).toBeUndefined();
     expect(stepOf("nori").step).toBe(ordinaryLadderSteps(steps).length + 7); // the derived rule: ordinary length + the 7th late step
-    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", WASABI_BEEF, TARAKO, "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza"]);
+    expect(LATE_LADDER_STEPS.map((s) => s.keyRecipeId)).toEqual(["ikura-salmon-pizza", "yuzu-shrimp-pizza", "eggplant-dengaku-pizza", "eggplant-tahini-pizza", "bbq-chicken-pizza", WASABI_BEEF, TARAKO, "taco-pizza", "okonomiyaki-style-pizza", "pizza-finocchi-salad", "pizza-cavolo-carote", "pizza-radicchio-noci", "black-truffle-pizza", "nutella-dessert-pizza", "smore-dessert-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad"]);
   });
 
   it("Shop: every new material is T4 (sauce pack 120 / refill 60), from its own late step", () => {
