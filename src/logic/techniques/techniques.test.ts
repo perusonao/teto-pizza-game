@@ -16,6 +16,7 @@ import {
 } from "./registration";
 import { noSauceRecipeIds } from "../../data/recipeSauceProfiles";
 import { isLateRecipeId } from "../catalog/testSupport/lateIds";
+import { getRecipe, type RecipeId, type RecipeRequirement } from "../../data/recipes";
 import { DOUGH_PINSA_ROMANA_RECIPE_IDS, LATE_ADDITION_RECIPE_IDS, PAN_TRAY_RECIPE_IDS } from "../testSupport/techniqueAllowlists";
 import { lateCatalogEnabled } from "../../data/lateCatalog";
 
@@ -79,7 +80,7 @@ describe("detection", () => {
         ...((noSauceRecipeIds() as readonly string[]).includes(t.recipeId) ? ["no-sauce"] : []),
         ...(PAN_TRAY_RECIPE_IDS.includes(t.recipeId) ? ["tray"] : []), // Square Dough E-2: grandma-pizza declares pan "tray"
         ...(DOUGH_PINSA_ROMANA_RECIPE_IDS.includes(t.recipeId) ? ["dough-pinsa-romana"] : []), // Pinsa Romana (#577): only while PINSA_PRODUCTION is open
-        ...(isLateRecipeId(t.recipeId) ? ["late-addition"] : []),
+        ...(isLateRecipeId(t.recipeId) && (getRecipe(t.recipeId as RecipeId)!.requiredIngredients as readonly RecipeRequirement[]).some((q) => q.applicationPhase === "POST_BAKE") ? ["late-addition"] : []), // Batch 25 T-1: only a late recipe WITH a POST_BAKE garnish has a late addition; banh-mi-pizza is the one approved late recipe without POST_BAKE
       ];
       expect(requiredTechniquesOf(t), t.recipeId).toEqual(expected);
     }
