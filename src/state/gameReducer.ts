@@ -14,7 +14,8 @@ import {
 } from "./materialEntitlement";
 import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
-import { exceedsSauceCaps, planSauceCommit } from "./sauceLedger";
+import { exceedsSauceCaps, planSauceCommit, sauceUsedByKind } from "./sauceLedger";
+import { isAllowedSauceDepositBatch } from "../logic/sauceInteractionPolicy";
 import { roundRunsFinish } from "./finishEngine";
 import { deferFreeCookAtBake } from "./finishFreeCook";
 import { freeCookFinishEnabled } from "../data/freeCookFinishGate";
@@ -1049,6 +1050,11 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (dispenseIngredient?.category !== "sauce") return state;
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       if (!isValidSauceDepositBatch(action.deposits)) return state;
+      // T25 I-7: yogurt-sauce is presence-only. The dispenser's headroom stops after its
+      // starter tick, and this reducer guard independently rejects hold batches, a second
+      // tap, fractional/oversized deposits, and direct forged actions.
+      const alreadyUsed = sauceUsedByKind(state.pizza)[action.ingredientId] ?? 0;
+      if (!isAllowedSauceDepositBatch(action.ingredientId, alreadyUsed, action.deposits)) return state;
 
       // Sauce B1 (per-kind ledger, Owner Decision on the #489 line): a switch no longer replaces the pizza's sauce
       // history. `sauceIds` collects every kind that was actually committed (first-use order) and `sauceDeposits` keeps
