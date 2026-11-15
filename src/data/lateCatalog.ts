@@ -478,31 +478,6 @@ export const LATE_RECIPES = activeLate(ALL_LATE_RECIPES);
 
 /** The order of each late recipe (the shape of `Order` in ./orders.ts, declared here to stay import-cycle free). */
 const ALL_LATE_ORDERS = [
-  // Expansion Batch 25 independent (#780): generated recipes above; orders stay in the order table.
-  {
-    id: "order-swedish-kebab-pizza",
-    recipeId: "swedish-kebab-pizza",
-    requestedBy: "mito",
-    lineJa: "スウェーデンのケバブピザ、食べてみたいな！",
-  },
-  {
-    id: "order-banh-mi-pizza",
-    recipeId: "banh-mi-pizza",
-    requestedBy: "mito",
-    lineJa: "バインミーみたいなピザ、香りがよさそう！",
-  },
-  {
-    id: "order-mexican-elote-pizza",
-    recipeId: "mexican-elote-pizza",
-    requestedBy: "mito",
-    lineJa: "エロテのピザ、ライムの香りが楽しみ！",
-  },
-  {
-    id: "order-pizza-asparagi-limone",
-    recipeId: "pizza-asparagi-limone",
-    requestedBy: "mito",
-    lineJa: "アスパラとレモンのピザ、爽やかでおいしそう！",
-  },
   {
     id: "order-ikura-salmon-pizza",
     recipeId: "ikura-salmon-pizza",
@@ -592,6 +567,31 @@ const ALL_LATE_ORDERS = [
     recipeId: "smore-dessert-pizza",
     requestedBy: "mito",
     lineJa: "チョコとマシュマロのあまいピザ、食べてみたいな！",
+  },
+  // Expansion Batch 25 independent (#780): the four late orders follow every earlier late order (Owner-approved D, #858 spec: after the existing late orders, immediately before the I-7 pizza-salad order and the gated Pinsa order).
+  {
+    id: "order-swedish-kebab-pizza",
+    recipeId: "swedish-kebab-pizza",
+    requestedBy: "mito",
+    lineJa: "スウェーデンのケバブピザ、食べてみたいな！",
+  },
+  {
+    id: "order-banh-mi-pizza",
+    recipeId: "banh-mi-pizza",
+    requestedBy: "mito",
+    lineJa: "バインミーみたいなピザ、香りがよさそう！",
+  },
+  {
+    id: "order-mexican-elote-pizza",
+    recipeId: "mexican-elote-pizza",
+    requestedBy: "mito",
+    lineJa: "エロテのピザ、ライムの香りが楽しみ！",
+  },
+  {
+    id: "order-pizza-asparagi-limone",
+    recipeId: "pizza-asparagi-limone",
+    requestedBy: "mito",
+    lineJa: "アスパラとレモンのピザ、爽やかでおいしそう！",
   },
   // Expansion Batch 25 I-7 final (#780): pizza-salad order; kept with the late order table.
   {
