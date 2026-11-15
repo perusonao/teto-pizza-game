@@ -41,6 +41,8 @@ const LANDED_SHOP_CONTRACT: Readonly<Record<string, number>> = {
   banana: 2, chocolate: 2, "powdered-sugar": 2, "graham-cracker": 2, marshmallow: 2, // Batch 23-b
   // Batch 24 (T24-R1, Owner-approved packet 2026-11-10; k = the largest minCount over the recipes that use it): four sauces (k = 1) and cucumber / peking-duck / spicy-salami / squid (k = 2)
   "aji-amarillo": 1, chutney: 1, "peanut-sauce": 1, "sweet-bean-sauce": 1, cucumber: 2, "peking-duck": 2, "spicy-salami": 2, squid: 2,
+  // Batch 25 (T25-R2c and T25-I7; k = the largest minCount over the recipes that use it, hand-recorded from the specs): cauliflower 2, kebab-sauce 1, daikon 2, liver-pate 1, lime 2, asparagus 2, yogurt-sauce 1
+  cauliflower: 2, "kebab-sauce": 1, daikon: 2, "liver-pate": 1, lime: 2, asparagus: 2, "yogurt-sauce": 1,
 };
 /** Owner-approved pack changes of a shipped material by a LATER train: id -> the new k. Empty until the Owner approves one; written by hand in the train's PR, never computed. */
 const APPROVED_PACK_CHANGES: Readonly<Record<string, number>> = {};
