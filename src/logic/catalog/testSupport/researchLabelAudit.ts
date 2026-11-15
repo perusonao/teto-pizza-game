@@ -30,7 +30,7 @@ export interface LetterChange {
 const finiteOf = (r: AuditRecipe) => [...new Set(r.requiredIngredients.map((q) => q.ingredientId))].filter((id) => !!getIngredient(id)?.unlockCondition);
 
 /** recipe id -> the distinct letter changes observed for a PRE-EXISTING recipe (recipes in `newIds` are not reported). */
-export function researchLetterChangesAcrossOrders(newIds: readonly string[], recipes: readonly AuditRecipe[], randomOrders = 40, seed = 20261105, excludedMaterials: readonly string[] = []): Map<string, LetterChange[]> {
+export function researchLetterChangesAcrossOrders(newIds: readonly string[], recipes: readonly AuditRecipe[], randomOrders = 40, seed = 20261105, excludedMaterials: readonly string[] = [], preserveStageExamples = false): Map<string, LetterChange[]> {
   const before = recipes.filter((r) => !newIds.includes(r.id));
   const news = recipes.filter((r) => newIds.includes(r.id));
   const ladder = DISCOVERY_LADDER.steps.flatMap((s) => s.ingredientIds as readonly string[]).filter((m) => getIngredient(m) && !excludedMaterials.includes(m));
@@ -45,7 +45,9 @@ export function researchLetterChangesAcrossOrders(newIds: readonly string[], rec
       const change = `${b ?? "-"}->${a ?? "-"}`;
       const list = out.get(r.id) ?? [];
       // Deduplicate by (change, canonical): a transition seen first in a non-canonical order must still be recorded when the canonical ladder order produces it too (Codex P2, PR #759).
-      if (!list.some((x) => x.change === change && x.canonical === canonical)) list.push({ change, example, canonical });
+      const stage = /, ([a-z0-9-]+) last$/.exec(example)?.[1];
+      const sameStage = (x: LetterChange) => /, ([a-z0-9-]+) last$/.exec(x.example)?.[1] === stage;
+      if (!list.some((x) => x.change === change && x.canonical === canonical && (!preserveStageExamples || !stage || sameStage(x)))) list.push({ change, example, canonical });
       out.set(r.id, list);
     }
   };

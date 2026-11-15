@@ -21,6 +21,7 @@ describe("T25 independent content contract", () => {
   });
 
   it("records the REC-04 mismatch that keeps L-2 on HOLD: ordinary 81, new late steps 97-100", () => {
+    // MERGE BLOCK: Owner L-2 requires a new decision for this measured ordering; Draft/HOLD must remain until then.
     expect(DISCOVERY_LADDER.steps.filter((s) => NEW_IDS.includes(s.keyRecipeId as typeof NEW_IDS[number])).map((s) => [s.step, s.ingredientIds, s.keyRecipeId])).toEqual([
       [81, ["cauliflower"], "buffalo-cauliflower-pizza"],
       [97, ["kebab-sauce"], "swedish-kebab-pizza"],
@@ -51,7 +52,8 @@ describe("T25 Research approval pins (R-00/R-01/R-42; pizza-salad's R-41 remains
     "brazilian-catupiry-corn-pizza": ["corn"], "buffalo-chicken": ["buffalo-sauce", "gorgonzola"], capricciosa: ["ham"],
     "cuban-pizza": ["ham"], currywurst: ["paprika-powder"], "eggplant-ricotta-pizza": ["olive-oil"], fugazza: ["olive-oil"],
     "goulash-pizza": ["paprika-powder", "sour-cream"], "grandma-pizza": ["olive-oil"], hawaiian: ["ham"], "meat-lovers": ["ham"],
-    "moussaka-style-pizza": ["feta"], "new-haven-apizza": ["olive-oil", "parmigiano"], "okonomiyaki-style-pizza": ["mayo"],
+    // Fresh partial-slice audit affects new-haven at parmigiano only; olive-oil remains within the broader Owner ceiling but is not an actual change here.
+    "moussaka-style-pizza": ["feta"], "new-haven-apizza": ["parmigiano"], "okonomiyaki-style-pizza": ["mayo"],
     "parmigiana-pizza": ["parmigiano"], "pesto-burrata-pizza": ["olive-oil"], "pesto-noci-pizza": ["gorgonzola"],
     "pesto-salmone": ["lemon"], "pizza-alla-crudaiola": ["olive-oil"], "pizza-bianca": ["olive-oil"],
     "pizza-bianca-ricotta": ["olive-oil"], "pizza-cavolo-carote": ["carrot", "lemon", "olive-oil"],
@@ -61,16 +63,23 @@ describe("T25 Research approval pins (R-00/R-01/R-42; pizza-salad's R-41 remains
     "shirasu-pizza": ["lemon"], "spinach-artichoke-pizza": ["parmigiano"], "taco-pizza": ["lettuce"],
     "thai-chicken-pizza": ["cilantro"], vongole: ["olive-oil"],
   };
-  const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never, 40, 20261105);
+  const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never, 40, 20261105, [], true);
   const code = (letter: string) => letter.charCodeAt(0) - 64;
 
   it("keeps canonical Research changes at exactly zero", () => {
     expect([...changes.values()].flat().filter((change) => change.canonical)).toEqual([]);
   });
 
-  it("allows only the 41 approved IDs, exact stages, direction, and maximum shift", () => {
-    expect(Object.keys(APPROVED_STAGES)).toHaveLength(41);
-    expect([...changes.keys()].filter((id) => !(id in APPROVED_STAGES))).toEqual([]);
+  it("requires exactly the 41 approved affected IDs and every approved stage; pizza-salad/R-41 is explicitly absent", () => {
+    const approvedIds = Object.keys(APPROVED_STAGES).sort();
+    expect(approvedIds).toHaveLength(41);
+    expect([...changes.keys()].sort()).toEqual(approvedIds);
+    expect(approvedIds).not.toContain("peking-duck-pizza");
+    const actualStages = Object.fromEntries([...changes].map(([id, list]) => [id, [...new Set(list.map((item) => /, ([a-z0-9-]+) last$/.exec(item.example)?.[1]).filter((stage): stage is string => !!stage))].sort()]));
+    expect(actualStages).toEqual(Object.fromEntries(Object.entries(APPROVED_STAGES).map(([id, stages]) => [id, [...stages].sort()])));
+  }, 60_000);
+
+  it("keeps every exact stage transition within its approved direction and maximum shift", () => {
     for (const [id, list] of changes) for (const item of list) {
       const stage = /, ([a-z0-9-]+) last$/.exec(item.example)?.[1];
       if (stage) expect(APPROVED_STAGES[id], `${id}/${item.example}`).toContain(stage);
