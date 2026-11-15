@@ -40,6 +40,9 @@ describe("train kit anchors against the real files", () => {
     for (const rel of touched) expect(edited[rel].length, rel).toBeGreaterThan(files[rel].length);
     for (const id of ["zz-ordinary", "zz-late", "zz-rider"]) for (const k of ["hintRoles", "sauceProfiles", "reference"] as const) expect(edited[CATALOG_FILES[k]], `${k}/${id}`).toContain(`"${id}"`);
     expect(edited[CATALOG_FILES.late]).toContain(`"zz-topping-b": 999`);
+    const lateText = edited[CATALOG_FILES.late];
+    expect(lateText.indexOf('id: "order-smore-dessert-pizza"')).toBeLessThan(lateText.indexOf('id: "order-zz-late"'));
+    expect(lateText.indexOf('id: "order-zz-late"')).toBeLessThan(lateText.indexOf('id: "order-pinsa-romana"'));
     expect(edited[CATALOG_FILES.glyph]).toContain(`visual === "zz-topping-a-slices" ||`);
     expect(edited[CATALOG_FILES.glyph]).toContain(`visual === "zz-topping-b-dessert" ||`);
   });
