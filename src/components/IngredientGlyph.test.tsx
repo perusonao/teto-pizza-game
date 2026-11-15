@@ -125,9 +125,11 @@ const B22_DEDICATED: Record<string, DedicatedIngredientVisual> = { brie: "brie-w
 const B23_DEDICATED: Record<string, DedicatedIngredientVisual> = { apple: "apple-dessert" }; // Expansion Batch 23 (#780, Owner 2026-11-10): the apple draws the B23 dessert glyph
 // Expansion Batch 23-b (#780, Owner 2026-11-10): the five late dessert materials draw the same B23 dessert glyphs
 const B23B_DEDICATED: Record<string, DedicatedIngredientVisual> = { banana: "banana-dessert", chocolate: "chocolate-dessert", "powdered-sugar": "powdered-sugar-dessert", "graham-cracker": "graham-cracker-dessert", marshmallow: "marshmallow-dessert" };
+const B25_DEDICATED: Record<string, DedicatedIngredientVisual> = { cauliflower: "cauliflower-floret", "kebab-sauce": "kebab-sauce-swirl", daikon: "daikon-matchsticks", "liver-pate": "liver-pate-quenelle", lime: "lime-wedge", asparagus: "asparagus-spears" };
 const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B23B_DEDICATED, ...B23_DEDICATED, ...B22_DEDICATED, ...B21_DEDICATED, ...B20A_DEDICATED, ...B19_DEDICATED, ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
 const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
+Object.assign(ALL_DEDICATED, B25_DEDICATED);
 
 /** The pre-P1 rendering of a glyph: the emoji as a bare text node. */
 const oldMarkup = (ingredient: Ingredient) => renderToStaticMarkup(<span>{ingredient.emoji}</span>);

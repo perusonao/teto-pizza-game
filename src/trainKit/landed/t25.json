@@ -1,0 +1,326 @@
+{
+ "train": "T25-R2c-independent",
+ "tag": "t25",
+ "label": "Expansion Batch 25 independent",
+ "issue": 780,
+ "recipes": [
+  {
+   "id": "buffalo-cauliflower-pizza",
+   "nameJa": "バッファローカリフラワーピザ",
+   "description": "バッファローソースの生地に、香ばしいカリフラワーと二種類のチーズを合わせた、野菜の旨みを楽しむ一枚。",
+   "placement": "ordinary",
+   "requiredIngredients": [
+    {
+     "ingredientId": "buffalo-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "gorgonzola",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "cauliflower",
+     "minCount": 2
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "buffalo-cauliflower-pizza-pizzadb-p6",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "カリフラワーのバッファローピザ、どんな味か気になるな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "buffalo-sauce",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "cauliflower"
+    ]
+   }
+  },
+  {
+   "id": "swedish-kebab-pizza",
+   "nameJa": "スウェディッシュケバブピザ",
+   "description": "ケバブソースを塗った生地に、モッツァレラとレタスを合わせた、北欧の屋台を思わせる一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "kebab-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "lettuce",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "swedish-kebab-pizza-pizzadb-p4",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "スウェーデンのケバブピザ、食べてみたいな！"
+   },
+   "sauceProfile": {
+    "ingredientId": "kebab-sauce",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "kebab-sauce"
+    ]
+   }
+  },
+  {
+   "id": "banh-mi-pizza",
+   "nameJa": "バインミーピザ",
+   "description": "ハムと香味野菜に、まろやかなレバーパテを合わせた、バインミー仕立ての一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "carrot",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cilantro",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "daikon",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "ham",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "liver-pate",
+     "minCount": 1
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "banh-mi-pizza-pizzadb-p6",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "バインミーみたいなピザ、香りがよさそう！"
+   },
+   "sauceProfile": null,
+   "ladderStep": {
+    "ingredientIds": [
+     "daikon",
+     "liver-pate"
+    ]
+   }
+  },
+  {
+   "id": "mexican-elote-pizza",
+   "nameJa": "メキシカンエロテピザ",
+   "description": "コーンとフェタにサワークリームを合わせ、ライムの香りで仕上げたメキシコ風の一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "sour-cream",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "feta",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "corn",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "mayo",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "paprika-powder",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "lime",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "mexican-elote-pizza-pizzadb-p13",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "エロテのピザ、ライムの香りが楽しみ！"
+   },
+   "sauceProfile": {
+    "ingredientId": "sour-cream",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "lime"
+    ]
+   }
+  },
+  {
+   "id": "pizza-asparagi-limone",
+   "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+   "description": "オリーブオイルの生地に二種類のチーズを重ね、アスパラガスとレモンで仕上げた爽やかな一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "olive-oil",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "parmigiano",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "asparagus",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "lemon",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    }
+   ],
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true,
+   "evidenceId": "pizza-asparagi-limone-pizzadb-p8",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "アスパラとレモンのピザ、爽やかでおいしそう！"
+   },
+   "sauceProfile": {
+    "ingredientId": "olive-oil",
+    "interaction": "PAINT_TEMPORARY"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "asparagus"
+    ]
+   }
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "cauliflower",
+   "nameJa": "カリフラワー",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#f1ead2",
+   "emoji": "🪸",
+   "sizeClass": "m",
+   "pieceVisual": "cauliflower-floret",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "kebab-sauce",
+   "nameJa": "ケバブソース",
+   "category": "sauce",
+   "family": null,
+   "color": "#d86a35",
+   "emoji": "🧡",
+   "pieceVisual": "kebab-sauce-swirl",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "daikon",
+   "nameJa": "大根",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#f3f0df",
+   "emoji": "🥢",
+   "sizeClass": "s",
+   "pieceVisual": "daikon-matchsticks",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "liver-pate",
+   "nameJa": "レバーパテ",
+   "category": "topping",
+   "family": "meat",
+   "color": "#8b5a4a",
+   "emoji": "🫀",
+   "sizeClass": "m",
+   "pieceVisual": "liver-pate-quenelle",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "lime",
+   "nameJa": "ライム",
+   "category": "topping",
+   "family": "fruit",
+   "color": "#7fbd38",
+   "emoji": "💚",
+   "sizeClass": "s",
+   "pieceVisual": "lime-wedge",
+   "glyphHost": "StagedGlyph"
+  },
+  {
+   "id": "asparagus",
+   "nameJa": "アスパラガス",
+   "category": "topping",
+   "family": "vegetable",
+   "color": "#4f8a3a",
+   "emoji": "🎋",
+   "sizeClass": "m",
+   "pieceVisual": "asparagus-spears",
+   "glyphHost": "StagedGlyph"
+  }
+ ],
+ "seq": 4,
+ "floors": {
+  "kebab-sauce": 97,
+  "daikon": 98,
+  "liver-pate": 98,
+  "lime": 99,
+  "asparagus": 100
+ }
+}

@@ -178,4 +178,9 @@ export const RECIPE_HINT_ROLES: Readonly<Record<RecipeId, HintRoles>> = {
   "south-african-boerewors": { keyFree: true },
   "thai-chicken-pizza": { keyFree: true },
   "peking-duck-pizza": { keyFree: true },
+  "buffalo-cauliflower-pizza": { keyFree: true },
+  "swedish-kebab-pizza": { keyFree: true },
+  "banh-mi-pizza": { keyFree: true },
+  "mexican-elote-pizza": { keyFree: true },
+  "pizza-asparagi-limone": { keyFree: true },
 };

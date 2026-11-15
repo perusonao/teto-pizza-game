@@ -1,0 +1,82 @@
+{
+  "train": "T25-R2c-independent",
+  "recipes": [
+    {
+      "id": "buffalo-cauliflower-pizza",
+      "nameJa": "バッファローカリフラワーピザ",
+      "placement": "ordinary",
+      "requiredIngredients": [
+        { "ingredientId": "buffalo-sauce", "minCount": 1 },
+        { "ingredientId": "mozzarella", "minCount": 3 },
+        { "ingredientId": "gorgonzola", "minCount": 3 },
+        { "ingredientId": "cauliflower", "minCount": 2 }
+      ],
+      "mechanics": [],
+      "ownerReasons": ["DUPLICATE_ONE_DIFF_EXCEPTION", "RESEARCH_NON_CANONICAL"]
+    },
+    {
+      "id": "swedish-kebab-pizza",
+      "nameJa": "スウェディッシュケバブピザ",
+      "placement": "late",
+      "requiredIngredients": [
+        { "ingredientId": "kebab-sauce", "minCount": 1 },
+        { "ingredientId": "mozzarella", "minCount": 3 },
+        { "ingredientId": "lettuce", "minCount": 2, "applicationPhase": "POST_BAKE" }
+      ],
+      "mechanics": [],
+      "ownerReasons": ["RESEARCH_NON_CANONICAL"]
+    },
+    {
+      "id": "banh-mi-pizza",
+      "nameJa": "バインミーピザ",
+      "placement": "late",
+      "requiredIngredients": [
+        { "ingredientId": "mozzarella", "minCount": 3 },
+        { "ingredientId": "carrot", "minCount": 2 },
+        { "ingredientId": "cilantro", "minCount": 2 },
+        { "ingredientId": "daikon", "minCount": 2 },
+        { "ingredientId": "ham", "minCount": 2 },
+        { "ingredientId": "liver-pate", "minCount": 1 }
+      ],
+      "mechanics": [],
+      "ownerReasons": ["LATE_WITHOUT_POST_BAKE_EXCEPTION", "RESEARCH_NON_CANONICAL"]
+    },
+    {
+      "id": "mexican-elote-pizza",
+      "nameJa": "メキシカンエロテピザ",
+      "placement": "late",
+      "requiredIngredients": [
+        { "ingredientId": "sour-cream", "minCount": 1 },
+        { "ingredientId": "feta", "minCount": 3 },
+        { "ingredientId": "corn", "minCount": 2 },
+        { "ingredientId": "mayo", "minCount": 2 },
+        { "ingredientId": "paprika-powder", "minCount": 2 },
+        { "ingredientId": "lime", "minCount": 2, "applicationPhase": "POST_BAKE" }
+      ],
+      "mechanics": [],
+      "ownerReasons": ["RESEARCH_NON_CANONICAL"]
+    },
+    {
+      "id": "pizza-asparagi-limone",
+      "nameJa": "ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ",
+      "placement": "late",
+      "requiredIngredients": [
+        { "ingredientId": "olive-oil", "minCount": 1 },
+        { "ingredientId": "mozzarella", "minCount": 3 },
+        { "ingredientId": "parmigiano", "minCount": 3 },
+        { "ingredientId": "asparagus", "minCount": 2, "applicationPhase": "POST_BAKE" },
+        { "ingredientId": "lemon", "minCount": 2, "applicationPhase": "POST_BAKE" }
+      ],
+      "mechanics": [],
+      "ownerReasons": ["JACCARD_OVER_0.4_EXCEPTION", "RESEARCH_NON_CANONICAL"]
+    }
+  ],
+  "newIngredients": [
+    { "id": "cauliflower", "nameJa": "カリフラワー", "category": "topping", "family": "vegetable" },
+    { "id": "kebab-sauce", "nameJa": "ケバブソース", "category": "sauce", "family": null },
+    { "id": "daikon", "nameJa": "大根", "category": "topping", "family": "vegetable" },
+    { "id": "liver-pate", "nameJa": "レバーパテ", "category": "topping", "family": "meat" },
+    { "id": "lime", "nameJa": "ライム", "category": "topping", "family": "fruit" },
+    { "id": "asparagus", "nameJa": "アスパラガス", "category": "topping", "family": "vegetable" }
+  ]
+}

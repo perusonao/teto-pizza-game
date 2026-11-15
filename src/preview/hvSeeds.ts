@@ -31,6 +31,7 @@ import { applyB23HvSeed, parseB23HvParam, type B23HvScenarioId } from "./b23HvSe
 import { applyB23BHvSeed, parseB23BHvParam, type B23BHvScenarioId } from "./b23bHvSeeds";
 
 import { applyT24HvSeed, parseT24HvParam, type T24HvScenarioId } from "./t24HvSeeds";
+import { applyT25HvSeed, parseT25HvParam, type T25HvScenarioId } from "./t25HvSeeds";
 export type HvScenarioId =
   | "normal"
   | "cheese-none"
@@ -218,7 +219,7 @@ export function applyPreviewHvSeed(
   search: unknown,
   storage: StorageLike | null,
   navigationType: string | undefined = currentNavigationType(),
-): HvScenarioId | B18HvScenarioId | B21HvScenarioId | B22HvScenarioId | B23HvScenarioId | B23BHvScenarioId | T24HvScenarioId | null {
+): HvScenarioId | B18HvScenarioId | B21HvScenarioId | B22HvScenarioId | B23HvScenarioId | B23BHvScenarioId | T24HvScenarioId | T25HvScenarioId | null {
   const id = parseHvParam(search);
   const b18Id = id ? null : parseB18HvParam(search);
   const b21Id = id || b18Id ? null : parseB21HvParam(search); // Expansion Batch 21 (#780): after the Hint 5.0 and B18 ids, which are looked up first and unchanged
@@ -226,12 +227,14 @@ export function applyPreviewHvSeed(
   const b23Id = id || b18Id || b21Id || b22Id ? null : parseB23HvParam(search); // Expansion Batch 23 (#780): after the Hint 5.0, B18, B21 and B22 ids, which are looked up first and unchanged
   const b23bId = id || b18Id || b21Id || b22Id || b23Id ? null : parseB23BHvParam(search); // Expansion Batch 23-b (#780): after every earlier id, which are looked up first and unchanged
   const t24Id = id || b18Id || b21Id || b22Id || b23Id || b23bId ? null : parseT24HvParam(search); // Expansion Batch 24 (#780): after every earlier id, which are looked up first and unchanged
-  if ((!id && !b18Id && !b21Id && !b22Id && !b23Id && !b23bId && !t24Id) || !storage || !shouldApplyHvSeed(navigationType)) return null;
+  const t25Id = id || b18Id || b21Id || b22Id || b23Id || b23bId || t24Id ? null : parseT25HvParam(search); // Expansion Batch 25 independent (#780): after every earlier id, which are looked up first and unchanged
+  if ((!id && !b18Id && !b21Id && !b22Id && !b23Id && !b23bId && !t24Id && !t25Id) || !storage || !shouldApplyHvSeed(navigationType)) return null;
   if (id) return applyHvSeed(id, storage) ? id : null;
   if (b18Id) return applyB18HvSeed(b18Id, storage) ? b18Id : null;
   if (b21Id) return applyB21HvSeed(b21Id, storage) ? b21Id : null;
   if (b22Id) return applyB22HvSeed(b22Id, storage) ? b22Id : null;
   if (b23Id) return applyB23HvSeed(b23Id, storage) ? b23Id : null;
   if (b23bId) return applyB23BHvSeed(b23bId, storage) ? b23bId : null;
-  return t24Id && applyT24HvSeed(t24Id, storage) ? t24Id : null;
+  if (t24Id) return applyT24HvSeed(t24Id, storage) ? t24Id : null;
+  return t25Id && applyT25HvSeed(t25Id, storage) ? t25Id : null;
 }
