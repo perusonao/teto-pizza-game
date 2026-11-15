@@ -1,21 +1,21 @@
 {
- "blockingDependencies": 359,
+ "blockingDependencies": 343,
  "byVerdict": {
   "AUTO_RESOLVED": 7,
   "RULE_DECIDED_WORK": 2,
-  "DUPLICATE_COUNT": 20,
+  "DUPLICATE_COUNT": 16,
   "WAITS_MECHANIC": 58,
   "WAITS_IN_FLIGHT": 0,
   "AXIS_CONDITIONAL": 30,
-  "STAGED_PAIR": 90,
-  "EXCEPTION_NEEDED": 70,
-  "OWNER_DECISION": 82
+  "STAGED_PAIR": 87,
+  "EXCEPTION_NEEDED": 68,
+  "OWNER_DECISION": 75
  },
  "autoResolved": 7,
  "byKind": {
   "DUPLICATE_GATE": {
    "AXIS_CONDITIONAL": 17,
-   "STAGED_PAIR": 90,
+   "STAGED_PAIR": 87,
    "EXCEPTION_NEEDED": 47,
    "OWNER_DECISION": 6
   },
@@ -30,20 +30,20 @@
    "AUTO_RESOLVED": 6,
    "RULE_DECIDED_WORK": 2,
    "AXIS_CONDITIONAL": 13,
-   "EXCEPTION_NEEDED": 23,
-   "OWNER_DECISION": 55
+   "EXCEPTION_NEEDED": 21,
+   "OWNER_DECISION": 49
   },
   "SAUCE_UNSPECIFIED": {
-   "DUPLICATE_COUNT": 20
+   "DUPLICATE_COUNT": 16
   },
   "UNRESOLVED_TOKEN": {
-   "OWNER_DECISION": 17
+   "OWNER_DECISION": 16
   }
  },
  "ownerRules": {
   "R-1": {
    "RULE_DECIDED_WORK": 2,
-   "OWNER_DECISION": 18
+   "OWNER_DECISION": 14
   },
   "R-2": {
    "AXIS_CONDITIONAL": 10,
@@ -55,24 +55,24 @@
   },
   "R-4": {
    "AUTO_RESOLVED": 5,
-   "EXCEPTION_NEEDED": 14
+   "EXCEPTION_NEEDED": 12
   },
   "R-5": {
    "OWNER_DECISION": 8
   },
   "R-6": {
    "AUTO_RESOLVED": 1,
-   "OWNER_DECISION": 6
+   "OWNER_DECISION": 5
   },
   "R-7": {
-   "OWNER_DECISION": 14
+   "OWNER_DECISION": 13
   },
   "R-8": {
    "OWNER_DECISION": 7
   }
  },
  "duplicateGate": {
-  "dependencies": 160,
+  "dependencies": 157,
   "byType": {
    "IDENTICAL@shipped": {
     "AXIS_CONDITIONAL": 3,
@@ -85,7 +85,7 @@
     "EXCEPTION_NEEDED": 21
    },
    "JACCARD_GT_0_4@staged": {
-    "STAGED_PAIR": 17
+    "STAGED_PAIR": 15
    },
    "ONE_DIFF@shipped": {
     "EXCEPTION_NEEDED": 14,
@@ -107,7 +107,7 @@
     "EXCEPTION_NEEDED": 6
    },
    "SUPERSET@staged": {
-    "STAGED_PAIR": 26
+    "STAGED_PAIR": 25
    }
   },
   "exceptionsNeeded": [
@@ -185,6 +185,7 @@
      "SUBSET:pizza-alla-crudaiola(0.333)",
      "SUBSET:pizza-overload(0.333)",
      "SUBSET:pizza-portuguesa(0.333)",
+     "SUBSET:pizza-salad(0.333)",
      "SUBSET:prosciutto-funghi(0.5)",
      "SUBSET:salsiccia(0.667)",
      "SUBSET:tonno-e-cipolla(0.5)",
@@ -302,15 +303,9 @@
     ]
    },
    {
-    "id": "pizza-salad",
+    "id": "pizza-carciofi-salad",
     "shippedHits": [
-     "JACCARD_GT_0_4:bambino(0.429)"
-    ]
-   },
-   {
-    "id": "pizza-asparagi-limone",
-    "shippedHits": [
-     "JACCARD_GT_0_4:quattro-formaggi(0.429)"
+     "JACCARD_GT_0_4:pizza-asparagi-limone(0.571)"
     ]
    },
    {
@@ -318,6 +313,12 @@
     "shippedHits": [
      "JACCARD_GT_0_4:eggplant-ricotta-pizza(0.429)",
      "JACCARD_GT_0_4:pizza-bianca-ricotta(0.429)"
+    ]
+   },
+   {
+    "id": "pizza-puntarelle",
+    "shippedHits": [
+     "JACCARD_GT_0_4:pizza-asparagi-limone(0.429)"
     ]
    },
    {
@@ -439,15 +440,15 @@
   ],
   "stagedUniquePairs": {
    "IDENTICAL": 8,
-   "SUBSET_SUPERSET": 98,
+   "SUBSET_SUPERSET": 94,
    "ONE_DIFF": 33,
-   "JACCARD_GT_0_4": 15
+   "JACCARD_GT_0_4": 13
   },
   "stagedPairsByRecipe": {
-   "trenton-tomato-pie": 23,
-   "ny-style": 23,
-   "quad-cities-style-pizza": 23,
-   "colorado-mountain-pie": 23,
+   "trenton-tomato-pie": 22,
+   "ny-style": 22,
+   "quad-cities-style-pizza": 22,
+   "colorado-mountain-pie": 22,
    "keema-pizza": 14,
    "new-england-bar-pizza": 13,
    "fathead-pizza-keto": 13,
@@ -686,15 +687,6 @@
    ]
   },
   {
-   "id": "swedish-kebab-pizza",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1",
-    "OWNER_DECISION:OWNER_RULE:R-7",
-    "OWNER_DECISION:UNRESOLVED_TOKEN:肉"
-   ]
-  },
-  {
    "id": "scacciata-ragusana",
    "proposals": [],
    "open": [
@@ -900,20 +892,6 @@
    ]
   },
   {
-   "id": "banh-mi-pizza",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1"
-   ]
-  },
-  {
-   "id": "buffalo-cauliflower-pizza",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1"
-   ]
-  },
-  {
    "id": "palmitos-salsa-golf",
    "proposals": [],
    "open": [
@@ -932,31 +910,12 @@
    ]
   },
   {
-   "id": "pizza-salad",
-   "proposals": [],
-   "open": [
-    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
-   ]
-  },
-  {
-   "id": "pizza-asparagi-limone",
-   "proposals": [],
-   "open": [
-    "EXCEPTION_NEEDED:OWNER_RULE:R-4",
-    "OWNER_DECISION:OWNER_RULE:R-6",
-    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
-   ]
-  },
-  {
    "id": "pizza-carciofi-salad",
    "proposals": [],
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-6",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
-    "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped"
    ]
   },
   {
@@ -985,6 +944,7 @@
    "open": [
     "OWNER_DECISION:OWNER_RULE:R-6",
     "WAITS_MECHANIC:MECHANIC:DOUGH_VARIANT",
+    "EXCEPTION_NEEDED:DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "STAGED_PAIR:DUPLICATE_GATE:JACCARD_GT_0_4@staged"
    ]
   },
@@ -1205,13 +1165,6 @@
     "OWNER_DECISION:UNRESOLVED_TOKEN:ひき肉",
     "OWNER_DECISION:UNRESOLVED_TOKEN:唐辛子",
     "STAGED_PAIR:DUPLICATE_GATE:SUPERSET@staged"
-   ]
-  },
-  {
-   "id": "mexican-elote-pizza",
-   "proposals": [],
-   "open": [
-    "OWNER_DECISION:OWNER_RULE:R-1"
    ]
   },
   {
