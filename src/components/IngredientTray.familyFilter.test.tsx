@@ -45,6 +45,22 @@ function chipNames(): string[] {
     .map((b) => b.querySelector(".ingredient-chip__name")?.textContent ?? "");
 }
 
+const FAMILY_LABEL: Record<string, string> = { meat: "肉系", seafood: "魚介系", vegetable: "野菜・きのこ系", herb: "ハーブ・香味系", spice: "スパイス・薬味系", fruit: "果物系", other: "ちょっと変わった材料" };
+/**
+ * A family whose filtered list fits ONE page (the tests below need "the pager is idle when it fits one page"). It was hard-coded to 果物系; Batch 25
+ * (lime) made that family 7 items, one more than a page (MAX_INGREDIENT_PALETTE_SLOTS = 6), so the family is chosen by the size the tests actually need.
+ */
+function familyThatFitsOnePage(): string {
+  const counts = new Map<string, number>();
+  for (const t of TOPPINGS) {
+    const f = ingredientShelf(t.id);
+    if (f) counts.set(f, (counts.get(f) ?? 0) + 1);
+  }
+  const fits = [...counts.entries()].filter(([, n]) => n >= 1 && n <= MAX_INGREDIENT_PALETTE_SLOTS).map(([f]) => f).sort();
+  expect(fits.length, "a family that fits one page must exist").toBeGreaterThan(0);
+  return FAMILY_LABEL[fits[0]]!;
+}
+
 function pickFamilyWithMany() {
   const byFamily = new Map<string, string[]>();
   for (const t of TOPPINGS) {
@@ -78,7 +94,7 @@ describe("IngredientTray family filter (Issue #396)", () => {
     const nav = row.parentElement!;
     expect(nav.className).toContain("ingredient-page-nav--with-family");
     expect(nav.querySelectorAll(".ingredient-page-nav__pager")).toHaveLength(1);
-    fireEvent.click(within(row).getByRole("button", { name: only("果物系") }));
+    fireEvent.click(within(row).getByRole("button", { name: only(familyThatFitsOnePage()) }));
     expect(nav.querySelector(".ingredient-page-nav__pager--idle")).not.toBeNull();
   });
 
@@ -207,7 +223,7 @@ describe("family filter placement (Issue #399)", () => {
     fireEvent.click(screen.getByRole("button", { name: "次のページ" }));
     expect(container.querySelector(".ingredient-page-nav__label")?.textContent).toContain("2 /");
     const row = screen.getByRole("group", { name: FAMILY_ROW });
-    fireEvent.click(within(row).getByRole("button", { name: only("果物系") }));
+    fireEvent.click(within(row).getByRole("button", { name: only(familyThatFitsOnePage()) }));
     const nav = container.querySelector(".ingredient-page-nav")!;
     expect(nav.className).toContain("ingredient-page-nav--placeholder"); // one page: the row keeps its place, the pager is inert
     fireEvent.click(within(row).getByRole("button", { name: ALL }));
