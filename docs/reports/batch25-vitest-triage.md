@@ -216,3 +216,69 @@
 3. 残りの固定値（recipes 総数、sauce 25、ladder 101 など）を実カタログ値へ。
 4. 重い 6 ファイルを単独実行（researchAttempt.sim* は 570 秒級）。
 5. 最後に全 Vitest（約 33 分、バックグラウンド・タイムアウト最大）。
+
+---
+
+# C-1 調査結果（原因確定）と Owner 判断一覧（継続セッション）
+
+## C-1: `pizza-salad#2004: rows without a Notebook line` — 原因は実装側（カタログ規模の上限）
+
+**再現**: `simulateResearchAttempts({ profile: "NONE", qualityTotal: 65, orderSeed: 1, explorePieces: "ONE" })`（`researchAttempt.sim.sweepOne` の seed 1。`vi.mock("./discovery/hint5Flag")` が必要）。pizza-salad を狙った Research 試行 #2004 で、探索が **sauce 全種を 1 枚のピザに置く**（placed 29 件、うち sauce 24 件）。
+
+**経路（追跡済み）**:
+1. `gameReducer.researchAttemptResult` が `researchResultRows` から行（sauce 24 行、NEGATIVE 23 / POSITIVE 1）を作る。→ ここは正常（`lastResearchRows.rows` が 24 件）。
+2. `researchRowsFeedback` が `「？？？ピザ（ヨーグルトソース）」+ ソース: …×` の 1 行を作る。→ 正常（`null` ではない）。**長さは 225 文字**。
+3. `recordTrialAttempt` → `recordAttempt` → `sanitizeFeedback`（`src/logic/discovery/trialNotebook.ts:182`）が `textJa.length > MAX_FEEDBACK_TEXT (= 200)` で `{ ok:false }` → `REJECTED("INVALID_FEEDBACK")`。**試行は Notebook に保存されず**、`lastTrialAttempt` も `null`。
+4. 結果として Notebook 先頭は古い試行（#1887）のままで、sim の不変条件 `rows without a Notebook line` が成立しない。
+
+**実測（label を固定、sauce 行数 n と文字数）**: 15→145 / 20→180 / 21→189 / 22→**199** / 23→207 / 24→215 / 25→225。
+- T25 前は sauce 23 種。自分のソースが既知なら行は最大 22 → **199 文字で上限 200 にちょうど収まっていた**。
+- T25 が sauce を 2 種足した（kebab-sauce・yogurt-sauce → 25 種）ため、同じ試行が 24 行 = 215 文字になり上限を超えた。**sauce を 1 種足すごとに再発**する（次のバッチでも必ず壊れる）。
+
+**切り分け**: Notebook 生成 ＝ 原因（上限）。Research 行 ＝ 正常。2 ソース処理 ＝ 無関係（原因は pizza-salad の 2 ソースではなく、sauce 種数 25 と pizza-salad の label 長）。#856 の I-7 runtime ＝ 無関係。テスト側の誤りではない。
+
+**影響（実プレイ）**: 1 枚に sauce を 23 種以上置いた Research 試行だけ、Notebook に残らず「試作 #n」も出ない（Research の RESULT パネルとヒント事実の保存は正常）。通常の遊びでは起きにくいが、sim の不変条件と今後のカタログ増加で確実に再発する。
+
+### 修正案（変更前の影響範囲。**まだ実装していません**）
+| 案 | 内容 | 影響 | リスク |
+|---|---|---|---|
+| **P（推奨）** | `researchRowsFeedback` が 200 文字を超えるとき、各カテゴリの NEGATIVE を「ほか N 件×」に畳む（POSITIVE は必ず全件残す）。上限は変えない。 | プレイヤーに見える文言が、極端なケース（行が多い試行）でだけ変わる。通常の行は byte 同一。変更ファイルは `researchResultFeedback.ts` と、その単体・カタログ規模ガードのテストのみ。Notebook の契約・保存形式は不変。 | 文言（Anti-Oracle）の確認が必要。畳み文言が情報を漏らさないこと（NEGATIVE の件数のみ）を確認する。 |
+| Q | `MAX_FEEDBACK_TEXT` を 200 → 400 等へ引き上げる。 | Notebook の検証（読み書き両方）と保存互換に影響。古いビルドが新しい保存を `INVALID_FEEDBACK` で弾く。`trialNotebook.test.ts:211`（201 文字で REJECTED）の期待値変更が必要。 | 契約変更・後方互換。非推奨。 |
+| R | sim 側で sauce 全種探索をやめる。 | 不変条件の緩和＝禁止。 | 不可。 |
+
+**回帰テスト案（修正と同時に追加。今は赤になるため単独でコミットしない）**: `src/logic/discovery/researchResultFeedback.catalogScale.test.ts`
+```ts
+// カタログ規模ガード: 全 sauce が行になる最悪ケースでも、行は Notebook の上限内に収まる。
+import { it, expect } from "vitest";
+import { researchRowsFeedback } from "./researchResultFeedback";
+import { INGREDIENTS } from "../../data/ingredients";
+const NOTEBOOK_MAX = 200; // trialNotebook.ts MAX_FEEDBACK_TEXT（非公開のため値を固定して照合）
+it("the longest possible sauce-only Research line fits the Notebook limit at the current catalog size", () => {
+  const ids = INGREDIENTS.filter((i) => i.category === "sauce").map((i) => i.id);
+  const rows = ids.map((id, k) => ({ ingredientId: id, category: "sauce" as const, verdict: k === 0 ? ("POSITIVE" as const) : ("NEGATIVE" as const) }));
+  const label = "？？？ピザ（ヨーグルトソース）";
+  expect(researchRowsFeedback({ labelJa: label, rows })!.textJa.length).toBeLessThanOrEqual(NOTEBOOK_MAX);
+});
+```
+（現状 225 文字で FAIL。案 P の実装後に PASS。）
+
+## 新 finding D: T25 late order の配置（`LATE_ORDERS` の先頭に 4 件）
+- 実測 `LATE_ORDERS` 順: `swedish-kebab, banh-mi, mexican-elote, pizza-asparagi, ikura, …, smore, pizza-salad, pinsa`。
+- #858 の仕様（既存 late order の後ろ、pinsa の直前）なら `…, smore, swedish-kebab, banh-mi, mexican-elote, pizza-asparagi, pizza-salad, pinsa`。4 件は #858 統合前に生成されたため先頭に入った（#857 本文の「late-order 挿入の欠陥」）。
+- 失敗テスト: `lateCatalog.test.ts:98`、`lateCatalog.ikura.test.ts:77`（期待値は #858 の配置）。
+- 修正案: `src/data/lateCatalog.ts` の `ALL_LATE_ORDERS` で 4 件を smore の後ろへ移動（データ順のみ）。**影響**: 注文の出現順に使われる場合、late の客の並びが変わる（late 全体は T25 で初出なので既存プレイヤーへの影響は late ON 時の新規注文のみ）。実装変更のため承認待ち。
+
+## Owner 判断一覧（仕様・基準は変更していません）
+| ID | 失敗 | 現行仕様 | 実測 | 修正案 | Owner 判断事項 |
+|---|---|---|---|---|---|
+| C-2 | hints.multiSauce:85 / researchResultRows:223 / sauceKinds.research:45 / discoveryExpansion2.wave2:278 | 2 ソース許可は `MULTI_SAUCE_RECIPE_IDS`（grandma-pizza, pesto-burrata-pizza, pizza-alla-crudaiola, pesto-noci-pizza, pizza-radicchio-noci）のみ。他は 1 ソース | pizza-salad は tomato-sauce + yogurt-sauce の 2 ソース（yogurt は #856 の presence-dab） | `testSupport/requiredSauces.ts` の allowlist に `"pizza-salad"` を追加（B19/B20 と同じ先例） | presence-dab の yogurt を「2 つ目の必須ソース」として allowlist に載せてよいか |
+| C-3 | hints.multiSauce:70 | 非 allowlist レシピのヒントは旧実装と byte 同一 | pizza-salad の SAUCE ヒントが tomato 配置後に `ヨーグルトソースも塗ってみよう！`（mozzarella より先） | C-2 と同時に allowlist 追加。あわせて grandma のような pizza-salad 固有のヒント順の pin を追加 | yogurt を cheese より先に促すのが意図か（presence の 1 回タップを先に教える仕様か） |
+| B-1 | expansionBatch22:138 | 新 sauce は他の全 sauce と ΔE 25 以上（late4 先例） | kebab-sauce `#d86a35` と buffalo-sauce `#ec5a12`: **ΔE 20.45** | 色は著作物のため案のみ: kebab-sauce を buffalo から離す色へ（例: より暗い赤茶）／または ΔE 基準の例外承認 | 色の変更（デザイン）か、基準例外か |
+| B-2 | expansionBatch22:206 | 重複 Gate: 他レシピと Jaccard 0.4 未満、差分 2 以上（B22 は例外なしと明記） | buffalo-cauliflower-pizza と buffalo-chicken: 差は chicken↔cauliflower の 1 食材（対称差 2）、**Jaccard 0.6** | レシピ内容の変更、または重複 Gate の例外承認（承認済みの相手と完全一致が必要） | 派生バリエーションとして例外承認するか、cauliflower の構成を変えるか |
+| T-1 | techniques.test:84 / lateAxis:233 | `late-addition` は late で POST_BAKE の工程を持つレシピに必要。late で POST_BAKE なしは banh-mi の 1 件のみ承認済み例外 | banh-mi は技法を要求しない（正しい）。テスト側の導出 `isLateRecipeId` は例外を考慮しない。lateAxis の一覧は banh-mi を含めて書いてしまっている（今回の私の追記） | techniques.test の expected を「late かつ POST_BAKE あり」から導出に。lateAxis の一覧から banh-mi を外す | 承認済み例外の扱いとして問題ないか確認 |
+| T-2 | techniques: dexView:54 / runtime:115,143 / techniques:139 | `LATE_ADDITION_RECIPE_IDS`（`testSupport/techniqueAllowlists.ts`）は late-addition を要求するレシピの手書き一覧 | T25 の late 4 件（swedish-kebab, mexican-elote, pizza-asparagi, pizza-salad＝POST_BAKE あり）が未登録 | allowlist に 4 件を追加（新しい行の追従） | allowlist の追記の承認（banh-mi は追加しない） |
+| T-3 | finishCatalogGuards:38 | late レシピは FINISH（POST_BAKE）を持つ | banh-mi は POST_BAKE なし（承認済み例外） | テストの例外リストに banh-mi を追加 | 同上 |
+
+## 残り（非重量級 58 ファイル、本セッションの再測定）
+- 失敗 **54**（71 から減少）。内訳: C/B/T（Owner 判断待ち）約 17、finding D 2、A 分類（件数・golden・snapshot）約 35。
+- 重い 6 ファイルは未再測定: researchAttempt.sim* 33 件（原因は C-1 のみ）、replayAudit 2、deductionGuard.gate 1、deductionProduction.gate 2、hint5Production.gate 1、stagedWhatIf.research 1。
