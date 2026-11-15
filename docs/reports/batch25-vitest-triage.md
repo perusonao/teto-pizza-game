@@ -314,7 +314,7 @@ sauce 数 25／key-free 90／both 50・cheeseOnly 28／credited ordinary 84／or
 
 ## B-2: buffalo-cauliflower の構成（Jaccard 0.4 未満は維持。**材料・数量は未変更**）
 - 事実: Owner 決定表の **D-2（cauliflower vs chicken の重複例外）は「専用 floret SVG とチキンとの差別化を必須条件」として承認済み**（Jaccard 0.6 は提示済み）。B22 のテストは「この例外は不要」と書かれた過去の記述のまま、全レシピを対象に 0.4 を要求している。
-- 構成変更案の実測（全 135 レシピに対する最大 Jaccard、対称差、部分集合・上位集合）:
+- 構成変更案の実測（全 116 レシピ（RECIPES の実数。late・pinsa を含む）に対する最大 Jaccard、対称差、部分集合・上位集合）:
   - 現行 {buffalo-sauce, mozzarella, gorgonzola, cauliflower}: buffalo-chicken と 0.6（違反 1 件）。
   - **gorgonzola → feta／ricotta／fontina／cheddar／goat-cheese／provolone／cream-cheese／ricotta-salata／swiss-cheese**: 最大 0.333、違反なし。**parmigiano**: black-truffle-pizza と 0.4（不可）。**brie**: speck-e-brie と 0.333。
   - 材料を 1 つ足す（celery／red-onion／garlic／green-onion／bacon）: 0.5（不可。0.4 未満には 3 材料の追加が要る）。
