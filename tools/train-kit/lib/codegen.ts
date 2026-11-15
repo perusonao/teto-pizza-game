@@ -83,16 +83,19 @@ export function insertAfterLine(text: string, lineStart: string, block: string):
   return `${text.slice(0, end)}\n${block.replace(/\n+$/, "")}${text.slice(end)}`;
 }
 
-/** Appends `items` inside a one-line literal: the unique line starting with `lineStart` and ending with `lineEnd` (e.g. `] as const;`). */
+/** Appends `items` inside a literal whose unique declaration starts with `lineStart` and whose closing token is `lineEnd`. */
 export function appendInline(text: string, lineStart: string, lineEnd: string, items: string): string {
   const at = once(text, `\n${lineStart}`, `line ${lineStart}`) + 1;
-  const eol = text.indexOf("\n", at);
-  const line = text.slice(at, eol < 0 ? undefined : eol);
-  if (!line.endsWith(lineEnd)) throw new AnchorError(`line ${lineStart} does not end with ${JSON.stringify(lineEnd)}`);
-  const body = line.slice(0, line.length - lineEnd.length).replace(/\s+$/, "");
+  const closeAt = text.indexOf(lineEnd, at + lineStart.length);
+  if (closeAt < 0) throw new AnchorError(`literal ${lineStart} does not end with ${JSON.stringify(lineEnd)}`);
+  const nextDecl = text.slice(at + lineStart.length, closeAt).search(/\n(?:export\s+)?(?:const|let|var|function|type|interface|class)\s/);
+  if (nextDecl >= 0) throw new AnchorError(`literal ${lineStart} does not end with ${JSON.stringify(lineEnd)} before the next declaration`);
+  if (text.indexOf(lineEnd, closeAt + lineEnd.length) >= 0 && text.indexOf(`\n${lineStart}`, at) >= 0) throw new AnchorError(`literal ${lineStart} is ambiguous`);
+  const body = text.slice(at, closeAt).replace(/\s+$/, "");
+  const separator = body.endsWith(",") ? " " : ", ";
   const closer = lineEnd.trimStart();
   const pad = lineEnd.startsWith(" ") ? " " : "";
-  return `${text.slice(0, at)}${body}, ${items}${pad}${closer}${eol < 0 ? "" : text.slice(eol)}`;
+  return `${text.slice(0, at)}${body}${separator}${items}${pad}${closer}${text.slice(closeAt + lineEnd.length)}`;
 }
 
 /* ---------- value renderers ---------- */
@@ -226,8 +229,9 @@ export function applyCatalogEdits(kit: KitTrain, derived: Derived, files: Files,
     edit("sauceProfiles", (t) => {
       const at = once(t, `\n  ingredientId: "tomato-sauce" |`, "RecipeSauceProfile.ingredientId union") + 1;
       const eol = t.indexOf("\n", at);
-      if (t[eol - 1] !== ";") throw new AnchorError("RecipeSauceProfile.ingredientId union is not a one-line type");
-      return `${t.slice(0, eol - 1)}${newProfileSauces.map((id) => ` | ${q(id)}`).join("")};${t.slice(eol)}`;
+      const lineEnd = t[eol - 1] === "\r" ? eol - 1 : eol;
+      if (t[lineEnd - 1] !== ";") throw new AnchorError("RecipeSauceProfile.ingredientId union is not a one-line type");
+      return `${t.slice(0, lineEnd - 1)}${newProfileSauces.map((id) => ` | ${q(id)}`).join("")};${t.slice(lineEnd)}`;
     });
   }
   edit("reference", (t) => {

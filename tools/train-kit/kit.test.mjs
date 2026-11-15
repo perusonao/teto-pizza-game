@@ -77,7 +77,7 @@ test("mutation: every operation must match exactly once, and a stale mutation th
 import { classifyRun, judge, mutation as runMutation } from "./mutation.mjs";
 import { mkdtempSync as mkTmp, mkdirSync as mkDir, writeFileSync as writeF, readFileSync as readF } from "node:fs";
 import { tmpdir as tmpDir } from "node:os";
-import { join as joinPath } from "node:path";
+import { basename, join as joinPath } from "node:path";
 
 test("mutation (fail-closed): timeout, detected and missed are three different outcomes", () => {
   const timeoutMsg = [{ file: "a.test.ts", message: "Error: Test timed out in 5000ms." }];
@@ -107,7 +107,7 @@ async function runWith(script) {
   writeF(joinPath(base, "muts.json"), JSON.stringify({ mutations: [{ id: "M1", description: "d", file: "src/x.ts", ops: [{ type: "replace", from: "v = 1", to: "v = 2" }] }] }));
   const calls = { old: 0, new: 0 };
   const run = async (tree) => {
-    const side = tree.endsWith("/old") ? "old" : "new";
+    const side = basename(tree) === "old" ? "old" : "new";
     const mutated = readF(joinPath(tree, "src", "x.ts"), "utf8").includes("v = 2");
     const outcome = script(side, mutated, ++calls[side]);
     return { outcome, detected: outcome === "detected", timeoutOnly: outcome === "timeout", firstFailingFile: null };
