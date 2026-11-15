@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AnchorError, appendInline, emojiLiteral, fillTemplate, insertAfterLine, insertBeforeClose, insertBeforeLine, key, renderIngredient, renderRecipe, wireHvSeeds, wirePreviewGate } from "../../tools/train-kit/lib/codegen";
+import { AnchorError, appendInline, emojiLiteral, fillTemplate, insertAfterLine, insertBeforeClose, insertBeforeLine, insertBeforeObjectInArray, key, renderIngredient, renderRecipe, wireHvSeeds, wirePreviewGate } from "../../tools/train-kit/lib/codegen";
 import { toTrainSpec, validateKitTrain, withDefaults, type KitTrain } from "../../tools/train-kit/lib/implSpec";
 
 /** Train Kit: the pure parts on SYNTHETIC data (no catalog value is pinned here; the real files are covered by codegen.anchors.test.ts). */
@@ -85,6 +85,16 @@ describe("text primitives fail closed", () => {
     expect(() => fillTemplate("a __X__ b", { Y: "1" })).toThrow(/no placeholder Y/);
     expect(() => fillTemplate("a __X__ __Z__", { X: "1" })).toThrow(/not filled: __Z__/);
     expect(fillTemplate("a __X__ /*__X__*/", { X: "1" })).toBe("a 1 1");
+  });
+  it("inserts a late order only in the named order array, immediately before Pinsa", () => {
+    const text = [
+      "const ALL_LATE_RECIPES = [", "  {", '    id: "order-pinsa-romana",', "  },", "] as const;",
+      "const ALL_LATE_ORDERS = [", "  {", '    id: "order-existing",', "  },", "  {", '    id: "order-pinsa-romana",', "  },", "] as const;", "",
+    ].join("\n");
+    const out = insertBeforeObjectInArray(text, "const ALL_LATE_ORDERS = [", '    id: "order-pinsa-romana",', '  {\n    id: "order-new",\n  },');
+    expect(out.indexOf('id: "order-existing"')).toBeLessThan(out.indexOf('id: "order-new"'));
+    expect(out.indexOf('id: "order-new"')).toBeLessThan(out.lastIndexOf('id: "order-pinsa-romana"'));
+    expect(() => insertBeforeObjectInArray(text, "const ALL_LATE_RECIPES = [", '    id: "order-existing",', "x")).toThrow(/outside/);
   });
 });
 

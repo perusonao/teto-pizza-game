@@ -83,6 +83,23 @@ export function insertAfterLine(text: string, lineStart: string, block: string):
   return `${text.slice(0, end)}\n${block.replace(/\n+$/, "")}${text.slice(end)}`;
 }
 
+/** Inserts whole objects before the object containing `memberLine`, scoped to the named array. */
+export function insertBeforeObjectInArray(text: string, arrayDecl: string, memberLine: string, block: string): string {
+  const start = once(text, arrayDecl, `declaration ${arrayDecl}`);
+  const closeAt = text.indexOf("\n] as const;", start);
+  if (closeAt < 0) throw new AnchorError(`closing of ${arrayDecl} not found`);
+  const needle = `\n${memberLine}`;
+  const memberAt = text.indexOf(needle, start + arrayDecl.length);
+  if (memberAt < 0 || memberAt >= closeAt) throw new AnchorError(`${memberLine} is outside ${arrayDecl}`);
+  const duplicate = text.indexOf(needle, memberAt + needle.length);
+  if (duplicate >= 0 && duplicate < closeAt) throw new AnchorError(`anchor is ambiguous in ${arrayDecl}: ${memberLine}`);
+  const opens = [...text.slice(start, memberAt + 1).matchAll(/\r?\n  \{\r?\n/g)];
+  const open = opens.at(-1)?.index;
+  if (open === undefined) throw new AnchorError(`opening object for ${memberLine} not found in ${arrayDecl}`);
+  const absoluteOpen = start + open;
+  return `${text.slice(0, absoluteOpen)}\n${block.replace(/\n+$/, "")}${text.slice(absoluteOpen)}`;
+}
+
 /** Appends `items` inside a literal whose unique declaration starts with `lineStart` and whose closing token is `lineEnd`. */
 export function appendInline(text: string, lineStart: string, lineEnd: string, items: string): string {
   const at = once(text, `\n${lineStart}`, `line ${lineStart}`) + 1;
@@ -198,12 +215,7 @@ export function applyCatalogEdits(kit: KitTrain, derived: Derived, files: Files,
   // --- late catalog ---
   if (late.length > 0) {
     edit("late", (t) => insertBeforeLine(t, "  // Pinsa Romana (#577 P3-b-1, Owner L1", [`  // ${note(kit, late.map((r) => r.id).join(", "))}`, ...late.map(renderRecipe)].join("\n")));
-    edit("late", (t) => {
-      const pinsaOrder = once(t, `    id: "order-pinsa-romana",`, "the pinsa order (kept last)");
-      const open = t.lastIndexOf("\n  {\n", pinsaOrder);
-      if (open < 0) throw new AnchorError("opening of the pinsa order not found");
-      return `${t.slice(0, open)}\n${late.map(renderOrder).join("\n")}${t.slice(open)}`;
-    });
+    edit("late", (t) => insertBeforeObjectInArray(t, "const ALL_LATE_ORDERS = [", `    id: "order-pinsa-romana",`, late.map(renderOrder).join("\n")));
     edit("late", (t) => insertBeforeLine(t, `  ...(pinsaEnabled() ? { "pinsa-romana":`, late.map((r) => `  ${q(r.id)}: ${q(r.evidenceId)},`).join("\n")));
     edit("late", (t) => insertBeforeClose(t, "export const LATE_LADDER_STEPS", "];", [`  // ${note(kit, "appended late step(s); numbers are DERIVED, never authored; no star gate.")}`, ...late.map((r) => `  { ingredientIds: [${r.ladderStep!.ingredientIds.map(q).join(", ")}], keyRecipeId: ${q(r.id)} },`)].join("\n")));
   }
