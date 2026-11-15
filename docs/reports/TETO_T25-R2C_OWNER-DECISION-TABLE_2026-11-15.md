@@ -2,8 +2,8 @@
 
 Date: 2026-11-15  
 PR: #853 (Draft / HOLD)  
-Audited PR HEAD: `9b1428030041242b505d60ff1745137f9949f326`  
-Audited `main`: `3c5b433a8041faa3317979fe4c11418d240b6b17`
+Audited PR HEAD: `3be85e502241fa342faeba24941fd7b986543747`
+Re-measured `main`: `dba7d7331cad49a9dff068a9a23d79ba1cb37ee4`
 
 This is a decision packet, not an approval record. Every cell in **Owner decision** is intentionally blank. No Research delta, duplicate exception, recipe, ingredient, ladder row, runtime change, Production switch, or Preview update is authorized by this document.
 
@@ -117,7 +117,7 @@ Owner should enter only `承認`, `却下`, or a concrete replacement value. Bla
 | I-4 | kebab-sauce | accept orange PAINT / replace / reject | accept `#d86a35`, pre-bake PAINT | existing sauce interaction | sauce profile, Reference | |
 | I-5 | lime | accept §4 / replace fields / reject | accept §4 | post-bake citrus wedge | ingredient, Reference, SVG | |
 | I-6 | liver-pate | topping/meat / sauce / reject | **topping/meat, one composite piece** | existing category/family/scoring rules | recipe flow, taxonomy, Reference | |
-| I-7 | yogurt-sauce | second presence/dab / second paint / reject | presence/dab `#f7f3e8` | avoids two full paint passes; visible identity | sauce profile, Reference, art | |
+| I-7 | yogurt-sauce | second presence/dab / second paint / reject | presence/dab `#f7f3e8`, **1 dab / 0.02 cap** | smallest existing visible, presence-valid atomic deposit; see independent I-7 spec | sauce profile, Reference, art | |
 | I-8 | cucumber reuse | unchanged / alter shipped T24 asset | unchanged reuse | shipped T24 authority | no new ingredient/step | |
 | L-1 | banh-mi late without POST_BAKE | exception / ordinary / reject | late exception | catalog placement only; no fake FINISH | ladder/catalog | |
 | L-2 | proposed steps 96–101 | accept / reorder | accept subject to REC-04 remeasurement | ordinary-first, declared late order | ladder, floors, chapters | |
@@ -128,3 +128,19 @@ Owner should enter only `承認`, `却下`, or a concrete replacement value. Bla
 ## 7. Implementation gate after Owner response
 
 The next Codex session may implement only the rows explicitly approved above. It must normalize cucumber as reuse, encode the 42 exact Research pins and canonical-zero gate, run preflight→scaffold→plan→claims→apply→sweep in the documented order, keep the change docs/data/content-only (no new runtime mechanic), run typecheck/lint/full tests/generated E2E, request independent Codex review, and leave the PR Draft/HOLD. Merge, Production ON, and shared Preview remain prohibited.
+
+## 8. Re-measurement against latest main (`dba7d733`)
+
+Owner decision cells above remain blank. Latest-main measurements do not convert recommendations into approvals.
+
+| area | latest-main result | Owner-table consequence |
+|---|---|---|
+| Train Kit fix #854 | `src/trainKit` + `src/contentTrain` + Batch 24 focused suite: 66 passed, 7 skipped; the prior anchor/mutation failures no longer reproduce | verification evidence refreshed; no Owner choice removed |
+| normalized R2c preflight | READY 0 / NEEDS_OWNER 6 / BLOCKED 0; canonical 0; non-canonical 42 | R-00, R-01, R-41, R-42 and all recipe Owner findings still require decisions |
+| Duplicate Gate | same three hits: salad/bambino 0.429; cauliflower/chicken ONE_DIFF 0.6; asparagi/quattro 0.429 | D-1 through D-3 still require decisions |
+| cucumber | shipped on main; unchanged reuse after removal from only the validation copy's `newIngredients` | I-8 still requires confirmation; implementation input must be normalized |
+| I-7 yogurt | current runtime proves one starter dab is 0.02 and already presence-valid | I-7 now has a measured cap proposal; Owner must approve/reject/replace it |
+| master ledger generator | latest main still fails the two `diavola-pizza-pizzadb-p5` alias reconciliation checks; PR #853 contains the docs-generator fix but it is not on main | ledger rows and generated verification must be regenerated after integrating/reapplying the docs-generator fix; do not approve stale generated artifacts |
+| ladder / REC-04 / Hint family report | not derivable until approved authored values are converted to the implementation spec | L-2, L-3, H-1 require fresh post-approval measurement |
+
+Independent I-7 specification: `docs/reports/TETO_T25-I7_YOGURT-SAUCE_PRESENCE-DAB_SPEC_2026-11-15.md`.
