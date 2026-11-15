@@ -370,7 +370,7 @@ export function e2eValues(kit: KitTrain, facts: E2eFacts): Record<string, string
       "  {",
       `    id: ${q(r.id)}, name: ${q(r.nameJa)}, tag: ${q(`${kit.tag}-${r.hvAlias ?? r.id}`)},`,
       `    materials: [${step.map((id) => `[${q(id)}, ${q(facts.nameJa(id))}]`).join(", ")}], cohortKey: ${q(facts.nameJa(step.at(-1)!))},`,
-      `    sauces: [${sauces.map((x) => `{ chip: ${chip(x.ingredientId)} }`).join(", ")}],`,
+      `    sauces: [${sauces.map((x) => `{ chip: ${chip(x.ingredientId)}, mode: ${q(x.ingredientId === r.sauceProfile?.ingredientId ? "ring" : "presence-dab")} }`).join(", ")}],`,
       `    notYet: [${notYet.map(q).join(", ")}], bake: { start: ${r.bakeTarget.start + 2}, end: ${r.bakeTarget.end - 2} },`,
       `    pre: [${pre.map((x) => `{ id: ${q(x.ingredientId)}, chip: ${chip(x.ingredientId)}, tab: ${q(facts.category(x.ingredientId) === "cheese" ? "チーズ" : "具材")} }`).join(", ")}],`,
       `    post: [${post.map((x) => `{ id: ${q(x.ingredientId)}, chip: ${chip(x.ingredientId)} }`).join(", ")}],`,

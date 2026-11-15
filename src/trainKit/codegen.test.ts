@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AnchorError, appendInline, emojiLiteral, fillTemplate, insertAfterLine, insertBeforeClose, insertBeforeLine, insertBeforeObjectInArray, key, renderIngredient, renderRecipe, wireHvSeeds, wirePreviewGate } from "../../tools/train-kit/lib/codegen";
+import { AnchorError, appendInline, e2eValues, emojiLiteral, fillTemplate, insertAfterLine, insertBeforeClose, insertBeforeLine, insertBeforeObjectInArray, key, renderIngredient, renderRecipe, wireHvSeeds, wirePreviewGate } from "../../tools/train-kit/lib/codegen";
 import { toTrainSpec, validateKitTrain, withDefaults, type KitTrain } from "../../tools/train-kit/lib/implSpec";
 
 /** Train Kit: the pure parts on SYNTHETIC data (no catalog value is pinned here; the real files are covered by codegen.anchors.test.ts). */
@@ -63,6 +63,19 @@ describe("renderers", () => {
     expect(text).toContain('{ ingredientId: "yuzu", minCount: 2, applicationPhase: "POST_BAKE" },');
     expect(text).toContain("lunchRush: false,");
     expect(text).not.toContain("ladderCredit");
+  });
+
+  it("generates a normal ring only for the primary sauce and one presence dab for a secondary sauce", () => {
+    const k = kit();
+    k.newIngredients.push({ id: "yogurt-sauce", nameJa: "ヨーグルトソース", category: "sauce", family: null, color: "#fff", emoji: "Y" });
+    k.recipes[0].requiredIngredients.splice(1, 0, { ingredientId: "yogurt-sauce", minCount: 1 });
+    const values = e2eValues(k, {
+      nameJa: (id) => ({ ponzu: "ポン酢", "yogurt-sauce": "ヨーグルトソース", mozzarella: "モッツァレラ", yuzu: "ゆず" })[id]!,
+      category: (id) => id === "ponzu" || id === "yogurt-sauce" ? "sauce" : id === "mozzarella" ? "cheese" : "topping",
+      pieceVisual: () => null,
+    });
+    expect(values.PLANS).toContain('{ chip: /ポン酢/, mode: "ring" }');
+    expect(values.PLANS).toContain('{ chip: /ヨーグルトソース/, mode: "presence-dab" }');
   });
 });
 
