@@ -10,8 +10,12 @@ import type { SauceDeposit } from "../state/pizzaState";
 export const PRESENCE_DAB_SAUCE_ID = "yogurt-sauce";
 export const PRESENCE_DAB_QUANTITY = SAUCE_RATE_PER_TICK;
 
+export function isPresenceDabSauce(ingredientId: string): boolean {
+  return ingredientId === PRESENCE_DAB_SAUCE_ID;
+}
+
 export function sauceQuantityCap(ingredientId: string): number {
-  return ingredientId === PRESENCE_DAB_SAUCE_ID ? PRESENCE_DAB_QUANTITY : 1;
+  return isPresenceDabSauce(ingredientId) ? PRESENCE_DAB_QUANTITY : 1;
 }
 
 /** Canonical-boundary guard; UI/controller limits are never trusted alone. */
@@ -20,6 +24,6 @@ export function isAllowedSauceDepositBatch(
   alreadyUsed: number,
   deposits: readonly SauceDeposit[],
 ): boolean {
-  if (ingredientId !== PRESENCE_DAB_SAUCE_ID) return true;
+  if (!isPresenceDabSauce(ingredientId)) return true;
   return alreadyUsed === 0 && deposits.length === 1 && deposits[0].amount === PRESENCE_DAB_QUANTITY;
 }
