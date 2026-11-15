@@ -1,16 +1,16 @@
 {
  "summary": {
-  "recipes": 67,
+  "recipes": 61,
   "readyForPromotion": [],
-  "recipesWithBlockingDeps": 67,
-  "blockingDeps": 359,
+  "recipesWithBlockingDeps": 61,
+  "blockingDeps": 343,
   "byKind": {
-   "OWNER_RULE": 99,
+   "OWNER_RULE": 91,
    "MECHANIC": 59,
    "INGREDIENT_IN_FLIGHT": 0,
-   "UNRESOLVED_TOKEN": 17,
-   "SAUCE_UNSPECIFIED": 20,
-   "DUPLICATE_GATE": 160,
+   "UNRESOLVED_TOKEN": 16,
+   "SAUCE_UNSPECIFIED": 16,
+   "DUPLICATE_GATE": 157,
    "ID_SUFFIXED": 4
   },
   "recipesBlockedOnlyBy": {
@@ -29,15 +29,15 @@
    "recipesVsStaged": {
     "IDENTICAL": 8,
     "SUBSET": 13,
-    "SUPERSET": 26,
+    "SUPERSET": 25,
     "ONE_DIFF": 26,
-    "JACCARD_GT_0_4": 17
+    "JACCARD_GT_0_4": 15
    },
-   "recipesWithNoHit": 17,
-   "recipesWithNoShippedHit": 23,
-   "hitsVsShipped": 250
+   "recipesWithNoHit": 13,
+   "recipesWithNoShippedHit": 17,
+   "hitsVsShipped": 254
   },
-  "stagedIngredientRefs": 35
+  "stagedIngredientRefs": 28
  },
  "perRecipe": [
   {
@@ -762,7 +762,7 @@
     },
     {
      "against": "pizza-salad",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "SUBSET",
      "jaccard": 0.333
     },
@@ -1059,7 +1059,7 @@
     },
     {
      "against": "pizza-salad",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "SUBSET",
      "jaccard": 0.333
     },
@@ -1386,20 +1386,6 @@
      "jaccard": 0.5
     }
    ]
-  },
-  {
-   "id": "swedish-kebab-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-1",
-    "OWNER_RULE:R-7",
-    "UNRESOLVED_TOKEN:肉",
-    "SAUCE_UNSPECIFIED:swedish-kebab-pizza"
-   ],
-   "staged": [
-    "kebab-sauce"
-   ],
-   "dup": []
   },
   {
    "id": "scacciata-ragusana",
@@ -2265,7 +2251,7 @@
     },
     {
      "against": "pizza-salad",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "SUBSET",
      "jaccard": 0.333
     },
@@ -2563,7 +2549,7 @@
     },
     {
      "against": "pizza-salad",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "SUBSET",
      "jaccard": 0.333
     },
@@ -3010,31 +2996,6 @@
    ]
   },
   {
-   "id": "banh-mi-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-1",
-    "SAUCE_UNSPECIFIED:banh-mi-pizza"
-   ],
-   "staged": [
-    "daikon",
-    "liver-pate"
-   ],
-   "dup": []
-  },
-  {
-   "id": "buffalo-cauliflower-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-1",
-    "SAUCE_UNSPECIFIED:buffalo-cauliflower-pizza"
-   ],
-   "staged": [
-    "cauliflower"
-   ],
-   "dup": []
-  },
-  {
    "id": "palmitos-salsa-golf",
    "lane": "R-C",
    "blocking": [
@@ -3071,89 +3032,12 @@
    "dup": []
   },
   {
-   "id": "pizza-salad",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-4",
-    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "DUPLICATE_GATE:SUPERSET@staged"
-   ],
-   "staged": [
-    "yogurt-sauce"
-   ],
-   "dup": [
-    {
-     "against": "bambino",
-     "againstStaged": false,
-     "kind": "JACCARD_GT_0_4",
-     "jaccard": 0.429
-    },
-    {
-     "against": "colorado-mountain-pie",
-     "againstStaged": true,
-     "kind": "SUPERSET",
-     "jaccard": 0.333
-    },
-    {
-     "against": "ny-style",
-     "againstStaged": true,
-     "kind": "SUPERSET",
-     "jaccard": 0.333
-    },
-    {
-     "against": "quad-cities-style-pizza",
-     "againstStaged": true,
-     "kind": "SUPERSET",
-     "jaccard": 0.333
-    },
-    {
-     "against": "trenton-tomato-pie",
-     "againstStaged": true,
-     "kind": "SUPERSET",
-     "jaccard": 0.333
-    }
-   ]
-  },
-  {
-   "id": "pizza-asparagi-limone",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-4",
-    "OWNER_RULE:R-6",
-    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
-    "DUPLICATE_GATE:JACCARD_GT_0_4@staged"
-   ],
-   "staged": [
-    "asparagus"
-   ],
-   "dup": [
-    {
-     "against": "pizza-carciofi-salad",
-     "againstStaged": true,
-     "kind": "JACCARD_GT_0_4",
-     "jaccard": 0.571
-    },
-    {
-     "against": "pizza-puntarelle",
-     "againstStaged": true,
-     "kind": "JACCARD_GT_0_4",
-     "jaccard": 0.429
-    },
-    {
-     "against": "quattro-formaggi",
-     "againstStaged": false,
-     "kind": "JACCARD_GT_0_4",
-     "jaccard": 0.429
-    }
-   ]
-  },
-  {
    "id": "pizza-carciofi-salad",
    "lane": "R-C",
    "blocking": [
     "OWNER_RULE:R-6",
     "MECHANIC:DOUGH_VARIANT",
-    "DUPLICATE_GATE:JACCARD_GT_0_4@staged"
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped"
    ],
    "staged": [
     "celery"
@@ -3161,7 +3045,7 @@
    "dup": [
     {
      "against": "pizza-asparagi-limone",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "JACCARD_GT_0_4",
      "jaccard": 0.571
     }
@@ -3220,6 +3104,7 @@
    "blocking": [
     "OWNER_RULE:R-6",
     "MECHANIC:DOUGH_VARIANT",
+    "DUPLICATE_GATE:JACCARD_GT_0_4@shipped",
     "DUPLICATE_GATE:JACCARD_GT_0_4@staged"
    ],
    "staged": [
@@ -3228,7 +3113,7 @@
    "dup": [
     {
      "against": "pizza-asparagi-limone",
-     "againstStaged": true,
+     "againstStaged": false,
      "kind": "JACCARD_GT_0_4",
      "jaccard": 0.429
     },
@@ -4179,18 +4064,6 @@
      "jaccard": 0.75
     }
    ]
-  },
-  {
-   "id": "mexican-elote-pizza",
-   "lane": "R-B",
-   "blocking": [
-    "OWNER_RULE:R-1",
-    "SAUCE_UNSPECIFIED:mexican-elote-pizza"
-   ],
-   "staged": [
-    "lime"
-   ],
-   "dup": []
   },
   {
    "id": "montreal-style-pizza",
