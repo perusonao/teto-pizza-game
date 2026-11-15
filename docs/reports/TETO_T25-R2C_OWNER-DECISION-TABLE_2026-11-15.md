@@ -120,7 +120,7 @@ Owner decisions are recorded below. Conditional approvals do not waive preflight
 | I-7 | yogurt-sauce | second presence/dab / second paint / reject | presence/dab `#f7f3e8`, **1 dab / 0.02 cap** | smallest existing visible, presence-valid atomic deposit; see independent I-7 spec | sauce profile, Reference, art |承認：#f7f3e8、secondary presence-dab、1 dab・1 deposit・0.02上限。必要なruntime変更は独立PRで実装・検証し、未完了ならT25適用HOLD |
 | I-8 | cucumber reuse | unchanged / alter shipped T24 asset | unchanged reuse | shipped T24 authority | no new ingredient/step |承認：T24 cucumberを無変更で再利用 |
 | L-1 | banh-mi late without POST_BAKE | exception / ordinary / reject | late exception | catalog placement only; no fake FINISH | ladder/catalog |承認：banh-miのみlate例外、架空FINISH禁止 |
-| L-2 | proposed steps 96–101 | accept / reorder | accept subject to REC-04 remeasurement | ordinary-first, declared late order | ladder, floors, chapters |承認：96〜101案、REC-04再測定で不一致なら再判断 |
+| L-2 | proposed steps 96–101 | accept / reorder | accept subject to REC-04 remeasurement | ordinary-first, declared late order | ladder, floors, chapters |再承認：当初96〜101固定案を撤回し、REC-04実測のordinary/late分類・順序を採用。部分sliceの81/97〜100は暫定値。6レシピ統合後に全step、既存late移動、同時unlock、canonical 0を再測定し、予期しない変化は再HOLD |
 | L-3 | step 99 dual material | together / split | together | one recipe, both new, one acquisition event | ladder, shop, Hint |承認：step99で2食材同時獲得 |
 | H-1 | Hint 5.0 | measured rung shapes / redesign | keep measured shapes; remeasure family report | no new Hint mechanic | Hint goldens/reports |承認：既存Hint 5.0 rung維持、family再測定必須 |
 | T-1 | chicken-tikka | HOLD / resume | HOLD | base-spec conflict unresolved | excluded recipe/material |承認：HOLD継続 |
@@ -144,3 +144,7 @@ The measurements below predate the Owner decision recording; approved bounds mus
 | ladder / REC-04 / Hint family report | not derivable until approved authored values are converted to the implementation spec | L-2, L-3, H-1 require fresh post-approval measurement |
 
 Independent I-7 specification: `docs/reports/TETO_T25-I7_YOGURT-SAUCE_PRESENCE-DAB_SPEC_2026-11-15.md`.
+
+## 9. L-2 redecision after partial T25 implementation
+
+Owner authorized proceeding with the measured REC-04 ordering rather than forcing the former 96–101 numbering. Partial-slice measurements: cauliflower ordinary step 81; kebab-sauce late 97; daikon+liver-pate late 98; lime late 99; asparagus late 100. These numbers are **provisional**, not final approvals of exact positions. Existing late steps may shift. After integrating all six recipes and seven new ingredients, regenerate the ladder and enumerate every shifted existing step and dual-material unlock. Preserve canonical Research order change 0. Any new unexpected effects require Owner re-review. The independent Train Kit wrong-array codegen bug must be fixed and tested separately before final gate. No merge, Production ON, or shared Preview update is authorized.
