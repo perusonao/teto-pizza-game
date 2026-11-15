@@ -190,3 +190,29 @@
   - the cap is the recipe's current full H1..H4 cost: 35 for the 3-level recipes, 75 for the 4 — AssertionError: expected [ 'bismarck', …(17) ] to deeply equal [ 'bismarck', …(16) ]
 - `src/logic/techniques/dexView.test.ts` (1)
   - injected context: a technique no catalog target requires never appears — AssertionError: expected [ { id: 'late-addition', …(2) } ] to deeply equal []
+
+## 進捗（継続セッション時点）
+
+- 実測台帳（不変条件の確認）: ordinary 81 / 既存 late 82–96（+1 移動）/ 新規 late 97–101 / step 98 = daikon + liver-pate（2 食材同時）/ 全 101 step。
+- 修正済み（件数・位置・新しい行の追従、期待値の緩和なし）:
+  - 先行バッチの「LATER 除外リスト」と `followedBy` に T25 の recipe（6）と material（7）を追記（Research の測定系 B18/B20/B21/B22/B23b が復旧）。
+  - late 系 manifest の `followedBy` に T25 late 5 recipe を pinsa の手前へ追記（validator 8 件が復旧）。
+  - lateCatalog.* / e5.ikuraProduction の `steps.at(-N)` と `steps.length - K` を T25 late 5 step 分ずらした。
+- 再測定（重い 6 ファイルを除く 58 ファイル）: 失敗 104 → 71。重い 6 ファイル分（researchAttempt.sim* 33、replayAudit 2、deductionGuard 1、deductionProduction.gate 2、hint5Production.gate 1、stagedWhatIf.research 1）は別枠で未再測定。
+
+## 未解決の finding（期待値を変えずに報告）
+
+- **C-1（不具合の疑い、最優先）**: `researchAttempt.sim*` の 33 件超は同一原因。`pizza-salad#2004: rows without a Notebook line`（profile NONE / seed 1 / explorePieces ONE で再現）。Research の行は出るのに Notebook 行が出ない。`gameReducer.researchAttemptResult` → `researchRowsFeedback` が `null` を返す経路（`labelJa` 空、または trial notebook の先頭が別 entry）を #856 の I-7 runtime 側で確認する必要がある。
+- **C-2**: pizza-salad は 2 ソース（tomato + yogurt）。「1 ソース」不変条件のテスト（hints.multiSauce / researchResultRows / sauceKinds.research / discoveryExpansion2.wave2）が失敗。allowlist への追加は挙動の仕様判断（presence-dab 前提）なので Owner／Codex 確認待ち。
+- **C-3**: hints.multiSauce は SAUCE ヒントが mozzarella より先に yogurt を促す（`ヨーグルトソースも塗ってみよう！`）。意図した挙動か要確認。
+- **B-1**: kebab-sauce vs buffalo-sauce の ΔE 20.4 < 25（expansionBatch22）。色は著作物のため Owner／デザイン判断。
+- **B-2**: buffalo-cauliflower vs buffalo-chicken の Jaccard 0.6 ≥ 0.4（expansionBatch22）。重複 Gate の例外承認が必要。
+- 技法 allowlist: banh-mi が `late-addition` を要求する新規行（techniques / runtime / dexView）。「新しい行」の追従だが、技法の追加なので Owner の確認推奨。
+
+## 次の再開手順
+
+1. `git fetch && git checkout claude/teto-batch-25-continuation-mcuqyq`（HEAD は本文書の commit）。
+2. golden / snapshot 系（staged*, hint5Ladder.*, deductionHint.audit, stagedWhatIf）は生成元から再生成し、差分を目視してからコミット。
+3. 残りの固定値（recipes 総数、sauce 25、ladder 101 など）を実カタログ値へ。
+4. 重い 6 ファイルを単独実行（researchAttempt.sim* は 570 秒級）。
+5. 最後に全 Vitest（約 33 分、バックグラウンド・タイムアウト最大）。
