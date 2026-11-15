@@ -282,3 +282,41 @@ it("the longest possible sauce-only Research line fits the Notebook limit at the
 ## 残り（非重量級 58 ファイル、本セッションの再測定）
 - 失敗 **54**（71 から減少）。内訳: C/B/T（Owner 判断待ち）約 17、finding D 2、A 分類（件数・golden・snapshot）約 35。
 - 重い 6 ファイルは未再測定: researchAttempt.sim* 33 件（原因は C-1 のみ）、replayAudit 2、deductionGuard.gate 1、deductionProduction.gate 2、hint5Production.gate 1、stagedWhatIf.research 1。
+
+---
+
+# 承認反映後の進捗と、B-1／B-2 の提案・測定（継続セッション 3）
+
+## 実装した承認事項（各 1 コミット、skip・削除・期待値緩和なし）
+| 項目 | 内容 | 検証 |
+|---|---|---|
+| C-1（案 P） | `researchRowsFeedback`: 200 字を超えるときだけ NEGATIVE を `ほかN件×` に集約。POSITIVE は保持、判定・保存形式は不変。`MAX_FEEDBACK_TEXT` を export し、builder の上限を test で一致固定 | researchResultFeedback 22 件 PASS（最悪ケース＝全 sauce 25 種、全 sauce+全 cheese も 200 字内、Notebook が NEW として記録）。sim の旧 FAIL シード（NONE/ONE/seed1）が PASS |
+| D | `ALL_LATE_ORDERS` の T25 late 4 件を smore の後ろ・pizza-salad の前へ移動（文言は byte 同一） | lateCatalog* 175 件 PASS |
+| C-2 | `MULTI_SAUCE_RECIPE_IDS` に `pizza-salad` を追加 | hints.multiSauce / researchResultRows / sauceKinds.research / wave2 の 78 件 PASS |
+| C-3 | 実 reducer 操作とヒントの整合テスト `pizzaSalad.hintFlow.test.ts`（tomato を塗る → ヒントが yogurt → 1 タップ・0.02 で 2 種がそろう → ヒントが mozzarella。yogurt 単独では tomato を先に促す） | 3 件 PASS |
+| T-1 | lateAxis の late-addition 一覧から banh-mi を除外。techniques の期待値は「late かつ POST_BAKE あり」から導出 | PASS |
+| T-2/T-3 | `LATE_ADDITION_RECIPE_IDS` に 4 件（swedish-kebab, mexican-elote, pizza-asparagi-limone, pizza-salad）。finishCatalogGuards は banh-mi だけ「POST_BAKE も FINISH もない」ことを断言 | techniques 系 148 件 PASS |
+
+## A 分類（件数・位置・新しい行）で追加修正したもの
+sauce 数 25／key-free 90／both 50・cheeseOnly 28／credited ordinary 84／ordinary 95／chapter late 20(21)／b21 seeds／recipes 一覧／lunch-rush opt-out 69／progression／ladder bridge（t25 seed 2 件）／discoveryLadder 凍結 1–80／materialShop の契約行 7 件／B19 の除外／selectableHint の 35 上限（swedish-kebab-pizza）／IngredientTray の家族選択（fruit が lime で 7 件になり 1 ページ 6 枠を超えたため、1 ページに収まる家族を動的に選ぶ）。
+
+## 保留（承認待ち）
+- **M-1 `HintSheet.hint5.test.tsx:183`（mexican-elote k=2「クリームチーズ」）は誤検知**。画面は「サワークリーム（購入済み）」＋隣の見出し「チーズ」で、`surface()` が要素を区切りなしで連結するため「クリームチーズ」が偶然一致する。実際のヒント漏れではない。直し方は、名前漏れの判定だけをテキストノード単位にする（プライバシー検査の変更にあたるため、自動承認で拒否された。**あなたの明示承認が必要**）。
+- **M-2 Phase-2 の BLOCKED 行の出荷記録**（`matcher.test.ts:278`、`discoveryCatalog.test.ts:80`）。T25 の 5 target（swedish-kebab-pizza-pizzadb-p4・banh-mi-pizza-pizzadb-p6・buffalo-cauliflower-pizza-pizzadb-p6・mexican-elote-pizza-pizzadb-p13：BLOCKED_EVIDENCE、pizza-asparagi-limone-pizzadb-p8：BLOCKED_MECHANIC_INTERPRETATION）を「Owner 承認済み」リストに記録する必要がある。根拠候補は T25 Owner 決定表（`codex/t25-preflight-ledger`、2026-11-15）の I-1〜I-7・D-1〜D-3・L-1〜L-3 だが、BLOCKED 行そのものの承認文言はない。承認記録の追加なので、明示承認を待つ。
+
+## B-1: kebab-sauce の色（ΔE 25 は維持。**色は未変更**）
+- Owner 決定表 I-4 は `#d86a35` を承認済み（ΔE 基準との衝突は決定表では検討されていない）。
+- 実測（CIE76、`expansionBatch22.test` と同じ式）: `#d86a35` の最近傍は tomato-sauce 20.44／buffalo-sauce 20.45／curry-ketchup 20.70／peanut-sauce 24.04。**暖色域は 25 種で埋まっており、ΔE 25 以上を満たす暖色は 2 色だけ**: `#bd7470`（薄い赤茶、最小 25.1＝umeboshi-paste）と `#ff1413`（純赤、25.2＝buffalo-sauce）。
+- 自然な色の候補（実測の最小 ΔE と最近傍）: tan `#b98a5e` 19.4(miso)／apricot `#f5c07a` 19.2(olive-oil)／sand `#d8b08a` 18.0(olive-oil)／terracotta `#c4623f` 16.6(miso)／cream-orange `#f2b88c` 15.3(peanut)／caramel `#c68642` 15.0(curry-ketchup)／brick `#b5422a` 9.5(tomato) — いずれも基準未満。
+- 比較画像: `docs/reports/screenshots/b25-kebab-sauce-color/kebab-sauce-color-options.png`。
+- 注意: 失敗しているのは「buffalo-sauce が他の全 sauce と ΔE 25 以上」の判定（B22 のテスト）。kebab-sauce 自身に対する ΔE ゲートは他にない。
+- 選択肢: (1) `#bd7470` を採用（基準 PASS。ただし「ケバブソースらしい色」ではなく umeboshi に近い赤茶。Owner の色変更承認が必要）。(2) `#d86a35` を維持し、tomato／buffalo／curry-ketchup との識別を形（チップのマーク、塗りの質感）で担保する前提で、この ΔE の例外を承認（基準は維持）。(3) 既存 sauce の色変更は出荷済みの見た目を変えるため非推奨。
+
+## B-2: buffalo-cauliflower の構成（Jaccard 0.4 未満は維持。**材料・数量は未変更**）
+- 事実: Owner 決定表の **D-2（cauliflower vs chicken の重複例外）は「専用 floret SVG とチキンとの差別化を必須条件」として承認済み**（Jaccard 0.6 は提示済み）。B22 のテストは「この例外は不要」と書かれた過去の記述のまま、全レシピを対象に 0.4 を要求している。
+- 構成変更案の実測（全 135 レシピに対する最大 Jaccard、対称差、部分集合・上位集合）:
+  - 現行 {buffalo-sauce, mozzarella, gorgonzola, cauliflower}: buffalo-chicken と 0.6（違反 1 件）。
+  - **gorgonzola → feta／ricotta／fontina／cheddar／goat-cheese／provolone／cream-cheese／ricotta-salata／swiss-cheese**: 最大 0.333、違反なし。**parmigiano**: black-truffle-pizza と 0.4（不可）。**brie**: speck-e-brie と 0.333。
+  - 材料を 1 つ足す（celery／red-onion／garlic／green-onion／bacon）: 0.5（不可。0.4 未満には 3 材料の追加が要る）。
+- 副作用の注意: gorgonzola を外すと Research の cohort が変わり、承認済みの non-canonical 42 ID と pesto-noci／quattro-formaggi／buffalo-chicken の「D-2 条件付き」の行を再測定・再承認する必要がある。
+- 選択肢: (A) D-2 が承認済みなので、B22 のテストに「承認済み例外ペア（cauliflower vs chicken）のみ」を明示して基準 0.4 は維持（材料・数量は不変）。(B) 構成変更（上記）。(A) が決定表と整合し影響が最小。
