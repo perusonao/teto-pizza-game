@@ -1,3 +1,4 @@
+import { leakedOccurrences } from "./testSupport/leakCheck";
 import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -180,7 +181,7 @@ describe("Hint 5.0 ladder DOM: disclosure boundary (H5-INV-1 / 3 / 4) and AC-1",
         for (const ing of INGREDIENTS) {
           // 「トマト」 is inside the bought 「トマトソース」: a substring of a bought name is not a leak.
           if (bought.has(ing.id) || boughtNames.some((n) => n.includes(ing.nameJa))) continue;
-          expect(all.includes(ing.nameJa), `${r.id} k=${k}: ${ing.nameJa}`).toBe(false);
+          expect(leakedOccurrences(all, ing.nameJa, boughtNames), `${r.id} k=${k}: ${ing.nameJa}`).toEqual([]); // Batch 25 M-1: an occurrence that starts inside a bought name (サワークリーム + チーズ) is not a leak; every other occurrence still is
         }
         for (const sub of subs) expect(all.includes(`=${sub}\n`) || all.endsWith(`=${sub}`), `${r.id}: ${sub} in an attribute`).toBe(false);
         for (const w of techWords) expect(all.includes(w), `${r.id}: ${w}`).toBe(false);
