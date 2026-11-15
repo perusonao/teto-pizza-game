@@ -480,6 +480,9 @@ describe("runtime wiring boundary (I4b-3/4)", () => {
       "../preview/hvSeeds.ts",
       // Expansion Batch 24 (#780; train spec T24-R1): the HV seeds (Preview-only, behind ?hv=t24-*) walk the ladder exactly like the earlier batches' seeds.
       "../preview/t24HvSeeds.ts",
+      // Expansion Batch 25 (#780; train specs T25-R2c and T25-I7): the Preview-only HV seeds (behind ?hv=t25-*) walk the ladder exactly like the earlier batches' seeds.
+      "../preview/t25HvSeeds.ts",
+      "../preview/t25i7HvSeeds.ts",
       "../state/gameReducer.ts",
       "../state/materialEntitlement.ts",
       "../state/recipeChapters.ts",
