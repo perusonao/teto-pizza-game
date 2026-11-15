@@ -15,7 +15,7 @@ import {
 import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
 import { exceedsSauceCaps, planSauceCommit, sauceUsedByKind } from "./sauceLedger";
-import { isAllowedSauceDepositBatch } from "../logic/sauceInteractionPolicy";
+import { isAllowedSauceDepositBatch, isPresenceDabSauce } from "../logic/sauceInteractionPolicy";
 import { roundRunsFinish } from "./finishEngine";
 import { deferFreeCookAtBake } from "./finishFreeCook";
 import { freeCookFinishEnabled } from "../data/freeCookFinishGate";
@@ -997,6 +997,9 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // dispatch, a future UI bug, ...). A no-op, same shape as PURCHASE_INGREDIENT's own
       // "unknown/invalid id -> return state unchanged" guard below.
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
+      // Presence-dab sauces must always use the incremental dispenser. The legacy one-shot
+      // path replaces every existing sauce and records zero deposits, violating I-7 both ways.
+      if (isPresenceDabSauce(action.ingredientId)) return state;
       // EP3 Stock Gate: a reservation/limit check only (never a consumption -- CONFIRM_BAKE's
       // consumePizzaInventory remains the sole place stock is actually decremented). No shipped
       // spread ingredient is finite today (only `onion`, scatter/topping), so this is a no-op
