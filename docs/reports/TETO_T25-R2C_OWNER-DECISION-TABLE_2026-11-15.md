@@ -5,7 +5,7 @@ PR: #853 (Draft / HOLD)
 Audited PR HEAD: `3be85e502241fa342faeba24941fd7b986543747`
 Re-measured `main`: `dba7d7331cad49a9dff068a9a23d79ba1cb37ee4`
 
-This is a decision packet, not an approval record. Every cell in **Owner decision** is intentionally blank. No Research delta, duplicate exception, recipe, ingredient, ladder row, runtime change, Production switch, or Preview update is authorized by this document.
+Owner decision recorded on 2026-11-15 following explicit continuation of the proposed batch approval. Approval is scoped to the exact conditional decisions in §6. This is not permission to merge, deploy, switch Production, update shared Preview, or bypass verification. The I-7 runtime contract requires a separate PR and must pass its own gate before any T25 content depending on it can ship.
 
 ## 1. Fresh-state conclusion
 
@@ -100,38 +100,38 @@ Existing `cucumber`: きゅうり; topping / vegetable; recipe count 2; shipped 
 
 ## 6. Owner decision table
 
-Owner should enter only `承認`, `却下`, or a concrete replacement value. Blank means unapproved.
+Owner decisions are recorded below. Conditional approvals do not waive preflight, independent review, or implementation gates.
 
 | ID | target | choices | Codex recommendation | basis | impact scope | Owner decision |
 |---|---|---|---|---|---|---|
-| R-00 | canonical Research | require 0 / allow changes | require and approve 0 | fresh preflight invariant | all shipped labels | |
-| R-01 | old 40 Research IDs | approve table / reject selected rows | approve all 40 individually as printed in §2 | same bounds as prior evidence, freshly remeasured | display-only Research letters | |
-| R-41 | peking-duck / cucumber | approve max 1 / reject | approve max 1 | T24 cucumber reuse creates the new cohort | one shipped label | |
-| R-42 | thai-chicken / cilantro | approve max 1 / reject | approve max 1 | T24 recipe creates the new cohort | one shipped label | |
-| D-1 | salad vs bambino | exception / change recipe / reject | exception | strong FINISH and cool-salad identity | duplicate gate | |
-| D-2 | cauliflower vs chicken | exception / change recipe / reject | narrow exception with floret-art condition | only ingredient swap; art carries identity | duplicate gate, art | |
-| D-3 | asparagi vs quattro | exception / change recipe / reject | exception | FINISH + asparagus/lemon distinguish it | duplicate gate | |
-| I-1 | asparagus | accept §4 / replace fields / reject | accept §4 | post-bake spear identity | ingredient, Reference, SVG | |
-| I-2 | cauliflower | accept §4 / replace fields / reject | accept §4 | floret identity required for D-2 | ingredient, Reference, SVG | |
-| I-3 | daikon | accept §4 / replace fields / reject | accept §4 | vegetable julienne piece | ingredient, Reference, SVG | |
-| I-4 | kebab-sauce | accept orange PAINT / replace / reject | accept `#d86a35`, pre-bake PAINT | existing sauce interaction | sauce profile, Reference | |
-| I-5 | lime | accept §4 / replace fields / reject | accept §4 | post-bake citrus wedge | ingredient, Reference, SVG | |
-| I-6 | liver-pate | topping/meat / sauce / reject | **topping/meat, one composite piece** | existing category/family/scoring rules | recipe flow, taxonomy, Reference | |
-| I-7 | yogurt-sauce | second presence/dab / second paint / reject | presence/dab `#f7f3e8`, **1 dab / 0.02 cap** | smallest existing visible, presence-valid atomic deposit; see independent I-7 spec | sauce profile, Reference, art | |
-| I-8 | cucumber reuse | unchanged / alter shipped T24 asset | unchanged reuse | shipped T24 authority | no new ingredient/step | |
-| L-1 | banh-mi late without POST_BAKE | exception / ordinary / reject | late exception | catalog placement only; no fake FINISH | ladder/catalog | |
-| L-2 | proposed steps 96–101 | accept / reorder | accept subject to REC-04 remeasurement | ordinary-first, declared late order | ladder, floors, chapters | |
-| L-3 | step 99 dual material | together / split | together | one recipe, both new, one acquisition event | ladder, shop, Hint | |
-| H-1 | Hint 5.0 | measured rung shapes / redesign | keep measured shapes; remeasure family report | no new Hint mechanic | Hint goldens/reports | |
-| T-1 | chicken-tikka | HOLD / resume | HOLD | base-spec conflict unresolved | excluded recipe/material | |
+| R-00 | canonical Research | require 0 / allow changes | require and approve 0 | fresh preflight invariant | all shipped labels |承認：正準順変化0を必須 |
+| R-01 | old 40 Research IDs | approve table / reject selected rows | approve all 40 individually as printed in §2 | same bounds as prior evidence, freshly remeasured | display-only Research letters |承認：§2記載の旧40 IDを各行の測定上限内で個別承認 |
+| R-41 | peking-duck / cucumber | approve max 1 / reject | approve max 1 | T24 cucumber reuse creates the new cohort | one shipped label |承認：peking-duck/cucumber 最大1 |
+| R-42 | thai-chicken / cilantro | approve max 1 / reject | approve max 1 | T24 recipe creates the new cohort | one shipped label |承認：thai-chicken/cilantro 最大1 |
+| D-1 | salad vs bambino | exception / change recipe / reject | exception | strong FINISH and cool-salad identity | duplicate gate |承認：例外 |
+| D-2 | cauliflower vs chicken | exception / change recipe / reject | narrow exception with floret-art condition | only ingredient swap; art carries identity | duplicate gate, art |承認：カリフラワー専用floret SVGとチキンとの差別化を必須条件とする例外 |
+| D-3 | asparagi vs quattro | exception / change recipe / reject | exception | FINISH + asparagus/lemon distinguish it | duplicate gate |承認：例外 |
+| I-1 | asparagus | accept §4 / replace fields / reject | accept §4 | post-bake spear identity | ingredient, Reference, SVG |承認：§4仕様 |
+| I-2 | cauliflower | accept §4 / replace fields / reject | accept §4 | floret identity required for D-2 | ingredient, Reference, SVG |承認：§4仕様、D-2の専用SVG条件必須 |
+| I-3 | daikon | accept §4 / replace fields / reject | accept §4 | vegetable julienne piece | ingredient, Reference, SVG |承認：§4仕様 |
+| I-4 | kebab-sauce | accept orange PAINT / replace / reject | accept `#d86a35`, pre-bake PAINT | existing sauce interaction | sauce profile, Reference |承認：#d86a35、既存PAINT |
+| I-5 | lime | accept §4 / replace fields / reject | accept §4 | post-bake citrus wedge | ingredient, Reference, SVG |承認：§4仕様 |
+| I-6 | liver-pate | topping/meat / sauce / reject | **topping/meat, one composite piece** | existing category/family/scoring rules | recipe flow, taxonomy, Reference |承認：topping/meat、複合1ピース |
+| I-7 | yogurt-sauce | second presence/dab / second paint / reject | presence/dab `#f7f3e8`, **1 dab / 0.02 cap** | smallest existing visible, presence-valid atomic deposit; see independent I-7 spec | sauce profile, Reference, art |承認：#f7f3e8、secondary presence-dab、1 dab・1 deposit・0.02上限。必要なruntime変更は独立PRで実装・検証し、未完了ならT25適用HOLD |
+| I-8 | cucumber reuse | unchanged / alter shipped T24 asset | unchanged reuse | shipped T24 authority | no new ingredient/step |承認：T24 cucumberを無変更で再利用 |
+| L-1 | banh-mi late without POST_BAKE | exception / ordinary / reject | late exception | catalog placement only; no fake FINISH | ladder/catalog |承認：banh-miのみlate例外、架空FINISH禁止 |
+| L-2 | proposed steps 96–101 | accept / reorder | accept subject to REC-04 remeasurement | ordinary-first, declared late order | ladder, floors, chapters |承認：96〜101案、REC-04再測定で不一致なら再判断 |
+| L-3 | step 99 dual material | together / split | together | one recipe, both new, one acquisition event | ladder, shop, Hint |承認：step99で2食材同時獲得 |
+| H-1 | Hint 5.0 | measured rung shapes / redesign | keep measured shapes; remeasure family report | no new Hint mechanic | Hint goldens/reports |承認：既存Hint 5.0 rung維持、family再測定必須 |
+| T-1 | chicken-tikka | HOLD / resume | HOLD | base-spec conflict unresolved | excluded recipe/material |承認：HOLD継続 |
 
 ## 7. Implementation gate after Owner response
 
-The next Codex session may implement only the rows explicitly approved above. It must normalize cucumber as reuse, encode the 42 exact Research pins and canonical-zero gate, run preflight→scaffold→plan→claims→apply→sweep in the documented order, keep the change docs/data/content-only (no new runtime mechanic), run typecheck/lint/full tests/generated E2E, request independent Codex review, and leave the PR Draft/HOLD. Merge, Production ON, and shared Preview remain prohibited.
+The next Codex session may prepare implementation only within the approved scope above; I-7 runtime changes require a separate PR and must be gated independently before dependent T25 content is applied. It must normalize cucumber as reuse, encode the 42 exact Research pins and canonical-zero gate, run preflight→scaffold→plan→claims→apply→sweep in the documented order, keep the change docs/data/content-only (no new runtime mechanic), run typecheck/lint/full tests/generated E2E, request independent Codex review, and leave the PR Draft/HOLD. Merge, Production ON, and shared Preview remain prohibited.
 
 ## 8. Re-measurement against latest main (`dba7d733`)
 
-Owner decision cells above remain blank. Latest-main measurements do not convert recommendations into approvals.
+The measurements below predate the Owner decision recording; approved bounds must still be reverified on the latest main before implementation.
 
 | area | latest-main result | Owner-table consequence |
 |---|---|---|
