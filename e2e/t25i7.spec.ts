@@ -96,7 +96,8 @@ interface Plan {
   materials: readonly [string, string][]; // [ingredient id, Japanese name]
   cohortKey: string;
   /** Sauce layers painted in order (none = NO_SAUCE); `emoji` = the chip shows this emoji (no dedicated art). */
-  sauces: { chip: RegExp; emoji?: string; a?: number; b?: number }[];
+  /** Primary sauce paints the normal ring; every secondary sauce is a single 0.02 presence dab. */
+  sauces: { chip: RegExp; emoji?: string; mode: "ring" | "presence-dab"; a?: number; b?: number }[];
   pre: { id: string; chip: RegExp; tab: "チーズ" | "具材" }[];
   post: { id: string; chip: RegExp }[];
   /** Later key recipes of the same train, left undiscovered in the save (their step's materials are not owned yet). */
@@ -113,7 +114,7 @@ const PLANS: Plan[] = [
   {
     id: "pizza-salad", name: "ピザサラダ", tag: "t25i7-pizza-salad",
     materials: [["yogurt-sauce", "ヨーグルトソース"]], cohortKey: "ヨーグルトソース",
-    sauces: [{ chip: /トマトソース/ }, { chip: /ヨーグルトソース/ }],
+    sauces: [{ chip: /トマトソース/, mode: "ring" }, { chip: /ヨーグルトソース/, mode: "presence-dab" }],
     notYet: [], bake: { start: 60, end: 76 },
     pre: [{ id: "mozzarella", chip: /モッツァレラ/, tab: "チーズ" }, { id: "corn", chip: /コーン/, tab: "具材" }, { id: "cucumber", chip: /きゅうり/, tab: "具材" }],
     post: [{ id: "lettuce", chip: /レタス/ }],
@@ -184,7 +185,12 @@ test.describe("Expansion Batch 25 I-7 final (train T25-I7-final, played end to e
           }
           await chip.click();
           await capture(page, `${plan.tag}-tray-sauce${i}`, project);
-          await paintSauceRing(page, sauce.a ?? 25, sauce.b ?? 16);
+          if (sauce.mode === "presence-dab") {
+            // One pointer press emits exactly the runtime starter tick (0.02). Do not paint a ring for a secondary sauce.
+            await tapDoughPercent(page, 50, 50);
+          } else {
+            await paintSauceRing(page, sauce.a ?? 25, sauce.b ?? 16);
+          }
           await hold(page, 1600);
         }
         await capture(page, `${plan.tag}-sauce-painted`, project);
