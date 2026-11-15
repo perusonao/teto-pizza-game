@@ -143,3 +143,13 @@ Issue #780 に `codex-batch26-plan-20261116` のclaimを投稿し、本PRの対�
 - ブロッカー: Batch 25最終Gate、L-2再判断、#857 CI赤、#858の競合／着地方針。
 - 次の作業: Batch 25 merge/release後、最新mainでT26-R1 preflightを再実行し、実装専用claimを取得する。
 - Preview/HV: docs-onlyのため対象外。Production ON、共有Preview更新、mergeは実施しない。
+
+## 10. 2026-11-16 GitHub再確認・計画同期（docs-only）
+
+本節は作成時点の§0〜§9の歴史的な測定記録を置換しない。後続のOwner判断・実装報告とGitHubのPR状態を区別する。
+
+- OwnerはT25 L-2の96〜101固定案を撤回し、REC-04実測順を採用する方針をPR #853の判断表に記録済み（HEAD `962e86bb2d845a5218dbe97a2ce51d67dea9e363`）。したがって§4/§7/§9の「L-2再判断待ち」は現在の未決事項ではない。T25全6レシピ統合後の再測定・最終Gateは引き続き必要。
+- PR #857はリモートHEAD `dabfa4c3057daa08c1288f8fbcdf1a15ddd917d4`、Draft/HOLD。作業報告では#856のランタイム統合・pizza-salad/yogurt-sauce追加と6レシピ/7食材完成がある一方、最新の再構築作業は別コンテナで進行中。GitHub上の#857 HEADには後続の未push修正を含めない。
+- PR #856 `0f3f9a23bedeef44aaa90dde5589381578fa5e81` はDraft/HOLD、PR #858 `871616c4a5b529f1f473a6f6127db16320a72dac` はDraft/HOLDでGitHub上のmergeable=false。#858のコードを#857へ取り込む場合、重複適用・衝突を検証する。
+- 工程並行PR #841（STEP_ORDER）、#851（PAN adapter）、#834（MID_BAKE Lab）はいずれもopen。#841はready for review、#851/#834はDraft。Batch 26 docs-only計画はこれらのコードやclaimを変更しない。
+- Batch 26開始Gateは不変：Batch 25の最終着地とclaim release後、最新mainでT26-R1 fresh preflight、canonical Research 0、承認表9 ID＋T24追補2 ID、STOP 0を再検証する。今回の追記は実装承認・merge承認ではない。
