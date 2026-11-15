@@ -1,5 +1,5 @@
 {
- "targets": 67,
+ "targets": 61,
  "notTarget": [],
  "rows": [
   {
@@ -61,11 +61,6 @@
    "id": "pizza-de-cancha",
    "target": true,
    "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "swedish-kebab-pizza",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
   },
   {
    "id": "scacciata-ragusana",
@@ -158,16 +153,6 @@
    "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS"
   },
   {
-   "id": "banh-mi-pizza",
-   "target": true,
-   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "buffalo-cauliflower-pizza",
-   "target": true,
-   "rungs": "CHEESE,STRUCTURE,SUB_CLASS"
-  },
-  {
    "id": "palmitos-salsa-golf",
    "target": true,
    "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
@@ -176,16 +161,6 @@
    "id": "piadina-romagnola",
    "target": true,
    "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "pizza-salad",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "pizza-asparagi-limone",
-   "target": true,
-   "rungs": "SAUCE,CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "pizza-carciofi-salad",
@@ -306,11 +281,6 @@
    "id": "lahmacun",
    "target": true,
    "rungs": "SAUCE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS"
-  },
-  {
-   "id": "mexican-elote-pizza",
-   "target": true,
-   "rungs": "CHEESE,STRUCTURE,SUB_CLASS,SUB_CLASS,SUB_CLASS,SUB_CLASS"
   },
   {
    "id": "montreal-style-pizza",

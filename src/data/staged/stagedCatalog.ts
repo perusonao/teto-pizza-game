@@ -35,8 +35,14 @@ export const IN_FLIGHT_RECIPE_IDS: Readonly<Record<string, string>> = {
   "south-african-boerewors": "B24",
   "thai-chicken-pizza": "B24",
   "peking-duck-pizza": "B24",
+  "buffalo-cauliflower-pizza": "T25",
+  "swedish-kebab-pizza": "T25",
+  "banh-mi-pizza": "T25",
+  "mexican-elote-pizza": "T25",
+  "pizza-asparagi-limone": "T25",
+  "pizza-salad": "T25",
 };
-export const IN_FLIGHT_INGREDIENT_IDS: Readonly<Record<string, string>> = { burrata: "PR #783", honey: "B20-A", walnut: "B20-A", cheddar: "B21", lettuce: "B21", "tortilla-chips": "B21", "okonomiyaki-sauce": "B21", cabbage: "B21", "bonito-flakes": "B21", fennel: "B22", orange: "B22", carrot: "B22", "red-cabbage": "B22", "sunflower-seeds": "B22", radicchio: "B22", truffle: "B22", brie: "B22", "buffalo-sauce": "B22", "balsamic-vinegar": "B22", apple: "B23", banana: "B23-b", chocolate: "B23-b", "powdered-sugar": "B23-b", "graham-cracker": "B23-b", marshmallow: "B23-b", "nutella-spread": "B23-b (merged into the shipped chocolate)", "aji-amarillo": "B24", "chutney": "B24", "cucumber": "B24", "peanut-sauce": "B24", "peking-duck": "B24", "spicy-salami": "B24", "squid": "B24", "sweet-bean-sauce": "B24" };
+export const IN_FLIGHT_INGREDIENT_IDS: Readonly<Record<string, string>> = { burrata: "PR #783", honey: "B20-A", walnut: "B20-A", cheddar: "B21", lettuce: "B21", "tortilla-chips": "B21", "okonomiyaki-sauce": "B21", cabbage: "B21", "bonito-flakes": "B21", fennel: "B22", orange: "B22", carrot: "B22", "red-cabbage": "B22", "sunflower-seeds": "B22", radicchio: "B22", truffle: "B22", brie: "B22", "buffalo-sauce": "B22", "balsamic-vinegar": "B22", apple: "B23", banana: "B23-b", chocolate: "B23-b", "powdered-sugar": "B23-b", "graham-cracker": "B23-b", marshmallow: "B23-b", "nutella-spread": "B23-b (merged into the shipped chocolate)", "aji-amarillo": "B24", "chutney": "B24", "cucumber": "B24", "peanut-sauce": "B24", "peking-duck": "B24", "spicy-salami": "B24", "squid": "B24", "sweet-bean-sauce": "B24", "cauliflower": "T25", "kebab-sauce": "T25", "daikon": "T25", "liver-pate": "T25", "lime": "T25", "asparagus": "T25", "yogurt-sauce": "T25" };
 
 export const STAGED_ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
