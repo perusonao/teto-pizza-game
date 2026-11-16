@@ -65,6 +65,10 @@ describe.skipIf(MODE === "")("train kit runner", () => {
       const shipped = new Map(INGREDIENTS.map((i) => [i.id, i]));
       const of = (id: string) => fresh.get(id) ?? shipped.get(id)!;
       generated[`e2e/${kit.tag}.spec.ts`] = fillTemplate(readFileSync(join(TEMPLATES, "e2e.spec.ts.tmpl"), "utf8"), e2eValues(kit, { nameJa: (id) => of(id).nameJa, category: (id) => of(id).category as "sauce" | "cheese" | "topping", pieceVisual: (id) => of(id).pieceVisual ?? null }));
+      if (kit.recipes.some((recipe) => recipe.requiredIngredients.filter((item) => of(item.ingredientId).category === "sauce").length > 1)) {
+        expect(generated[`e2e/${kit.tag}.spec.ts`]).toContain('mode: "presence-dab"');
+        expect(generated[`e2e/${kit.tag}.spec.ts`]).toContain("await tapDoughPercent(page, 50, 50)");
+      }
     }
     // The landing order: one after the highest `seq` already landed (specs landed before the kit existed are 1, 2, ... by their `seq` field).
     const landedDir = join(ROOT, "src", "trainKit", "landed");

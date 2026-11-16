@@ -275,6 +275,19 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       ownerApproved.add("smore-dessert-pizza-pizzadb-p4");
       // Expansion Batch 24 (Issue #780, train spec T24-R1): the six ordinary B24 recipes are rows of the 172 design matrix, several of them Phase-2 BLOCKED_* rows (an unspecified / unresolved base sauce); each is Owner-approved to ship in the T24-R1 approval packet (docs/reports/TETO_T24-T26_OwnerDecisions-Followup_2026-11-10.md §7, 2026-11-10) with its own sauce (a PAINT layer), not NO_SAUCE.
       for (const id of ["diavola-pizza-pizzadb-p5", "frutti-di-mare-pizzadb-p11", "peruvian-aji-amarillo-pizzadb-p12", "south-african-boerewors-pizzadb-p14", "thai-chicken-pizza-pizzadb-p4", "peking-duck-pizza"]) ownerApproved.add(id);
+      // Expansion Batch 25 (Issue #780), Owner decision 2026-11-16 (conditional): ONLY buffalo-cauliflower-pizza-pizzadb-p6 is released from BLOCKED_EVIDENCE (BASE_SAUCE_UNSPECIFIED), on the basis of decision D-2
+      // (buffalo-sauce base, the buffalo-chicken duplicate exception) and its conditions: the dedicated floret SVG and the visible difference from the chicken are asserted in expansionBatch25.test.tsx ("D-2 conditions"),
+      // the pair's Jaccard / difference are pinned in expansionBatch22.test.ts.
+      ownerApproved.add("buffalo-cauliflower-pizza-pizzadb-p6");
+      // Expansion Batch 25 M-2, Owner decisions 2026-11-16 (docs/reports/batch25-m2-hold-spec-decision-materials.md). Each of the four late T25 rows is individually approved for THIS recipe only; nothing else is released by them.
+      // B25-M2-D1 swedish-kebab-pizza: the unidentified token 「肉」 and the unidentified hot-sauce base are OMITTED (kebab-sauce 1 PAINT + mozzarella 3 + lettuce 2) as a GAMEPLAY ASSUMPTION; the omission of the meat is a recipe-specific exception.
+      ownerApproved.add("swedish-kebab-pizza-pizzadb-p4");
+      // B25-M2-D2 banh-mi-pizza: NO_SAUCE explicitly approved (liver-pate stays one topping/meat composite piece; late without POST_BAKE per L-1; step 98 releases daikon + liver-pate together per L-3).
+      ownerApproved.add("banh-mi-pizza-pizzadb-p6");
+      // B25-M2-D3 mexican-elote-pizza: sour-cream 1 PAINT base approved; the two substitutions cotija->feta and chili-powder->paprika-powder are approved (GAMEPLAY ASSUMPTION); mayo / lime and late step 99 unchanged.
+      ownerApproved.add("mexican-elote-pizza-pizzadb-p13");
+      // B25-M2-D4 pizza-asparagi-limone: crudi (raw) asparagus is read as a POST_BAKE FINISH (asparagus and lemon placed after baking, as the B22 finocchi / cavolo-carote precedent); olive-oil / mozzarella / parmigiano, late step 100 and the D-3 exception unchanged.
+      ownerApproved.add("pizza-asparagi-limone-pizzadb-p8");
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(

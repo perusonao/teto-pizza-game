@@ -97,6 +97,8 @@ interface Plan {
   ref: ReferencePizza;
   materials: readonly [string, string][]; // [ingredient id, Japanese name]
   cohortKey: string;
+  /** Batch 25 (T25; Owner D-2 / Research table: buffalo-chicken none->A): the cohort now has two members, so the Research label shows its letter. Absent = the label has no letter. */
+  cohortLetter?: string;
   /** Sauce layers painted in order (none = NO_SAUCE); `emoji` = the chip shows this emoji (no dedicated art). */
   sauces: { chip: RegExp; emoji?: string; a?: number; b?: number }[];
   pre: { id: string; chip: RegExp; tab: "チーズ" | "具材" }[];
@@ -119,7 +121,7 @@ const PLANS: Plan[] = [
   },
   {
     id: "buffalo-chicken", name: "バッファローチキンピザ", tag: "b22-buffalo", ref: BUFFALO_CHICKEN_REFERENCE,
-    materials: [["buffalo-sauce", "バッファローソース"]], cohortKey: "バッファローソース", sauces: [{ chip: /バッファローソース/, emoji: "\u{1F9AC}" }],
+    materials: [["buffalo-sauce", "バッファローソース"]], cohortKey: "バッファローソース", cohortLetter: "A", sauces: [{ chip: /バッファローソース/, emoji: "\u{1F9AC}" }],
     pre: [{ id: "mozzarella", chip: /モッツァレラ/, tab: "チーズ" }, { id: "gorgonzola", chip: /ゴルゴンゾーラ/, tab: "チーズ" }, { id: "chicken", chip: /チキン/, tab: "具材" }],
     post: [],
   },
@@ -188,12 +190,12 @@ test.describe("Expansion Batch 22 (six recipes, played end to end)", () => {
       // 2. Dex -> Research entry (names only the cohort key; no undiscovered identity anywhere).
       await page.getByRole("button", { name: /ピザ図鑑/ }).click();
       await page.waitForSelector(".dex-overlay");
-      await expect(page.locator(".dex-overlay__research")).toContainText(new RegExp(`？？？ピザ（${plan.cohortKey}）`));
+      await expect(page.locator(".dex-overlay__research")).toContainText(new RegExp(`？？？ピザ${plan.cohortLetter ? ` ${plan.cohortLetter}` : ""}（${plan.cohortKey}）`));
       await expectNoUndiscoveredIdentity(page, discovered, "Dex Research Entry");
       await noOverflow(page, "Dex Research Entry");
       await capture(page, `${plan.tag}-research-entry`, project);
       await hold(page, 2000);
-      await page.locator(".dex-overlay__research").getByRole("button", { name: new RegExp(`^？？？ピザ（${plan.cohortKey}）を研究する$`) }).click();
+      await page.locator(".dex-overlay__research").getByRole("button", { name: new RegExp(`^？？？ピザ${plan.cohortLetter ? ` ${plan.cohortLetter}` : ""}（${plan.cohortKey}）を研究する$`) }).click();
       await expectResearchLead(page, "？？？ピザ");
       await expectNoUndiscoveredIdentity(page, discovered, "Research PREPARE");
 

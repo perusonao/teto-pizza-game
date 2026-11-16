@@ -53,6 +53,25 @@ describe("the pendingRound journal", () => {
     expect(rebuilt.bakeResult).toBeNull();
   });
 
+  it("preserves a tomato layer and one yogurt presence dab across the FINISH journal boundary", () => {
+    const pizza = {
+      ...createEmptyPizza(),
+      sauceIds: ["tomato-sauce", "yogurt-sauce"],
+      sauceOrigin: { x: 60, y: 40 },
+      sauceDeposits: [
+        { x: 40, y: 50, amount: 0.2, ingredientId: "tomato-sauce" },
+        { x: 60, y: 40, amount: 0.02, ingredientId: "yogurt-sauce" },
+      ],
+    };
+    const round = buildPendingRound(source({ pizza }), "r-i7", 70, 7);
+    const rebuilt = pizzaFromJournal(JSON.parse(JSON.stringify(round.pizza)));
+
+    expect(rebuilt.sauceIds).toEqual(["tomato-sauce", "yogurt-sauce"]);
+    expect(rebuilt.sauceDeposits).toEqual(pizza.sauceDeposits);
+    expect(rebuilt.sauceDeposits.filter((deposit) => deposit.ingredientId === "yogurt-sauce"))
+      .toEqual([{ x: 60, y: 40, amount: 0.02, ingredientId: "yogurt-sauce" }]);
+  });
+
   it("settled needs a valid summary; a finished journal keeps its flag through a read", () => {
     const base = buildPendingRound(source(), "r1", 70, 1);
     const finished = withJournalPizza(base, onionPizza(5));

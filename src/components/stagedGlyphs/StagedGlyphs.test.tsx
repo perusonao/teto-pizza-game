@@ -15,11 +15,11 @@ const contrast = (a: string, b: string) => {
   return (x + 0.05) / (y + 0.05);
 };
 
-describe("staged glyphs B21/B22 (unwired, PROVISIONAL)", () => {
-  it("covers the 13 scatter ingredients of B21 + B22, one visual each", () => {
-    expect(STAGED_GLYPH_IDS).toHaveLength(13);
-    expect(Object.keys(STAGED_GLYPH_FOR_INGREDIENT)).toHaveLength(13);
-    expect(new Set(Object.values(STAGED_GLYPH_FOR_INGREDIENT)).size).toBe(13);
+describe("staged glyphs B21/B22 plus T25 dedicated candidates", () => {
+  it("covers the 13 B21/B22 and six T25 visuals, one visual each", () => {
+    expect(STAGED_GLYPH_IDS).toHaveLength(19);
+    expect(Object.keys(STAGED_GLYPH_FOR_INGREDIENT)).toHaveLength(19);
+    expect(new Set(Object.values(STAGED_GLYPH_FOR_INGREDIENT)).size).toBe(19);
   });
 
   it.each(STAGED_GLYPH_IDS)("%s renders a decorative 1em 64x64 inline SVG with its visual id", (id) => {
@@ -46,9 +46,9 @@ describe("staged glyphs B21/B22 (unwired, PROVISIONAL)", () => {
     expect(contrast(p.outline, "#f1dcae")).toBeGreaterThan(3);
   });
 
-  it("lettuce-leaf, cabbage-shreds, tortilla-chip-triangles (#799 and the follow-up) and the eight B22 glyphs (Owner 2026-11-09) are wired into IngredientGlyph.tsx; the two remaining visual ids (cheddar-cubes, bonito-flake-curls) are still unknown to it", () => {
+  it("the adopted B21/B22 and T25 visuals are wired into IngredientGlyph.tsx", () => {
     const src = readFileSync(join(__dirname, "..", "IngredientGlyph.tsx"), "utf8");
-    const WIRED = ["lettuce-leaf", "cabbage-shreds", "tortilla-chip-triangles", "brie-wedge", "fennel-slices", "orange-slices", "carrot-rounds", "red-cabbage-shreds", "sunflower-kernels", "radicchio-leaf", "truffle-shavings"];
+    const WIRED = ["lettuce-leaf", "cabbage-shreds", "tortilla-chip-triangles", "brie-wedge", "fennel-slices", "orange-slices", "carrot-rounds", "red-cabbage-shreds", "sunflower-kernels", "radicchio-leaf", "truffle-shavings", "cauliflower-floret", "kebab-sauce-swirl", "daikon-matchsticks", "liver-pate-quenelle", "lime-wedge", "asparagus-spears"];
     for (const id of STAGED_GLYPH_IDS) {
       if (WIRED.includes(id)) expect(src).toContain(`"${id}"`);
       else expect(src).not.toContain(`"${id}"`);
@@ -63,7 +63,7 @@ describe("staged glyphs B21/B22 (unwired, PROVISIONAL)", () => {
         return statSync(p).isDirectory() ? walk(p) : /\.(ts|tsx)$/.test(n) ? [p] : [];
       });
     const offenders = walk(root).filter(
-      (f) => !f.includes("stagedGlyphs") && !f.endsWith("components/IngredientGlyph.tsx") && /from\s+["'][^"']*stagedGlyphs/.test(readFileSync(f, "utf8")) && !/\.test\.tsx?$/.test(f),
+      (f) => !f.includes("stagedGlyphs") && !f.replace(/\\/g, "/").endsWith("components/IngredientGlyph.tsx") && /from\s+["'][^"']*stagedGlyphs/.test(readFileSync(f, "utf8")) && !/\.test\.tsx?$/.test(f),
     );
     expect(offenders).toEqual([]);
   });

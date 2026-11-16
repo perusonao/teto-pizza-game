@@ -39,7 +39,7 @@ describe("B21 HV seeds", () => {
       for (const q of r.requiredIngredients) if (isFinite(q.ingredientId)) expect(snap.ownedIngredientIds, `${r.id}/${q.ingredientId}`).toContain(q.ingredientId);
     }
     for (const id of snap.ownedIngredientIds.filter(isFinite)) expect(snap.inventory[id], id).toBeGreaterThan(0);
-    expect(dexIds.length).toBe(RECIPES.length - B21_NEW_RECIPE_IDS.length - 6); // Expansion Batch 23-b (#780): the nutella / smore late recipes are not makeable either; Expansion Batch 22 (#780): the four B22 late recipes need late materials that come after the B21 materials, so they are not makeable in this seed
+    expect(dexIds.length).toBe(RECIPES.length - B21_NEW_RECIPE_IDS.length - 11); // Expansion Batch 25 (T25, #780): five more late recipes (their materials come after the B21 seeds; cauliflower is ordinary and makeable) are not makeable either; Expansion Batch 23-b (#780): the nutella / smore late recipes are not makeable either; Expansion Batch 22 (#780): the four B22 late recipes need late materials that come after the B21 materials, so they are not makeable in this seed
   });
 
   it("the load-time entitlement grants all six materials (the Shop offers them as NEW)", () => {

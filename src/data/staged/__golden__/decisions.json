@@ -1,45 +1,39 @@
 {
- "dependencies": 339,
+ "dependencies": 327,
  "byStatus": {
-  "RESOLVED": 20,
+  "RESOLVED": 19,
   "WORK": 6,
-  "SOURCE_RESEARCH": 18,
+  "SOURCE_RESEARCH": 14,
   "CANDIDATE_PENDING": 8,
-  "EXCEPTION_REVIEW": 70,
+  "EXCEPTION_REVIEW": 68,
   "WAITS_MECHANIC": 58,
   "WAITS_IN_FLIGHT": 0,
   "AXIS_WITH_M1": 30,
-  "STAGED_PAIR": 90,
-  "OWNER_DECISION": 39
+  "STAGED_PAIR": 87,
+  "OWNER_DECISION": 37
  },
  "byDecision": {
   "rule": 9,
-  "D-1": 70,
-  "D-2": 18,
+  "D-1": 68,
+  "D-2": 14,
   "D-3": 8,
   "D-4": 12,
-  "D-5": 5
+  "D-5": 4
  },
- "remainingOpen": 319,
+ "remainingOpen": 308,
  "needsAdditionalOwnerDecision": {
-  "total": 109,
-  "perRecipeExceptions": 70,
+  "total": 105,
+  "perRecipeExceptions": 68,
   "exceptionRecipes": 35,
-  "other": 39
+  "other": 37
  },
- "needsResearchOrConfirmation": 26,
+ "needsResearchOrConfirmation": 22,
  "nextPromotable": {
   "ready": [],
   "readyWithWork": [],
   "researchBlockedButOtherwiseReady": []
  },
  "d5PostBake": [
-  {
-   "id": "pizza-asparagi-limone",
-   "postBake": [
-    "lemon"
-   ]
-  },
   {
    "id": "pizza-carciofi-salad",
    "postBake": [
@@ -75,8 +69,8 @@
  ],
  "d1Dossier": {
   "recipes": 35,
-  "withProcessDifference": 21,
-  "withoutProcessDifference": 14,
+  "withProcessDifference": 23,
+  "withoutProcessDifference": 12,
   "alsoResearchBlocked": 19,
   "rows": [
    {
@@ -208,6 +202,7 @@
       "pizza-alla-crudaiola(0.333)",
       "pizza-overload(0.333)",
       "pizza-portuguesa(0.333)",
+      "pizza-salad(0.333)",
       "prosciutto-funghi(0.5)",
       "salsiccia(0.667)",
       "tonno-e-cipolla(0.5)",
@@ -423,25 +418,16 @@
     "researchBlocked": true
    },
    {
-    "id": "pizza-salad",
+    "id": "pizza-carciofi-salad",
     "shippedOverlaps": {
      "JACCARD_GT_0_4": [
-      "bambino(0.429)"
+      "pizza-asparagi-limone(0.571)"
      ]
     },
-    "processDifference": [],
-    "judgementBasis": "NO_PROCESS_DIFFERENCE",
-    "researchBlocked": false
-   },
-   {
-    "id": "pizza-asparagi-limone",
-    "shippedOverlaps": {
-     "JACCARD_GT_0_4": [
-      "quattro-formaggi(0.429)"
-     ]
-    },
-    "processDifference": [],
-    "judgementBasis": "NO_PROCESS_DIFFERENCE",
+    "processDifference": [
+     "DOUGH_VARIANT(M1)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
     "researchBlocked": false
    },
    {
@@ -455,6 +441,19 @@
     "processDifference": [],
     "judgementBasis": "NO_PROCESS_DIFFERENCE",
     "researchBlocked": true
+   },
+   {
+    "id": "pizza-puntarelle",
+    "shippedOverlaps": {
+     "JACCARD_GT_0_4": [
+      "pizza-asparagi-limone(0.429)"
+     ]
+    },
+    "processDifference": [
+     "DOUGH_VARIANT(M1)"
+    ],
+    "judgementBasis": "PROCESS_DIFFERENCE_AVAILABLE",
+    "researchBlocked": false
    },
    {
     "id": "pizza-chilena",

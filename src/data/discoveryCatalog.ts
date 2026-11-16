@@ -151,6 +151,7 @@ export const RECIPE_DISCOVERY_TARGET_IDS: Readonly<Record<BaseRecipeId, string>>
   "south-african-boerewors": "south-african-boerewors-pizzadb-p14",
   "thai-chicken-pizza": "thai-chicken-pizza-pizzadb-p4",
   "peking-duck-pizza": "peking-duck-pizza",
+  "buffalo-cauliflower-pizza": "buffalo-cauliflower-pizza-pizzadb-p6",
 };
 
 // FIN-E4 foundation: an enabled late catalog is checked once, here (the first module that sees recipes, ingredients and targets together).

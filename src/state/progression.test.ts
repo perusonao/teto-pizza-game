@@ -289,6 +289,7 @@ describe("isRecipeAvailable (two-axis AND: recipeUnlocked && ingredients owned)"
         "boscaiola",
         "brazilian-calabresa",
         "brazilian-catupiry-corn-pizza",
+        "buffalo-cauliflower-pizza", // Expansion Batch 25 (#780)
         "buffalo-chicken",
         "calabresa-argentina",
         "california-style-pizza",

@@ -169,7 +169,8 @@ export function createTrialNotebook(limits: TrialNotebookLimits = DEFAULT_TRIAL_
 }
 
 const KIND_PATTERN = /^[A-Z][A-Z0-9_]{0,31}$/;
-const MAX_FEEDBACK_TEXT = 200;
+/** The longest shown-feedback line the Notebook stores. Exported so the line builder can be pinned to it (Batch 25 C-1); the value is unchanged. */
+export const MAX_FEEDBACK_TEXT = 200;
 
 /** Copies exactly `kind` and `textJa`; anything else (extra keys, wrong types) is rejected. */
 function sanitizeFeedback(raw: unknown): { ok: true; value: ShownFeedback | null } | { ok: false } {

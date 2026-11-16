@@ -42,18 +42,51 @@ export interface ResearchRowsFeedbackInput {
   rows: readonly ResearchResultRow[];
 }
 
+/**
+ * The Trial Notebook stores a feedback line of at most this many characters (`MAX_FEEDBACK_TEXT`; a longer line is
+ * REJECTED and the whole attempt would silently not be recorded). Pinned to that constant by `researchResultFeedback.test.ts`.
+ */
+export const RESEARCH_ROWS_MAX_TEXT = 200;
+
+/**
+ * Batch 25 C-1 (Owner-approved P): the line is unchanged while it fits. Only when it would exceed the Notebook limit
+ * are the NEGATIVE rows of each category collapsed into `ほかN件×` (N = that category's negatives); every POSITIVE row
+ * is always kept. Nothing but a count of rows the player was already shown is added, and the Research judgement,
+ * the stored facts and the save format are untouched.
+ */
 export function researchRowsFeedback(input: ResearchRowsFeedbackInput): ResearchRowsFeedback | null {
   if (typeof input.labelJa !== "string" || input.labelJa.length === 0) return null;
-  const groups = new Map<ResearchResultCategory, string[]>();
+  const positives = new Map<ResearchResultCategory, string[]>();
+  const negatives = new Map<ResearchResultCategory, string[]>();
+  const order: ResearchResultCategory[] = [];
   for (const row of input.rows) {
     const name = getIngredient(row.ingredientId)?.nameJa;
     if (!name) continue; // fail closed: an unknown ingredient is never written
-    const mark = row.verdict === "POSITIVE" ? "○" : "×";
-    const items = groups.get(row.category) ?? [];
-    items.push(`${name}${mark}`);
-    groups.set(row.category, items);
+    if (!positives.has(row.category) && !negatives.has(row.category)) order.push(row.category);
+    const bucket = row.verdict === "POSITIVE" ? positives : negatives;
+    const items = bucket.get(row.category) ?? [];
+    items.push(row.verdict === "POSITIVE" ? `${name}○` : `${name}×`);
+    bucket.set(row.category, items);
   }
-  if (groups.size === 0) return null;
-  const parts = [...groups].map(([category, items]) => `${CATEGORY_LABEL_JA[category]}: ${items.join(" ")}`);
-  return { kind: RESEARCH_ROWS_KIND, textJa: `${input.labelJa} ${parts.join(" ")}` };
+  if (order.length === 0) return null;
+  const build = (collapse: boolean): string => {
+    const parts = order.map((category) => {
+      // S1's order inside a category is preserved by building from the original row order below.
+      const items: string[] = [];
+      let collapsedNegatives = 0;
+      for (const row of input.rows) {
+        if (row.category !== category) continue;
+        const name = getIngredient(row.ingredientId)?.nameJa;
+        if (!name) continue;
+        if (row.verdict === "POSITIVE") items.push(`${name}○`);
+        else if (collapse) collapsedNegatives += 1;
+        else items.push(`${name}×`);
+      }
+      if (collapse && collapsedNegatives > 0) items.push(`ほか${collapsedNegatives}件×`);
+      return `${CATEGORY_LABEL_JA[category]}: ${items.join(" ")}`;
+    });
+    return `${input.labelJa} ${parts.join(" ")}`;
+  };
+  const full = build(false);
+  return { kind: RESEARCH_ROWS_KIND, textJa: full.length <= RESEARCH_ROWS_MAX_TEXT ? full : build(true) };
 }

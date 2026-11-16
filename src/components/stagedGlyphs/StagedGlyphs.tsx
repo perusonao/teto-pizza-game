@@ -208,7 +208,54 @@ function Brie() {
   );
 }
 
-const STAGED_GLYPH_COMPONENTS: Record<StagedGlyphId, () => React.ReactElement> = {
+type GlyphVariant = "selection" | "placed";
+
+function Cauliflower({ variant }: { variant: GlyphVariant }) {
+  const c = STAGED_GLYPH_PALETTE["cauliflower-floret"];
+  const florets = variant === "selection"
+    ? [[21, 25, 11], [32, 20, 12], [43, 26, 11], [27, 34, 12], [39, 35, 11]] as const
+    : [[27, 28, 11], [37, 27, 10], [32, 37, 12]] as const;
+  return <Svg id="cauliflower-floret">
+    <path d="M29 40 C27 48 25 52 22 56 H42 C39 51 37 47 36 40Z" fill={c.detail} stroke={c.outline} strokeWidth={SW} strokeLinejoin="round" />
+    {florets.map(([cx, cy, r]) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={r} fill={c.fill} stroke={c.outline} strokeWidth="2.6" />)}
+    {florets.map(([cx, cy, r]) => <path key={`h-${cx}-${cy}`} d={`M${cx-r/2} ${cy-r/3} Q${cx} ${cy-r} ${cx+r/2} ${cy-r/3}`} fill="none" stroke={c.light} strokeWidth="2.4" strokeLinecap="round" />)}
+  </Svg>;
+}
+
+function KebabSauce() {
+  const c = STAGED_GLYPH_PALETTE["kebab-sauce-swirl"];
+  return <Svg id="kebab-sauce-swirl">
+    <path d="M11 42 C11 29 22 17 37 18 C50 19 57 29 53 41 C49 52 17 54 11 42Z" fill={c.fill} stroke={c.outline} strokeWidth={SW} strokeLinejoin="round" />
+    <path d="M20 39 C25 28 42 26 47 35 C50 41 40 45 31 42 C25 40 28 34 35 33" fill="none" stroke={c.light} strokeWidth="4" strokeLinecap="round" />
+    <circle cx="24" cy="45" r="2" fill={c.detail} />
+  </Svg>;
+}
+
+function Daikon({ variant }: { variant: GlyphVariant }) {
+  const c = STAGED_GLYPH_PALETTE["daikon-matchsticks"];
+  const sticks = variant === "selection" ? [[13,17,47,37], [11,29,50,23], [18,42,47,13], [22,12,40,50]] : [[15,22,49,40], [18,43,47,19]];
+  return <Svg id="daikon-matchsticks">{sticks.map(([x1,y1,x2,y2], i) => <g key={i}><path d={`M${x1} ${y1} L${x2} ${y2}`} stroke={c.outline} strokeWidth="8" strokeLinecap="round"/><path d={`M${x1} ${y1} L${x2} ${y2}`} stroke={c.fill} strokeWidth="5" strokeLinecap="round"/><path d={`M${x1+2} ${y1-1} L${x2-2} ${y2-1}`} stroke={c.light} strokeWidth="1.5" strokeLinecap="round"/></g>)}</Svg>;
+}
+
+function LiverPate({ variant }: { variant: GlyphVariant }) {
+  const c = STAGED_GLYPH_PALETTE["liver-pate-quenelle"];
+  if (variant === "selection") return <Svg id="liver-pate-quenelle"><ellipse cx="30" cy="42" rx="22" ry="12" fill={c.light} stroke={c.outline} strokeWidth={SW}/><path d="M14 38 C21 22 43 19 51 35 C45 46 22 49 14 38Z" fill={c.fill}/><path d="M43 20 L57 8" stroke={c.outline} strokeWidth="5" strokeLinecap="round"/><path d="M39 25 L53 13" stroke={c.light} strokeWidth="2.5" strokeLinecap="round"/></Svg>;
+  return <Svg id="liver-pate-quenelle"><ellipse cx="32" cy="52" rx="22" ry="4" fill="#000" opacity=".13"/><path d="M10 39 C15 20 43 16 54 34 C49 51 20 55 10 39Z" fill={c.fill} stroke={c.outline} strokeWidth={SW} strokeLinejoin="round"/><path d="M20 35 C27 28 38 27 45 31" fill="none" stroke={c.light} strokeWidth="3" strokeLinecap="round"/></Svg>;
+}
+
+function Lime({ variant }: { variant: GlyphVariant }) {
+  const c = STAGED_GLYPH_PALETTE["lime-wedge"];
+  const wedge = <g><path d="M9 45 A30 30 0 0 1 54 17 L38 48 A18 18 0 0 0 9 45Z" fill={c.fill} stroke={c.outline} strokeWidth={SW} strokeLinejoin="round"/><path d="M14 42 A24 24 0 0 1 49 21 L37 43 A14 14 0 0 0 14 42Z" fill={c.light}/><path d="M33 31 L49 21 M33 31 L37 43 M33 31 L17 34" stroke={c.detail} strokeWidth="2"/></g>;
+  return <Svg id="lime-wedge">{variant === "selection" && <circle cx="20" cy="20" r="13" fill={c.fill} stroke={c.outline} strokeWidth={SW}/>}<g transform={variant === "selection" ? "translate(9 7) scale(.78)" : undefined}>{wedge}</g></Svg>;
+}
+
+function Asparagus({ variant }: { variant: GlyphVariant }) {
+  const c = STAGED_GLYPH_PALETTE["asparagus-spears"];
+  const spears = variant === "selection" ? [[17,52,28,10], [29,55,35,8], [40,53,46,13]] : [[14,49,28,12], [33,54,49,17]];
+  return <Svg id="asparagus-spears">{spears.map(([x1,y1,x2,y2], i) => <g key={i}><path d={`M${x1} ${y1} L${x2} ${y2}`} stroke={c.outline} strokeWidth="8" strokeLinecap="round"/><path d={`M${x1} ${y1} L${x2} ${y2}`} stroke={c.fill} strokeWidth="5" strokeLinecap="round"/><path d={`M${x2-5} ${y2+7} L${x2} ${y2} L${x2+4} ${y2+7}`} fill={c.detail} stroke={c.outline} strokeWidth="2" strokeLinejoin="round"/></g>)}{variant === "selection" && <path d="M15 35 C25 39 37 40 47 36" fill="none" stroke="#d4b15f" strokeWidth="5" strokeLinecap="round"/>}</Svg>;
+}
+
+const STAGED_GLYPH_COMPONENTS: Record<StagedGlyphId, (variant: GlyphVariant) => React.ReactElement> = {
   "cheddar-cubes": Cheddar,
   "lettuce-leaf": Lettuce,
   "tortilla-chip-triangles": TortillaChips,
@@ -222,9 +269,15 @@ const STAGED_GLYPH_COMPONENTS: Record<StagedGlyphId, () => React.ReactElement> =
   "radicchio-leaf": Radicchio,
   "truffle-shavings": Truffle,
   "brie-wedge": Brie,
+  "cauliflower-floret": (variant) => <Cauliflower variant={variant} />,
+  "kebab-sauce-swirl": () => <KebabSauce />,
+  "daikon-matchsticks": (variant) => <Daikon variant={variant} />,
+  "liver-pate-quenelle": (variant) => <LiverPate variant={variant} />,
+  "lime-wedge": (variant) => <Lime variant={variant} />,
+  "asparagus-spears": (variant) => <Asparagus variant={variant} />,
 };
 
-export function StagedGlyph({ id }: { id: StagedGlyphId }) {
+export function StagedGlyph({ id, variant = "selection" }: { id: StagedGlyphId; variant?: GlyphVariant }) {
   const C = STAGED_GLYPH_COMPONENTS[id];
-  return <C />;
+  return C(variant);
 }

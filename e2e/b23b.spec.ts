@@ -142,8 +142,8 @@ test.describe("Expansion Batch 23-b (late dessert recipes, played end to end)", 
       const owned = DISCOVERY_LADDER.steps.filter((s) => s.step <= plan.ownedUpToStep).flatMap((s) => s.ingredientIds as readonly string[]).filter((id) => !own.includes(id));
       await open(page, saveJson(discovered, owned));
       await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${discovered.length}/${CATALOG_COUNTS.recipes}`));
-      // T24 appends six credited ordinary steps before the late catalog; REC-04 keeps both B23-b steps late, so 88/89 derive to 94/95.
-      expect(stepOf(plan.materials[0][0])).toBe(plan.id === "nutella-dessert-pizza" ? 94 : 95);
+      // T24 appends six credited ordinary steps before the late catalog (88/89 -> 94/95); T25 (Batch 25, Owner L-2) appends ordinary step 81, so every older late step moves +1 again: 95/96.
+      expect(stepOf(plan.materials[0][0])).toBe(plan.id === "nutella-dessert-pizza" ? 95 : 96);
       await hold(page);
 
       // 1. Shop: the step's materials are NEW; buy them.

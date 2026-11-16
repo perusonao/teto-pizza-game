@@ -35,9 +35,12 @@ describe("Production is unchanged: no late recipe, FINISH is not in any shipped 
 
   it("E5: the late recipe (when the catalog is on) is the only shipped recipe with a late addition and FINISH, and its strip fits the tab ceiling", () => {
     for (const recipe of RECIPES.filter((r) => !ordinaryRecipes(RECIPES).includes(r))) {
-      expect((recipe.requiredIngredients as readonly RecipeRequirement[]).some((q) => q.applicationPhase === "POST_BAKE"), recipe.id).toBe(true);
+      // Batch 25 T-3 (Owner-approved): banh-mi-pizza is the ONE approved late recipe without POST_BAKE (no FINISH step); every other late recipe keeps both.
+      const approvedWithoutPostBake = recipe.id === "banh-mi-pizza";
+      expect((recipe.requiredIngredients as readonly RecipeRequirement[]).some((q) => q.applicationPhase === "POST_BAKE"), recipe.id).toBe(!approvedWithoutPostBake);
       const profile = getCookingProfile(recipe.id);
-      expect(profile.steps, recipe.id).toContain("FINISH");
+      if (approvedWithoutPostBake) expect(profile.steps, recipe.id).not.toContain("FINISH");
+      else expect(profile.steps, recipe.id).toContain("FINISH");
       expect(visibleCookingTabCount(profile), recipe.id).toBeLessThanOrEqual(MAX_VISIBLE_COOKING_TABS);
     }
   });

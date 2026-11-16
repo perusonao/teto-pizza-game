@@ -1,0 +1,76 @@
+{
+ "train": "T25-I7-final",
+ "tag": "t25i7",
+ "label": "Expansion Batch 25 I-7 final",
+ "issue": 780,
+ "recipes": [
+  {
+   "id": "pizza-salad",
+   "nameJa": "ピザサラダ",
+   "description": "トマトソースとモッツァレラを焼き、コーン、きゅうり、レタスをのせて、ヨーグルトソースをひとさじ添えたサラダ仕立ての一枚。",
+   "placement": "late",
+   "requiredIngredients": [
+    {
+     "ingredientId": "tomato-sauce",
+     "minCount": 1
+    },
+    {
+     "ingredientId": "mozzarella",
+     "minCount": 3
+    },
+    {
+     "ingredientId": "corn",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "cucumber",
+     "minCount": 2
+    },
+    {
+     "ingredientId": "lettuce",
+     "minCount": 2,
+     "applicationPhase": "POST_BAKE"
+    },
+    {
+     "ingredientId": "yogurt-sauce",
+     "minCount": 1
+    }
+   ],
+   "evidenceId": "pizza-salad-pizzadb-p7",
+   "order": {
+    "requestedBy": "mito",
+    "lineJa": "焼きたてのピザにサラダとヨーグルトソース、さっぱりしておいしそう！"
+   },
+   "sauceProfile": {
+    "ingredientId": "tomato-sauce",
+    "interaction": "PAINT"
+   },
+   "ladderStep": {
+    "ingredientIds": [
+     "yogurt-sauce"
+    ]
+   },
+   "bakeTarget": {
+    "start": 58,
+    "end": 78
+   },
+   "baseRewardPitz": 100,
+   "lunchRush": false,
+   "ladderCredit": true
+  }
+ ],
+ "newIngredients": [
+  {
+   "id": "yogurt-sauce",
+   "nameJa": "ヨーグルトソース",
+   "category": "sauce",
+   "family": null,
+   "color": "#f7f3e8",
+   "emoji": "🤍"
+  }
+ ],
+ "seq": 5,
+ "floors": {
+  "yogurt-sauce": 101
+ }
+}

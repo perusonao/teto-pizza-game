@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { INGREDIENTS, getIngredient, type IngredientCategory } from "../../data/ingredients";
-import { RESEARCH_ROWS_KIND, researchRowsFeedback } from "./researchResultFeedback";
+import { RESEARCH_ROWS_KIND, RESEARCH_ROWS_MAX_TEXT, researchRowsFeedback } from "./researchResultFeedback";
 import { researchResultRows, type ResearchResultRow } from "./researchResultRows";
-import { createTrialNotebook, notebookView, recordAttempt } from "./trialNotebook";
+import { MAX_FEEDBACK_TEXT, createTrialNotebook, notebookView, recordAttempt } from "./trialNotebook";
 
 /** Contract 2.1 S2: RESEARCH_ROWS feedback formatter + Trial Notebook compatibility. */
 /** A canonical v1 fingerprint literal (the notebook only parses its shape). */
@@ -106,14 +106,16 @@ describe("200-char gate (no truncation)", () => {
     expect(fb.textJa.length).toBeLessThanOrEqual(200);
     expect(recordAttempt(createTrialNotebook(), { fingerprint: FP, feedback: fb }).outcome.kind).not.toBe("REJECTED");
   });
-  it("over 200 chars is returned whole (never truncated) and the notebook rejects it, storing nothing", () => {
+  it("Batch 25 C-1 (Owner-approved P, replaces the old 'returned whole and rejected' pin): an over-limit row set is collapsed to <= 200 chars (never truncated mid-text) and the notebook accepts it; the Notebook's own rejection of a hand-made 201-char line is unchanged", () => {
     const rows = [...worstRows(), ...worstRows(), ...worstRows()];
+    const full = rows.map((r) => `${name(r.ingredientId)}${r.verdict === "POSITIVE" ? "○" : "×"}`).join(" ");
+    expect(full.length).toBeGreaterThan(200); // the input really is over the limit when written out in full
     const fb = fmt(rows, WORST_LABEL)!;
-    expect(fb.textJa.length).toBeGreaterThan(200);
-    expect(fb.textJa.endsWith("×")).toBe(true);
-    expect(fb.textJa.split(" ").length).toBeGreaterThan(rows.length / 2);
+    expect(fb.textJa.length).toBeLessThanOrEqual(200);
+    expect(fb.textJa).toMatch(/ほか\d+件×/);
+    expect(recordAttempt(createTrialNotebook(), { fingerprint: FP, feedback: fb }).outcome.kind).toBe("NEW");
     const nb = createTrialNotebook();
-    const res = recordAttempt(nb, { fingerprint: FP, feedback: fb });
+    const res = recordAttempt(nb, { fingerprint: FP, feedback: { kind: RESEARCH_ROWS_KIND, textJa: "あ".repeat(201) } });
     expect(res.outcome).toEqual({ kind: "REJECTED", reason: "INVALID_FEEDBACK" });
     expect(res.state).toBe(nb);
   });
@@ -148,5 +150,51 @@ describe("Trial Notebook compatibility and latest-attempt replacement (existing 
     const n2 = recordAttempt(n1, { fingerprint, feedback: null }).state;
     expect(first(n2).feedback).toBeNull();
     expect(JSON.stringify(n2)).not.toContain("RESEARCH_ROWS");
+  });
+});
+
+describe("Batch 25 C-1: the line never exceeds the Notebook limit (catalog-scale guard)", () => {
+  const sauceIds = INGREDIENTS.filter((i) => i.category === "sauce").map((i) => i.id);
+  const cheeseIds = INGREDIENTS.filter((i) => i.category === "cheese").map((i) => i.id);
+  const worstRows = (positiveId: string): ResearchResultRow[] => sauceIds.map((id) => row(id, "sauce", id === positiveId ? "POSITIVE" : "NEGATIVE"));
+  const LONG_LABEL = "？？？ピザ（ヨーグルトソース）";
+
+  it("the builder's cap is the Notebook's own MAX_FEEDBACK_TEXT", () => {
+    expect(RESEARCH_ROWS_MAX_TEXT).toBe(MAX_FEEDBACK_TEXT);
+  });
+
+  it("every sauce on one pizza (the longest possible sauce-only line) fits, and the Notebook records it as a NEW attempt", () => {
+    const fb = fmt(worstRows("tomato-sauce"), LONG_LABEL)!;
+    expect(fb.textJa.length).toBeLessThanOrEqual(MAX_FEEDBACK_TEXT);
+    const r = recordAttempt(createTrialNotebook(), { fingerprint: FP, feedback: fb });
+    expect(r.outcome.kind).toBe("NEW");
+    expect(notebookView(r.state)[0].feedback).toEqual(fb);
+  });
+
+  it("every sauce and every cheese on one pizza still fits", () => {
+    const rows = [...worstRows("tomato-sauce"), ...cheeseIds.map((id) => row(id, "cheese", id === "mozzarella" ? "POSITIVE" : "NEGATIVE"))];
+    expect(fmt(rows, LONG_LABEL)!.textJa.length).toBeLessThanOrEqual(MAX_FEEDBACK_TEXT);
+  });
+
+  it("only an over-limit line is collapsed: the negatives become ほかN件×, every POSITIVE stays, the S1 order is kept", () => {
+    const fb = fmt(worstRows("tomato-sauce"), LONG_LABEL)!;
+    const negatives = sauceIds.length - 1;
+    expect(fb.textJa).toBe(`${LONG_LABEL} ソース: ${name("tomato-sauce")}○ ほか${negatives}件×`);
+    // two positives in different categories are both kept
+    const two = fmt([...worstRows("tomato-sauce"), row("mozzarella", "cheese", "POSITIVE"), row("ham", "topping", "NEGATIVE")], LONG_LABEL)!;
+    expect(two.textJa).toBe(`${LONG_LABEL} ソース: ${name("tomato-sauce")}○ ほか${negatives}件× チーズ: ${name("mozzarella")}○ トッピング: ほか1件×`);
+  });
+
+  it("a line that fits is byte-identical to the uncollapsed form (the boundary: 22 sauce rows)", () => {
+    const rows = worstRows("tomato-sauce").slice(0, 22);
+    const expected = `${LONG_LABEL} ソース: ${rows.map((r) => `${name(r.ingredientId)}${r.verdict === "POSITIVE" ? "○" : "×"}`).join(" ")}`;
+    expect(expected.length).toBeLessThanOrEqual(MAX_FEEDBACK_TEXT);
+    expect(fmt(rows, LONG_LABEL)!.textJa).toBe(expected);
+  });
+
+  it("the collapsed line never names a negative ingredient", () => {
+    const fb = fmt(worstRows("tomato-sauce"), LONG_LABEL)!;
+    const tokens = fb.textJa.split(" ");
+    for (const id of sauceIds.filter((s) => s !== "tomato-sauce")) expect(tokens.includes(`${name(id)}×`)).toBe(false);
   });
 });

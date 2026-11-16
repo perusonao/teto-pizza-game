@@ -113,6 +113,7 @@ const BASE_TOPPING_SIZE_CLASS_BY_ID: Readonly<Record<string, ToppingSizeClass>> 
   "peking-duck": "m", // Expansion Batch 24 (#780)
   "spicy-salami": "m", // Expansion Batch 24 (#780)
   squid: "s", // Expansion Batch 24 (#780)
+  cauliflower: "m", // Expansion Batch 25 independent (#780)
 };
 
 /** The base table, plus the late-catalog ingredients' classes (./lateCatalog.ts) when that catalog is enabled; otherwise the base table itself. */

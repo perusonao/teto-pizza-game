@@ -78,7 +78,7 @@ describe("Duplicate Gate (the GLOBAL 0.4 Jaccard guideline is NOT changed): exac
 describe("the ladder: six ordinary steps 75-80 (derived, in the REC-04 order), no star gate, the batch manifest", () => {
   const steps = DISCOVERY_LADDER.steps;
   it("the steps and their keys", () => {
-    expect(ordinaryLadderSteps(steps)).toHaveLength(80);
+    expect(ordinaryLadderSteps(steps)).toHaveLength(81); // Expansion Batch 25 (T25, #780) appended ordinary step 81 after these six
     expect(steps.slice(74, 80).map((s) => [s.step, s.ingredientIds, s.keyRecipeId])).toEqual([
       [75, ["spicy-salami"], "diavola-pizza"],
       [76, ["squid"], "frutti-di-mare"],
@@ -112,7 +112,7 @@ describe("Research (Owner-approved per ID, T24-R1 packet section 4): the canonic
   const FIRST_LETTER_ONLY: readonly string[] = ["aussie", "baingan-bharta-pizza", "bbq-chicken-pizza", "brazilian-calabresa", "buffalo-chicken", "capricciosa", "full-english-pizza", "jamaican-jerk-chicken-pizza", "new-haven-apizza", "nigerian-suya-pizza", "pesto-tonno", "pizza-portuguesa", "polish-kielbasa", "puttanesca-pizza", "reina-pepiada-pizza", "rendang-pizza", "salsiccia", "sichuan-eggplant-pizza"];
   const FIRST_LETTER_OR_ONE_LATER: readonly string[] = ["bacalhau", "boscaiola", "calabresa-argentina", "flammkuchen", "fugazza", "goulash-pizza", "meat-lovers", "palmito-pizza", "pescatore", "pesto-gamberi", "pizza-feta-eliniki", "pizza-finocchi-salad", "pizza-moscow", "salsiccia-e-friarielli", "spanish-chorizo-pizza", "supreme-pizza", "tandoori-paneer-pizza", "tonno-e-cipolla", "veggie-supreme-pizza", "vongole", "wasabi-beef-pizza", "yuzu-shrimp-pizza"];
   const FIRST_LETTER_UP_TO_C_OR_TWO_LATER: readonly string[] = ["curry-pizza-japan", "frango-catupiry", "pesto-pollo"];
-  const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never, 40, 20261105);
+  const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES.filter((r) => ![ "buffalo-cauliflower-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad" ].includes(r.id)) as never, 40, 20261105, ["cauliflower", "kebab-sauce", "daikon", "liver-pate", "lime", "asparagus", "yogurt-sauce"]); // Expansion Batch 25 (T25, #780) is a LATER batch: its six recipes and seven materials are left out so this stays the Batch 24 comparison the Owner approved
   const changed = [...changes.keys()].sort();
   const code = (l: string) => l.charCodeAt(0) - 64;
   it("the canonical ladder order changes no pre-existing letter (the full late catalog included)", () => {
