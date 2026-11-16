@@ -331,8 +331,9 @@ else {
   const repo = join(dir, "repo");
   mkdirSync(repo);
   const git = (...a) => spawnSync("git", a, { cwd: repo, encoding: "utf8" });
-  git("init", "-q"); git("-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "x");
+  git("init", "-q"); git("-c", "user.email=t@t", "-c", "user.name=t", "-c", "commit.gpgsign=false", "commit", "-q", "--allow-empty", "-m", "x");
   const head = git("rev-parse", "HEAD").stdout.trim();
+  if (!/^[0-9a-f]{40}$/.test(head)) { console.log("PROBLEM could not create the throwaway repository (test setup error, not a workflow defect)"); process.exit(1); }
   const other = head.replace(/./, (c) => (c === "0" ? "1" : "0")); // 40 hex, differs from head
   const run = (event, target) => spawnSync("bash", [script], { cwd: repo, encoding: "utf8", env: {
     PATH: process.env.PATH, EVENT_NAME: event, TARGET_SHA: target, WORKFLOW_REF: "o/r/.github/workflows/ci.yml@refs/heads/main",
