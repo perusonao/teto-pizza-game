@@ -275,6 +275,11 @@ describe("matchDiscovery -- Issue #192 deterministic proof", () => {
       ownerApproved.add("smore-dessert-pizza-pizzadb-p4");
       // Expansion Batch 24 (Issue #780, train spec T24-R1): the six ordinary B24 recipes are rows of the 172 design matrix, several of them Phase-2 BLOCKED_* rows (an unspecified / unresolved base sauce); each is Owner-approved to ship in the T24-R1 approval packet (docs/reports/TETO_T24-T26_OwnerDecisions-Followup_2026-11-10.md §7, 2026-11-10) with its own sauce (a PAINT layer), not NO_SAUCE.
       for (const id of ["diavola-pizza-pizzadb-p5", "frutti-di-mare-pizzadb-p11", "peruvian-aji-amarillo-pizzadb-p12", "south-african-boerewors-pizzadb-p14", "thai-chicken-pizza-pizzadb-p4", "peking-duck-pizza"]) ownerApproved.add(id);
+      // Expansion Batch 25 (Issue #780), Owner decision 2026-11-16 (conditional): ONLY buffalo-cauliflower-pizza-pizzadb-p6 is released from BLOCKED_EVIDENCE (BASE_SAUCE_UNSPECIFIED), on the basis of decision D-2
+      // (buffalo-sauce base, the buffalo-chicken duplicate exception) and its conditions: the dedicated floret SVG and the visible difference from the chicken are asserted in expansionBatch25.test.tsx ("D-2 conditions"),
+      // the pair's Jaccard / difference are pinned in expansionBatch22.test.ts. The other four T25 BLOCKED rows are NOT approved (HOLD) and are deliberately NOT added here:
+      // swedish-kebab-pizza-pizzadb-p4 (meat omitted), banh-mi-pizza-pizzadb-p6 (NO_SAUCE), mexican-elote-pizza-pizzadb-p13 (sour-cream base), pizza-asparagi-limone-pizzadb-p8 (MECHANIC_INTERPRETATION).
+      ownerApproved.add("buffalo-cauliflower-pizza-pizzadb-p6");
       for (const id of blockedIds) expect(targetIds.has(id), id).toBe(ownerApproved.has(id));
       const discoveryRuleBlocked = phase2RowClassification().filter((r) => r.phase2Class === "BLOCKED_DISCOVERY_RULE");
       expect(discoveryRuleBlocked.map((r) => r.evidenceId).sort()).toEqual(
