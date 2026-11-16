@@ -159,7 +159,7 @@ export function projectStepOrderContract(
 ): StepOrderContract {
   validateSteps(contract.steps);
   validateEdges(contract.steps, contract.precedence);
-  resolveStepOrder(contract.steps, contract.precedence);
+  const resolvedOrder = resolveStepOrder(contract.steps, contract.precedence);
   validateSteps(steps);
 
   const contractSteps = new Set(contract.steps);
@@ -184,7 +184,7 @@ export function projectStepOrderContract(
     }
   }
 
-  const projectedOrder = contract.steps.filter((step) => steps.includes(step));
+  const projectedOrder = resolvedOrder.filter((step) => steps.includes(step));
   const projected = chain(projectedOrder).filter(({ before, after }) => reach.get(before)!.has(after));
   return { id: contract.id, steps: [...steps], precedence: projected };
 }

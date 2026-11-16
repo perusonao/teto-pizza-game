@@ -54,6 +54,30 @@ describe("STEP_ORDER fixtures", () => {
     expect(resolveStepOrder(contract.steps, contract.precedence)).toEqual(["DOUGH", "TOPPING"]);
   });
 
+  it("projects from the resolved order when contract steps are not topological", () => {
+    const fixture = STEP_ORDER_FIXTURES["cheese-before-sauce"];
+    const contract = projectStepOrderContract(
+      { ...fixture, steps: ["DOUGH", "SAUCE", "CHEESE", "TOPPING"] },
+      ["DOUGH", "SAUCE", "CHEESE"],
+    );
+
+    expect(resolveStepOrder(contract.steps, contract.precedence)).toEqual([
+      "DOUGH",
+      "CHEESE",
+      "SAUCE",
+    ]);
+  });
+
+  it("can project an already projected contract again", () => {
+    const first = projectStepOrderContract(
+      STEP_ORDER_FIXTURES["cheese-before-sauce"],
+      ["DOUGH", "SAUCE", "CHEESE"],
+    );
+    const second = projectStepOrderContract(first, ["DOUGH", "SAUCE"]);
+
+    expect(resolveStepOrder(second.steps, second.precedence)).toEqual(["DOUGH", "SAUCE"]);
+  });
+
   it("preserves non-core steps while moving only CHEESE before SAUCE", () => {
     expect(resolveStepOrderId(
       "cheese-before-sauce",
