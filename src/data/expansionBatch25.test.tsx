@@ -4,7 +4,7 @@ import { IngredientGlyph } from "../components/IngredientGlyph";
 import { IngredientPieceVisual } from "../components/IngredientPieceVisual";
 import { researchLetterChangesAcrossOrders } from "../logic/catalog/testSupport/researchLabelAudit";
 import { DISCOVERY_LADDER } from "./discoveryLadder";
-import { getIngredient } from "./ingredients";
+import { getIngredient, INGREDIENTS } from "./ingredients";
 import { RECIPES, type Recipe } from "./recipes";
 
 const NEW_IDS = ["buffalo-cauliflower-pizza", "swedish-kebab-pizza", "banh-mi-pizza", "mexican-elote-pizza", "pizza-asparagi-limone", "pizza-salad"] as const;
@@ -40,8 +40,42 @@ describe("T25 independent content contract", () => {
       );
     }
     expect(getIngredient("cauliflower")?.pieceVisual).toBe("cauliflower-floret");
-    expect(getIngredient("cauliflower")?.pieceVisual).not.toBe(getIngredient("chicken")?.pieceVisual);
     expect(getIngredient("kebab-sauce")?.pieceVisual).toBe("kebab-sauce-swirl");
+  });
+
+  /**
+   * Batch 25 B-2 (Owner decision D-2, conditional approval of the buffalo-cauliflower vs buffalo-chicken duplicate): the approval requires a DEDICATED floret SVG that is visibly different from the chicken.
+   * These assertions compare what is actually rendered (the previous check compared `pieceVisual` ids, and the chicken has none, so it could never fail).
+   */
+  describe("D-2 conditions: the cauliflower's drawing differs from the chicken's, in the tray and on the pizza", () => {
+    const cauliflower = getIngredient("cauliflower")!;
+    const chicken = getIngredient("chicken")!;
+    const sel = (i: typeof cauliflower) => renderToStaticMarkup(<IngredientGlyph ingredient={i} />);
+    const placed = (i: typeof cauliflower) => renderToStaticMarkup(<IngredientPieceVisual ingredient={i} />);
+
+    it("the cauliflower renders its dedicated SVG in both places; the chicken renders none (its emoji)", () => {
+      for (const markup of [sel(cauliflower), placed(cauliflower)]) {
+        expect(markup).toContain("<svg");
+        expect(markup).toContain('data-ingredient-visual="cauliflower-floret"');
+      }
+      for (const markup of [sel(chicken), placed(chicken)]) {
+        expect(markup).not.toContain("data-ingredient-visual");
+        expect(markup).toContain(chicken.emoji);
+      }
+    });
+
+    it("the rendered markup differs between cauliflower and chicken (tray chip and placed piece), and no other ingredient draws the same florets", () => {
+      expect(sel(cauliflower)).not.toBe(sel(chicken));
+      expect(placed(cauliflower)).not.toBe(placed(chicken));
+      for (const other of INGREDIENTS.filter((i) => i.id !== "cauliflower")) {
+        expect(placed(other), `${other.id} must not look like the cauliflower on the pizza`).not.toBe(placed(cauliflower));
+      }
+    });
+
+    it("the cauliflower art is not the chicken's emoji and not a recolour of any shared id (the floret's own drawing id is unique in the catalog)", () => {
+      expect(INGREDIENTS.filter((i) => i.pieceVisual === "cauliflower-floret").map((i) => i.id)).toEqual(["cauliflower"]);
+      expect(cauliflower.emoji).not.toBe(chicken.emoji);
+    });
   });
 });
 
