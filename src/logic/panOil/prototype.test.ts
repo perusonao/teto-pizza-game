@@ -57,6 +57,29 @@ describe("Greek pan oil research prototype (Production OFF)", () => {
     expect(reduceOilSession(ready, finishOil)).toBe(ready);
     expect(reduceOilSession(ready, { type: "reset" }).phase).toBe("PAN_OIL");
   });
+  it("does not accept a tap-only oil gesture even with a tiny research threshold", () => {
+    const s = newOilSession(16);
+    const a = reduceOilSession(s, { type: "down", pointerId: 1, point: { x: 0.5, y: 0.5 } });
+    const b = reduceOilSession(a, up);
+    expect(b.covered.size).toBeGreaterThan(0);
+    expect(b.hasSpread).toBe(false);
+    expect(reduceOilSession(b, { type: "finish-oil", requiredFraction: 1 / validPanCells(16) })).toBe(b);
+  });
+  it("requires newly covered cells from a movement and preserves them after cancel", () => {
+    const s = newOilSession(16);
+    const a = reduceOilSession(s, down);
+    const noMove = reduceOilSession(a, { type: "move", pointerId: 1, point: down.point });
+    expect(noMove.hasSpread).toBe(false);
+    const spread = reduceOilSession(noMove, move);
+    expect(spread.hasSpread).toBe(true);
+    const cancelled = reduceOilSession(spread, { type: "cancel", pointerId: 1 });
+    expect(cancelled.hasSpread).toBe(true);
+    expect(cancelled.covered.size).toBe(spread.covered.size);
+    expect(reduceOilSession(cancelled, finishOil).phase).toBe("DOUGH_PRESS");
+    const reset = reduceOilSession(cancelled, { type: "reset" });
+    expect(reset.hasSpread).toBe(false);
+    expect(reset.covered.size).toBe(0);
+  });
   it("rejects invalid and unmet oil thresholds", () => {
     const s = [down, move, up].reduce(reduceOilSession, newOilSession(16));
     for (const requiredFraction of [NaN, 0, -1, 1.1, 1]) {
