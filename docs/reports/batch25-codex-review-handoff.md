@@ -15,7 +15,7 @@
 | `tools/train-kit/templates/e2e.spec.ts.tmpl` | #858: secondary sauce を 1 タップ（presence-dab）で塗る生成 | 生成 E2E（`e2e/t25i7.spec.ts`）と一致しているか |
 
 - 追加したテスト（レビュー対象）: `src/state/pizzaSalad.realPlay.test.ts`（実 reducer・実保存・journal）、`src/state/pizzaSalad.hintFlow.test.ts`、`e2e/t25i7-yogurt-gestures.spec.ts`、`src/components/testSupport/leakCheck{,.test}.ts`、`src/logic/discovery/researchResultFeedback.test.ts` の追記、`expansionBatch22/25.test.*` の例外・D-2 条件。
-- 期待値の更新（件数・位置・新しい行・golden）: 約 60 ファイル。**どの更新も、基準の緩和・skip・削除ではないことを確認してほしい**（`git diff dabfa4c3..b37947dd -- '*.test.*'`）。
+- 期待値の更新（件数・位置・新しい行・golden）: テスト・E2E 56 ファイル、golden／監査 JSON 9 ファイル、testSupport 8 ファイル（`dabfa4c3..b37947dd` の全変更は 81 ファイル）。**どの更新も、基準の緩和・skip・削除ではないことを確認してほしい**（`git diff dabfa4c3..b37947dd -- '*.test.*'`）。
 
 ## 不変条件（実測済み。再測定してほしい）
 ordinary 81／late 97〜101（既存 late は +1 移動して 82〜96）／step 98 で daikon + liver-pate の 2 食材同時解放／canonical Research 変化 0／non-canonical 42 ID（`expansionBatch25.test.tsx` に固定）。全食材・全レシピ・全調理法／工程の並行追加方針は維持。
