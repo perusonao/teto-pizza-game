@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { IngredientGlyph } from "../components/IngredientGlyph";
 import { IngredientPieceVisual } from "../components/IngredientPieceVisual";
 import { researchLetterChangesAcrossOrders } from "../logic/catalog/testSupport/researchLabelAudit";
+import { RECIPE_DISCOVERY_CATALOG } from "./discoveryCatalog";
 import { DISCOVERY_LADDER } from "./discoveryLadder";
 import { getIngredient, INGREDIENTS } from "./ingredients";
 import { RECIPES, type Recipe } from "./recipes";
@@ -47,6 +48,13 @@ describe("T25 independent content contract", () => {
    * Batch 25 B-2 (Owner decision D-2, conditional approval of the buffalo-cauliflower vs buffalo-chicken duplicate): the approval requires a DEDICATED floret SVG that is visibly different from the chicken.
    * These assertions compare what is actually rendered (the previous check compared `pieceVisual` ids, and the chicken has none, so it could never fail).
    */
+  it("M-2 (Owner, conditional on D-2): the released buffalo-cauliflower target is exactly buffalo-sauce base + mozzarella + gorgonzola + cauliflower (a change re-opens the decision)", () => {
+    const target = RECIPE_DISCOVERY_CATALOG.find((t) => (t.recipeId as string) === "buffalo-cauliflower-pizza")!;
+    expect(target.targetId).toBe("buffalo-cauliflower-pizza-pizzadb-p6");
+    expect([...(target.sauceBase ?? [])]).toEqual(["buffalo-sauce"]);
+    expect(new Set(RECIPES.find((r) => r.id === "buffalo-cauliflower-pizza")!.requiredIngredients.map((q) => q.ingredientId))).toEqual(new Set(["buffalo-sauce", "mozzarella", "gorgonzola", "cauliflower"]));
+  });
+
   describe("D-2 conditions: the cauliflower's drawing differs from the chicken's, in the tray and on the pizza", () => {
     const cauliflower = getIngredient("cauliflower")!;
     const chicken = getIngredient("chicken")!;
