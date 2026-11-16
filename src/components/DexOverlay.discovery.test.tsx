@@ -47,6 +47,16 @@ function renderDex(p: {
 const chapterTitles = () =>
   Array.from(document.querySelectorAll(".dex-overlay__chapter-title")).map((e) => e.textContent);
 
+const keyOrder = ["margherita", ...DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
+const LADDER_DEX_SLICE_SIZE = 20;
+const ladderDexSlices = [false, true].flatMap((bought) =>
+  Array.from({ length: Math.ceil((keyOrder.length + 1) / LADDER_DEX_SLICE_SIZE) }, (_, sliceIndex) => {
+    const start = sliceIndex * LADDER_DEX_SLICE_SIZE;
+    const end = Math.min(start + LADDER_DEX_SLICE_SIZE, keyOrder.length + 1);
+    return [bought, start, end] as const;
+  }),
+);
+
 describe("W1-f Dex", () => {
   it("chapters (the ledger's sizes) with per-chapter counts and fixed No. slots", () => {
     renderDex({ dex: discoveredDex(["margherita", "marinara"]) });
@@ -82,11 +92,11 @@ describe("W1-f Dex", () => {
     expect(screen.getAllByText("まだ見ぬピザ")).toHaveLength(RECIPES.length - 2);
   });
 
-  // Two tests (arrived / bought), not one loop: each render is ~50 ms, and the ladder only ever grows.
-  it.each([false, true])("nothing about an undiscovered recipe reaches the DOM, at every ladder Dex (bought: %s)", (bought) => {
-    const keyOrder = ["margherita", ...DISCOVERY_LADDER.steps.map((s) => s.keyRecipeId)];
-    {
-      for (let n = 0; n <= keyOrder.length; n++) {
+  // Keep every arrived / bought ladder state, but bound each test's work as the catalog grows.
+  it.each(ladderDexSlices)(
+    "nothing about an undiscovered recipe reaches the DOM (bought: %s, ladder Dex %i-%i)",
+    (bought, start, end) => {
+      for (let n = start; n < end; n++) {
         const unlocked = materialIdsOfSteps(DISCOVERY_LADDER.steps.filter((s) => s.step <= n));
         const owned = bought ? unlocked : materialIdsOfSteps(DISCOVERY_LADDER.steps.filter((s) => s.step < n));
         renderDex({
@@ -122,6 +132,7 @@ describe("W1-f Dex", () => {
         expect(document.querySelectorAll(".dex-card--locked .dex-card__ingredient, .dex-card--locked svg")).toHaveLength(0);
         cleanup();
       }
-    }
-  }, 30_000); // Batch 6 PR-2: two more ladder Dex states (steps 50 / 51) took this near the 5 s default
+    },
+    30_000,
+  );
 });
