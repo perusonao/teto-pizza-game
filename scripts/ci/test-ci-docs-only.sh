@@ -267,7 +267,7 @@ mutate() { # name sed-expression
   node "$work/workflow.mjs" "$work/ci.mut.yml" > /dev/null 2>&1
   check "ci.yml checker rejects: $1" 1 $?
 }
-mutate "a paths-ignore filter on the trigger" 's/^    branches: \[main\]/    branches: [main]\n    paths-ignore: ["docs\/**"]/'
+mutate "a paths-ignore filter on the trigger" 's/^    branches: \[main, codex\/step-order-phase1\]/    branches: [main, codex\/step-order-phase1]\n    paths-ignore: ["docs\/**"]/'
 mutate "a job-level if on build" 's/^  build:/  build:\n    if: ${{ github.actor != '"'"'x'"'"' }}/'
 mutate "an ungated lint step" '/name: Lint/{n;d}'
 mutate "an always() gate" "s/\\\$\\{\\{ steps\\.classify\\.outputs\\.docs_only != 'true' \\}\\}/\${{ always() \\&\\& steps.classify.outputs.docs_only != 'true' }}/"
