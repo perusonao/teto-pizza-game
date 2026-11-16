@@ -133,9 +133,38 @@ describe("the ten materials (Owner decisions 2026-11-09): ids, spec, art, famili
   it("size classes (Owner): truffle xs, sunflower-seeds xs, brie l; fennel s / orange s / carrot s / red-cabbage s / radicchio m", () => {
     expect([toppingSizeClass("truffle"), toppingSizeClass("sunflower-seeds"), toppingSizeClass("brie"), toppingSizeClass("fennel"), toppingSizeClass("orange"), toppingSizeClass("carrot"), toppingSizeClass("red-cabbage"), toppingSizeClass("radicchio")]).toEqual(["xs", "xs", "l", "s", "s", "s", "s", "m"]);
   });
-  it("the two new sauces stay at least dE 25 from every other sauce (late4 precedent; measured: buffalo-sauce nearest tomato-sauce 26.0, balsamic-vinegar nearest soy-sauce 37.3)", () => {
+  /**
+   * Batch 25 B-1 (Owner, conditional approval): kebab-sauce keeps its Owner-approved colour `#d86a35` (decision table I-4). Measured against EVERY other sauce, exactly these five pairs are
+   * below the dE 25 guideline. They are listed explicitly, each with its measured value pinned (CIE76, this file's own formula, tolerance 0.0005), so that any colour change on either side re-opens the
+   * decision. The 25 threshold itself is NOT relaxed: every pair that is not listed must still be >= 25. No recipe uses kebab-sauce together with any of these five sauces.
+   */
+  const KEBAB_APPROVED_DELTA_E_EXCEPTIONS: Readonly<Record<string, number>> = {
+    "tomato-sauce": 20.4392,
+    "buffalo-sauce": 20.4495,
+    "curry-ketchup": 20.6982,
+    "peanut-sauce": 24.0379,
+    "miso-sauce": 24.8452,
+  };
+  const isKebabException = (a: string, b: string) => (a === "kebab-sauce" && b in KEBAB_APPROVED_DELTA_E_EXCEPTIONS) || (b === "kebab-sauce" && a in KEBAB_APPROVED_DELTA_E_EXCEPTIONS);
+  it("the two new sauces stay at least dE 25 from every other sauce, except the Owner-approved kebab-sauce pairs (late4 precedent; measured: buffalo-sauce nearest tomato-sauce 26.0 before Batch 25, balsamic-vinegar nearest soy-sauce 37.3)", () => {
     for (const id of ["buffalo-sauce", "balsamic-vinegar"]) {
-      for (const other of INGREDIENTS.filter((i) => i.category === "sauce" && i.id !== id)) expect(deltaE(getIngredient(id)!.color, other.color), `${id} vs ${other.id}`).toBeGreaterThanOrEqual(25);
+      for (const other of INGREDIENTS.filter((i) => i.category === "sauce" && i.id !== id)) {
+        if (isKebabException(id, other.id)) continue; // pinned and checked in the kebab-sauce test below
+        expect(deltaE(getIngredient(id)!.color, other.color), `${id} vs ${other.id}`).toBeGreaterThanOrEqual(25);
+      }
+    }
+  });
+  it("Batch 25 B-1: kebab-sauce is #d86a35 (Owner I-4); against every other sauce the pairs below dE 25 are EXACTLY the five listed, each at its pinned value; every other pair is >= 25", () => {
+    expect(getIngredient("kebab-sauce")!.color).toBe("#d86a35");
+    const below = INGREDIENTS.filter((i) => i.category === "sauce" && i.id !== "kebab-sauce" && deltaE(getIngredient("kebab-sauce")!.color, i.color) < 25).map((i) => i.id).sort();
+    expect(below).toEqual(Object.keys(KEBAB_APPROVED_DELTA_E_EXCEPTIONS).sort());
+    for (const [other, pinned] of Object.entries(KEBAB_APPROVED_DELTA_E_EXCEPTIONS)) {
+      expect(deltaE(getIngredient("kebab-sauce")!.color, getIngredient(other)!.color), `kebab-sauce vs ${other}`).toBeCloseTo(pinned, 3);
+    }
+    // the exception does not touch the recipes: no recipe needs kebab-sauce together with any of the five (the pair can only meet in free play)
+    for (const r of RECIPES) {
+      const ids = idsOf(r);
+      if (ids.includes("kebab-sauce")) expect(ids.filter((x) => x in KEBAB_APPROVED_DELTA_E_EXCEPTIONS), r.id).toEqual([]);
     }
   });
 });
@@ -194,12 +223,28 @@ describe("Reference Truth: the non-sauce pieces on the RT-01 slots (a calibrated
   });
 });
 
-describe("Duplicate Gate and differentiation (the GLOBAL 0.4 Jaccard guideline is NOT changed; NO exception is needed)", () => {
+describe("Duplicate Gate and differentiation (the GLOBAL 0.4 Jaccard guideline is NOT changed; the ONE Owner-approved pair below is the only exception)", () => {
   const all = [...RECIPES] as readonly Recipe[];
+  /**
+   * Batch 25 B-2 (Owner decision D-2): buffalo-chicken vs buffalo-cauliflower-pizza is the ONLY approved exception, in both directions. The approval is conditional on a dedicated floret SVG and a visible difference
+   * from the chicken (asserted in expansionBatch25.test.tsx, "D-2 conditions"). The pair's values are pinned exactly (Jaccard 0.6, symmetric difference 2, neither a subset of the other): a recipe change re-opens the decision.
+   */
+  const D2_PAIR: readonly [string, string] = ["buffalo-chicken", "buffalo-cauliflower-pizza"];
+  const isD2Pair = (x: string, y: string) => (x === D2_PAIR[0] && y === D2_PAIR[1]) || (x === D2_PAIR[1] && y === D2_PAIR[0]);
+  it("the D-2 pair is pinned exactly: Jaccard 0.6, symmetric difference 2 (chicken <-> cauliflower), not a subset / superset", () => {
+    const a = idsOf(get(D2_PAIR[0]));
+    const b = idsOf(get(D2_PAIR[1]));
+    expect(jaccard(a, b)).toBeCloseTo(0.6, 10);
+    expect(symDiff(a, b)).toBe(2);
+    expect(a.every((x) => b.includes(x)) || b.every((x) => a.includes(x))).toBe(false);
+    expect([...a].filter((x) => !b.includes(x))).toEqual(["chicken"]);
+    expect([...b].filter((x) => !a.includes(x))).toEqual(["cauliflower"]);
+  });
   it.each(NEW_IDS.map((id) => [id]))("%s: no other recipe has the set, none is a subset or a superset, none differs by one ingredient, and the maximum Jaccard stays under 0.4", (id) => {
     const mine = idsOf(get(id));
     for (const other of all) {
       if (other.id === id) continue;
+      if (isD2Pair(id, other.id)) continue; // the one approved pair: pinned in the test above
       const theirs = idsOf(other);
       expect(symDiff(mine, theirs), `${id} vs ${other.id} symmetric difference`).toBeGreaterThan(1);
       expect(mine.every((x) => theirs.includes(x)) || theirs.every((x) => mine.includes(x)), `${id} vs ${other.id} subset / superset`).toBe(false);
