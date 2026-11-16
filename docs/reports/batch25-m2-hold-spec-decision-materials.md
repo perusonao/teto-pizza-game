@@ -1,8 +1,18 @@
-# Batch 25 — M-2 HOLD 4 件の仕様決定資料（原典・実装・代替案・影響範囲）
+# Batch 25 — M-2 残り 4 行の Owner 決定記録（原典・実装・承認内容・適用範囲）
 
-状態: **4 件とも未承認・HOLD。`ownerApproved`（`matcher.test.ts`）にも、Phase-2 の SHIPPED_KEEP／NOT_IN_MATRIX 系の定数にも追加していません。** 出荷コード（recipe・catalog）は変更していません。
-この文書は決定の材料だけです。承認が出るまで、4 行の `matcher.test.ts:278` は失敗のまま残ります。
-解除済みは buffalo-cauliflower のみ（D-2 を根拠とする条件付き。`expansionBatch25.test.tsx` に対象の同定を固定）。
+状態: **4 行とも Owner 承認済み（2026-11-16、個別承認）。** 出荷コード（recipe・catalog・材料・ソース・工程・Research ID・hint・step 番号）は変更していません。
+反映先は `matcher.test.ts` の `ownerApproved`（4 行追加、決定 ID と根拠をコメント）のみです。`discoveryCatalog.test.ts` の定数は、4 行が late で既存の late スキップに入るため変更不要です（コメントのみ更新）。
+この承認は **各行・各 recipe 限定**です。他の BASE_SAUCE_UNSPECIFIED／UNRESOLVED_INGREDIENT／MECHANIC_INTERPRETATION 行や、他 recipe への肉の追加・置換には波及しません。
+Final Gate は Owner の別途承認まで HOLD のままです。
+
+| 決定 ID | recipe（evidence id） | 承認内容 | 適用範囲 |
+|---|---|---|---|
+| B25-M2-D1 | swedish-kebab-pizza（…-p4） | 案 A: 「肉」と未特定のホットソース下地を省略。kebab-sauce 1／mozzarella 3／lettuce 2 を維持 | この recipe 限定の「肉の省略」例外。肉の追加は禁止 |
+| B25-M2-D2 | banh-mi-pizza（…-p6） | 案 A: NO_SAUCE を明示承認。liver-pate は topping／meat の複合 1 ピース。late・POST_BAKE なし（L-1）、step 98 で daikon + liver-pate 同時解放（L-3）を維持 | この recipe 限定の NO_SAUCE（他の NO_SAUCE 承認とは独立） |
+| B25-M2-D3 | mexican-elote-pizza（…-p13） | 案 A: sour-cream 1 層を下地として承認。cotija→feta、chili-powder→paprika-powder の 2 置換を承認。mayo・lime・late step 99 を維持 | この recipe 限定。置換は GAMEPLAY ASSUMPTION |
+| B25-M2-D4 | pizza-asparagi-limone（…-p8） | 案 A: crudi＝生を POST_BAKE の FINISH で表現（asparagus・lemon は焼成後）。olive-oil／mozzarella／parmigiano、late step 100、D-3 例外を維持 | この recipe 限定（B22 の finocchi／cavolo-carote の先例と同じ解釈） |
+
+下記の各節は、承認前に作成した決定材料（原典との差異・代替案）を記録として残したものです。案 A が承認され、B／C／D は不採用です。
 
 出典: 原典の行は `docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE_MATRIX.json`（pizzadb.jp から取得した 172 行の設計 matrix）、出荷内容は `src/data/lateCatalog.ts` と `recipeSauceProfiles.ts`、Owner 記録は `TETO_T25-R2C_OWNER-DECISION-TABLE_2026-11-15.md`（決定表）と `TETO_T24-T26_OwnerDecisions-Followup_2026-11-10.md`（追加判断書）。
 
@@ -13,7 +23,7 @@
 
 ---
 
-## 1. swedish-kebab-pizza（…-p4） — 「肉」の省略
+## 1. swedish-kebab-pizza（…-p4） — 「肉」の省略 〔B25-M2-D1（案 A 承認）〕
 **原典**: 名称「スウェディッシュケバブピザ」。材料表記は「肉」「ケバブソース」「モッツァレラチーズ」「レタス」。**「肉」は generic_unspecified**（曖昧、関連候補 beef／pork／chicken／ground-beef）。ソース系統は「ホットソース」で、下地は未特定（spreadLayers: 未特定のホットソース下地 + kebab-sauce）。分類: BLOCKED_EVIDENCE（BASE_SAUCE_UNSPECIFIED + UNRESOLVED_INGREDIENT）。
 **現在の実装**: kebab-sauce 1（PAINT、`#d86a35` は Owner 承認済み I-4）、mozzarella 3、lettuce 2（POST_BAKE の FINISH）。**肉の材料は無く、未特定のホットソース下地も無い**。late step 97（kebab-sauce）。
 **未承認の点**: 「肉」を省略して出荷してよいか。ホットソースの下地を省略（kebab-sauce 1 層のみ）としてよいか。
@@ -26,7 +36,7 @@
 
 推奨: A（最小。ただし「肉の省略」を決定表に明記する）。
 
-## 2. banh-mi-pizza（…-p6） — NO_SAUCE
+## 2. banh-mi-pizza（…-p6） — NO_SAUCE 〔B25-M2-D2（案 A 承認）〕
 **原典**: 名称「バインミーピザ」。材料: carrot・cilantro・daikon・ham・liver-pate・mozzarella（6 点、全て特定済み）。**ソース系統は「その他」で、下地は未特定**（`unspecified_sauce_base`）。分類: BLOCKED_EVIDENCE（BASE_SAUCE_UNSPECIFIED）。
 **現在の実装**: 下地なし（NO_SAUCE、`sauceBase: []`）。mozzarella 3・carrot 2・cilantro 2・daikon 2・ham 2・liver-pate 1。late だが POST_BAKE なし（決定表 L-1 で承認済みの 1 例外）。step 98（daikon + liver-pate 同時、L-3 承認）。
 **経緯**: 追加判断書（2026-11-10）は「25-2 banh-mi の NO_SAUCE は**未承認**（原典調査後に再判断）」。その後のパケット R1 は「liver-pate を塗り層として使う」案を提示したが、決定表（2026-11-15）の I-6 は liver-pate を **topping／meat・複合 1 ピース**（塗り層にしない）と決定。決定表 §5 は「SAUCE を持つのは、将来別途承認された下地を選ぶ場合のみ」とだけ記す。
@@ -40,7 +50,7 @@
 
 推奨: A（既存の L-1／L-3／I-3／I-6 と整合。ただし NO_SAUCE を明示承認する）。
 
-## 3. mexican-elote-pizza（…-p13） — sour-cream 下地
+## 3. mexican-elote-pizza（…-p13） — sour-cream 下地 〔B25-M2-D3（案 A 承認）〕
 **原典**: 名称「メキシカンエロテピザ」。材料: chili-powder・corn・cotija・lime・mayo。**ソース系統は「ホワイトソース」で、下地は未特定**（汎用の白ソース、「掲載された白ソース系の項目だけが満たす」。mayo が 2 層目）。分類: BLOCKED_EVIDENCE（BASE_SAUCE_UNSPECIFIED）。
 **現在の実装**: sour-cream 1 を下地（PAINT）。feta 3・corn 2・mayo 2・paprika-powder 2・lime 2（POST_BAKE の FINISH）。**原典との差**: cotija → feta、chili-powder → paprika-powder の置換が含まれる（承認パケットの構成。置換自体の個別承認行は決定表に無い）。late step 99（lime）。
 **経緯**: 追加判断書は「25-3 elote の NO_SAUCE は未承認」。後のパケット R1 が「sour-cream 1 を下地」を提示したが、決定表に確定の承認行がない。
@@ -55,7 +65,7 @@
 
 推奨: A（既存の goulash との整合が実測済み）。ただし置換 2 点を併せて明示承認する。
 
-## 4. pizza-asparagi-limone（…-p8） — MECHANIC_INTERPRETATION
+## 4. pizza-asparagi-limone（…-p8） — MECHANIC_INTERPRETATION 〔B25-M2-D4（案 A 承認）〕
 **原典**: 名称「ピッツァ・コン・アスパラージ・クルーディ・エ・リモーネ」（**crudi＝生**のアスパラガスとレモン）。材料: asparagus・lemon・mozzarella・olive-oil・parmigiano（5 点、全て特定済み）。ソース系統は「ノンソース」で、olive-oil が 1 層。分類: BLOCKED_MECHANIC_INTERPRETATION（種別名のみで、解釈の詳細は台帳に無い）。
 **現在の実装**: olive-oil 1（PAINT_TEMPORARY）・mozzarella 3・parmigiano 3 を焼成前、asparagus 2・lemon 2 を **POST_BAKE の FINISH**（「生」＝焼成後と解釈）。late step 100（asparagus）。重複例外 D-3（quattro-formaggi との Jaccard 0.429）は決定表で承認済み。
 **先例**: 同じ MECHANIC_INTERPRETATION の `pizza-finocchi-salad-pizzadb-p8` と `pizza-cavolo-carote-pizzadb-p8` は、Batch 22 で「生の野菜は焼成後（POST_BAKE）」と解釈して出荷され、Owner が個別承認した（`matcher.test.ts` の ownerApproved に記録済み）。
@@ -71,10 +81,7 @@
 
 ---
 
-## 決定してほしいこと（4 行、各 1 回答）
-1. swedish-kebab: A（肉を省略して承認）／B（肉を足す。どの肉か）／C（外す）
-2. banh-mi: A（NO_SAUCE を承認）／B（下地を足す。どの sauce か）／C（外す）
-3. elote: A（sour-cream と 2 置換を承認）／B（fromage-blanc-sauce）／C（NO_SAUCE）／D（置換を戻す）
-4. asparagi: A（crudi＝POST_BAKE を承認）／B（焼成前）／C（外す）
-
-承認の記録方法（承認後に私が行う変更）: `matcher.test.ts` の `ownerApproved` に、決定表の ID（新しく採番）を根拠コメントにして 1 行ずつ追加。承認が出ない行は追加しません。
+## Owner 決定（2026-11-16）の反映
+- 4 行とも案 A を承認。差異（GAMEPLAY ASSUMPTION）: swedish-kebab は原典の「肉」・ホットソース下地を省略、elote は cotija→feta と chili-powder→paprika-powder の置換、asparagi は crudi を POST_BAKE と解釈、banh-mi は下地なし。
+- 反映: `matcher.test.ts` の `ownerApproved` に 4 id を追加（`matcher.test.ts` の「Expansion Batch 25 M-2」コメントに決定 ID）。recipe・catalog・Research・step は不変。
+- 不変条件: ordinary 81／late 97〜101／step 98 で 2 食材同時解放／canonical Research 変化 0／non-canonical 42 ID／既存 late の +1 移動／B-1 色例外 5 ペア／B-2 重複例外 1 ペア。
