@@ -62,7 +62,7 @@ name: E2E WebKit (Cooking UI 1-Screen)
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, codex/step-order-phase1]
   push:
     branches: [main]
   workflow_dispatch:

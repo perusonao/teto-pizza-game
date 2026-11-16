@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, codex/step-order-phase1]
 
 # Issue #201: one group per PR -- a new push cancels the superseded commit's run. This workflow
 # only triggers on pull_request, so main and other PRs never share a group.
