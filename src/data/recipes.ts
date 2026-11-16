@@ -1,5 +1,7 @@
 import type { DoughKind } from "../logic/dough/doughKind";
+import type { DoughShapeTargetId } from "../logic/doughShapeTarget";
 import type { PanShape } from "../logic/pan/panShape";
+import type { PanProfileId } from "../logic/panProfile";
 import { LATE_RECIPES, lateCatalogEnabled, mergeLate } from "./lateCatalog";
 
 export interface RecipeRequirement {
@@ -70,6 +72,10 @@ export interface Recipe {
    *  reader). Inert in Production: no `RECIPES` entry sets it (pinned by test); the first user is `grandma-pizza`
    *  (#521, after D and F). Never persisted. */
   panShape?: PanShape;
+  /** PAN_PROFILE P2-1: optional authoring metadata only. Production runtime does not read this field. */
+  panProfileId?: PanProfileId;
+  /** PAN_PROFILE P2-1: optional authoring metadata, validated independently from the pan profile. */
+  doughShapeTargetId?: DoughShapeTargetId;
   /** Dough Kind P1 (Issue #577, Epic: 生地の種類): the dough kind this recipe is made with. Absent means `"standard"` -- every
    *  existing recipe omits the field (`resolveDoughKind`, ../logic/dough/doughKind.ts, is the sole reader). Independent of
    *  `panShape`. Inert in Production: no `RECIPES` entry sets it (pinned by test); the first user is `pinsa-romana` (P3, HOLD). Never persisted. */
