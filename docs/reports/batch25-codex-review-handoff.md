@@ -1,3 +1,14 @@
+> **更新通知（2026-11-16）— この文書の以下の旧記録は歴史的証跡です。最新検証は [batch25-final-validation-result.md](batch25-final-validation-result.md) を優先してください。**
+>
+> - **検証コードのexact SHA**: `cfe7ebece2924a3d200478174941e424ba742d57`（`claude/teto-pizza-batch25-m2-dk6bpl`）。この文書保存後のdocs-only HEADとは区別すること。#856/#857/#858のPR HEADとは一致しない。
+> - **M-2の4件はOwner承認済み**（B25-M2-D1〜D4）。`matcher.test.ts` の `ownerApproved` に反映済み。以下に残る「未承認」「ownerApproved未追加」は旧状態の記述であり、現在は無効。
+> - **全Vitestの今回の結果**: 12,682中12,659 PASS / **FAIL 1**（`DexOverlay.discovery.test.tsx` 30秒timeout）/ 20 skip / 2 todo。単独再実行5/5 PASS。以下に残る「matcher 4行未承認がFAIL原因」は旧SHA `b37947dd` の歴史的結果であり、`cfe7ebe` の結果ではない。
+> - **対象E2E**: Chromium/WebKit、390×844/360×800の4構成、各11/11 PASS。Chromiumはインストール済みブラウザをscratchpad configで指定。型・build PASS、lintエラー0。
+> - **skip 20**: pinsa OFF 8 / trainKit 6 / doughPrivacy 3 / preflight 1 / cheesePool 1 / hintEconomy sim 1。**todo 2**: persistence compat Phase B。
+> - **未達**: 最新main基準の統合HEAD、#857の失敗CI、#858のdirty/checksなし、全Vitestの独立再現、Codexによる最終統合HEADレビュー、iPhone実機HV、Owner最終承認。Final Gate **HOLD**。
+>
+---
+
 # Batch 25 — 独立 Codex レビュー引き継ぎ（別セッション用）
 
 ## レビュー対象（exact）
