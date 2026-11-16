@@ -13,6 +13,7 @@ export interface OilSession {
   readonly activePointer: number | null;
   readonly previous: PanPoint | null;
   readonly phase: OilPhase;
+  readonly hasSpread: boolean;
 }
 export type OilEvent =
   | { readonly type: "down"; readonly pointerId: number; readonly point: PanPoint }
@@ -28,7 +29,7 @@ const inPan = (p: PanPoint): boolean => (p.x - 0.5) ** 2 + (p.y - 0.5) ** 2 <= 0
 
 export function newOilSession(size: number): OilSession {
   if (!Number.isInteger(size) || size < 2 || size > 128) throw new RangeError("invalid research grid size");
-  return { size, covered: new Set<number>(), activePointer: null, previous: null, phase: "PAN_OIL" };
+  return { size, covered: new Set<number>(), activePointer: null, previous: null, phase: "PAN_OIL", hasSpread: false };
 }
 export function validPanCells(size: number): number {
   let n = 0;
@@ -63,7 +64,7 @@ export function reduceOilSession(session: OilSession, event: OilEvent): OilSessi
       ? { ...session, phase: "READY" } : session;
   }
   if (event.type === "finish-oil") {
-    if (session.phase !== "PAN_OIL" || session.activePointer !== null ||
+    if (session.phase !== "PAN_OIL" || session.activePointer !== null || !session.hasSpread ||
         !Number.isFinite(event.requiredFraction) || event.requiredFraction <= 0 ||
         event.requiredFraction > 1 || oilCoverage(session) < event.requiredFraction) return session;
     return { ...session, phase: "DOUGH_PRESS", previous: null };
@@ -79,5 +80,8 @@ export function reduceOilSession(session: OilSession, event: OilEvent): OilSessi
     return { ...session, activePointer: null, previous: null };
   }
   if (!validPoint(event.point) || session.previous === null) return session;
-  return { ...session, covered: paint(session, session.previous, event.point), previous: event.point };
+  const covered = paint(session, session.previous, event.point);
+  return { ...session, covered, previous: event.point,
+    hasSpread: session.hasSpread || covered.size > session.covered.size };
+
 }
