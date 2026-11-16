@@ -297,6 +297,99 @@ mutate "dispatch checkout target removed" '/^          ref: /d'
 mutate "SHA verification removed" '/^      - name: Verify and report checkout SHA/,/^      - uses: actions\/setup-node@v4/{ /^      - uses: actions\/setup-node@v4/!d; }'
 mutate "dispatch cancellation enabled" 's/^  cancel-in-progress: .*/  cancel-in-progress: true/'
 
+# M1 (Owner decision, PR #862): the fail-closed / SHA-pin / concurrency contract of the manual dispatch must be
+# enforced by BEHAVIOUR, not by string matching alone. This checker (a) extracts the real `run:` script of the
+# "Verify and report checkout SHA" step and executes it in a throwaway git repo for pull_request / matching /
+# mismatching / malformed inputs, (b) rejects a step-level `if` / `continue-on-error` on that step, and (c)
+# evaluates the real `concurrency` expressions for PR and dispatch contexts. It is test-only code that runs
+# the repository's own workflow text; it is not a proof of GitHub's runtime semantics (the dispatch itself can
+# only be exercised after merge).
+echo "== 4b. ci.yml dispatch behaviour (verify-step script executed; concurrency expressions evaluated)"
+cat > "$work/behavior.mjs" <<'EOF'
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+const lines = readFileSync(process.argv[2], "utf8").split("\n");
+const problems = [];
+const start = lines.findIndex((l) => /^      - name: Verify and report checkout SHA\s*$/.test(l));
+if (start < 0) { console.log("PROBLEM the verify step is missing"); process.exit(1); }
+let end = lines.findIndex((l, i) => i > start && /^      - /.test(l));
+if (end < 0) end = lines.length;
+const step = lines.slice(start, end);
+const stepText = step.join("\n");
+if (/^\s+continue-on-error\s*:/m.test(stepText)) problems.push("the verify step must not be continue-on-error (a failed check must fail the job)");
+if (/^\s+if\s*:/m.test(stepText)) problems.push("the verify step must not be conditional (it must always run)");
+const runAt = step.findIndex((l) => /^        run:\s*\|\s*$/.test(l));
+if (runAt < 0) { problems.push("the verify step has no `run: |` script"); }
+else {
+  const body = [];
+  for (const l of step.slice(runAt + 1)) { if (l.trim() !== "" && !/^          /.test(l)) break; body.push(l.slice(10)); }
+  const dir = mkdtempSync(join(tmpdir(), "verify-step-"));
+  const script = join(dir, "verify.sh");
+  writeFileSync(script, body.join("\n") + "\n");
+  const repo = join(dir, "repo");
+  mkdirSync(repo);
+  const git = (...a) => spawnSync("git", a, { cwd: repo, encoding: "utf8" });
+  git("init", "-q"); git("-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "x");
+  const head = git("rev-parse", "HEAD").stdout.trim();
+  const other = head.replace(/./, (c) => (c === "0" ? "1" : "0")); // 40 hex, differs from head
+  const run = (event, target) => spawnSync("bash", [script], { cwd: repo, encoding: "utf8", env: {
+    PATH: process.env.PATH, EVENT_NAME: event, TARGET_SHA: target, WORKFLOW_REF: "o/r/.github/workflows/ci.yml@refs/heads/main",
+    WORKFLOW_SHA: "w", GITHUB_STEP_SUMMARY: join(dir, "summary.md") } }).status;
+  const expectCode = (name, got, ok) => { if (!ok(got)) problems.push(name + " (exit " + got + ")"); };
+  expectCode("pull_request must pass through", run("pull_request", ""), (c) => c === 0);
+  expectCode("dispatch with the matching SHA must pass", run("workflow_dispatch", head), (c) => c === 0);
+  expectCode("dispatch with the matching SHA in upper case must pass", run("workflow_dispatch", head.toUpperCase()), (c) => c === 0);
+  expectCode("dispatch with a different 40-hex SHA must FAIL (mismatch is fail-closed)", run("workflow_dispatch", other), (c) => c !== 0);
+  for (const [n, v] of [["39 chars", head.slice(0, 39)], ["41 chars", head + "0"], ["non-hex 40 chars", "g".repeat(40)], ["a branch name", "main"], ["empty", ""], ["short SHA", head.slice(0, 7)]])
+    expectCode("dispatch with a malformed target (" + n + ") must FAIL (format is fail-closed)", run("workflow_dispatch", v), (c) => c !== 0);
+}
+// concurrency: evaluate the real expressions.
+const grab = (k) => { const l = lines.find((x) => new RegExp("^  " + k + ":").test(x)); return l ? l.replace(new RegExp("^  " + k + ":\\s*"), "") : null; };
+const groupExpr = grab("group"), cancelExpr = grab("cancel-in-progress");
+if (!groupExpr || !cancelExpr) problems.push("concurrency group / cancel-in-progress not found");
+else {
+  const format = (f, ...a) => f.replace(/\{(\d+)\}/g, (_, i) => String(a[Number(i)]));
+  const ev = (text, ctx) => text.replace(/\$\{\{\s*(.*?)\s*\}\}/g, (_, e) => String(new Function("github", "inputs", "format", "return (" + e + ");")(ctx.github, ctx.inputs, format)));
+  const pr = (n) => ({ github: { workflow: "CI", event_name: "pull_request", event: { pull_request: { number: n } } }, inputs: {} });
+  const dp = (sha) => ({ github: { workflow: "CI", event_name: "workflow_dispatch", event: {} }, inputs: { target_sha: sha } });
+  try {
+    const A = "a".repeat(40), B = "b".repeat(40);
+    const gPr7 = ev(groupExpr, pr(7)), gPr8 = ev(groupExpr, pr(8)), gA = ev(groupExpr, dp(A)), gB = ev(groupExpr, dp(B));
+    if (gPr7 === gPr8) problems.push("two PRs must not share a concurrency group");
+    if (gA === gB) problems.push("dispatches for different target SHAs must not share a concurrency group");
+    if (gA !== ev(groupExpr, dp(A))) problems.push("a dispatch group must be a pure function of target_sha");
+    if ([gPr7, gPr8].includes(gA) || [gPr7, gPr8].includes(gB)) problems.push("a dispatch must never share a group with a PR run");
+    if (!gA.includes(A)) problems.push("the dispatch group must contain the requested target_sha");
+    if (ev(cancelExpr, pr(7)) !== "true") problems.push("a PR run must cancel the superseded run");
+    if (ev(cancelExpr, dp(A)) !== "false") problems.push("a dispatch run must never cancel in progress");
+  } catch (e) { problems.push("could not evaluate the concurrency expressions: " + e.message); }
+}
+for (const p of problems) console.log("PROBLEM " + p);
+console.log(problems.length === 0 ? "dispatch behaviour holds" : problems.length + " problem(s)");
+process.exit(problems.length === 0 ? 0 : 1);
+EOF
+node "$work/behavior.mjs" "$root/.github/workflows/ci.yml" > "$work/beh.out" 2>&1
+check "ci.yml dispatch behaviour holds (verify script executed, concurrency evaluated)" 0 $?
+tail -n 3 "$work/beh.out"
+
+mutate_behavior() { # name sed-expression -- each M1 mutation must be rejected by the behaviour checker ALONE
+  sed -E "$2" "$root/.github/workflows/ci.yml" > "$work/ci.mut.yml"
+  if cmp -s "$work/ci.mut.yml" "$root/.github/workflows/ci.yml"; then
+    check "mutation '$1' changed the file (test is not vacuous)" changed unchanged
+    return
+  fi
+  node "$work/behavior.mjs" "$work/ci.mut.yml" > /dev/null 2>&1
+  check "dispatch behaviour checker rejects: $1" 1 $?
+}
+mutate_behavior "SHA mismatch exit 1 -> exit 0" '/Checkout SHA mismatch/{n;s/exit 1/exit 0/}'
+mutate_behavior "malformed SHA exit 1 -> exit 0" '/Invalid target SHA/{n;s/exit 1/exit 0/}'
+mutate_behavior "dispatch skips the SHA verification (early exit for every event)" 's/\[ "\$EVENT_NAME" != "workflow_dispatch" \]/[ true ]/'
+mutate_behavior "verify step continue-on-error" 's/^(      - name: Verify and report checkout SHA)$/\1\n        continue-on-error: true/'
+mutate_behavior "verify step made conditional" 's/^(      - name: Verify and report checkout SHA)$/\1\n        if: ${{ github.event_name == '"'"'pull_request'"'"' }}/'
+mutate_behavior "dispatch concurrency group fixed value" "s/format\('dispatch-\{0\}', inputs\.target_sha\)/'dispatch'/"
+
 echo
 echo "$((cases - failures))/$cases CI docs-only checks passed"
 [ "$failures" -eq 0 ]
