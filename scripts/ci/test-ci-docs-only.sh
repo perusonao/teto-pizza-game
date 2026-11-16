@@ -212,6 +212,8 @@ const code = text.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
 if (/^\s*paths(-ignore)?\s*:/m.test(code)) problems.push("a `paths` / `paths-ignore` filter would leave the required check Expected on a skipped run");
 if (/^\s*branches-ignore\s*:/m.test(code)) problems.push("`branches-ignore` is not expected here");
 if (!/^on:\s*\n\s+pull_request:/m.test(code)) problems.push("ci.yml must still trigger on pull_request");
+if (!/^\s{2}workflow_dispatch:\s*\n\s{4}inputs:\s*\n\s{6}target_sha:/m.test(code)) problems.push("workflow_dispatch must require a target_sha input");
+if (!/^\s{8}required:\s*true\s*$/m.test(code)) problems.push("target_sha must be required");
 
 const jobBlock = code.split(/^jobs:\s*$/m)[1] ?? "";
 const buildMatch = jobBlock.match(/^  build:\s*\n((?:    .*\n?|\s*\n)+)/m);
@@ -225,8 +227,21 @@ const stepsText = build.split(/^    steps:\s*$/m)[1] ?? "";
 const steps = stepsText.split(/^      - /m).slice(1).map((s) => "      - " + s);
 const GATE = "steps.classify.outputs.docs_only != 'true'";
 const idx = steps.findIndex((s) => /^\s+id:\s*classify\s*$/m.test(s));
+const verifyIdx = steps.findIndex((s) => /name:\s*Verify and report checkout SHA/.test(s));
+if (verifyIdx < 0) problems.push("the checkout SHA verification step is missing");
+else {
+  const verify = steps[verifyIdx];
+  for (const required of [
+    "git rev-parse HEAD",
+    "^[0-9a-fA-F]{40}$",
+    'actual_sha\" != \"${TARGET_SHA,,}',
+    "github.workflow_ref",
+    "github.workflow_sha",
+  ]) if (!verify.includes(required)) problems.push("the checkout SHA verification step is missing `" + required + "`");
+}
 if (idx < 0) problems.push("no step with `id: classify`");
 else {
+  if (verifyIdx < 0 || verifyIdx >= idx) problems.push("the checkout SHA must be verified before classification and all heavy checks");
   const classify = steps[idx];
   if (!/^\s+continue-on-error:\s*true\s*$/m.test(classify)) problems.push("the classify step must be `continue-on-error: true` (a crash must mean full CI, not a failed or skipped job)");
   if (/^\s+if\s*:/m.test(classify)) problems.push("the classify step must always run");
@@ -248,6 +263,8 @@ else {
 }
 const depth = text.match(/fetch-depth:\s*(\d+)/);
 if (!depth || Number(depth[1]) < 2) problems.push("checkout needs fetch-depth >= 2 (merge commit + parents) for the classifier");
+if (!/ref:\s*\$\{\{\s*github\.event_name == 'workflow_dispatch' && inputs\.target_sha \|\| github\.sha\s*\}\}/.test(code)) problems.push("checkout must use target_sha only for workflow_dispatch and github.sha for PRs");
+if (!/cancel-in-progress:\s*\$\{\{\s*github\.event_name == 'pull_request'\s*\}\}/.test(code)) problems.push("only pull_request runs may cancel in-progress CI");
 
 for (const p of problems) console.log("PROBLEM " + p);
 console.log(problems.length === 0 ? "ci.yml invariants hold" : problems.length + " problem(s)");
@@ -274,6 +291,11 @@ mutate "an always() gate" "s/\\\$\\{\\{ steps\\.classify\\.outputs\\.docs_only !
 mutate "classifier not continue-on-error" '/continue-on-error: true/d'
 mutate "the build step removed" '/run: npm run build/d'
 mutate "shallow checkout" 's/fetch-depth: 2/fetch-depth: 1/'
+mutate "workflow_dispatch removed" '/^  workflow_dispatch:/,/^        type: string/d'
+mutate "target_sha made optional" 's/^        required: true/        required: false/'
+mutate "dispatch checkout target removed" '/^          ref: /d'
+mutate "SHA verification removed" '/^      - name: Verify and report checkout SHA/,/^      - uses: actions\/setup-node@v4/{ /^      - uses: actions\/setup-node@v4/!d; }'
+mutate "dispatch cancellation enabled" 's/^  cancel-in-progress: .*/  cancel-in-progress: true/'
 
 echo
 echo "$((cases - failures))/$cases CI docs-only checks passed"
