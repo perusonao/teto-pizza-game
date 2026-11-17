@@ -26,6 +26,8 @@ export const STAGED_GLYPH_PALETTE = {
   "liver-pate-quenelle": { fill: "#8b5a4a", light: "#c48a76", detail: "#6d3f35", outline: "#40231f" },
   "lime-wedge": { fill: "#7fbd38", light: "#d8ee8d", detail: "#4d8d28", outline: "#2f5d1c" },
   "asparagus-spears": { fill: "#4f8a3a", light: "#9bc56f", detail: "#315f29", outline: "#23451e" },
+  // T26 / Batch 26 (#866, Owner D3 2026-11-17): the base colour is `#a13517` (the same value the `nduja` ingredient will carry). UNWIRED, PROVISIONAL until the 390x844 iPhone HV.
+  "nduja-dollops": { fill: "#a13517", light: "#d9703f", detail: "#6f1f0e", outline: "#3a1107" },
 } as const satisfies Record<string, GlyphColors>;
 
 export type StagedGlyphId = keyof typeof STAGED_GLYPH_PALETTE;
@@ -52,4 +54,16 @@ export const STAGED_GLYPH_FOR_INGREDIENT: Record<string, StagedGlyphId> = {
   "liver-pate": "liver-pate-quenelle",
   lime: "lime-wedge",
   asparagus: "asparagus-spears",
+  nduja: "nduja-dollops",
 };
+
+// T26 nduja-dollops layout (UNWIRED, PROVISIONAL). Visual contract (Owner D2 2026-11-17): the tray shows THREE small separate dollops, a placed piece is ONE.
+/** The local dollop box (DOLLOP_PATH spans about x 2..24, y 2..24). */
+export const NDUJA_DOLLOP_BOX = { x: 2, y: 2, size: 22 } as const;
+/** translate (tx, ty) and uniform scale s of each dollop in the 64x64 box. */
+export const NDUJA_SELECTION_DOLLOPS = [
+  { tx: 3, ty: 4, s: 0.95 },
+  { tx: 37, ty: 11, s: 0.9 },
+  { tx: 15, ty: 36, s: 1 },
+] as const;
+export const NDUJA_PLACED_DOLLOPS = [{ tx: 6.4, ty: 6.4, s: 1.9 }] as const;
