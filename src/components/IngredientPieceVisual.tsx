@@ -1,6 +1,15 @@
 import type { CSSProperties } from "react";
 import type { Ingredient } from "../data/ingredients";
 import { IngredientGlyph } from "./IngredientGlyph";
+import { renderPlacedVisual } from "./placedVisuals/registry";
+
+/**
+ * Topping Visuals 2.0 (Issue #824): which representation of the ingredient is being drawn. `"placed"` (the default) is a piece lying on the pizza -- the
+ * PizzaStage toppings and POST_BAKE pieces -- which may use a placed-only drawing from `placedVisuals/registry`. `"selection"` is every identification
+ * surface (tray chip, drag preview, inventory, Dex / recipe-card thumbnail) and the Reference view, which keep the existing representation unchanged.
+ * An ingredient with no registered placed drawing renders identically on both surfaces.
+ */
+export type PieceVisualSurface = "placed" | "selection";
 
 interface IngredientPieceVisualProps {
   ingredient: Ingredient;
@@ -12,6 +21,8 @@ interface IngredientPieceVisualProps {
    *  `toppingVisualFrame` and PizzaStage.tsx's own `cheeseStyle`/`toppingPieceStyle`). Applied
    *  as-is on whichever branch below actually renders. */
   style?: CSSProperties;
+  /** See `PieceVisualSurface`. Defaults to `"placed"`; every selection / Reference call site passes `"selection"` explicitly (pinned by an architecture test). */
+  surface?: PieceVisualSurface;
 }
 
 /**
@@ -23,11 +34,13 @@ interface IngredientPieceVisualProps {
  * physical shape (or, when it declares a `pieceVisual`, that SVG inside the same wrapper); every other
  * ingredient renders its emoji / dedicated glyph.
  */
-export function IngredientPieceVisual({ ingredient, className, style }: IngredientPieceVisualProps) {
+export function IngredientPieceVisual({ ingredient, className, style, surface = "placed" }: IngredientPieceVisualProps) {
   const isCheese = ingredient.category === "cheese";
+  // A placed-only drawing (parmigiano shavings) never replaces an ingredient's own catalogue `pieceVisual`.
+  const placedVisual = surface === "placed" && !ingredient.pieceVisual ? renderPlacedVisual(ingredient.id) : null;
 
   // A cheese WITHOUT a dedicated `pieceVisual` (un-migrated, mozzarella included) keeps its CSS physical shape.
-  if (isCheese && !ingredient.pieceVisual) {
+  if (isCheese && !ingredient.pieceVisual && !placedVisual) {
     return (
       <span
         className={["pizza-cheese", `pizza-cheese--${ingredient.id}`, className]
@@ -51,7 +64,7 @@ export function IngredientPieceVisual({ ingredient, className, style }: Ingredie
         .join(" ")}
       style={isCheese ? ({ "--cheese-color": ingredient.color, ...style } as CSSProperties) : style}
     >
-      <IngredientGlyph ingredient={ingredient} variant="placed" />
+      {placedVisual ?? <IngredientGlyph ingredient={ingredient} variant="placed" />}
     </span>
   );
 }

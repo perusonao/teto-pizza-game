@@ -89,7 +89,7 @@ export function InventoryOverlay({ ownedIngredientIds, inventory, onClose }: Inv
                     <div key={ingredient.id} className="inventory-card">
                       {ingredient.category === "cheese" && !ingredient.pieceVisual ? (
                         <span className="inventory-card__cheese-slot">
-                          <IngredientPieceVisual ingredient={ingredient} />
+                          <IngredientPieceVisual ingredient={ingredient} surface="selection" />
                         </span>
                       ) : (
                         <span className="inventory-card__emoji">

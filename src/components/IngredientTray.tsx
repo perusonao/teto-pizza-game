@@ -526,7 +526,7 @@ export function IngredientTray({
       >
         {ingredient.category === "cheese" && !ingredient.pieceVisual ? (
           <span className="ingredient-chip__cheese-slot">
-            <IngredientPieceVisual ingredient={ingredient} />
+            <IngredientPieceVisual ingredient={ingredient} surface="selection" />
           </span>
         ) : (
           <span className="ingredient-chip__emoji">
@@ -702,7 +702,7 @@ export function IngredientTray({
           aria-hidden="true"
         >
           {preview.ingredient.category === "cheese" ? (
-            <IngredientPieceVisual ingredient={preview.ingredient} />
+            <IngredientPieceVisual ingredient={preview.ingredient} surface="selection" />
           ) : (
             <span className="piece-drag-preview__emoji">
               <IngredientGlyph ingredient={preview.ingredient} />
