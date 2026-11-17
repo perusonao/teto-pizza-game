@@ -11,7 +11,7 @@
 1. **現状の「実画面」を 390×844 / 360×800 で 4 食材 × 3 状態（選択トレイ・配置直後・焼成後 RESULT）取得した**（§2）。Dex・図鑑・CUT・焼成中は未取得（§2.3）。
 2. **cucumber がキウイに見える直接原因は絵文字の選択ミス**: `src/data/ingredients.ts` の cucumber は `emoji: "\u{1F95D}"` = **U+1F95D KIWIFRUIT（🥝）**。きゅうり（🥒 U+1F952）ではない。ピザ上もトレイ chip も同じ絵文字を使っているため、ピザ上だけ直しても chip は 🥝 のまま残る（§3.2、Owner 判断 Q1）。
 3. **parmigiano は選択（トレイ chip）とピザ上が同一の CSS 板**（21×9 CSS px・-18° 回転）。ピザ上の実寸は 390×844 で約 21×9px、RESULT 縮小時はさらに小さい（§2.4）。
-4. 先行監査の設計方向（`placedVisuals/**` に配置専用 SVG、`IngredientPieceVisual` に `surface` 境界）は**コード上で成立する**。ただし先行監査が挙げた呼び出し箇所に**漏れが 2 箇所**あった（トレイのドラッグプレビュー `IngredientTray.tsx:705`、`PostBakePiece.tsx:46`）。§4.3 で全 9 箇所を分類した。
+4. 先行監査の設計方向（`placedVisuals/**` に配置専用 SVG、`IngredientPieceVisual` に `surface` 境界）は**コード上で成立する**。ただし先行監査が挙げた呼び出し箇所に**漏れが 2 箇所**あった（トレイのドラッグプレビュー `IngredientTray.tsx:705`、`PostBakePiece.tsx:46`）。§4.3 で **直接 7 件 + 間接 3 件**（表では 9 行）を分類した。さらに **Reference 見本の共有境界 `PizzaVisualPieces.tsx:73` にも `surface="selection"` の明示が必要**で、PR-1 は `PizzaStage.tsx` に触れなくても `PizzaVisualPieces.tsx` の小変更を含む（独立レビュー P2、§4.3・§5.2）。
 5. 設計上の未決事項（Owner 判断が要る点）を §9 に決定表にまとめた。PR-1 着手の前提は **Q2（`surface` 既定値と呼び出し箇所の扱い）** と **Q3（Reference 見本のピース表現を揃えるか）**。
 
 ## 1. 開始前確認（実施結果）
@@ -131,9 +131,15 @@ IngredientGlyph(variant)       ← variant は SVG 専用食材の見た目切�
 4. 登録の無い食材・`surface="selection"` の呼び出しは**現状と同一のコードパス**（回帰ゼロの保証をテストで固定、§6）。
 5. 新 SVG は Style Lock V2 準拠: 64×64 viewBox、`1em`、`aria-hidden`、`id` / gradient / `url(#` なし（同一ページに多数置けるように）。
 
-### 4.3 呼び出し箇所の分類（全 9 箇所）
+### 4.3 呼び出し箇所の分類（直接 7 件 + 間接 3 件。表では 9 行）
 
-`IngredientPieceVisual` を呼ぶ箇所を全て grep で洗い出した。先行監査の 3 箇所（トレイ chip・在庫・Dex サムネ）に **2 箇所の漏れ**（★）がある。
+`IngredientPieceVisual` の呼び出しを全て grep で洗い出した（`<IngredientPieceVisual` と `renderPizzaVisualPieces(`）。数え方を実行される呼び出し式で固定する:
+
+- **直接の JSX 呼び出し 7 件**: `IngredientTray.tsx:529`・`IngredientTray.tsx:705`・`InventoryOverlay.tsx:92`・`PizzaThumbnail.tsx:67`・`PizzaStage.tsx:1477`・`PizzaVisualPieces.tsx:73`・`PostBakePiece.tsx:46`。
+- **間接の呼び出し 3 件**（`renderPizzaVisualPieces` 経由で `PizzaVisualPieces.tsx:73` に収束）: `ReferenceThumbnail.tsx:56`・`ReferencePreview.tsx:132`・`PlayerReferencePreview.tsx:110`。
+- 下の表は 7 + 3 = 10 の呼び出しを **9 行にまとめたもの**（行 9 が `ReferencePreview.tsx` と `PlayerReferencePreview.tsx` の 2 件を含む）。
+
+先行監査の 3 箇所（トレイ chip・在庫・Dex サムネ）に **2 箇所の漏れ**（★）がある。
 
 | # | 箇所 | 用途 | `surface` 案 | 備考 |
 |---|---|---|---|---|
@@ -142,14 +148,14 @@ IngredientGlyph(variant)       ← variant は SVG 専用食材の見た目切�
 | 3 | `InventoryOverlay.tsx:92` | 食材庫（在庫一覧） | **selection** | |
 | 4 | `PizzaThumbnail.tsx:67` | レシピカード / Dex サムネ | **selection** | Owner D2: Dex/選択サムネは変更しない（golden も不変） |
 | 5 | `PizzaStage.tsx:1477` | ピザ上のトッピング（生地・焼成・CUT・RESULT） | **placed** | **PizzaStage.tsx は変更しない**（既定値 placed で足りる）ことが `surface` 既定値案の根拠 |
-| 6 | `PizzaVisualPieces.tsx:73`（`renderPizzaVisualPieces`） | Reference mini / popover / PlayerReference の見本ピース | **未決（Q3）** | 見本は「ピザ上の配置」なので placed が自然だが、`PlayerReferencePreview.test.tsx`（L46 が 🥚 を期待）と `rt01ReferenceBaseline` golden が動く可能性。D2 は Dex/選択サムネのみを明示しており Reference は未指定 |
+| 6 | `PizzaVisualPieces.tsx:73`（`renderPizzaVisualPieces`）**【直接】** | Reference mini / popover / PlayerReference の見本ピース（行 8・9 の共有境界） | **selection を明示（Q3 の推奨。最終決定は Owner）** | 既定が placed のため、**この 1 行に `surface="selection"` を渡さないと Reference が黙って placed に切り替わる**（独立レビュー P2）。`PlayerReferencePreview.test.tsx`（L46 が 🥚 を期待）と `rt01ReferenceBaseline` golden を動かさないための境界。見本を placed に揃える案は別 Gate（Q3） |
 | 7 ★ | `PostBakePiece.tsx:46` | 焼成後に載せるピース（POST_BAKE 工程） | **placed**（要確認） | 先行監査に漏れ。POST_BAKE 食材に対象（parmigiano / cucumber）が含まれるレシピは未確認 |
-| 8 | `ReferenceThumbnail.tsx` | 6 を経由 | 6 に従う | `renderPizzaVisualPieces` 経由 |
-| 9 | `ReferencePreview.tsx` / `PlayerReferencePreview.tsx` | 6 を経由 | 6 に従う | 同上 |
+| 8 | `ReferenceThumbnail.tsx:56`【間接】 | 6 を経由 | 6 に従う（selection） | `renderPizzaVisualPieces` 経由。個別の変更なし |
+| 9 | `ReferencePreview.tsx:132` / `PlayerReferencePreview.tsx:110`【間接 2 件】 | 6 を経由 | 6 に従う（selection） | 同上。個別の変更なし |
 
 **既定値の選択（Q2）**:
-- 案 X（先行監査推奨）: **既定 = `placed`**。選択系の 4 箇所（1〜4）に `surface="selection"` を 1 行ずつ追加。`PizzaStage.tsx` 無変更。リスク: 将来の新しい呼び出し箇所が黙って placed になる。→ 対策: 呼び出し箇所を列挙する architecture テスト（新規 `surface` なしの選択系呼び出しを検出）。
-- 案 Y: 既定 = `selection`（現状と同一）、placed 箇所（5〜7）に `surface="placed"` を渡す。安全側だが **`PizzaStage.tsx` の 1 行変更が必要** → hot ファイル・#738 / #468 と競合しうる・D5 の別 Gate が要る。
+- 案 X（先行監査推奨）: **既定 = `placed`**。選択系の 4 箇所（行 1〜4）に **加えて Reference の共有境界（行 6、`PizzaVisualPieces.tsx:73`）の計 5 つの直接呼び出し**に `surface="selection"` を 1 行ずつ追加（Q3 推奨どおり Reference を変えない場合）。`PizzaStage.tsx`（行 5）・`PostBakePiece.tsx`（行 7）は既定の placed に任せ**無変更**。リスク: 将来の新しい呼び出し箇所が黙って placed になる。→ 対策: 直接呼び出し 7 件を列挙する architecture テスト（`surface` を明示すべき 5 件の漏れ・新規の `surface` なし呼び出しを検出。件数は呼び出し式で数える）。
+- 案 Y: 既定 = `selection`（現状と同一）、placed 箇所（行 5・7。Reference を placed にする場合は行 6 も）に `surface="placed"` を渡す。安全側だが **`PizzaStage.tsx` の 1 行変更が必要** → hot ファイル・#738 / #468 と競合しうる・D5 の別 Gate が要る。
 - **推奨: 案 X**。`PizzaStage.tsx` に触れず、既存の呼び出し契約を最大限保てる。
 
 ### 4.4 Pilot 1: parmigiano の削り片表現
@@ -232,9 +238,14 @@ IngredientGlyph(variant)       ← variant は SVG 専用食材の見た目切�
 | `src/components/placedVisuals/**`（SVG・registry・テスト） | 新規 | 追加のみ | なし（無 claim） |
 | `src/components/IngredientPieceVisual.tsx`（+`.test.tsx`） | 既存 | 小変更 | 無 claim。**ただし**参照するテストが多い |
 | `IngredientTray.tsx`（×2 箇所: 529・705）、`InventoryOverlay.tsx`、`PizzaThumbnail.tsx` | 既存 | 各 1 行 `surface="selection"` | 無 claim |
+| **`src/components/PizzaVisualPieces.tsx`**（行 73。`ReferenceThumbnail` / `ReferencePreview` / `PlayerReferencePreview` の共有境界） | 既存 | 1 行 `surface="selection"`（**Reference を変えない**ための明示。Q3 推奨） | 無 claim（hot-files.json にも無い）。PR-1 の claim 対象に**含める** |
+| Reference 回帰（既存テストを**無修正**で通す。新規は必要なら追加のみ）: `PlayerReferencePreview.test.tsx`・`ReferencePreview.test.tsx`・`rt01ReferenceRegression.test.tsx`・`rt01ReferenceBaseline.ts`（golden） | 既存 | 変更しない | — |
+| `src/components/PizzaVisualPieces.test.tsx`（新規。無ければ追加）または `IngredientPieceVisual.test.tsx` 内 | 新規/既存 | `renderPizzaVisualPieces` が登録食材（parmigiano）でも selection の DOM を出すこと | なし |
 | `e2e/topping-visuals-*.spec.ts` | 新規 | 追加のみ | なし |
 | `docs/reports/TETO_TOPPING-VISUALS-2_*`、`docs/reports/screenshots/topping-visuals-2/**` | 新規 | docs | なし |
 | **触れない** | — | — | `ingredients.ts`・`recipes.ts`・`fryIngredients.ts`・`IngredientGlyph.tsx`・`App.css`・`PizzaStage.tsx`・`toppingSizeClass.ts`・`bakeVisual.ts`・採点・保存・研究判定・ladder |
+
+**PR-1 の変更ファイル数（見込み）**: 既存の本番ファイル **5**（`IngredientPieceVisual.tsx`・`IngredientTray.tsx`・`InventoryOverlay.tsx`・`PizzaThumbnail.tsx`・`PizzaVisualPieces.tsx`。`surface` を渡す直接呼び出しは 5 件: IngredientTray ×2 + 他 3）+ 既存テストの追加ケース（`IngredientPieceVisual.test.tsx`）+ 新規（`placedVisuals/**`、architecture テスト、E2E、docs）。`PizzaStage.tsx` は変更しない。
 
 cucumber（PR-2 相当）は同じ registry に追加（ただし Q1 / Q4 次第で `ingredients.ts` が絡む）。egg / eggplant は PR-3 以降（`PizzaStage.tsx`・#782 が絡む）。
 
@@ -267,7 +278,8 @@ cucumber（PR-2 相当）は同じ registry に追加（ただし Q1 / Q4 次第
 | 判定・採点・保存に影響しない | `recipes.ts`・採点・reducer・persistence・研究判定のファイルに diff が無いこと（`git diff --stat` を PR に記載）。既存の全 Vitest が無修正で通る |
 | size class 不変 | `toppingSizeClass` 系テストが無修正で通る |
 | Fry・Steam 等の既存工程が不変 | `canFryIngredient("eggplant") === false` を含む fry / steam / sear / prep の既存テストが無修正で通る。architecture テスト（`fry.architecture`・`steam.architecture`）が通る |
-| 呼び出し箇所の固定 | `IngredientPieceVisual` の呼び出し箇所を列挙する architecture テスト（`surface` を渡すべき選択系が漏れていないか） |
+| 呼び出し箇所の固定 | `IngredientPieceVisual` の**直接呼び出し 7 件**を列挙する architecture テスト（`surface="selection"` を渡すべき 5 件（`IngredientTray.tsx` ×2・`InventoryOverlay.tsx`・`PizzaThumbnail.tsx`・`PizzaVisualPieces.tsx`）の漏れ、新規の `surface` なし呼び出しを検出）。間接 3 件は `renderPizzaVisualPieces` 経由なので境界は `PizzaVisualPieces.tsx` の 1 行で守られていることを別ケースで確認 |
+| **Reference の維持（P2）** | `renderPizzaVisualPieces` に parmigiano（registry 登録済み）の `pieceGroups` を渡し、出力 DOM が**現状（CSS 板 `.pizza-cheese--parmigiano`）と同一**であること（selection 固定）。`ReferenceThumbnail` / `ReferencePreview` / `PlayerReferencePreview` の既存テストと `rt01ReferenceRegression.test.tsx`・`rt01ReferenceBaseline.ts` golden を**無修正**で通す。golden を更新する必要が出たら実装を止め Owner へ（期待値を勝手に更新しない） |
 | 型・lint・build | `tsc -b`、`oxlint`、`npm run build`、全 Vitest |
 | E2E（Chromium + WebKit、390×844 / 360×800） | 新規 `topping-visuals-*.spec.ts`: placed の `.pizza-topping--<id>` 内に SVG が出る、chip は不変、焼成後も SVG が残る。既存 `finished-pizza-visual-2.0.spec.ts` を無修正で通す。WebKit は #394 / #680 / #828 の間欠失敗があるためトレイのページ送りの check-then-act を避ける |
 
@@ -290,7 +302,7 @@ cucumber（PR-2 相当）は同じ registry に追加（ただし Q1 / Q4 次第
 ### 6.3 ロールバック
 
 - **PR-0（本 PR）**: docs と画像のみ。`git revert` で完全に戻る。ランタイムへの影響なし。
-- **PR-1 以降**: 新規ディレクトリ `placedVisuals/**` と `IngredientPieceVisual` の `surface` 追加（+選択系 4 箇所の 1 行）のみ。registry の登録を空にするか PR を revert すれば**現状と同一の描画に戻る**（データ・保存は変更していないので移行不要）。Production は PR 専用 Preview で HV 前に ON にしない。
+- **PR-1 以降**: 新規ディレクトリ `placedVisuals/**` と `IngredientPieceVisual` の `surface` 追加（+`surface="selection"` を渡す直接呼び出し 5 件の 1 行: `IngredientTray.tsx` ×2・`InventoryOverlay.tsx`・`PizzaThumbnail.tsx`・`PizzaVisualPieces.tsx`。ロールバック対象は既存の本番ファイル 5 + 新規ファイル）のみ。registry の登録を空にするか PR を revert すれば**現状と同一の描画に戻る**（データ・保存は変更していないので移行不要）。Production は PR 専用 Preview で HV 前に ON にしない。
 
 ## 7. D. バックログ整理（玉子・ナス）
 
@@ -314,10 +326,10 @@ cucumber（PR-2 相当）は同じ registry に追加（ただし Q1 / Q4 次第
 |---|---|---|
 | Q1 | cucumber の**選択アイコン**（chip・Dex・RESULT チップ）も 🥝（キウイ）のまま。ピザ上だけ直しても選択側は不整合のまま残る。選択アイコンは変更しない方針（D1）との関係 | 例外として #417 側で `emoji` を 🥒（U+1F952）へ 1 文字修正する別 PR（`ingredients.ts` は hot・claim 確認・golden 影響を確認）。Pilot 2 の placed とは別 PR。または「選択は 🥝 のまま」で進める場合はその旨を記録 |
 | Q2 | `surface` の既定値（案 X: 既定 placed / 案 Y: 既定 selection）とドラッグプレビュー（#705）の扱い | 案 X。ドラッグプレビューは selection |
-| Q3 | Reference 見本（`renderPizzaVisualPieces` 経由）のピースも placed に揃えるか。揃えると golden・`PlayerReferencePreview.test.tsx` が動く | PR-1 では揃えない（selection）。揃える場合は別 Gate で golden 再基準化 |
+| Q3 | Reference 見本（`renderPizzaVisualPieces` 経由）のピースも placed に揃えるか。揃えると golden・`PlayerReferencePreview.test.tsx` が動く | PR-1 では揃えない（selection）。**そのために `PizzaVisualPieces.tsx:73` に `surface="selection"` を明示する**（§4.3 行 6・§5.2）。揃える場合は別 Gate で golden 再基準化 |
 | Q4 | cucumber の焼成での色転び対策: (a) `bakeRoastResistant` を付ける（`ingredients.ts`）／(b) 色を見込む／(c) 許容 | (b) を第一案に PR-1 で ΔE を測定し、足りなければ (a) を別判断 |
 | Q5 | parmigiano の第 1 段階を「filter のみ」（`--bake-heat` なし）で進めるか | 進める。部位ごとの色変化は D5 の別 Gate |
-| Q6 | PR-1 の claim の投稿（`placedVisuals/**` ほか、§5.2）。Session Operations §1 の claim は Owner / Member / Collaborator アカウントのコメントのみ有効 | PR-1 着手の承認後に投稿 |
+| Q6 | PR-1 の claim の投稿（`placedVisuals/**` に加え **`PizzaVisualPieces.tsx` を含む** §5.2 の全ファイル）。Session Operations §1 の claim は Owner / Member / Collaborator アカウントのコメントのみ有効 | PR-1 着手の承認後に投稿 |
 
 ## 10. 未実施・限界（正直な記録）
 
