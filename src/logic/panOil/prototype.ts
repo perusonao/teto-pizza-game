@@ -76,7 +76,8 @@ export function reduceOilSession(session: OilSession, event: OilEvent): OilSessi
       covered: paint(session, event.point, event.point) };
   }
   if (event.pointerId !== session.activePointer) return session;
-  if (event.type === "up" || event.type === "cancel") {
+  if (event.type !== "move") {
+    // "up" | "cancel": release the owning pointer, keep painted cells and hasSpread.
     return { ...session, activePointer: null, previous: null };
   }
   if (!validPoint(event.point) || session.previous === null) return session;
