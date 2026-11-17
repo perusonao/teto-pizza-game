@@ -252,6 +252,7 @@ cucumber（PR-2 相当）は同じ registry に追加（ただし Q1 / Q4 次第
 | release 済み | #749 の #839 専用、#417 の herbGlyphs 配線系・walnut・dessert・#778 | — | — |
 
 - `src/components/placedVisuals/**`・`IngredientPieceVisual.tsx`・`IngredientTray.tsx` を含む有効 claim は無い。
+- 本 PR-0（PR #872）自身の claim（docs と画像のみ・期限 11-24）は #824 の Result Report コメントに投稿する。
 - 未実施（今回再スキャンしていないもの）: **#726（steam S3 = #738）・#780・#866・#867・#870・#848・#825 以外の Issue の claim、および PR 本文内の claim、`scripts/ops/owner-gate.mjs`（read-only token が必要）**。#738 が `PizzaStage.tsx` 等を変更中であることは PR のファイル一覧で確認済み。PR-1 着手前に再スキャンが必要。
 
 ## 6. C. テスト・HV 計画（PR-1 以降に適用）
@@ -316,7 +317,7 @@ cucumber（PR-2 相当）は同じ registry に追加（ただし Q1 / Q4 次第
 | Q3 | Reference 見本（`renderPizzaVisualPieces` 経由）のピースも placed に揃えるか。揃えると golden・`PlayerReferencePreview.test.tsx` が動く | PR-1 では揃えない（selection）。揃える場合は別 Gate で golden 再基準化 |
 | Q4 | cucumber の焼成での色転び対策: (a) `bakeRoastResistant` を付ける（`ingredients.ts`）／(b) 色を見込む／(c) 許容 | (b) を第一案に PR-1 で ΔE を測定し、足りなければ (a) を別判断 |
 | Q5 | parmigiano の第 1 段階を「filter のみ」（`--bake-heat` なし）で進めるか | 進める。部位ごとの色変化は D5 の別 Gate |
-| Q6 | PR-1 の claim の投稿（`placedVisuals/**` ほか、§5.2）。Session Operations §1 の claim は Owner / Member / Collaborator アカウントのコメントのみ有効 | PR-1 着手の承認後に投稿（PR-0 の claim は §5.3 の末尾の通り投稿済みのものを参照） |
+| Q6 | PR-1 の claim の投稿（`placedVisuals/**` ほか、§5.2）。Session Operations §1 の claim は Owner / Member / Collaborator アカウントのコメントのみ有効 | PR-1 着手の承認後に投稿 |
 
 ## 10. 未実施・限界（正直な記録）
 
