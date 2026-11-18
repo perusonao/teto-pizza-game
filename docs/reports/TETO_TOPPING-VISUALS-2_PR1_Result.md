@@ -45,3 +45,20 @@
 
 ## 6. 残り
 実機 iPhone Safari HV（Owner）、PR 専用 Preview の公開（Owner の別承認）、WebKit CI、Codex 独立レビュー、Owner Gate スクリプトの結果（token が無く未取得、§5）。
+
+## 7. rev.2 — Owner iPhone Safari HV（P2）に基づく配置後 SVG の視覚改善
+Owner の HV（HEAD `d2188645`、[comment 6985715042](https://github.com/perusonao/teto-pizza-game/pull/874#issuecomment-6985715042)）: 配置・焼成後とも「鮮やかな黄色い結び目・塊」に見え、薄く削ったチーズに見えない（P2／HOLD）。指示: **配置後 SVG の視覚表現のみ**を、薄く平たい不規則な削り片（アイボリー〜淡いクリーム、控えめな陰影）を数片散らし、向き・大きさを自然に変える。選択アイコン・採点・保存・レシピ・在庫・Fry・他食材・操作は変更しない。
+
+**変更（見た目のみ）**
+- `ParmigianoShavings.tsx`: 重ならない 6 片の削り片（長さ 10〜27、全厚は長さの 1/3 以下、向き -48°〜38°、輪郭がそれぞれ異なる）＋ 角のある小さな欠片 3。塗りは低彩度のアイボリー／クリーム（`#f8f0d8` `#f3e8c6` `#f6ecd0`、下面 `#dccb9b`）、細い暖かいグレーの輪郭 `#c9b88a`、上縁に淡いハイライト。rev.1 の鮮やかな黄色（`#f3dc8a` 等）と、重なった曲線の「結び目」構成を廃止。幾何は純粋関数でモジュール読み込み時に 1 度だけ計算（乱数なし）。
+- 新規 `parmigianoShavingsData.ts`（形状データ。コンポーネントファイルがコンポーネントのみを export する lint 規則のため分離）。
+- 新規 `ParmigianoShavings.test.tsx`（SVG 専用の回帰テスト 7 件）: 64×64・1em・aria-hidden・id/gradient/defs なし／削り片 5〜8 片で各 3 パス／**薄さ（全厚 ≤ 長さの 1/3）**／**散らばり（中心間距離 ≥ 9、最長 ≥ 最短の 1.8 倍、向きの幅 ≥ 60°、輪郭の歪みがすべて異なる）**／viewBox 内に収まる／**塗りが低彩度（HSV 彩度 ≤ 0.30・明度 ≥ 0.85）、輪郭の彩度 ≤ 0.35**／rev.1 の黄色が残っていない。
+- 変更していない: `IngredientPieceVisual`・registry・`surface` の呼び出し 5 件、`PizzaStage.tsx`・`App.css`・`ingredients.ts`・採点・保存・レシピ・在庫・Fry・他食材・操作（振りかける操作は #825 の範囲）。
+
+**変更前後の同倍率画像**（Chromium、DPR 2、同じ操作・同じセーブ構成）: `docs/reports/screenshots/topping-visuals-2/pr1-rev2/`
+- `board_390x844_…`・`board_360x800_…`（変更前の板／rev.1／rev.2 の同倍率の切り抜き）、`closeup_390x844_…`（1 ピースの 5 倍拡大）、rev.2 の 6 枚（選択トレイ／配置直後／焼成後 RESULT、両 viewport）。
+- 所見（正直な評価）: **拡大すると、rev.2 は重ならない薄い削り片が散らばっており、結び目や塊には見えない。配置直後・焼成後（ジャスト）とも同様**。ただしピザ全体の等倍（約 20 CSS px）では小さく淡く、ソース上の「白っぽい小さな欠片」に見える。薄いチーズ片として読めるか・mozzarella（溶けた白い塊）との識別・淡い色のコントラストは**実機 iPhone の HV 判断**（Chromium の画像は代用にならない）。調整の余地: 足跡サイズ（`--cheese-glyph-size`）・輪郭の濃さ。いずれも HV の結果を見てから。
+- 焼きすぎ・Dex・Reference 見本・CUT・WebKit・実機は未撮影。
+
+**テスト（ローカル、rev.2）**: `tsc -b` エラーなし／`oxlint` 警告なし／focused（placedVisuals・`IngredientPieceVisual`・architecture・`PizzaVisualPieces`・`IngredientGlyph`・fry architecture）6 files・286 tests passed／E2E（Chromium、390×844・360×800: `topping-visuals-parmigiano` と `finished-pizza-visual-2.0`）12 passed。全 Vitest・CI・WebKit・独立レビュー・PR 専用 Preview の結果は PR #874 のコメントに記録。
+
