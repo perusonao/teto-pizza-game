@@ -26,3 +26,19 @@ export const PARMIGIANO_SHAVINGS: readonly ParmigianoShaving[] = [
   { cx: 33, cy: 51, len: 13, half: 2.1, angle: 6, fill: 0, skew: 0.7 },
   { cx: 15, cy: 15, len: 10, half: 1.7, angle: -48, fill: 2, skew: -0.8 },
 ];
+
+/** A tiny angular chip: centre, size and rotation in the 64x64 viewBox. */
+export interface ParmigianoChip {
+  readonly cx: number;
+  readonly cy: number;
+  readonly size: number;
+  readonly angle: number;
+}
+
+/** The chips of the fixed six-shaving drawing (the fallback layout); the sprinkle layout generates its own. */
+export const PARMIGIANO_CHIPS: readonly ParmigianoChip[] = [
+  { cx: 56, cy: 30, size: 2.6, angle: 25 },
+  { cx: 8, cy: 33, size: 2.2, angle: -15 },
+  { cx: 52, cy: 52, size: 2.4, angle: 50 },
+];
+

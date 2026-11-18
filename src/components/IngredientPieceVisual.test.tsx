@@ -168,6 +168,22 @@ describe("Topping Visuals 2.0 (#824 PR-1): surface boundary and the parmigiano p
     expect(container.querySelector('svg[data-ingredient-visual="parmigiano-shavings"]')).toBeNull();
   });
 
+  it("the placed sprinkle gets a wider box (60px) than the default 28px glyph; the selection surface and other cheeses keep the default", () => {
+    const placed = render(<IngredientPieceVisual ingredient={parmigiano()} />);
+    expect((placed.container.firstElementChild as HTMLElement).style.getPropertyValue("--cheese-glyph-size")).toBe("60px");
+    placed.unmount();
+    const selection = render(<IngredientPieceVisual ingredient={parmigiano()} surface="selection" />);
+    expect((selection.container.firstElementChild as HTMLElement).style.getPropertyValue("--cheese-glyph-size")).toBe("");
+    selection.unmount();
+    for (const id of ["mozzarella", "feta"]) {
+      const ingredient = getIngredient(id);
+      if (!ingredient) throw new Error(`Missing ${id} fixture`);
+      const other = render(<IngredientPieceVisual ingredient={ingredient} />);
+      expect((other.container.firstElementChild as HTMLElement).style.getPropertyValue("--cheese-glyph-size")).toBe("");
+      other.unmount();
+    }
+  });
+
   it("a parmigiano placed on PizzaStage uses the shavings drawing inside the bake-styled .pizza-cheese wrapper", () => {
     const recipe = getRecipe("margherita");
     if (!recipe) throw new Error("Missing margherita recipe fixture");
