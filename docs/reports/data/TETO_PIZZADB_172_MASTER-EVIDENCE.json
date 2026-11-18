@@ -1301,7 +1301,53 @@
       "namingAmbiguityNote": null,
       "corroborationCount": 0,
       "corroborationSourceUrls": [],
-      "originBatch": "individual_profile_or_later_comparison_batch"
+      "originBatch": "individual_profile_or_later_comparison_batch",
+      "sourceTimingEvidence": {
+        "individualPageUrl": "https://pizzadb.jp/pizzas/ikura-salmon/",
+        "retrievedBy": "ChatGPT",
+        "retrievedOn": "2026-10-20",
+        "receivedBy": "Claude Code (relayed via the Owner from ChatGPT; this session could not reach pizzadb.jp)",
+        "independentlyVerified": false,
+        "independentlyVerifiedNote": "false = Claude Code has not independently re-fetched the page (received via ChatGPT only); there is no record of an independent re-fetch by the Owner. The content is ChatGPT's retrieval as relayed; it is NOT an Owner confirmation. Only the short quotes below were received verbatim; everything else is a relayed summary.",
+        "quotes": [
+          {
+            "text": "いくらと大葉は焼成後に載せ",
+            "applies": [
+              "salmon-roe",
+              "shiso"
+            ],
+            "timing": "post_bake"
+          }
+        ],
+        "relayedSummaries": [
+          {
+            "ingredient": "salmon",
+            "summary": "The page describes both topping the salmon on the pizza and baking it, and heating it separately. Not a single timing."
+          }
+        ],
+        "notStatedInSource": [
+          {
+            "ingredient": "cream-cheese",
+            "note": "投入時機の明記を確認できず (no timing statement found in the relayed content)."
+          }
+        ],
+        "notReceived": [
+          "exact wording around the salmon methods",
+          "quantities, oven temperature and bake time"
+        ],
+        "gameDesignValues": {
+          "note": "GAMEPLAY CALIBRATION, not source (Batch 8c / PR #584 on HOLD; ladder step is assigned at resume against then-current main).",
+          "counts": {
+            "cream-cheese": 2,
+            "salmon": 3,
+            "salmon-roe": 2,
+            "shiso": 1
+          },
+          "bakeTarget": "58-78",
+          "pieces": 8,
+          "currentGameTiming": "all four ingredients pre-bake (HOLD; no applicationPhase yet)"
+        }
+      }
     },
     {
       "id": "vegan-cashew-cheese-pizza-pizzadb-p1",
@@ -1839,7 +1885,58 @@
       "namingAmbiguityNote": null,
       "corroborationCount": 0,
       "corroborationSourceUrls": [],
-      "originBatch": "individual_profile_or_later_comparison_batch"
+      "originBatch": "individual_profile_or_later_comparison_batch",
+      "sourceTimingEvidence": {
+        "individualPageUrl": "https://pizzadb.jp/pizzas/shirasu-pizza/",
+        "retrievedBy": "ChatGPT",
+        "retrievedOn": "2026-10-20",
+        "receivedBy": "Claude Code (relayed via the Owner from ChatGPT; this session could not reach pizzadb.jp)",
+        "independentlyVerified": false,
+        "independentlyVerifiedNote": "false = Claude Code has not independently re-fetched the page (received via ChatGPT only); there is no record of an independent re-fetch by the Owner. The content is ChatGPT's retrieval as relayed; it is NOT an Owner confirmation. Only the short quotes below were received verbatim; everything else is a relayed summary.",
+        "quotes": [
+          {
+            "text": "仕上げにレモンを絞る",
+            "applies": [
+              "lemon"
+            ],
+            "location": "質問箱 (Q&A section)",
+            "timing": "finishing_squeeze",
+            "note": "A squeezing action. NOT equated with the lemon piece being POST_BAKE."
+          },
+          {
+            "text": "仕上げ数分前にのせる",
+            "applies": [
+              "whitebait"
+            ],
+            "timing": "a few minutes before the finish",
+            "note": "Not stated as after baking; may be late in the bake."
+          }
+        ],
+        "relayedSummaries": [],
+        "notStatedInSource": [
+          {
+            "ingredient": "shiso",
+            "note": "投入時機の明確な指定なし (no clear timing designation in the relayed content)."
+          }
+        ],
+        "notReceived": [
+          "mozzarella timing",
+          "exact surrounding wording of both quotes",
+          "quantities, oven temperature and bake time"
+        ],
+        "gameDesignValues": {
+          "note": "GAMEPLAY CALIBRATION, not source. Shipped shirasu-pizza (#580) is unchanged.",
+          "counts": {
+            "mozzarella": 2,
+            "lemon": 2,
+            "shiso": 1,
+            "whitebait": 3
+          },
+          "bakeTarget": "58-78",
+          "pieces": 8,
+          "currentGameTiming": "all four ingredients pre-bake"
+        }
+      }
     },
     {
       "id": "tandoori-paneer-pizza-pizzadb-p5",
@@ -6255,5 +6352,6 @@
     "summary": "The Phase 0B.18 trigger relayed 28 rows from comparison-table pages 13-15, which the repository owner's own external tooling was able to traverse directly (this Claude Code session's own pizzadb.jp access remains EGRESS_BLOCKED, re-verified this Phase). Of the 28 relayed rows, 17 were genuinely new (including Japanese-side confirmation of both remaining EN-only candidates, Black Truffle and Hokkaido Cheese) and 11 were automatic exact-nameJa-match corroborations of rows already evidenced in earlier individual-profile or comparison-table batches. This closed the entire remaining gap (17 unevidenced rows) in a single pass -- the first Phase since 0B.4 in which the pending-row count reached exactly zero.",
     "fullDeadlockSimulationNote": "UPDATED Phase 0B.18 (second pass, same Phase): the Phase 0B.18 trigger explicitly requested 'If coverage reaches 172/172, run full-population deadlock analysis and report actual result.' Coverage reached 172/172 in this Phase, so tools/progression2_full172_deadlock_analysis.py was written and run. ACTUAL RESULT: 0 deadlock states; all resolvable pool recipes reachable from the Progression 2.0 initial state (owned = tomato-sauce, mozzarella, basil) via greedy marginal-unlock purchasing, in 153 steps. The resolvable pool is 151/172 (87.8%), NOT 172/172 -- 21 rows contain at least one ingredient name that canonicalizes as ambiguous or needs_review (e.g. generic ひき肉/ground-meat, チーズ/generic-cheese, ホワイトソース/white-sauce), so per the standing never-guess-fill discipline they were EXCLUDED from the ingredient-set-based reachability pool rather than assigned a guessed canonical ingredient -- every excluded row and its exact unresolved ingredient(s) is listed in the analysis output's excludedRowsWithAmbiguousIngredients, nothing silently dropped. Mechanic-gating is NOT modeled in this simulation (all pool recipes are treated as reachable once ingredient-complete, matching tools/progression2_phase0b_analysis.py's own combined-pool simplification) -- so 'reachable' here means 'ingredient-complete', not 'actually craftable with the game's current baseline mechanics' for the 41 rows independently known to need a mechanic/dough/cooking-method distinction. The analysis also surfaced 5 exact-ingredient-set collision groups across the full pool (new-england-bar-pizzadb vs fathead-pizza-keto-pizzadb, cauliflower-crust-pizzadb vs pizza-al-taglio-romana-pizzadb, jamon-serrano-pizzadb vs pinsa-romana-pizzadb, ny-style-pizzadb vs trenton-tomato-pie-pizzadb, and the already-known fugazza vs fugazzetta pair) -- in every pair, at least one member is already an independently-flagged mechanic-identity row, consistent with (not contradicting) the existing 'recipe identity needs more than an ingredient set' finding. Full output: docs/reports/data/TETO_PROGRESS2_PHASE0B18_full172-deadlock-analysis.json. This IS a genuine deadlock/reachability simulation result, not merely a permission-gate message -- but it still does NOT constitute converting the 172 rows into formal, production-ready game_design_candidate catalog entries in data/recipes/pizza_master_catalog.json (assigning real ids/mechanics/Pitz prices and resolving the 14 composition conflicts and 7 naming clusters) -- that catalog-conversion task remains separate and out of scope for this evidence-gathering effort.",
     "recommendedNextStep": "The clear next major milestone is the separate, out-of-scope design-conversion task: converting all 172 raw evidenced PIZZA DB rows into formal game_design_candidate entries in data/recipes/pizza_master_catalog.json (resolving the 11 ambiguous ingredients, 9 composition conflicts, and 7 naming-ambiguity clusters catalogued below, and assigning mechanic tags to the 36 rows needing one) -- only after that conversion can a genuine full-172 deadlock/reachability simulation be run. This was explicitly not attempted in Phase 0B.18, which remained scoped to evidence-gathering only."
-  }
+  },
+  "sourceTimingEvidenceNote": "Optional per-row field `recipeRows[].sourceTimingEvidence` (added 2026-10-20, currently only ikura-salmon-pizza-pizzadb-p1 and shirasu-pizza-pizzadb-p3). Separates (a) verbatim short quotes, (b) relayed summaries, (c) things the source does not state, (d) game-side design values. Retrieved by ChatGPT and relayed; independentlyVerified=false. Existing row fields (sourceUrl, verifiedAt, evidenceGaps, ...) are unchanged. Docs/data-only; no code or recipe change."
 }
