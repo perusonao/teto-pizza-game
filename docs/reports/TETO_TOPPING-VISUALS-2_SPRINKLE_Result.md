@@ -14,8 +14,8 @@
 | 在庫 | 配置時は `canPlaceIngredient` の判定のみ（消費は `CONFIRM_BAKE`、1 件 = 1 単位） | **不変** |
 | UNDO | `UNDO_LAST_PLACEMENT` が直近 1 件を削除 | **不変** |
 | 最小距離 | `MIN_TOPPING_DISTANCE = 9`（%）、`findOpenSpot` が螺旋で押し出し／`rejected` | **不変**（#476 D4） |
-| 保存 | `persistence.ts` はトッピング配列を保存しない（pizza は永続化されない）。座標の意味は変えない | **不変**（保存形式・互換性への影響なし。既存の配置途中のピザも新しい描画になるだけ） |
-| 描画の識別子 | `PizzaStage` が各ピースを `<span data-topping-id left top>` で描く。CUT の半分も同じ `data-topping-id` | 散布の種（seed）に利用 |
+| 保存 | 配置途中のピザは `pendingRound.ts`（`journalPizza`／`pizzaFromJournal`）が `{id, ingredientId, x, y, stage?}` として保存・復元する（`persistence.ts` の同一 setItem）。形式・座標の意味は変えない | **不変**（id が保たれるので、復元したピザは同じ散布を再描画する。既存の配置途中のピザも新しい描画になるだけ） |
+| 描画の識別子 | `PizzaStage` が各ピースを `<span data-topping-id left top>` で描く。CUT の半分も同じ `data-topping-id` | 散布の種（seed）に利用（種は id のみ。`left`/`top` は外周の寄せにだけ使う） |
 | 操作案内・配置回数 | 変更なし | 変更なし |
 
 ### 1.2 選んだ設計と、選ばなかった案
@@ -43,7 +43,7 @@ live claim（#780 の 69 コメント機械抽出で 8 件、ほか #866・#417�
 |---|---|
 | `tsc -b`／`oxlint`（変更ファイル） | エラー・警告なし |
 | focused（placedVisuals・`IngredientPieceVisual`・architecture・`PizzaVisualPieces`・`IngredientGlyph`・fry architecture・契約テスト） | 全通過（件数は PR コメント参照） |
-| E2E（Chromium、390×844・360×800） | `topping-visuals-parmigiano` 通過: 3 タップで 3 件（1 タップ = 1 件）、各ピース 8 片以上、3 つの散布が全て異なる、箱が 40px 以上、chip は CSS の板のまま、UNDO で 1 件戻り再配置できる、全ての削り片がピザの円の内側、焼成後・RESULT でも同じ 3 つの散布 |
+| E2E（Chromium、390×844・360×800） | `topping-visuals-parmigiano` 通過: 3 タップで 3 件（1 タップ = 1 件）、各ピース 8 片以上、3 つの散布が全て異なる、箱が 40px 以上、chip は CSS の板のまま、UNDO で 1 件戻り再配置できる、3 タップ位置（外周ではない）で削り片の中心がステージの円の内側、焼成後 RESULT でも配置直後と同一の 3 つの散布（markup 一致） |
 | 契約テスト（`gameReducer.sprinkleContract.test.ts`） | 1 タップ = 4 フィールドの 1 件、在庫 2 で 3 タップ目は拒否（1 タップ = 在庫 1 単位）、最小距離 9 は不変（重なりは押し出し）、UNDO は直近 1 件のみ・在庫は焼成まで不変 |
 | 全 Vitest・CI・WebKit | PR #（本 PR）のコメントに記録 |
 
@@ -53,6 +53,7 @@ live claim（#780 の 69 コメント機械抽出で 8 件、ほか #866・#417�
 - **正直な課題**: 実寸では削り片が細く小さく、**米粒のように見える可能性**がある。焼成後はモッツァレラの溶けた白い塊の近くで淡く、コントラストが下がる。「薄い削りチーズを散らしたように見えるか」は **Owner の実機 iPhone Safari HV の判断**（Chromium の画像は代用にならない）。調整の余地: 削り片の太さ・色の濃さ・散布の広さ・片数（いずれも描画のみ）。
 
 ## 5. 制約・既知の限界
+- **はみ出しは完全には防げない（独立レビュー P2）**: 外周（距離 48%）のタップでは寄せの上限 18 単位（約 5.6%）のため、最遠の削り片の先端が円を最大 約 4% 超える（≒ 数 px、クラスト側）。寄せは回転（wrapper −18° ＋ ピース回転 ±14°）後の座標系で効くため、内向き成分が最大で約 0.85 に減る。ステージ寸法 300px 前提の換算。E2E の円内チェックは外周タップを含まない。調整案（寄せ上限の拡大・回転の打ち消し・外周タップの E2E）は HV 後の S3 に含める。
 - 散布は描画のみで、ピースの座標は変えない。外周では場を中心側へ寄せる（最大 18 単位）ため、見た目の中心はタップ位置からわずかにずれうる。正方形パンの角（円の外側）では寄せの上限で一部はみ出す可能性がある（今回の対象はまず丸ピザ。四角パンでの確認は未実施）。
 - `PizzaStage` のラッパー構造（`data-topping-id`・`left`/`top`）に依存する。構造が変わったときは固定の 1 レイアウトにフォールバックする（描画は壊れない）。
 - Reference・Dex・選択アイコンは従来の板のまま（`surface="selection"`、#874 のテストで固定）。散布を Reference に反映するかは別判断。

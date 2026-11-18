@@ -74,6 +74,7 @@ test.describe("Topping Visuals 2.0 / #825: parmigiano sprinkle", () => {
     await tapDoughPercent(page, 72, 62);
     await page.waitForTimeout(900);
     await expect(pieces).toHaveCount(3);
+    const placedMarkup = await pieces.evaluateAll((els) => els.map((el) => el.querySelector("svg")?.innerHTML ?? ""));
 
     // Every sprinkle's shavings stay on the dough (inside its circle, with the crust band allowed).
     const outside = await page.evaluate(() => {
@@ -100,7 +101,7 @@ test.describe("Topping Visuals 2.0 / #825: parmigiano sprinkle", () => {
     // Baked / RESULT: the same sprinkles (same ids -> same layouts), still inside the bake-styled cheese wrapper, no horizontal overflow.
     await expect(pieces).toHaveCount(3);
     const baked = await pieces.evaluateAll((els) => els.map((el) => el.querySelector("svg")?.innerHTML ?? ""));
-    expect(new Set(baked).size).toBe(3);
+    expect(baked).toEqual(placedMarkup);
     const wrapperStyle = await page.locator(".pizza-topping--parmigiano .pizza-cheese--glyph").first().evaluate((el) => (el as HTMLElement).getAttribute("style") ?? "");
     expect(wrapperStyle).toContain("--bake-melt-scale");
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
