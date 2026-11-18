@@ -17,12 +17,12 @@
  * exact same formula the client itself used to build its own (never-trusted) local preview.
  */
 import {
-  calculateLunchRushMissionScore,
-  isValidLunchRushServeRecord,
+  calculateLunchRushMissionScoreForRuleset,
+  isValidLunchRushServeRecordForRuleset,
   LUNCH_RUSH_RULESET_DURATION_SECONDS,
-  LUNCH_RUSH_RULESET_VERSION,
   MAX_SERVES_ARRAY_LENGTH,
   MAX_SERVES_PER_RUN,
+  parseLunchRushRulesetVersion,
   type LunchRushServeRecord,
 } from "../../src/shared/lunchRushScoring";
 import {
@@ -194,7 +194,11 @@ export async function handleSubmitLunchRushScore(
   }
   const request = payload as SubmitLunchRushScoreRequestPayload;
 
-  if (request.rulesetVersion !== LUNCH_RUSH_RULESET_VERSION) {
+  // Lunch Rush v2 (PR-A): exactly two rulesets are known, `lunch-rush-v1` and `lunch-rush-v2`;
+  // anything else (including a missing / non-string value) is rejected. v1 is validated,
+  // recomputed and bucketed exactly as before; v2 uses its own validator, formula and period ids.
+  const ruleset = parseLunchRushRulesetVersion(request.rulesetVersion);
+  if (ruleset === null) {
     invalid("Unknown or unsupported rulesetVersion.");
   }
   if (request.missionId !== LUNCH_RUSH_MISSION_ID) {
@@ -224,7 +228,7 @@ export async function handleSubmitLunchRushScore(
   // qualityTotal in [0, 100] and non-negativity are enforced by isValidLunchRushServeRecord
   // itself (../../src/shared/lunchRushScoring.ts).
   for (const serve of request.serves) {
-    if (!isValidLunchRushServeRecord(serve)) {
+    if (!isValidLunchRushServeRecordForRuleset(ruleset, serve)) {
       invalid("A serve entry is malformed or has an impossible value.");
     }
   }
@@ -234,7 +238,7 @@ export async function handleSubmitLunchRushScore(
   // totalQualityScore/bestQualityScore are never read (they are not even part of
   // SubmitLunchRushScoreRequestPayload's shape), so there is nothing to "tamper" (F): any such
   // field on the wire payload is simply ignored.
-  const result = calculateLunchRushMissionScore(serves);
+  const result = calculateLunchRushMissionScoreForRuleset(ruleset, serves);
 
   // Impossible orders/minute: servedCount bounded by what LUNCH_RUSH_RULESET_DURATION_SECONDS
   // could realistically produce (../../src/shared/lunchRushScoring.ts's MAX_SERVES_PER_RUN).
@@ -246,7 +250,7 @@ export async function handleSubmitLunchRushScore(
   const runId = await deps.firestore.createRun(
     {
       uid: auth.uid,
-      rulesetVersion: LUNCH_RUSH_RULESET_VERSION,
+      rulesetVersion: ruleset,
       missionId: LUNCH_RUSH_MISSION_ID,
       clientDurationMs: request.clientDurationMs,
       servedCount: result.servedCount,
@@ -260,7 +264,7 @@ export async function handleSubmitLunchRushScore(
 
   // Period ids are derived purely from the server's own clock (deps.now()), never any client
   // timestamp -- L. server timestamp authority.
-  const periodIds = computeLunchRushPeriodIds(deps.now());
+  const periodIds = computeLunchRushPeriodIds(deps.now(), ruleset);
   const achievedAt = deps.serverTimestamp();
 
   // Player Profile 1.0 Phase 1B (Issue #129): the submitting user's own displayName snapshot,
