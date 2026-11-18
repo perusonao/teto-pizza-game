@@ -3,7 +3,7 @@
  * `ingredients.ts` and `App.css` are untouched; a wiring PR (Catalog Integrator or the #417 wiring PR) registers `pieceVisual`.
  * Every glyph: 64x64 box, 1em, aria-hidden, no ids / gradients / clip paths (any number can share a page), outline 3 (2.6 for small pieces).
  */
-import { STAGED_GLYPH_PALETTE, type StagedGlyphId } from "./stagedGlyphPalette";
+import { NDUJA_PLACED_DOLLOPS, NDUJA_SELECTION_DOLLOPS, STAGED_GLYPH_PALETTE, type StagedGlyphId } from "./stagedGlyphPalette";
 
 function Svg({ id, children }: { id: StagedGlyphId; children: React.ReactNode }) {
   return (
@@ -255,6 +255,30 @@ function Asparagus({ variant }: { variant: GlyphVariant }) {
   return <Svg id="asparagus-spears">{spears.map(([x1,y1,x2,y2], i) => <g key={i}><path d={`M${x1} ${y1} L${x2} ${y2}`} stroke={c.outline} strokeWidth="8" strokeLinecap="round"/><path d={`M${x1} ${y1} L${x2} ${y2}`} stroke={c.fill} strokeWidth="5" strokeLinecap="round"/><path d={`M${x2-5} ${y2+7} L${x2} ${y2} L${x2+4} ${y2+7}`} fill={c.detail} stroke={c.outline} strokeWidth="2" strokeLinejoin="round"/></g>)}{variant === "selection" && <path d="M15 35 C25 39 37 40 47 36" fill="none" stroke="#d4b15f" strokeWidth="5" strokeLinecap="round"/>}</Svg>;
 }
 
+/**
+ * T26 / Batch 26 (#866, Owner D2 2026-11-17): nduja is a soft paste placed as SMALL SEPARATE DOLLOPS. Visual contract:
+ * the tray ("selection") shows a group of THREE small dollops; one placed piece ("placed") is exactly ONE dollop, so a piece and a unit of
+ * stock (`use`) read one to one. Each dollop is one `<path data-dollop>`; the layouts below are in the 64x64 box and never touch
+ * (a test pins the gap). UNWIRED and PROVISIONAL: nothing registers `pieceVisual: "nduja-dollops"` until the T26 `apply`.
+ */
+const DOLLOP_PATH = "M3 13 C2 6 9 2 15 3 C21 4 25 10 23 16 C21 22 14 25 8 23 C4 21 3 17 3 13Z";
+function Nduja({ variant }: { variant: GlyphVariant }) {
+  const c = STAGED_GLYPH_PALETTE["nduja-dollops"];
+  const dollops = variant === "selection" ? NDUJA_SELECTION_DOLLOPS : NDUJA_PLACED_DOLLOPS;
+  return (
+    <Svg id="nduja-dollops">
+      {dollops.map(({ tx, ty, s }) => (
+        <g key={`${tx}-${ty}`} transform={`translate(${tx} ${ty}) scale(${s})`}>
+          <path data-dollop="" d={DOLLOP_PATH} fill={c.fill} stroke={c.outline} strokeWidth={(variant === "selection" ? 2.8 : 3) / s} strokeLinejoin="round" />
+          <path d="M7 10 C8 7 11 5.6 14 6" fill="none" stroke={c.light} strokeWidth={2.4 / s} strokeLinecap="round" />
+          <circle cx="16" cy="17" r={1.5} fill={c.detail} />
+          <circle cx="10.5" cy="17.5" r={1.2} fill={c.detail} />
+        </g>
+      ))}
+    </Svg>
+  );
+}
+
 const STAGED_GLYPH_COMPONENTS: Record<StagedGlyphId, (variant: GlyphVariant) => React.ReactElement> = {
   "cheddar-cubes": Cheddar,
   "lettuce-leaf": Lettuce,
@@ -275,6 +299,7 @@ const STAGED_GLYPH_COMPONENTS: Record<StagedGlyphId, (variant: GlyphVariant) => 
   "liver-pate-quenelle": (variant) => <LiverPate variant={variant} />,
   "lime-wedge": (variant) => <Lime variant={variant} />,
   "asparagus-spears": (variant) => <Asparagus variant={variant} />,
+  "nduja-dollops": (variant) => <Nduja variant={variant} />,
 };
 
 export function StagedGlyph({ id, variant = "selection" }: { id: StagedGlyphId; variant?: GlyphVariant }) {
