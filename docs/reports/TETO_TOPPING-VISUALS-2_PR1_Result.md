@@ -1,6 +1,6 @@
 # Topping Visuals 2.0 — PR-1 Result（parmigiano の配置後ビジュアル、Issue #824）
 
-状態: **実装済み・ローカル検証済み。ただし既存テスト 1 件が意図した変更と矛盾し、Owner 判断待ち（§4）。** Draft/HOLD。merge・Production ON・共有 Preview 更新は未承認。
+状態: **実装済み・ローカル検証済み（§3、§4 の既存テスト追従を含む）。** Draft/HOLD。merge・Production ON・共有 Preview 更新は未承認。
 基準 main `319b1841b838ea170b7b5ff3a1f566d3ed9b3615`。設計: `TETO_TOPPING-VISUALS-2_PR0_Baseline-and-Design.md`、Owner 判断ロック（#824 `6935605085`）、claim（#824 `6948262972`）。
 
 ## 1. 変更
@@ -28,16 +28,20 @@
 | `oxlint`（変更ファイル） | 新規警告 0（初版の `react/static-components` 警告は registry が要素を返す形に直して解消） |
 | `npm run build` | 成功 |
 | focused（`IngredientPieceVisual` / architecture / `PizzaVisualPieces` / fry architecture / `ReferencePreview` / `PlayerReferencePreview` / `rt01ReferenceRegression` / `IngredientTray.palette` / `InventoryOverlay`） | 9 files・126 tests passed |
-| **全 Vitest** | 686 files 中 681 passed、**2 failed**: ① `fry.architecture.test.ts`（私の新規 architecture テストが `fryIngredients` を import していた → 修正済み、再実行で通過）、② `IngredientGlyph.test.tsx` の 1 件（§4、未解決）。それ以外 12,737 tests passed |
+| **全 Vitest**（§4 の追従後に再実行） | **683 files passed・3 skipped（686）／12,749 tests passed・20 skipped・2 todo、失敗 0**。（追従前の初回は 2 件失敗: ① 私の新規 architecture テストが `fryIngredients` を import していた → 修正、② `IngredientGlyph.test.tsx` の 1 件 → §4 で追従） |
 | E2E（Chromium、390×844・360×800） | 新規 `topping-visuals-parmigiano` と既存 `finished-pizza-visual-2.0` 計 12 passed。**WebKit はローカルに無く CI で確認（未確認）** |
 | golden | 変更なし。Reference の回帰（`rt01ReferenceRegression` ほか）は無修正で通過 |
 
 新規テストの要点: `selection` の出力が従来の markup と文字列一致、登録なしの食材（mozzarella / feta / basil / cucumber / egg / eggplant）は両 surface で同一、`PizzaVisualPieces`（Reference 境界）と `PizzaThumbnail` は parmigiano を CSS の板で描く、`IngredientPieceVisual` の直接呼び出し 7 件の `surface` を固定、registry は parmigiano のみ・eggplant は `pieceVisual` なし。
 
-## 4. 未解決（停止して報告）
-`src/components/IngredientGlyph.test.tsx` の「every cheese without a pieceVisual (mozzarella included) is still the CSS shape on the pizza」が失敗する。このテストは `pieceVisual` を持たない全 cheese を **既定 surface（= placed）** で描き CSS の板であることを要求するため、parmigiano を placed で SVG にする PR-1 の意図（Owner Q2: 既定 `placed`）と直接矛盾する。
-- 必要な修正は 1 箇所の新行追従（対象から `placedVisualIds()` の食材を除外し、それらは `surface="selection"` で CSS の板であることを確認する）。ただし**ファイルは #815 の有効な claim 範囲**（`6793893838`、保有者の release 記録なし、期限 11-18 00:00 UTC）。第三者の claim は編集・解除しないため、本 PR では編集していない。
-- 期待値を緩めて通すことはしていない。
+## 4. 既存テストの新行追従（解決済み）
+`src/components/IngredientGlyph.test.tsx` の「`pieceVisual` のない cheese は pizza 上で CSS の板」という一般テストは、既定 surface（`placed`）で parmigiano が SVG になる PR-1 の意図（Owner Q2）と矛盾した。ファイルは #815 の claim 範囲（`6793893838`）だったため、期限まで編集せず停止して報告し、Owner の方針 A（期限後に追従）で進めた。
+- **claim の確認（2026-11-18 00:10 UTC）**: #780 の保有者 `session_016YrGi26v8m72wRWfP6p2E3` の最新記録は `6793893838`（期限 2026-11-18T00:00:00Z）のみ。#780（67 コメント）・#815・#866 に release・更新・再取得の記録なし。**正式な release ではなく、期限後の非 live 判定**。保有者の claim は編集・解除していない。ほかの live claim・open PR と `IngredientGlyph.test.tsx` の重なりなし（#781 の差分は古い base による drift で、同ファイルを実際には変更していない）。
+- **修正（新行追従のみ、期待値は緩めていない）**: 一般テストの対象から `placedVisualIds()` の食材を除外（それ以外の legacy cheese は従来どおり CSS の板を要求）。除外した食材は別テストで、`surface="selection"` では従来の CSS の板（SVG なし・`--glyph` なし）、placed（既定）では `.pizza-cheese--glyph` ラッパー内の SVG（bake の class / filter はラッパーに残る）を検証。
 
-## 5. 残り
-実機 iPhone Safari HV（Owner）、PR 専用 Preview の公開（Owner の別承認）、WebKit CI、Codex 独立レビュー、上記 §4 の判断。
+## 5. claim・Owner Gate（正確な記録）
+- PR-1 claim: #824 `6948262972`（期限 11-24）。編集前の確認は **手動**（#780 全コメントからの claim 抽出、Issue #726 / #866 / #867 / #870 / #848 / #825 / #417 / #749 の確認、open PR 53 件の本文 claim と base..head 差分の照合）。
+- **Owner Gate スクリプト（`scripts/ops/owner-gate.mjs`）は read-only token が無く GitHub API が 401 を返し、実行できなかった。** 上の手動監査はスクリプトの成功ではなく、スクリプト実行の代替としても扱わない（Owner Gate の判定は未取得）。
+
+## 6. 残り
+実機 iPhone Safari HV（Owner）、PR 専用 Preview の公開（Owner の別承認）、WebKit CI、Codex 独立レビュー、Owner Gate スクリプトの結果（token が無く未取得、§5）。

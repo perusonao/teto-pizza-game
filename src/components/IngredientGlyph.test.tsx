@@ -4,6 +4,7 @@ import { cleanup, render, within } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
+import { placedVisualIds } from "./placedVisuals/registry";
 import { IngredientTray } from "./IngredientTray";
 import { ResultPanel } from "./ResultPanel";
 import { InventoryOverlay } from "./InventoryOverlay";
@@ -375,8 +376,12 @@ describe("Ingredient Icons 2.0 Pilot A", () => {
     }
   });
 
-  it("every cheese without a pieceVisual (mozzarella included) is still the CSS shape on the pizza", () => {
-    const legacyCheese = INGREDIENTS.filter((i) => i.category === "cheese" && !i.pieceVisual);
+  // Topping Visuals 2.0 (#824 PR-1): a cheese with a placed-only drawing (placedVisuals/registry, e.g. parmigiano) is drawn as that SVG on the pizza (surface "placed",
+  // the default) and keeps the CSS shape wherever it is a selection / Reference representation (surface "selection"). Every other legacy cheese is unchanged.
+  const PLACED_ONLY_IDS = new Set(placedVisualIds());
+
+  it("every cheese without a pieceVisual (mozzarella included) is still the CSS shape on the pizza, except those with a placed-only drawing", () => {
+    const legacyCheese = INGREDIENTS.filter((i) => i.category === "cheese" && !i.pieceVisual && !PLACED_ONLY_IDS.has(i.id));
     expect(legacyCheese.map((i) => i.id)).toContain("mozzarella");
     for (const ingredient of legacyCheese) {
       const { container, unmount } = render(<IngredientPieceVisual ingredient={ingredient} />);
@@ -384,6 +389,28 @@ describe("Ingredient Icons 2.0 Pilot A", () => {
       expect(container.querySelector(".pizza-cheese--glyph")).toBeNull();
       expect(container.querySelector("svg")).toBeNull();
       unmount();
+    }
+  });
+
+  it("a cheese with a placed-only drawing keeps the legacy CSS shape on surface=\"selection\" and draws its placed SVG on the pizza", () => {
+    const placedOnlyCheese = INGREDIENTS.filter((i) => i.category === "cheese" && !i.pieceVisual && PLACED_ONLY_IDS.has(i.id));
+    expect(placedOnlyCheese.map((i) => i.id)).toContain("parmigiano");
+    for (const ingredient of placedOnlyCheese) {
+      // selection: exactly the legacy CSS shape (the same assertions as the generic legacy-cheese test above).
+      const selection = render(<IngredientPieceVisual ingredient={ingredient} surface="selection" />);
+      expect(selection.container.querySelector(`.pizza-cheese.pizza-cheese--${ingredient.id}`)).not.toBeNull();
+      expect(selection.container.querySelector(".pizza-cheese--glyph")).toBeNull();
+      expect(selection.container.querySelector("svg")).toBeNull();
+      selection.unmount();
+      // placed (the default): the .pizza-cheese wrapper stays (bake melt transform + filter) and the placed SVG is drawn inside it.
+      const placed = render(<IngredientPieceVisual ingredient={ingredient} className="x-bake" style={{ filter: "sepia(0.3)" }} />);
+      const wrapper = placed.container.querySelector(`.pizza-cheese.pizza-cheese--${ingredient.id}.pizza-cheese--glyph`) as HTMLElement;
+      expect(wrapper).not.toBeNull();
+      expect(wrapper).toHaveClass("x-bake");
+      expect(wrapper.style.filter).toBe("sepia(0.3)");
+      expect(wrapper.querySelector("svg[data-ingredient-visual]")).not.toBeNull();
+      expect(wrapper.textContent).toBe("");
+      placed.unmount();
     }
   });
 
