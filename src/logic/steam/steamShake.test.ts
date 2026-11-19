@@ -191,6 +191,25 @@ describe("CANCEL / INTERRUPT", () => {
   });
 });
 
+describe("LIFT (the finger left the pot)", () => {
+  it("keeps the steam but forgets the sweep: re-touching far from where the finger was is not a stroke", () => {
+    const swept = run([mv(0, 0), mv(50, 100)]); // one stroke
+    const before = levelNow(swept, 60);
+    // without LIFT a new touch at the far side counts as the return stroke
+    expect(levelNow(run([mv(60, 0)], swept), 60)).toBeGreaterThan(before);
+    // with LIFT the same touch only sets a new anchor
+    const lifted = run([{ type: "LIFT" }, mv(60, 0)], swept);
+    expect(levelNow(lifted, 60)).toBe(before);
+    expect(steaming(lifted).anchorX).toBe(0);
+    expect(steaming(lifted).dir).toBe(0);
+  });
+  it("is a no-op when idle or released", () => {
+    const released = run([tap(0), { type: "OPEN", now: 1000 }]);
+    expect(steamShakeReducer(STEAM_SHAKE_IDLE, { type: "LIFT" })).toBe(STEAM_SHAKE_IDLE);
+    expect(steamShakeReducer(released, { type: "LIFT" })).toBe(released);
+  });
+});
+
 describe("determinism", () => {
   it("the same input sequence always gives the same state, and shifting every clock reading does not change the result", () => {
     const seq = [...sweeps(6), tap(400), { type: "OPEN", now: 1200 } as SteamShakeAction];

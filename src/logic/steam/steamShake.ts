@@ -41,6 +41,8 @@ export type SteamShakeAction =
   | { type: "MOVE"; now: number; x: number; width: number }
   | { type: "TAP"; now: number }
   | { type: "OPEN"; now: number }
+  /** The finger left the pot: forget where the sweep was, keep the steam. The next touch must not count a jump from the old spot as a sweep. */
+  | { type: "LIFT" }
   | { type: "CANCEL" }
   | { type: "INTERRUPT" };
 
@@ -105,6 +107,8 @@ export function steamShakeReducer(state: SteamShake, action: SteamShakeAction): 
       const overMs = level >= 1 && state.fullSince !== null ? action.now - state.fullSince : 0;
       return { status: "released", result: steamResultOf(level, overMs), elapsedMs };
     }
+    case "LIFT":
+      return state.status === "steaming" ? { ...state, dir: 0, anchorX: null } : state;
     case "CANCEL":
       return STEAM_SHAKE_IDLE;
     case "INTERRUPT":
