@@ -1,0 +1,24 @@
+/* #755 V3 additions on top of the V2 Lab styles; restricted to the Preview/DEV Lab. */
+/* U4: the shell-type buttons reach 48px. */
+.sglv3__batch button { min-height: 48px; font-size: 15px; }
+
+/* U3: a tap never leaves a focus box; a keyboard user still sees a rounded ring on the focused shell. */
+.sglv3__shell-button:focus { outline: none; }
+.sglv3 .sglv3__shell-button:focus-visible > rect.sglv3__hit { fill: transparent; stroke: none; }
+.sglv3[data-input="keyboard"] .sglv3__shell-button:focus-visible > rect.sglv3__hit { fill: #ffcd6226; stroke: #ffcd62; stroke-width: 2.5; }
+
+/* the pre-open cue: a quick wobble plus small bubbles (bubbles stay with reduced motion) */
+.sglv3__wobble[data-wobble="true"] { animation: sglv3-wobble 140ms ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 80%; }
+.sglv3__bubbles circle { fill: #e9f6ff; opacity: 0.9; }
+.sglv2__shell[data-over="true"] { filter: saturate(0.6); }
+
+/* U5 + result row: the summary sits inside the message box, the stars inside the corner badge (no new rows). */
+.sglv3__msg { flex-direction: column; gap: 2px; font-size: 15px; line-height: 1.3; }
+.sglv3__summary { font-size: 12.5px; font-weight: 600; opacity: 0.92; }
+.sglv3__msg[data-verdict="master"] { background: #2f7f4f; box-shadow: inset 0 0 0 2px #ffe08a; }
+.sglv3__stars { color: #ffd84d; letter-spacing: 1px; }
+
+@keyframes sglv3-wobble { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .sglv3__wobble[data-wobble="true"] { animation: none; }
+}
