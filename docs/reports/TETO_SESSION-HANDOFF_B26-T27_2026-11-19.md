@@ -10,9 +10,10 @@
 | T26 仕様 | Owner が最終承認済み（nashville: chicken 2 / honey 1 / mozzarella 3 / pickles 2、`ladderCredit:false`・`ladderStep:null`。nduja-pizza: honey 1 / mozzarella 3 / nduja 2、通常 ladder key。nduja: topping / meat / scatter / 🌋 / `#a13517` / サイズ `s` / `nduja-dollops`。両レシピ honey PAINT。承認済みの説明文・注文セリフ4つ）。nduja は **1かたまり=1 use=在庫1**、Shop 表示は「20個」のまま |
 | #873（nduja-dollops SVG） | **merge 済み**（`6954a874`）。T26 の `apply` は、この SVG が main にあることを前提にする |
 | T26 の実装 | **未着手（repo 無変更）**。専用 claim なし |
-| claim 競合 | **6件**: T-FX `session_016YrGi1r2RuC2BKGt8LF145`（13パス、期限 2026-11-21 00:00 UTC）、R-1 `session_016YrGi37Ao1hchMZc25Zvtn`（7パス、期限 2026-11-26 00:00 UTC）、open PR #874・#834・#540・#34 |
-| 非live | #815 HOT `…26v8m72wRWfP6p2E3`（2026-11-18 00:00 失効）、#834 c2（2026-11-19 00:00 失効）。**どちらも release の記録はなく、失効のみ**。docs 準備の claim は本人が release 済み |
+| claim 競合 | **6件**: T-FX `session_016YrGi1r2RuC2BKGt8LF145`（#780 `6711787241`、期限 2026-11-21 00:00 UTC）、R-1 `session_016YrGi37Ao1hchMZc25Zvtn`（#780 `6823639362`、期限 2026-11-26 00:00 UTC）、open PR #874・#834・#540・#34。**重なりの件数（T-FX 13、R-1 7）は、最終版の「T26 claim 候補 68パス」に対する実測**（`claims` の出力）。以前の依頼コメント #780 `6949497173` の値（R-1 18、T-FX 11）は、84パス候補での測定で、候補の絞り込みと追加（`stagedRecipes.ts` など）で変わった |
+| 非live | #815 HOT `…26v8m72wRWfP6p2E3`（#780 `6793893838`、2026-11-18 00:00 失効）、#834 c2 `…3VFaBPeRU1CP45Cae:c2`（#795 `6825109936`、2026-11-19 00:00 失効。同じ #795 に別の `…2Wp4N6czK69McHqiL:c2`〈#830〉もある）。**どちらも release の記録はなく、失効のみ**。docs 準備の claim は本人が release 済み |
 | 保有者の回答 | T-FX・R-1・#834 の保有者から、依頼（#780 `6949497173`・`6977509961`・`6977703591`）への回答なし |
+| #876（本ハンドオフの docs-only PR、Draft） | CI success（JSON・patch を含むため docs-only 扱いにならず full の Vitest が走る）。Codex は利用上限に達して**レビュー不可**（`chatgpt-codex-connector[bot]` が上限メッセージ）。代替の別コンテキスト独立レビューを実施（記録は PR #876）。merge・Draft 解除は Owner 未承認 |
 | #875 | open・Draft・HOLD（別担当、base は #874 のブランチ）。PR の自動 CI は起動しない設計（`ci.yml` は base が `main` の PR のみ）。手動起動で CI success（head `ddc24130` を取得したことをログで確認）、WebKit は3回目の再実行で全6 shard success。初回の失敗は Playwright の WebKit のインストールのタイムアウト（360秒×2、テスト未実行）。**独立レビューと iPhone HV は未実施で、Final Gate GO ではない** |
 | 3ライン（最新 main の実測） | レシピ **116**/177（残61）、食材 **137**/170（残33）、調理法・工程 IMPLEMENTED **7**/27（残20）。T26 着地後は 118/177・138/170 の見込み（予定であり実績に数えない） |
 
@@ -47,6 +48,8 @@
 
 ## 4. T27（keema-pizza / chicken-tikka-pizza）
 Owner が判断資料の先行準備を承認済み（#866 `6998576764`）。資料は `docs/reports/TETO_T27_OWNER-PACKET_keema-chicken-tikka_2026-11-19.md`（現行ソースと根拠、NO_SAUCE の選択肢、Research の ID 別 旧→新、必要食材・工程、claim／PR の重複、個別の Owner 決定表 T27-1〜7）。**暫定値**（T26 未着地）。T26 着地後に再 preflight。catalog-only の残り16レシピの1件ずつの preflight は `T27-candidate-survey.md`（進めるのは2件だけで、残りは canonical Research の変化・M7・TQ1D G7・DH4 などで止まる）。
+
+**Owner の 2026-11-19 の見解（#876 `7003519216`）**: T27-1〜7 の決定表は確認済みだが**正式承認は保留**。keema は既存の `beef-slices` をひき肉の代替として**無条件に採用しない**。NO_SAUCE 対 新素材、重複例外、Research の ID 別変更は、T26 着地後の再 preflight で精査する。**別列車を優先して検討**する。
 
 ## 5. 工程ライン（調理法・工程 7/27）
 このセッションでは新規実装なし。#867（監査）は完了、実装の担当は #841（STEP_ORDER）・#851（PAN adapter、merge 済み）・#834（MID_BAKE Lab、Draft）・#871（Greek 油塗り、merge 済み）・#860。台帳の再生成は #853（HOLD）の領域で、`TETO_CONTENT-MASTER_methods.csv` の分類（7/7/4/1/6/2）は #867 の最新（IMPLEMENTED 7 / PARTIAL 10 / UNIMPLEMENTED 1 / HOLD 1 / ADOPTION_UNDECIDED 6 / DUPLICATE 2）と食い違う。マスター台帳の生成チェック2件は FAIL のまま（T26 の STOP ではない）。**T26 の nduja は台帳では `spread / use`、ランタイムでは `scatter`・在庫はピース単位**（1ピース=1 use）。台帳の変更は別作業（#853）で、この差を Result Report に記録する、が Owner 決定。

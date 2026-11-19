@@ -1,3 +1,6 @@
+# DO NOT `git apply` THIS FILE. Reference only (scratch WIP of the T26 follow-up edits, 67 -> 45 failing tests, made on main 6954a874).
+# It touches src/ and golden files. Rebuild the edits on the latest main after the T26 start conditions are met (see TETO_SESSION-HANDOFF_B26-T27_2026-11-19.md).
+# Lines before the first `diff --git` are ignored by git; this header is not part of the diff.
 diff --git a/docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-1_AUDIT.json b/docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-1_AUDIT.json
 index 9e801124..f2f749e6 100644
 --- a/docs/reports/data/TETO_DISCOVERY-HINT-4_DH4-1_AUDIT.json

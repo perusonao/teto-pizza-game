@@ -130,15 +130,17 @@ T27 の claim はありません。T26 と同じ HOT ファイル（`recipes.ts`
 ### 2-5. claim／PR の重複
 keema と同じ。T26 の着地後に直列。
 
+**Owner の見解（2026-11-19、#876 `7003519216`）**: 決定表は確認済みで**正式承認は保留**。keema は既存の `beef-slices` をひき肉の代替として無条件には採用しない。NO_SAUCE 対 新素材、重複例外、Research の ID 別変更は、T26 着地後の再 preflight で精査する。**別列車を優先して検討**する。以下の表は判断材料であり、未承認です。
+
 ## 3. 個別の Owner 決定表（回答は1行形式でも可）
 | # | 決定 | 選択肢 | 備考 |
 |---|---|---|---|
 | T27-1 | keema のソース | A NO_SAUCE／B curry-ketchup 代用／C 新素材／D 保留 | B は K3 で rendang と同一になるため、素材構成とセットで決める |
-| T27-2 | keema の素材構成 | K1 下書き（D-1 例外17件）／K2 beef 追加（重複4件）／別素材 `ground-beef`（食材が増える）／青唐辛子の扱い | `beef` の絵は薄切り |
+| T27-2 | keema の素材構成 | K1 下書き（D-1 例外17件）／K2 beef 追加（重複4件）／別素材 `ground-beef`（食材が増える）／青唐辛子の扱い | `beef` の絵は薄切り（`beef-slices`）。**Owner は無条件採用しない方針（K2 は比較用）** |
 | T27-3 | chicken-tikka のソース | A／B／C／D | 同上 |
 | T27-4 | chicken-tikka の重複例外 | bbq-chicken-pizza・spanish-chorizo-pizza ほかの D-1 例外を認めるか | 案により件数が変わる |
 | T27-5 | Research の ID 別承認 | keema 22 ID／chicken-tikka 28 ID を、各 ID の stage・方向・最大シフトで個別承認するか | 承認単位は preflight の表。**将来の letter 変更は未承認**（T26 の `hot-honey-pepperoni`→nashville の記録と同様に扱う） |
 | T27-6 | ladderCredit の扱い | keema は新素材がなく key になれない（`LADDER_KEY_MATERIAL`）。credit なし（D-6）で進めるか | chicken-tikka は新素材の key |
-| T27-7 | 着手の順序 | T26 着地後に T27（keema と chicken-tikka を同じ列車か別列車か） | 列車を分けても追加の承認は不要（上界は加法的） |
+| T27-7 | 着手の順序 | T26 着地後に T27（keema と chicken-tikka を同じ列車か別列車か。**Owner は別列車を優先して検討**） | 列車を分けても追加の承認は不要（上界は加法的） |
 
 **採否の推奨は付けていません**（上の表は判断材料です）。Gate は緩めません。canonical に変化が出る組み合わせは STOP です。
