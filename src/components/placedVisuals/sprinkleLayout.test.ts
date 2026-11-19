@@ -111,6 +111,8 @@ describe("sprinkleLayout", () => {
       // outline strength and core size are not uniform (thin sheets have fainter edges)
       const edges = shavings.map((s) => s.edge);
       expect(Math.max(...edges) - Math.min(...edges), seed).toBeGreaterThanOrEqual(0.4);
+      const cores = shavings.filter((s) => s.kind === "flake").map((s) => s.core);
+      expect(Math.max(...cores) - Math.min(...cores), seed).toBeGreaterThanOrEqual(0.05);
       // the outlines of the flakes differ from one another
       const outlines = shavings.filter((s) => s.kind === "flake").map((s) => s.verts.join(","));
       expect(new Set(outlines).size, seed).toBe(outlines.length);

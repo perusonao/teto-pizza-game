@@ -1,5 +1,7 @@
 # Topping Visuals 2.0 — parmigiano rev. 3（削りたての薄片への作り直し、PR #875）
 
+> **更新あり**: rev. 4 が本書の形状（ribbon の曲がり 0.12〜0.34・7 角の flake・ribbon 2〜3 本）を置き換えた。現行は [`TETO_TOPPING-VISUALS-2_SPRINKLE-V4_Result.md`](TETO_TOPPING-VISUALS-2_SPRINKLE-V4_Result.md)。散布の広がり・箱 96px・寄せ 40 単位・契約は rev. 4 でも同じ。本書は 4a508676 時点の記録。
+
 状態: **実装済み・ローカル検証済み・Draft/HOLD（視覚品質 HOLD は Owner の再 HV まで継続）。** merge・Draft 解除・Production ON・共有 Preview 更新は未承認。
 根拠: Owner の iPhone Safari HV [#875 comment 7000534304](https://github.com/perusonao/teto-pizza-game/pull/875#issuecomment-7000534304)（`pr-875-ddc2413`: 米粒・種・小葉のように見え、局所的な塊に集まる）。
 
