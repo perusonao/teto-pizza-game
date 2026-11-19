@@ -61,7 +61,36 @@ rev.5（`0318d2b9`）と rev.6 の、Owner の 3 か所タップ・外周 4 タ�
 
 ## 5. 検証（対象 SHA を明記）
 
-__TESTS__
+### rev.6（実装コミット `3fcf95c`。以降の差分は docs・画像のみ）
+- `tsc -b`: エラーなし／`oxlint`: 変更ファイルに警告・エラーなし（リポジトリ全体では既存の `CheesePoolCanvas.tsx` の警告のみ、本変更とは無関係）。
+- focused（`placedVisuals` ＋ `IngredientPieceVisual.test.tsx`）: 4 files・45 tests passed。
+- E2E（Chromium、390×844・360×800）`topping-visuals-parmigiano`: 4 件通過（3 タップ＝3 件・各 11 片以上・別々の散布・Undo・焼成後 RESULT で markup 同一・外周 4 タップの皿内確認）。
+- **全 Vitest（ローカル、`--shard=N/6` の 6 回）: 6 シャードすべて失敗 0、exit 0。**
+
+| シャード | Files | Tests |
+|---|---|---|
+| 1/6 | 115 passed | 1,814 passed |
+| 2/6 | 115 passed | 1,719 passed・2 todo |
+| 3/6 | 115 passed | 2,227 passed・4 skipped |
+| 4/6 | 115 passed | 2,343 passed |
+| 5/6 | 113 passed・2 skipped | 2,859 passed・7 skipped |
+| 6/6 | 114 passed・1 skipped | 1,820 passed・9 skipped |
+| **合計** | **687 passed・3 skipped（690）** | **12,782 passed・20 skipped・2 todo、失敗 0** |
+
+  rev.5 の全 Vitest（12,778 passed）に対し +4 tests（本 PR で追加した新テスト）。
+- **WebKit（GitHub、対象 SHA `3fcf95cb519f2d3545a10f5d28124f52cb239dd3`、`workflow_dispatch` の run `44535596913`）: 全 10 check run が success（再実行なし）**。390×844・360×800 の各 3 シャード、WebKit Gate、Layout Contract Gate、layout-chromium、classify。lint／型／全 Vitest の check run は本 PR の CI には存在せず、CI 上では未確認（上のローカル結果）。
+- 本ブランチは #875 の head ではないため、PR の check run には紐づかない（上の run は手動起動）。
+
+### rev.5 のシャード 5/6・6/6（別途回収。対象は rev.5 のコード）
+前担当セッションのコンテナ内の結果は読めなかったため、**同じ rev.5 の内容（`0318d2b9` ＋ docs のみの `61bca92`）を別の worktree で実行した結果**:
+
+| シャード | Files | Tests |
+|---|---|---|
+| 5/6 | 113 passed・2 skipped（115） | 2,859 passed・7 skipped、失敗 0、exit 0 |
+| 6/6 | 114 passed・1 skipped（115） | 1,820 passed・9 skipped、失敗 0、exit 0 |
+
+1〜4/6 は前担当の報告（通過、各 1,814／1,719／2,223／2,343 tests）によるもので、私は再実行していない。rev.5 の 6 シャードに失敗はない。
+
 
 ## 6. 独立レビュー（Codex ではなく、別コンテキストの読み取り専用エージェント。Codex は未実施）
 
