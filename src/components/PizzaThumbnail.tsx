@@ -64,7 +64,7 @@ export function PizzaThumbnail({ recipe }: PizzaThumbnailProps) {
             }
           >
             {ingredient.category === "cheese" ? (
-              <IngredientPieceVisual ingredient={ingredient} />
+              <IngredientPieceVisual ingredient={ingredient} surface="selection" />
             ) : (
               <span className="pizza-thumbnail__piece-emoji">
                 <IngredientGlyph ingredient={ingredient} />

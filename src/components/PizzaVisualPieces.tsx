@@ -70,7 +70,8 @@ export function renderPizzaVisualPieces({
             } as CSSProperties
           }
         >
-          <IngredientPieceVisual ingredient={ingredient} />
+          {/* Topping Visuals 2.0 (#824, Owner Q3): the Reference view keeps the existing (selection) representation; the placed-only drawings are for the player's own pizza. */}
+          <IngredientPieceVisual ingredient={ingredient} surface="selection" />
         </span>
       );
     });
