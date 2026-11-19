@@ -1,5 +1,7 @@
 # Topping Visuals 2.0 / #825 — parmigiano SPRINKLE Pilot（Result Report）
 
+> **更新あり**: 描画（片数・形・箱 60px・寄せの上限 18 単位・E2E の範囲）は rev. 3 で置き換わった。現行の仕様は [`TETO_TOPPING-VISUALS-2_SPRINKLE-V3_Result.md`](TETO_TOPPING-VISUALS-2_SPRINKLE-V3_Result.md)（9〜11 片・箱 96px・寄せ 40 単位・外周タップの E2E 追加）。本書は ddc2413 時点の記録として残す。
+
 状態: **実装済み・ローカル検証済み・Draft/HOLD。** merge・Production ON・共有 Preview 更新は未承認。実機 iPhone HV は Owner。
 基準 main `6954a874b3464f2c0bb0a7c56820aa58436cd442`。**`Depends-on: #874`**（`placedVisuals/` が main に無いため #874 の head `8dfb99ea` の上に重ねる。#874 が先に merge されたら base を main に付け替える）。
 根拠: Owner 判断 [#825 comment 6994235351](https://github.com/perusonao/teto-pizza-game/issues/825#issuecomment-6994235351)（PLACE → SPRINKLE、タップ基本、輪状・同一スタンプを避ける、ゲームルールの無断変更禁止）、[#476 の決定](https://github.com/perusonao/teto-pizza-game/issues/476#issuecomment-6110360145)（座標・最小距離 9%・採点・保存・在庫は不変）、claim [#825 comment 6994513148](https://github.com/perusonao/teto-pizza-game/issues/825#issuecomment-6994513148)。

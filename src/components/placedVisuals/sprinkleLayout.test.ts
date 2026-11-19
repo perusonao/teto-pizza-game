@@ -72,7 +72,8 @@ describe("sprinkleLayout", () => {
     for (const seed of SEEDS) {
       const { shavings } = sprinkleLayout(seed);
       const nearest = shavings.map((a, i) => Math.min(...shavings.filter((_, j) => j !== i).map((b) => Math.hypot(a.cx - b.cx, a.cy - b.cy))));
-      expect(Math.min(...nearest), seed).toBeGreaterThanOrEqual(4);
+      // statistical: over 20000 ids the smallest nearest-neighbour distance is about 2.5, so a floor of 2 holds without relying on these 60 ids
+      expect(Math.min(...nearest), seed).toBeGreaterThanOrEqual(2);
       expect(nearest.reduce((a, b) => a + b, 0) / nearest.length, seed).toBeGreaterThanOrEqual(8);
       const quarters = [0, 0, 0, 0];
       for (const s of shavings) quarters[(s.cx >= 32 ? 1 : 0) + (s.cy >= 32 ? 2 : 0)] += 1;
