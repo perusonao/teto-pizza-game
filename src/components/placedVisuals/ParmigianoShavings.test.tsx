@@ -43,7 +43,8 @@ describe("ParmigianoShavings", () => {
       const paths = group.querySelectorAll("path");
       expect(paths.length).toBeGreaterThanOrEqual(2);
       // shadow first (dark, faint), then the translucent ivory top face
-      expect(paths[0].getAttribute("opacity")).toBe(".16");
+      expect(Number(paths[0].getAttribute("opacity"))).toBeLessThanOrEqual(0.18);
+      expect(Number(paths[0].getAttribute("opacity"))).toBeGreaterThan(0);
       expect(Number(paths[1].getAttribute("fill-opacity"))).toBeLessThan(0.9);
     });
     // flakes carry a lighter core, ribbons a highlight line
@@ -77,7 +78,7 @@ describe("ParmigianoShavings", () => {
 });
 
 describe("path geometry", () => {
-  it("a flake is a closed ragged polygon of 7 rounded corners; two different factor sets give two different outlines", () => {
+  it("a flake is a closed soft polygon with one rounded corner per factor; two different factor sets give two different outlines", () => {
     const a = flakePath(14, 9, [1, 0.9, 1.1, 0.8, 1.05, 0.95, 1.1]);
     const b = flakePath(14, 9, [0.8, 1.1, 0.9, 1.15, 0.85, 1.1, 0.95]);
     expect(a).not.toBe(b);
@@ -86,9 +87,12 @@ describe("path geometry", () => {
     expect(a).not.toMatch(/NaN|Infinity/);
   });
 
-  it("a ribbon is a closed strip whose bend bows it to the chosen side", () => {
-    const up = ribbonPath(18, 3.5, 0.3);
-    const down = ribbonPath(18, 3.5, -0.3);
+  it("a ribbon is a closed strip whose bend bows it to the chosen side, and whose width profile changes its outline", () => {
+    const even = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    const uneven = [0.7, 1.2, 0.8, 1.1, 0.9, 1.15, 0.65, 1, 0.8, 1.2];
+    const up = ribbonPath(18, 3.5, 0.3, 0, even);
+    const down = ribbonPath(18, 3.5, -0.3, 0, even);
+    expect(ribbonPath(18, 3.5, 0.1, 0.03, uneven)).not.toBe(ribbonPath(18, 3.5, 0.1, 0.03, even));
     expect(up).not.toBe(down);
     expect(up.startsWith("M ")).toBe(true);
     expect(up.endsWith("Z")).toBe(true);

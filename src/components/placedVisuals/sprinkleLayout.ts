@@ -102,42 +102,46 @@ function spreadCentres(rand: () => number, wanted: number): { x: number; y: numb
 }
 
 /**
- * The shavings of one piece: 9..11 of them -- at least four broad flakes, two or three long thin ribbons, two or three crumbs -- of mixed sizes, each turned its own way, over
- * an even irregular spread. Deterministic in `seed`.
+ * The shavings of one piece: 9..11 of them -- at least five broad soft flakes, one or two thin strips whose width wanders, two or three crumbs -- of mixed sizes, each
+ * turned its own way, over an even irregular spread. Deterministic in `seed`.
  */
 export function sprinkleLayout(seed: string): SprinkleLayout {
   const rand = prng(hashSeed(seed));
   const wanted = 9 + Math.floor(rand() * 3);
   const centres = spreadCentres(rand, wanted);
-  const ribbons = 2 + Math.floor(rand() * 2);
+  const ribbons = 1 + Math.floor(rand() * 2);
   const crumbs = 2 + (wanted > 9 ? Math.floor(rand() * 2) : 0);
   const kinds: ParmigianoShaving["kind"][] = centres.map((_, index) => (index < ribbons ? "ribbon" : index < ribbons + crumbs ? "fragment" : "flake"));
   shuffle(kinds, rand);
+  // stratified outline strengths, shuffled: every sprinkle holds both faint (thin) and firm edges
+  const edges = shuffle(centres.map((_, index) => round(0.35 + 0.65 * ((index + rand()) / centres.length))), rand);
   const shavings: ParmigianoShaving[] = centres.map((c, index) => {
     const kind = kinds[index];
     const fill = Math.min(2, Math.floor(rand() * 3)) as 0 | 1 | 2;
     const angle = Math.round(rand() * 180 - 90);
-    const verts = (count: number): number[] => Array.from({ length: count }, () => round(0.74 + rand() * 0.46));
+    const edge = edges[index];
+    const core = round(0.45 + rand() * 0.25);
+    const verts = (count: number): number[] => Array.from({ length: count }, () => round(0.72 + rand() * 0.5));
+    const base = { cx: round(c.x), cy: round(c.y), angle, fill, edge, core };
     if (kind === "ribbon") {
-      const len = 14 + rand() * 7;
+      const len = 12 + rand() * 6;
       return {
+        ...base,
         kind,
-        cx: round(c.x),
-        cy: round(c.y),
         len: round(len),
-        wid: round(3 + rand() * 1.6),
-        angle,
-        bend: round((rand() < 0.5 ? -1 : 1) * (0.12 + rand() * 0.22)),
-        fill,
+        wid: round(3.4 + rand() * 2.2),
+        bend: round((rand() < 0.5 ? -1 : 1) * (0.03 + rand() * 0.08)),
+        wobble: round((rand() < 0.5 ? -1 : 1) * (0.015 + rand() * 0.035)),
+        profile: Array.from({ length: 10 }, () => round(0.6 + rand() * 0.65)),
         verts: [],
       };
     }
     if (kind === "fragment") {
       const len = 4 + rand() * 2.5;
-      return { kind, cx: round(c.x), cy: round(c.y), len: round(len), wid: round(len * (0.6 + rand() * 0.35)), angle, bend: 0, fill, verts: verts(5) };
+      return { ...base, kind, len: round(len), wid: round(len * (0.6 + rand() * 0.35)), bend: 0, wobble: 0, profile: [], verts: verts(5) };
     }
     const len = 10.5 + rand() * 6.5;
-    return { kind, cx: round(c.x), cy: round(c.y), len: round(len), wid: round(len * (0.5 + rand() * 0.3)), angle, bend: 0, fill, verts: verts(7) };
+    return { ...base, kind, len: round(len), wid: round(len * (0.45 + rand() * 0.35)), bend: 0, wobble: 0, profile: [], verts: verts(8) };
   });
   return { shavings };
 }

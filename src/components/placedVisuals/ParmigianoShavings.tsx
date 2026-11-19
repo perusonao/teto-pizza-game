@@ -22,7 +22,7 @@ const SHADOW = "#5a4a22";
 const HIGHLIGHT = "#fffdf4";
 
 function shavingPath(s: ParmigianoShaving): string {
-  return s.kind === "ribbon" ? ribbonPath(s.len, s.wid, s.bend) : flakePath(s.len, s.wid, s.verts);
+  return s.kind === "ribbon" ? ribbonPath(s.len, s.wid, s.bend, s.wobble, s.profile) : flakePath(s.len, s.wid, s.verts);
 }
 
 interface ParmigianoShavingsProps {
@@ -48,14 +48,14 @@ export function ParmigianoShavings({ shavings, shift, svgRef }: ParmigianoShavin
       <g transform={shift && (shift.x !== 0 || shift.y !== 0) ? `translate(${r(shift.x)} ${r(shift.y)})` : undefined}>
         {shavings.map((s, index) => {
           const d = shavingPath(s);
-          const stroke = s.kind === "fragment" ? 0.4 : 0.5;
+          const stroke = 0.28 + 0.32 * s.edge;
           return (
             <g key={index} data-shaving={s.kind} transform={`translate(${s.cx} ${s.cy}) rotate(${s.angle})`}>
-              <path d={d} transform="translate(0.5 0.9)" fill={SHADOW} opacity=".16" />
-              <path d={d} fill={FILL_TOP[s.fill]} fillOpacity=".86" stroke={OUTLINE} strokeOpacity=".8" strokeWidth={stroke} strokeLinejoin="round" />
-              {s.kind === "flake" && <path d={d} transform="scale(.58)" fill={FILL_CORE} opacity=".5" />}
+              <path d={d} transform="translate(0.5 0.9)" fill={SHADOW} opacity={r(0.08 + 0.1 * s.edge)} />
+              <path d={d} fill={FILL_TOP[s.fill]} fillOpacity=".86" stroke={OUTLINE} strokeOpacity={r(0.45 + 0.4 * s.edge)} strokeWidth={stroke} strokeLinejoin="round" />
+              {s.kind === "flake" && <path d={d} transform={`translate(${r(-0.04 * s.len)} ${r(-0.03 * s.wid)}) scale(${s.core})`} fill={FILL_CORE} opacity=".5" />}
               {s.kind === "ribbon" && (
-                <path d={ribbonHighlightPath(s.len, s.wid, s.bend)} fill="none" stroke={HIGHLIGHT} strokeOpacity=".9" strokeWidth=".7" strokeLinecap="round" />
+                <path d={ribbonHighlightPath(s.len, s.wid, s.bend, s.wobble, s.profile)} fill="none" stroke={HIGHLIGHT} strokeOpacity=".7" strokeWidth=".55" strokeLinecap="round" />
               )}
             </g>
           );

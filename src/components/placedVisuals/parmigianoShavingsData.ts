@@ -4,7 +4,7 @@
  * Freshly shaved Parmigiano Reggiano is not grains or leaves: it is thin, flat, irregular flakes of different sizes -- broad ragged flakes, a few long thin ribbons
  * that curl a little, and tiny crumbs -- ivory and slightly translucent where they are thinnest. Three kinds are drawn:
  *   flake    a broad irregular flake (width 50..80% of its length);
- *   ribbon   a long thin ribbon with a slight bend (a curl seen from above);
+ *   ribbon   a longer thin shaving whose width changes along its length (a strip, not a crescent: only a slight bend and an uneven outline);
  *   fragment a small crumb.
  */
 export type ParmigianoShavingKind = "flake" | "ribbon" | "fragment";
@@ -19,8 +19,16 @@ export interface ParmigianoShaving {
   readonly wid: number;
   /** Rotation in degrees. */
   readonly angle: number;
-  /** Ribbon bend as a fraction of the length (signed); 0 for flakes and fragments. */
+  /** Ribbon bend as a fraction of the length (signed, small); 0 for flakes and fragments. */
   readonly bend: number;
+  /** Ribbon only: a slow S-shaped wander of the centre line as a fraction of the length (signed); 0 otherwise. */
+  readonly wobble: number;
+  /** Ribbon only: ten width factors (five along the upper edge, five along the lower), so the strip is wider in one place and narrower in another; empty otherwise. */
+  readonly profile: readonly number[];
+  /** 0..1: how strong the outline and the shadow are (thin shavings have a fainter edge). */
+  readonly edge: number;
+  /** Scale (about 0.45..0.7) of the lighter, more opaque core inside a flake. */
+  readonly core: number;
   /** Which of the three ivory fills the top face uses. */
   readonly fill: 0 | 1 | 2;
   /** Radial factors (about 0.8..1.2) of the flake / fragment outline vertices; empty for ribbons. They make every silhouette different. */

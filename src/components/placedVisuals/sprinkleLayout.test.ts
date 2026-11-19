@@ -34,35 +34,42 @@ describe("sprinkleLayout", () => {
     }
   });
 
-  it("each sprinkle is nine to eleven shavings: broad flakes, two or three long ribbons, two or three crumbs", () => {
+  it("each sprinkle is nine to eleven shavings: at least five broad soft flakes, one or two thin strips, two or three crumbs", () => {
     for (const seed of SEEDS) {
       const { shavings } = sprinkleLayout(seed);
       expect(shavings.length, seed).toBeGreaterThanOrEqual(9);
       expect(shavings.length, seed).toBeLessThanOrEqual(11);
       const of = (kind: string) => shavings.filter((s) => s.kind === kind).length;
-      expect(of("ribbon"), seed).toBeGreaterThanOrEqual(2);
-      expect(of("ribbon"), seed).toBeLessThanOrEqual(3);
+      expect(of("ribbon"), seed).toBeGreaterThanOrEqual(1);
+      expect(of("ribbon"), seed).toBeLessThanOrEqual(2);
       expect(of("fragment"), seed).toBeGreaterThanOrEqual(2);
       expect(of("fragment"), seed).toBeLessThanOrEqual(3);
-      expect(of("flake"), seed).toBeGreaterThanOrEqual(4);
+      expect(of("flake"), seed).toBeGreaterThanOrEqual(5);
     }
   });
 
-  it("no rice grains: flakes are broad (width at least half their length), ribbons are long and wide enough to read as strips, crumbs are small", () => {
+  it("no rice grains and no crescents: flakes are broad, strips are wide enough to read as shavings and only slightly bent, crumbs are small", () => {
     for (const seed of SEEDS) for (const s of sprinkleLayout(seed).shavings) {
       if (s.kind === "flake") {
         expect(s.len, seed).toBeGreaterThanOrEqual(10.5);
-        expect(s.wid / s.len, seed).toBeGreaterThanOrEqual(0.5);
-        expect(s.wid, seed).toBeGreaterThanOrEqual(5);
-        expect(s.verts.length).toBe(7);
+        expect(s.wid / s.len, seed).toBeGreaterThanOrEqual(0.45);
+        expect(s.wid, seed).toBeGreaterThanOrEqual(4.7);
+        expect(s.verts.length).toBe(8);
       } else if (s.kind === "ribbon") {
-        expect(s.len, seed).toBeGreaterThanOrEqual(14);
-        expect(s.wid, seed).toBeGreaterThanOrEqual(3);
-        expect(s.len / s.wid, seed).toBeGreaterThanOrEqual(3);
-        expect(Math.abs(s.bend), seed).toBeGreaterThanOrEqual(0.12);
+        expect(s.len, seed).toBeGreaterThanOrEqual(12);
+        expect(s.wid, seed).toBeGreaterThanOrEqual(3.4);
+        expect(s.len / s.wid, seed).toBeGreaterThanOrEqual(2);
+        // a crescent needs a strong bend: here the bend is slight and the width wanders instead
+        expect(Math.abs(s.bend), seed).toBeLessThanOrEqual(0.12);
+        expect(Math.abs(s.wobble), seed).toBeLessThanOrEqual(0.06);
+        expect(s.profile.length, seed).toBe(10);
+        expect(Math.max(...s.profile) - Math.min(...s.profile), seed).toBeGreaterThanOrEqual(0.05);
       } else {
         expect(s.len, seed).toBeLessThanOrEqual(6.5);
         expect(s.verts.length).toBe(5);
+      }
+      if (s.kind !== "ribbon") {
+        expect(s.profile.length).toBe(0);
       }
       expect(s.len, seed).toBeLessThanOrEqual(22);
     }
@@ -101,6 +108,9 @@ describe("sprinkleLayout", () => {
       const lengths = shavings.map((s) => s.len);
       expect(Math.max(...lengths) / Math.min(...lengths), seed).toBeGreaterThanOrEqual(2.5);
       expect(new Set(shavings.map((s) => s.kind)).size, seed).toBe(3);
+      // outline strength and core size are not uniform (thin sheets have fainter edges)
+      const edges = shavings.map((s) => s.edge);
+      expect(Math.max(...edges) - Math.min(...edges), seed).toBeGreaterThanOrEqual(0.4);
       // the outlines of the flakes differ from one another
       const outlines = shavings.filter((s) => s.kind === "flake").map((s) => s.verts.join(","));
       expect(new Set(outlines).size, seed).toBe(outlines.length);
