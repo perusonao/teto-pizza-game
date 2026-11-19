@@ -3,7 +3,7 @@ import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from
 import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
- * Topping Visuals 2.0 PR-1 / Issue #825 SPRINKLE Pilot: the parmigiano the player places is drawn as a sprinkle of thin shavings (placed-only SVG, one tap = one piece), while the
+ * Topping Visuals 2.0 PR-1 / Issue #825 SPRINKLE Pilot: the parmigiano the player places is drawn as a sprinkle of thin shaved flakes -- broad flakes, long ribbons, crumbs (placed-only SVG, one tap = one piece), while the
  * tray chip -- the selection representation -- stays exactly the existing CSS plate. Real-browser (Chromium + WebKit, 390x844 and 360x800); the visual
  * judgement (does it read as shavings, is it distinct from ricotta-salata / truffle / mozzarella) is the Owner's iPhone HV, not this spec's.
  * Free Cooking with a throwaway in-memory-ish save (localStorage of this browser context only) that owns mozzarella, tomato sauce and parmigiano.
@@ -57,7 +57,7 @@ test.describe("Topping Visuals 2.0 / #825: parmigiano sprinkle", () => {
     const signatures = await pieces.evaluateAll((els) =>
       els.map((el) => ({ shavings: el.querySelectorAll("g[data-shaving]").length, markup: el.querySelector("svg")?.innerHTML ?? "" })),
     );
-    for (const s of signatures) expect(s.shavings).toBeGreaterThanOrEqual(8);
+    for (const s of signatures) expect(s.shavings).toBeGreaterThanOrEqual(9);
     // The three sprinkles are not the same stamp.
     expect(new Set(signatures.map((s) => s.markup)).size).toBe(3);
     // A wide placed box (not the old 28px glyph).
@@ -106,5 +106,36 @@ test.describe("Topping Visuals 2.0 / #825: parmigiano sprinkle", () => {
     expect(wrapperStyle).toContain("--bake-melt-scale");
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
+  });
+  test("taps at the rim: every shaving centre stays on the dough, in the placed view and in RESULT", async ({ page }) => {
+    test.setTimeout(120_000);
+    await startWithParmigiano(page);
+    await page.getByRole("button", { name: /パルミジャーノ/ }).first().click();
+    for (const [x, y] of [[50, 8], [90, 50], [20, 20], [50, 92]]) await tapDoughPercent(page, x, y);
+    await page.waitForTimeout(900);
+    const pieces = page.locator(".pizza-topping--parmigiano");
+    await expect(pieces).toHaveCount(4);
+    const outsideDough = () =>
+      page.evaluate(() => {
+        const dough = document.querySelector(".pizza-stage")?.getBoundingClientRect();
+        if (!dough) return -1;
+        const cx = dough.left + dough.width / 2;
+        const cy = dough.top + dough.height / 2;
+        const radius = Math.min(dough.width, dough.height) * 0.48; // DOUGH_RADIUS 48% of the stage box
+        let bad = 0;
+        for (const shaving of document.querySelectorAll(".pizza-topping--parmigiano g[data-shaving]")) {
+          const r = shaving.getBoundingClientRect();
+          if (Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy) > radius) bad += 1;
+        }
+        return bad;
+      });
+    expect(await outsideDough()).toBe(0);
+    const placed = await pieces.evaluateAll((els) => els.map((el) => el.querySelector("svg")?.innerHTML ?? ""));
+    await page.getByRole("button", { name: /次へ/ }).click();
+    await bakeToTarget(page, FREE_COOK_BAKE_TARGET);
+    await page.waitForSelector(".result-panel");
+    await expect(pieces).toHaveCount(4);
+    expect(await outsideDough()).toBe(0);
+    expect(await pieces.evaluateAll((els) => els.map((el) => el.querySelector("svg")?.innerHTML ?? ""))).toEqual(placed);
   });
 });

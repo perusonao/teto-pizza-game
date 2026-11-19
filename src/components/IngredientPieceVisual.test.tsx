@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom/vitest";
+import { SPRINKLE_BOX_PX } from "./placedVisuals/sprinkleLayout";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { getIngredient, STARTER_INGREDIENT_IDS } from "../data/ingredients";
@@ -168,9 +169,9 @@ describe("Topping Visuals 2.0 (#824 PR-1): surface boundary and the parmigiano p
     expect(container.querySelector('svg[data-ingredient-visual="parmigiano-shavings"]')).toBeNull();
   });
 
-  it("the placed sprinkle gets a wider box (60px) than the default 28px glyph; the selection surface and other cheeses keep the default", () => {
+  it("the placed sprinkle gets a wider box (SPRINKLE_BOX_PX) than the default 28px glyph; the selection surface and other cheeses keep the default", () => {
     const placed = render(<IngredientPieceVisual ingredient={parmigiano()} />);
-    expect((placed.container.firstElementChild as HTMLElement).style.getPropertyValue("--cheese-glyph-size")).toBe("60px");
+    expect((placed.container.firstElementChild as HTMLElement).style.getPropertyValue("--cheese-glyph-size")).toBe(`${SPRINKLE_BOX_PX}px`);
     placed.unmount();
     const selection = render(<IngredientPieceVisual ingredient={parmigiano()} surface="selection" />);
     expect((selection.container.firstElementChild as HTMLElement).style.getPropertyValue("--cheese-glyph-size")).toBe("");
