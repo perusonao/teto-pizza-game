@@ -1,0 +1,54 @@
+import { describe, expect, it } from "vitest";
+import { getIngredient } from "../data/ingredients";
+import { trayStockDisplay } from "../logic/trayStockDisplay";
+import { canPlaceIngredient, consumePizzaInventory, hasStock, remainingStock, type InventoryState } from "./inventory";
+import { createEmptyPizza, type PizzaState } from "./pizzaState";
+
+/**
+ * T26 (Owner 2026-11-17/18, D-T26-NDUJA-PLACEMENT): nduja is placed as small separate dollops, the inventory unit stays `use`, and
+ * ONE use = ONE dollop = ONE piece = stock 1 (the Shop pack of 20 = 10 pizzas x 2 dollops). The runtime has no unit field, so this
+ * contract pins the equivalence end to end: placing, the tray count, the stock gate and the bake-time consumption all agree.
+ */
+const nduja = getIngredient("nduja")!;
+const withDollops = (n: number): PizzaState => ({
+  ...createEmptyPizza(),
+  toppings: Array.from({ length: n }, (_, i) => ({ id: `nd-${i}`, ingredientId: "nduja", x: 30 + i * 10, y: 50 })),
+});
+
+describe("nduja inventory contract: 1 dollop = 1 use = stock 1", () => {
+  it("is a finite scatter ingredient (so each placed piece is counted and consumed)", () => {
+    expect(nduja.placement).toBe("scatter");
+    expect(nduja.unlockCondition).toBeDefined();
+  });
+
+  it("placing one dollop consumes exactly 1 stock at the bake (CONFIRM_BAKE), not the recipe minimum and not a whole pizza", () => {
+    const stock: InventoryState = { nduja: 20 };
+    expect(consumePizzaInventory(withDollops(1), stock).nduja).toBe(19);
+    expect(consumePizzaInventory(withDollops(2), stock).nduja).toBe(18);
+    expect(consumePizzaInventory(withDollops(3), stock).nduja).toBe(17);
+  });
+
+  it("the tray count falls by 1 per placed dollop and reaches 0 exactly when the stock gate refuses", () => {
+    const stock: InventoryState = { nduja: 2 };
+    expect(trayStockDisplay(nduja, stock, withDollops(0))).toBe(2);
+    expect(trayStockDisplay(nduja, stock, withDollops(1))).toBe(1);
+    expect(trayStockDisplay(nduja, stock, withDollops(2))).toBe(0);
+    expect(canPlaceIngredient(nduja, stock, withDollops(1))).toBe(true);
+    expect(canPlaceIngredient(nduja, stock, withDollops(2))).toBe(false);
+  });
+
+  it("with stock 0 no dollop can be placed; consumption never goes below 0", () => {
+    expect(hasStock(nduja, { nduja: 0 }, 0)).toBe(false);
+    expect(canPlaceIngredient(nduja, { nduja: 0 }, withDollops(0))).toBe(false);
+    expect(consumePizzaInventory(withDollops(3), { nduja: 1 }).nduja).toBe(0);
+  });
+
+  it("the Shop pack of 20 covers exactly 10 pizzas of the 2-dollop recipe (stock reaches 0 after the tenth)", () => {
+    let stock: InventoryState = { nduja: 20 };
+    for (let pizza = 0; pizza < 10; pizza++) {
+      expect(remainingStock(nduja, stock)).toBe(20 - pizza * 2);
+      stock = consumePizzaInventory(withDollops(2), stock);
+    }
+    expect(remainingStock(nduja, stock)).toBe(0);
+  });
+});

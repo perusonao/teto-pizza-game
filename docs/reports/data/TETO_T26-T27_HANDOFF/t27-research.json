@@ -1,0 +1,497 @@
+{
+ "keema-pizza": {
+  "aussie": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "aussie + keema-pizza materials only, onion last"
+   }
+  ],
+  "bacalhau": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "bacalhau + keema-pizza materials only, onion last"
+   }
+  ],
+  "baingan-bharta-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "baingan-bharta-pizza + keema-pizza materials only, onion last"
+   }
+  ],
+  "bbq-chicken-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "bbq-chicken-pizza + keema-pizza materials only, onion last"
+   }
+  ],
+  "brazilian-calabresa": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "brazilian-calabresa + keema-pizza materials only, onion last"
+   }
+  ],
+  "curry-pizza-japan": [
+   {
+    "change": "S->T",
+    "canonical": false,
+    "example": "every ladder material, onion last"
+   },
+   {
+    "change": "-->B",
+    "canonical": false,
+    "example": "curry-pizza-japan + keema-pizza materials only, onion last"
+   },
+   {
+    "change": "B->C",
+    "canonical": false,
+    "example": "curry-pizza-japan + keema-pizza materials + tuna, onion last"
+   },
+   {
+    "change": "P->Q",
+    "canonical": false,
+    "example": "random order 12, prefix 114"
+   },
+   {
+    "change": "N->O",
+    "canonical": false,
+    "example": "random order 13, prefix 129"
+   },
+   {
+    "change": "M->N",
+    "canonical": false,
+    "example": "random order 16, prefix 117"
+   },
+   {
+    "change": "O->P",
+    "canonical": false,
+    "example": "random order 17, prefix 115"
+   },
+   {
+    "change": "J->K",
+    "canonical": false,
+    "example": "random order 19, prefix 97"
+   },
+   {
+    "change": "E->F",
+    "canonical": false,
+    "example": "random order 21, prefix 84"
+   },
+   {
+    "change": "D->E",
+    "canonical": false,
+    "example": "random order 26, prefix 75"
+   }
+  ],
+  "flammkuchen": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "flammkuchen + keema-pizza materials only, onion last"
+   }
+  ],
+  "fugazza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "fugazza + keema-pizza materials only, onion last"
+   }
+  ],
+  "goulash-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "goulash-pizza + keema-pizza materials only, onion last"
+   }
+  ],
+  "nigerian-suya-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "nigerian-suya-pizza + keema-pizza materials only, onion last"
+   }
+  ],
+  "pizza-moscow": [
+   {
+    "change": "V->W",
+    "canonical": false,
+    "example": "every ladder material, onion last"
+   },
+   {
+    "change": "B->C",
+    "canonical": false,
+    "example": "pizza-moscow + keema-pizza materials only, onion last"
+   },
+   {
+    "change": "F->G",
+    "canonical": false,
+    "example": "random order 2, prefix 76"
+   },
+   {
+    "change": "R->S",
+    "canonical": false,
+    "example": "random order 7, prefix 125"
+   },
+   {
+    "change": "P->Q",
+    "canonical": false,
+    "example": "random order 13, prefix 129"
+   },
+   {
+    "change": "O->P",
+    "canonical": false,
+    "example": "random order 22, prefix 105"
+   },
+   {
+    "change": "N->O",
+    "canonical": false,
+    "example": "random order 27, prefix 112"
+   },
+   {
+    "change": "Q->R",
+    "canonical": false,
+    "example": "random order 36, prefix 118"
+   }
+  ],
+  "pizza-portuguesa": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "pizza-portuguesa + keema-pizza materials only, onion last"
+   }
+  ],
+  "polish-kielbasa": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "polish-kielbasa + keema-pizza materials only, onion last"
+   }
+  ],
+  "rendang-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "rendang-pizza + keema-pizza materials only, onion last"
+   }
+  ],
+  "south-african-boerewors": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "south-african-boerewors + keema-pizza materials only, onion last"
+   }
+  ],
+  "spanish-chorizo-pizza": [
+   {
+    "change": "T->U",
+    "canonical": false,
+    "example": "every ladder material, onion last"
+   },
+   {
+    "change": "B->C",
+    "canonical": false,
+    "example": "brazilian-calabresa + keema-pizza materials + bell-pepper, onion last"
+   },
+   {
+    "change": "-->B",
+    "canonical": false,
+    "example": "spanish-chorizo-pizza + keema-pizza materials only, onion last"
+   },
+   {
+    "change": "C->D",
+    "canonical": false,
+    "example": "supreme-pizza + keema-pizza materials + oregano, onion last"
+   },
+   {
+    "change": "P->Q",
+    "canonical": false,
+    "example": "random order 7, prefix 125"
+   },
+   {
+    "change": "Q->R",
+    "canonical": false,
+    "example": "random order 12, prefix 114"
+   },
+   {
+    "change": "N->O",
+    "canonical": false,
+    "example": "random order 16, prefix 117"
+   },
+   {
+    "change": "G->H",
+    "canonical": false,
+    "example": "random order 23, prefix 90"
+   }
+  ],
+  "tandoori-paneer-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "tandoori-paneer-pizza + keema-pizza materials only, onion last"
+   }
+  ],
+  "tonno-e-cipolla": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "tonno-e-cipolla + keema-pizza materials only, onion last"
+   }
+  ],
+  "veggie-supreme-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "veggie-supreme-pizza + keema-pizza materials only, onion last"
+   }
+  ],
+  "wasabi-beef-pizza": [
+   {
+    "change": "U->V",
+    "canonical": false,
+    "example": "every ladder material, onion last"
+   },
+   {
+    "change": "-->B",
+    "canonical": false,
+    "example": "wasabi-beef-pizza + keema-pizza materials only, onion last"
+   },
+   {
+    "change": "B->C",
+    "canonical": false,
+    "example": "wasabi-beef-pizza + keema-pizza materials + tuna, onion last"
+   },
+   {
+    "change": "Q->R",
+    "canonical": false,
+    "example": "random order 7, prefix 125"
+   },
+   {
+    "change": "O->P",
+    "canonical": false,
+    "example": "random order 13, prefix 129"
+   },
+   {
+    "change": "H->I",
+    "canonical": false,
+    "example": "random order 23, prefix 90"
+   },
+   {
+    "change": "M->N",
+    "canonical": false,
+    "example": "random order 27, prefix 112"
+   }
+  ]
+ },
+ "chicken-tikka-pizza": {
+  "aussie": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "aussie + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "bacalhau": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "bacalhau + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "baingan-bharta-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "baingan-bharta-pizza + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "banh-mi-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "banh-mi-pizza + chicken-tikka-pizza materials only, cilantro last"
+   }
+  ],
+  "bbq-chicken-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "bbq-chicken-pizza + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "curry-pizza-japan": [
+   {
+    "change": "-->B",
+    "canonical": false,
+    "example": "curry-pizza-japan + chicken-tikka-pizza materials only, onion last"
+   },
+   {
+    "change": "A->B",
+    "canonical": false,
+    "example": "curry-pizza-japan + chicken-tikka-pizza materials + sausage, onion last"
+   },
+   {
+    "change": "B->C",
+    "canonical": false,
+    "example": "curry-pizza-japan + chicken-tikka-pizza materials + tuna, onion last"
+   }
+  ],
+  "flammkuchen": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "flammkuchen + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "fugazza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "fugazza + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "goulash-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "goulash-pizza + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "nigerian-suya-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "nigerian-suya-pizza + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "pesto-vegetariana": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "pesto-vegetariana + chicken-tikka-pizza materials only, bell-pepper last"
+   }
+  ],
+  "pizza-moscow": [
+   {
+    "change": "B->C",
+    "canonical": false,
+    "example": "pizza-moscow + chicken-tikka-pizza materials only, onion last"
+   },
+   {
+    "change": "C->D",
+    "canonical": false,
+    "example": "pizza-moscow + chicken-tikka-pizza materials + sausage, onion last"
+   }
+  ],
+  "pizza-portuguesa": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "pizza-portuguesa + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "ratatouille-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "ratatouille-pizza + chicken-tikka-pizza materials only, bell-pepper last"
+   }
+  ],
+  "reina-pepiada-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "reina-pepiada-pizza + chicken-tikka-pizza materials only, cilantro last"
+   }
+  ],
+  "rendang-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "rendang-pizza + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "spanish-chorizo-pizza": [
+   {
+    "change": "B->C",
+    "canonical": false,
+    "example": "fugazza + chicken-tikka-pizza materials + sausage, onion last"
+   },
+   {
+    "change": "C->D",
+    "canonical": false,
+    "example": "pesto-tonno + chicken-tikka-pizza materials + sausage, onion last"
+   },
+   {
+    "change": "-->B",
+    "canonical": false,
+    "example": "spanish-chorizo-pizza + chicken-tikka-pizza materials only, bell-pepper last"
+   },
+   {
+    "change": "A->B",
+    "canonical": false,
+    "example": "wasabi-beef-pizza + chicken-tikka-pizza materials + sausage, onion last"
+   }
+  ],
+  "tandoori-paneer-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "tandoori-paneer-pizza + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "thai-chicken-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "thai-chicken-pizza + chicken-tikka-pizza materials only, cilantro last"
+   }
+  ],
+  "tonno-e-cipolla": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "tonno-e-cipolla + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "vegan-cashew-cheese-pizza": [
+   {
+    "change": "B->C",
+    "canonical": false,
+    "example": "pesto-vegetariana + chicken-tikka-pizza materials + cashew-cheese, bell-pepper last"
+   },
+   {
+    "change": "-->B",
+    "canonical": false,
+    "example": "vegan-cashew-cheese-pizza + chicken-tikka-pizza materials only, bell-pepper last"
+   },
+   {
+    "change": "A->B",
+    "canonical": false,
+    "example": "vegan-cashew-cheese-pizza + chicken-tikka-pizza materials + sausage, bell-pepper last"
+   }
+  ],
+  "veggie-supreme-pizza": [
+   {
+    "change": "-->A",
+    "canonical": false,
+    "example": "veggie-supreme-pizza + chicken-tikka-pizza materials only, onion last"
+   }
+  ],
+  "wasabi-beef-pizza": [
+   {
+    "change": "-->B",
+    "canonical": false,
+    "example": "wasabi-beef-pizza + chicken-tikka-pizza materials only, onion last"
+   },
+   {
+    "change": "B->C",
+    "canonical": false,
+    "example": "wasabi-beef-pizza + chicken-tikka-pizza materials + sausage, onion last"
+   }
+  ]
+ }
+}

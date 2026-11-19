@@ -1,0 +1,112 @@
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it } from "vitest";
+import { IngredientGlyph } from "../components/IngredientGlyph";
+import { IngredientPieceVisual } from "../components/IngredientPieceVisual";
+import { researchLetterChangesAcrossOrders } from "../logic/catalog/testSupport/researchLabelAudit";
+import { materialOffer } from "../logic/materialShop";
+import { DISCOVERY_LADDER } from "./discoveryLadder";
+import { getIngredient } from "./ingredients";
+import { RECIPE_SAUCE_PROFILES } from "./recipeSauceProfiles";
+import { RECIPES, type Recipe } from "./recipes";
+import { ingredientAttributeFamily } from "./ingredientTaxonomy";
+import { TOPPING_SIZE_CLASS_BY_ID } from "./toppingSizeClass";
+
+// Expansion Batch 26 (T26, #866 / #780): two ordinary recipes and one material (nduja). Hand-written records of the Owner approvals; nothing here is derived from the implementation.
+const NEW_IDS = ["nashville-hot-chicken-pizza", "nduja-pizza"] as const;
+const recipe = (id: string) => RECIPES.find((r) => r.id === id)! as Recipe;
+const need = (id: string) => recipe(id).requiredIngredients.map((r) => [r.ingredientId, r.minCount]);
+
+describe("T26 content contract (Owner final approval 2026-11-17)", () => {
+  it("nashville-hot-chicken-pizza: chicken 2 / honey 1 / mozzarella 3 / pickles 2, non-credit, no ladder step of its own", () => {
+    expect(need("nashville-hot-chicken-pizza")).toEqual([["chicken", 2], ["honey", 1], ["mozzarella", 3], ["pickles", 2]]);
+    expect(recipe("nashville-hot-chicken-pizza").ladderCredit).toBe(false);
+    expect(DISCOVERY_LADDER.steps.some((s) => s.keyRecipeId === "nashville-hot-chicken-pizza")).toBe(false);
+    expect(recipe("nashville-hot-chicken-pizza").description).toBe("ピリッとからいチキンに、あまさと酸味をそえた一枚。");
+  });
+
+  it("nduja-pizza: honey 1 / mozzarella 3 / nduja 2, credited (ladderCredit omitted), the key of the next ordinary step", () => {
+    expect(need("nduja-pizza")).toEqual([["honey", 1], ["mozzarella", 3], ["nduja", 2]]);
+    expect(recipe("nduja-pizza").ladderCredit).toBeUndefined();
+    const step = DISCOVERY_LADDER.steps.find((s) => s.keyRecipeId === "nduja-pizza")!;
+    expect([step.ingredientIds, step.kind]).toEqual([["nduja"], "MATERIAL"]);
+    expect(recipe("nduja-pizza").description).toBe("とろけるからいサラミのペーストを、あまい味でまとめた一枚。");
+  });
+
+  it("both recipes use honey as the primary PAINT sauce (GAMEPLAY ASSUMPTION: pre-bake; the source adds it after the bake)", () => {
+    for (const id of NEW_IDS) expect(RECIPE_SAUCE_PROFILES[id]).toEqual({ recipeId: id, ingredientId: "honey", interaction: "PAINT" });
+  });
+
+  it("nduja: a soft paste topping placed as small separate dollops (scatter), family meat, #a13517, size s, text fallback 🌋", () => {
+    const nduja = getIngredient("nduja")!;
+    expect([nduja.category, nduja.placement, nduja.color, nduja.emoji, nduja.pieceVisual]).toEqual(["topping", "scatter", "#a13517", "\u{1F30B}", "nduja-dollops"]);
+    expect(TOPPING_SIZE_CLASS_BY_ID.nduja).toBe("s");
+    expect(ingredientAttributeFamily("nduja")).toBe("meat");
+  });
+
+  it("the Shop pack follows 10 x k: nduja k=2 -> 20, pickles k 1 -> 2 -> 20 (price unchanged; Owner SHOP_PACK approval)", () => {
+    expect(materialOffer(getIngredient("nduja")!)).toMatchObject({ k: 2, packQuantity: 20 });
+    expect(materialOffer(getIngredient("pickles")!)).toMatchObject({ k: 2, packQuantity: 20 });
+  });
+
+  it("nduja draws its dedicated art in both places: the tray chip (3 dollops) and the placed piece (1 dollop), never the 🌋 emoji", () => {
+    const nduja = getIngredient("nduja")!;
+    const chip = renderToStaticMarkup(<IngredientGlyph ingredient={nduja} variant="selection" />);
+    const placed = renderToStaticMarkup(<IngredientGlyph ingredient={nduja} variant="placed" />);
+    expect(chip.match(/data-dollop/g)).toHaveLength(3);
+    expect(placed.match(/data-dollop/g)).toHaveLength(1);
+    expect(chip).not.toContain("\u{1F30B}");
+    expect(renderToStaticMarkup(<IngredientPieceVisual ingredient={nduja} />).match(/data-dollop/g)).toHaveLength(1);
+  });
+});
+
+describe("T26 Research approval pins (Owner R-RES-1: 9 IDs + the T24 addendum 2 IDs; a report of the preflight, restated by hand)", () => {
+  // shipped recipe -> the stage (shared material acquired last) and the maximum shift (letters) approved for it.
+  const APPROVED: Readonly<Record<string, { stage: string; maxShift: number }>> = {
+    "bbq-chicken-pizza": { stage: "chicken", maxShift: 1 },
+    "buffalo-chicken": { stage: "chicken", maxShift: 1 },
+    "cuban-pizza": { stage: "pickles", maxShift: 1 },
+    "curry-pizza-japan": { stage: "chicken", maxShift: 1 },
+    "frango-catupiry": { stage: "chicken", maxShift: 1 },
+    "jamaican-jerk-chicken-pizza": { stage: "chicken", maxShift: 1 },
+    "peruvian-aji-amarillo": { stage: "chicken", maxShift: 1 },
+    "pesto-noci-pizza": { stage: "honey", maxShift: 2 },
+    "pesto-pollo": { stage: "chicken", maxShift: 1 },
+    "reina-pepiada-pizza": { stage: "chicken", maxShift: 1 },
+    "thai-chicken-pizza": { stage: "chicken", maxShift: 1 },
+  };
+  const FIRST_LETTER_ONLY = ["bbq-chicken-pizza", "buffalo-chicken", "reina-pepiada-pizza"];
+  const changes = researchLetterChangesAcrossOrders(NEW_IDS, RECIPES as never, 40, 20261118, [], true);
+  const code = (letter: string) => letter.charCodeAt(0) - 64;
+
+  it("keeps canonical Research changes at exactly zero", () => {
+    expect([...changes.values()].flat().filter((c) => c.canonical)).toEqual([]);
+  });
+
+  it("every measured ID is one of the 11 approved (an upper bound: a sampled audit may see fewer, never another ID), at its approved stage", () => {
+    expect(Object.keys(APPROVED)).toHaveLength(11);
+    for (const [id, list] of changes) {
+      expect(Object.keys(APPROVED), id).toContain(id);
+      for (const item of list) {
+        const stage = /, ([a-z0-9-]+) last$/.exec(item.example)?.[1];
+        if (stage) expect(stage, `${id}/${item.example}`).toBe(APPROVED[id].stage);
+      }
+    }
+  }, 60_000);
+
+  it("every letter change stays within its approved direction and maximum shift", () => {
+    for (const [id, list] of changes) {
+      for (const item of list) {
+        const m = /^(-|[A-Z]+)->([A-Z]+)$/.exec(item.change);
+        expect(m, `${id}/${item.change}`).not.toBeNull();
+        const [, before, after] = m!;
+        if (FIRST_LETTER_ONLY.includes(id)) {
+          expect([before, after], id).toEqual(["-", "A"]);
+          continue;
+        }
+        const shift = before === "-" ? code(after) : code(after) - code(before);
+        expect(shift, `${id}/${item.change}`).toBeGreaterThanOrEqual(before === "-" ? 1 : 1);
+        expect(shift, `${id}/${item.change}`).toBeLessThanOrEqual(APPROVED[id].maxShift + (before === "-" ? 1 : 0));
+      }
+    }
+  }, 60_000);
+});
