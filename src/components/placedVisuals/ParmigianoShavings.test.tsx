@@ -43,12 +43,12 @@ describe("ParmigianoShavings", () => {
       const paths = group.querySelectorAll("path");
       expect(paths.length).toBeGreaterThanOrEqual(2);
       // shadow first (dark, faint), then the translucent ivory top face
-      expect(Number(paths[0].getAttribute("opacity"))).toBeLessThanOrEqual(0.18);
+      expect(Number(paths[0].getAttribute("opacity"))).toBeLessThanOrEqual(0.13);
       expect(Number(paths[0].getAttribute("opacity"))).toBeGreaterThan(0);
       expect(Number(paths[1].getAttribute("fill-opacity"))).toBeLessThan(0.9);
     });
     // flakes carry a lighter core, ribbons a highlight line
-    expect(container.querySelectorAll('g[data-shaving="flake"] path')).toHaveLength(shavings.filter((s) => s.kind === "flake").length * 3);
+    expect(container.querySelectorAll('g[data-shaving="flake"] path')).toHaveLength(shavings.filter((s) => s.kind === "flake").length * 4);
     expect(container.querySelectorAll('g[data-shaving="ribbon"] path[fill="none"]')).toHaveLength(shavings.filter((s) => s.kind === "ribbon").length);
   });
 

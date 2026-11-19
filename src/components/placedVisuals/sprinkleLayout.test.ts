@@ -7,6 +7,7 @@ import {
   SPRINKLE_FIELD_RADIUS,
   SPRINKLE_MAX_SHIFT,
   SPRINKLE_SHAVING_REACH,
+  SPRINKLE_STRAY_FACTOR,
   SPRINKLE_WRAPPER_ROTATION_DEG,
   hashSeed,
   sprinkleLayout,
@@ -52,9 +53,9 @@ describe("sprinkleLayout", () => {
     for (const seed of SEEDS) for (const s of sprinkleLayout(seed).shavings) {
       if (s.kind === "flake") {
         expect(s.len, seed).toBeGreaterThanOrEqual(10.5);
-        expect(s.wid / s.len, seed).toBeGreaterThanOrEqual(0.45);
-        expect(s.wid, seed).toBeGreaterThanOrEqual(4.7);
-        expect(s.verts.length).toBe(8);
+        expect(s.wid / s.len, seed).toBeGreaterThanOrEqual(0.38);
+        expect(s.wid, seed).toBeGreaterThanOrEqual(3.9);
+        expect(s.verts.length).toBe(9);
       } else if (s.kind === "ribbon") {
         expect(s.len, seed).toBeGreaterThanOrEqual(12);
         expect(s.wid, seed).toBeGreaterThanOrEqual(3.4);
@@ -121,8 +122,9 @@ describe("sprinkleLayout", () => {
 
   it("every shaving stays within the field plus its reach (centre radius and tip extent)", () => {
     for (const seed of SEEDS) for (const s of sprinkleLayout(seed).shavings) {
-      expect(Math.hypot(s.cx - 32, s.cy - 32), seed).toBeLessThanOrEqual(SPRINKLE_FIELD_RADIUS + 0.01);
-      expect(Math.hypot(s.cx - 32, s.cy - 32) + s.len / 2, seed).toBeLessThanOrEqual(SPRINKLE_FIELD_RADIUS + SPRINKLE_SHAVING_REACH + 0.5);
+      const limit = s.kind === "fragment" ? SPRINKLE_FIELD_RADIUS * SPRINKLE_STRAY_FACTOR : SPRINKLE_FIELD_RADIUS;
+      expect(Math.hypot(s.cx - 32, s.cy - 32), seed).toBeLessThanOrEqual(limit + 0.05);
+      expect(Math.hypot(s.cx - 32, s.cy - 32) + s.len / 2, seed).toBeLessThanOrEqual(SPRINKLE_FIELD_RADIUS * SPRINKLE_STRAY_FACTOR + SPRINKLE_SHAVING_REACH + 0.5);
     }
   });
 });

@@ -1,7 +1,7 @@
 /** Path geometry of the placed parmigiano shavings (pure; kept out of the component file so that file exports only a component). */
 export const r = (n: number): string => (Math.round(n * 100) / 100).toString();
 
-/** A broad flake: a soft irregular polygon (rounded corners, slightly uneven edges) around an ellipse, so no two are the same silhouette and none is a hard shard. */
+/** A broad flake: an irregular sheet outline (ragged, with notches; corners only slightly rounded) around an ellipse, so no two are the same silhouette and none is a hard shard. */
 export function flakePath(len: number, wid: number, verts: readonly number[]): string {
   const count = verts.length;
   const points = verts.map((factor, index) => {
@@ -13,8 +13,8 @@ export function flakePath(len: number, wid: number, verts: readonly number[]): s
   let d = "";
   for (let index = 0; index < count; index += 1) {
     const corner = points[index];
-    const before = toward(corner, points[(index + count - 1) % count], 0.42);
-    const after = toward(corner, points[(index + 1) % count], 0.42);
+    const before = toward(corner, points[(index + count - 1) % count], 0.3);
+    const after = toward(corner, points[(index + 1) % count], 0.3);
     d += `${index === 0 ? "M" : "L"} ${r(before.x)} ${r(before.y)} Q ${r(corner.x)} ${r(corner.y)} ${r(after.x)} ${r(after.y)} `;
   }
   return `${d}Z`;
@@ -27,6 +27,12 @@ const lerpProfile = (profile: readonly number[], offset: number, t: number): num
   const mix = position - index;
   return profile[offset + index] * (1 - mix) + profile[offset + index + 1] * mix;
 };
+
+/** One fine grain line along a flake (the fibre of a thin shaving), slightly off-axis. */
+export function grainPath(len: number, wid: number, core: number): string {
+  const l = (len / 2) * (0.5 + core * 0.4);
+  return `M ${r(-l)} ${r(wid * 0.06)} Q ${r(0)} ${r(-wid * 0.12)} ${r(l)} ${r(wid * 0.02)}`;
+}
 
 /** The centre line of a ribbon at `t` in 0..1: a slight arc plus a slow S-shaped wander. */
 function ribbonCentre(len: number, bend: number, wobble: number, t: number): { x: number; y: number } {

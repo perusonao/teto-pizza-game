@@ -23,11 +23,13 @@ export const SPRINKLE_DOUGH_RADIUS = 48;
 export const SPRINKLE_WRAPPER_ROTATION_DEG = -18;
 
 /** Where the shaving centres may fall (viewBox units around (32, 32)); the longest shaving reaches `SPRINKLE_SHAVING_REACH` further. */
-export const SPRINKLE_FIELD_RADIUS = 24;
+export const SPRINKLE_FIELD_RADIUS = 30;
+/** Crumbs are thrown a little further than the shavings (a few strays break the edge of the cloud). */
+export const SPRINKLE_STRAY_FACTOR = 1.25;
 export const SPRINKLE_SHAVING_REACH = 11;
 const VIEWBOX_CENTER = 32;
 /** How far (units) the field may be pulled inward at the rim. */
-export const SPRINKLE_MAX_SHIFT = 40;
+export const SPRINKLE_MAX_SHIFT = 44;
 
 export interface SprinkleLayout {
   readonly shavings: readonly ParmigianoShaving[];
@@ -68,7 +70,7 @@ function shuffle<T>(items: T[], rand: () => number): T[] {
 
 /** Centres: a rotated, offset, jittered lattice over the field (even spread), topped up by a few spaced random points if the lattice came up short. */
 function spreadCentres(rand: () => number, wanted: number): { x: number; y: number }[] {
-  const pitch = 11 + rand() * 2;
+  const pitch = 14 + rand() * 2;
   const phi = rand() * Math.PI;
   const offX = (rand() - 0.5) * pitch;
   const offY = (rand() - 0.5) * pitch;
@@ -96,7 +98,7 @@ function spreadCentres(rand: () => number, wanted: number): { x: number; y: numb
     const theta = rand() * Math.PI * 2;
     const x = VIEWBOX_CENTER + radius * Math.cos(theta);
     const y = VIEWBOX_CENTER + radius * Math.sin(theta);
-    if (points.every((p) => Math.hypot(p.x - x, p.y - y) >= 7)) points.push({ x, y });
+    if (points.every((p) => Math.hypot(p.x - x, p.y - y) >= 9)) points.push({ x, y });
   }
   return points.slice(0, wanted);
 }
@@ -121,8 +123,9 @@ export function sprinkleLayout(seed: string): SprinkleLayout {
     const angle = Math.round(rand() * 180 - 90);
     const edge = edges[index];
     const core = round(0.45 + rand() * 0.25);
-    const verts = (count: number): number[] => Array.from({ length: count }, () => round(0.72 + rand() * 0.5));
-    const base = { cx: round(c.x), cy: round(c.y), angle, fill, edge, core };
+    const verts = (count: number): number[] => Array.from({ length: count }, () => round(0.7 + rand() * 0.6));
+    const stray = kind === "fragment" ? SPRINKLE_STRAY_FACTOR : 1;
+    const base = { cx: round(VIEWBOX_CENTER + (c.x - VIEWBOX_CENTER) * stray), cy: round(VIEWBOX_CENTER + (c.y - VIEWBOX_CENTER) * stray), angle, fill, edge, core };
     if (kind === "ribbon") {
       const len = 12 + rand() * 6;
       return {
@@ -141,7 +144,7 @@ export function sprinkleLayout(seed: string): SprinkleLayout {
       return { ...base, kind, len: round(len), wid: round(len * (0.6 + rand() * 0.35)), bend: 0, wobble: 0, profile: [], verts: verts(5) };
     }
     const len = 10.5 + rand() * 6.5;
-    return { ...base, kind, len: round(len), wid: round(len * (0.45 + rand() * 0.35)), bend: 0, wobble: 0, profile: [], verts: verts(8) };
+    return { ...base, kind, len: round(len), wid: round(len * (0.38 + rand() * 0.42)), bend: 0, wobble: 0, profile: [], verts: verts(9) };
   });
   return { shavings };
 }

@@ -1,5 +1,7 @@
 # Topping Visuals 2.0 — parmigiano rev. 4（三日月型の解消・不均一な薄片、PR #875）
 
+> **更新あり**: rev. 5 が本書の flake の質感（縁取り・芯）と散布の広がり（場の半径 24・箱内の格子 11〜13）を置き換えた。現行は [`TETO_TOPPING-VISUALS-2_SPRINKLE-V5_Result.md`](TETO_TOPPING-VISUALS-2_SPRINKLE-V5_Result.md)。細長い帯・片数・契約は rev. 5 でも同じ。本書は 515dd32 時点の記録。
+
 状態: **実装済み・ローカル検証済み・Draft/HOLD（視覚品質 HOLD は Owner の再 HV まで継続）。** merge・Draft 解除・Production ON・共有 Preview 更新は未承認。
 根拠: Owner の iPhone Safari 再 HV [#875 comment 7003472747](https://github.com/perusonao/teto-pizza-game/pull/875#issuecomment-7003472747)（HEAD `4a508676`）。PASS: 米粒状の改善・アイボリー色・散布の広がり・外周のはみ出しなし・焼成後も表示が残る。要改善: 細長い片が三日月型の装飾に見える／幅広の片が角張って硬い欠片に見える／縁・陰影が一様でシート感が弱い。**工程別の描き分け（`PizzaStage` 配線）は今回のスコープ外。**
 
