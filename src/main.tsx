@@ -27,30 +27,49 @@ const postLayerBenchRequested =
   (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) &&
   new URLSearchParams(window.location.search).get('dev') === 'postlayer'
 
-// An Inspector / DEV State Editor / post-layer bench request never seeds: both are read-only on open, and a seed would reset / write the Preview save.
+// #755 Steam Gameplay Lab: DEV / Preview only, `?steamGameLab=on` (exactly once), same static gate. Replaces <App />; no player state is loaded or saved.
+// Decided BEFORE the Preview HV seed / Cook HV entries below so a Lab URL (V1 or V2, with or without `?hv=`) never resets or writes the Preview save.
+const steamGameLabRequested =
+  (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) &&
+  (() => {
+    const all = new URLSearchParams(window.location.search).getAll('steamGameLab')
+    return all.length === 1 && all[0] === 'on'
+  })()
+
+// An Inspector / DEV State Editor / post-layer bench / Steam Gameplay Lab request never seeds: all are read-only on open, and a seed would reset / write the Preview save.
 // Discovery Hint 5.0 H5-5: Preview builds only. `?hv=<scenario>` seeds the Preview save before the
 // app loads it. `import.meta.env.VITE_PREVIEW_MODE` is set only by the Preview build pipeline and is
 // replaced statically, so a production build drops this call and ./preview/hvSeeds.ts with it.
 // Cooking Prep HV entry (`?cookPrepHv=1`): DEV / Preview only, same static gate; swaps in a disposable in-memory save, never touching the real one.
-if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
-  try {
-    // The two HV entries are exclusive: the 炒める one wins when both are asked for.
-    if (!activateCookPrepHv(window)) activateCookSearHv(window)
-  } catch {
-    // A failing entry must never stop the game from starting.
+if (!steamGameLabRequested) {
+  if ((import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
+    try {
+      // The two HV entries are exclusive: the 炒める one wins when both are asked for.
+      if (!activateCookPrepHv(window)) activateCookSearHv(window)
+    } catch {
+      // A failing entry must never stop the game from starting.
+    }
   }
-}
-if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
-  try {
-    applyPreviewHvSeed(window.location.search, window.localStorage)
-  } catch {
-    // A failing seed must never stop the game from starting.
+  if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequested && !postLayerBenchRequested) {
+    try {
+      applyPreviewHvSeed(window.location.search, window.localStorage)
+    } catch {
+      // A failing seed must never stop the game from starting.
+    }
   }
 }
 
 const root = createRoot(document.getElementById('root')!)
 
-if (inspectorRequested) {
+if (steamGameLabRequested) {
+  void import('./preview/SteamGameLab').then(({ SteamGameLab }) => {
+    root.render(
+      <StrictMode>
+        <SteamGameLab />
+      </StrictMode>,
+    )
+  })
+} else if (inspectorRequested) {
   void import('./dev/DiscoveryProgressionInspector').then(({ DiscoveryProgressionInspector }) => {
     root.render(
       <StrictMode>
