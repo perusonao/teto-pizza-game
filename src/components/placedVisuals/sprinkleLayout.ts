@@ -9,6 +9,10 @@
  * How the spread is made (Owner HV on ddc2413: the shavings gathered in a few local lumps): a randomly rotated, randomly offset lattice laid over the field, each point
  * jittered, a random subset kept -- an even, blue-noise-like scatter, unlike plain random darts, which clump.
  *
+ * Rev. 6 (Owner decision 7010525105, A+B trial; rev. 5 kept in git as 0318d2b9): rev. 5's three taps still read as three lumps because each sprinkle's edge stopped
+ * about where the next began. So the field is wider (radius 30 -> 34), a sprinkle holds 11..12 pieces, the density FADES toward the edge (the subset is chosen with a bias
+ * for the inner lattice points), and four or five crumbs are thrown out of the outer part, so a lump's border dissolves into its neighbour instead of ending in a line.
+ *
  * No import from the game's logic / state: the two pizza constants below are copies, pinned to their source by a test.
  */
 import type { ParmigianoShaving } from "./parmigianoShavingsData";
@@ -23,12 +27,19 @@ export const SPRINKLE_DOUGH_RADIUS = 48;
 export const SPRINKLE_WRAPPER_ROTATION_DEG = -18;
 
 /** Where the shaving centres may fall (viewBox units around (32, 32)); the longest shaving reaches `SPRINKLE_SHAVING_REACH` further. */
-export const SPRINKLE_FIELD_RADIUS = 30;
+export const SPRINKLE_FIELD_RADIUS = 34;
 /** Crumbs are thrown a little further than the shavings (a few strays break the edge of the cloud). */
 export const SPRINKLE_STRAY_FACTOR = 1.25;
+/** Pieces per sprinkle (rev. 6: 11..12) and how many of them are crumbs (4..5) / thin strips (1..2); the rest are broad flakes (at least five). */
+export const SPRINKLE_COUNT_MIN = 11;
+export const SPRINKLE_COUNT_MAX = 12;
+export const SPRINKLE_CRUMBS_MIN = 4;
+export const SPRINKLE_CRUMBS_MAX = 5;
+/** How strongly the density fades outward: a lattice point at the field's edge is this many times less likely to be kept than one at the centre (priority = random x (1 + FADE x (r/R)^2)). */
+export const SPRINKLE_DENSITY_FADE = 2.2;
 export const SPRINKLE_SHAVING_REACH = 11;
 const VIEWBOX_CENTER = 32;
-/** How far (units) the field may be pulled inward at the rim. */
+/** How far (units) the field may be pulled inward at the rim. 44 units = about 66 CSS px in the 96px box. A cap of 52 (about 78px) was compared (rev. 6, Owner Y2: NOT adopted); pass it as `maxShift`. */
 export const SPRINKLE_MAX_SHIFT = 44;
 
 export interface SprinkleLayout {
@@ -70,7 +81,7 @@ function shuffle<T>(items: T[], rand: () => number): T[] {
 
 /** Centres: a rotated, offset, jittered lattice over the field (even spread), topped up by a few spaced random points if the lattice came up short. */
 function spreadCentres(rand: () => number, wanted: number): { x: number; y: number }[] {
-  const pitch = 14 + rand() * 2;
+  const pitch = 15 + rand() * 2;
   const phi = rand() * Math.PI;
   const offX = (rand() - 0.5) * pitch;
   const offY = (rand() - 0.5) * pitch;
@@ -92,9 +103,13 @@ function spreadCentres(rand: () => number, wanted: number): { x: number; y: numb
       points.push({ x: VIEWBOX_CENTER + x, y: VIEWBOX_CENTER + y });
     }
   }
-  shuffle(points, rand);
+  // density fade: each point gets a random priority that grows with its radius, and the best (smallest) ones are kept -- inner points survive more often than outer ones
+  const prioritised = points.map((p) => ({ p, key: rand() * (1 + SPRINKLE_DENSITY_FADE * (Math.hypot(p.x - VIEWBOX_CENTER, p.y - VIEWBOX_CENTER) / SPRINKLE_FIELD_RADIUS) ** 2) }));
+  prioritised.sort((a, b) => a.key - b.key);
+  points.length = 0;
+  for (const { p } of prioritised) points.push(p);
   for (let attempt = 0; points.length < wanted && attempt < 200; attempt += 1) {
-    const radius = SPRINKLE_FIELD_RADIUS * Math.sqrt(rand());
+    const radius = SPRINKLE_FIELD_RADIUS * 0.85 * Math.sqrt(rand());
     const theta = rand() * Math.PI * 2;
     const x = VIEWBOX_CENTER + radius * Math.cos(theta);
     const y = VIEWBOX_CENTER + radius * Math.sin(theta);
@@ -104,17 +119,22 @@ function spreadCentres(rand: () => number, wanted: number): { x: number; y: numb
 }
 
 /**
- * The shavings of one piece: 9..11 of them -- at least five broad soft flakes, one or two thin strips whose width wanders, two or three crumbs -- of mixed sizes, each
- * turned its own way, over an even irregular spread. Deterministic in `seed`.
+ * The shavings of one piece: 11..12 of them -- at least five broad soft flakes, one or two thin strips whose width wanders, four or five crumbs thrown from the outer part --
+ * of mixed sizes, each turned its own way, over an even irregular spread that thins toward the edge. Deterministic in `seed`.
  */
 export function sprinkleLayout(seed: string): SprinkleLayout {
   const rand = prng(hashSeed(seed));
-  const wanted = 9 + Math.floor(rand() * 3);
+  const wanted = SPRINKLE_COUNT_MIN + Math.floor(rand() * (SPRINKLE_COUNT_MAX - SPRINKLE_COUNT_MIN + 1));
   const centres = spreadCentres(rand, wanted);
-  const ribbons = 1 + Math.floor(rand() * 2);
-  const crumbs = 2 + (wanted > 9 ? Math.floor(rand() * 2) : 0);
-  const kinds: ParmigianoShaving["kind"][] = centres.map((_, index) => (index < ribbons ? "ribbon" : index < ribbons + crumbs ? "fragment" : "flake"));
-  shuffle(kinds, rand);
+  const crumbs = SPRINKLE_CRUMBS_MIN + Math.floor(rand() * (SPRINKLE_CRUMBS_MAX - SPRINKLE_CRUMBS_MIN + 1));
+  // one or two strips, but always at least five broad flakes (11 pieces with five crumbs leave room for one strip only)
+  const ribbons = Math.min(1 + Math.floor(rand() * 2), wanted - crumbs - 5);
+  // the crumbs are the strays: drawn from the outer 60% of the centres (by distance), the strips and flakes fill the rest
+  const byOuter = centres.map((_, index) => index).sort((a, b) => Math.hypot(centres[b].x - VIEWBOX_CENTER, centres[b].y - VIEWBOX_CENTER) - Math.hypot(centres[a].x - VIEWBOX_CENTER, centres[a].y - VIEWBOX_CENTER));
+  const crumbIndexes = new Set(shuffle(byOuter.slice(0, Math.ceil(centres.length * 0.6)), rand).slice(0, crumbs));
+  const rest = shuffle(centres.map((_, index) => index).filter((index) => !crumbIndexes.has(index)), rand);
+  const ribbonIndexes = new Set(rest.slice(0, ribbons));
+  const kinds: ParmigianoShaving["kind"][] = centres.map((_, index) => (crumbIndexes.has(index) ? "fragment" : ribbonIndexes.has(index) ? "ribbon" : "flake"));
   // stratified outline strengths, shuffled: every sprinkle holds both faint (thin) and firm edges
   const edges = shuffle(centres.map((_, index) => round(0.35 + 0.65 * ((index + rand()) / centres.length))), rand);
   const shavings: ParmigianoShaving[] = centres.map((c, index) => {
@@ -158,14 +178,19 @@ const UNITS_PER_PCT = 64 / SPRINKLE_BOX_PCT;
  * coordinates (what the game scores) never move; this is only the drawing's offset inside its box. Capped at `SPRINKLE_MAX_SHIFT` units. The box sits inside a wrapper
  * rotated by `rotationDeg`, so the on-screen "toward the centre" vector is turned back by that angle to be expressed in the drawing's own frame.
  */
-export function sprinkleShift(xPct: number, yPct: number, rotationDeg: number = SPRINKLE_WRAPPER_ROTATION_DEG): { x: number; y: number } {
+export function sprinkleShift(
+  xPct: number,
+  yPct: number,
+  rotationDeg: number = SPRINKLE_WRAPPER_ROTATION_DEG,
+  maxShift: number = SPRINKLE_MAX_SHIFT,
+): { x: number; y: number } {
   const dx = xPct - SPRINKLE_DOUGH_CENTER;
   const dy = yPct - SPRINKLE_DOUGH_CENTER;
   const distance = Math.hypot(dx, dy);
   if (!Number.isFinite(distance) || distance === 0) return { x: 0, y: 0 };
   const overflow = distance + REACH_PCT - SPRINKLE_DOUGH_RADIUS;
   if (overflow <= 0) return { x: 0, y: 0 };
-  const units = Math.min(SPRINKLE_MAX_SHIFT, overflow * UNITS_PER_PCT);
+  const units = Math.min(maxShift, overflow * UNITS_PER_PCT);
   const screenX = (-dx / distance) * units;
   const screenY = (-dy / distance) * units;
   const back = (-rotationDeg * Math.PI) / 180;

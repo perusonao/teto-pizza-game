@@ -24,14 +24,14 @@ const shavingCount = (container: HTMLElement) => container.querySelectorAll("g[d
 const signature = (container: HTMLElement) => container.querySelector("svg")?.innerHTML ?? "";
 
 describe("ParmigianoSprinkle", () => {
-  it("draws the layout of its piece id (9 to 11 shaved pieces), keeping the parmigiano svg marker", () => {
+  it("draws the layout of its piece id (11 to 12 shaved pieces), keeping the parmigiano svg marker", () => {
     const { container } = render(inStage("topping-4", "50%", "30%"));
     const svg = container.querySelector("svg");
     expect(svg).toHaveAttribute("data-ingredient-visual", "parmigiano-shavings");
     expect(shavingCount(container)).toBe(sprinkleLayout("topping-4").shavings.length);
-    expect(shavingCount(container)).toBeGreaterThanOrEqual(9);
+    expect(shavingCount(container)).toBeGreaterThanOrEqual(11);
     expect(svg?.querySelector("ellipse")).toBeNull();
-    expect(svg?.querySelectorAll("g[data-shaving=\"ribbon\"]").length).toBeGreaterThanOrEqual(2);
+    expect(svg?.querySelectorAll("g[data-shaving=\"ribbon\"]").length).toBeGreaterThanOrEqual(1);
   });
 
   it("two pieces draw different sprinkles; the same piece draws the same one again (after the bake, on a CUT half, in RESULT)", () => {

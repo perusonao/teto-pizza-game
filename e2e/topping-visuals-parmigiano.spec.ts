@@ -57,7 +57,7 @@ test.describe("Topping Visuals 2.0 / #825: parmigiano sprinkle", () => {
     const signatures = await pieces.evaluateAll((els) =>
       els.map((el) => ({ shavings: el.querySelectorAll("g[data-shaving]").length, markup: el.querySelector("svg")?.innerHTML ?? "" })),
     );
-    for (const s of signatures) expect(s.shavings).toBeGreaterThanOrEqual(9);
+    for (const s of signatures) expect(s.shavings).toBeGreaterThanOrEqual(11);
     // The three sprinkles are not the same stamp.
     expect(new Set(signatures.map((s) => s.markup)).size).toBe(3);
     // A wide placed box (not the old 28px glyph).

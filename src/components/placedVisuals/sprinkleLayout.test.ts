@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../../logic/pizzaCoordinates";
 import {
   SPRINKLE_BOX_PCT,
+  SPRINKLE_COUNT_MAX,
+  SPRINKLE_COUNT_MIN,
+  SPRINKLE_CRUMBS_MAX,
+  SPRINKLE_CRUMBS_MIN,
   SPRINKLE_DOUGH_CENTER,
   SPRINKLE_DOUGH_RADIUS,
   SPRINKLE_FIELD_RADIUS,
@@ -20,7 +24,7 @@ import {
  */
 const SEEDS = Array.from({ length: 60 }, (_, i) => `topping-${i + 1}`);
 // NOTE: the shape / spread / variety assertions below are a PIN over these 60 ids (the layout is deterministic, so they cannot flake), not a guarantee for every id: over
-// 20000 ids a few tails fall outside (a lattice with fewer occupied quarters, a narrow flake rounding just under the aspect bound, ...). The hard guarantees -- counts 9..11,
+// 20000 ids a few tails fall outside (a lattice with fewer occupied quarters, a narrow flake rounding just under the aspect bound, ...). The hard guarantees -- counts 11..12,
 // the kind mix, no NaN, the stray radius, the extents -- do hold for all 20000 ids (checked by the independent review).
 
 describe("sprinkleLayout", () => {
@@ -38,16 +42,16 @@ describe("sprinkleLayout", () => {
     }
   });
 
-  it("each sprinkle is nine to eleven shavings: at least five broad soft flakes, one or two thin strips, two or three crumbs", () => {
+  it("each sprinkle is eleven or twelve shavings: at least five broad soft flakes, one or two thin strips, four or five crumbs (rev. 6)", () => {
     for (const seed of SEEDS) {
       const { shavings } = sprinkleLayout(seed);
-      expect(shavings.length, seed).toBeGreaterThanOrEqual(9);
-      expect(shavings.length, seed).toBeLessThanOrEqual(11);
+      expect(shavings.length, seed).toBeGreaterThanOrEqual(SPRINKLE_COUNT_MIN);
+      expect(shavings.length, seed).toBeLessThanOrEqual(SPRINKLE_COUNT_MAX);
       const of = (kind: string) => shavings.filter((s) => s.kind === kind).length;
       expect(of("ribbon"), seed).toBeGreaterThanOrEqual(1);
       expect(of("ribbon"), seed).toBeLessThanOrEqual(2);
-      expect(of("fragment"), seed).toBeGreaterThanOrEqual(2);
-      expect(of("fragment"), seed).toBeLessThanOrEqual(3);
+      expect(of("fragment"), seed).toBeGreaterThanOrEqual(SPRINKLE_CRUMBS_MIN);
+      expect(of("fragment"), seed).toBeLessThanOrEqual(SPRINKLE_CRUMBS_MAX);
       expect(of("flake"), seed).toBeGreaterThanOrEqual(5);
     }
   });
@@ -123,6 +127,38 @@ describe("sprinkleLayout", () => {
     }
   });
 
+  it("rev. 6 trial values: field radius 34, 11..12 pieces, 4..5 crumbs", () => {
+    expect(SPRINKLE_FIELD_RADIUS).toBe(34);
+    expect([SPRINKLE_COUNT_MIN, SPRINKLE_COUNT_MAX]).toEqual([11, 12]);
+    expect([SPRINKLE_CRUMBS_MIN, SPRINKLE_CRUMBS_MAX]).toEqual([4, 5]);
+  });
+
+  it("the density fades toward the edge: pieces per unit area are clearly higher in the inner third of the field than in the outer third (rev. 6)", () => {
+    const radii: number[] = [];
+    for (const seed of SEEDS) for (const s of sprinkleLayout(seed).shavings) if (s.kind !== "fragment") radii.push(Math.hypot(s.cx - 32, s.cy - 32) / SPRINKLE_FIELD_RADIUS);
+    // annulus areas (in units of the disc area): inner disc r<0.577 has 1/3 of the area, the outer annulus r>0.816 has 1/3 as well
+    const inner = radii.filter((r) => r < Math.sqrt(1 / 3)).length;
+    const outer = radii.filter((r) => r >= Math.sqrt(2 / 3)).length;
+    expect(inner / outer).toBeGreaterThan(1.5);
+    // ...but it is a fade, not a hole: the outer third still holds pieces
+    expect(outer / radii.length).toBeGreaterThan(0.08);
+  });
+
+  it("the crumbs are the strays: they sit in the outer part of the sprinkle, further out than the median shaving, but are not a ring (they spread over the quarters)", () => {
+    for (const seed of SEEDS) {
+      const { shavings } = sprinkleLayout(seed);
+      const dist = (s: { cx: number; cy: number }) => Math.hypot(s.cx - 32, s.cy - 32);
+      const crumbs = shavings.filter((s) => s.kind === "fragment");
+      const others = shavings.filter((s) => s.kind !== "fragment").map(dist).sort((a, b) => a - b);
+      const median = others[Math.floor(others.length / 2)];
+      // crumbs are drawn from the outer 60% of the centres and then thrown 1.25x further
+      expect(Math.min(...crumbs.map(dist)), seed).toBeGreaterThan(median * 0.6);
+    }
+    const quarters = new Set<number>();
+    for (const seed of SEEDS) for (const s of sprinkleLayout(seed).shavings) if (s.kind === "fragment") quarters.add((s.cx >= 32 ? 1 : 0) + (s.cy >= 32 ? 2 : 0));
+    expect(quarters.size).toBe(4);
+  });
+
   it("every shaving stays within the field plus its reach (centre radius and tip extent)", () => {
     for (const seed of SEEDS) for (const s of sprinkleLayout(seed).shavings) {
       const limit = s.kind === "fragment" ? SPRINKLE_FIELD_RADIUS * SPRINKLE_STRAY_FACTOR : SPRINKLE_FIELD_RADIUS;
@@ -190,6 +226,19 @@ describe("sprinkleShift (keeps the sprinkle on the dough near the rim)", () => {
     const plain = sprinkleShift(50 + 46, 50, 0);
     expect(plain.y).toBeCloseTo(0, 5);
     expect(plain.x).toBeLessThan(0);
+  });
+
+  it("the rim cap is a parameter: the default stays 44 units (about 66px); a larger cap (52, compared in rev. 6, NOT adopted) pulls a rim tap further in, never past the cap", () => {
+    expect(SPRINKLE_MAX_SHIFT).toBe(44);
+    const rim = (maxShift?: number) => {
+      const s = sprinkleShift(50 + 47, 50, SPRINKLE_WRAPPER_ROTATION_DEG, maxShift);
+      return Math.hypot(s.x, s.y);
+    };
+    expect(rim()).toBeLessThanOrEqual(44.01);
+    expect(rim(52)).toBeGreaterThan(rim(44));
+    expect(rim(52)).toBeLessThanOrEqual(52.01);
+    // a tap that needs less than the cap is not moved further by a larger cap
+    expect(Math.hypot(...Object.values(sprinkleShift(50 + 30, 50, SPRINKLE_WRAPPER_ROTATION_DEG, 52)) as [number, number])).toBeCloseTo(Math.hypot(...Object.values(sprinkleShift(50 + 30, 50)) as [number, number]), 5);
   });
 
   it("ignores a non-finite position", () => {

@@ -1,6 +1,6 @@
 /**
  * Topping Visuals 2.0 / Issue #825 (Owner: parmigiano SPRINKLE Pilot): the PLACED parmigiano as a sprinkle. One tap is still one piece (count, stock, scoring, Undo and the
- * save are untouched); this component only draws that one piece as nine to eleven thin shaved flakes scattered over a wide field, different for every piece
+ * save are untouched); this component only draws that one piece as eleven to twelve thin shaved flakes (rev. 6) scattered over a wide field, different for every piece
  * (`sprinkleLayout`, seeded by the piece's id) and pulled inward near the rim (`sprinkleShift`) so it never spills over the crust.
  *
  * The piece's id and position are read from the stage's own wrapper (`[data-topping-id]` with its `left` / `top` percent) after the first render: the placed drawing is
