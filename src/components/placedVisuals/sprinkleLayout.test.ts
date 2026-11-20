@@ -427,6 +427,36 @@ describe("V8-1 (crumbs drawn from all centres)", () => {
     expect(innerShare(v81)).toBeLessThan(0.35);
   });
 
+  it("EVERY centre can be a crumb, innermost and outermost alike: by radius rank, each rank turns into a crumb in roughly 4.5/11.5 = 39% of the sprinkles (rev. 6: only the outer ranks)", () => {
+    const rate = (variant: typeof rev6) => {
+      const counts = new Array(11).fill(0) as number[];
+      const total = new Array(11).fill(0) as number[];
+      for (const seed of seeds) {
+        const ranked = sprinkleLayout(seed, variant)
+          .shavings.map((s) => ({ r: Math.hypot(...preStray(s).map((v) => v - 32) as [number, number]), crumb: s.kind === "fragment" }))
+          .sort((a, b) => a.r - b.r);
+        ranked.slice(0, 11).forEach((piece, rank) => {
+          total[rank] += 1;
+          if (piece.crumb) counts[rank] += 1;
+        });
+      }
+      return counts.map((c, i) => c / total[i]);
+    };
+    const v = rate(v81);
+    const r = rate(rev6);
+    for (const [rank, share] of v.entries()) {
+      expect(share, `V8-1 rank ${rank}`).toBeGreaterThan(0.15);
+      expect(share, `V8-1 rank ${rank}`).toBeLessThan(0.7);
+    }
+    // rev. 6 never makes the innermost ranks crumbs: the contrast is the point of the trial
+    expect(r[0]).toBe(0);
+    expect(r[1]).toBe(0);
+    // ...and by position in the list (the output keeps the centres' own order), so no single centre is excluded either
+    const byIndex = new Array(11).fill(0) as number[];
+    for (const seed of seeds) sprinkleLayout(seed, v81).shavings.slice(0, 11).forEach((piece, index) => { if (piece.kind === "fragment") byIndex[index] += 1; });
+    for (const [index, count] of byIndex.entries()) expect(count / seeds.length, `V8-1 index ${index}`).toBeGreaterThan(0.15);
+  });
+
   it("flakes and strips now reach the outer part (the point of V8-1): more of them sit beyond 0.7R than in rev. 6", () => {
     const outerFlakes = (variant: typeof rev6) =>
       seeds.flatMap((seed) => sprinkleLayout(seed, variant).shavings.filter((s) => s.kind !== "fragment" && Math.hypot(s.cx - 32, s.cy - 32) >= 0.7 * SPRINKLE_FIELD_RADIUS)).length;
