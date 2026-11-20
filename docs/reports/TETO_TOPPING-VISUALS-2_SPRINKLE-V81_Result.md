@@ -38,7 +38,7 @@ Owner 判断（2026-11-20、このセッション `session_016YrGi2PyYifphPjSZqy
   2. **旧 claim の保有者（または Owner）が、旧 claim を `"released": true` の新しいブロックで release する**。私は旧 claim を変更しない。
   3. #825 に引き継ぎの記録を 1 件残す（旧 claim の release、新 claim のコメント ID、担当一本化の Owner 判断）。
   - release までの間は 2 つの live な claim が並ぶが、上記のとおり警告のみで、作業は止まらない。
-- **今回は手順 1 を実行していない**（GitHub への書き込みで、今回の指示に含まれていないため）。次の 1 行の承認で投稿できる。投稿案（期限は投稿から最大 14 日。この囲みはコードフェンスなので**ライブではない**）:
+- **手順 1 は実行済み（2026-11-20 18:12 UTC、Owner 承認 [#875 comment 7047078886](https://github.com/perusonao/teto-pizza-game/pull/875#issuecomment-7047078886)）**: [#825 comment 7047103178](https://github.com/perusonao/teto-pizza-game/issues/825#issuecomment-7047103178)。機械読み取りで **LIVE（`session_016YrGi2PyYifphPjSZqy6W7`、`pr=875`、branch `claude/pr-875-rev6-ab-test-gkmhpd`、期限 2026-12-04、released=false）** を確認。**旧 claim（6994513148、期限 2026-11-25）は解除も上書きもしていない（いま 2 件の live な claim が並ぶ。警告のみで作業は止まらない）。手順 2（旧 claim の release）は旧保有者または Owner が行う**。Owner による整理が必要な場合のみ報告する運用で、現時点で作業を妨げるものはないが、**期限（11-25）まで放置しても害はなく、整理するなら Owner が旧 claim を `"released": true` で release する**。以下は投稿した claim の内容（コードフェンスなので**この囲みはライブではない**）:
 
 ```
 <!-- teto-claim:v1 {"session":"session_016YrGi2PyYifphPjSZqy6W7","issue":825,"pr":875,"branch":"claude/pr-875-rev6-ab-test-gkmhpd","files":["src/components/placedVisuals/**","docs/reports/TETO_TOPPING-VISUALS-2_SPRINKLE-V*","docs/reports/screenshots/topping-visuals-2/sprinkle-v6/**","docs/reports/screenshots/topping-visuals-2/sprinkle-v7/**","docs/reports/screenshots/topping-visuals-2/sprinkle-v8/**","docs/reports/data/TETO_SPRINKLE-V7/**"],"dependsOn":[874],"expires":"2026-12-04T00:00:00Z"} -->
@@ -117,7 +117,23 @@ Owner 判断（2026-11-20、このセッション `session_016YrGi2PyYifphPjSZqy
 | 6/6 | 114 passed・1 skipped | 1,820 passed・9 skipped |
 | **合計** | **687 passed・3 skipped（690）** | **12,797 passed・20 skipped・2 todo、失敗 0**（V7 の 12,790 に対し +7 = 今回追加したテスト） |
 
-  注: 全 Vitest は `2107999`（テスト強化の前）で実行。その後のテスト強化（`782f25a`、`sprinkleLayout.test.ts` のみ）は、focused 44 件・`tsc`・`oxlint` で確認（全 Vitest は再実行していない。変更はこのテストファイルの追加のみで、ソースは不変）。
+  注: 上の全 Vitest は `2107999`（テスト強化の前）の結果。**テスト強化後の最終 HEAD で全 Vitest を再実行した結果は次**。
+- **最終 HEAD `7a9aa8089cd60971a47c6dd4adc01b6d9ab62ca9`（`2107999` ＋テスト強化 `782f25a`）の全 Vitest（ローカル、`--shard=N/6`）: 6 シャードすべて失敗 0・exit 0。**
+
+| シャード | Files | Tests |
+|---|---|---|
+| 1/6 | 115 passed | 1,814 passed |
+| 2/6 | 115 passed | 1,719 passed・2 todo |
+| 3/6 | 115 passed | 2,243 passed・4 skipped |
+| 4/6 | 115 passed | 2,343 passed |
+| 5/6 | 113 passed・2 skipped | 2,859 passed・7 skipped |
+| 6/6 | 114 passed・1 skipped | 1,820 passed・9 skipped |
+| **合計** | **687 passed・3 skipped（690）** | **12,798 passed・20 skipped・2 todo、失敗 0**（`2107999` の 12,797 に対し +1 = テスト強化で足した 1 件） |
+
+- **最終 HEAD の独立レビュー**（別コンテキストの読み取り専用エージェント。**Codex ではなく、Codex は未実施**）: 対象 **`7a9aa80`** に固定。**判定: GO、P0/P1/P2 なし。前回の P2（生き残った変異 2 件）は解消を確認**: 「割り当て元から最初の中心を除く」「内側 60% から選ぶ」は、いずれも新しいテスト「EVERY centre can be a crumb …」が検出。追加で 15 件の独自の変異を実行し、**合計 17 件のうち 15 件を検出**（v81 の割り当て元を outer60 に戻す／rev6 の既定を all に／選択に主乱数列を使う／v81 が FADE も変える／欠片が 1 個多い／外側 60%→50%／最後の添字を除く／最内の中心を半径順で除く／外側 80% に限る／欠片の比率／stray 係数／欠片の角の数／最初の k 個、など）。**生き残りは P3 の 2 件**: ① 割り当て元から**最外周の中心を半径順で除く**変異（半径順位別の確認が 0〜10 位までで、12 片のときの 11 位を見ていないため。内側を除く鏡像は検出）、② 乱数の種の接尾辞 `|crumbpool` を外す変異（動作が等価＝実質無害）。**今回の指示は P2 の確認までなので、①のテスト追加はしていない**（比較試験で出荷しないため影響は小さい。必要なら「各 sprinkle の最後の順位」を見るテストの追加が安い対策）。新テストは 60 個の固定 id で決定的（flaky でない）。実際の割合は半径順位 0.283〜0.500・添字 0.267〜0.517 で、閾値 0.15／0.7 に対して余裕がある（rev.6 は順位 0〜3 が 0）。
+  - 最終 HEAD での再確認（20000 id）: 既定の出力と rev.6（`d096580`）の差 0／V8-1 のルール違反 0（同じ id で rev.6 と同じ片数・欠片数・細長の数）／本番の経路から v81 を選べない／`docs/` 以外の差分は `sprinkleLayout.ts` とそのテストのみ。
+  - 確認できなかった（レビュー側）: 実際の `tsc -b`・`oxlint`・リポジトリ全体のテスト（私のローカルでは `tsc -b` エラーなし・`oxlint` 警告なし・全 Vitest 失敗 0）、ブラウザでの見た目。17 件の変異は標本で、網羅的ではない。
+- **WebKit**: 最終 HEAD `7a9aa80` では**再実行していない**。`2107999` からの差分は `sprinkleLayout.test.ts`（Vitest 専用）と docs のみで、**実行されるソースは不変**のため（run `44764700720`、全 10 成功、対象 SHA `2107999`）。
 - **WebKit（GitHub、対象 SHA `2107999abd2162c80abcdacda57bc962b87f4b9a`、`workflow_dispatch` の run `44764700720`）: 全 10 check run が初回（attempt 1）で success**（390×844・360×800 の各 3 シャード、WebKit Gate、Layout Contract Gate、layout-chromium、classify。**再実行なし**）。範囲: この workflow（手動起動）の check run のみ。lint／型／全 Vitest の check run は CI に存在せず、上のローカル結果。試験ブランチは #875 の head ではないため、PR の check run には紐づかない。
 - **変異テスト**: `2107999` のテストに対し、私の 6 件（v81 の割り当て元を outer60 に戻す／rev6 の既定を all に／選択に主乱数列を使う／v81 が FADE も変える／欠片が 1 個多い／rev6 の外側 60% を 50% に）は、主乱数列の変異を捉える縁の集合のテストを足した後、すべて検出。**独立レビューの変異 10 件のうち 8 件を検出、2 件が生き残り（P2）**: 「割り当て元から最初の中心を除く」「内側 60% から選ぶ」。**強化後（`782f25a`）は 2 件とも検出**（半径順位別・添字別の「どの中心も欠片になりうる」テスト）。
 - **独立再レビュー**（別コンテキストの読み取り専用エージェント。**Codex ではなく、Codex は未実施**）: 対象 `2107999`（コードのみ）。**判定: GO、P0/P1 なし。** 20000 id で既定が rev.6 と同一（差 0）／V7-A・V7-C の出力が `e6fc289` から不変／V8-1 のルール違反 0・同じ id で rev.6 と同じ片数・欠片数・細長の数／中心の集合は rev.6 と同一（最大のずれ 0.0113＝丸め）／縁の強さの集合も 20000 id で同一／`sprinkleShift` は不変／幅広・細長・欠片の長さ・幅の平均は rev.6 と一致（分布が同じ）／v81 を選べる経路（UI・URL・env・保存）はない。
@@ -135,7 +151,7 @@ Owner 判断（2026-11-20、このセッション `session_016YrGi2PyYifphPjSZqy
 ## 8. Owner 判断が必要な点（まとめて 1 回。推奨つき）
 | ID | 論点 | 推奨 |
 |---|---|---|
-| V81-1 | **#825 に新 claim を投稿してよいか**（案は §1。旧 claim の release は旧保有者／Owner） | 投稿してよい（実害はないが、重複を解消して記録を残す） |
+| V81-1 | #825 の新 claim | **完了**（comment 7047103178、LIVE を確認）。旧 claim は未解除。**Owner による整理が要るか**: 現時点で不要（警告のみ）。整理するなら旧保有者／Owner が release |
 | V81-2 | V8-1 を**実機 HV にかけるか**（PR 専用 Preview は #875 の head にしか作れない。試験コードの Preview には、#875 の head への反映か別の公開手段の承認が要る） | 画像と数値で「橋は増えるが塊の印象は残る」見込み。**HV にかける価値はあるが、#875 の head への反映は Owner の別承認が必要** |
 | V81-3 | 外周に大きな薄片が増える見た目と、RESULT の切り線に掛かるピースの増加（+4.3pt）の許容 | HV で確認 |
 | V81-4 | V8-1 の次の案（欠片 2〜3 個／半径 36）を試すか | **V8-1 の HV の後**に判断 |
