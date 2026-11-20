@@ -1,0 +1,134 @@
+// TETO_ICONS-EGGPLANT-UNWIRED measurement (Issue #417). Usage: node measure.cjs <svgs.json> <repo-root> <out-json> <screens-dir>
+// Renders glyphs in Playwright Chromium (DPR3) on 3 approximate backgrounds, measures visible area and WCAG contrast. PROVISIONAL colours.
+const { chromium } = require("playwright");
+const fs = require("fs");
+const path = require("path");
+const [svgsPath, root, outJson, shotsDir] = process.argv.slice(2);
+const svgs = JSON.parse(fs.readFileSync(svgsPath, "utf8"));
+const mozz = fs
+  .readFileSync(path.join(root, "docs/design/references/ingredient-icons-2.0/mozzarella.svg"), "utf8")
+  .replace('width="64" height="64"', 'width="1em" height="1em"');
+const BGS = { dough: "#f5e8cc", "baked-dough": "#dba45b", "melted-cheese": "#e8c15a" };
+const EG_STATE = { dough: "raw", "baked-dough": "baked-good", "melted-cheese": "baked-good" };
+const SIZES = [17.6, 26, 33.6, 64];
+const strongW = (s) => s;
+const variantsFor = (bg) => {
+  const st = EG_STATE[bg];
+  return [
+    { id: "emoji", label: "🍆 emoji (current)", html: '<span style="font-family:\'Noto Color Emoji\';line-height:1">🍆</span>', em: 1 },
+    { id: "mozzarella-ref", label: "mozzarella ref", html: mozz, em: 1 },
+    { id: "eg-normal-1.0", label: "eggplant normal 1.0em", html: svgs[`eggplant/${st}/normal`], em: 1 },
+    { id: "eg-strong-1.0", label: "eggplant strong 1.0em", html: svgs[`eggplant/${st}/strong`], em: 1 },
+    { id: "eg-normal-1.2", label: "eggplant normal 1.2em", html: svgs[`eggplant/${st}/normal`], em: 1.2 },
+    { id: "eg-strong-1.2", label: "eggplant strong 1.2em", html: svgs[`eggplant/${st}/strong`], em: 1.2 },
+    { id: "eg-normal-1.35", label: "eggplant normal 1.35em", html: svgs[`eggplant/${st}/normal`], em: 1.35 },
+    { id: "eg-strong-1.35", label: "eggplant strong 1.35em", html: svgs[`eggplant/${st}/strong`], em: 1.35 },
+  ];
+};
+const walnutDark = (h) => h.replace(/stroke="#5a3a1a"/g, 'stroke="#2a1508"').replace(/stroke="#3a2009"/g, 'stroke="#1c0f05"').replace(/stroke-width="3"/g, 'stroke-width="4.2"').replace(/stroke-width="2\.2"/g, 'stroke-width="3.2"');
+const walnutVariants = [
+  { id: "walnut-raw-current", label: "walnut raw (current)", html: svgs["walnut/raw"], em: 1 },
+  { id: "walnut-baked-current", label: "walnut baked (current)", html: svgs["walnut/baked"], em: 1 },
+  { id: "walnut-raw-strong", label: "raw + darker/thicker outline", html: walnutDark(svgs["walnut/raw"]), em: 1 },
+  { id: "walnut-raw-1.2", label: "raw 1.2em", html: svgs["walnut/raw"], em: 1.2 },
+  { id: "walnut-raw-strong-1.2", label: "raw + strong outline, 1.2em", html: walnutDark(svgs["walnut/raw"]), em: 1.2 },
+  { id: "walnut-raw-as-baked-fill", label: "raw drawn with the baked palette", html: svgs["walnut/baked"], em: 1 },
+];
+const cellHtml = (v, size, bg, gray) =>
+  `<div class="cell" style="width:${Math.ceil(size * 1.8)}px;height:${Math.ceil(size * 1.8)}px;background:${BGS[bg]};${gray ? "filter:grayscale(1);" : ""}"><div style="font-size:${size * v.em}px;line-height:1;display:flex">${v.html}</div></div>`;
+const wcagL = (r, g, b) => {
+  const f = (c) => ((c /= 255) <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+};
+const ratio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+
+(async () => {
+  const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
+  const ctx = await browser.newContext({ deviceScaleFactor: 3, viewport: { width: 600, height: 400 } });
+  const page = await ctx.newPage();
+  await page.setContent(`<style>body{margin:0}.cell{display:flex;align-items:center;justify-content:center;overflow:visible}</style><div id="h"></div>`);
+  async function measure(v, size, bg) {
+    await page.evaluate((h) => (document.getElementById("h").innerHTML = h), cellHtml(v, size, bg, false));
+    const el = await page.$(".cell");
+    const png = await el.screenshot();
+    return page.evaluate(
+      async ({ b64, bgHex, size }) => {
+        const img = new Image();
+        img.src = "data:image/png;base64," + b64;
+        await img.decode();
+        const c = document.createElement("canvas");
+        c.width = img.width; c.height = img.height;
+        const x = c.getContext("2d"); x.drawImage(img, 0, 0);
+        const d = x.getImageData(0, 0, c.width, c.height).data;
+        const br = parseInt(bgHex.slice(1, 3), 16), bgc = parseInt(bgHex.slice(3, 5), 16), bb = parseInt(bgHex.slice(5, 7), 16);
+        const lum = (r, g, b) => { const f = (q) => ((q /= 255) <= 0.03928 ? q / 12.92 : ((q + 0.055) / 1.055) ** 2.4); return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+        const gray = (r, g, b) => 0.299 * r + 0.587 * g + 0.114 * b;
+        const bgGray = gray(br, bgc, bb);
+        let nC = 0, nG = 0, minX = 1e9, maxX = -1, minY = 1e9, maxY = -1, sr = 0, sg = 0, sb = 0;
+        const vis = [];
+        for (let i = 0; i < d.length; i += 4) {
+          const dist = Math.hypot(d[i] - br, d[i + 1] - bgc, d[i + 2] - bb);
+          const px = (i / 4) % c.width, py = Math.floor(i / 4 / c.width);
+          if (dist >= 30) {
+            nC++; sr += d[i]; sg += d[i + 1]; sb += d[i + 2];
+            vis.push(lum(d[i], d[i + 1], d[i + 2]));
+            if (px < minX) minX = px; if (px > maxX) maxX = px; if (py < minY) minY = py; if (py > maxY) maxY = py;
+          }
+          if (Math.abs(gray(d[i], d[i + 1], d[i + 2]) - bgGray) >= 20) nG++;
+        }
+        vis.sort((a, b) => a - b);
+        const dark = vis.slice(0, Math.max(1, Math.floor(vis.length * 0.15)));
+        const darkL = dark.reduce((a, b) => a + b, 0) / dark.length;
+        return {
+          nC, nG, w: (maxX - minX + 1) / 3, h: (maxY - minY + 1) / 3,
+          meanL: nC ? lum(sr / nC, sg / nC, sb / nC) : null, darkL, bgL: lum(br, bgc, bb),
+        };
+      },
+      { b64: png.toString("base64"), bgHex: BGS[bg], size },
+    );
+  }
+  const out = { note: "PROVISIONAL; approximate backgrounds; Chromium DPR3; visible = RGB distance >= 30 from bg (gray: |dY| >= 20 of 255)", bgs: BGS, sizes: SIZES, eggplantStateByBg: EG_STATE, cells: [] };
+  const sets = [
+    ...Object.keys(BGS).map((bg) => ({ kind: "eggplant", bg, vs: variantsFor(bg) })),
+    ...["dough", "baked-dough", "melted-cheese"].map((bg) => ({ kind: "walnut", bg, vs: walnutVariants })),
+  ];
+  for (const s of sets) {
+    for (const v of s.vs) {
+      for (const size of SIZES) {
+        const m = await measure(v, size, s.bg);
+        out.cells.push({
+          kind: s.kind, bg: s.bg, variant: v.id, size,
+          areaPx2: +(m.nC / 9).toFixed(1), areaOfBox: +(m.nC / 9 / (size * size)).toFixed(3), areaGrayPx2: +(m.nG / 9).toFixed(1),
+          bboxW: +m.w.toFixed(1), bboxH: +m.h.toFixed(1),
+          meanContrast: m.meanL == null ? null : +ratio(m.meanL, m.bgL).toFixed(2), edgeContrast: +ratio(m.darkL, m.bgL).toFixed(2),
+        });
+      }
+    }
+  }
+  fs.writeFileSync(outJson, JSON.stringify(out, null, 1));
+
+  // contact sheets (DPR2)
+  const sheet = await browser.newContext({ deviceScaleFactor: 2, viewport: { width: 1000, height: 800 } });
+  const sp = await sheet.newPage();
+  const block = (vs, bg, gray) =>
+    `<div class="blk"><div class="t">${gray ? "grayscale" : "color"} / ${bg}</div>` +
+    vs.map((v) => `<div class="row"><span class="l">${v.label}</span>${SIZES.map((sz) => `<div style="width:${Math.ceil(sz * 1.5) + 8}px">${cellHtml(v, sz, bg, gray).replace(/width:\d+px;height:\d+px/, `width:${Math.ceil(sz * 1.5) + 8}px;height:${Math.ceil(64 * 1.5) + 8}px`)}</div>`).join("")}</div>`).join("") +
+    `</div>`;
+  const css = `<style>body{margin:8px;font:11px sans-serif;background:#fff;color:#222}.cell{display:flex;align-items:center;justify-content:center;overflow:visible}.wrap{display:flex;gap:16px}.row{display:flex;align-items:center;gap:6px;margin:1px 0}.l{width:190px}.t{font-weight:bold;margin:2px 0}.hdr{margin-left:196px;display:flex;gap:6px;color:#666}</style>`;
+  const hdr = `<div class="hdr">${SIZES.map((s) => `<div style="width:${Math.ceil(s * 1.5) + 8}px">${s}px</div>`).join("")}</div>`;
+  const shots = [];
+  for (const bg of Object.keys(BGS)) shots.push([`0${shots.length + 1}-visibility-on-${bg}.png`, variantsFor(bg), bg]);
+  for (const [name, vs, bg] of shots) {
+    await sp.setContent(css + `<div class="wrap">${[false, true].map((g) => `<div>${hdr}${block(vs, bg, g)}</div>`).join("")}</div>`);
+    await sp.screenshot({ path: path.join(shotsDir, name), fullPage: true });
+  }
+  // states overview
+  const states = ["raw", "baked-good", "baked-burnt", "fried-crisp", "fried-over", "fried-baked"];
+  const rowFor = (bg) => `<div class="row"><span class="l">${bg}</span>${states.map((s) => `<div style="text-align:center;font-size:10px">${s}<br>${[64, 26, 17.6].map((sz) => cellHtml({ html: svgs[`eggplant/${s}/normal`], em: 1 }, sz, bg, false).replace(/width:\d+px;height:\d+px/, `width:${sz + 12}px;height:${sz + 12}px`)).join("")}</div>`).join("")}</div>`;
+  await sp.setContent(css + `<div>PROVISIONAL states (fried = HOLD placeholder). Sizes 64 / 26 / 17.6 px</div>` + Object.keys(BGS).map(rowFor).join(""));
+  await sp.screenshot({ path: path.join(shotsDir, "04-eggplant-states.png"), fullPage: true });
+  // walnut options
+  await sp.setContent(css + `<div class="wrap">${["melted-cheese", "baked-dough"].map((bg) => `<div>${hdr}${block(walnutVariants, bg, false)}</div>`).join("")}</div>`);
+  await sp.screenshot({ path: path.join(shotsDir, "05-walnut-mitigation-options.png"), fullPage: true });
+  await browser.close();
+})();
