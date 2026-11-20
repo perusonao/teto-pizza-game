@@ -191,7 +191,8 @@ export function sprinkleLayout(seed: string, variant: SprinkleVariant = SPRINKLE
       let outline = mainVerts;
       if (variant.crumbVerts !== 5) {
         const own = prng(hashSeed(`${seed}|crumb|${index}`));
-        outline = Array.from({ length: variant.crumbVerts }, () => round(0.65 + own() * 0.7));
+        // 0.7..1.3 like the flakes: with a wider range the angular nudge of flakePath (1.6 x deviation) can pass the next corner and the outline crosses itself; here the difference stays above 0.04 corner steps
+        outline = Array.from({ length: variant.crumbVerts }, () => round(0.7 + own() * 0.6));
       }
       return { ...base, kind, len: round(len), wid: round(len * (ratioMin + ratioDraw * (ratioMax - ratioMin))), bend: 0, wobble: 0, profile: [], verts: outline };
     }

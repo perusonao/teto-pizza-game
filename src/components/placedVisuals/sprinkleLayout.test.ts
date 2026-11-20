@@ -329,6 +329,35 @@ describe("rev. 7 comparison variants (V7-A crumbs, V7-C outer density)", () => {
     expect(moved).toBeGreaterThan(seeds.length / 2);
   });
 
+  it("no outline crosses itself: the corners of every crumb (and flake) keep their angular order, so the 7-corner V7-A outline stays a simple shape (review P3: a 0.65..1.35 range crossed itself for 348 of 89905 crumbs)", () => {
+    // the corner angle as flakePath places it (parmigianoShavingPaths.ts): index + 1.6 x (the factor three corners on - 1), over the corner count
+    const ordered = (verts: readonly number[]) => {
+      const n = verts.length;
+      const theta = verts.map((f, i) => ((i + (verts[(i + 3) % n] - 1) * 1.6) / n) * Math.PI * 2 + 0.35);
+      return theta.every((t, i) => (i === n - 1 ? theta[0] + Math.PI * 2 : theta[i + 1]) > t);
+    };
+    for (const variant of Object.values(SPRINKLE_VARIANTS)) {
+      for (const seed of seeds) for (const s of sprinkleLayout(seed, variant).shavings) {
+        if (s.kind === "ribbon") continue;
+        expect(ordered(s.verts), `${variant.name} ${seed} ${s.kind}`).toBe(true);
+        for (const f of s.verts) {
+          expect(f).toBeGreaterThanOrEqual(0.7 - 1e-9);
+          expect(f).toBeLessThanOrEqual(1.3 + 1e-9);
+        }
+      }
+    }
+  });
+
+  it("no preset combines the two trials: a variant that changes the crumbs keeps rev. 6's density fade and one that changes the density keeps rev. 6's crumbs (A+C is not approved)", () => {
+    const rev6 = SPRINKLE_VARIANTS.rev6;
+    for (const variant of Object.values(SPRINKLE_VARIANTS)) {
+      const crumbsChanged = JSON.stringify([variant.crumbRatio, variant.crumbVerts]) !== JSON.stringify([rev6.crumbRatio, rev6.crumbVerts]);
+      const densityChanged = variant.densityFade !== rev6.densityFade;
+      expect(crumbsChanged && densityChanged, variant.name).toBe(false);
+    }
+    expect(Object.keys(SPRINKLE_VARIANTS).sort()).toEqual(["rev6", "v7a", "v7c"]);
+  });
+
   it("every variant keeps every piece inside the same field plus reach (no variant widens the sprinkle)", () => {
     for (const variant of Object.values(SPRINKLE_VARIANTS)) {
       for (const seed of seeds) for (const s of sprinkleLayout(seed, variant).shavings) {
