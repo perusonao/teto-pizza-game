@@ -48,9 +48,25 @@ if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequest
   }
 }
 
+// #755 Steam Gameplay Lab: DEV / Preview only, `?steamGameLab=on` (exactly once), same static gate. Replaces <App />; no player state is loaded or saved.
+const steamGameLabRequested =
+  (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) &&
+  (() => {
+    const all = new URLSearchParams(window.location.search).getAll('steamGameLab')
+    return all.length === 1 && all[0] === 'on'
+  })()
+
 const root = createRoot(document.getElementById('root')!)
 
-if (inspectorRequested) {
+if (steamGameLabRequested) {
+  void import('./preview/SteamGameLab').then(({ SteamGameLab }) => {
+    root.render(
+      <StrictMode>
+        <SteamGameLab />
+      </StrictMode>,
+    )
+  })
+} else if (inspectorRequested) {
   void import('./dev/DiscoveryProgressionInspector').then(({ DiscoveryProgressionInspector }) => {
     root.render(
       <StrictMode>
