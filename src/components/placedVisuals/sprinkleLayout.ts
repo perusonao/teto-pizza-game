@@ -35,8 +35,32 @@ export const SPRINKLE_COUNT_MIN = 11;
 export const SPRINKLE_COUNT_MAX = 12;
 export const SPRINKLE_CRUMBS_MIN = 4;
 export const SPRINKLE_CRUMBS_MAX = 5;
-/** How strongly the density fades outward: a lattice point at the field's edge is this many times less likely to be kept than one at the centre (priority = random x (1 + FADE x (r/R)^2)). */
+/** How strongly the density fades outward in rev. 6: a lattice point at the field's edge is this many times less likely to be kept than one at the centre (priority = random x (1 + FADE x (r/R)^2)). */
 export const SPRINKLE_DENSITY_FADE = 2.2;
+
+/**
+ * Rev. 7 comparison trial (Owner 7029069474, branch only -- NOT adopted, A+C NOT approved): the two knobs are compared ONE AT A TIME against rev. 6, everything else fixed
+ * (radius 34, 11..12 pieces, 4..5 crumbs, rim cap 44, positions of all pieces' random draws).
+ *   rev6  the shipped rev. 6 drawing (the default; its output is pinned bit-identical by a test).
+ *   v7a   crumbs only: a narrower width/length ratio and a more irregular 7-corner outline, so a crumb reads as a small thin shaving rather than a round grain.
+ *         Every position, size, angle, kind and every non-crumb piece is identical to rev. 6 (the extra outline comes from its own random stream).
+ *   v7c   outer density only: a gentler fade (0.9 instead of 2.2), so the outer part of one sprinkle holds more pieces and neighbouring taps connect.
+ */
+export interface SprinkleVariant {
+  readonly name: "rev6" | "v7a" | "v7c";
+  readonly densityFade: number;
+  /** Crumb width / length ratio range: the rev. 6 raw draw u in [0,1) maps to `min + u * (max - min)` (rev. 6: 0.60..0.95). */
+  readonly crumbRatio: readonly [number, number];
+  /** Crumb outline corners: 5 = the rev. 6 draws; more = a separate random stream seeded by the piece id. */
+  readonly crumbVerts: number;
+}
+export const SPRINKLE_VARIANTS: { readonly rev6: SprinkleVariant; readonly v7a: SprinkleVariant; readonly v7c: SprinkleVariant } = {
+  rev6: { name: "rev6", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.6, 0.95], crumbVerts: 5 },
+  v7a: { name: "v7a", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.36, 0.56], crumbVerts: 7 },
+  v7c: { name: "v7c", densityFade: 0.9, crumbRatio: [0.6, 0.95], crumbVerts: 5 },
+};
+/** The variant the game draws. Stays `rev6` on this branch: the comparison builds flip this one constant (see the V7 Result). */
+export const SPRINKLE_ACTIVE_VARIANT: SprinkleVariant["name"] = "rev6";
 export const SPRINKLE_SHAVING_REACH = 11;
 const VIEWBOX_CENTER = 32;
 /** How far (units) the field may be pulled inward at the rim. 44 units = about 66 CSS px in the 96px box. A cap of 52 (about 78px) was compared (rev. 6, Owner Y2: NOT adopted); pass it as `maxShift`. */
@@ -80,7 +104,7 @@ function shuffle<T>(items: T[], rand: () => number): T[] {
 }
 
 /** Centres: a rotated, offset, jittered lattice over the field (even spread), topped up by a few spaced random points if the lattice came up short. */
-function spreadCentres(rand: () => number, wanted: number): { x: number; y: number }[] {
+function spreadCentres(rand: () => number, wanted: number, densityFade: number): { x: number; y: number }[] {
   const pitch = 15 + rand() * 2;
   const phi = rand() * Math.PI;
   const offX = (rand() - 0.5) * pitch;
@@ -104,7 +128,7 @@ function spreadCentres(rand: () => number, wanted: number): { x: number; y: numb
     }
   }
   // density fade: each point gets a random priority that grows with its radius, and the best (smallest) ones are kept -- inner points survive more often than outer ones
-  const prioritised = points.map((p) => ({ p, key: rand() * (1 + SPRINKLE_DENSITY_FADE * (Math.hypot(p.x - VIEWBOX_CENTER, p.y - VIEWBOX_CENTER) / SPRINKLE_FIELD_RADIUS) ** 2) }));
+  const prioritised = points.map((p) => ({ p, key: rand() * (1 + densityFade * (Math.hypot(p.x - VIEWBOX_CENTER, p.y - VIEWBOX_CENTER) / SPRINKLE_FIELD_RADIUS) ** 2) }));
   prioritised.sort((a, b) => a.key - b.key);
   points.length = 0;
   for (const { p } of prioritised) points.push(p);
@@ -122,10 +146,10 @@ function spreadCentres(rand: () => number, wanted: number): { x: number; y: numb
  * The shavings of one piece: 11..12 of them -- at least five broad soft flakes, one or two thin strips whose width wanders, four or five crumbs thrown from the outer part --
  * of mixed sizes, each turned its own way, over an even irregular spread that thins toward the edge. Deterministic in `seed`.
  */
-export function sprinkleLayout(seed: string): SprinkleLayout {
+export function sprinkleLayout(seed: string, variant: SprinkleVariant = SPRINKLE_VARIANTS[SPRINKLE_ACTIVE_VARIANT]): SprinkleLayout {
   const rand = prng(hashSeed(seed));
   const wanted = SPRINKLE_COUNT_MIN + Math.floor(rand() * (SPRINKLE_COUNT_MAX - SPRINKLE_COUNT_MIN + 1));
-  const centres = spreadCentres(rand, wanted);
+  const centres = spreadCentres(rand, wanted, variant.densityFade);
   const crumbs = SPRINKLE_CRUMBS_MIN + Math.floor(rand() * (SPRINKLE_CRUMBS_MAX - SPRINKLE_CRUMBS_MIN + 1));
   // one or two strips, but always at least five broad flakes (11 pieces with five crumbs leave room for one strip only)
   const ribbons = Math.min(1 + Math.floor(rand() * 2), wanted - crumbs - 5);
@@ -161,7 +185,15 @@ export function sprinkleLayout(seed: string): SprinkleLayout {
     }
     if (kind === "fragment") {
       const len = 4 + rand() * 2.5;
-      return { ...base, kind, len: round(len), wid: round(len * (0.6 + rand() * 0.35)), bend: 0, wobble: 0, profile: [], verts: verts(5) };
+      const ratioDraw = rand();
+      const mainVerts = verts(5); // always drawn, so the main random stream (and every later piece) is identical for every variant
+      const [ratioMin, ratioMax] = variant.crumbRatio;
+      let outline = mainVerts;
+      if (variant.crumbVerts !== 5) {
+        const own = prng(hashSeed(`${seed}|crumb|${index}`));
+        outline = Array.from({ length: variant.crumbVerts }, () => round(0.65 + own() * 0.7));
+      }
+      return { ...base, kind, len: round(len), wid: round(len * (ratioMin + ratioDraw * (ratioMax - ratioMin))), bend: 0, wobble: 0, profile: [], verts: outline };
     }
     const len = 10.5 + rand() * 6.5;
     return { ...base, kind, len: round(len), wid: round(len * (0.38 + rand() * 0.42)), bend: 0, wobble: 0, profile: [], verts: verts(9) };

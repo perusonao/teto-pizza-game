@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DOUGH_CENTER, DOUGH_RADIUS } from "../../logic/pizzaCoordinates";
 import {
+  SPRINKLE_ACTIVE_VARIANT,
   SPRINKLE_BOX_PCT,
   SPRINKLE_COUNT_MAX,
   SPRINKLE_COUNT_MIN,
@@ -12,6 +13,7 @@ import {
   SPRINKLE_MAX_SHIFT,
   SPRINKLE_SHAVING_REACH,
   SPRINKLE_STRAY_FACTOR,
+  SPRINKLE_VARIANTS,
   SPRINKLE_WRAPPER_ROTATION_DEG,
   hashSeed,
   sprinkleLayout,
@@ -243,5 +245,96 @@ describe("sprinkleShift (keeps the sprinkle on the dough near the rim)", () => {
 
   it("ignores a non-finite position", () => {
     expect(sprinkleShift(Number.NaN, 10)).toEqual({ x: 0, y: 0 });
+  });
+});
+
+/**
+ * Rev. 7 comparison trial (Owner 7029069474; branch only, NOT adopted, A+C NOT approved). The game still draws rev. 6; V7-A and V7-C are compared ONE AT A TIME against it,
+ * and each may change only its own knob. These tests pin exactly that.
+ */
+describe("rev. 7 comparison variants (V7-A crumbs, V7-C outer density)", () => {
+  const seeds = Array.from({ length: 60 }, (_, i) => `topping-${i + 1}`);
+
+  it("the game still draws rev. 6: the active variant is rev6 and its output is bit-identical to the shipped rev. 6 (pinned by a hash of 60 layouts taken from d096580)", () => {
+    expect(SPRINKLE_ACTIVE_VARIANT).toBe("rev6");
+    expect(sprinkleLayout("topping-7")).toEqual(sprinkleLayout("topping-7", SPRINKLE_VARIANTS.rev6));
+    expect(hashSeed(JSON.stringify(seeds.map((seed) => sprinkleLayout(seed))))).toBe(2180423179);
+  });
+
+  it("the variants differ from rev. 6 only in their documented knob; radius, counts, rim cap and rev. 6 itself are not touched", () => {
+    const { rev6, v7a, v7c } = SPRINKLE_VARIANTS;
+    expect(rev6).toMatchObject({ densityFade: 2.2, crumbRatio: [0.6, 0.95], crumbVerts: 5 });
+    expect({ ...v7a, name: "x", crumbRatio: 0, crumbVerts: 0 }).toEqual({ ...rev6, name: "x", crumbRatio: 0, crumbVerts: 0 });
+    expect({ ...v7c, name: "x", densityFade: 0 }).toEqual({ ...rev6, name: "x", densityFade: 0 });
+    expect(SPRINKLE_FIELD_RADIUS).toBe(34);
+    expect(SPRINKLE_MAX_SHIFT).toBe(44);
+  });
+
+  it("V7-A changes only the crumbs' width and outline: every other piece, and every crumb's position, size, angle, fill, edge and core, is identical to rev. 6", () => {
+    for (const seed of seeds) {
+      const before = sprinkleLayout(seed, SPRINKLE_VARIANTS.rev6).shavings;
+      const after = sprinkleLayout(seed, SPRINKLE_VARIANTS.v7a).shavings;
+      expect(after.length, seed).toBe(before.length);
+      before.forEach((b, index) => {
+        const a = after[index];
+        if (b.kind !== "fragment") {
+          expect(a, seed).toEqual(b);
+        } else {
+          expect({ ...a, wid: 0, verts: [] }, seed).toEqual({ ...b, wid: 0, verts: [] });
+          const [min, max] = SPRINKLE_VARIANTS.v7a.crumbRatio;
+          expect(a.wid / a.len, seed).toBeGreaterThanOrEqual(min - 0.02);
+          expect(a.wid / a.len, seed).toBeLessThanOrEqual(max + 0.02);
+          expect(a.verts.length, seed).toBe(7);
+          expect(a.wid, seed).toBeLessThanOrEqual(b.wid + 0.01);
+        }
+      });
+    }
+  });
+
+  it("V7-A crumbs are clearly narrower than rev. 6's (mean width/length about 0.46 against 0.78), still crumbs (length 4..6.5) and still not hairlines (width at least 1.3 units)", () => {
+    const ratio = (variant: (typeof SPRINKLE_VARIANTS)["rev6"]) => {
+      const crumbs = seeds.flatMap((seed) => sprinkleLayout(seed, variant).shavings.filter((s) => s.kind === "fragment"));
+      return { mean: crumbs.reduce((a, s) => a + s.wid / s.len, 0) / crumbs.length, crumbs };
+    };
+    const before = ratio(SPRINKLE_VARIANTS.rev6);
+    const after = ratio(SPRINKLE_VARIANTS.v7a);
+    expect(before.mean).toBeGreaterThan(0.7);
+    expect(after.mean).toBeLessThan(0.52);
+    expect(after.mean).toBeGreaterThan(0.38);
+    for (const s of after.crumbs) {
+      expect(s.len).toBeGreaterThanOrEqual(4);
+      expect(s.len).toBeLessThanOrEqual(6.5);
+      expect(s.wid).toBeGreaterThanOrEqual(1.3);
+    }
+  });
+
+  it("V7-C keeps rev. 6's counts and kinds (11..12 pieces, 4..5 crumbs of the rev. 6 shape rule, 1..2 strips, at least five flakes) and changes only where the pieces fall", () => {
+    let moved = 0;
+    for (const seed of seeds) {
+      const rev6 = sprinkleLayout(seed, SPRINKLE_VARIANTS.rev6).shavings;
+      const c = sprinkleLayout(seed, SPRINKLE_VARIANTS.v7c).shavings;
+      expect(c.length, seed).toBeGreaterThanOrEqual(SPRINKLE_COUNT_MIN);
+      expect(c.length, seed).toBeLessThanOrEqual(SPRINKLE_COUNT_MAX);
+      const of = (kind: string) => c.filter((s) => s.kind === kind).length;
+      expect(of("fragment"), seed).toBeGreaterThanOrEqual(SPRINKLE_CRUMBS_MIN);
+      expect(of("fragment"), seed).toBeLessThanOrEqual(SPRINKLE_CRUMBS_MAX);
+      expect(of("ribbon"), seed).toBeGreaterThanOrEqual(1);
+      expect(of("flake"), seed).toBeGreaterThanOrEqual(5);
+      for (const s of c.filter((x) => x.kind === "fragment")) {
+        expect(s.verts.length, seed).toBe(5);
+        expect(s.wid / s.len, seed).toBeGreaterThanOrEqual(0.58);
+      }
+      if (JSON.stringify(c.map((s) => [s.cx, s.cy])) !== JSON.stringify(rev6.map((s) => [s.cx, s.cy]))) moved += 1;
+    }
+    expect(moved).toBeGreaterThan(seeds.length / 2);
+  });
+
+  it("every variant keeps every piece inside the same field plus reach (no variant widens the sprinkle)", () => {
+    for (const variant of Object.values(SPRINKLE_VARIANTS)) {
+      for (const seed of seeds) for (const s of sprinkleLayout(seed, variant).shavings) {
+        const limit = s.kind === "fragment" ? SPRINKLE_FIELD_RADIUS * SPRINKLE_STRAY_FACTOR : SPRINKLE_FIELD_RADIUS;
+        expect(Math.hypot(s.cx - 32, s.cy - 32), `${variant.name} ${seed}`).toBeLessThanOrEqual(limit + 0.05);
+      }
+    }
   });
 });
