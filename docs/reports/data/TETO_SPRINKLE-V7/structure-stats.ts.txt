@@ -1,0 +1,28 @@
+import { sprinkleLayout, SPRINKLE_VARIANTS, SPRINKLE_FIELD_RADIUS } from "<repo>/src/components/placedVisuals/sprinkleLayout";
+const N = 20000;
+const R = SPRINKLE_FIELD_RADIUS;
+type Acc = { pieces: number; ink: number; crumbs: number; inkBand: number[]; piecesBand: number[]; crumbBand: number[]; bridgeInk: number; bridgePieces: number; bridgeCrumbs: number; bridgeFlakeRibbonInk: number; n: number; countSum: number; crumbInk: number; maxExt: number };
+function run(name: keyof typeof SPRINKLE_VARIANTS) {
+  const a: Acc = { pieces: 0, ink: 0, crumbs: 0, inkBand: [0, 0, 0, 0], piecesBand: [0, 0, 0, 0], crumbBand: [0, 0, 0, 0], bridgeInk: 0, bridgePieces: 0, bridgeCrumbs: 0, bridgeFlakeRibbonInk: 0, n: N, countSum: 0, crumbInk: 0, maxExt: 0 };
+  let lumpEmpty = 0;
+  for (let i = 1; i <= N; i += 1) {
+    const { shavings } = sprinkleLayout(`topping-${i}`, SPRINKLE_VARIANTS[name]);
+    a.countSum += shavings.length;
+    for (const s of shavings) {
+      const r = Math.hypot(s.cx - 32, s.cy - 32);
+      const ink = s.kind === "ribbon" ? s.len * s.wid * 0.8 : s.len * s.wid * 0.7; // rough drawn area (units^2)
+      a.pieces += 1; a.ink += ink;
+      const band = r < 0.4 * R ? 0 : r < 0.7 * R ? 1 : r < R ? 2 : 3; // 3 = strayed beyond the field radius
+      a.inkBand[band] += ink; a.piecesBand[band] += 1;
+      if (s.kind === "fragment") { a.crumbs += 1; a.crumbBand[band] += 1; a.crumbInk += ink; }
+      a.maxExt = Math.max(a.maxExt, r + s.len / 2);
+      // bridge zone for the Owner's 3-tap geometry: neighbours 39..44% apart = 78..88 units; reach of a footprint = R + 11 = 45 -> pieces beyond 33 units from their own centre can touch the neighbour
+      if (r >= 33) { a.bridgeInk += ink; a.bridgePieces += 1; if (s.kind === "fragment") a.bridgeCrumbs += 1; else a.bridgeFlakeRibbonInk += ink; }
+    }
+  }
+  const f = (x: number, d = 2) => Number(x.toFixed(d));
+  console.log(JSON.stringify({ variant: name, avgPieces: f(a.countSum / N), inkPerSprinkle: f(a.ink / N, 0), crumbShareOfPieces: f(a.crumbs / a.pieces), crumbShareOfInk: f(a.crumbInk / a.ink),
+    inkShareByBand_core_mid_outer_stray: a.inkBand.map((x) => f(x / a.ink)), piecesPerSprinkleByBand: a.piecesBand.map((x) => f(x / N)), crumbShareInBand: a.crumbBand.map((c, i) => f(c / Math.max(1, a.piecesBand[i]))),
+    bridge_r_ge_33: { piecesPerSprinkle: f(a.bridgePieces / N), crumbShareOfBridgePieces: f(a.bridgeCrumbs / Math.max(1, a.bridgePieces)), inkPerSprinkle: f(a.bridgeInk / N, 0), inkFromFlakesRibbonsPerSprinkle: f(a.bridgeFlakeRibbonInk / N, 0) }, maxExtentUnits: f(a.maxExt) }));
+}
+for (const v of ["rev6", "v7a", "v7c"] as const) run(v);
