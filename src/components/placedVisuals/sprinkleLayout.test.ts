@@ -333,7 +333,7 @@ describe("rev. 7 comparison variants (V7-A crumbs, V7-C outer density)", () => {
     // the corner angle as flakePath places it (parmigianoShavingPaths.ts): index + 1.6 x (the factor three corners on - 1), over the corner count
     const ordered = (verts: readonly number[]) => {
       const n = verts.length;
-      const theta = verts.map((f, i) => ((i + (verts[(i + 3) % n] - 1) * 1.6) / n) * Math.PI * 2 + 0.35);
+      const theta = verts.map((_, i) => ((i + (verts[(i + 3) % n] - 1) * 1.6) / n) * Math.PI * 2 + 0.35);
       return theta.every((t, i) => (i === n - 1 ? theta[0] + Math.PI * 2 : theta[i + 1]) > t);
     };
     for (const variant of Object.values(SPRINKLE_VARIANTS)) {
