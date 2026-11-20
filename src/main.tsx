@@ -5,6 +5,7 @@ import App from './App.tsx'
 import { applyPreviewHvSeed } from './preview/hvSeeds'
 import { activateCookPrepHv } from './preview/cookPrepHv'
 import { activateCookSearHv } from './preview/cookSearHv'
+import { midBakeLabOptedIn } from './preview/midBakeLab'
 
 // Discovery Progression Inspector: a DEV / Preview only, read-only developer screen, opened with
 // `?inspector=discovery`. Both env checks are replaced statically by Vite, so a production build
@@ -26,6 +27,11 @@ const devStateRequested =
 const postLayerBenchRequested =
   (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) &&
   new URLSearchParams(window.location.search).get('dev') === 'postlayer'
+
+// MID_BAKE Lab (#795 C-2): a DEV / Preview only, standalone experiment, opened with `?cookMidBakeHv=1` (exactly once, and only when no other dev / HV entry is asked for,
+// so the seed and the disposable-save entries below are no-ops for it). Same static gate: a production build drops this branch and the lazily imported Lab chunk.
+// It replaces <App />: no player state is loaded, seeded or saved.
+const midBakeLabRequested = (import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE) && midBakeLabOptedIn()
 
 // An Inspector / DEV State Editor / post-layer bench request never seeds: both are read-only on open, and a seed would reset / write the Preview save.
 // Discovery Hint 5.0 H5-5: Preview builds only. `?hv=<scenario>` seeds the Preview save before the
@@ -71,6 +77,14 @@ if (inspectorRequested) {
     root.render(
       <StrictMode>
         <StateEditorShell />
+      </StrictMode>,
+    )
+  })
+} else if (midBakeLabRequested) {
+  void import('./components/midBakeLab/MidBakeLab').then(({ MidBakeLab }) => {
+    root.render(
+      <StrictMode>
+        <MidBakeLab />
       </StrictMode>,
     )
   })
