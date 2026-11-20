@@ -140,3 +140,44 @@ describe("the change note belongs to the metric the gauge shows", () => {
     expect(screen.getByTestId("square-dough-gauge-note")).toHaveAttribute("data-change", "31.8");
   });
 });
+
+describe("AB-min: all four corners reached, STEP 1 still open (the Owner HV stuck state)", () => {
+  const pulls = (corners: number) =>
+    [{ x: 11, y: 11 }, { x: 89, y: 11 }, { x: 89, y: 89 }, { x: 11, y: 89 }]
+      .slice(0, corners)
+      .reduce((d, m) => dragAlong(d, { x: 50, y: 50 }, m), createInitialSquareDough());
+
+  it("says 「すき間をうめよう」 with the real coverage on the same goal line, and the next line follows; the gauge and steps are unchanged", () => {
+    renderAll(createInitialSquareDough());
+    act(() => squareDoughGaugeStore.setDough(pulls(4)));
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-corners", "4");
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-step", "1");
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-gaps", "true");
+    expect(screen.getByTestId("square-dough-goal")).toHaveTextContent("すき間をうめよう");
+    expect(screen.getByTestId("square-dough-goal")).toHaveTextContent("ひろがり 75.5%");
+    expect(screen.getByTestId("square-dough-goal")).not.toHaveTextContent("四隅");
+    expect(screen.getByTestId("square-dough-next")).toHaveTextContent("天板いっぱい");
+    // judgement and gauge are what they were: still STEP 1, coverage goal 95 %, not reached
+    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-metric", "coverage");
+    expect(screen.getByTestId("square-dough-gauge-goal")).toHaveTextContent("目標 95%");
+    expect(screen.getByTestId("square-dough-gauge")).toHaveAttribute("data-reached", "false");
+    expect(screen.getByTestId("square-dough-step-1")).toHaveAttribute("data-state", "now");
+  });
+
+  it("keeps the corner wording until the fourth corner (1..3 of 4 are unchanged)", () => {
+    renderAll(createInitialSquareDough());
+    act(() => squareDoughGaugeStore.setDough(pulls(3)));
+    expect(screen.getByTestId("square-dough-goal")).toHaveTextContent("四隅 3/4");
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-gaps", "false");
+    expect(screen.getByTestId("square-dough-next")).toHaveTextContent("四隅まで伸びたら");
+  });
+
+  it("goes back to the STEP 2 wording once STEP 1 is done (the guide never outlives STEP 1)", () => {
+    const full = new Array<number>(256).fill(0);
+    for (let r = 0; r < 16; r++) for (let c = 0; c < 16; c++) if (isSquareCellOnPan(r, c)) full[squareCellIndex(r, c)] = 0.3;
+    renderAll({ thickness: full });
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-step", "2");
+    expect(screen.getByTestId("square-dough-steps")).toHaveAttribute("data-gaps", "false");
+    expect(screen.getByTestId("square-dough-goal")).not.toHaveTextContent("すき間");
+  });
+});
