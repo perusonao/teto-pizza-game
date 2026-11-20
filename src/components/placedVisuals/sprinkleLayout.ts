@@ -44,20 +44,28 @@ export const SPRINKLE_DENSITY_FADE = 2.2;
  *   rev6  the shipped rev. 6 drawing (the default; its output is pinned bit-identical by a test).
  *   v7a   crumbs only: a narrower width/length ratio and a more irregular 7-corner outline, so a crumb reads as a small thin shaving rather than a round grain.
  *         Every position, size, angle, kind and every non-crumb piece is identical to rev. 6 (the extra outline comes from its own random stream).
- *   v7c   outer density only: a gentler fade (0.9 instead of 2.2), so the outer part of one sprinkle holds more pieces and neighbouring taps connect.
+ *   v7c   outer density only: a gentler fade (0.9 instead of 2.2), so the outer part of one sprinkle holds more pieces and neighbouring taps connect. (REJECTED by the Owner.)
+ *
+ * V8-1 single trial (Owner, this session; branch only -- NOT adopted): `v81` changes ONE knob, which pieces become crumbs. Rev. 6 draws the 4..5 crumbs from the outer 60% of the
+ * centres, so 87% of the pieces that reach a neighbouring tap are tiny crumbs and the big flakes stay inside; `v81` draws them from ALL centres. The centres, the piece count (11..12),
+ * the crumb count (4..5), the field radius (34), the density fade (2.2), the crumb shape and the rim cap (44) are all rev. 6's. Only the assignment of kinds to centres changes
+ * (and, because kinds draw different numbers of random values, the sizes and angles of the pieces that follow differ -- so v81 is compared statistically over many ids, not per id).
  */
 export interface SprinkleVariant {
-  readonly name: "rev6" | "v7a" | "v7c";
+  readonly name: "rev6" | "v7a" | "v7c" | "v81";
   readonly densityFade: number;
   /** Crumb width / length ratio range: the rev. 6 raw draw u in [0,1) maps to `min + u * (max - min)` (rev. 6: 0.60..0.95). */
   readonly crumbRatio: readonly [number, number];
   /** Crumb outline corners: 5 = the rev. 6 draws; more = a separate random stream seeded by the piece id. */
   readonly crumbVerts: number;
+  /** Which centres may become crumbs: `outer60` = the outer 60% by distance (rev. 6); `all` = every centre (V8-1). */
+  readonly crumbPool: "outer60" | "all";
 }
-export const SPRINKLE_VARIANTS: { readonly rev6: SprinkleVariant; readonly v7a: SprinkleVariant; readonly v7c: SprinkleVariant } = {
-  rev6: { name: "rev6", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.6, 0.95], crumbVerts: 5 },
-  v7a: { name: "v7a", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.36, 0.56], crumbVerts: 7 },
-  v7c: { name: "v7c", densityFade: 0.9, crumbRatio: [0.6, 0.95], crumbVerts: 5 },
+export const SPRINKLE_VARIANTS: { readonly rev6: SprinkleVariant; readonly v7a: SprinkleVariant; readonly v7c: SprinkleVariant; readonly v81: SprinkleVariant } = {
+  rev6: { name: "rev6", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "outer60" },
+  v7a: { name: "v7a", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.36, 0.56], crumbVerts: 7, crumbPool: "outer60" },
+  v7c: { name: "v7c", densityFade: 0.9, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "outer60" },
+  v81: { name: "v81", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "all" },
 };
 /** The variant the game draws. Stays `rev6` on this branch: the comparison builds flip this one constant (see the V7 Result). */
 export const SPRINKLE_ACTIVE_VARIANT: SprinkleVariant["name"] = "rev6";
@@ -153,9 +161,14 @@ export function sprinkleLayout(seed: string, variant: SprinkleVariant = SPRINKLE
   const crumbs = SPRINKLE_CRUMBS_MIN + Math.floor(rand() * (SPRINKLE_CRUMBS_MAX - SPRINKLE_CRUMBS_MIN + 1));
   // one or two strips, but always at least five broad flakes (11 pieces with five crumbs leave room for one strip only)
   const ribbons = Math.min(1 + Math.floor(rand() * 2), wanted - crumbs - 5);
-  // the crumbs are the strays: drawn from the outer 60% of the centres (by distance), the strips and flakes fill the rest
+  // the crumbs are the strays: rev. 6 draws them from the outer 60% of the centres (by distance), V8-1 from all of them; the strips and flakes fill the rest
   const byOuter = centres.map((_, index) => index).sort((a, b) => Math.hypot(centres[b].x - VIEWBOX_CENTER, centres[b].y - VIEWBOX_CENTER) - Math.hypot(centres[a].x - VIEWBOX_CENTER, centres[a].y - VIEWBOX_CENTER));
-  const crumbIndexes = new Set(shuffle(byOuter.slice(0, Math.ceil(centres.length * 0.6)), rand).slice(0, crumbs));
+  const outerPick = shuffle(byOuter.slice(0, Math.ceil(centres.length * 0.6)), rand).slice(0, crumbs); // always drawn, so the main random stream is identical for every variant
+  let crumbIndexes = new Set(outerPick);
+  if (variant.crumbPool === "all") {
+    // V8-1: any centre may be a crumb. Its own random stream (seeded by the piece id), so no main-stream draw changes.
+    crumbIndexes = new Set(shuffle(centres.map((_, index) => index), prng(hashSeed(`${seed}|crumbpool`))).slice(0, crumbs));
+  }
   const rest = shuffle(centres.map((_, index) => index).filter((index) => !crumbIndexes.has(index)), rand);
   const ribbonIndexes = new Set(rest.slice(0, ribbons));
   const kinds: ParmigianoShaving["kind"][] = centres.map((_, index) => (crumbIndexes.has(index) ? "fragment" : ribbonIndexes.has(index) ? "ribbon" : "flake"));

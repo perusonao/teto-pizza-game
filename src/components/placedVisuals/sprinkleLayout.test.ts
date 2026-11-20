@@ -348,14 +348,15 @@ describe("rev. 7 comparison variants (V7-A crumbs, V7-C outer density)", () => {
     }
   });
 
-  it("no preset combines the two trials: a variant that changes the crumbs keeps rev. 6's density fade and one that changes the density keeps rev. 6's crumbs (A+C is not approved)", () => {
+  it("no preset combines trials: every preset changes at most ONE of the three knobs (crumb shape / density fade / which centres may be crumbs) -- A+C and any other combination are not approved", () => {
     const rev6 = SPRINKLE_VARIANTS.rev6;
     for (const variant of Object.values(SPRINKLE_VARIANTS)) {
-      const crumbsChanged = JSON.stringify([variant.crumbRatio, variant.crumbVerts]) !== JSON.stringify([rev6.crumbRatio, rev6.crumbVerts]);
-      const densityChanged = variant.densityFade !== rev6.densityFade;
-      expect(crumbsChanged && densityChanged, variant.name).toBe(false);
+      const shapeChanged = JSON.stringify([variant.crumbRatio, variant.crumbVerts]) !== JSON.stringify([rev6.crumbRatio, rev6.crumbVerts]);
+      const fadeChanged = variant.densityFade !== rev6.densityFade;
+      const poolChanged = variant.crumbPool !== rev6.crumbPool;
+      expect([shapeChanged, fadeChanged, poolChanged].filter(Boolean).length, variant.name).toBeLessThanOrEqual(1);
     }
-    expect(Object.keys(SPRINKLE_VARIANTS).sort()).toEqual(["rev6", "v7a", "v7c"]);
+    expect(Object.keys(SPRINKLE_VARIANTS).sort()).toEqual(["rev6", "v7a", "v7c", "v81"]);
   });
 
   it("every variant keeps every piece inside the same field plus reach (no variant widens the sprinkle)", () => {
@@ -363,6 +364,81 @@ describe("rev. 7 comparison variants (V7-A crumbs, V7-C outer density)", () => {
       for (const seed of seeds) for (const s of sprinkleLayout(seed, variant).shavings) {
         const limit = s.kind === "fragment" ? SPRINKLE_FIELD_RADIUS * SPRINKLE_STRAY_FACTOR : SPRINKLE_FIELD_RADIUS;
         expect(Math.hypot(s.cx - 32, s.cy - 32), `${variant.name} ${seed}`).toBeLessThanOrEqual(limit + 0.05);
+      }
+    }
+  });
+});
+
+/**
+ * V8-1 single trial (Owner, branch only, NOT adopted): the 4..5 crumbs may come from ANY centre instead of the outer 60%. Everything else is rev. 6's: the centres, the piece count, the crumb
+ * count, the field radius, the density fade, the crumb shape and the rim cap. These tests pin that it is exactly that one change.
+ */
+describe("V8-1 (crumbs drawn from all centres)", () => {
+  const seeds = Array.from({ length: 60 }, (_, i) => `topping-${i + 1}`);
+  const rev6 = SPRINKLE_VARIANTS.rev6;
+  const v81 = SPRINKLE_VARIANTS.v81;
+  const preStray = (s: { kind: string; cx: number; cy: number }): [number, number] =>
+    s.kind === "fragment" ? [32 + (s.cx - 32) / SPRINKLE_STRAY_FACTOR, 32 + (s.cy - 32) / SPRINKLE_STRAY_FACTOR] : [s.cx, s.cy];
+
+  it("differs from rev. 6 in the crumb pool only", () => {
+    expect({ ...v81, name: "x", crumbPool: "outer60" }).toEqual({ ...rev6, name: "x" });
+    expect(v81.crumbPool).toBe("all");
+    expect(rev6.crumbPool).toBe("outer60");
+  });
+
+  it("keeps rev. 6's rules for every id: 11..12 pieces, 4..5 crumbs, 1..2 strips, at least five flakes -- and for the same id the same piece, crumb and strip counts as rev. 6", () => {
+    for (const seed of seeds) {
+      const before = sprinkleLayout(seed, rev6).shavings;
+      const after = sprinkleLayout(seed, v81).shavings;
+      const of = (list: typeof after, kind: string) => list.filter((s) => s.kind === kind).length;
+      expect(after.length, seed).toBe(before.length);
+      expect(after.length, seed).toBeGreaterThanOrEqual(SPRINKLE_COUNT_MIN);
+      expect(after.length, seed).toBeLessThanOrEqual(SPRINKLE_COUNT_MAX);
+      expect(of(after, "fragment"), seed).toBe(of(before, "fragment"));
+      expect(of(after, "ribbon"), seed).toBe(of(before, "ribbon"));
+      expect(of(after, "flake"), seed).toBeGreaterThanOrEqual(5);
+    }
+  });
+
+  it("the CENTRES are rev. 6's (the same set, up to rounding): only which of them is a crumb changes", () => {
+    for (const seed of seeds) {
+      const a = sprinkleLayout(seed, rev6).shavings.map(preStray);
+      const b = sprinkleLayout(seed, v81).shavings.map(preStray);
+      const gap = (from: [number, number][], to: [number, number][]) => Math.max(...from.map((p) => Math.min(...to.map((q) => Math.hypot(p[0] - q[0], p[1] - q[1])))));
+      expect(Math.max(gap(a, b), gap(b, a)), seed).toBeLessThan(0.05);
+    }
+  });
+
+  it("the main random stream is untouched: the stratified outline strengths drawn right after the kinds are assigned are the same set as rev. 6's for the same id (the crumb pool uses its own stream)", () => {
+    for (const seed of seeds) {
+      const edges = (variant: typeof rev6) => sprinkleLayout(seed, variant).shavings.map((s) => s.edge).sort((a, b) => a - b);
+      expect(edges(v81), seed).toEqual(edges(rev6));
+    }
+  });
+
+  it("crumbs now come from the inner part too: about a fifth sit in the inner 40% of the field (rev. 6: none), and the outer-60% rule no longer holds", () => {
+    const innerShare = (variant: typeof rev6) => {
+      const crumbs = seeds.flatMap((seed) => sprinkleLayout(seed, variant).shavings.filter((s) => s.kind === "fragment"));
+      const inner = crumbs.filter((s) => Math.hypot(s.cx - 32, s.cy - 32) / SPRINKLE_STRAY_FACTOR < 0.4 * SPRINKLE_FIELD_RADIUS).length;
+      return inner / crumbs.length;
+    };
+    expect(innerShare(rev6)).toBeLessThan(0.01);
+    expect(innerShare(v81)).toBeGreaterThan(0.1);
+    expect(innerShare(v81)).toBeLessThan(0.35);
+  });
+
+  it("flakes and strips now reach the outer part (the point of V8-1): more of them sit beyond 0.7R than in rev. 6", () => {
+    const outerFlakes = (variant: typeof rev6) =>
+      seeds.flatMap((seed) => sprinkleLayout(seed, variant).shavings.filter((s) => s.kind !== "fragment" && Math.hypot(s.cx - 32, s.cy - 32) >= 0.7 * SPRINKLE_FIELD_RADIUS)).length;
+    expect(outerFlakes(v81)).toBeGreaterThan(outerFlakes(rev6) * 1.3);
+  });
+
+  it("is deterministic and keeps every piece inside the same field plus reach", () => {
+    for (const seed of seeds) {
+      expect(sprinkleLayout(seed, v81)).toEqual(sprinkleLayout(seed, v81));
+      for (const s of sprinkleLayout(seed, v81).shavings) {
+        const limit = s.kind === "fragment" ? SPRINKLE_FIELD_RADIUS * SPRINKLE_STRAY_FACTOR : SPRINKLE_FIELD_RADIUS;
+        expect(Math.hypot(s.cx - 32, s.cy - 32), seed).toBeLessThanOrEqual(limit + 0.05);
       }
     }
   });
