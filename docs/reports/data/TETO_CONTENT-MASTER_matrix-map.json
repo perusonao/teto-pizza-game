@@ -227,6 +227,18 @@
    "shippedOnly": []
   },
   {
+   "evidenceId": "diavola-pizza-pizzadb-p5",
+   "shippedId": "diavola-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.667,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "tomato-sauce"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
    "evidenceId": "eggplant-dengaku-pizza-pizzadb-p6",
    "shippedId": "eggplant-dengaku-pizza",
    "mapped": true,
@@ -265,6 +277,15 @@
   {
    "evidenceId": "frango-catupiry-pizzadb-p10",
    "shippedId": "frango-catupiry",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "frutti-di-mare-pizzadb-p11",
+   "shippedId": "frutti-di-mare",
    "mapped": true,
    "sameComposition": true,
    "jaccard": 1.0,
@@ -491,6 +512,24 @@
   {
    "evidenceId": "parmigiana-pizza-pizzadb-p7",
    "shippedId": "parmigiana-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "peking-duck-pizza",
+   "shippedId": "peking-duck-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
+   "evidenceId": "peruvian-aji-amarillo-pizzadb-p12",
+   "shippedId": "peruvian-aji-amarillo",
    "mapped": true,
    "sameComposition": true,
    "jaccard": 1.0,
@@ -840,6 +879,15 @@
    "onlyBaseSauceDiffers": false
   },
   {
+   "evidenceId": "south-african-boerewors-pizzadb-p14",
+   "shippedId": "south-african-boerewors",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
+  },
+  {
    "evidenceId": "spanish-chorizo-pizza-pizzadb-p4",
    "shippedId": "spanish-chorizo-pizza",
    "mapped": true,
@@ -902,6 +950,15 @@
     "curry-ketchup"
    ],
    "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "thai-chicken-pizza-pizzadb-p4",
+   "shippedId": "thai-chicken-pizza",
+   "mapped": true,
+   "sameComposition": true,
+   "jaccard": 1.0,
+   "matrixOnly": [],
+   "shippedOnly": []
   },
   {
    "evidenceId": "tonno-e-cipolla-pizzadb",
@@ -1059,6 +1116,18 @@
    "matrixOnly": [],
    "shippedOnly": [
     "curry-ketchup"
+   ],
+   "onlyBaseSauceDiffers": true
+  },
+  {
+   "evidenceId": "diavola-pizza-pizzadb-p5",
+   "shippedId": "diavola-pizza",
+   "mapped": true,
+   "sameComposition": false,
+   "jaccard": 0.667,
+   "matrixOnly": [],
+   "shippedOnly": [
+    "tomato-sauce"
    ],
    "onlyBaseSauceDiffers": true
   },
