@@ -68,7 +68,8 @@ describe("placedVisuals boundary", () => {
       const text = fs.readFileSync(file, "utf8");
       const name = path.relative(COMPONENTS, file);
       expect(/\bfry\b|\bfried\b|steam|sear|\/logic\/|\/state\//i.test(text), `${name} must not mention or import another cooking method / state`).toBe(false);
-      if (/\.tsx$/.test(file)) {
+      // Only the files that draw an <svg> carry its attributes (ParmigianoSprinkle only chooses the layout and hands it to ParmigianoShavings).
+      if (/\.tsx$/.test(file) && text.includes("<svg")) {
         expect(/<svg[^>]*\sid=|url\(#|<defs|linearGradient|radialGradient/.test(text), `${name}: no id / gradient / defs / url references`).toBe(false);
         expect(text).toContain('aria-hidden="true"');
         expect(text).toContain('viewBox="0 0 64 64"');
