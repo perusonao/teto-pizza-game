@@ -129,9 +129,13 @@ export function sprinkleLayout(seed: string): SprinkleLayout {
   const crumbs = SPRINKLE_CRUMBS_MIN + Math.floor(rand() * (SPRINKLE_CRUMBS_MAX - SPRINKLE_CRUMBS_MIN + 1));
   // one or two strips, but always at least five broad flakes (11 pieces with five crumbs leave room for one strip only)
   const ribbons = Math.min(1 + Math.floor(rand() * 2), wanted - crumbs - 5);
-  // the crumbs are the strays: drawn from the outer 60% of the centres (by distance), the strips and flakes fill the rest
+  // V8-1 (Owner-approved real-device trial, this commit): the crumbs may come from ANY centre. Rev. 6 drew them from the outer 60% of the centres (by distance), so 87% of the
+  // pieces that reached a neighbouring tap were tiny crumbs and the big flakes stayed inside; now the outer part holds flakes and strips too. Everything else is rev. 6's (the centres,
+  // 11..12 pieces, 4..5 crumbs, radius 34, fade 2.2, crumb shape, rim cap 44). To keep every later draw of the main random stream aligned with rev. 6, the rev. 6 pick below is still
+  // drawn (and discarded); the crumbs themselves come from their own stream, seeded by the piece id.
   const byOuter = centres.map((_, index) => index).sort((a, b) => Math.hypot(centres[b].x - VIEWBOX_CENTER, centres[b].y - VIEWBOX_CENTER) - Math.hypot(centres[a].x - VIEWBOX_CENTER, centres[a].y - VIEWBOX_CENTER));
-  const crumbIndexes = new Set(shuffle(byOuter.slice(0, Math.ceil(centres.length * 0.6)), rand).slice(0, crumbs));
+  shuffle(byOuter.slice(0, Math.ceil(centres.length * 0.6)), rand);
+  const crumbIndexes = new Set(shuffle(centres.map((_, index) => index), prng(hashSeed(`${seed}|crumbpool`))).slice(0, crumbs));
   const rest = shuffle(centres.map((_, index) => index).filter((index) => !crumbIndexes.has(index)), rand);
   const ribbonIndexes = new Set(rest.slice(0, ribbons));
   const kinds: ParmigianoShaving["kind"][] = centres.map((_, index) => (crumbIndexes.has(index) ? "fragment" : ribbonIndexes.has(index) ? "ribbon" : "flake"));

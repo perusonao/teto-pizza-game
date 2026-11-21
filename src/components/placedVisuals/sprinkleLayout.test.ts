@@ -133,30 +133,62 @@ describe("sprinkleLayout", () => {
     expect([SPRINKLE_CRUMBS_MIN, SPRINKLE_CRUMBS_MAX]).toEqual([4, 5]);
   });
 
-  it("the density fades toward the edge: pieces per unit area are clearly higher in the inner third of the field than in the outer third (rev. 6)", () => {
+  it("the density still fades toward the edge, more gently since V8-1 (crumbs now spread inward too): broad flakes and strips are denser in the inner third than in the outer third, and the whole sprinkle is neither a ring nor a hole", () => {
     const radii: number[] = [];
     for (const seed of SEEDS) for (const s of sprinkleLayout(seed).shavings) if (s.kind !== "fragment") radii.push(Math.hypot(s.cx - 32, s.cy - 32) / SPRINKLE_FIELD_RADIUS);
     // annulus areas (in units of the disc area): inner disc r<0.577 has 1/3 of the area, the outer annulus r>0.816 has 1/3 as well
     const inner = radii.filter((r) => r < Math.sqrt(1 / 3)).length;
     const outer = radii.filter((r) => r >= Math.sqrt(2 / 3)).length;
-    expect(inner / outer).toBeGreaterThan(1.5);
+    // V8-1 position follow-up: with the crumbs no longer confined to the outer part, flakes and strips reach further out; the measured inner/outer ratio over these 60 ids is 1.48 (rev. 6: 2.64 by the same count)
+    expect(inner / outer).toBeGreaterThan(1.2);
     // ...but it is a fade, not a hole: the outer third still holds pieces
     expect(outer / radii.length).toBeGreaterThan(0.08);
+    // all pieces together (crumbs included): not a ring (the inner third holds a fair share) and not a hole (the outer third does not dominate)
+    const every: number[] = [];
+    for (const seed of SEEDS) for (const s of sprinkleLayout(seed).shavings) every.push(Math.hypot(s.cx - 32, s.cy - 32) / SPRINKLE_FIELD_RADIUS);
+    const innerAll = every.filter((r) => r < Math.sqrt(1 / 3)).length / every.length;
+    const outerAll = every.filter((r) => r >= Math.sqrt(2 / 3)).length / every.length;
+    expect(innerAll).toBeGreaterThan(0.25);
+    expect(outerAll).toBeLessThan(0.45);
   });
 
-  it("the crumbs are the strays: they sit in the outer part of the sprinkle, further out than the median shaving, but are not a ring (they spread over the quarters)", () => {
-    for (const seed of SEEDS) {
-      const { shavings } = sprinkleLayout(seed);
-      const dist = (s: { cx: number; cy: number }) => Math.hypot(s.cx - 32, s.cy - 32);
-      const crumbs = shavings.filter((s) => s.kind === "fragment");
-      const others = shavings.filter((s) => s.kind !== "fragment").map(dist).sort((a, b) => a - b);
-      const median = others[Math.floor(others.length / 2)];
-      // crumbs are drawn from the outer 60% of the centres and then thrown 1.25x further
-      expect(Math.min(...crumbs.map(dist)), seed).toBeGreaterThan(median * 0.6);
-    }
+  it("V8-1: the crumbs come from ALL centres, not only the outer part: about a fifth of them sit in the inner 40% of the field, they still spread over all four quarters, and the outer part holds broad flakes too", () => {
+    const crumbs = SEEDS.flatMap((seed) => sprinkleLayout(seed).shavings.filter((s) => s.kind === "fragment"));
+    const inner = crumbs.filter((s) => Math.hypot(s.cx - 32, s.cy - 32) / SPRINKLE_STRAY_FACTOR < 0.4 * SPRINKLE_FIELD_RADIUS).length / crumbs.length;
+    expect(inner).toBeGreaterThan(0.1);
+    expect(inner).toBeLessThan(0.35);
     const quarters = new Set<number>();
-    for (const seed of SEEDS) for (const s of sprinkleLayout(seed).shavings) if (s.kind === "fragment") quarters.add((s.cx >= 32 ? 1 : 0) + (s.cy >= 32 ? 2 : 0));
+    for (const s of crumbs) quarters.add((s.cx >= 32 ? 1 : 0) + (s.cy >= 32 ? 2 : 0));
     expect(quarters.size).toBe(4);
+    const outerFlakes = SEEDS.flatMap((seed) => sprinkleLayout(seed).shavings.filter((s) => s.kind !== "fragment" && Math.hypot(s.cx - 32, s.cy - 32) >= 0.7 * SPRINKLE_FIELD_RADIUS)).length;
+    // rev. 6 put 2.23 flakes/strips per sprinkle there, V8-1 puts 3.35 (about 1.5x): at least 1.2x the rev. 6 figure over these 60 ids
+    expect(outerFlakes / SEEDS.length).toBeGreaterThan(2.23 * 1.2);
+  });
+
+  it("V8-1: EVERY centre can be a crumb, innermost and outermost alike: by radius rank and by position in the list each turns into a crumb in roughly 4.5/11.5 = 39% of the sprinkles", () => {
+    const preStray = (s: { kind: string; cx: number; cy: number }): [number, number] =>
+      s.kind === "fragment" ? [32 + (s.cx - 32) / SPRINKLE_STRAY_FACTOR, 32 + (s.cy - 32) / SPRINKLE_STRAY_FACTOR] : [s.cx, s.cy];
+    const byRank = new Array(11).fill(0) as number[];
+    const byIndex = new Array(11).fill(0) as number[];
+    for (const seed of SEEDS) {
+      const list = sprinkleLayout(seed).shavings;
+      list.slice(0, 11).forEach((piece, index) => { if (piece.kind === "fragment") byIndex[index] += 1; });
+      list
+        .map((s) => ({ r: Math.hypot(...(preStray(s).map((v) => v - 32) as [number, number])), crumb: s.kind === "fragment" }))
+        .sort((a, b) => a.r - b.r)
+        .slice(0, 11)
+        .forEach((piece, rank) => { if (piece.crumb) byRank[rank] += 1; });
+    }
+    for (const [rank, count] of byRank.entries()) {
+      expect(count / SEEDS.length, `radius rank ${rank}`).toBeGreaterThan(0.15);
+      expect(count / SEEDS.length, `radius rank ${rank}`).toBeLessThan(0.7);
+    }
+    for (const [index, count] of byIndex.entries()) expect(count / SEEDS.length, `index ${index}`).toBeGreaterThan(0.15);
+  });
+
+  it("V8-1 is pinned: the output over 60 ids is exactly what the trial-branch preset v81 produced and the independent review verified (hash), so the shipped drawing is the reviewed one", () => {
+    // hash of JSON of 60 layouts; equal to the trial branch's `v81` preset (checked over 20000 ids with 0 differences). A change to the drawing must change this on purpose.
+    expect(hashSeed(JSON.stringify(SEEDS.map((seed) => sprinkleLayout(seed))))).toBe(1975367952);
   });
 
   it("every shaving stays within the field plus its reach (centre radius and tip extent)", () => {
