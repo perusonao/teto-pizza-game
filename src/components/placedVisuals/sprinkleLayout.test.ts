@@ -139,7 +139,7 @@ describe("sprinkleLayout", () => {
     // annulus areas (in units of the disc area): inner disc r<0.577 has 1/3 of the area, the outer annulus r>0.816 has 1/3 as well
     const inner = radii.filter((r) => r < Math.sqrt(1 / 3)).length;
     const outer = radii.filter((r) => r >= Math.sqrt(2 / 3)).length;
-    // V8-1 position follow-up: with the crumbs no longer confined to the outer part, flakes and strips reach further out; the measured inner/outer ratio over these 60 ids is 1.48 (rev. 6: 2.64 by the same count)
+    // V8-1 position follow-up: with the crumbs no longer confined to the outer part, flakes and strips reach further out; the measured inner/outer ratio over these 60 ids is 1.48 (rev. 6: 3.34 by the same count; so this threshold no longer separates V8-1 from rev. 6 -- the V8-1 tests below and the hash pin do)
     expect(inner / outer).toBeGreaterThan(1.2);
     // ...but it is a fade, not a hole: the outer third still holds pieces
     expect(outer / radii.length).toBeGreaterThan(0.08);
@@ -161,7 +161,7 @@ describe("sprinkleLayout", () => {
     for (const s of crumbs) quarters.add((s.cx >= 32 ? 1 : 0) + (s.cy >= 32 ? 2 : 0));
     expect(quarters.size).toBe(4);
     const outerFlakes = SEEDS.flatMap((seed) => sprinkleLayout(seed).shavings.filter((s) => s.kind !== "fragment" && Math.hypot(s.cx - 32, s.cy - 32) >= 0.7 * SPRINKLE_FIELD_RADIUS)).length;
-    // rev. 6 put 2.23 flakes/strips per sprinkle there, V8-1 puts 3.35 (about 1.5x): at least 1.2x the rev. 6 figure over these 60 ids
+    // over these 60 ids rev. 6 put 2.00 flakes/strips per sprinkle there and V8-1 puts 3.07 (about 1.5x); the floor is 1.2x of rev. 6's 2.23 measured over 4000 ids (2.676), a margin of 0.4 below V8-1's 3.07
     expect(outerFlakes / SEEDS.length).toBeGreaterThan(2.23 * 1.2);
   });
 

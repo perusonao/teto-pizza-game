@@ -11,7 +11,10 @@
  *
  * Rev. 6 (Owner decision 7010525105, A+B trial; rev. 5 kept in git as 0318d2b9): rev. 5's three taps still read as three lumps because each sprinkle's edge stopped
  * about where the next began. So the field is wider (radius 30 -> 34), a sprinkle holds 11..12 pieces, the density FADES toward the edge (the subset is chosen with a bias
- * for the inner lattice points), and four or five crumbs are thrown out of the outer part, so a lump's border dissolves into its neighbour instead of ending in a line.
+ * for the inner lattice points), and four or five crumbs are thrown out, so a lump's border dissolves into its neighbour instead of ending in a line.
+ *
+ * V8-1 (Owner-approved real-device trial): rev. 6 drew those crumbs from the outer 60% of the centres only, which left the outer part to tiny crumbs and the big flakes inside;
+ * the crumbs now come from ANY centre (see the pick below). The centres, counts, radius, fade, crumb shape and rim cap are rev. 6's; reverting the V8-1 commit restores rev. 6.
  *
  * No import from the game's logic / state: the two pizza constants below are copies, pinned to their source by a test.
  */
@@ -119,7 +122,7 @@ function spreadCentres(rand: () => number, wanted: number): { x: number; y: numb
 }
 
 /**
- * The shavings of one piece: 11..12 of them -- at least five broad soft flakes, one or two thin strips whose width wanders, four or five crumbs thrown from the outer part --
+ * The shavings of one piece: 11..12 of them -- at least five broad soft flakes, one or two thin strips whose width wanders, four or five crumbs taken from any of the centres (V8-1; rev. 6: only the outer 60%) --
  * of mixed sizes, each turned its own way, over an even irregular spread that thins toward the edge. Deterministic in `seed`.
  */
 export function sprinkleLayout(seed: string): SprinkleLayout {
