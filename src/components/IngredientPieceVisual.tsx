@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import type { Ingredient } from "../data/ingredients";
 import { IngredientGlyph } from "./IngredientGlyph";
-import { renderPlacedVisual } from "./placedVisuals/registry";
+import { placedBoxPx, renderPlacedVisual } from "./placedVisuals/registry";
 
 /**
  * Topping Visuals 2.0 (Issue #824): which representation of the ingredient is being drawn. `"placed"` (the default) is a piece lying on the pizza -- the
@@ -62,7 +62,7 @@ export function IngredientPieceVisual({ ingredient, className, style, surface = 
       )
         .filter(Boolean)
         .join(" ")}
-      style={isCheese ? ({ "--cheese-color": ingredient.color, ...style } as CSSProperties) : style}
+      style={isCheese ? ({ "--cheese-color": ingredient.color, ...(placedVisual && placedBoxPx(ingredient.id) ? { "--cheese-glyph-size": `${placedBoxPx(ingredient.id)}px` } : {}), ...style } as CSSProperties) : style}
     >
       {placedVisual ?? <IngredientGlyph ingredient={ingredient} variant="placed" />}
     </span>

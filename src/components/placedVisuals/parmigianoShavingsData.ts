@@ -1,28 +1,36 @@
 /**
- * Geometry of the placed parmigiano shavings (Topping Visuals 2.0 PR-1 rev. 2, Issue #824). A plain data module so the drawing component file exports only a component;
- * the SVG test pins these numbers (thin proportions, gaps, size and direction variety, bounds).
+ * Geometry types of the placed parmigiano (Topping Visuals 2.0, Issues #824 / #825). A plain data module so the drawing component file exports only a component.
+ *
+ * Freshly shaved Parmigiano Reggiano is not grains or leaves: it is thin, flat, irregular flakes of different sizes -- broad ragged flakes, a few long thin ribbons
+ * that curl a little, and tiny crumbs -- ivory and slightly translucent where they are thinnest. Three kinds are drawn:
+ *   flake    a broad irregular flake (width 50..80% of its length);
+ *   ribbon   a longer thin shaving whose width changes along its length (a strip, not a crescent: only a slight bend and an uneven outline);
+ *   fragment a small crumb.
  */
+export type ParmigianoShavingKind = "flake" | "ribbon" | "fragment";
+
 export interface ParmigianoShaving {
+  readonly kind: ParmigianoShavingKind;
   /** Centre in the 64x64 viewBox. */
   readonly cx: number;
   readonly cy: number;
-  /** Length along the shaving's own axis, and half-thickness (the shape is `2 * half` thick at most). */
+  /** Length along the shaving's own axis and its widest width, in viewBox units. */
   readonly len: number;
-  readonly half: number;
+  readonly wid: number;
   /** Rotation in degrees. */
   readonly angle: number;
-  /** Which of the three ivory/cream fills the top face uses. */
+  /** Ribbon bend as a fraction of the length (signed, small); 0 for flakes and fragments. */
+  readonly bend: number;
+  /** Ribbon only: a slow S-shaped wander of the centre line as a fraction of the length (signed); 0 otherwise. */
+  readonly wobble: number;
+  /** Ribbon only: ten width factors (five along the upper edge, five along the lower), so the strip is wider in one place and narrower in another; empty otherwise. */
+  readonly profile: readonly number[];
+  /** 0..1: how strong the outline and the shadow are (thin shavings have a fainter edge). */
+  readonly edge: number;
+  /** Scale (about 0.45..0.7) of the lighter, more opaque core inside a flake. */
+  readonly core: number;
+  /** Which of the three ivory fills the top face uses. */
   readonly fill: 0 | 1 | 2;
-  /** -1..1: skews the shape so no two shavings are the same silhouette. */
-  readonly skew: number;
+  /** Radial factors (about 0.8..1.2) of the flake / fragment outline vertices; empty for ribbons. They make every silhouette different. */
+  readonly verts: readonly number[];
 }
-
-/** Six separate shavings of different sizes and directions; pairwise centre distance and the thin proportions are pinned by the SVG test. */
-export const PARMIGIANO_SHAVINGS: readonly ParmigianoShaving[] = [
-  { cx: 25, cy: 27, len: 27, half: 4.1, angle: -22, fill: 0, skew: 0.5 },
-  { cx: 44, cy: 19, len: 17, half: 2.8, angle: 21, fill: 1, skew: -0.6 },
-  { cx: 43, cy: 38, len: 21, half: 3.5, angle: -7, fill: 2, skew: 0.2 },
-  { cx: 19, cy: 45, len: 15, half: 2.4, angle: 38, fill: 1, skew: -0.3 },
-  { cx: 33, cy: 51, len: 13, half: 2.1, angle: 6, fill: 0, skew: 0.7 },
-  { cx: 15, cy: 15, len: 10, half: 1.7, angle: -48, fill: 2, skew: -0.8 },
-];
