@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { ParmigianoShavings } from "./ParmigianoShavings";
 import { flakePath, ribbonPath } from "./parmigianoShavingPaths";
-import { sprinkleLayout } from "./sprinkleLayout";
+import { SPRINKLE_VARIANTS, sprinkleLayout } from "./sprinkleLayout";
 
 /**
  * The placed parmigiano drawing (rev. 3). SVG-only checks: the Style Lock V2 shape (64x64, 1em, aria-hidden, no id / gradient / defs / url), three real-cheese kinds, low
@@ -74,6 +74,39 @@ describe("ParmigianoShavings", () => {
     cleanup();
     const plain = render(<ParmigianoShavings shavings={shavings} shift={{ x: 0, y: 0 }} />).container;
     expect(plain.querySelector("svg > g")?.getAttribute("transform")).toBeNull();
+  });
+});
+
+describe("ParmigianoShavings paint (V9 trial F2: the look prop)", () => {
+  const f2 = SPRINKLE_VARIANTS.f2.look;
+  const topFaces = (container: HTMLElement) => [...container.querySelectorAll<SVGPathElement>("g[data-shaving] > path[fill-opacity]")];
+  const flakes = shavings.filter((s) => s.kind === "flake").length;
+
+  it("with no look (rev. 6 / V8-1) the fill is 0.8 opaque and every flake carries a core and a grain line", () => {
+    const container = draw();
+    for (const face of topFaces(container)) expect(face).toHaveAttribute("fill-opacity", "0.8");
+    expect(container.querySelectorAll("path[fill='#fffaec']")).toHaveLength(flakes);
+    expect(container.querySelectorAll("path[stroke='#d9cca5']")).toHaveLength(flakes);
+  });
+
+  it("with the F2 look the fill is 0.6 opaque, the outline and the shadow are half as strong, and there is no core and no grain line -- and nothing else moves", () => {
+    const plain = draw();
+    const light = render(<ParmigianoShavings shavings={shavings} look={f2} />).container;
+    const faces = topFaces(light);
+    const plainFaces = topFaces(plain);
+    expect(faces).toHaveLength(plainFaces.length);
+    faces.forEach((face, index) => {
+      expect(face).toHaveAttribute("fill-opacity", "0.6");
+      // the outline opacity is half of the plain one (rounded to 0.01 like the markup), the geometry (d) is identical
+      expect(Math.abs(Number(face.getAttribute("stroke-opacity")) - Number(plainFaces[index].getAttribute("stroke-opacity")) * 0.5)).toBeLessThanOrEqual(0.0051);
+      expect(face.getAttribute("d")).toBe(plainFaces[index].getAttribute("d"));
+    });
+    expect(light.querySelectorAll("path[fill='#fffaec']")).toHaveLength(0);
+    expect(light.querySelectorAll("path[stroke='#d9cca5']")).toHaveLength(0);
+    const shadow = (container: HTMLElement) => [...container.querySelectorAll<SVGPathElement>("g[data-shaving] > path[fill='#5a4a22']")].map((p) => Number(p.getAttribute("opacity")));
+    shadow(light).forEach((opacity, index) => expect(Math.abs(opacity - shadow(plain)[index] * 0.5)).toBeLessThanOrEqual(0.0051));
+    // same number of shavings, same transforms
+    expect(light.querySelectorAll("g[data-shaving]")).toHaveLength(plain.querySelectorAll("g[data-shaving]").length);
   });
 });
 

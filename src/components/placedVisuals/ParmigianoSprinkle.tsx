@@ -9,7 +9,7 @@
  */
 import { useLayoutEffect, useRef, useState } from "react";
 import { ParmigianoShavings } from "./ParmigianoShavings";
-import { sprinkleLayout, sprinkleShift } from "./sprinkleLayout";
+import { SPRINKLE_ACTIVE_VARIANT, SPRINKLE_VARIANTS, sprinkleLayout, sprinkleShift } from "./sprinkleLayout";
 
 interface PieceKey {
   readonly id: string;
@@ -43,5 +43,5 @@ export function ParmigianoSprinkle() {
   }, []);
   const layout = sprinkleLayout(piece?.id ? piece.id : FALLBACK_SEED);
   const shift = piece && Number.isFinite(piece.x) && Number.isFinite(piece.y) ? sprinkleShift(piece.x, piece.y) : undefined;
-  return <ParmigianoShavings svgRef={svgRef} shavings={layout.shavings} shift={shift} />;
+  return <ParmigianoShavings svgRef={svgRef} shavings={layout.shavings} shift={shift} look={SPRINKLE_VARIANTS[SPRINKLE_ACTIVE_VARIANT].look} />;
 }

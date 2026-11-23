@@ -348,15 +348,26 @@ describe("rev. 7 comparison variants (V7-A crumbs, V7-C outer density)", () => {
     }
   });
 
-  it("no preset combines trials: every preset changes at most ONE of the three knobs (crumb shape / density fade / which centres may be crumbs) -- A+C and any other combination are not approved", () => {
-    const rev6 = SPRINKLE_VARIANTS.rev6;
+  it("no preset combines trials: every preset changes at most ONE knob (crumb shape / density fade / crumb pool / flake aspect / size / paint) relative to its base -- rev. 6 for the older trials, V8-1 for the V9 trials; A+C and any other combination are not approved", () => {
+    const knobs = (variant: (typeof SPRINKLE_VARIANTS)["rev6"], base: (typeof SPRINKLE_VARIANTS)["rev6"]) =>
+      [
+        JSON.stringify([variant.crumbRatio, variant.crumbVerts]) !== JSON.stringify([base.crumbRatio, base.crumbVerts]) ? "crumbShape" : "",
+        variant.densityFade !== base.densityFade ? "fade" : "",
+        variant.crumbPool !== base.crumbPool ? "pool" : "",
+        variant.flakeRatioMin !== base.flakeRatioMin || variant.flakeRatioSpan !== base.flakeRatioSpan ? "flakeAspect" : "",
+        variant.sizeScale !== base.sizeScale ? "size" : "",
+        JSON.stringify(variant.look) !== JSON.stringify(base.look) ? "paint" : "",
+      ].filter(Boolean);
+    const { rev6, v81 } = SPRINKLE_VARIANTS;
     for (const variant of Object.values(SPRINKLE_VARIANTS)) {
-      const shapeChanged = JSON.stringify([variant.crumbRatio, variant.crumbVerts]) !== JSON.stringify([rev6.crumbRatio, rev6.crumbVerts]);
-      const fadeChanged = variant.densityFade !== rev6.densityFade;
-      const poolChanged = variant.crumbPool !== rev6.crumbPool;
-      expect([shapeChanged, fadeChanged, poolChanged].filter(Boolean).length, variant.name).toBeLessThanOrEqual(1);
+      const base = ["f1", "f2", "f3"].includes(variant.name) ? v81 : rev6;
+      expect(knobs(variant, base).length, variant.name).toBeLessThanOrEqual(1);
     }
-    expect(Object.keys(SPRINKLE_VARIANTS).sort()).toEqual(["rev6", "v7a", "v7c", "v81"]);
+    expect(knobs(SPRINKLE_VARIANTS.f1, v81)).toEqual(["size"]);
+    expect(knobs(SPRINKLE_VARIANTS.f2, v81)).toEqual(["paint"]);
+    expect(knobs(SPRINKLE_VARIANTS.f3, v81)).toEqual(["flakeAspect"]);
+    expect(knobs(v81, rev6)).toEqual(["pool"]);
+    expect(Object.keys(SPRINKLE_VARIANTS).sort()).toEqual(["f1", "f2", "f3", "rev6", "v7a", "v7c", "v81"]);
   });
 
   it("every variant keeps every piece inside the same field plus reach (no variant widens the sprinkle)", () => {
@@ -470,6 +481,89 @@ describe("V8-1 (crumbs drawn from all centres)", () => {
         const limit = s.kind === "fragment" ? SPRINKLE_FIELD_RADIUS * SPRINKLE_STRAY_FACTOR : SPRINKLE_FIELD_RADIUS;
         expect(Math.hypot(s.cx - 32, s.cy - 32), seed).toBeLessThanOrEqual(limit + 0.05);
       }
+    }
+  });
+});
+
+/**
+ * V9 single-knob shape trials (Owner V9-1; branch only, NOT adopted, never combined): F2 paint, F1 size, F3 flake aspect, each from V8-1. These tests pin that each changes exactly its own thing
+ * and nothing else, and that V8-1 and rev. 6 are untouched by the new fields.
+ */
+describe("V9 shape trials (F2 paint, F1 size, F3 flake aspect)", () => {
+  const seeds = Array.from({ length: 60 }, (_, i) => `topping-${i + 1}`);
+  const { rev6, v81, f1, f2, f3 } = SPRINKLE_VARIANTS;
+  const layouts = (variant: typeof v81, ids: string[] = seeds) => ids.map((seed) => sprinkleLayout(seed, variant));
+
+  it("rev. 6 and V8-1 are unchanged by the new fields: the same output as before (hash pins) and the default is still rev. 6", () => {
+    expect(SPRINKLE_ACTIVE_VARIANT).toBe("rev6");
+    expect(hashSeed(JSON.stringify(layouts(rev6)))).toBe(2180423179);
+    expect(hashSeed(JSON.stringify(layouts(v81)))).toBe(1975367952);
+  });
+
+  it("F2 changes only how the shavings are PAINTED: its layout is bit-identical to V8-1's for every id; the paint is lighter and has no core and no grain", () => {
+    for (const seed of seeds) expect(sprinkleLayout(seed, f2), seed).toEqual(sprinkleLayout(seed, v81));
+    expect(f2.look).toEqual({ fillOpacity: 0.6, outlineScale: 0.5, shadowScale: 0.5, core: false, grain: false });
+    expect(v81.look).toEqual({ fillOpacity: 0.8, outlineScale: 1, shadowScale: 1, core: true, grain: true });
+  });
+
+  it("F1 changes only the SIZE of flakes and strips (x0.75, width following): centres, kinds, angles, fills, edges, cores and every crumb are V8-1's", () => {
+    for (const seed of seeds) {
+      const before = sprinkleLayout(seed, v81).shavings;
+      const after = sprinkleLayout(seed, f1).shavings;
+      expect(after.length, seed).toBe(before.length);
+      before.forEach((b, index) => {
+        const a = after[index];
+        if (b.kind === "fragment") {
+          expect(a, seed).toEqual(b);
+        } else {
+          expect({ ...a, len: 0, wid: 0 }, seed).toEqual({ ...b, len: 0, wid: 0 });
+          expect(Math.abs(a.len - b.len * 0.75), seed).toBeLessThanOrEqual(0.011);
+          expect(Math.abs(a.wid - b.wid * 0.75), seed).toBeLessThanOrEqual(0.011);
+        }
+      });
+    }
+  });
+
+  it("F3 changes only the ASPECT of flakes (width / length 0.28..0.55): every other piece and every flake's length, centre, angle and outline are V8-1's", () => {
+    for (const seed of seeds) {
+      const before = sprinkleLayout(seed, v81).shavings;
+      const after = sprinkleLayout(seed, f3).shavings;
+      before.forEach((b, index) => {
+        const a = after[index];
+        if (b.kind !== "flake") {
+          expect(a, seed).toEqual(b);
+        } else {
+          expect({ ...a, wid: 0 }, seed).toEqual({ ...b, wid: 0 });
+          expect(a.wid / a.len, seed).toBeGreaterThanOrEqual(0.28 - 0.02);
+          expect(a.wid / a.len, seed).toBeLessThanOrEqual(0.55 + 0.02);
+          expect(a.wid, seed).toBeLessThan(b.wid + 0.011);
+        }
+      });
+    }
+  });
+
+  it("the three trials are really different from one another and from V8-1 in the way the Owner asked: F1 flakes are shorter than the mozzarella-sized 0.8x, F3 flakes are slimmer, F2 keeps the V8-1 geometry", () => {
+    const mean = (variant: typeof v81, pick: (s: { kind: string; len: number; wid: number }) => number) => {
+      const flakes = layouts(variant).flatMap((l) => l.shavings.filter((s) => s.kind === "flake"));
+      return flakes.reduce((a, s) => a + pick(s), 0) / flakes.length;
+    };
+    expect(mean(f1, (s) => s.len)).toBeLessThan(mean(v81, (s) => s.len) * 0.78);
+    expect(mean(f3, (s) => s.wid / s.len)).toBeLessThan(mean(v81, (s) => s.wid / s.len) * 0.8);
+    expect(mean(f2, (s) => s.len)).toBe(mean(v81, (s) => s.len));
+    expect(mean(f2, (s) => s.wid / s.len)).toBe(mean(v81, (s) => s.wid / s.len));
+  });
+
+  it("every trial keeps the rules of V8-1 for every id: 11..12 pieces, 4..5 crumbs, 1..2 strips, at least five flakes, all inside the field", () => {
+    for (const variant of [f1, f2, f3]) for (const seed of seeds) {
+      const { shavings } = sprinkleLayout(seed, variant);
+      const of = (kind: string) => shavings.filter((s) => s.kind === kind).length;
+      expect(shavings.length, `${variant.name} ${seed}`).toBeGreaterThanOrEqual(SPRINKLE_COUNT_MIN);
+      expect(shavings.length, `${variant.name} ${seed}`).toBeLessThanOrEqual(SPRINKLE_COUNT_MAX);
+      expect(of("fragment")).toBeGreaterThanOrEqual(SPRINKLE_CRUMBS_MIN);
+      expect(of("fragment")).toBeLessThanOrEqual(SPRINKLE_CRUMBS_MAX);
+      expect(of("ribbon")).toBeGreaterThanOrEqual(1);
+      expect(of("flake")).toBeGreaterThanOrEqual(5);
+      for (const s of shavings) expect(Math.hypot(s.cx - 32, s.cy - 32), `${variant.name} ${seed}`).toBeLessThanOrEqual((s.kind === "fragment" ? SPRINKLE_FIELD_RADIUS * SPRINKLE_STRAY_FACTOR : SPRINKLE_FIELD_RADIUS) + 0.05);
     }
   });
 });

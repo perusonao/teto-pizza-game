@@ -34,3 +34,16 @@ export interface ParmigianoShaving {
   /** Radial factors (about 0.8..1.2) of the flake / fragment outline vertices; empty for ribbons. They make every silhouette different. */
   readonly verts: readonly number[];
 }
+
+/**
+ * How a shaving is PAINTED (V9 trial F2; the layout is not touched): the opacity of the ivory fill, the strength of the warm outline and of the contact shadow, and whether a flake
+ * carries the lighter core and the grain line. `LOOK_DEFAULT` is the drawing of rev. 6 / V8-1.
+ */
+export interface SprinkleLook {
+  readonly fillOpacity: number;
+  readonly outlineScale: number;
+  readonly shadowScale: number;
+  readonly core: boolean;
+  readonly grain: boolean;
+}
+export const LOOK_DEFAULT: SprinkleLook = { fillOpacity: 0.8, outlineScale: 1, shadowScale: 1, core: true, grain: true };

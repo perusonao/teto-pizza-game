@@ -12,7 +12,7 @@
  * Owner-HV items (iPhone Safari), not final.
  */
 import type { RefObject } from "react";
-import type { ParmigianoShaving } from "./parmigianoShavingsData";
+import { LOOK_DEFAULT, type ParmigianoShaving, type SprinkleLook } from "./parmigianoShavingsData";
 import { flakePath, grainPath, ribbonHighlightPath, ribbonPath, r } from "./parmigianoShavingPaths";
 
 const OUTLINE = "#d6c9a2";
@@ -32,9 +32,11 @@ interface ParmigianoShavingsProps {
   /** Translates the whole field inside the viewBox (the sprinkle pulls it inward near the rim so it stays on the pizza). */
   readonly shift?: { readonly x: number; readonly y: number };
   readonly svgRef?: RefObject<SVGSVGElement | null>;
+  /** How the shavings are painted (V9 trial F2). Default = the drawing of rev. 6 / V8-1. */
+  readonly look?: SprinkleLook;
 }
 
-export function ParmigianoShavings({ shavings, shift, svgRef }: ParmigianoShavingsProps) {
+export function ParmigianoShavings({ shavings, shift, svgRef, look = LOOK_DEFAULT }: ParmigianoShavingsProps) {
   return (
     <svg
       ref={svgRef}
@@ -52,14 +54,10 @@ export function ParmigianoShavings({ shavings, shift, svgRef }: ParmigianoShavin
           const stroke = 0.14 + 0.16 * s.edge;
           return (
             <g key={index} data-shaving={s.kind} transform={`translate(${s.cx} ${s.cy}) rotate(${s.angle})`}>
-              <path d={d} transform="translate(0.5 0.9)" fill={SHADOW} opacity={r(0.05 + 0.07 * s.edge)} />
-              <path d={d} fill={FILL_TOP[s.fill]} fillOpacity=".8" stroke={OUTLINE} strokeOpacity={r(0.22 + 0.3 * s.edge)} strokeWidth={stroke} strokeLinejoin="round" />
-              {s.kind === "flake" && (
-                <>
-                  <path d={d} transform={`translate(${r(-0.04 * s.len)} ${r(-0.03 * s.wid)}) scale(${s.core})`} fill={FILL_CORE} opacity=".16" />
-                  <path d={grainPath(s.len, s.wid, s.core)} fill="none" stroke={GRAIN} strokeOpacity=".4" strokeWidth=".2" strokeLinecap="round" />
-                </>
-              )}
+              <path d={d} transform="translate(0.5 0.9)" fill={SHADOW} opacity={r((0.05 + 0.07 * s.edge) * look.shadowScale)} />
+              <path d={d} fill={FILL_TOP[s.fill]} fillOpacity={look.fillOpacity} stroke={OUTLINE} strokeOpacity={r((0.22 + 0.3 * s.edge) * look.outlineScale)} strokeWidth={stroke} strokeLinejoin="round" />
+              {s.kind === "flake" && look.core && <path d={d} transform={`translate(${r(-0.04 * s.len)} ${r(-0.03 * s.wid)}) scale(${s.core})`} fill={FILL_CORE} opacity=".16" />}
+              {s.kind === "flake" && look.grain && <path d={grainPath(s.len, s.wid, s.core)} fill="none" stroke={GRAIN} strokeOpacity=".4" strokeWidth=".2" strokeLinecap="round" />}
               {s.kind === "ribbon" && (
                 <path d={ribbonHighlightPath(s.len, s.wid, s.bend, s.wobble, s.profile)} fill="none" stroke={HIGHLIGHT} strokeOpacity=".7" strokeWidth=".55" strokeLinecap="round" />
               )}

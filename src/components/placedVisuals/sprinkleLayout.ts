@@ -15,7 +15,7 @@
  *
  * No import from the game's logic / state: the two pizza constants below are copies, pinned to their source by a test.
  */
-import type { ParmigianoShaving } from "./parmigianoShavingsData";
+import { LOOK_DEFAULT, type ParmigianoShaving, type SprinkleLook } from "./parmigianoShavingsData";
 
 /** The placed box of one sprinkle, in CSS px (the wrapper's `--cheese-glyph-size`), and its share of the dough's width (about; the dough is 290..345px wide on the phones). */
 export const SPRINKLE_BOX_PX = 96;
@@ -50,9 +50,15 @@ export const SPRINKLE_DENSITY_FADE = 2.2;
  * centres, so 87% of the pieces that reach a neighbouring tap are tiny crumbs and the big flakes stay inside; `v81` draws them from ALL centres. The centres, the piece count (11..12),
  * the crumb count (4..5), the field radius (34), the density fade (2.2), the crumb shape and the rim cap (44) are all rev. 6's. Only the assignment of kinds to centres changes
  * (and, because kinds draw different numbers of random values, the sizes and angles of the pieces that follow differ -- so v81 is compared statistically over many ids, not per id).
+ *
+ * V9 single-knob shape trials (Owner V9-1, branch only -- NOT adopted, none combined): each starts from V8-1 (`v81`) and changes ONE thing.
+ *   f2  texture only: a lighter fill (0.6 instead of 0.8), half the outline and shadow, no core and no grain line -- the cues that make a flat flake read as a thick slab. The LAYOUT is
+ *       bit-identical to v81 (the look is painted by the component, it is not in the layout).
+ *   f1  size only: flakes and strips are 0.75 x as long (and as wide); centres, kinds, angles and crumbs are v81's.
+ *   f3  flake aspect only: flake width / length 0.28..0.55 instead of 0.38..0.80; everything else is v81's.
  */
 export interface SprinkleVariant {
-  readonly name: "rev6" | "v7a" | "v7c" | "v81";
+  readonly name: "rev6" | "v7a" | "v7c" | "v81" | "f1" | "f2" | "f3";
   readonly densityFade: number;
   /** Crumb width / length ratio range: the rev. 6 raw draw u in [0,1) maps to `min + u * (max - min)` (rev. 6: 0.60..0.95). */
   readonly crumbRatio: readonly [number, number];
@@ -60,12 +66,32 @@ export interface SprinkleVariant {
   readonly crumbVerts: number;
   /** Which centres may become crumbs: `outer60` = the outer 60% by distance (rev. 6); `all` = every centre (V8-1). */
   readonly crumbPool: "outer60" | "all";
+  /** Flake width / length = `flakeRatioMin + draw * flakeRatioSpan` (rev. 6 / V8-1: 0.38 + 0.42, i.e. 0.38..0.80). */
+  readonly flakeRatioMin: number;
+  readonly flakeRatioSpan: number;
+  /** Multiplies the length and width of flakes and strips after they are drawn (1 = rev. 6 / V8-1). Crumbs are not scaled. */
+  readonly sizeScale: number;
+  /** How the shavings are painted (not part of the layout). */
+  readonly look: SprinkleLook;
 }
-export const SPRINKLE_VARIANTS: { readonly rev6: SprinkleVariant; readonly v7a: SprinkleVariant; readonly v7c: SprinkleVariant; readonly v81: SprinkleVariant } = {
-  rev6: { name: "rev6", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "outer60" },
-  v7a: { name: "v7a", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.36, 0.56], crumbVerts: 7, crumbPool: "outer60" },
-  v7c: { name: "v7c", densityFade: 0.9, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "outer60" },
-  v81: { name: "v81", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "all" },
+const SHAPE_DEFAULTS = { flakeRatioMin: 0.38, flakeRatioSpan: 0.42, sizeScale: 1, look: LOOK_DEFAULT } as const;
+const V81_BASE = { densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "all", ...SHAPE_DEFAULTS } as const;
+export const SPRINKLE_VARIANTS: {
+  readonly rev6: SprinkleVariant;
+  readonly v7a: SprinkleVariant;
+  readonly v7c: SprinkleVariant;
+  readonly v81: SprinkleVariant;
+  readonly f1: SprinkleVariant;
+  readonly f2: SprinkleVariant;
+  readonly f3: SprinkleVariant;
+} = {
+  rev6: { name: "rev6", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "outer60", ...SHAPE_DEFAULTS },
+  v7a: { name: "v7a", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.36, 0.56], crumbVerts: 7, crumbPool: "outer60", ...SHAPE_DEFAULTS },
+  v7c: { name: "v7c", densityFade: 0.9, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "outer60", ...SHAPE_DEFAULTS },
+  v81: { name: "v81", ...V81_BASE },
+  f1: { ...V81_BASE, name: "f1", sizeScale: 0.75 },
+  f2: { ...V81_BASE, name: "f2", look: { fillOpacity: 0.6, outlineScale: 0.5, shadowScale: 0.5, core: false, grain: false } },
+  f3: { ...V81_BASE, name: "f3", flakeRatioMin: 0.28, flakeRatioSpan: 0.27 },
 };
 /** The variant the game draws. Stays `rev6` on this branch: the comparison builds flip this one constant (see the V7 Result). */
 export const SPRINKLE_ACTIVE_VARIANT: SprinkleVariant["name"] = "rev6";
@@ -188,8 +214,8 @@ export function sprinkleLayout(seed: string, variant: SprinkleVariant = SPRINKLE
       return {
         ...base,
         kind,
-        len: round(len),
-        wid: round(3.4 + rand() * 2.2),
+        len: round(len * variant.sizeScale),
+        wid: round((3.4 + rand() * 2.2) * variant.sizeScale),
         bend: round((rand() < 0.5 ? -1 : 1) * (0.03 + rand() * 0.08)),
         wobble: round((rand() < 0.5 ? -1 : 1) * (0.015 + rand() * 0.035)),
         profile: Array.from({ length: 10 }, () => round(0.6 + rand() * 0.65)),
@@ -210,7 +236,17 @@ export function sprinkleLayout(seed: string, variant: SprinkleVariant = SPRINKLE
       return { ...base, kind, len: round(len), wid: round(len * (ratioMin + ratioDraw * (ratioMax - ratioMin))), bend: 0, wobble: 0, profile: [], verts: outline };
     }
     const len = 10.5 + rand() * 6.5;
-    return { ...base, kind, len: round(len), wid: round(len * (0.38 + rand() * 0.42)), bend: 0, wobble: 0, profile: [], verts: verts(9) };
+    const flakeRatioDraw = rand();
+    return {
+      ...base,
+      kind,
+      len: round(len * variant.sizeScale),
+      wid: round(len * variant.sizeScale * (variant.flakeRatioMin + flakeRatioDraw * variant.flakeRatioSpan)),
+      bend: 0,
+      wobble: 0,
+      profile: [],
+      verts: verts(9),
+    };
   });
   return { shavings };
 }
