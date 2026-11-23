@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
-import { ParmigianoShavings } from "./ParmigianoShavings";
+import { EDGE_BLUR_CSS_PX, ParmigianoShavings } from "./ParmigianoShavings";
 import { flakePath, ribbonPath } from "./parmigianoShavingPaths";
 import { sprinkleLayout } from "./sprinkleLayout";
 
@@ -32,6 +32,13 @@ describe("ParmigianoShavings", () => {
     expect(markup).not.toMatch(/\bid=/);
     expect(markup).not.toMatch(/url\(/);
     expect(markup).not.toMatch(/<defs|Gradient|<image|<foreignObject|<style/i);
+  });
+
+  it("V10-1: the whole svg carries one 0.4 CSS px blur() filter (a CSS function, not a url reference), and nothing else about the markup changes", () => {
+    const svg = draw().querySelector("svg")!;
+    expect(EDGE_BLUR_CSS_PX).toBe(0.4);
+    expect(svg.getAttribute("style")).toBe("filter: blur(0.4px);");
+    expect(svg.querySelectorAll("[style], [filter]")).toHaveLength(0);
   });
 
   it("draws every shaving of the layout with its kind, a contact shadow and a top face", () => {

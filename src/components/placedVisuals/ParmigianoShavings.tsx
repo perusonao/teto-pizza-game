@@ -21,6 +21,13 @@ const FILL_CORE = "#fffaec";
 const GRAIN = "#d9cca5";
 const SHADOW = "#5a4a22";
 const HIGHLIGHT = "#fffdf4";
+/**
+ * V10-1 single trial (Owner #7116322259): a soft edge on the whole drawing -- one CSS `filter: blur()` on the outer <svg> (an HTML-level element, so WebKit applies it; the same
+ * filter on SVG child elements is unreliable in Safari). It is a CSS function, not a `url(#...)` reference: no `id` / `<defs>` / gradient is added (Style Lock V2).
+ * The stage wrapper's own bake filter (`.pizza-cheese` cheeseStyle) is a separate, outer filter and is untouched.
+ */
+export const EDGE_BLUR_CSS_PX = 0.4;
+const EDGE_BLUR_STYLE = { filter: `blur(${EDGE_BLUR_CSS_PX}px)` } as const;
 
 function shavingPath(s: ParmigianoShaving): string {
   return s.kind === "ribbon" ? ribbonPath(s.len, s.wid, s.bend, s.wobble, s.profile) : flakePath(s.len, s.wid, s.verts);
@@ -45,6 +52,7 @@ export function ParmigianoShavings({ shavings, shift, svgRef }: ParmigianoShavin
       height="1em"
       aria-hidden="true"
       focusable="false"
+      style={EDGE_BLUR_STYLE}
     >
       <g transform={shift && (shift.x !== 0 || shift.y !== 0) ? `translate(${r(shift.x)} ${r(shift.y)})` : undefined}>
         {shavings.map((s, index) => {
