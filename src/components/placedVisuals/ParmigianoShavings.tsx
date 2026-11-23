@@ -47,6 +47,7 @@ export function ParmigianoShavings({ shavings, shift, svgRef, look = LOOK_DEFAUL
       height="1em"
       aria-hidden="true"
       focusable="false"
+      style={look.edgeBlur > 0 ? { filter: `blur(${look.edgeBlur}px)` } : undefined}
     >
       <g transform={shift && (shift.x !== 0 || shift.y !== 0) ? `translate(${r(shift.x)} ${r(shift.y)})` : undefined}>
         {shavings.map((s, index) => {

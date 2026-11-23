@@ -135,3 +135,40 @@ describe("path geometry", () => {
     expect(Math.min(...ys(down))).toBeLessThan(Math.min(...ys(up)));
   });
 });
+
+describe("ParmigianoShavings edge blur (V10-1 trial: look.edgeBlur)", () => {
+  const blurLook = SPRINKLE_VARIANTS.v101.look;
+  const strip = (markup: string) => markup.replace(/ style="[^"]*"/, "");
+
+  it("by default the svg carries no style at all (no filter), so the shipped markup is not changed by the trial", () => {
+    const svg = draw().querySelector("svg")!;
+    expect(svg).not.toHaveAttribute("style");
+    expect(svg.style.filter).toBe("");
+  });
+
+  it("with the V10-1 look the svg root alone gets blur(0.4px) -- and not one child, class, geometry or attribute moves", () => {
+    const plain = draw();
+    const soft = render(<ParmigianoShavings shavings={shavings} look={blurLook} />).container;
+    const svg = soft.querySelector("svg")!;
+    expect(blurLook.edgeBlur).toBe(0.4);
+    expect(svg.style.filter).toBe("blur(0.4px)");
+    expect(svg.getAttribute("style")).toBe("filter: blur(0.4px);");
+    // identical except for the one style attribute on the root
+    expect(strip(svg.outerHTML)).toBe(plain.querySelector("svg")!.outerHTML);
+    expect(soft.querySelectorAll("[style]")).toHaveLength(1);
+    for (const element of soft.querySelectorAll("g[data-shaving], g[data-shaving] > *")) expect(element).not.toHaveAttribute("style");
+  });
+
+  it("keeps the Style Lock shape with the blur on: no id, no gradient, no defs, no url reference, no <filter> element, still aria-hidden and 64x64 / 1em", () => {
+    const svg = render(<ParmigianoShavings shavings={shavings} look={blurLook} />).container.querySelector("svg")!;
+    const markup = svg.outerHTML;
+    expect(markup).not.toMatch(/\bid=/);
+    expect(markup).not.toMatch(/url\(/);
+    expect(markup).not.toMatch(/<defs|Gradient|<image|<foreignObject|<style|<filter|feGaussianBlur/i);
+    expect(svg).toHaveAttribute("viewBox", "0 0 64 64");
+    expect(svg).toHaveAttribute("width", "1em");
+    expect(svg).toHaveAttribute("height", "1em");
+    expect(svg).toHaveAttribute("aria-hidden", "true");
+    expect(svg).toHaveAttribute("focusable", "false");
+  });
+});

@@ -56,9 +56,12 @@ export const SPRINKLE_DENSITY_FADE = 2.2;
  *       bit-identical to v81 (the look is painted by the component, it is not in the layout).
  *   f1  size only: flakes and strips are 0.75 x as long (and as wide); centres, kinds, angles and crumbs are v81's.
  *   f3  flake aspect only: flake width / length 0.28..0.55 instead of 0.38..0.80; everything else is v81's.
+ *
+ * V10-1 single trial (Owner TETO-PARM-02, branch only -- NOT adopted): `v101` starts from F3 (`f3`) and changes ONE thing, how it is painted: the whole drawing gets a 0.4 CSS px blur (a CSS `filter` on the
+ * svg root: no id, no gradient, no defs, no url reference). The LAYOUT is bit-identical to f3.
  */
 export interface SprinkleVariant {
-  readonly name: "rev6" | "v7a" | "v7c" | "v81" | "f1" | "f2" | "f3";
+  readonly name: "rev6" | "v7a" | "v7c" | "v81" | "f1" | "f2" | "f3" | "v101";
   readonly densityFade: number;
   /** Crumb width / length ratio range: the rev. 6 raw draw u in [0,1) maps to `min + u * (max - min)` (rev. 6: 0.60..0.95). */
   readonly crumbRatio: readonly [number, number];
@@ -76,6 +79,8 @@ export interface SprinkleVariant {
 }
 const SHAPE_DEFAULTS = { flakeRatioMin: 0.38, flakeRatioSpan: 0.42, sizeScale: 1, look: LOOK_DEFAULT } as const;
 const V81_BASE = { densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "all", ...SHAPE_DEFAULTS } as const;
+/** F3 (V9): the base of the V10 trials. */
+const F3_BASE = { ...V81_BASE, flakeRatioMin: 0.28, flakeRatioSpan: 0.27 } as const;
 export const SPRINKLE_VARIANTS: {
   readonly rev6: SprinkleVariant;
   readonly v7a: SprinkleVariant;
@@ -84,14 +89,16 @@ export const SPRINKLE_VARIANTS: {
   readonly f1: SprinkleVariant;
   readonly f2: SprinkleVariant;
   readonly f3: SprinkleVariant;
+  readonly v101: SprinkleVariant;
 } = {
   rev6: { name: "rev6", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "outer60", ...SHAPE_DEFAULTS },
   v7a: { name: "v7a", densityFade: SPRINKLE_DENSITY_FADE, crumbRatio: [0.36, 0.56], crumbVerts: 7, crumbPool: "outer60", ...SHAPE_DEFAULTS },
   v7c: { name: "v7c", densityFade: 0.9, crumbRatio: [0.6, 0.95], crumbVerts: 5, crumbPool: "outer60", ...SHAPE_DEFAULTS },
   v81: { name: "v81", ...V81_BASE },
   f1: { ...V81_BASE, name: "f1", sizeScale: 0.75 },
-  f2: { ...V81_BASE, name: "f2", look: { fillOpacity: 0.6, outlineScale: 0.5, shadowScale: 0.5, core: false, grain: false } },
-  f3: { ...V81_BASE, name: "f3", flakeRatioMin: 0.28, flakeRatioSpan: 0.27 },
+  f2: { ...V81_BASE, name: "f2", look: { ...LOOK_DEFAULT, fillOpacity: 0.6, outlineScale: 0.5, shadowScale: 0.5, core: false, grain: false } },
+  f3: { ...F3_BASE, name: "f3" },
+  v101: { ...F3_BASE, name: "v101", look: { ...LOOK_DEFAULT, edgeBlur: 0.4 } },
 };
 /** The variant the game draws. Stays `rev6` on this branch: the comparison builds flip this one constant (see the V7 Result). */
 export const SPRINKLE_ACTIVE_VARIANT: SprinkleVariant["name"] = "rev6";

@@ -348,7 +348,7 @@ describe("rev. 7 comparison variants (V7-A crumbs, V7-C outer density)", () => {
     }
   });
 
-  it("no preset combines trials: every preset changes at most ONE knob (crumb shape / density fade / crumb pool / flake aspect / size / paint) relative to its base -- rev. 6 for the older trials, V8-1 for the V9 trials; A+C and any other combination are not approved", () => {
+  it("no preset combines trials: every preset changes at most ONE knob (crumb shape / density fade / crumb pool / flake aspect / size / paint) relative to its base -- rev. 6 for the older trials, V8-1 for the V9 trials, F3 for V10-1; A+C and any other combination are not approved", () => {
     const knobs = (variant: (typeof SPRINKLE_VARIANTS)["rev6"], base: (typeof SPRINKLE_VARIANTS)["rev6"]) =>
       [
         JSON.stringify([variant.crumbRatio, variant.crumbVerts]) !== JSON.stringify([base.crumbRatio, base.crumbVerts]) ? "crumbShape" : "",
@@ -358,16 +358,17 @@ describe("rev. 7 comparison variants (V7-A crumbs, V7-C outer density)", () => {
         variant.sizeScale !== base.sizeScale ? "size" : "",
         JSON.stringify(variant.look) !== JSON.stringify(base.look) ? "paint" : "",
       ].filter(Boolean);
-    const { rev6, v81 } = SPRINKLE_VARIANTS;
+    const { rev6, v81, f3 } = SPRINKLE_VARIANTS;
     for (const variant of Object.values(SPRINKLE_VARIANTS)) {
-      const base = ["f1", "f2", "f3"].includes(variant.name) ? v81 : rev6;
+      const base = variant.name === "v101" ? f3 : ["f1", "f2", "f3"].includes(variant.name) ? v81 : rev6;
       expect(knobs(variant, base).length, variant.name).toBeLessThanOrEqual(1);
     }
     expect(knobs(SPRINKLE_VARIANTS.f1, v81)).toEqual(["size"]);
     expect(knobs(SPRINKLE_VARIANTS.f2, v81)).toEqual(["paint"]);
     expect(knobs(SPRINKLE_VARIANTS.f3, v81)).toEqual(["flakeAspect"]);
+    expect(knobs(SPRINKLE_VARIANTS.v101, f3)).toEqual(["paint"]);
     expect(knobs(v81, rev6)).toEqual(["pool"]);
-    expect(Object.keys(SPRINKLE_VARIANTS).sort()).toEqual(["f1", "f2", "f3", "rev6", "v7a", "v7c", "v81"]);
+    expect(Object.keys(SPRINKLE_VARIANTS).sort()).toEqual(["f1", "f2", "f3", "rev6", "v101", "v7a", "v7c", "v81"]);
   });
 
   it("every variant keeps every piece inside the same field plus reach (no variant widens the sprinkle)", () => {
@@ -502,8 +503,8 @@ describe("V9 shape trials (F2 paint, F1 size, F3 flake aspect)", () => {
 
   it("F2 changes only how the shavings are PAINTED: its layout is bit-identical to V8-1's for every id; the paint is lighter and has no core and no grain", () => {
     for (const seed of seeds) expect(sprinkleLayout(seed, f2), seed).toEqual(sprinkleLayout(seed, v81));
-    expect(f2.look).toEqual({ fillOpacity: 0.6, outlineScale: 0.5, shadowScale: 0.5, core: false, grain: false });
-    expect(v81.look).toEqual({ fillOpacity: 0.8, outlineScale: 1, shadowScale: 1, core: true, grain: true });
+    expect(f2.look).toEqual({ fillOpacity: 0.6, outlineScale: 0.5, shadowScale: 0.5, core: false, grain: false, edgeBlur: 0 });
+    expect(v81.look).toEqual({ fillOpacity: 0.8, outlineScale: 1, shadowScale: 1, core: true, grain: true, edgeBlur: 0 });
   });
 
   it("F1 changes only the SIZE of flakes and strips (x0.75, width following): centres, kinds, angles, fills, edges, cores and every crumb are V8-1's", () => {
@@ -565,5 +566,27 @@ describe("V9 shape trials (F2 paint, F1 size, F3 flake aspect)", () => {
       expect(of("flake")).toBeGreaterThanOrEqual(5);
       for (const s of shavings) expect(Math.hypot(s.cx - 32, s.cy - 32), `${variant.name} ${seed}`).toBeLessThanOrEqual((s.kind === "fragment" ? SPRINKLE_FIELD_RADIUS * SPRINKLE_STRAY_FACTOR : SPRINKLE_FIELD_RADIUS) + 0.05);
     }
+  });
+});
+
+describe("V10-1 soft-edge trial (v101: F3 + a 0.4 CSS px blur of the drawing)", () => {
+  const { f3, v101, rev6 } = SPRINKLE_VARIANTS;
+  const seeds = Array.from({ length: 300 }, (_, i) => `topping-${i + 1}`);
+
+  it("the layout is bit-identical to F3's for every id: the blur is paint only, so positions, kinds, counts, sizes and the rim shift cannot move", () => {
+    for (const seed of seeds) expect(sprinkleLayout(seed, v101), seed).toEqual(sprinkleLayout(seed, f3));
+    expect(hashSeed(JSON.stringify(SEEDS.map((seed) => sprinkleLayout(seed, v101))))).toBe(2035136589);
+  });
+
+  it("only the edge blur differs from F3's look (0.4), no other paint knob moves, and nothing outside the look differs", () => {
+    expect(v101.look).toEqual({ ...f3.look, edgeBlur: 0.4 });
+    expect(f3.look.edgeBlur).toBe(0);
+    expect({ ...v101, look: f3.look, name: f3.name }).toEqual(f3);
+  });
+
+  it("the shipped default draws no blur: the active variant is still rev. 6 and no other preset blurs", () => {
+    expect(SPRINKLE_ACTIVE_VARIANT).toBe("rev6");
+    expect(rev6.look.edgeBlur).toBe(0);
+    for (const variant of Object.values(SPRINKLE_VARIANTS)) if (variant.name !== "v101") expect(variant.look.edgeBlur, variant.name).toBe(0);
   });
 });

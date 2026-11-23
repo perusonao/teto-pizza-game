@@ -36,8 +36,8 @@ export interface ParmigianoShaving {
 }
 
 /**
- * How a shaving is PAINTED (V9 trial F2; the layout is not touched): the opacity of the ivory fill, the strength of the warm outline and of the contact shadow, and whether a flake
- * carries the lighter core and the grain line. `LOOK_DEFAULT` is the drawing of rev. 6 / V8-1.
+ * How a shaving is PAINTED (V9 trial F2 / V10-1; the layout is not touched): the opacity of the ivory fill, the strength of the warm outline and of the contact shadow, whether a flake
+ * carries the lighter core and the grain line, and (V10-1) a small blur of the whole drawing. `LOOK_DEFAULT` is the drawing of rev. 6 / V8-1.
  */
 export interface SprinkleLook {
   readonly fillOpacity: number;
@@ -45,5 +45,7 @@ export interface SprinkleLook {
   readonly shadowScale: number;
   readonly core: boolean;
   readonly grain: boolean;
+  /** V10-1 trial: Gaussian blur of the whole drawing in CSS px (the soft-edge trial); 0 = none, and then the svg carries no `style` at all. */
+  readonly edgeBlur: number;
 }
-export const LOOK_DEFAULT: SprinkleLook = { fillOpacity: 0.8, outlineScale: 1, shadowScale: 1, core: true, grain: true };
+export const LOOK_DEFAULT: SprinkleLook = { fillOpacity: 0.8, outlineScale: 1, shadowScale: 1, core: true, grain: true, edgeBlur: 0 };
