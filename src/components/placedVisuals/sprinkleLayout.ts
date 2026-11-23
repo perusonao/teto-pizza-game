@@ -101,7 +101,7 @@ export const SPRINKLE_VARIANTS: {
   v101: { ...F3_BASE, name: "v101", look: { ...LOOK_DEFAULT, edgeBlur: 0.4 } },
 };
 /** The variant the game draws. Stays `rev6` on this branch: the comparison builds flip this one constant (see the V7 Result). */
-export const SPRINKLE_ACTIVE_VARIANT: SprinkleVariant["name"] = "v101";
+export const SPRINKLE_ACTIVE_VARIANT: SprinkleVariant["name"] = "rev6";
 export const SPRINKLE_SHAVING_REACH = 11;
 const VIEWBOX_CENTER = 32;
 /** How far (units) the field may be pulled inward at the rim. 44 units = about 66 CSS px in the 96px box. A cap of 52 (about 78px) was compared (rev. 6, Owner Y2: NOT adopted); pass it as `maxShift`. */
