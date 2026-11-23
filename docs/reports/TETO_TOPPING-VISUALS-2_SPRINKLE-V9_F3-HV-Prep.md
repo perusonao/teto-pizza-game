@@ -1,6 +1,6 @@
 # V9 F3（縦横比）単独の実機 HV 準備（PR #875）— 追加 HV の記録・差分・検証・公開手順・リスク
 
-状態: **準備と検証のみ。#875 へのコード反映・PR 専用 Preview 更新・merge・Draft 解除・Production ON・共有 Preview 更新・force push は未実施（禁止／未承認）。** #875 の head は `100cfe0`（V8-1）のまま、Preview `pr-875-100cfe0` も未変更。F2・F1 とは混合していない。
+状態（2026-11-23 更新）: **Owner 承認 [#7101184927](https://github.com/perusonao/teto-pizza-game/pull/875#issuecomment-7101184927)（A1/A2/A3 条件付き）に従い、F3 のみを #875 の head に fast-forward で反映（`100cfe0` → `6e4bf54`）し、PR 専用 Preview を `pr-875-6e4bf54` に更新した（V8-1 のページ `pr-875-100cfe0` は置き換えて撤去）。** merge・Draft 解除・Production ON・共有 Preview 更新・force push は未実施（禁止）。F3 の正式採用なし。以下 §1〜§8 は承認前の準備時点の記述（§4 の WebKit だけ実績に更新）。F2・F1 とは混合していない。
 
 ## 1. Owner の追加 iPhone Safari HV（V8-1、離れた 3 か所＝12 時・4 時・8 時）の記録
 Owner のチャット報告に基づく記録（判定の言葉は Owner のもの。担当セッションは追加の判定をしない）。対象: PR 専用 Preview `pr-875-100cfe0`（V8-1）。
@@ -59,7 +59,10 @@ Owner のチャット報告に基づく記録（判定の言葉は Owner のも�
 | **合計** | **687 passed・3 skipped（690）** | **12,784 passed・20 skipped・2 todo、失敗 0** |
 
 - **独立レビュー**（別コンテキストの読み取り専用エージェント。Codex は未実施）: **GO。P0〜P2 なし。** `topping-1`〜`20000` で、リボン・欠片 117,518 個は V8-1 と完全一致、薄片 112,564 個は `wid` 以外のすべての項目が一致。薄片の幅/長さは 0.2796〜0.5505、幅は最小 2.94、NaN なし。輪郭の退化は無い（推論による確認で、描画では未確認）。テストの変更は F3 の仕様変更に必要な更新で、緩和ではない。`REACH_PCT` は `wid` を使わない。`placedVisuals` の外は未編集。
-- **WebKit／GitHub CI: 未実施。** F3 のコミットは push していない（#875 の head 変更が未承認）ため、CI を起動できない。承認後に §5 の手順 4 で実行する。
+- **WebKit／GitHub CI（2026-11-23、Owner 承認 #7101184927 の後に実施）: 対象 SHA `6e4bf54e0899e9f6aa436197a3bc0191d6bf354d`（#875 の head。ツリー `6749ed1` は上記ローカル検証のコミット `db09c25` と同一）、`e2e-webkit.yml` の `workflow_dispatch`、run [45175591432](https://github.com/perusonao/teto-pizza-game/actions/runs/45175591432)。**
+  - **attempt 1: 失敗あり。** `webkit webkit-360x800 shard 1/3`（job 137696042673）の `playwright install --with-deps webkit` で apt が 2 回ともタイムアウト（exit 124。**テストは 0 件実行**）。派生して WebKit Gate（job 137708315845）も失敗。他の 6 シャード・`layout-chromium`・Layout Contract Gate・classify は success。
+  - **attempt 2: 失敗ジョブのみを 1 回再実行し、全 10 job success。** テストのスキップ・緩和なし。
+  - lint／型／全 Vitest の check run は本 PR に存在しない（上のローカル結果）。
 - Owner Gate: read-only token が無く（401）判定未取得。
 
 ## 5. PR 専用 Preview の公開手順（**Owner 承認後にのみ実施。今回は実施しない**）
@@ -89,3 +92,8 @@ Owner のチャット報告に基づく記録（判定の言葉は Owner のも�
 
 ## 8. 今回していないこと
 #875 へのコード push、PR 専用 Preview の更新、merge、Draft 解除、Production ON、共有 Preview 更新、force push、F2/F1 との混合、V7-A・欠片数・半径の変更。
+
+## 9. 実施結果（承認後）
+- #875 head: `100cfe0` → `6e4bf54e0899e9f6aa436197a3bc0191d6bf354d`（fast-forward、force なし。F3 の 1 コミット、2 ファイル）。戻し方: このコミットを revert すると V8-1 の描画に戻る。
+- PR 専用 Preview: https://perusonao.github.io/teto-pizza-game-preview/pr/pr-875-6e4bf54/ （バッジ `PREVIEW・PR#875・6e4bf54`）。公開 run [45183547992](https://github.com/perusonao/teto-pizza-game-preview/actions/runs/45183547992)（validate・build・publish success。`Verify the live site` も success）。V8-1 のページ `pr-875-100cfe0` は、5 件上限（最初の deploy は `already 5 other PR pages published (max 5)` で拒否）のため、#875 自身のページとして撤去（run 45183335907）。他 PR のページ（814・834・848・864）は無傷（撤去・公開のコミットとも、対象外パスの変更 0）。
+- **未確認**: 私の環境は `perusonao.github.io` に接続できず（プロキシ 403）、公開ページへの HTTP 到達とバッジの画面表示は自分では確認していない。Owner の実機でバッジ SHA を確認してほしい。
