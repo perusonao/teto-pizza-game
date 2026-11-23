@@ -1,0 +1,38 @@
+import sys, json, numpy as np
+from PIL import Image
+D = sys.argv[1]
+def lab(a):
+    a = a[..., :3].astype(float) / 255
+    a = np.where(a > 0.04045, ((a + 0.055) / 1.055) ** 2.4, a / 12.92)
+    M = np.array([[0.4124,0.3576,0.1805],[0.2126,0.7152,0.0722],[0.0193,0.1192,0.9505]])
+    xyz = a @ M.T / np.array([0.95047,1,1.08883])
+    f = np.where(xyz > 0.008856, np.cbrt(xyz), 7.787*xyz + 16/116)
+    return np.stack([116*f[...,1]-16, 500*(f[...,0]-f[...,1]), 200*(f[...,1]-f[...,2])], -1)
+def load(t, m): return np.array(Image.open(f"{D}/{t}-{m}.png").convert("RGB"))
+def stats(t, region=None):
+    bg = lab(load(t, "hidden"))
+    out = {}
+    for m in ("f3", "v10"):
+        img = lab(load(t, m)); de = np.sqrt(((img - bg) ** 2).sum(-1))
+        if region: y0,y1,x0,x1 = region; de = de[y0:y1, x0:x1]
+        mask = de >= 2
+        n = int(mask.sum())
+        clear = float((de[mask] >= 10).mean()) if n else 0
+        gy, gx = np.gradient(de); g = np.hypot(gx, gy)
+        edge = mask & ~(np.roll(mask,1,0)&np.roll(mask,-1,0)&np.roll(mask,1,1)&np.roll(mask,-1,1))
+        out[m] = dict(ink_px=n, clear_ratio=round(clear,3), mean_dE=round(float(de[mask].mean()),2) if n else 0,
+                      edge_grad=round(float(g[edge].mean()),2) if edge.any() else 0)
+    return out
+res = {}
+for t in ("placed","baked","rim"):
+    res[t] = stats(t)
+    im = load(t,"f3"); h,w = im.shape[:2]
+    if t != "rim":
+        # white ground: around tap (51,50); sauce ground: around (28,62) -- percent of stage box
+        R=min(w,h)*0.48
+        def box(px,py,rr=0.55):
+            cx=w/2+(px-50)/100*2*R; cy=h/2+(py-50)/100*2*R; q=rr*R
+            return (max(0,int(cy-q)),min(h,int(cy+q)),max(0,int(cx-q)),min(w,int(cx+q)))
+        res[t+"_white(51,50)"] = stats(t, box(51,50))
+        res[t+"_sauce(28,62)"] = stats(t, box(28,62))
+print(json.dumps(res, indent=1)); print(Image.open(f"{D}/placed-f3.png").size)
