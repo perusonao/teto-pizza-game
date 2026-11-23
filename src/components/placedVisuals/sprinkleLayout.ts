@@ -171,7 +171,8 @@ export function sprinkleLayout(seed: string): SprinkleLayout {
       return { ...base, kind, len: round(len), wid: round(len * (0.6 + rand() * 0.35)), bend: 0, wobble: 0, profile: [], verts: verts(5) };
     }
     const len = 10.5 + rand() * 6.5;
-    return { ...base, kind, len: round(len), wid: round(len * (0.38 + rand() * 0.42)), bend: 0, wobble: 0, profile: [], verts: verts(9) };
+    // F3 (V9 single trial): flake width / length 0.28..0.55 (V8-1: 0.38..0.80). The draw order is unchanged.
+    return { ...base, kind, len: round(len), wid: round(len * (0.28 + rand() * 0.27)), bend: 0, wobble: 0, profile: [], verts: verts(9) };
   });
   return { shavings };
 }

@@ -60,8 +60,10 @@ describe("sprinkleLayout", () => {
     for (const seed of SEEDS) for (const s of sprinkleLayout(seed).shavings) {
       if (s.kind === "flake") {
         expect(s.len, seed).toBeGreaterThanOrEqual(10.5);
-        expect(s.wid / s.len, seed).toBeGreaterThanOrEqual(0.37);
-        expect(s.wid, seed).toBeGreaterThanOrEqual(3.9);
+        // F3 (V9, Owner-approved single trial): flake width / length is 0.28..0.55 (V8-1: 0.38..0.80), so the lower bounds are F3's, not V8-1's.
+        expect(s.wid / s.len, seed).toBeGreaterThanOrEqual(0.27);
+        expect(s.wid / s.len, seed).toBeLessThanOrEqual(0.56);
+        expect(s.wid, seed).toBeGreaterThanOrEqual(2.9);
         expect(s.verts.length).toBe(9);
       } else if (s.kind === "ribbon") {
         expect(s.len, seed).toBeGreaterThanOrEqual(12);
@@ -186,9 +188,9 @@ describe("sprinkleLayout", () => {
     for (const [index, count] of byIndex.entries()) expect(count / SEEDS.length, `index ${index}`).toBeGreaterThan(0.15);
   });
 
-  it("V8-1 is pinned: the output over 60 ids is exactly what the trial-branch preset v81 produced and the independent review verified (hash), so the shipped drawing is the reviewed one", () => {
-    // hash of JSON of 60 layouts; equal to the trial branch's `v81` preset (checked over 20000 ids with 0 differences). A change to the drawing must change this on purpose.
-    expect(hashSeed(JSON.stringify(SEEDS.map((seed) => sprinkleLayout(seed))))).toBe(1975367952);
+  it("F3 is pinned: the output over 60 ids is exactly what the trial-branch preset f3 produced (hash; V8-1 was 1975367952), so the drawing is the reviewed one", () => {
+    // hash of JSON of 60 layouts; equal to the trial branch's `f3` preset (checked over 20000 ids with 0 differences). A change to the drawing must change this on purpose.
+    expect(hashSeed(JSON.stringify(SEEDS.map((seed) => sprinkleLayout(seed))))).toBe(2035136589);
   });
 
   it("every shaving stays within the field plus its reach (centre radius and tip extent)", () => {
