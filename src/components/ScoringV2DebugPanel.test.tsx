@@ -21,9 +21,14 @@ function referenceResult() {
   });
 }
 
+function setUrlSearch(search: string) {
+  window.history.replaceState({}, "", `/${search}`);
+}
+
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
+  setUrlSearch("");
 });
 
 /**
@@ -46,21 +51,47 @@ describe("Production/Preview gating (mirrors SauceMetricsPanel's Fix C pattern)"
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("Preview (VITE_PREVIEW_MODE true) renders the debug panel with a Total line", () => {
+  it("Preview (VITE_PREVIEW_MODE true) WITHOUT ?debug=1 renders nothing (hidden by default)", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    const { container } = render(<ScoringV2DebugPanel result={referenceResult()} />);
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByText(/Scoring 2.0 Debug/)).not.toBeInTheDocument();
+  });
+
+  it("Preview + a debug query other than exactly debug=1 (debug=0 / debug=true / other keys) renders nothing", () => {
+    vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    for (const search of ["?debug=0", "?debug=true", "?debug=", "?inspector=1"]) {
+      setUrlSearch(search);
+      const { container, unmount } = render(<ScoringV2DebugPanel result={referenceResult()} />);
+      expect(container, search).toBeEmptyDOMElement();
+      unmount();
+    }
+  });
+
+  it("Production (VITE_PREVIEW_MODE unset) renders nothing even with ?debug=1", () => {
+    setUrlSearch("?debug=1");
+    const { container } = render(<ScoringV2DebugPanel result={referenceResult()} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("Preview + ?debug=1 renders the debug panel with a Total line", () => {
+    vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
     render(<ScoringV2DebugPanel result={referenceResult()} />);
     expect(screen.getByText(/Scoring 2.0 Debug/)).toBeInTheDocument();
     expect(screen.getByText(/Total: \d+ \/ 100/)).toBeInTheDocument();
   });
 
-  it("Preview + null result (no CONFIRM_BAKE yet this round) renders nothing", () => {
+  it("Preview + ?debug=1 + null result (no CONFIRM_BAKE yet this round) renders nothing", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
     const { container } = render(<ScoringV2DebugPanel result={null} />);
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("Preview + a Reference-unavailable recipe shows the explicit unavailable message, never a fabricated number", () => {
+  it("Preview + ?debug=1 + a Reference-unavailable recipe shows the explicit unavailable message, never a fabricated number", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
     // B2 PART C2: all 7 real recipes now have a reviewed Reference -- a synthetic id
     // getReferencePizza was never taught is what exercises this branch now.
     const noReferenceRecipe = { ...MARGHERITA, id: "no-such-recipe" as typeof MARGHERITA.id };
