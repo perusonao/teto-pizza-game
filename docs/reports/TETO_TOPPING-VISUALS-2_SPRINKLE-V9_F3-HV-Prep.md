@@ -43,7 +43,24 @@ Owner のチャット報告に基づく記録（判定の言葉は Owner のも�
 - **戻し方**: F3 のコミットを revert すると `100cfe0`（V8-1）の描画に戻る。
 
 ## 4. 検証（ローカルの worktree、F3 のコミット `db09c25`＝`100cfe0` の上に 1 コミット。未 push）
-__VERIFY_F3__
+- `tsc -b`: エラーなし／`oxlint`（`placedVisuals`）: 警告・エラーなし。
+- focused（`placedVisuals`）: 3 files・30 tests passed。
+- E2E（Chromium、390×844・360×800）`topping-visuals-parmigiano`: 4/4 通過。
+- **全 Vitest（ローカル、`--shard=N/6`）: 6 シャードすべて失敗 0、exit 0。**
+
+| シャード | Files | Tests |
+|---|---|---|
+| 1/6 | 115 passed | 1,814 passed |
+| 2/6 | 115 passed | 1,719 passed・2 todo |
+| 3/6 | 115 passed | 2,229 passed・4 skipped |
+| 4/6 | 115 passed | 2,343 passed |
+| 5/6 | 113 passed・2 skipped | 2,859 passed・7 skipped |
+| 6/6 | 114 passed・1 skipped | 1,820 passed・9 skipped |
+| **合計** | **687 passed・3 skipped（690）** | **12,784 passed・20 skipped・2 todo、失敗 0** |
+
+- **独立レビュー**（別コンテキストの読み取り専用エージェント。Codex は未実施）: **GO。P0〜P2 なし。** `topping-1`〜`20000` で、リボン・欠片 117,518 個は V8-1 と完全一致、薄片 112,564 個は `wid` 以外のすべての項目が一致。薄片の幅/長さは 0.2796〜0.5505、幅は最小 2.94、NaN なし。輪郭の退化は無い（推論による確認で、描画では未確認）。テストの変更は F3 の仕様変更に必要な更新で、緩和ではない。`REACH_PCT` は `wid` を使わない。`placedVisuals` の外は未編集。
+- **WebKit／GitHub CI: 未実施。** F3 のコミットは push していない（#875 の head 変更が未承認）ため、CI を起動できない。承認後に §5 の手順 4 で実行する。
+- Owner Gate: read-only token が無く（401）判定未取得。
 
 ## 5. PR 専用 Preview の公開手順（**Owner 承認後にのみ実施。今回は実施しない**）
 1. 承認の確認: #875 head への F3 コードの反映（fast-forward）と、PR 専用ページの更新・公開（§7 の A1・A2）。
