@@ -83,7 +83,28 @@ Owner 判断: [#875 comment 7091377934](https://github.com/perusonao/teto-pizza-
 
 ## 5. 検証
 
-__VERIFY__
+対象コード SHA: `74d129b135cb662c43e48f57632ffdbf30d95394`（以降の差分は docs・画像のみ）。#875 の head（`100cfe0`）と Preview `pr-875-100cfe0` は変更していない。
+
+- `tsc -b`: エラーなし／`oxlint`: 変更ファイルに警告・エラーなし。
+- focused（`placedVisuals`）: 53 tests passed。変異テスト: 自作 11 件すべて検出（`ParmigianoSprinkle` が有効な look を渡さない変異は、初回は生き残ったため `ParmigianoSprinkle.look.test.tsx` を追加して検出）。レビュー側の 24 件も検出。
+- E2E（Chromium、390×844・360×800）: base / F2 / F1 / F3 の 4 ビルドそれぞれで 4/4 通過（有効プリセットを切り替えた worktree で実行。出荷ビルドの既定は rev.6 のまま）。
+- **全 Vitest（ローカル、`--shard=N/6`）: 6 シャードすべて失敗 0、exit 0。**
+
+| シャード | Files | Tests |
+|---|---|---|
+| 1/6 | 116 passed | 1,817 passed |
+| 2/6 | 115 passed | 1,728 passed・2 todo |
+| 3/6 | 115 passed | 2,243 passed・4 skipped |
+| 4/6 | 115 passed | 2,342 passed |
+| 5/6 | 113 passed・2 skipped | 2,872 passed・7 skipped |
+| 6/6 | 114 passed・1 skipped | 1,805 passed・9 skipped |
+| **合計** | **688 passed・3 skipped（691）** | **12,807 passed・20 skipped・2 todo、失敗 0** |
+
+- **WebKit（`e2e-webkit.yml`、`workflow_dispatch`、対象 SHA `74d129b`、run [45111126268](https://github.com/perusonao/teto-pizza-game/actions/runs/45111126268)）**
+  - **attempt 1: 失敗あり。** `webkit-390x844` シャード 3/3（job 137483585691）で 224 passed・1 failed・44 skipped。失敗は `e2e/sauce-gauge-489.spec.ts:22`「gauge is right of the pizza, in view, and drains while holding」（`.sauce-remaining-gauge` の `getAttribute` で 30 秒タイムアウト）。派生して WebKit Gate（job 137491058416）も失敗。V9 は `placedVisuals/**` のみの変更で、このテストはソースゲージを扱う。
+  - **attempt 2: 失敗ジョブのみを 1 回再実行し、全 job success。** テストのスキップ・緩和はしていない。attempt 1 の失敗は隠さず記録する（再実行で通ったことは原因の証明ではない）。
+- 独立レビュー（別コンテキストの読み取り専用エージェント。Codex は未実施）: **GO。P0/P1 なし。** P2（受容・未修正）: 既定の SVG マークアップの属性が `fill-opacity="0.8"`（従来は `".8"`）。描画は同一で、スナップショットテストは無い。
+- Owner Gate: read-only token が無く（401）判定未取得。
 
 ## 6. V9-3（追加 iPhone HV: 離れた 3 か所）の手順（Owner の実施用。V8-1 の既存 Preview `pr-875-100cfe0` で実施できる）
 1. 通常の Safari タブで https://perusonao.github.io/teto-pizza-game-preview/pr/pr-875-100cfe0/ を開き、バッジが `PREVIEW・PR#875・100cfe0` か確認。
