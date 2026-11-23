@@ -22,9 +22,9 @@ const GRAIN = "#d9cca5";
 const SHADOW = "#5a4a22";
 const HIGHLIGHT = "#fffdf4";
 /**
- * V10-1 single trial (Owner #7116322259): a soft edge on the whole drawing -- one CSS `filter: blur()` on the outer <svg> (an HTML-level element, so WebKit applies it; the same
- * filter on SVG child elements is unreliable in Safari). It is a CSS function, not a `url(#...)` reference: no `id` / `<defs>` / gradient is added (Style Lock V2).
- * The stage wrapper's own bake filter (`.pizza-cheese` cheeseStyle) is a separate, outer filter and is untouched.
+ * V10-1 single trial (Owner #7116322259): a soft edge on the whole drawing -- one CSS blur() filter function on the outer svg element (an HTML-level element, so WebKit applies it;
+ * the same filter on SVG child elements is unreliable in Safari). It is a plain CSS function, not a reference to an element in the document: nothing with an id, no defs and no
+ * gradient is added (Style Lock V2). The stage wrapper's own bake filter (`.pizza-cheese` cheeseStyle) is a separate, outer filter and is untouched.
  */
 export const EDGE_BLUR_CSS_PX = 0.4;
 const EDGE_BLUR_STYLE = { filter: `blur(${EDGE_BLUR_CSS_PX}px)` } as const;
