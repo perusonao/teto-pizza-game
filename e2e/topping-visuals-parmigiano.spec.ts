@@ -64,6 +64,9 @@ test.describe("Topping Visuals 2.0 / #825: parmigiano sprinkle", () => {
     const box = await pieces.first().locator("svg").boundingBox();
     expect(box!.width).toBeGreaterThanOrEqual(40);
     await expect(page.locator(".pizza-topping--parmigiano .pizza-cheese--glyph")).toHaveCount(3);
+    // V10-1 (trial): the browser applies the 0.4 CSS px edge blur on every placed svg (computed style; Chromium and WebKit).
+    const blurs = await pieces.evaluateAll((els) => els.map((el) => getComputedStyle(el.querySelector("svg")!).filter));
+    expect(blurs).toEqual(["blur(0.4px)", "blur(0.4px)", "blur(0.4px)"]);
     // The tray chip is still the plate after placing.
     await expect(page.getByRole("button", { name: /パルミジャーノ/ }).first().locator("svg")).toHaveCount(0);
 
