@@ -1,0 +1,45 @@
+diff --git a/src/components/placedVisuals/ParmigianoShavings.test.tsx b/src/components/placedVisuals/ParmigianoShavings.test.tsx
+index 24e95b4..6747e51 100644
+--- a/src/components/placedVisuals/ParmigianoShavings.test.tsx
++++ b/src/components/placedVisuals/ParmigianoShavings.test.tsx
+@@ -102,3 +102,18 @@ describe("path geometry", () => {
+     expect(Math.min(...ys(down))).toBeLessThan(Math.min(...ys(up)));
+   });
+ });
++
++describe("ParmigianoShavings soft edge (V10-1 trial)", () => {
++  it("the svg root alone carries blur(0.4px); no child has a style, and the Style Lock shape is kept (no id, gradient, defs, url or <filter>)", () => {
++    const svg = draw().querySelector("svg")!;
++    expect(svg.style.filter).toBe("blur(0.4px)");
++    expect(svg.getAttribute("style")).toBe("filter: blur(0.4px);");
++    expect(draw().querySelectorAll("[style]")).toHaveLength(1);
++    const markup = svg.outerHTML;
++    expect(markup).not.toMatch(/\bid=/);
++    expect(markup).not.toMatch(/url\(/);
++    expect(markup).not.toMatch(/<defs|Gradient|<image|<foreignObject|<style|<filter|feGaussianBlur/i);
++    expect(svg).toHaveAttribute("viewBox", "0 0 64 64");
++    expect(svg).toHaveAttribute("aria-hidden", "true");
++  });
++});
+diff --git a/src/components/placedVisuals/ParmigianoShavings.tsx b/src/components/placedVisuals/ParmigianoShavings.tsx
+index 4bfc070..2d70aa9 100644
+--- a/src/components/placedVisuals/ParmigianoShavings.tsx
++++ b/src/components/placedVisuals/ParmigianoShavings.tsx
+@@ -22,6 +22,9 @@ const GRAIN = "#d9cca5";
+ const SHADOW = "#5a4a22";
+ const HIGHLIGHT = "#fffdf4";
+ 
++/** V10-1 trial (Owner TETO-PARM-02): a 0.4 CSS px blur of the whole drawing, so the edge of a shaving is a little softer. A CSS `filter` on the svg root: no id, gradient, defs or url reference. */
++const SOFT_EDGE = { filter: "blur(0.4px)" } as const;
++
+ function shavingPath(s: ParmigianoShaving): string {
+   return s.kind === "ribbon" ? ribbonPath(s.len, s.wid, s.bend, s.wobble, s.profile) : flakePath(s.len, s.wid, s.verts);
+ }
+@@ -45,6 +48,7 @@ export function ParmigianoShavings({ shavings, shift, svgRef }: ParmigianoShavin
+       height="1em"
+       aria-hidden="true"
+       focusable="false"
++      style={SOFT_EDGE}
+     >
+       <g transform={shift && (shift.x !== 0 || shift.y !== 0) ? `translate(${r(shift.x)} ${r(shift.y)})` : undefined}>
+         {shavings.map((s, index) => {
