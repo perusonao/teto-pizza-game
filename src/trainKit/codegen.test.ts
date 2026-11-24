@@ -23,7 +23,7 @@ const broken = (patch: (k: any) => void): string[] => {
 describe("implementation spec", () => {
   it("fills the conventional values and accepts a complete spec", () => {
     const k = kit();
-    expect(k.recipes[0]).toMatchObject({ bakeTarget: { start: 58, end: 78 }, baseRewardPitz: 100, lunchRush: false, ladderCredit: true });
+    expect(k.recipes[0]).toMatchObject({ bakeTarget: { start: 48, end: 88 }, baseRewardPitz: 100, lunchRush: false, ladderCredit: true });
     expect(validateKitTrain(k, SHIPPED)).toEqual([]);
     expect(toTrainSpec(k).newIngredients.map((i) => [i.id, i.family])).toEqual([["yuzu", "fruit"], ["ponzu", null]]);
   });

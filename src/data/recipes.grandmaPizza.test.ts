@@ -56,14 +56,14 @@ describe("grandma-pizza authoring", () => {
     expect(recipe.description).not.toMatch(/焼く前|焼いた後|塗った生地|ロングアイランド|長方形|天板|薄/);
   });
 
-  it("uses the Owner-fixed composition: tomato-sauce 1 / olive-oil 1 / mozzarella 3 / garlic 2, bake 56-76 (provisional)", () => {
+  it("uses the Owner-fixed composition: tomato-sauce 1 / olive-oil 1 / mozzarella 3 / garlic 2, bake 46-86 (provisional)", () => {
     expect(recipe.requiredIngredients).toEqual([
       { ingredientId: "tomato-sauce", minCount: 1 },
       { ingredientId: "olive-oil", minCount: 1 },
       { ingredientId: "mozzarella", minCount: 3 },
       { ingredientId: "garlic", minCount: 2 },
     ]);
-    expect(recipe.bakeTarget).toEqual({ start: 56, end: 76 });
+    expect(recipe.bakeTarget).toEqual({ start: 46, end: 86 });
     expect(recipe.baseRewardPitz).toBe(100);
     expect(requiredSauceIds(ID)).toEqual(["tomato-sauce", "olive-oil"]);
   });

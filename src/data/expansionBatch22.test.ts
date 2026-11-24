@@ -26,7 +26,7 @@ import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 
 /**
  * Expansion Batch 22 (Issue #780; Owner approvals 2026-11-09): six recipes and ten materials. PROVISIONAL SPEC: the original pizzadb.jp is NOT confirmed; the evidence is the 172 matrix rows
- * (speck-e-brie-pizzadb-p4, buffalo-chicken-pizzadb, pizza-finocchi-salad-pizzadb-p8, pizza-cavolo-carote-pizzadb-p8, pizza-radicchio-noci-pizzadb-p8, black-truffle-pizza-pizzadb-p14). Counts / the generic 58-78 bake window / colours / emoji are GAMEPLAY ASSUMPTIONS.
+ * (speck-e-brie-pizzadb-p4, buffalo-chicken-pizzadb, pizza-finocchi-salad-pizzadb-p8, pizza-cavolo-carote-pizzadb-p8, pizza-radicchio-noci-pizzadb-p8, black-truffle-pizza-pizzadb-p14). Counts / the generic 48-88 bake window / colours / emoji are GAMEPLAY ASSUMPTIONS.
  * ORDINARY: buffalo-chicken (ordinary step 72, buffalo-sauce, a pre-bake PAINT sauce) and speck-e-brie (ordinary step 73, brie); the order is the REC-04 rule's own (a tie goes to the smaller recipe id). LATE: pizza-finocchi-salad (fennel, orange), pizza-cavolo-carote (carrot, red-cabbage, sunflower-seeds),
  * pizza-radicchio-noci (radicchio, balsamic-vinegar), black-truffle-pizza (truffle), one late step each.
  */
@@ -79,14 +79,14 @@ describe("the six recipes (Owner-approved provisional spec; two ORDINARY, four L
     expect(LATE_DISCOVERY_TARGET_IDS["pizza-radicchio-noci"]).toBe("pizza-radicchio-noci-pizzadb-p8");
     expect(LATE_DISCOVERY_TARGET_IDS["black-truffle-pizza"]).toBe("black-truffle-pizza-pizzadb-p14");
   });
-  it("the generic calibration: ladder-credited, no Lunch Rush, no CUT, bake 58-78, 100 Pitz, permanently key-free; the descriptions name no moment and no quantity (Anti-Oracle)", () => {
+  it("the generic calibration: ladder-credited, no Lunch Rush, no CUT, bake 48-88, 100 Pitz, permanently key-free; the descriptions name no moment and no quantity (Anti-Oracle)", () => {
     for (const id of NEW_IDS) {
       const r = get(id);
       expect((r as { ladderCredit?: boolean }).ladderCredit !== false, id).toBe(true);
       expect(r.lunchRush, id).toBe(false);
       expect(isCutEligible(id as never), id).toBe(false);
       expect(RECIPE_HINT_ROLES[id as never], id).toEqual({ keyFree: true });
-      expect(r.bakeTarget, id).toEqual({ start: 58, end: 78 });
+      expect(r.bakeTarget, id).toEqual({ start: 48, end: 88 });
       expect(r.baseRewardPitz, id).toBe(100);
       expect(r.description, id).not.toMatch(/焼く前|焼いた後|焼き上|後乗せ|仕上げ|[0-9０-９]/);
     }

@@ -30,7 +30,7 @@ import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
  * confirmed; the only evidence is the 172 matrix rows `baingan-bharta-pizza-pizzadb-p6` ('カレー') and `venezuelan-reina-pepiada-pizzadb-p12` ('ホワイトソース'), both BASE_SAUCE_UNSPECIFIED (comparison tables p6 / p12, relayed 2026-09-22, never re-fetched).
  *
  * RECIPE-SPECIFIC Owner decisions (2026-11-04), not general rules and NOT NO_SAUCE: the existing curry-ketchup stands in for the curry base (as the Batch 10 curry recipes), the existing fromage-blanc-sauce for the white sauce (as moussaka-style-pizza);
- * mayo is the existing squeeze topping; the cilantro is placed BEFORE the bake. Counts / the generic 58-78 bake window are GAMEPLAY ASSUMPTIONS. No new technique, no FINISH / prep / sear / steam step.
+ * mayo is the existing squeeze topping; the cilantro is placed BEFORE the bake. Counts / the generic 48-88 bake window are GAMEPLAY ASSUMPTIONS. No new technique, no FINISH / prep / sear / steam step.
  */
 const BAINGAN = "baingan-bharta-pizza";
 const REINA = "reina-pepiada-pizza";
@@ -90,7 +90,7 @@ describe(BAINGAN, () => {
     expect(baingan.ladderCredit).toBeUndefined();
     expect(baingan.lunchRush).toBe(false);
     expect(isCutEligible(BAINGAN)).toBe(false);
-    expect(baingan.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(baingan.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(baingan.baseRewardPitz).toBe(100);
     expect(baingan.requiredIngredients.every((q) => !("applicationPhase" in q))).toBe(true);
     expect(RECIPE_HINT_ROLES[BAINGAN]).toEqual({ keyFree: true });
@@ -114,7 +114,7 @@ describe(REINA, () => {
     expect(reina.ladderCredit).toBe(false);
     expect(reina.lunchRush).toBe(false);
     expect(isCutEligible(REINA)).toBe(false);
-    expect(reina.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(reina.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(reina.requiredIngredients.every((q) => !("applicationPhase" in q))).toBe(true);
     expect(RECIPE_HINT_ROLES[REINA]).toEqual({ keyFree: true });
     expect(reina.nameJa).toBe("ベネズエラレイナペピアーダピザ");

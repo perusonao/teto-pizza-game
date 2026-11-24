@@ -70,7 +70,7 @@ late なのに step 無し など）は**ファイルを 1 つも書く前に**�
 - 専用 SVG があるとき: `pieceVisual`（visual id）と `glyphHost`（`StagedGlyph`／`DessertGlyph`）。絵は事前に未配線で作っておく
   （`src/components/stagedGlyphs/` に追加し、id をそのコンポーネントの型に入れる）。無ければ両方とも書かない（絵文字表示）。
 - `landingStyle`: 葉もののハーブだけ `LIGHT_LEAF`。出荷済み食材は既存の値が自動で引き継がれる。
-- 省略すると入る値: `bakeTarget 58–78`・`baseRewardPitz 100`・`lunchRush false`・`ladderCredit true`・`requestedBy "mito"`。
+- 省略すると入る値: `bakeTarget 48–88`・`baseRewardPitz 100`・`lunchRush false`・`ladderCredit true`・`requestedBy "mito"`。
 - `description`／`order.lineJa` は Anti-Oracle（数量・タイミング・手順を言わない）。既存レシピの文体に合わせる。
 
 ## 3.5 期待値は「凍結基準＋着地済みスペック」から合成される（R-1）

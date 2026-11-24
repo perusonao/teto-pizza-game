@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { BAKE_ZONE_FADE_END_S } from "../src/logic/bakeProgress";
 import { completeDoughStep, enterBakePaused, landNeedleAndTakeOut, paintSauceRing, tapDoughPercent } from "./gestures";
 import { base, openWith } from "./support/familyTray";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
@@ -82,8 +81,8 @@ test("FREE Cooking BAKE draws the JUST band on the generic window, inside the ga
     };
   });
   expect(info).not.toBeNull();
-  expect(info!.left).toBe(65); // generic window 58-78, centre 68
-  expect(info!.width).toBe(6);
+  expect(info!.left).toBe(61); // generic window 48-88, centre 68
+  expect(info!.width).toBe(14);
   expect(info!.inZones).toBe(true);
   expect(info!.insideGauge).toBe(true);
   expect(info!.ctaBelow).toBe(true);
@@ -91,8 +90,8 @@ test("FREE Cooking BAKE draws the JUST band on the generic window, inside the ga
   expect(info!.docScrolls).toBe(false);
   await shot(page, "free-bake-just-band");
 
-  await page.clock.runFor((BAKE_ZONE_FADE_END_S + 0.3) * 1000);
-  expect(await page.locator(".bake-gauge__just").count()).toBe(0);
+  await page.clock.runFor(1500);
+  expect(await page.locator(".bake-gauge__just").count()).toBe(1);
   await page.clock.resume();
 });
 
@@ -101,16 +100,16 @@ test("FREE Cooking RESULT shows ジャスト / 惜しい on the generic window, 
   test.setTimeout(60_000);
   await reachFreeBake(page);
   await enterBakeAtZero(page);
-  await landNeedleAndTakeOut(page, { start: 66, end: 70 }); // 66-70: inside JUST 65-71
+  await landNeedleAndTakeOut(page, { start: 66, end: 70 }); // 66-70: inside JUST 61-75
   await page.waitForSelector(".result-panel");
   await expect(page.locator(".result-panel__bake-badge").first()).toContainText("焼き加減: ジャスト");
   await shot(page, "free-result-just");
 
   await reachFreeBake(page);
   await enterBakeAtZero(page);
-  // The needle moves one way only and starts at 0 (enterBakeAtZero), so the 惜しい（焼き不足）band 59-64 lies ahead of it:
+  // The needle moves one way only and starts at 0 (enterBakeAtZero), so the 惜しい（焼き不足）band 52-58 lies ahead of it:
   // landNeedleAndTakeOut measures where the needle really is and advances from there.
-  await landNeedleAndTakeOut(page, { start: 59, end: 64 });
+  await landNeedleAndTakeOut(page, { start: 52, end: 58 });
   await page.waitForSelector(".result-panel");
   await expect(page.locator(".result-panel__bake-badge").first()).toContainText("焼き加減: 惜しい（焼き不足）");
   expect(await page.locator("body").innerText()).not.toContain("完璧");

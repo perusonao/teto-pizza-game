@@ -31,7 +31,7 @@ import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 
 /**
  * Expansion Batch 19 (Issue #774): `burrata` (ブッラータ, a cheese, ordinary step 70) + pesto-burrata-pizza (credited, the step's key) + pizza-alla-crudaiola (NOT credited). PROVISIONAL SPEC: the original pizzadb.jp is NOT confirmed; the only evidence is the 172 matrix rows
- * `pesto-burrata-pizzadb-p12` and `pizza-alla-crudaiola-pizzadb-p8`. Counts / the generic 58-78 bake window / colours are GAMEPLAY ASSUMPTIONS. Both recipes have TWO sauce layers (the primary sauce is the Reference target, olive-oil is scored by presence, as grandma-pizza), every piece is placed
+ * `pesto-burrata-pizzadb-p12` and `pizza-alla-crudaiola-pizzadb-p8`. Counts / the generic 48-88 bake window / colours are GAMEPLAY ASSUMPTIONS. Both recipes have TWO sauce layers (the primary sauce is the Reference target, olive-oil is scored by presence, as grandma-pizza), every piece is placed
  * BEFORE the bake, no new technique and no FINISH / prep / sear / steam step. Owner decisions: Prep Rev 5 D1-D9, Q1-Q4, P1, P2 (docs/reports/TETO_EXPANSION-BATCH-19_Prep.md).
  */
 const PB = "pesto-burrata-pizza";
@@ -77,7 +77,7 @@ describe.each([
     expect(recipe.lunchRush).toBe(false);
     expect(isCutEligible(id as never)).toBe(false);
     expect(RECIPE_HINT_ROLES[id as never]).toEqual({ keyFree: true });
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.baseRewardPitz).toBe(100);
     expect(recipe.requiredIngredients.some((q) => (q as { applicationPhase?: string }).applicationPhase === "POST_BAKE")).toBe(false);
     expect(getCookingProfile(id as never).steps).not.toContain("FINISH");

@@ -3,7 +3,7 @@ import { RECIPES } from "../data/recipes";
 import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { BAKE_LEVEL5_LABEL, JUST_HALF_WIDTH_PT, classifyBake, classifyBake5, isNearMiss, justBand } from "./bake";
 
-const T = { start: 58, end: 78 }; // centre 68, the Issue #469 worked example
+const T = { start: 48, end: 88 }; // centre 68; the Issue #469 worked example re-based to the 40pt window (plan A)
 
 describe("classifyBake5 (Issue #469)", () => {
   it("labels the five levels in the spec order", () => {
@@ -16,21 +16,21 @@ describe("classifyBake5 (Issue #469)", () => {
     });
   });
 
-  it("pins the just half-width at 3pt", () => {
-    expect(JUST_HALF_WIDTH_PT).toBe(3);
+  it("pins the just half-width at 7pt", () => {
+    expect(JUST_HALF_WIDTH_PT).toBe(7);
   });
 
   it("classifies the worked example, including every boundary", () => {
     expect(classifyBake5(0, T)).toBe("raw");
-    expect(classifyBake5(57.99, T)).toBe("raw");
-    expect(classifyBake5(58, T)).toBe("underdone"); // start is inside the window
-    expect(classifyBake5(64.99, T)).toBe("underdone");
-    expect(classifyBake5(65, T)).toBe("just"); // c-3 inclusive
+    expect(classifyBake5(47.99, T)).toBe("raw");
+    expect(classifyBake5(48, T)).toBe("underdone"); // start is inside the window
+    expect(classifyBake5(60.99, T)).toBe("underdone");
+    expect(classifyBake5(61, T)).toBe("just"); // c-7 inclusive
     expect(classifyBake5(68, T)).toBe("just");
-    expect(classifyBake5(71, T)).toBe("just"); // c+3 inclusive
-    expect(classifyBake5(71.01, T)).toBe("overdone");
-    expect(classifyBake5(78, T)).toBe("overdone"); // end is inside the window
-    expect(classifyBake5(78.01, T)).toBe("burnt");
+    expect(classifyBake5(75, T)).toBe("just"); // c+7 inclusive
+    expect(classifyBake5(75.01, T)).toBe("overdone");
+    expect(classifyBake5(88, T)).toBe("overdone"); // end is inside the window
+    expect(classifyBake5(88.01, T)).toBe("burnt");
     expect(classifyBake5(100, T)).toBe("burnt");
   });
 
@@ -62,17 +62,17 @@ describe("classifyBake5 (Issue #469)", () => {
 
   it("depends only on the window centre, not its position (shifted windows classify identically)", () => {
     for (const offset of [0, 10, 20]) {
-      const t = { start: 40 + offset, end: 60 + offset };
+      const t = { start: 35 + offset, end: 75 + offset };
       expect(classifyBake5(t.start + 6, t)).toBe("underdone");
-      expect(classifyBake5(t.start + 10, t)).toBe("just");
-      expect(classifyBake5(t.start + 14, t)).toBe("overdone");
+      expect(classifyBake5(t.start + 20, t)).toBe("just");
+      expect(classifyBake5(t.start + 34, t)).toBe("overdone");
     }
   });
 });
 
 describe("justBand (Issue #481): the meter band is exactly the judged JUST range", () => {
-  it("is centre +-3 for the worked example", () => {
-    expect(justBand(T)).toEqual({ start: 65, end: 71 });
+  it("is centre +-7 for the worked example", () => {
+    expect(justBand(T)).toEqual({ start: 61, end: 75 });
   });
 
   it("matches classifyBake5 at and just outside both ends for every recipe", () => {
@@ -94,13 +94,13 @@ describe("justBand (Issue #481): the meter band is exactly the judged JUST range
   });
 });
 
-describe("the FREE Cooking generic window (#520): 58-78, centre 68", () => {
+describe("the FREE Cooking generic window (#520): 48-88, centre 68", () => {
   it("uses the existing classifyBake5 boundaries on FREE_COOK_BAKE_TARGET", () => {
-    expect(FREE_COOK_BAKE_TARGET).toEqual({ start: 58, end: 78 });
+    expect(FREE_COOK_BAKE_TARGET).toEqual({ start: 48, end: 88 });
     const at = (v: number) => classifyBake5(v, FREE_COOK_BAKE_TARGET);
-    expect([57.99, 58, 64.99, 65, 68, 71, 71.01, 78, 78.01].map(at)).toEqual([
+    expect([47.99, 48, 60.99, 61, 68, 75, 75.01, 88, 88.01].map(at)).toEqual([
       "raw", "underdone", "underdone", "just", "just", "just", "overdone", "overdone", "burnt",
     ]);
-    expect(justBand(FREE_COOK_BAKE_TARGET)).toEqual({ start: 65, end: 71 });
+    expect(justBand(FREE_COOK_BAKE_TARGET)).toEqual({ start: 61, end: 75 });
   });
 });

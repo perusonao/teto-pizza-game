@@ -2,8 +2,6 @@ import { expect, test, type Page } from "@playwright/test";
 import {
   BAKE_DURATION_S,
   BAKE_SPEED_PCT_PER_S,
-  BAKE_ZONE_FADE_END_S,
-  BAKE_ZONE_FADE_START_S,
 } from "../src/logic/bakeProgress";
 import { completeDoughStep, paintSauceRing, startFreshMargherita, tapDoughPercent } from "./gestures";
 
@@ -79,7 +77,7 @@ async function snapshot(page: Page) {
     return {
       left: parseFloat(needle.style.left) || 0,
       color: getComputedStyle(needle).backgroundColor,
-      zones: zones ? Number(zones.style.opacity) : null,
+      zones: zones ? 1 : null,
       hasTrack: !!document.querySelector(".bake-gauge"),
       glow: button.className.includes("glow"),
       caption: document.querySelector(".bake-oven__caption")?.textContent ?? "",
@@ -106,40 +104,27 @@ test.describe("Issue #419 Bake Human Feel", () => {
     await page.clock.resume();
   });
 
-  test("the target zone is shown to 0.6s, fades 0.6-1.2s, is gone from 1.2s; track and needle stay", async ({ page }) => {
+  test("the target zone stays visible for the whole bake (no fade); track and needle stay too", async ({ page }) => {
     await reachBake(page);
     const start = await snapshot(page);
     expect(start.zones).toBe(1);
 
-    // Align to just before the fade starts (FADE_START - 0.1s of BAKE time) using the needle itself (elapsed = position / speed).
-    const elapsedMs = (start.left / BAKE_SPEED_PCT_PER_S) * 1000;
-    const beforeFadeMs = (BAKE_ZONE_FADE_START_S - 0.1) * 1000;
-    const midFadeMs = ((BAKE_ZONE_FADE_START_S + BAKE_ZONE_FADE_END_S) / 2) * 1000;
-    const goneMs = (BAKE_ZONE_FADE_END_S + 0.2) * 1000;
-    await page.clock.runFor(Math.max(0, beforeFadeMs - elapsedMs));
-    expect((await snapshot(page)).zones).toBe(1);
-
-    await page.clock.runFor(midFadeMs - beforeFadeMs); // mid-fade
-    const mid = (await snapshot(page)).zones;
-    expect(mid).not.toBeNull();
-    expect(mid!).toBeGreaterThan(0.2);
-    expect(mid!).toBeLessThan(0.8);
-
-    await page.clock.runFor(goneMs - midFadeMs); // just past the end of the fade
-    const gone = await snapshot(page);
-    expect(gone.zones).toBeNull();
-    expect(gone.hasTrack).toBe(true);
-    expect(gone.left).toBeGreaterThan(30); // the zone is gone while the needle is still mid-gauge
-    expect(gone.left).toBeLessThan(100);
-
+    // Step through 0.6s / 1.2s (the old fade window) and on to the end of the bake: the zone is always drawn.
+    for (let i = 0; i < 6; i += 1) {
+      await page.clock.runFor(500);
+      const now = await snapshot(page);
+      expect(now.zones, `t+${(i + 1) * 0.5}s`).toBe(1);
+      expect(now.hasTrack).toBe(true);
+    }
     await page.clock.runFor((BAKE_DURATION_S + 3) * 1000);
     const end = await snapshot(page);
-    expect(end.zones).toBeNull();
+    expect(end.zones).toBe(1);
+    expect(end.hasTrack).toBe(true);
     expect(end.left).toBe(100);
     await page.clock.resume();
   });
 
-  test("Issue #481: the JUST band (window centre +-3pt) is drawn inside the zone layer, never overlaps the CTA, and is gone with the zone at 1.2s", async ({ page }) => {
+  test("Issue #481: the JUST band (window centre +-7pt) is drawn inside the zone layer, never overlaps the CTA, and stays visible", async ({ page }) => {
     await reachBake(page);
     await flush(page);
     const info = await page.evaluate(() => {
@@ -163,19 +148,19 @@ test.describe("Issue #419 Bake Human Feel", () => {
       };
     });
     expect(info).not.toBeNull();
-    expect(info!.left).toBe(67); // Margherita window 60-80, centre 70
-    expect(info!.width).toBe(6);
+    expect(info!.left).toBe(63); // Margherita window 50-90, centre 70
+    expect(info!.width).toBe(14);
     expect(info!.inZones).toBe(true);
-    expect(info!.pxWidth).toBeGreaterThan(info!.gaugeWidth * 0.05);
-    expect(info!.pxWidth).toBeLessThan(info!.gaugeWidth * 0.07);
+    expect(info!.pxWidth).toBeGreaterThan(info!.gaugeWidth * 0.12);
+    expect(info!.pxWidth).toBeLessThan(info!.gaugeWidth * 0.16);
     expect(info!.insideGauge).toBe(true);
     expect(info!.ctaBelow).toBe(true);
     expect(info!.ctaInViewport).toBe(true);
     expect(info!.docScrolls).toBe(false);
 
-    await page.clock.runFor((BAKE_ZONE_FADE_END_S + 0.3) * 1000);
+    await page.clock.runFor(1500);
     await flush(page);
-    expect(await page.locator(".bake-gauge__just").count()).toBe(0);
+    expect(await page.locator(".bake-gauge__just").count()).toBe(1);
     await page.clock.resume();
   });
 

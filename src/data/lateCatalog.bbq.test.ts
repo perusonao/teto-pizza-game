@@ -73,7 +73,7 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     expect(RECIPES.some((r) => r.id === BBQ)).toBe(true);
   });
 
-  it("recipe: bbq-sauce 1 (PAINT) / mozzarella 2 / onion 1 / chicken 3 / cilantro 2 POST_BAKE = 8 non-sauce pieces, bake 58-78, not in Lunch Rush, ladder-credited (no ladderCredit field)", () => {
+  it("recipe: bbq-sauce 1 (PAINT) / mozzarella 2 / onion 1 / chicken 3 / cilantro 2 POST_BAKE = 8 non-sauce pieces, bake 48-88, not in Lunch Rush, ladder-credited (no ladderCredit field)", () => {
     const recipe = getRecipe(BBQ)!;
     expect(recipe.nameJa).toBe("BBQチキンピザ");
     expect(recipe.requiredIngredients).toEqual([
@@ -86,7 +86,7 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     const pieces = recipe.requiredIngredients.filter((r) => r.ingredientId !== SAUCE).reduce((n, r) => n + r.minCount, 0);
     expect(pieces).toBe(8);
     expect(recipe.requiredIngredients.filter((r) => r.applicationPhase === "POST_BAKE").map((r) => r.ingredientId)).toEqual([CIL]);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.lunchRush).toBe(false);
     expect("ladderCredit" in recipe).toBe(false);
     expect("doughKind" in recipe).toBe(false);

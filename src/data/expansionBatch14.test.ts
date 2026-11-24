@@ -68,7 +68,7 @@ describe(ID, () => {
     expect(recipe.ladderCredit).toBeUndefined(); // credited (the default)
     expect(recipe.lunchRush).toBe(false);
     expect(isCutEligible(ID)).toBe(false);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.baseRewardPitz).toBe(100);
     expect(recipe.requiredIngredients.every((q) => !("applicationPhase" in q))).toBe(true);
     expect(RECIPE_HINT_ROLES[ID]).toEqual({ keyFree: true });

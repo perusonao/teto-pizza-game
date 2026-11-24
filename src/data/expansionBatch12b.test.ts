@@ -67,7 +67,7 @@ describe.each(ROWS)("$id", (row) => {
   it("is an ordinary recipe: lunchRush false, no CUT, generic bake window, every requirement placed before the bake, key-free Hint, base reward 100", () => {
     expect(recipe.lunchRush).toBe(false);
     expect(isCutEligible(row.id)).toBe(false);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.baseRewardPitz).toBe(100);
     expect(recipe.requiredIngredients.every((q) => !("applicationPhase" in q))).toBe(true);
     expect(RECIPE_HINT_ROLES[row.id]).toEqual({ keyFree: true });

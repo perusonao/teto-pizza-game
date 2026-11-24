@@ -29,8 +29,8 @@
     }
    ],
    "bakeTarget": {
-    "start": 58,
-    "end": 78
+    "start": 48,
+    "end": 88
    },
    "baseRewardPitz": 100,
    "lunchRush": false,

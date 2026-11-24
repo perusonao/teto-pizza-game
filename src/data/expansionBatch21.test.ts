@@ -30,7 +30,7 @@ import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
 /**
  * Expansion Batch 21 (Issue #780; Owner approvals 2026-11-08 Q-1 and 2026-11-09 Q-2 / Q-3): the two LATE recipes `taco-pizza` and `okonomiyaki-style-pizza` and their six late materials
  * (cheddar, lettuce, tortilla-chips at late step 79, keyed to taco-pizza; okonomiyaki-sauce, cabbage, bonito-flakes at late step 80, keyed to okonomiyaki-style-pizza). PROVISIONAL SPEC: the original pizzadb.jp is NOT confirmed;
- * the evidence is the 172 matrix rows `taco-pizza-pizzadb` and `okonomiyaki-style-pizza-pizzadb-p1`. Counts / the generic 58-78 bake window / colours are GAMEPLAY ASSUMPTIONS.
+ * the evidence is the 172 matrix rows `taco-pizza-pizzadb` and `okonomiyaki-style-pizza-pizzadb-p1`. Counts / the generic 48-88 bake window / colours are GAMEPLAY ASSUMPTIONS.
  * The values are the Q-3 values of docs/reports/TETO_B21_Q2-Q3_Individual-Lists_2026-11-08.md (= src/data/staged/stagedPromotionCandidates.ts) EXCEPT the two DEVIATIONS pinned below.
  */
 const TACO = "taco-pizza";
@@ -80,7 +80,7 @@ describe("the two recipes (Q-3 values; late catalog, POST_BAKE garnishes, ladder
       expect(r.lunchRush, r.id).toBe(false);
       expect(isCutEligible(r.id as never), r.id).toBe(false);
       expect(RECIPE_HINT_ROLES[r.id as never], r.id).toEqual({ keyFree: true });
-      expect(r.bakeTarget, r.id).toEqual({ start: 58, end: 78 });
+      expect(r.bakeTarget, r.id).toEqual({ start: 48, end: 88 });
       expect(r.baseRewardPitz, r.id).toBe(100);
       expect(getCookingProfile(r.id as never).steps, r.id).toContain("FINISH");
     }

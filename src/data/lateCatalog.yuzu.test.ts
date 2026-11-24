@@ -65,7 +65,7 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     expect(RECIPES.some((r) => r.id === YUZU)).toBe(true);
   });
 
-  it("recipe: yuzu-kosho 1 (PAINT) / mozzarella 2 / shrimp 3 / shiso 1 POST_BAKE, bake 58-78, not in Lunch Rush, ladder-credited (no ladderCredit field)", () => {
+  it("recipe: yuzu-kosho 1 (PAINT) / mozzarella 2 / shrimp 3 / shiso 1 POST_BAKE, bake 48-88, not in Lunch Rush, ladder-credited (no ladderCredit field)", () => {
     const recipe = getRecipe(YUZU)!;
     expect(recipe.requiredIngredients).toEqual([
       { ingredientId: SAUCE, minCount: 1 },
@@ -73,7 +73,7 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
       { ingredientId: "shrimp", minCount: 3 },
       { ingredientId: "shiso", minCount: 1, applicationPhase: "POST_BAKE" },
     ]);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.lunchRush).toBe(false);
     expect("ladderCredit" in recipe).toBe(false);
     expect("doughKind" in recipe).toBe(false);

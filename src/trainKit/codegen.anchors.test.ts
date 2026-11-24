@@ -61,7 +61,7 @@ describe("train kit anchors against the real files", () => {
     const byId = new Map(KIT.newIngredients.map((i) => [i.id, i]));
     const e2e = fillTemplate(template("e2e.spec.ts.tmpl"), e2eValues(KIT, { nameJa: (id) => byId.get(id)?.nameJa ?? "モッツァレラ", category: (id) => byId.get(id)?.category ?? "cheese", pieceVisual: (id) => byId.get(id)?.pieceVisual ?? null }));
     expect(e2e).toContain(`id: "zz-ordinary", name: "プローブ1", tag: "zzprobe-zz-ordinary"`);
-    expect(e2e).toContain(`notYet: ["zz-late"], bake: { start: 60, end: 76 }`);
+    expect(e2e).toContain(`notYet: ["zz-late"], bake: { start: 50, end: 86 }`);
     expect(e2e).toContain(`post: [{ id: "zz-topping-b", chip: /プローブB/ }]`);
   });
 });

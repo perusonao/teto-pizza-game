@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   bakePositionAt,
   BAKE_DURATION_S,
-  BAKE_ZONE_FADE_END_S,
   clampBakeFrameDt,
-  computeBakeZoneOpacity,
 } from "../logic/bakeProgress";
 import { justBand } from "../logic/bake";
 import tetoImg from "../assets/characters/teto.webp";
@@ -12,8 +10,8 @@ import tetoImg from "../assets/characters/teto.webp";
 interface BakeOverlayProps {
   targetStart: number;
   targetEnd: number;
-  /** Issue #481 / #520: draw the darker JUST band (window centre +-3pt) of the window passed in. Every round kind
-   *  (Guided / Lunch Rush / Dinner / FREE Cooking, whose window is the generic 58-78). Default off. */
+  /** Issue #481 / #520: draw the darker JUST band (window centre +-7pt) of the window passed in. Every round kind
+   *  (Guided / Lunch Rush / Dinner / FREE Cooking, whose window is the generic 48-88). Default off. */
   showJustBand?: boolean;
   /** Returns `false` when the take-out was refused (R8: the save could not take it). The needle then holds where it was taken out, so a retry
    *  submits the same value instead of a later, possibly burnt one. Any other return value (including none) is an accepted take-out. */
@@ -31,11 +29,9 @@ const CAPTION = "見た目で焼き加減を確かめて！";
  * BAKE time (../logic/bakeProgress.ts), so `PizzaStage`'s continuous bake visual, which reads the
  * same value through `onTick`, cannot run backwards either.
  *
- * The Guide is only the target zone (with its raw / burnt flanks): shown for the first 0.6s, faded
- * out over 0.6-1.2s, then hidden for good. The track and the needle stay visible for the whole step,
- * in one neutral colour; the caption is neutral and the CTA has no glow, so nothing keeps
- * announcing the correct position after the zone is gone. The fade depends only on elapsed time,
- * never on the recipe or the needle (it is separate from CUT's guide fade, ../logic/bakeGuideFade.ts).
+ * The Guide is the target zone (with its raw / burnt flanks) and it stays visible for the whole
+ * step (the former 0.6-1.2s fade is gone: with a 3s bake the zone had vanished before the needle
+ * reached it). The needle stays one neutral colour; the caption is neutral and the CTA has no glow.
  *
  * Time only advances while the page is visible and focused, and one frame adds at most
  * `BAKE_MAX_FRAME_DT_S`, so returning from the background never jumps the needle. There is no
@@ -106,7 +102,6 @@ export function BakeOverlay({ targetStart, targetEnd, showJustBand = false, onCo
   }, []);
 
   const position = bakePositionAt(elapsed);
-  const zoneOpacity = computeBakeZoneOpacity(elapsed);
   const just = justBand({ start: targetStart, end: targetEnd });
 
   // W1 I5b-4b: 「取り出す！」 sits in the same in-flow bottom CTA bar as PREPARE's 「焼く！」 and
@@ -124,26 +119,24 @@ export function BakeOverlay({ targetStart, targetEnd, showJustBand = false, onCo
           </div>
         </div>
         <div className="bake-gauge" aria-hidden="true">
-          {elapsed < BAKE_ZONE_FADE_END_S && (
-            <div className="bake-gauge__zones" style={{ opacity: zoneOpacity }}>
-              <div className="bake-gauge__zone bake-gauge__zone--raw" style={{ width: `${targetStart}%` }} />
+          <div className="bake-gauge__zones">
+            <div className="bake-gauge__zone bake-gauge__zone--raw" style={{ width: `${targetStart}%` }} />
+            <div
+              className="bake-gauge__target"
+              style={{ left: `${targetStart}%`, width: `${targetEnd - targetStart}%` }}
+            />
+            {showJustBand && (
               <div
-                className="bake-gauge__target"
-                style={{ left: `${targetStart}%`, width: `${targetEnd - targetStart}%` }}
+                className="bake-gauge__just"
+                data-testid="bake-just-band"
+                style={{ left: `${just.start}%`, width: `${just.end - just.start}%` }}
               />
-              {showJustBand && (
-                <div
-                  className="bake-gauge__just"
-                  data-testid="bake-just-band"
-                  style={{ left: `${just.start}%`, width: `${just.end - just.start}%` }}
-                />
-              )}
-              <div
-                className="bake-gauge__zone bake-gauge__zone--burnt"
-                style={{ width: `${100 - targetEnd}%` }}
-              />
-            </div>
-          )}
+            )}
+            <div
+              className="bake-gauge__zone bake-gauge__zone--burnt"
+              style={{ width: `${100 - targetEnd}%` }}
+            />
+          </div>
           <div className="bake-gauge__needle" style={{ left: `${position}%` }} />
         </div>
       </div>
