@@ -79,8 +79,22 @@ Owner 承認: [#875 comment 7116322259](https://github.com/perusonao/teto-pizza-
 - `tsc -b`／`oxlint`: エラー・警告なし。focused（`placedVisuals`）: 5 files・60 tests passed（V10-1 の新規: 配置が F3 と全 id で一致／差は `edgeBlur` だけ／既定は blur なし／マークアップは style 1 箇所以外同一／Style Lock の番人／有効変種による配線）。
 - 変異テスト: ルートの `overflow` を `hidden` にすると E2E 契約テストが落ちる（検出）。配線は有効変種を差し替えるテストで検出。
 - E2E（Chromium、390×844・360×800）: 製品の `topping-visuals-parmigiano`（4 件）＋エッジ契約（2 件）が V10-1 ビルドで 6/6 通過。F3 ビルドでもエッジ契約 2/2 通過（ぼかしなしで `filter: none`）。
-- 全 Vitest: 実行中（このコミット時点では未確認。結果が出たら更新する）
-- WebKit: 実行中（run 45287364458、SHA `a47222c`。このコミット時点では未確認。結果が出たら更新する）
+- **全 Vitest（ローカル、`f86e5f2` の別 worktree、`--shard=N/6`）: 6 シャードすべて失敗 0、exit 0。**
+
+| シャード | Files | Tests |
+|---|---|---|
+| 1/6 | 116 passed | 1,817 passed |
+| 2/6 | 116 passed | 1,737 passed・2 todo |
+| 3/6 | 115 passed | 2,241 passed・4 skipped |
+| 4/6 | 115 passed | 2,342 passed |
+| 5/6 | 113 passed・2 skipped | 2,872 passed・7 skipped |
+| 6/6 | 114 passed・1 skipped | 1,805 passed・9 skipped |
+| **合計** | **689 passed・3 skipped（692）** | **12,814 passed・20 skipped・2 todo、失敗 0** |
+- **WebKit（GitHub、`e2e-webkit.yml` の `workflow_dispatch`、対象 SHA `a47222c`＝`3014a46` の上で有効変種を `v101` にしただけの検証用コミット。run [45287364458](https://github.com/perusonao/teto-pizza-game/actions/runs/45287364458)）**
+  - **attempt 1: 失敗あり。** `webkit webkit-390x844 shard 3/3`（job 138087325735）で 224 passed・1 failed・44 skipped。失敗は `e2e/sauce-gauge-489.spec.ts:22`「gauge is right of the pizza, in view, and drains while holding」（52 行 `expect(Math.abs(after - mid)).toBeLessThanOrEqual(8)` が Received 10）。派生して WebKit Gate（job 138099423763）も失敗。他の 6 シャード・`layout-chromium`・Layout Contract Gate・classify は success。**ソースゲージの試験で、パルミジャーノとは無関係に見える**が、**同じ試験は直前の V9 試験の WebKit run 45111126268 の attempt 1 でもタイムアウトで失敗しており（再実行で成功）、繰り返している**（今回は別の失敗形）。原因の確定はしておらず、この試験の不安定さは別途の確認が必要。テストのスキップ・緩和はしていない。
+  - **attempt 2: 失敗ジョブのみを 1 回再実行し、全 10 job success。**
+  - **この run では新しいエッジ契約テストが WebKit で実行され、通過した**: `topping-visuals-parmigiano-edge.spec.ts`（有効変種 `v101` ＝ svg ルートに `blur(0.4px)`、箱の外のテスト用の点が描かれる）が `webkit-390x844`・`webkit-360x800` の両方で ✓。製品の `topping-visuals-parmigiano.spec.ts`（2 件）も両方で ✓。→ **WebKit でも、ぼかし付きの svg ルートが `overflow: visible` のはみ出し描画を切らない**（Playwright の WebKit であり、実機の Safari ではない）。
+  - lint／型／全 Vitest の check run は本 PR に存在せず、CI 上では未確認（上はローカル結果）。
 - 独立レビュー（別コンテキストの読み取り専用エージェント。Codex は未実施）: **GO、P0・P1 なし。** 既定（`rev6` ほか全プリセット）のマークアップは従来と同一、`v101` は svg ルートの style 1 箇所以外同一／配置は 3000 id で F3 および #875 head と一致／Style Lock の `id`・gradient・`<defs>` は新設なし。P2: 多数の svg にフィルタ層ができる描画負荷、WebKit での `filter` 付き svg のはみ出し（E2E の点で検知、実機が最終）。P3: Style Lock が CSS フィルタに明示的に触れていないこと（§2）、E2E のピクセル差の閾値、3 回タップへの依存。
 - Owner Gate: read-only token が無く（401）判定は未取得。
 
