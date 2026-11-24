@@ -1,0 +1,28 @@
+export const r = (n) => (Math.round(n * 100) / 100).toString();
+export function flakePts(len, wid, verts, o = {}) {
+  const count = verts.length, cr = o.corner ?? 0.3, taper = o.taper ?? 0;
+  const pts = verts.map((f, i) => {
+    const th = ((i + (verts[(i + 3) % count] - 1) * 1.6) / count) * Math.PI * 2 + 0.35;
+    let x = (len / 2) * f * Math.cos(th), y = (wid / 2) * f * Math.sin(th);
+    if (taper) { const k = (verts[0] - 1) * 2.2 + (verts[1] - 1); const t = Math.max(-1, Math.min(1, k)); y *= 1 + t * taper * (x / (len / 2)); }
+    return { x, y };
+  });
+  const toward = (a, b, m) => ({ x: a.x + (b.x - a.x) * m, y: a.y + (b.y - a.y) * m });
+  const poly = []; let d = "";
+  for (let i = 0; i < count; i++) {
+    const c = pts[i], b = toward(c, pts[(i + count - 1) % count], cr), a = toward(c, pts[(i + 1) % count], cr);
+    d += `${i === 0 ? "M" : "L"} ${r(b.x)} ${r(b.y)} Q ${r(c.x)} ${r(c.y)} ${r(a.x)} ${r(a.y)} `;
+    poly.push(b); for (let s = 1; s <= 6; s++) { const t = s / 6; poly.push({ x: (1 - t) * (1 - t) * b.x + 2 * (1 - t) * t * c.x + t * t * a.x, y: (1 - t) * (1 - t) * b.y + 2 * (1 - t) * t * c.y + t * t * a.y }); }
+  }
+  return { d: d + "Z", poly };
+}
+const lerp = (p, off, t) => { const pos = Math.min(3.999999999, Math.max(0, t * 4)); const i = Math.floor(pos); const m = pos - i; return p[off + i] * (1 - m) + p[off + i + 1] * m; };
+export function ribbonPts(len, wid, bend, wobble, profile, o = {}) {
+  const end = o.end ?? 0.3, env = (t) => end + (1 - end) * Math.pow(Math.sin(Math.PI * t), 0.6);
+  const cen = (t) => ({ x: len * (t - 0.5), y: bend * len * (1 - 4 * (t - 0.5) ** 2) * 0.5 + wobble * len * Math.sin(2 * Math.PI * t) });
+  const top = [], bot = [];
+  for (let s = 0; s <= 13; s++) { const t = s / 13, c = cen(t); top.push({ x: c.x, y: c.y - (wid / 2) * env(t) * lerp(profile, 0, t) }); bot.push({ x: c.x, y: c.y + (wid / 2) * env(t) * lerp(profile, 5, t) }); }
+  const poly = [...top, ...bot.reverse()];
+  return { d: "M " + poly.map((p) => `${r(p.x)} ${r(p.y)}`).join(" L ") + " Z", poly, cen, env, wid, len, profile };
+}
+export const area = (poly) => { let a = 0; for (let i = 0; i < poly.length; i++) { const p = poly[i], q = poly[(i + 1) % poly.length]; a += p.x * q.y - q.x * p.y; } return Math.abs(a) / 2; };

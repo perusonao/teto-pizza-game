@@ -1,0 +1,37 @@
+import { createRequire } from "node:module";
+import { pieceSvg } from "./render.mjs";
+const require = createRequire(import.meta.url);
+const { chromium } = require("playwright");
+const CANDS = {
+  "F3 (基準)": { layout: {}, render: {} },
+  "S1 幅/長さ 中間": { layout: { wr0: 0.33, wrSpan: 0.30 }, render: {} },
+  "S2 輪郭を不規則に": { layout: { vLo: 0.55, vSpan: 0.9 }, render: { corner: 0.2 } },
+  "S3 先細り・非平行": { layout: {}, render: { taper: 0.5, end: 0.15 } },
+  "S4 厚みの縁取り": { layout: {}, render: { bevel: true } },
+  "S5 長さの幅を縮小": { layout: { fLen0: 8, fLenSpan: 9, rLen0: 9.5, rLenSpan: 6 }, render: {} },
+};
+const IDS = ["topping-3", "topping-17", "topping-42", "topping-88"];
+const GROUNDS = {
+  sauce: { bg: "radial-gradient(circle at 50% 45%, #e0603f, #cf4a30)", wrap: "" },
+  white: { bg: "radial-gradient(circle at 50% 45%, #f6f1e2, #ece4cf)", wrap: "" },
+  baked: { bg: "radial-gradient(circle at 50% 45%, #f6f1e2, #ece4cf)", wrap: "transform:scale(1.16);filter:brightness(1.06) saturate(1.12) sepia(.14);" },
+};
+const pieces = {};
+for (const [name, c] of Object.entries(CANDS)) {
+  globalThis.__OPTS = c.layout;
+  const mod = await import(`./layout.ts?${name}`);
+  pieces[name] = IDS.map((id) => pieceSvg(mod.sprinkleLayout(id).shavings, c.render));
+}
+const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium", args: ["--no-sandbox"] });
+const ctx = await browser.newContext({ viewport: { width: 1000, height: 640 }, deviceScaleFactor: 2 });
+const page = await ctx.newPage();
+for (const [gname, g] of Object.entries(GROUNDS)) {
+  let html = `<body style="margin:0;font:12px sans-serif;background:#fff"><div style="display:grid;grid-template-columns:repeat(${Object.keys(CANDS).length},160px);gap:6px;padding:6px">`;
+  for (const name of Object.keys(CANDS)) html += `<div style="text-align:center;font-weight:600">${name}</div>`;
+  for (let i = 0; i < IDS.length; i++) for (const name of Object.keys(CANDS)) html += `<div style="width:160px;height:130px;background:${g.bg};border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden"><div style="${g.wrap}display:flex">${pieces[name][i]}</div></div>`;
+  html += `</div></body>`;
+  await page.setContent(html);
+  await page.screenshot({ path: `board-${gname}.png`, clip: { x: 0, y: 0, width: 1000, height: 640 } });
+}
+await browser.close();
+console.log("boards ok");

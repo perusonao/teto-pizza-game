@@ -1,0 +1,21 @@
+import json, sys, statistics as st
+from collections import defaultdict
+d=json.load(open(sys.argv[1]))
+g=defaultdict(list)
+# label runs within each rep: first A = A, second A = A2 (A/A noise baseline)
+byrep=defaultdict(list)
+for x in d: byrep[(x['count'],x['rep'])].append(x)
+for k,rs in byrep.items():
+    seen=0
+    for x in rs:
+        if x['mode']=='A':
+            x['lab']='A' if seen==0 else 'A2'; seen+=1
+        else: x['lab']='B'
+for x in d: g[(x['count'],x['n'],x['lab'])].append(x)
+keys=['mean','f_p95','RasterTask','Layerize','Commit','PrePaint','Paint']
+print('count n lab runs | '+' | '.join(keys)+'  (median [min-max])')
+for k in sorted(g):
+    rs=g[k]; row=[]
+    for m in keys:
+        v=[r[m] for r in rs]; row.append(f"{st.median(v):.1f}[{min(v):.1f}-{max(v):.1f}]")
+    print(k,len(rs),'|',' | '.join(row))

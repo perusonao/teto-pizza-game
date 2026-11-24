@@ -1,0 +1,16 @@
+import { flakePts, ribbonPts, r } from "./paths.mjs";
+const FILL = ["#f7efd5", "#f2e7c4", "#f9f3e0"];
+export function pieceSvg(shavings, o = {}) {
+  let g = "";
+  for (const s of shavings) {
+    let d, extra = "";
+    if (s.kind === "ribbon") d = ribbonPts(s.len, s.wid, s.bend, s.wobble, s.profile, o).d; else d = flakePts(s.len, s.wid, s.verts, o).d;
+    const stroke = 0.14 + 0.16 * s.edge;
+    let bevel = "";
+    if (o.bevel) bevel = `<path d="${d}" transform="translate(-0.3 -0.45)" fill="none" stroke="#fffdf4" stroke-opacity=".55" stroke-width=".35"/><path d="${d}" transform="translate(0.35 0.55)" fill="none" stroke="#8a7440" stroke-opacity=".28" stroke-width=".35"/>`;
+    g += `<g transform="translate(${s.cx} ${s.cy}) rotate(${s.angle})"><path d="${d}" transform="translate(0.5 0.9)" fill="#5a4a22" opacity="${r(0.05 + 0.07 * s.edge)}"/>${bevel}<path d="${d}" fill="${FILL[s.fill]}" fill-opacity=".8" stroke="#d6c9a2" stroke-opacity="${r(0.22 + 0.3 * s.edge)}" stroke-width="${stroke}" stroke-linejoin="round"/>`;
+    if (s.kind === "flake") { g += `<path d="${d}" transform="translate(${r(-0.04 * s.len)} ${r(-0.03 * s.wid)}) scale(${s.core})" fill="#fffaec" opacity=".16"/>`; const l = (s.len / 2) * (0.5 + s.core * 0.4); g += `<path d="M ${r(-l)} ${r(s.wid * 0.06)} Q 0 ${r(-s.wid * 0.12)} ${r(l)} ${r(s.wid * 0.02)}" fill="none" stroke="#d9cca5" stroke-opacity=".4" stroke-width=".2" stroke-linecap="round"/>`; }
+    g += "</g>";
+  }
+  return `<svg viewBox="0 0 64 64" width="96" height="96" style="overflow:visible">${g}</svg>`;
+}

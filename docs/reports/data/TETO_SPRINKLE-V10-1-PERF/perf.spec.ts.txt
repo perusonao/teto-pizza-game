@@ -1,0 +1,77 @@
+import fs from "node:fs";
+import { test, type Page } from "@playwright/test";
+import { completeDoughStep, paintSauceRing, tapDoughPercent } from "/home/user/teto-pizza-game/e2e/gestures";
+import { startTargetlessFreeCook } from "/home/user/teto-pizza-game/e2e/support/startFreeCook";
+
+const OUT = process.env.PERF_OUT!;
+async function start(page: Page, count: number) {
+  const owned = ["mozzarella", "basil", "tomato-sauce", "parmigiano"];
+  const inventory = Object.fromEntries(owned.map((id) => [id, 99]));
+  await page.addInitScript((raw) => localStorage.setItem("teto-pizza-save-v1", JSON.stringify(raw)),
+    { schemaVersion: 2, dex: [], pitzBalance: 500, ownedIngredientIds: owned, missionBest: {}, inventory, starterGrantClaimedRecipeIds: [] });
+  await page.goto("/");
+  await page.waitForSelector(".app-frame");
+  await startTargetlessFreeCook(page);
+  await page.waitForSelector(".pizza-stage");
+  await completeDoughStep(page);
+  await page.getByRole("button", { name: /次へ/ }).click();
+  await page.getByRole("button", { name: /トマトソース/ }).click();
+  await paintSauceRing(page, 25, 16);
+  await page.getByRole("button", { name: /次へ/ }).click();
+  await page.getByRole("button", { name: /モッツァレラ/ }).click();
+  await tapDoughPercent(page, 40, 50);
+  await tapDoughPercent(page, 60, 50);
+  await page.getByRole("button", { name: /パルミジャーノ/ }).first().click();
+  const pts: [number, number][] = [];
+  const step = count <= 12 ? 25 : 14;
+  for (let gx = 15; gx <= 85; gx += step) for (let gy = 15; gy <= 85; gy += step) pts.push([gx, gy]);
+  for (const [x, y] of pts.slice(0, count)) await tapDoughPercent(page, x, y);
+  await page.waitForTimeout(700);
+}
+const SUM = ["RasterTask", "Layerize", "Commit", "UpdateLayerTree", "PrePaint", "Paint", "CompositeLayers"];
+async function oneRun(browser: any, count: number, mode: "A" | "B") {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await ctx.newPage();
+  await start(page, count);
+  const n = await page.locator(".pizza-topping--parmigiano").count();
+  await page.evaluate((m) => {
+    const st = document.createElement("style");
+    st.textContent = m === "A" ? ".ingredient-glyph--parmigiano-shavings{filter:none !important}" : "";
+    document.head.appendChild(st);
+  }, mode);
+  const cdp = await ctx.newCDPSession(page);
+  await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+  const tracePath = `${OUT}/trace-${count}-${mode}-${Date.now()}.json`;
+  await browser.startTracing(page, { path: tracePath, categories: ["devtools.timeline", "disabled-by-default-devtools.timeline", "cc", "gpu"] });
+  await page.getByRole("button", { name: /次へ/ }).click(); // BAKE starts: bake filter / melt scale animate every frame
+  const frames = await page.evaluate(() => new Promise<number[]>((resolve) => {
+    const d: number[] = []; let last = performance.now(); const t0 = last;
+    function tick(now: number) { d.push(now - last); last = now; if (now - t0 < 8000) requestAnimationFrame(tick); else resolve(d); }
+    requestAnimationFrame(tick);
+  }));
+  await browser.stopTracing();
+  const tr = JSON.parse(fs.readFileSync(tracePath, "utf8"));
+  const ev = Array.isArray(tr) ? tr : tr.traceEvents;
+  const tot: Record<string, number> = Object.fromEntries(SUM.map((k) => [k, 0]));
+  for (const e of ev) if (e.ph === "X" && SUM.includes(e.name) && e.dur) tot[e.name] += e.dur / 1000;
+  fs.unlinkSync(tracePath);
+  frames.sort((a, b) => a - b);
+  await ctx.close();
+  return { count, n, mode, frames: frames.length, f_median: +frames[Math.floor(frames.length / 2)].toFixed(1), f_p95: +frames[Math.floor(frames.length * 0.95)].toFixed(1), mean: +(frames.reduce((a, b) => a + b, 0) / frames.length).toFixed(1), ...Object.fromEntries(Object.entries(tot).map(([k, v]) => [k, Math.round(v)])) };
+}
+test("perf A/A2/B at 12 and 25 pieces", async ({ browser }) => {
+  const results: unknown[] = [];
+  const plan: [number, number][] = [[12, 4], [25, 3]];
+  for (const [count, reps] of plan) {
+    const orders: ("A" | "B")[][] = [["A", "A", "B"], ["A", "B", "A"], ["B", "A", "A"], ["A", "A", "B"]];
+    for (let r = 0; r < reps; r++) {
+      let idx = 0;
+      for (const m of orders[r]) {
+        const res = await oneRun(browser, count, m);
+        (res as any).label = m === "A" ? (idx === 0 || (orders[r][0] !== "A" && idx === 1) ? "A" : "A") : "B";
+        (res as any).rep = r; results.push(res); idx++;
+        fs.writeFileSync(`${OUT}/perf-results.json`, JSON.stringify(results, null, 1));
+      }
+    }
+  }
+});
