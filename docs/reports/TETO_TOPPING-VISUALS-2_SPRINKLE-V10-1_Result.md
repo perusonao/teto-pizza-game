@@ -11,7 +11,7 @@
 | `…/ParmigianoShavings.test.tsx` | ブラーが `filter: blur(0.4px);` 1 つだけ・子要素に `style` / `filter` なし、を固定 |
 | `e2e/topping-visuals-parmigiano.spec.ts` | 置いた全 svg の computed `filter` が `blur(0.4px)` であることを追加（既存の検証は緩めていない） |
 
-**適用範囲**: `ParmigianoShavings` を描くすべての面（配置・焼成後・RESULT・CUT で描く場合・トレイ／サムネイル／ドラッグ preview のうち当コンポーネントを通るもの）。**Owner の「V10-1 だけ」の意図が「ピザ上のみ」だった場合は要確認**（P3、独立レビュー指摘）。焼成時のラッパーのフィルタ（`.pizza-cheese` の `cheeseStyle`）とは別の、内側のフィルタとして入れ子になる（衝突しない）。**描画の決定性・配置・片数・在庫・Undo・採点・保存・`PizzaStage.tsx`・`App.css`・`ingredients.ts` は未編集。**
+**適用範囲（全利用箇所を調査）**: `ParmigianoShavings` はレジストリ経由でしか描かれず、`IngredientPieceVisual` が `surface="placed"`（既定）のときだけ呼ぶ。呼び出し元は **`PizzaStage.tsx`（ピザ上のトッピング。配置・焼成後・RESULT・CUT で当該要素を描く場合）と `PostBakePiece.tsx`（焼成後に載せる片）のみ**。トレイのチップ・ドラッグ preview（`IngredientTray`）・在庫（`InventoryOverlay`）・Dex／レシピカードのサムネイル（`PizzaThumbnail`）・Reference（`PizzaVisualPieces`）はすべて `surface="selection"` を明示しており（アーキテクチャテストで固定）、**ブラーは掛からない**。つまり Owner の方針「食材選択アイコンではなくピザ上の削り片に限定」を満たす。**（先の版の「トレイ／サムネイルにも掛かる」という記述は誤りで、独立レビューの推測を未確認のまま載せたもの。訂正する。）** 焼成時のラッパーのフィルタ（`.pizza-cheese` の `cheeseStyle`）とは別の、内側のフィルタとして入れ子になる（衝突しない）。**描画の決定性・配置・片数・在庫・Undo・採点・保存・`PizzaStage.tsx`・`App.css`・`ingredients.ts` は未編集。**
 ブラーを SVG 子要素ではなく外側 svg に置いたのは、Safari が SVG 内部要素への CSS フィルタを不安定に扱うため（推論）。
 
 ## 2. Style Lock 確認
