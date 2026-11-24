@@ -47,8 +47,8 @@ describe("ParmigianoShavings", () => {
       expect(Number(paths[0].getAttribute("opacity"))).toBeGreaterThan(0);
       expect(Number(paths[1].getAttribute("fill-opacity"))).toBeLessThan(0.9);
     });
-    // flakes carry a lighter core, ribbons a highlight line
-    expect(container.querySelectorAll('g[data-shaving="flake"] path')).toHaveLength(shavings.filter((s) => s.kind === "flake").length * 4);
+    // B1: a flake is drawn as a contact shadow + the translucent top face only (no lighter core, no grain line); ribbons keep a highlight line
+    expect(container.querySelectorAll('g[data-shaving="flake"] path')).toHaveLength(shavings.filter((s) => s.kind === "flake").length * 2);
     expect(container.querySelectorAll('g[data-shaving="ribbon"] path[fill="none"]')).toHaveLength(shavings.filter((s) => s.kind === "ribbon").length);
   });
 

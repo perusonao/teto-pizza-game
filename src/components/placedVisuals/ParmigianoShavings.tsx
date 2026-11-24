@@ -5,7 +5,8 @@
  *
  * Rev. 3 (Owner iPhone Safari HV on ddc2413: the shavings read as narrow rice grains / seeds / small leaves and gathered in a few local lumps). Now each shaving is one of
  * three real-cheese shapes -- a broad irregular flake, a long thin ribbon with a slight curl, a small crumb -- in low-saturation ivory with a soft contact shadow,
- * a faint warm outline, a barely lighter centre and one fine grain line, so a flake reads as a thin sheet (rev. 5: the strong outline and bright core of rev. 4 made it a pebble). Where they lie is `sprinkleLayout`'s job (an even, irregular spread).
+ * and a faint warm outline, so a flake reads as a thin sheet (rev. 5: the strong outline and bright core of rev. 4 made it a pebble). B1 single trial (Owner #7118408824): the lighter centre
+ * and the one fine grain line along a flake's long axis are no longer drawn -- the grain line read as the grain of a wooden strip. (`core` is still generated, so every random draw is unchanged.) Where they lie is `sprinkleLayout`'s job (an even, irregular spread).
  *
  * Self-contained, Style Lock V2 shaped: 64x64 viewBox, 1em, aria-hidden, no `id` / gradient / `defs` / url references (any number can share a page), no state props --
  * the bake look comes from the wrapper's existing `.pizza-cheese` melt transform + filter (PizzaStage's `cheeseStyle`), unchanged. PROVISIONAL art: shape and colour are
@@ -13,12 +14,10 @@
  */
 import type { RefObject } from "react";
 import type { ParmigianoShaving } from "./parmigianoShavingsData";
-import { flakePath, grainPath, ribbonHighlightPath, ribbonPath, r } from "./parmigianoShavingPaths";
+import { flakePath, ribbonHighlightPath, ribbonPath, r } from "./parmigianoShavingPaths";
 
 const OUTLINE = "#d6c9a2";
 const FILL_TOP = ["#f7efd5", "#f2e7c4", "#f9f3e0"] as const;
-const FILL_CORE = "#fffaec";
-const GRAIN = "#d9cca5";
 const SHADOW = "#5a4a22";
 const HIGHLIGHT = "#fffdf4";
 
@@ -54,12 +53,6 @@ export function ParmigianoShavings({ shavings, shift, svgRef }: ParmigianoShavin
             <g key={index} data-shaving={s.kind} transform={`translate(${s.cx} ${s.cy}) rotate(${s.angle})`}>
               <path d={d} transform="translate(0.5 0.9)" fill={SHADOW} opacity={r(0.05 + 0.07 * s.edge)} />
               <path d={d} fill={FILL_TOP[s.fill]} fillOpacity=".8" stroke={OUTLINE} strokeOpacity={r(0.22 + 0.3 * s.edge)} strokeWidth={stroke} strokeLinejoin="round" />
-              {s.kind === "flake" && (
-                <>
-                  <path d={d} transform={`translate(${r(-0.04 * s.len)} ${r(-0.03 * s.wid)}) scale(${s.core})`} fill={FILL_CORE} opacity=".16" />
-                  <path d={grainPath(s.len, s.wid, s.core)} fill="none" stroke={GRAIN} strokeOpacity=".4" strokeWidth=".2" strokeLinecap="round" />
-                </>
-              )}
               {s.kind === "ribbon" && (
                 <path d={ribbonHighlightPath(s.len, s.wid, s.bend, s.wobble, s.profile)} fill="none" stroke={HIGHLIGHT} strokeOpacity=".7" strokeWidth=".55" strokeLinecap="round" />
               )}
