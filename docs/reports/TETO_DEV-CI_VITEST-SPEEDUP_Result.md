@@ -53,3 +53,28 @@
 3. CI 上のシャード別実測時間の取得と、偏りの再評価。
 4. フル Vitest の前後比較（CI 実測、または時間制限のない環境で）。
 5. Owner Gate・claim の確認（未実施）。
+
+## 7. PR #878 の CI で shard 2/3 が失敗した件（追記 2026-11-24）
+### 初回実行（Actions run 45386250448, attempt 1, コミット e929da0）
+- shard 1/3 成功（23分15秒）、shard 2/3 **失敗**（13分28秒）、shard 3/3 成功（18分51秒）、Vitest Gate 失敗（shard 2 の失敗を正しく集約）、build / WebKit / Layout Contract 成功。
+- shard 2 の集計: 228 ファイル中 2 失敗、4,539 件中 3 失敗（4,532 passed / 4 skipped）。3 件とも**タイムアウト**で、アサーション失敗ではない。
+
+| ファイル | テスト | エラー |
+|---|---|---|
+| `src/state/gameReducer.deductionHint.test.ts:121` | DH4-2B 構成: every target: a fresh request charges exactly the fixed price (5) once… | Test timed out in 5000ms |
+| `src/state/gameReducer.deductionHint.test.ts:149` | DH4-2B 構成: legacy「材料は全部で○種類」owner… | Test timed out in 5000ms |
+| `src/state/gameReducer.selectableHint.test.ts:532` | privacy (matrix 33-35) 35 Rule W: the reserved ingredient is never revealed… | Test timed out in 60000ms |
+
+### 切り分け
+- **a（node 環境起因）: 除外。** 失敗は `default`（jsdom）プロジェクトで発生し、2 ファイルとも `tools/nodeEnvTests.txt` に含まれない。
+- **b（フレーク）寄り。** 根拠: (1) 失敗がすべてタイムアウト（アサーション不一致なし）、(2) 同じ shard で `researchAttempt.sim`（534秒）と `discoveryHintEconomy.sim`（85秒）が同時に走り、4 vCPU を競合していた、(3) ローカル診断でも `gameReducer.selectableHint` の単体テストは約 30 秒かかり、60 秒の上限に近かった（§2）、(4) **同一コミット・同一コードの失敗ジョブ 1 回再実行（attempt 2）で shard 2/3 が成功**（8分50秒）、Vitest Gate も成功。
+- **c（今回の変更が原因）: 完全には否定できない。** シャード分割で同時実行されるテストの組み合わせが変わったため、タイムアウトの起きやすさに影響した可能性がある。再実行は 1 回のみで、再現率・頻度は未測定。したがって「フレークと確定」ではなく「フレーク寄り（要継続観察）」とする。
+- 補足: 同コミットの shard 2 は attempt 1 が 13分28秒（失敗）、attempt 2 が約 9 分（成功）で、実行時間も大きくぶれた（ランナーの CPU 競合の影響を示唆）。
+
+### 対処
+- コード・テスト・設定は**変更していない**（テストの削除・skip・タイムアウト緩和・フラグ変種・branch protection への操作なし）。失敗ジョブの再実行のみ 1 回。
+- 再実行後の CI 結果: vitest shard 1/3・2/3・3/3 すべて成功、Vitest Gate 成功、build 成功。
+
+### 残課題（追加）
+- 重いテストの偏り（shard 1 / 2）と CPU 競合によるタイムアウトのリスクは、#811（重い sim 系の nightly 分離）と合わせて扱うのが妥当。この PR では未対処。
+- 以後の CI で同種のタイムアウトが再発する場合は c を疑い、シャード数・並列度・個別タイムアウトの扱いを Owner と相談する。
