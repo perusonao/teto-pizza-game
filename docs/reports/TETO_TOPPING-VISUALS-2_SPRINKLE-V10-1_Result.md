@@ -1,0 +1,63 @@
+# V10-1 単独試験 Result Report — 薄片の縁のぼかし 0.4 CSS px（試験ブランチ、#875 には未反映）
+
+状態: **試験ブランチのみ。** #875 の head（F3 `6e4bf54e`）、PR 専用 Preview、merge、Draft、Production、共有 Preview は未変更。F3 の正式採用は HOLD のまま。
+承認: [#875 comment 7116322259](https://github.com/perusonao/teto-pizza-game/pull/875#issuecomment-7116322259)（V10-1 単独のみ。V10-2 / V10-3 / F1・F2 混合 / 色相補正は未承認・HOLD）。
+試験ブランチ: `claude/pr-875-v10-1-blur-trial`、対象 HEAD `96a7f481f74357f4ce87e8e62377e9e3dcfd4ffa`（基点 = #875 head `6e4bf54e`）。
+
+## 1. 変更内容（最小差分・3 ファイル +19/−1）
+| ファイル | 内容 |
+|---|---|
+| `src/components/placedVisuals/ParmigianoShavings.tsx` | 外側の `<svg>` に `style={{ filter: "blur(0.4px)" }}` を 1 つ（定数 `EDGE_BLUR_CSS_PX = 0.4`）。**`id` / `<defs>` / gradient / `url()` 参照は新設・変更なし。** 子要素（`<g>` / `<path>`）には何も付けない |
+| `…/ParmigianoShavings.test.tsx` | ブラーが `filter: blur(0.4px);` 1 つだけ・子要素に `style` / `filter` なし、を固定 |
+| `e2e/topping-visuals-parmigiano.spec.ts` | 置いた全 svg の computed `filter` が `blur(0.4px)` であることを追加（既存の検証は緩めていない） |
+
+**適用範囲**: `ParmigianoShavings` を描くすべての面（配置・焼成後・RESULT・CUT で描く場合・トレイ／サムネイル／ドラッグ preview のうち当コンポーネントを通るもの）。**Owner の「V10-1 だけ」の意図が「ピザ上のみ」だった場合は要確認**（P3、独立レビュー指摘）。焼成時のラッパーのフィルタ（`.pizza-cheese` の `cheeseStyle`）とは別の、内側のフィルタとして入れ子になる（衝突しない）。**描画の決定性・配置・片数・在庫・Undo・採点・保存・`PizzaStage.tsx`・`App.css`・`ingredients.ts` は未編集。**
+ブラーを SVG 子要素ではなく外側 svg に置いたのは、Safari が SVG 内部要素への CSS フィルタを不安定に扱うため（推論）。
+
+## 2. Style Lock 確認
+Style Lock V2 §2 は `id` / gradient / `<defs>` を禁じるが、`filter` / `blur` には言及しない（grep で確認）。CSS の `blur()` 関数は要素参照ではないので **違反なし**。ただし `IngredientPieceVisual.architecture.test.ts` はソース文字列を走査するため、最初の版では**説明コメントに `url(#` と `<defs` の文字列を書いたことでこのガードが失敗**した（独立レビューが検出、P1）。コメントの言い換えのみで修正（`96a7f481`、動作変更なし、ガードのテストは無変更）。
+
+## 3. Chromium 比較（F3 vs V10-1、同一ページ・同一配置、変数はブラーのみ）
+方法: Chromium 390×844（DPR 1）。同じ 4 タップ（皿の座標 %: (50,30)・(28,62)・(72,62)・(51,50)。(51,50) は白いモッツァレラの上）を置き、`filter:none !important` の差し込みだけで F3 / V10-1 を切り替えて撮影。比較用に parmigiano を非表示にした背景も撮影し、背景との Lab ΔE から測定。焼成後は RESULT で 4 秒待って安定を確認（F3 の連続 2 撮影は画素差 0）。
+指標: ink = ΔE≥2 の画素数／明瞭率 = ink のうち ΔE≥10 の割合／縁の勾配 = ink 境界の ΔE の勾配（低いほど縁がやわらかい）。**領域 `白地` `ソース地` は、生地円の半径×0.55 の正方形で切った近似**（モッツァレラ・ソース・他の片が混ざる）。
+
+| 場面 | 指標 | F3 | V10-1 | 差 |
+|---|---|---|---|---|
+| 配置時・全体 | 縁の勾配 / 明瞭率 / 平均ΔE / ink | 19.7 / 79.1% / 31.2 / 3,876 | 15.7 / 77.0% / 28.9 / 4,187 | 縁 −20%、明瞭 −2.1pt、ink +8% |
+| 焼成後・全体 | 同上 | 20.4 / 72.3% / 32.0 / 3,096 | 15.6 / 69.3% / 29.3 / 3,376 | 縁 −24%、明瞭 −3.0pt、ink +9% |
+| 焼成後・白地（近似） | 同上 | 18.9 / 69.9% / 30.2 / 2,540 | 14.7 / 66.9% / 27.7 / 2,765 | 縁 −22%、明瞭 −3.0pt |
+| 焼成後・ソース地（近似） | 同上 | 17.3 / 68.7% / 29.1 / 1,459 | 13.4 / 64.8% / 26.8 / 1,580 | 縁 −22%、明瞭 −3.9pt |
+| 外周 4 タップ（配置時） | 同上 | 19.8 / 77.9% / 30.0 / 4,025 | 15.8 / 76.0% / 27.7 / 4,355 | 縁 −20%、明瞭 −1.9pt |
+
+読み方: 縁のやわらかさは 約 −20〜24%、**明瞭率の低下は 約 2〜4pt（消える崖はない）**。ink は 約 8〜9% 増える（ぼかしで縁が広がる）。#7105920044 の E1（0.4px）の傾向と同じ方向（私の測定法は別で、数値は直接比較しない）。**この指標は知覚そのものではない。「木片・短冊」に見えるかどうかは、形そのもの（V10-3 の領域）が主因の可能性が高く、ブラーだけで解消する保証はない。**
+目視（`docs/reports/screenshots/topping-visuals-2/sprinkle-v10-1/board-*.png`）: 3 倍拡大で縁がやわらかくなるが、片の輪郭と形は読める。ピンボケとまではいかない（0.4px）。
+
+## 4. 性能（Chromium・ヘッドレス、25 個を置いた場合）
+| 指標 | F3 | V10-1 |
+|---|---|---|
+| ステージの再ラスタ（screenshot 20 回）中央値 / p90 | 97 ms / 102 ms | 98 ms / 123 ms |
+| rAF 間隔（2.5 秒）中央値 / p95 | 16.7 ms / 16.7 ms | 16.7 ms / 16.7 ms |
+差は計測のゆれ内（p90 は 1 回のゆれの可能性。再現確認はしていない）。**iPhone 実機の負荷は未測定**（Safari で多数の `blur()` 付き svg を置いた場合のコストは実機 HV で確認が必要）。
+
+## 5. 検証結果（対象 HEAD `96a7f481`）
+| 項目 | 結果 |
+|---|---|
+| `tsc -b` / `oxlint` | クリーン（最初の実装時。コメント修正後は焦点テストのみ再実行） |
+| 焦点テスト（placedVisuals＋IngredientPieceVisual＋**architecture**） | 5 files・57 tests passed |
+| E2E（Chromium 390×844・360×800、parmigiano spec） | 4/4 通過（computed `filter` の検証を含む） |
+| **WebKit（`workflow_dispatch`、run [45286724978](https://github.com/perusonao/teto-pizza-game/actions/runs/45286724978)、HEAD `96a7f481`）** | **全 10 job success**（classify・layout-chromium・WebKit 6 シャード・Layout Contract Gate・WebKit Gate）。各シャードの Playwright 実行は 13〜20 分で、skip・緩和なし。修正前の HEAD `9c27f13e` の run 45286454474 は、コメント修正のためキャンセルして再実行（失敗ではない） |
+| 全 Vitest（ローカル `--shard=N/6`） | SHARDS_PLACEHOLDER |
+| 独立レビュー（別コンテキストの読み取り専用エージェント。Codex は未実施） | 初回 NO-GO（P1: コメントのリテラルでガード失敗）→ 修正後に同ガードを含む焦点テストが通過。他は GO 相当: Style Lock 適合、焼成フィルタと入れ子で衝突なし、`overflow: visible` で切れなし、既存テストの緩和なし、マークアップ比較は壊れない。**修正後の HEAD への再レビューは未実施**（変更はコメントのみ） |
+
+## 6. 副作用・リスク・未確認
+- **WebKit の実描画は未確認**: CI が確認したのは computed style の適用とテストの通過で、**実機 iPhone Safari での見え方・負荷・DPR 3 でのにじみは未確認**（画像・数値は Chromium）。
+- ブラーの 0.4 CSS px は DPR によって物理画素では 0.8〜1.2px 相当になる。実機で「ぼけすぎ」の可能性（#7105920044 の 0.8px 案はピンボケ判定）。
+- 縁を広げる分 ink が約 9% 増え、淡い焼成後の白地で明瞭率が約 3pt 下がる。消える崖ではない。
+- **CUT**: 切り口をまたぐ片は別要素（`pizza-topping-half`）で描かれ、試験では CUT 実画面を測っていない（未確認）。
+- 四角パン・焼きすぎ・Dex／サムネイルの実画面は未確認。Owner Gate は read-only token が無く（401）判定は未取得。
+- 測定に使った一時の playwright 設定・スペック・解析スクリプトは `docs/reports/data/TETO_SPRINKLE-V10-1/*.txt` に保存（テスト実行の対象外）。
+
+## 7. 戻し方・次の判断
+- 試験ブランチは #875 から独立。V10-1 を #875 に反映するかは **Owner の別承認**（反映時は PR 専用 Preview の入れ替えが必要。公開枠 5 件のため `pr-875-6e4bf54` を置き換える）。
+- 取り消しは、コードは 2 コミット（`80674a4e` と e2e の `9c27f13e`）と文言修正（`96a7f481`）の revert。
+- V10-2（焼成時の減衰）・V10-3（形状）は未着手・HOLD。
