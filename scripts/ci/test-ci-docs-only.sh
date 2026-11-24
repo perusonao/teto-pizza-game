@@ -255,12 +255,16 @@ else {
     else if (/!cancelled\(\)|always\(\)/.test(cond[1])) problems.push("a gated step must keep the implicit success() (no always()/!cancelled()): " + name);
   }
   const runs = steps.slice(idx + 1).map((s) => (s.match(/^\s+run:\s*(.*)$/m) ?? [])[1]).filter(Boolean);
-  for (const cmd of ["npm ci", "bash scripts/ci/test-webkit-ci.sh", "bash scripts/ci/test-ci-docs-only.sh", "npm run lint", "npm test", "npm run build"]) {
+  for (const cmd of ["npm ci", "bash scripts/ci/test-webkit-ci.sh", "bash scripts/ci/test-ci-docs-only.sh", "npm run lint", "npm run build"]) {
     if (!runs.includes(cmd)) problems.push("the full CI no longer runs `" + cmd + "`");
   }
-  const order = ["npm ci", "npm run lint", "npm test", "npm run build"].map((c) => runs.indexOf(c));
+  const order = ["npm ci", "npm run lint", "npm run build"].map((c) => runs.indexOf(c));
   if (order.some((v, i) => i > 0 && v < order[i - 1])) problems.push("npm ci / lint / test / build are out of order");
 }
+// Vitest moved to the sharded `vitest` job + `Vitest Gate` (the check that must be required): both must exist, and the build job must not run Vitest twice.
+if (!/^  vitest:\s*$/m.test(jobBlock) || !/--shard \$\{\{ matrix\.shard \}\}\/\$\{\{ matrix\.total \}\}/.test(code)) problems.push("the sharded `vitest` job is missing");
+if (!/^  vitest-gate:\s*$/m.test(jobBlock) || !/name: Vitest Gate/.test(code) || !/needs: vitest\s*$/m.test(code) || !/if: \$\{\{ always\(\) \}\}/.test(code)) problems.push("`Vitest Gate` (always-run, needs: vitest) is missing");
+if (/run: npm test/.test(code)) problems.push("`npm test` must not run in ci.yml any more (the sharded job runs Vitest)");
 const depth = text.match(/fetch-depth:\s*(\d+)/);
 if (!depth || Number(depth[1]) < 2) problems.push("checkout needs fetch-depth >= 2 (merge commit + parents) for the classifier");
 if (!/ref:\s*\$\{\{\s*github\.event_name == 'workflow_dispatch' && inputs\.target_sha \|\| github\.sha\s*\}\}/.test(code)) problems.push("checkout must use target_sha only for workflow_dispatch and github.sha for PRs");
