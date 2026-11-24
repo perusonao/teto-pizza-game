@@ -46,7 +46,7 @@ Style Lock V2 §2 は `id` / gradient / `<defs>` を禁じるが、`filter` / `b
 | 焦点テスト（placedVisuals＋IngredientPieceVisual＋**architecture**） | 5 files・57 tests passed |
 | E2E（Chromium 390×844・360×800、parmigiano spec） | 4/4 通過（computed `filter` の検証を含む） |
 | **WebKit（`workflow_dispatch`、run [45286724978](https://github.com/perusonao/teto-pizza-game/actions/runs/45286724978)、HEAD `96a7f481`）** | **全 10 job success**（classify・layout-chromium・WebKit 6 シャード・Layout Contract Gate・WebKit Gate）。各シャードの Playwright 実行は 13〜20 分で、skip・緩和なし。修正前の HEAD `9c27f13e` の run 45286454474 は、コメント修正のためキャンセルして再実行（失敗ではない） |
-| 全 Vitest（ローカル `--shard=N/6`） | SHARDS_PLACEHOLDER |
+| 全 Vitest（ローカル `--shard=N/6`） | **失敗 0。687 files passed・3 skipped、12,785 tests passed・20 skipped・2 todo**（1/6: 1,814、2/6: 1,720・2 todo、3/6: 2,229・4 skipped、4/6: 2,343、5/6: 2,859・7 skipped、6/6: 1,820・9 skipped）。実行ツリーは `96a7f481`（以後の差分は docs のみ）。F3（#7102552423）の 12,784 に対し +1 は、追加した単体テスト 1 件 |
 | 独立レビュー（別コンテキストの読み取り専用エージェント。Codex は未実施） | 初回 NO-GO（P1: コメントのリテラルでガード失敗）→ 修正後に同ガードを含む焦点テストが通過。他は GO 相当: Style Lock 適合、焼成フィルタと入れ子で衝突なし、`overflow: visible` で切れなし、既存テストの緩和なし、マークアップ比較は壊れない。**修正後の HEAD への再レビューは未実施**（変更はコメントのみ） |
 
 ## 6. 副作用・リスク・未確認
