@@ -177,7 +177,7 @@ test.describe("Issue #419 Bake Human Feel", () => {
       expect(s.glow).toBe(false);
     }
     expect([...colors]).toHaveLength(1);
-    expect([...captions]).toEqual(["見た目で焼き加減を確かめて！"]);
+    expect([...captions]).toEqual(["緑のゾーンで焼き上げよう！"]);
     await page.clock.resume();
   });
 

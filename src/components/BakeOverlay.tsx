@@ -21,7 +21,7 @@ interface BakeOverlayProps {
 
 /** Issue #419: the caption never reflects raw / perfect / burnt -- the player judges by the look of
  *  the pizza. (Replaces the state-revealing M3A captions and the post-fade neutral swap.) */
-const CAPTION = "見た目で焼き加減を確かめて！";
+const CAPTION = "緑のゾーンで焼き上げよう！";
 
 /**
  * Issue #419 (Bake Human Feel): the needle moves one way only, 0 -> 100 over `BAKE_DURATION_S`,

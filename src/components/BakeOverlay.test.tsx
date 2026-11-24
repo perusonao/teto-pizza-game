@@ -132,7 +132,7 @@ describe("BakeOverlay does not reveal the correct position", () => {
       tick(100); // sweeps raw -> target -> burnt
       seenInline.add(needle.getAttribute("style")!.replace(/left:[^;]+;?/, ""));
       expect(button.className).not.toContain("glow");
-      expect(screen.getByText("見た目で焼き加減を確かめて！")).toBeInTheDocument();
+      expect(screen.getByText("緑のゾーンで焼き上げよう！")).toBeInTheDocument();
     }
     expect(seenInline.size).toBe(1);
     expect([...seenInline][0]).not.toContain("background");
