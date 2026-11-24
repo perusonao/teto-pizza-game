@@ -66,7 +66,7 @@ describe("the shipped late catalog (FIN-E4b-ikura, Issue #621)", () => {
     const phases = Object.fromEntries(recipe.requiredIngredients.map((r) => [r.ingredientId, ("applicationPhase" in r ? r.applicationPhase : "PRE_BAKE") as string]));
     expect(phases).toEqual({ "cream-cheese": "PRE_BAKE", salmon: "PRE_BAKE", "salmon-roe": "POST_BAKE", shiso: "POST_BAKE" });
     expect(recipe.requiredIngredients.map((r) => [r.ingredientId, r.minCount])).toEqual([["cream-cheese", 2], ["salmon", 3], ["salmon-roe", 2], ["shiso", 1]]);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.lunchRush).toBe(false);
   });
   it("the late ladder steps are keyed to ikura, yuzu-shrimp-pizza, eggplant-dengaku-pizza, eggplant-tahini-pizza, bbq-chicken-pizza, wasabi-beef-pizza and tarako-cream-pizza (in that order), carry no number and no star gate", () => {

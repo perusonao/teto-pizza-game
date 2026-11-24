@@ -60,8 +60,14 @@ function PieceGroupRow({ group }: { group: PieceGroupScoreV2 }) {
  * component numbers RESULT never will. It never renders anything that could be mistaken for
  * the player's actual score: no ★, no "Total" without the word "Debug" beside it.
  */
+/** Preview builds show the panel only when the URL carries `?debug=1`; a plain URL never does. */
+function isDebugQueryOn(): boolean {
+  return new URLSearchParams(window.location.search).get("debug") === "1";
+}
+
 export function ScoringV2DebugPanel({ result }: ScoringV2DebugPanelProps) {
   if (!import.meta.env.VITE_PREVIEW_MODE) return null;
+  if (!isDebugQueryOn()) return null;
   if (!result) return null;
 
   return (

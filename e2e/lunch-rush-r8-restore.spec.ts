@@ -88,7 +88,7 @@ async function bakeToServePanel(page: Page) {
   await tapDoughPercent(page, 55, 45);
   await tapDoughPercent(page, 50, 60);
 
-  await bakeToTarget(page, { start: 58, end: 78 }); // funghi's own bakeTarget (src/data/recipes.ts)
+  await bakeToTarget(page, { start: 58, end: 78 }); // funghi's own bakeTarget is 48-88 (src/data/recipes.ts); aim at its centre
   if (await page.getByRole("button", { name: /切り終わる/ }).count()) {
     await cutThreeLines(page);
     await page.getByRole("button", { name: /切り終わる/ }).click();

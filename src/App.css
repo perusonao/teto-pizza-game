@@ -1876,8 +1876,7 @@
   overflow: hidden;
 }
 
-/* Issue #419: the target zone + its raw / burnt flanks share one fading layer; the track and the
-   needle sit outside it and stay visible. */
+/* Issue #419: the target zone + its raw / burnt flanks share one layer (always visible while baking). */
 .bake-gauge__zones {
   position: absolute;
   inset: 0;
@@ -1890,8 +1889,7 @@
   background: rgba(76, 154, 42, 0.45);
 }
 
-/* Issue #481: the JUST band (window centre +-3pt) sits inside the target zone, darker than it, and fades
-   with the same layer so it is gone at 1.2s. */
+/* Issue #481: the JUST band (window centre +-7pt) sits inside the target zone, darker than it. */
 .bake-gauge__just {
   position: absolute;
   top: 0;

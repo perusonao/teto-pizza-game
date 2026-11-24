@@ -22,13 +22,13 @@ export const BAKE_STATE_LABEL: Record<BakeState, string> = {
 export type BakeLevel5 = "raw" | "underdone" | "just" | "overdone" | "burnt";
 
 /** Half-width (in gauge points) of the "just" band around the window centre. Recipe-independent;
- *  the single place to retune (±4 if ±3 proves too hard on device). */
-export const JUST_HALF_WIDTH_PT = 3;
+ *  the single place to retune. ±7 pt = ~0.42s of the 40pt (1.2s) window. */
+export const JUST_HALF_WIDTH_PT = 7;
 
 /**
  * Outer boundaries (`start`/`end`) are identical to `classifyBake`; the in-window "perfect" range is
- * split around the window centre `c`: underdone `start <= v < c-3`, just `|v-c| <= 3` (both ends
- * inclusive), overdone `c+3 < v <= end`. Non-finite input fails closed to "raw", like an unbaked pizza.
+ * split around the window centre `c`: underdone `start <= v < c-7`, just `|v-c| <= 7` (both ends
+ * inclusive), overdone `c+7 < v <= end`. Non-finite input fails closed to "raw", like an unbaked pizza.
  */
 export function classifyBake5(value: number, target: BakeTarget): BakeLevel5 {
   if (!Number.isFinite(value)) return "raw";

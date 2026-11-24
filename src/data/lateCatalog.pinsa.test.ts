@@ -73,7 +73,7 @@ describe("b-1: the data (gate ON)", () => {
     expect(on.late.LATE_LADDER_STEPS).toEqual(off.late.LATE_LADDER_STEPS);
   });
 
-  it("is the Owner-decided recipe: name, description, 4 ingredients (only arugula POST_BAKE), provisional counts, bake 58-78, dough kind, no ladder credit, no Lunch Rush, no CUT", async () => {
+  it("is the Owner-decided recipe: name, description, 4 ingredients (only arugula POST_BAKE), provisional counts, bake 48-88, dough kind, no ladder credit, no Lunch Rush, no CUT", async () => {
     const on = await load(true);
     const r = on.recipes.getRecipe(PINSA as never) as unknown as Record<string, unknown> & { requiredIngredients: readonly { ingredientId: string; minCount: number; applicationPhase?: string }[] };
     expect(r.nameJa).toBe("ピンサ・ロマーナ");
@@ -84,7 +84,7 @@ describe("b-1: the data (gate ON)", () => {
       { ingredientId: "prosciutto-crudo", minCount: 3 },
       { ingredientId: "arugula", minCount: 2, applicationPhase: "POST_BAKE" },
     ]);
-    expect(r.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(r.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(r.doughKind).toBe(DOUGH);
     expect(r.ladderCredit).toBe(false);
     expect(r.lunchRush).toBe(false);

@@ -37,10 +37,10 @@ describe("the six recipes (Owner-approved T24-R1 packet): composition in the sau
     "thai-chicken-pizza": [["peanut-sauce", 1], ["mozzarella", 3], ["chicken", 2], ["cilantro", 2]],
     "peking-duck-pizza": [["sweet-bean-sauce", 1], ["mozzarella", 3], ["cucumber", 2], ["green-onion", 2], ["peking-duck", 2]],
   };
-  it.each(NEW_IDS.map((id) => [id]))("%s: the approved composition (the order puts the Rule W reserved ingredient last), PAINT sauce, bake 58-78, 100 Pitz, credited, no Lunch Rush", (id) => {
+  it.each(NEW_IDS.map((id) => [id]))("%s: the approved composition (the order puts the Rule W reserved ingredient last), PAINT sauce, bake 48-88, 100 Pitz, credited, no Lunch Rush", (id) => {
     const r = get(id);
     expect(r.requiredIngredients.map((q) => [q.ingredientId, q.minCount])).toEqual(SPEC[id]);
-    expect(r.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(r.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(r.baseRewardPitz).toBe(100);
     expect(r.lunchRush).toBe(false);
     expect(r.ladderCredit).not.toBe(false);

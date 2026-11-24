@@ -13,7 +13,7 @@ import { createGuidedInitialState } from "./testSupport/guidedRound";
  * its bake (UNDERBAKED / OVERBAKED anywhere in `failures`) skips CUT and lands on RESULT at
  * CONFIRM_BAKE, in Guided and Lunch Rush alike. The Gate's bake window IS the window (margin 0), so
  * 生焼け / 焦げ is always FAILED; 惜しい / ジャスト (inside the window, both edges) and a
- * composition-only failure keep CUT. Margherita: bakeTarget 60-80, Completion Gate window 60-80.
+ * composition-only failure keep CUT. Margherita: bakeTarget 50-90, Completion Gate window 50-90.
  * The Dinner half is in gameReducer.dinner.test.ts / dinnerResultDetection.test.ts.
  */
 
@@ -110,15 +110,15 @@ describe("#256 G-1: bakeCompletionFailure reads the full failures list", () => {
 describe("#256 C-1 / C-2: a Completion-Gate bake failure skips CUT (Guided)", () => {
   it.each([
     [5, "UNDERBAKED"],
-    [49, "UNDERBAKED"],
-    [50, "UNDERBAKED"], // #482: was servable (old 10-point margin band)
-    [55, "UNDERBAKED"],
-    [59.99, "UNDERBAKED"],
-    [80.01, "OVERBAKED"],
-    [85, "OVERBAKED"],
-    [90, "OVERBAKED"],
-    [91, "OVERBAKED"],
+    [39, "UNDERBAKED"],
+    [40, "UNDERBAKED"],
+    [45, "UNDERBAKED"],
+    [49.99, "UNDERBAKED"],
+    [90.01, "OVERBAKED"],
+    [93, "OVERBAKED"],
+    [95, "OVERBAKED"],
     [98, "OVERBAKED"],
+    [100, "OVERBAKED"],
   ] as const)("bake %d -> RESULT at CONFIRM_BAKE (%s)", (bake, reason) => {
     const { before, after } = cook({ bake, now: 10_000 });
     expect(after.phase).toBe("RESULT");
@@ -137,11 +137,11 @@ describe("#256 C-1 / C-2: a Completion-Gate bake failure skips CUT (Guided)", ()
 
 describe("#256 C-3 / #482: a servable pizza (惜しい / ジャスト, inside the window) keeps CUT", () => {
   it.each([
-    [60, "perfect"], // window edge (惜しい: 焼き不足)
-    [63, "perfect"],
+    [50, "perfect"], // window edge (惜しい: 焼き不足)
+    [55, "perfect"],
     [70, "perfect"], // ジャスト
-    [77, "perfect"],
-    [80, "perfect"], // window edge (惜しい: 焼きすぎ)
+    [85, "perfect"],
+    [90, "perfect"], // window edge (惜しい: 焼きすぎ)
   ] as const)("bake %d (badge %s, Completion Gate PASS) -> POST_BAKE / CUT", (bake, badge) => {
     const { after } = cook({ bake });
     expect(after.bakeState).toBe(badge);
@@ -152,24 +152,24 @@ describe("#256 C-3 / #482: a servable pizza (惜しい / ジャスト, inside th
 });
 
 describe("#482 F1: Guided judges by the recipe's own window, not the generic one", () => {
-  it("margherita (60-80) at 79 is servable with CUT although 79 is past the generic window (58-78)", () => {
-    const { after } = cook({ bake: 79 });
+  it("margherita (50-90) at 89 is servable with CUT although 89 is past the generic window (48-88)", () => {
+    const { after } = cook({ bake: 89 });
     expect(after.completion?.status).toBe("PASS");
     expect(after.phase).toBe("POST_BAKE");
     expect(after.makingStep).toBe("CUT");
   });
-  it("and at 59 it is FAILED although 59 is inside the generic window", () => {
-    const { after } = cook({ bake: 59 });
+  it("and at 49 it is FAILED although 49 is inside the generic window (48-88)", () => {
+    const { after } = cook({ bake: 49 });
     expect(failureReasons(after)).toEqual(["UNDERBAKED"]);
     expect(after.phase).toBe("RESULT");
   });
 });
 
 describe("#482: a bake FAILED is never paid, scored into the Dex, or credited", () => {
-  it.each([55, 85])("bake %d (生焼け / 焦げ): REGISTER_TO_DEX is a no-op -- no Dex entry, no Pitz, no ★ credit", (bake) => {
+  it.each([45, 95])("bake %d (生焼け / 焦げ): REGISTER_TO_DEX is a no-op -- no Dex entry, no Pitz, no ★ credit", (bake) => {
     const { after } = cook({ bake });
     expect(after.completion?.status).toBe("FAILED");
-    expect(after.bakeState).toBe(bake < 60 ? "raw" : "burnt");
+    expect(after.bakeState).toBe(bake < 50 ? "raw" : "burnt");
     const registered = gameReducer(after, { type: "REGISTER_TO_DEX" });
     expect(registered).toBe(after);
     expect(registered.lastPitzCredit).toBeNull();

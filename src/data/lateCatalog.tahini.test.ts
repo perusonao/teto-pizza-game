@@ -68,7 +68,7 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     expect(RECIPES.some((r) => r.id === TAHINI_PIZZA)).toBe(true);
   });
 
-  it("recipe: tahini 1 (PAINT) / eggplant 3 / parsley 1 / pomegranate 2 POST_BAKE, bake 58-78, no cheese, not in Lunch Rush, ladder-credited (no ladderCredit field)", () => {
+  it("recipe: tahini 1 (PAINT) / eggplant 3 / parsley 1 / pomegranate 2 POST_BAKE, bake 48-88, no cheese, not in Lunch Rush, ladder-credited (no ladderCredit field)", () => {
     const recipe = getRecipe(TAHINI_PIZZA)!;
     expect(recipe.nameJa).toBe("ナスとタヒニのピザ");
     expect(recipe.requiredIngredients).toEqual([
@@ -77,7 +77,7 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
       { ingredientId: "parsley", minCount: 1 },
       { ingredientId: POM, minCount: 2, applicationPhase: "POST_BAKE" },
     ]);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.lunchRush).toBe(false);
     expect("ladderCredit" in recipe).toBe(false);
     expect("doughKind" in recipe).toBe(false);

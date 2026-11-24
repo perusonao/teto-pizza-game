@@ -83,7 +83,7 @@ export interface KitTrain {
 }
 
 /** The late-catalog / T4 convention every batch since B8 has used; a spec may omit these and `withDefaults` fills them in. */
-export const KIT_DEFAULTS = { bakeTarget: { start: 58, end: 78 }, baseRewardPitz: 100, lunchRush: false, ladderCredit: true, requestedBy: "mito" } as const;
+export const KIT_DEFAULTS = { bakeTarget: { start: 48, end: 88 }, baseRewardPitz: 100, lunchRush: false, ladderCredit: true, requestedBy: "mito" } as const;
 
 export const TAG_PATTERN = /^[a-z][a-z0-9]*$/;
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/;

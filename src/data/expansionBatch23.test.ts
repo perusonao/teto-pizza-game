@@ -25,7 +25,7 @@ import { discoveredRecipeIds, EMPTY_DEX } from "../state/dex";
 
 /**
  * Expansion Batch 23 (Issue #780; Owner decisions 2026-11-10, Q-1..Q-7): the dessert recipe `apple-cinnamon-dessert` and the material `apple`. PROVISIONAL SPEC: the original pizzadb.jp is NOT confirmed; the evidence is the 172 matrix row apple-cinnamon-dessert-pizzadb.
- * Counts / the generic 58-78 bake window / colours / emoji are GAMEPLAY ASSUMPTIONS. NO_SAUCE is an explicit Owner GAMEPLAY decision (Q-1), NOT a fact about the original (pizzadb.jp lists "デザートソース", unspecified).
+ * Counts / the generic 48-88 bake window / colours / emoji are GAMEPLAY ASSUMPTIONS. NO_SAUCE is an explicit Owner GAMEPLAY decision (Q-1), NOT a fact about the original (pizzadb.jp lists "デザートソース", unspecified).
  * ORDINARY: apple-cinnamon-dessert (ordinary step 74, apple). The two late desserts (nutella-dessert-pizza, smore-dessert-pizza) and their five materials are NOT in this batch: they hit two existing gates (the `other` family, OD-DH4-2-9; a NO_SAUCE recipe without a cheese, TQ-1D G7 / Hint 5.0 uniformity) and wait for an Owner decision.
  */
 const ORDINARY_IDS = ["apple-cinnamon-dessert"] as const;
@@ -52,14 +52,14 @@ describe("the recipe (Owner-approved provisional spec; ORDINARY; ladder-credited
     expect(LATE_RECIPES.map((r) => r.id)).not.toContain("apple-cinnamon-dessert");
     expect(RECIPE_DISCOVERY_TARGET_IDS["apple-cinnamon-dessert" as never]).toBe("apple-cinnamon-dessert-pizzadb");
   });
-  it("the generic calibration: ladder-credited, no Lunch Rush, no CUT, bake 58-78, 100 Pitz, permanently key-free; the descriptions name no moment and no quantity (Anti-Oracle)", () => {
+  it("the generic calibration: ladder-credited, no Lunch Rush, no CUT, bake 48-88, 100 Pitz, permanently key-free; the descriptions name no moment and no quantity (Anti-Oracle)", () => {
     for (const id of NEW_IDS) {
       const r = get(id);
       expect((r as { ladderCredit?: boolean }).ladderCredit !== false, id).toBe(true);
       expect(r.lunchRush, id).toBe(false);
       expect(isCutEligible(id as never), id).toBe(false);
       expect(RECIPE_HINT_ROLES[id as never], id).toEqual({ keyFree: true });
-      expect(r.bakeTarget, id).toEqual({ start: 58, end: 78 });
+      expect(r.bakeTarget, id).toEqual({ start: 48, end: 88 });
       expect(r.baseRewardPitz, id).toBe(100);
       expect(r.description, id).not.toMatch(/焼く前|焼いた後|焼き上|後乗せ|仕上げ|[0-9０-９]/);
     }

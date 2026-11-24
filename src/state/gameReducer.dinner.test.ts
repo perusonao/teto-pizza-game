@@ -331,11 +331,11 @@ describe("START_BAKE: Stage A picks the window and the CUT step, and freezes the
     expect(bismarck.recipe.bakeTarget).toEqual(getRecipe("bismarck")!.bakeTarget);
     // The round never names the identity during BAKE (OD-R6).
     expect([bismarck.recipe.id, bismarck.recipe.nameJa]).toEqual([FREE_COOK_RECIPE.id, FREE_COOK_RECIPE.nameJa]);
-    // bismarck (55-75) at 76: inside the generic window (58-78), outside bismarck's -> INVALID_PIZZA (OVERBAKED).
-    const over = cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 76, T0 + 10);
+    // bismarck (45-85) at 86: inside the generic window (48-88), outside bismarck's -> INVALID_PIZZA (OVERBAKED).
+    const over = cookPizza(started({ ...EXACT_A, egg: 3 }), pizzaFor("bismarck"), 86, T0 + 10);
     expect(over.dinner!.lastResult).toEqual({ category: "INVALID_PIZZA", reason: "OVERBAKED" });
-    // margherita (60-80) at 79.5: outside the generic window, inside margherita's -> TARGET_PASS.
-    const marg = cookPizza(started(), pizzaFor("margherita"), 79.5, T0 + 10);
+    // margherita (50-90) at 89.5: outside the generic window, inside margherita's -> TARGET_PASS.
+    const marg = cookPizza(started(), pizzaFor("margherita"), 89.5, T0 + 10);
     expect(marg.dinner!.lastResult).toMatchObject({ category: "TARGET_PASS", recipeId: "margherita" });
   });
 

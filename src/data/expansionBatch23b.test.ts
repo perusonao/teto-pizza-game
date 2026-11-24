@@ -57,14 +57,14 @@ describe("the two recipes (Owner-approved provisional spec; LATE; ladder-credite
     expect(LATE_DISCOVERY_TARGET_IDS["nutella-dessert-pizza"]).toBe("nutella-dessert-pizza-pizzadb-p6");
     expect(LATE_DISCOVERY_TARGET_IDS["smore-dessert-pizza"]).toBe("smore-dessert-pizza-pizzadb-p4");
   });
-  it("the generic calibration: ladder-credited, no Lunch Rush, no CUT, bake 58-78, 100 Pitz, permanently key-free; the descriptions name no moment and no quantity (Anti-Oracle)", () => {
+  it("the generic calibration: ladder-credited, no Lunch Rush, no CUT, bake 48-88, 100 Pitz, permanently key-free; the descriptions name no moment and no quantity (Anti-Oracle)", () => {
     for (const id of NEW_IDS) {
       const r = get(id);
       expect((r as { ladderCredit?: boolean }).ladderCredit !== false, id).toBe(true);
       expect(r.lunchRush, id).toBe(false);
       expect(isCutEligible(id as never), id).toBe(false);
       expect(RECIPE_HINT_ROLES[id as never], id).toEqual({ keyFree: true });
-      expect(r.bakeTarget, id).toEqual({ start: 58, end: 78 });
+      expect(r.bakeTarget, id).toEqual({ start: 48, end: 88 });
       expect(r.baseRewardPitz, id).toBe(100);
       expect(r.description, id).not.toMatch(/焼く前|焼いた後|焼き上|後乗せ|仕上げ|[0-9０-９]/);
     }

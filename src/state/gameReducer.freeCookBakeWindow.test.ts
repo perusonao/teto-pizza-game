@@ -16,7 +16,7 @@ import { ordinaryRecipes } from "../logic/catalog/testSupport/lateIds";
 
 /**
  * Issue #482 (OD-B1 / OD-B6 F1): Free Cooking judges "is it a dish" -- the Completion Gate, the CUT skip and the
- * 3-level result badge -- by the one window its gauge shows (`FREE_COOK_BAKE_TARGET`, 58-78), never by the matched
+ * 3-level result badge -- by the one window its gauge shows (`FREE_COOK_BAKE_TARGET`, 48-88), never by the matched
  * recipe's own window. The recipe's window only enters Scoring 2.0's Bake component. 生焼け / 焦げ is always FAILED.
  */
 const OWNED = [...STARTER_INGREDIENT_IDS, "egg", "bacon", "mushroom", "onion"];
@@ -49,14 +49,14 @@ function confirmBake(recipeId: RecipeId, bake: number): GameState {
 }
 
 describe("#482 F1: Free Cooking judges by the generic window, for every recipe", () => {
-  it("the generic window is 58-78 (the median of the shipped windows)", () => {
-    expect([G_START, G_END]).toEqual([58, 78]);
+  it("the generic window is 48-88 (the median of the shipped windows)", () => {
+    expect([G_START, G_END]).toEqual([48, 88]);
   });
 
   it("FAILED <=> outside the generic window; the badge is classifyBake of the SAME window; CUT is skipped on FAILED", () => {
     // E5: the late recipe's reference has post-bake pieces (identified at FINISH, not by this pre-bake fixture): lateCatalog.ikura.test.ts.
     for (const recipe of ordinaryRecipes(RECIPES)) {
-      for (const bake of [0, 40, 50, 57.99, 58, 62, 68, 78, 78.01, 85, 100]) {
+      for (const bake of [0, 30, 40, 47.99, 48, 62, 68, 88, 88.01, 95, 100]) {
         const after = confirmBake(recipe.id, bake);
         const outside = bake < G_START || bake > G_END;
         const label = `${recipe.id}@${bake}`;
@@ -77,10 +77,10 @@ describe("#482 F1: Free Cooking judges by the generic window, for every recipe",
 });
 
 describe("#482 F1: the matched recipe's own window is Scoring 2.0's only", () => {
-  const recipe = RECIPES.find((r) => r.bakeTarget.start === 50 && r.bakeTarget.end === 70)!;
+  const recipe = RECIPES.find((r) => r.bakeTarget.start === 40 && r.bakeTarget.end === 80)!;
 
-  it("a recipe-window bake below the generic window (52 for 50-70) is FAILED: 生焼け, no CUT, no credit", () => {
-    const after = confirmBake(recipe.id, 52);
+  it("a recipe-window bake below the generic window (44 for 40-80) is FAILED: 生焼け, no CUT, no credit", () => {
+    const after = confirmBake(recipe.id, 44);
     expect(after.completion).toMatchObject({ status: "FAILED", reason: "UNDERBAKED" });
     expect(after.bakeState).toBe("raw");
     expect(after.phase).toBe("RESULT");
@@ -90,14 +90,14 @@ describe("#482 F1: the matched recipe's own window is Scoring 2.0's only", () =>
     expect(registered.dex).toEqual(EMPTY_DEX);
   });
 
-  it("a bake past the recipe's window but inside the generic one (75 for 50-70) is MATCHED and servable, with the badge of the generic window", () => {
-    const after = confirmBake(recipe.id, 75);
+  it("a bake past the recipe's window but inside the generic one (85 for 40-80) is MATCHED and servable, with the badge of the generic window", () => {
+    const after = confirmBake(recipe.id, 85);
     expect(after.completion?.status).toBe("PASS");
     expect(after.recipe.id).toBe(recipe.id);
     expect(after.bakeState).toBe("perfect");
     // No ★ cap from a recipe-window "burnt": the stars are exactly the total's.
     expect(after.score?.stars).toBe(starsFromTotal(after.score!.total));
-    // Scoring 2.0 still reads the recipe's own window: 75 is 5 points past it.
+    // Scoring 2.0 still reads the recipe's own window: 85 is 5 points past it.
     const bake = computeScoringV2(recipe, after.pizza).components.bake;
     expect(bake.available && bake.distanceFromIdeal).toBe(5);
     expect(bake.available && bake.score).toBeLessThan(100);
