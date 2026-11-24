@@ -132,6 +132,47 @@ describe("PizzaStage sauce tap contract: a pure tap deposits one small starter-t
   }
 });
 
+describe("Issue #891: sauce strokes may enter the dough after starting outside it", () => {
+  it("commits a timed deposit from the inside portion of an outside-to-inside drag", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.spyOn(performance, "now").mockReturnValue(0);
+    vi.stubGlobal(
+      "requestAnimationFrame",
+      vi.fn((callback: FrameRequestCallback) => {
+        frames.push(callback);
+        return 1;
+      }),
+    );
+    const { onDispenseCommit, dough } = renderStage("margherita", "tomato-sauce");
+
+    fireEvent.pointerDown(dough, {
+      pointerId: 1,
+      pointerType: "touch",
+      clientX: 10,
+      clientY: 10,
+    });
+    fireEvent.pointerMove(dough, {
+      pointerId: 1,
+      pointerType: "touch",
+      clientX: 150,
+      clientY: 150,
+    });
+    for (const frame of frames.splice(0)) frame(1_000);
+    fireEvent.pointerUp(dough, {
+      pointerId: 1,
+      pointerType: "touch",
+      clientX: 150,
+      clientY: 150,
+    });
+
+    expect(onDispenseCommit).toHaveBeenCalledTimes(1);
+    const [, deposits] = onDispenseCommit.mock.calls[0];
+    expect(deposits).toEqual(
+      expect.arrayContaining([expect.objectContaining({ x: 50, y: 50 })]),
+    );
+  });
+});
+
 describe("Issue #32 Fresh Audit Finding 1-B fix: an off-recipe sauce uses the same dispense/heatmap gesture, never the legacy instant full-spread APPLY_SAUCE path", () => {
   const offRecipeCases = [
     { label: "off-recipe tomato", recipeId: "genovese", offRecipeSauce: "tomato-sauce" },

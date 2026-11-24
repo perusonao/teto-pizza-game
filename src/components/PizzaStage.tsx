@@ -729,9 +729,11 @@ export function PizzaStage({
 
     const rect = circleRef.current.getBoundingClientRect();
     const dough = clientPointToDoughPercent(event.clientX, event.clientY, rect);
-    // Issue #418: a CUT stroke may start outside the pizza (the capture zone extends past it) and
-    // begins where the finger crosses the rim; every other gesture still needs an inside press.
-    if (!isCutStep && !pan.contains(dough.x, dough.y)) return;
+    // Issues #418/#891: CUT and PAINT strokes may start outside the pizza (the capture zone
+    // extends past it) and begin where the finger crosses the rim. PAINT must start its timed
+    // session here so later inside path samples can receive deposits; other gestures still need
+    // an inside press.
+    if (!isCutStep && !isPaintMode && !pan.contains(dough.x, dough.y)) return;
     // design doc §8.4: once the cut limit is reached, a new press simply starts no gesture at
     // all (mirrors every other "reject at the source" gate in this component) -- ADD_CUT_LINE's
     // own reducer-level guard is the real backstop, this is purely to avoid a confusing
