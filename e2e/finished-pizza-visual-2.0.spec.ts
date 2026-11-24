@@ -194,10 +194,10 @@ test.describe("Scenario C: Margherita OVERBAKED -- visible difference from IDEAL
     await tapDoughPercent(page, 45, 55);
     await tapDoughPercent(page, 55, 45);
 
-    // Clearly later than IDEAL (target center 70, perfect zone ends at 80). Issue #482: the Completion Gate's window
+    // Clearly later than IDEAL (target center 70, perfect zone ends at 90). Issue #482: the Completion Gate's window
     // is the bake window itself, so an overbaked (焦げ) pizza is a FAILED round that skips CUT and lands on its 失敗
     // card at 取り出す. The roast must still persist from the BAKE view into that RESULT.
-    await bakeToTarget(page, { start: 84, end: 86 });
+    await bakeToTarget(page, { start: 94, end: 96 });
     const overbakedBasilAtBake = await toppingFilter(page, "basil");
 
     await expect(page.getByRole("button", { name: /切り終わる/ })).toHaveCount(0);

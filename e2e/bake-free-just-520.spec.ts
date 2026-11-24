@@ -5,7 +5,7 @@ import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
  * Issue #520 (Owner, supersedes #481 item 2): Free Cooking draws the JUST band and shows the 5-level 焼き加減 badge, on the generic
- * window its gauge shows (58-78 -> JUST 65-71). Runs on both authority viewports (390x844 / 360x800 projects).
+ * window its gauge shows (48-88 -> JUST 61-75). Runs on both authority viewports (390x844 / 360x800 projects).
  * HV_SHOT_DIR (optional) writes the before/after screenshots.
  */
 const SHOT_DIR = process.env.HV_SHOT_DIR;
