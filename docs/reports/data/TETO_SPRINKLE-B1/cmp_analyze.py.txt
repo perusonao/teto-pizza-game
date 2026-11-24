@@ -1,0 +1,22 @@
+import sys, json, numpy as np
+from PIL import Image
+D=sys.argv[1]
+def lab(a):
+    a=a[...,:3].astype(float)/255; a=np.where(a>0.04045,((a+0.055)/1.055)**2.4,a/12.92)
+    M=np.array([[0.4124,0.3576,0.1805],[0.2126,0.7152,0.0722],[0.0193,0.1192,0.9505]]); xyz=a@M.T/np.array([0.95047,1,1.08883])
+    f=np.where(xyz>0.008856,np.cbrt(xyz),7.787*xyz+16/116); return np.stack([116*f[...,1]-16,500*(f[...,0]-f[...,1]),200*(f[...,1]-f[...,2])],-1)
+ld=lambda l,t,m: np.array(Image.open(f"{D}/{l}-{t}-{m}.png").convert("RGB"))
+def stats(l,t,reg=None):
+    bg=lab(ld(l,t,"hidden")); img=lab(ld(l,t,"shown")); de=np.sqrt(((img-bg)**2).sum(-1))
+    if reg: y0,y1,x0,x1=reg; de=de[y0:y1,x0:x1]
+    m=de>=2; n=int(m.sum()); gy,gx=np.gradient(de); g=np.hypot(gx,gy)
+    e=m&~(np.roll(m,1,0)&np.roll(m,-1,0)&np.roll(m,1,1)&np.roll(m,-1,1))
+    return dict(ink=n, clear=round(float((de[m]>=10).mean()),3), meanDE=round(float(de[m].mean()),2), edge=round(float(g[e].mean()),2))
+res={}
+for t in ("placed","baked","rim"):
+    h,w=ld("f3",t,"shown").shape[:2]; R=min(w,h)*0.48
+    def box(px,py,rr=0.55):
+        cx=w/2+(px-50)/100*2*R; cy=h/2+(py-50)/100*2*R; q=rr*R; return (max(0,int(cy-q)),min(h,int(cy+q)),max(0,int(cx-q)),min(w,int(cx+q)))
+    for name,reg in (("all",None),) + ((("white(51,50)",box(51,50)),("sauce(28,62)",box(28,62))) if t!="rim" else ()):
+        res[f"{t}:{name}"]={l:stats(l,t,reg) for l in ("f3","b1")}
+for k,v in res.items(): print(k,{l:(s['ink'],s['clear'],s['meanDE'],s['edge']) for l,s in v.items()})

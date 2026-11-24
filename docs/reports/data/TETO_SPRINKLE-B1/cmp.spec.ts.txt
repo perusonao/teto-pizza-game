@@ -1,0 +1,42 @@
+import fs from "node:fs";
+import { test, expect, type Page } from "@playwright/test";
+import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "/home/user/teto-pizza-game/e2e/gestures";
+import { startTargetlessFreeCook } from "/home/user/teto-pizza-game/e2e/support/startFreeCook";
+const OUT = process.env.CMP_OUT!; const LABEL = process.env.CMP_LABEL!;
+async function start(page: Page) {
+  const owned = ["mozzarella", "basil", "tomato-sauce", "parmigiano"];
+  const inventory = Object.fromEntries(owned.map((id) => [id, 99]));
+  await page.addInitScript((raw) => localStorage.setItem("teto-pizza-save-v1", JSON.stringify(raw)), { schemaVersion: 2, dex: [], pitzBalance: 500, ownedIngredientIds: owned, missionBest: {}, inventory, starterGrantClaimedRecipeIds: [] });
+  await page.goto("/"); await page.waitForSelector(".app-frame");
+  await startTargetlessFreeCook(page); await page.waitForSelector(".pizza-stage");
+  await completeDoughStep(page); await page.getByRole("button", { name: /次へ/ }).click();
+  await page.getByRole("button", { name: /トマトソース/ }).click(); await paintSauceRing(page, 25, 16);
+  await page.getByRole("button", { name: /次へ/ }).click(); await page.getByRole("button", { name: /モッツァレラ/ }).click();
+  await tapDoughPercent(page, 40, 50); await tapDoughPercent(page, 60, 50);
+}
+async function vis(page: Page, hidden: boolean) {
+  await page.evaluate((h) => { document.getElementById("cmpx")?.remove(); const st = document.createElement("style"); st.id = "cmpx"; st.textContent = h ? ".pizza-topping--parmigiano{visibility:hidden !important}" : ""; document.head.appendChild(st); }, hidden);
+  await page.waitForTimeout(250);
+}
+async function shoot(page: Page, tag: string) {
+  await vis(page, false); await page.locator(".pizza-stage").screenshot({ path: `${OUT}/${LABEL}-${tag}-shown.png` });
+  await vis(page, true); await page.locator(".pizza-stage").screenshot({ path: `${OUT}/${LABEL}-${tag}-hidden.png` });
+  await vis(page, false);
+}
+test("cmp three taps + bake", async ({ page }) => {
+  test.setTimeout(240_000); await start(page);
+  await page.getByRole("button", { name: /パルミジャーノ/ }).first().click();
+  for (const [x, y] of [[50, 30], [28, 62], [72, 62], [51, 50]]) await tapDoughPercent(page, x, y);
+  await page.waitForTimeout(900);
+  expect(await page.locator(".pizza-topping--parmigiano").count()).toBe(4);
+  fs.writeFileSync(`${OUT}/${LABEL}-paths.json`, JSON.stringify({ pathsPerPiece: await page.locator(".pizza-topping--parmigiano").evaluateAll((els) => els.map((e) => e.querySelectorAll("path").length)) }));
+  await shoot(page, "placed");
+  await page.getByRole("button", { name: /次へ/ }).click(); await bakeToTarget(page, { start: 58, end: 78 }); await page.waitForSelector(".result-panel"); await page.waitForTimeout(4000);
+  await shoot(page, "baked");
+});
+test("cmp rim", async ({ page }) => {
+  test.setTimeout(240_000); await start(page);
+  await page.getByRole("button", { name: /パルミジャーノ/ }).first().click();
+  for (const [x, y] of [[50, 8], [90, 50], [20, 20], [50, 92]]) await tapDoughPercent(page, x, y);
+  await page.waitForTimeout(900); await shoot(page, "rim");
+});
