@@ -93,12 +93,14 @@ describe("BakeOverlay target-zone visibility (always shown until the bake ends)"
 
   it("keeps the zone fully visible at every point of the bake, up to and past the full duration", () => {
     render(<BakeOverlay targetStart={50} targetEnd={90} showJustBand onConfirm={vi.fn()} />);
-    for (const seconds of [0, 0.6, 0.9, 1.2, 1.5, 1.8, 2.4, 2.7, BAKE_DURATION_S, BAKE_DURATION_S + 5]) {
-      now = 0;
-      advanceSeconds(0.3);
+    // Cumulative checkpoints: 0.6s / 1.2s were the old fade window, 1.8s+ is where the needle reaches the zone.
+    let elapsed = 0;
+    for (const seconds of [0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.4, 2.7, BAKE_DURATION_S]) {
+      advanceSeconds(seconds - elapsed);
+      elapsed = seconds;
       expect(zones(), `t=${seconds}`).not.toBeNull();
-      expect(zones()!.style.opacity).toBe("");
-      expect(document.querySelector(".bake-gauge__target")).not.toBeNull();
+      expect(zones()!.style.opacity, `t=${seconds}`).toBe("");
+      expect(document.querySelector(".bake-gauge__target"), `t=${seconds}`).not.toBeNull();
     }
     advanceSeconds(BAKE_DURATION_S + 5);
     expect(zones()).not.toBeNull();

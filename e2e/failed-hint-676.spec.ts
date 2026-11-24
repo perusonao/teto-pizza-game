@@ -19,7 +19,7 @@ const FREE_BAKE = { start: 58, end: 78 };
  * A take-out well BEFORE every bake window: the RESULT is the bake-FAILED card (UNDERBAKED, Completion Gate margin 0, Issue #482). The
  * needle is one-way and starts moving at 焼く, so a window near 0 (the former 3-15: stop at 9 +- 3, about 0.36 s in) is missed whenever the
  * pause lands late on a slow runner (#394: "the one-way needle is already at 14.5, past the window 3-15"). 20-30 (stop at 25) allows
- * about 1 s; it is still below the earliest window of every recipe (45) and of Free Cooking (58), which the test below pins.
+ * about 1 s; it is still below the earliest window of every recipe (35) and of Free Cooking (48), which the test below pins.
  */
 const RAW_BAKE = { start: 20, end: 30 };
 const NOTE = "ヒントを見ながら、次に試す材料を考えてみよう。";
