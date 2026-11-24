@@ -1,0 +1,280 @@
+[
+ [
+  45287364458,
+  1,
+  "webkit webkit-390x844 shard 3/3",
+  "",
+  [
+   "[webkit-390x844] › e2e/sauce-gauge-489.spec.ts:22:1 › gauge is right of the pizza, in view, and drains while holding"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  45175591432,
+  1,
+  "webkit webkit-360x800 shard 1/3",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  45111126268,
+  1,
+  "webkit webkit-390x844 shard 3/3",
+  "",
+  [
+   "[webkit-390x844] › e2e/sauce-gauge-489.spec.ts:22:1 › gauge is right of the pizza, in view, and drains while holding"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  44667031388,
+  1,
+  "webkit webkit-390x844 shard 3/3",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  44667031388,
+  1,
+  "webkit webkit-360x800 shard 3/3",
+  "",
+  [
+   "[webkit-360x800] › e2e/sauce-layers-b2.spec.ts:178:1 › a second sauce is its own layer on top; the first keeps its colour and its place"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  44667031388,
+  1,
+  "webkit webkit-390x844 shard 1/3",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  44513570137,
+  1,
+  "layout-chromium",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  44513570137,
+  1,
+  "webkit webkit-360x800 shard 2/3",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  44513570137,
+  1,
+  "webkit webkit-390x844 shard 1/3",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  44486110058,
+  1,
+  "webkit webkit-390x844 shard 3/3",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  44436136032,
+  1,
+  "webkit webkit-390x844 shard 2/3",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  44436136032,
+  1,
+  "webkit webkit-360x800 shard 2/3",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  44436136032,
+  2,
+  "webkit webkit-360x800 shard 2/3",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  43623111312,
+  1,
+  "webkit webkit-390x844 shard 3/3",
+  "",
+  [
+   "[webkit-390x844] › e2e/sauce-layers-b2.spec.ts:178:1 › a second sauce is its own layer on top; the first keeps its colour and its place"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  43538750053,
+  1,
+  "webkit webkit-390x844 shard 3/3",
+  "",
+  [
+   "[webkit-390x844] › e2e/viewport-1screen.spec.ts:502:3 › FREE RESULT: real content overflow scrolls .game-screen, never the page › margherita CUT round -- CTA visible in the first viewport, no scroll required"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  44504645490,
+  1,
+  "layout-chromium",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  44504645490,
+  1,
+  "webkit webkit-390x844 shard 1/3",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 124."
+  ]
+ ],
+ [
+  44504572212,
+  1,
+  "layout-chromium",
+  "apt-timeout",
+  [],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  43724980070,
+  1,
+  "webkit webkit-390x844 shard 1/3",
+  "",
+  [
+   "[webkit-390x844] › e2e/b22.spec.ts:156:5 › Expansion Batch 22",
+   "[webkit-390x844] › e2e/b23b.spec.ts:133:5 › Expansion Batch 23-b"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  43724980070,
+  1,
+  "webkit webkit-360x800 shard 1/3",
+  "",
+  [
+   "[webkit-360x800] › e2e/b22.spec.ts:156:5 › Expansion Batch 22",
+   "[webkit-360x800] › e2e/b23b.spec.ts:133:5 › Expansion Batch 23-b"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  43695017163,
+  1,
+  "webkit webkit-360x800 shard 1/3",
+  "",
+  [
+   "[webkit-360x800] › e2e/b22.spec.ts:156:5 › Expansion Batch 22",
+   "[webkit-360x800] › e2e/b23b.spec.ts:133:5 › Expansion Batch 23-b"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  43695017163,
+  1,
+  "webkit webkit-390x844 shard 1/3",
+  "",
+  [
+   "[webkit-390x844] › e2e/b22.spec.ts:156:5 › Expansion Batch 22",
+   "[webkit-390x844] › e2e/b23b.spec.ts:133:5 › Expansion Batch 23-b"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  43455465743,
+  1,
+  "webkit webkit-390x844 shard 1/3",
+  "",
+  [
+   "[webkit-390x844] › e2e/b23b.spec.ts:133:5 › Expansion Batch 23-b"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  43455465743,
+  1,
+  "webkit webkit-360x800 shard 1/3",
+  "",
+  [
+   "[webkit-360x800] › e2e/b23b.spec.ts:133:5 › Expansion Batch 23-b"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ],
+ [
+  43455465743,
+  1,
+  "webkit webkit-360x800 shard 3/3",
+  "",
+  [
+   "[webkit-360x800] › e2e/result-scale-514.spec.ts:52:3 › #514 RESULT topping scale"
+  ],
+  [
+   "##[error]Process completed with exit code 1."
+  ]
+ ]
+]
