@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { availableParallelism } from "node:os";
 import { defineConfig, type Plugin } from "vitest/config";
 import { testHooksPlugin } from "./tools/testHooksPlugin.ts";
 
@@ -77,6 +79,25 @@ function pinsaRollback(): Plugin {
   };
 }
 
+/**
+ * Test speed-up (Task 3, pilot): files that run under the `node` environment instead of jsdom. The list is `tools/nodeEnvTests.txt` (one repo-relative path per line).
+ * Selection rule: a `src/logic` / `src/data` `*.test.ts` that contains none of the DOM-ish tokens (window, document, localStorage, navigator, `?raw`, render(, fireEvent,
+ * globalThis, location, ... -- see the PR report) and passes under `node`. It is an ALLOW list on purpose: a new test file defaults to jsdom (the single-config intent
+ * below), and a listed file that starts needing the DOM fails loudly and is simply removed from the list. Nothing else (flag-variant projects, setup file) changes.
+ */
+const NODE_ENV_TESTS = readFileSync(new URL("./tools/nodeEnvTests.txt", import.meta.url), "utf8")
+  .split("\n")
+  .map((line) => line.trim())
+  .filter(Boolean);
+
+/**
+ * Explicit pool / parallelism (Task 1). `forks` is Vitest's default and is kept on purpose: each file gets a process-level isolation, which the suites that mutate
+ * module state / `localStorage` / fake timers rely on; `threads` would only add risk for a small gain. Worker count = (logical CPUs - 1) capped at 8: the same as the
+ * default on a 4-vCPU CI runner (3 workers; one CPU stays free for the main process and the reporter) and bounded on big developer machines, where more workers mostly
+ * add memory pressure (jsdom per worker) and CPU contention for the timing-sensitive tests. Not an aggressive tuning: it makes the implicit default readable.
+ */
+const MAX_WORKERS = Math.min(8, Math.max(1, availableParallelism() - 1));
+
 export default defineConfig({
   // #377: the test-only targetless-start hook (tools/testHooksPlugin.ts); Vitest only, never `vite build`.
   plugins: [testHooksPlugin(), ...(process.env.TETO_PINSA_OFF === "1" ? [pinsaRollback()] : [])],
@@ -87,11 +108,15 @@ export default defineConfig({
     // config for every test.
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
+    pool: "forks",
+    maxWorkers: MAX_WORKERS,
     projects: [
       {
         extends: true,
-        test: { name: "default", include: ["src/**/*.test.ts", "src/**/*.test.tsx"], exclude: [...HAND_ON_TESTS, ...HAND_OFF_TESTS] },
+        test: { name: "default", include: ["src/**/*.test.ts", "src/**/*.test.tsx"], exclude: [...HAND_ON_TESTS, ...HAND_OFF_TESTS, ...NODE_ENV_TESTS] },
       },
+      // Task 3 pilot: DOM-free logic/data tests on `node` (no jsdom per file). Same setup file, same plugins.
+      { extends: true, test: { name: "node", environment: "node", include: NODE_ENV_TESTS } },
       ...([9, 12] as const).map((capacity) => ({
         extends: true,
         plugins: [handActivation(capacity)],
