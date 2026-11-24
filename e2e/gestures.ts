@@ -161,7 +161,7 @@ export async function landNeedleAndTakeOut(page: Page, target: { start: number; 
   const center = (target.start + target.end) / 2;
   // The take-out is judged on the JUST band (center +- JUST_HALF_WIDTH_PT, src/logic/bake.ts), not on the whole
   // window: a stop inside the window but outside that band reads 惜しい. Accepting the half-window (+-10 on the
-  // Free Cooking 58-78) let a load-shortened run (observed 59.6-62.3) through as "landed", and the RESULT badge then
+  // Free Cooking 48-88) let a load-shortened run (observed 59.6-62.3) through as "landed", and the RESULT badge then
   // differed between two otherwise identical cards. The tolerance is only ever tightened to the JUST band; a miss
   // re-plans from where the needle really is (bounded below), never retries blindly.
   const tolerance = Math.min(Math.max((target.end - target.start) / 2, NEEDLE_LANDING_MIN_TOLERANCE_PT), JUST_HALF_WIDTH_PT);

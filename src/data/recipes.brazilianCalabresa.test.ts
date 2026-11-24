@@ -39,7 +39,7 @@ describe("brazilian-calabresa authoring (PR-4b-B)", () => {
       { ingredientId: "oregano", minCount: 1 },
     ]);
     expect(nonSauce.reduce((n, q) => n + q.minCount, 0)).toBe(8);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.baseRewardPitz).toBe(100);
   });
 

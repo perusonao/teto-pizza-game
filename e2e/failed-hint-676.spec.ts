@@ -18,10 +18,10 @@ const FREE_BAKE = { start: 58, end: 78 };
 /**
  * A take-out well BEFORE every bake window: the RESULT is the bake-FAILED card (UNDERBAKED, Completion Gate margin 0, Issue #482). The
  * needle is one-way and starts moving at 焼く, so a window near 0 (the former 3-15: stop at 9 +- 3, about 0.36 s in) is missed whenever the
- * pause lands late on a slow runner (#394: "the one-way needle is already at 14.5, past the window 3-15"). 20-40 (stop at 30 +- 3) allows
- * about 1 s; it is still below the earliest window of every recipe (45) and of Free Cooking (58), which the test below pins.
+ * pause lands late on a slow runner (#394: "the one-way needle is already at 14.5, past the window 3-15"). 20-30 (stop at 25) allows
+ * about 1 s; it is still below the earliest window of every recipe (35) and of Free Cooking (48), which the test below pins.
  */
-const RAW_BAKE = { start: 20, end: 40 };
+const RAW_BAKE = { start: 20, end: 30 };
 const NOTE = "ヒントを見ながら、次に試す材料を考えてみよう。";
 const keysBefore = DISCOVERY_LADDER.steps.filter((s) => s.step < 25).map((s) => s.keyRecipeId);
 const materials = DISCOVERY_LADDER.steps.filter((s) => s.step <= 25).flatMap((s) => s.ingredientIds as readonly string[]);
@@ -43,7 +43,7 @@ test("RAW_BAKE is a raw (UNDERBAKED) take-out for every recipe window and the Fr
   for (let value = RAW_BAKE.start; value <= RAW_BAKE.end; value += 0.5) {
     for (const window of windows) expect(classifyBake(value, window), `needle ${value} vs window ${window.start}-${window.end}`).toBe("raw");
   }
-  // A margin, not just "earlier": a recipe whose window starts within 5 points of this take-out (the earliest today is 45, 5 above
+  // A margin, not just "earlier": a recipe whose window starts within 5 points of this take-out (the earliest today is 35, 5 above
   // RAW_BAKE.end) is where this window should be reviewed -- it would still be raw, but no longer clearly so.
   const earliestStart = Math.min(...windows.map((w) => w.start));
   expect(earliestStart - RAW_BAKE.end, `earliest window start ${earliestStart} vs RAW_BAKE.end ${RAW_BAKE.end}`).toBeGreaterThanOrEqual(5);

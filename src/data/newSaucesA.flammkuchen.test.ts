@@ -76,7 +76,7 @@ describe("flammkuchen (the key recipe)", () => {
   });
 
   it("keeps the generic bake window, so the median-derived Free Cooking target does not move", () => {
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
   });
 
   it("is the only recipe made from exactly this ingredient set (discovery stays unambiguous)", () => {

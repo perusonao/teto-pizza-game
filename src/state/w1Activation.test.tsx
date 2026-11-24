@@ -100,7 +100,7 @@ describe("production tables: 32 recipes, one row each", () => {
   });
 
   it("new recipes keep the REC-01..03 values (Hawaiian 60-80, New Haven description, 9 / 10 / 9)", () => {
-    expect(getRecipe("hawaiian")!.bakeTarget).toEqual({ start: 60, end: 80 });
+    expect(getRecipe("hawaiian")!.bakeTarget).toEqual({ start: 50, end: 90 });
     expect(getRecipe("new-haven-apizza")!.description).toBe(
       "オリーブオイルを塗った生地に、あさり、にんにく、パルミジャーノをのせて香ばしく焼き上げたニューヘイブン風の一枚。",
     );

@@ -213,11 +213,11 @@ describe("Stage A: bake window and CUT from the composition (§9 / §10)", () =>
       const plan = planDinnerBake(pizzaFor(id, { bake: null }));
       expect(plan.bakeWindow, id).toEqual({ source: "RECIPE", target: getRecipe(id as RecipeId)!.bakeTarget });
     }
-    // bismarck 55-75: 76 is inside the generic window (58-78) but overbaked for bismarck.
-    const burnt = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("bismarck", { bake: 76 }))));
+    // bismarck 45-85: 86 is inside the generic window (48-88) but overbaked for bismarck.
+    const burnt = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("bismarck", { bake: 86 }))));
     expect(burnt.classification).toMatchObject({ category: "INVALID_PIZZA", completion: { reason: "OVERBAKED" } });
-    // margherita 60-80: 79.5 fails the generic window (58-78) but is inside margherita's.
-    const late = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("margherita", { bake: 79.5 }))));
+    // margherita 50-90: 89.5 fails the generic window (48-88) but is inside margherita's.
+    const late = resolved(resolveDinnerAttempt(input(runOf(DM_A), pizzaFor("margherita", { bake: 89.5 }))));
     expect(late.classification).toMatchObject({ category: "TARGET_PASS", recipeId: "margherita" });
   });
 
@@ -229,9 +229,9 @@ describe("Stage A: bake window and CUT from the composition (§9 / §10)", () =>
       postBakeSteps: [],
       cutRequired: false,
     });
-    const atEdge = resolved(resolveDinnerAttempt(input(runOf(DM_A), { ...original, bakeResult: 78 })));
+    const atEdge = resolved(resolveDinnerAttempt(input(runOf(DM_A), { ...original, bakeResult: 88 })));
     expect(atEdge.classification).toEqual({ category: "ORIGINAL", reason: "NO_MATCH" });
-    const past = resolved(resolveDinnerAttempt(input(runOf(DM_A), { ...original, bakeResult: 78.5 })));
+    const past = resolved(resolveDinnerAttempt(input(runOf(DM_A), { ...original, bakeResult: 88.5 })));
     expect(past.classification).toMatchObject({ category: "INVALID_PIZZA", completion: { reason: "OVERBAKED" } });
   });
 
@@ -718,8 +718,8 @@ describe("evaluateFreeCookCompletion's optional bake window (the one extension t
 
   it("a recipe window moves only the bake band; the empty-pizza rule is unchanged", () => {
     const bismarck = getRecipe("bismarck")!.bakeTarget;
-    expect(evaluateFreeCookCompletion(pizzaFor("bismarck", { bake: 76 }))).toEqual({ status: "PASS" });
-    expect(evaluateFreeCookCompletion(pizzaFor("bismarck", { bake: 76 }), bismarck)).toMatchObject({ status: "FAILED", reason: "OVERBAKED" });
+    expect(evaluateFreeCookCompletion(pizzaFor("bismarck", { bake: 86 }))).toEqual({ status: "PASS" });
+    expect(evaluateFreeCookCompletion(pizzaFor("bismarck", { bake: 86 }), bismarck)).toMatchObject({ status: "FAILED", reason: "OVERBAKED" });
     expect(evaluateFreeCookCompletion({ ...createEmptyPizza(), bakeResult: 65 }, bismarck)).toMatchObject({
       status: "FAILED",
       reason: "MISSING_REQUIRED_INGREDIENT",

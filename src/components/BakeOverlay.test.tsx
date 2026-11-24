@@ -4,7 +4,7 @@ import { BakeOverlay } from "./BakeOverlay";
 import { BAKE_DURATION_S, BAKE_MAX_FRAME_DT_S, BAKE_SPEED_PCT_PER_S } from "../logic/bakeProgress";
 
 /**
- * Issue #419: BakeOverlay drives its one-way needle position *and* its target-zone fade from
+ * Issue #419: BakeOverlay drives its one-way needle position from
  * its own internal `requestAnimationFrame` loop (see that component's own file header), so
  * these tests stub `requestAnimationFrame`/`performance.now` and drive the loop by hand,
  * one controlled frame at a time, rather than waiting on real wall-clock time.
@@ -28,11 +28,6 @@ function advanceSeconds(totalSeconds: number, stepMs = 100) {
   for (let elapsed = 0; elapsed < totalMs; elapsed += stepMs) {
     tick(Math.min(stepMs, totalMs - elapsed));
   }
-}
-
-function zonesOpacity(): number | null {
-  const zones = document.querySelector<HTMLElement>(".bake-gauge__zones");
-  return zones ? Number(zones.style.opacity) : null;
 }
 
 function needleLeft(): number {
@@ -93,41 +88,39 @@ describe("BakeOverlay one-way needle", () => {
   });
 });
 
-describe("BakeOverlay target-zone visibility (0-0.6s shown, 0.6-1.2s fade, 1.2s+ gone)", () => {
-  it("shows the zone at full opacity for the first 0.6s", () => {
-    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    expect(zonesOpacity()).toBe(1);
-    advanceSeconds(0.6);
-    expect(zonesOpacity()).toBeCloseTo(1, 1);
-  });
+describe("BakeOverlay target-zone visibility (always shown until the bake ends)", () => {
+  const zones = () => document.querySelector<HTMLElement>(".bake-gauge__zones");
 
-  it("fades the zone between 0.6s and 1.2s", () => {
-    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    advanceSeconds(0.9);
-    const mid = zonesOpacity();
-    expect(mid).toBeGreaterThan(0.3);
-    expect(mid).toBeLessThan(0.7);
-  });
-
-  it("removes the zone from 1.2s on and never brings it back, while track and needle stay", () => {
-    render(<BakeOverlay targetStart={40} targetEnd={60} onConfirm={vi.fn()} />);
-    advanceSeconds(1.4);
-    expect(zonesOpacity()).toBeNull();
-    advanceSeconds(10);
-    expect(zonesOpacity()).toBeNull();
-    expect(document.querySelector(".bake-gauge")).not.toBeNull();
+  it("keeps the zone fully visible at every point of the bake, up to and past the full duration", () => {
+    render(<BakeOverlay targetStart={50} targetEnd={90} showJustBand onConfirm={vi.fn()} />);
+    // Cumulative checkpoints: 0.6s / 1.2s were the old fade window, 1.8s+ is where the needle reaches the zone.
+    let elapsed = 0;
+    for (const seconds of [0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.4, 2.7, BAKE_DURATION_S]) {
+      advanceSeconds(seconds - elapsed);
+      elapsed = seconds;
+      expect(zones(), `t=${seconds}`).not.toBeNull();
+      expect(zones()!.style.opacity, `t=${seconds}`).toBe("");
+      expect(document.querySelector(".bake-gauge__target"), `t=${seconds}`).not.toBeNull();
+    }
+    advanceSeconds(BAKE_DURATION_S + 5);
+    expect(zones()).not.toBeNull();
+    expect(document.querySelector(".bake-gauge__target")).not.toBeNull();
+    expect(document.querySelector(".bake-gauge__just")).not.toBeNull();
     expect(document.querySelector(".bake-gauge__needle")).not.toBeNull();
   });
 
-  it("uses the same fade for every target window (not recipe dependent)", () => {
-    const { unmount } = render(<BakeOverlay targetStart={45} targetEnd={65} onConfirm={vi.fn()} />);
-    advanceSeconds(0.9);
-    const a = zonesOpacity();
-    unmount();
-    now = 0;
-    render(<BakeOverlay targetStart={65} targetEnd={85} onConfirm={vi.fn()} />);
-    advanceSeconds(0.9);
-    expect(zonesOpacity()).toBeCloseTo(a as number, 5);
+  it("is still shown when the needle is inside the zone (1.8s for a 50-90 window)", () => {
+    render(<BakeOverlay targetStart={50} targetEnd={90} onConfirm={vi.fn()} />);
+    advanceSeconds(1.8);
+    expect(needleLeft()).toBeCloseTo(60, 0);
+    expect(zones()).not.toBeNull();
+  });
+
+  it("draws the zone from the 40pt window it is given (not recipe dependent)", () => {
+    render(<BakeOverlay targetStart={35} targetEnd={75} onConfirm={vi.fn()} />);
+    const target = document.querySelector<HTMLElement>(".bake-gauge__target")!;
+    expect(parseFloat(target.style.left)).toBe(35);
+    expect(parseFloat(target.style.width)).toBe(40);
   });
 });
 
@@ -141,7 +134,7 @@ describe("BakeOverlay does not reveal the correct position", () => {
       tick(100); // sweeps raw -> target -> burnt
       seenInline.add(needle.getAttribute("style")!.replace(/left:[^;]+;?/, ""));
       expect(button.className).not.toContain("glow");
-      expect(screen.getByText("見た目で焼き加減を確かめて！")).toBeInTheDocument();
+      expect(screen.getByText("緑のゾーンで焼き上げよう！")).toBeInTheDocument();
     }
     expect(seenInline.size).toBe(1);
     expect([...seenInline][0]).not.toContain("background");
@@ -239,29 +232,23 @@ describe("BakeOverlay JUST band (Issue #481)", () => {
     expect(band()).toBeNull();
   });
 
-  it("spans window centre +-3pt (60-80 -> 67-73; 58-78 -> 65-71)", () => {
-    const { unmount } = render(<BakeOverlay targetStart={60} targetEnd={80} showJustBand onConfirm={vi.fn()} />);
-    expect(parseFloat(band()!.style.left)).toBe(67);
-    expect(parseFloat(band()!.style.width)).toBe(6);
+  it("spans window centre +-7pt (50-90 -> 63-77; 48-88 -> 61-75)", () => {
+    const { unmount } = render(<BakeOverlay targetStart={50} targetEnd={90} showJustBand onConfirm={vi.fn()} />);
+    expect(parseFloat(band()!.style.left)).toBe(63);
+    expect(parseFloat(band()!.style.width)).toBe(14);
     unmount();
-    render(<BakeOverlay targetStart={58} targetEnd={78} showJustBand onConfirm={vi.fn()} />);
-    expect(parseFloat(band()!.style.left)).toBe(65);
-    expect(parseFloat(band()!.style.width)).toBe(6);
+    render(<BakeOverlay targetStart={48} targetEnd={88} showJustBand onConfirm={vi.fn()} />);
+    expect(parseFloat(band()!.style.left)).toBe(61);
+    expect(parseFloat(band()!.style.width)).toBe(14);
   });
 
-  it("lives in the fading zone layer: full at 0.6s, fading, gone at 1.2s", () => {
-    render(<BakeOverlay targetStart={60} targetEnd={80} showJustBand onConfirm={vi.fn()} />);
+  it("lives in the zone layer and stays visible for the whole bake", () => {
+    render(<BakeOverlay targetStart={50} targetEnd={90} showJustBand onConfirm={vi.fn()} />);
     expect(band()!.parentElement).toHaveClass("bake-gauge__zones");
-    advanceSeconds(0.6);
-    expect(zonesOpacity()).toBeCloseTo(1, 1);
-    expect(band()).not.toBeNull();
-    advanceSeconds(0.3);
-    expect(zonesOpacity()).toBeLessThan(0.7);
-    expect(band()).not.toBeNull();
-    advanceSeconds(0.4);
-    expect(band()).toBeNull();
-    advanceSeconds(5);
-    expect(band()).toBeNull();
+    for (const s of [0.6, 0.9, 1.2, 5]) {
+      advanceSeconds(s);
+      expect(band()).not.toBeNull();
+    }
   });
 
   it("does not move the needle or the tap target", () => {

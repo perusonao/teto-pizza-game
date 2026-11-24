@@ -10,7 +10,7 @@ import { getReferenceSlots } from "../logic/pizzaReferenceLayout";
 
 /**
  * B12 (Issue #706): jamaican-jerk-chicken-pizza. PROVISIONAL SPEC: the original pizzadb.jp page was NOT confirmed, and the source sauce field is 'その他' (BASE_SAUCE_UNSPECIFIED), so NO_SAUCE is a
- * GAMEPLAY ASSUMPTION pending an Owner decision. The counts and the generic 58-78 bake window are GAMEPLAY CALIBRATION. No new material, so no ladder step of its own.
+ * GAMEPLAY ASSUMPTION pending an Owner decision. The counts and the generic 48-88 bake window are GAMEPLAY CALIBRATION. No new material, so no ladder step of its own.
  */
 const ID = "jamaican-jerk-chicken-pizza";
 const recipe = RECIPES.find((r) => r.id === ID)! as Recipe;
@@ -25,7 +25,7 @@ describe(ID, () => {
     expect(recipe.ladderCredit).toBe(false);
     expect(recipe.lunchRush).toBe(false);
     expect(isCutEligible(ID)).toBe(false);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.baseRewardPitz).toBe(100);
     expect(recipe.requiredIngredients.every((q) => !("applicationPhase" in q))).toBe(true);
     expect(RECIPE_HINT_ROLES[ID]).toEqual({ keyFree: true });

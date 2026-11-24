@@ -18,8 +18,8 @@ import {
  * dinner-mission.spec.ts.
  *
  * Every take-out stays several points from a window edge: the virtual-clock landing can drift by several points
- * on a loaded runner. Margherita (bakeTarget 60-80): raw at 2, the old 10-point margin band at 52-56 (servable
- * before #482), in window at 70. Burnt uses marinara (bakeTarget 45-65) at 97.
+ * on a loaded runner. Margherita (bakeTarget 50-90): raw at 2, just below the window at 42-46, in window at 70.
+ * Burnt uses marinara (bakeTarget 35-75) at 97.
  */
 
 const RAW = { start: 0, end: 40 };
@@ -77,10 +77,10 @@ test.describe("Issue #256: CUT is skipped only for a Completion-Gate bake failur
     await expect(cutButton(page)).toHaveCount(0);
   });
 
-  test("Guided #482: a take-out in the old margin band (52-56, 生焼け) is FAILED too, with no CUT", async ({ page }) => {
+  test("Guided #482: a take-out just below the window (42-46, 生焼け) is FAILED too, with no CUT", async ({ page }) => {
     await startFreshMargherita(page);
     await prepareMargherita(page);
-    await bakeAt(page, { start: 52, end: 56 });
+    await bakeAt(page, { start: 42, end: 46 });
     await expect(page.locator(".result-panel--failed")).toBeVisible();
     await expect(page.locator(".result-panel--failed")).toContainText("生焼け");
     await expect(cutButton(page)).toHaveCount(0);

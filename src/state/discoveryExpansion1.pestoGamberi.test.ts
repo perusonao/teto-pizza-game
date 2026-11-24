@@ -53,7 +53,7 @@ describe("Expansion Slice 1 authoring: production data", () => {
       { ingredientId: "shrimp", minCount: 3 },
     ]);
     expect(recipe.requiredIngredients.some((q) => getIngredient(q.ingredientId)!.category === "cheese")).toBe(false);
-    expect(recipe.bakeTarget).toEqual({ start: 50, end: 70 });
+    expect(recipe.bakeTarget).toEqual({ start: 40, end: 80 });
     expect(recipe.baseRewardPitz).toBe(100);
     expect(getRecipeSauceProfile(ID as RecipeId)).toMatchObject({ ingredientId: "pesto", interaction: "PAINT" });
     expect(RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === ID)).toMatchObject({

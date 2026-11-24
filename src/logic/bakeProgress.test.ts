@@ -1,12 +1,10 @@
 import { describe, expect, it } from "vitest";
+import * as bakeProgress from "./bakeProgress";
 import {
   BAKE_DURATION_S,
   BAKE_MAX_FRAME_DT_S,
-  BAKE_ZONE_FADE_END_S,
-  BAKE_ZONE_FADE_START_S,
   bakePositionAt,
   clampBakeFrameDt,
-  computeBakeZoneOpacity,
 } from "./bakeProgress";
 import { GUIDE_FADE_END_S, GUIDE_FADE_START_S } from "./bakeGuideFade";
 
@@ -54,28 +52,9 @@ describe("clampBakeFrameDt (no time jump on return from background)", () => {
   });
 });
 
-describe("computeBakeZoneOpacity (0-0.6s shown, 0.6-1.2s fade, 1.2s+ hidden)", () => {
-  it("is fully visible through 0.6s", () => {
-    expect(computeBakeZoneOpacity(0)).toBe(1);
-    expect(computeBakeZoneOpacity(BAKE_ZONE_FADE_START_S)).toBe(1);
-  });
-
-  it("fades linearly between 0.6s and 1.2s", () => {
-    expect(computeBakeZoneOpacity(0.9)).toBeCloseTo(0.5);
-    expect(computeBakeZoneOpacity(0.75)).toBeCloseTo(0.75);
-  });
-
-  it("is hidden from 1.2s on and never comes back", () => {
-    expect(BAKE_ZONE_FADE_START_S).toBe(0.6);
-    expect(BAKE_ZONE_FADE_END_S).toBe(1.2);
-    let previous = Infinity;
-    for (let t = 0; t <= 20; t += 0.05) {
-      const value = computeBakeZoneOpacity(t);
-      expect(value).toBeLessThanOrEqual(previous + 1e-9);
-      previous = value;
-    }
-    expect(computeBakeZoneOpacity(BAKE_ZONE_FADE_END_S)).toBe(0);
-    expect(computeBakeZoneOpacity(100)).toBe(0);
+describe("BAKE target zone has no fade (Owner decision: plan A, supersedes Issue #419 fade)", () => {
+  it("exports no zone-fade constants or opacity function", () => {
+    expect(Object.keys(bakeProgress).filter((k) => /FADE|Opacity/i.test(k))).toEqual([]);
   });
 
   it("keeps CUT's shared guide-fade constants unchanged (3.6s / 7.2s)", () => {

@@ -77,8 +77,8 @@ async function shot(page: Page, name: string) {
   if (dir) await page.screenshot({ path: `${dir}/${test.info().project.name.replace("iphone-", "")}-${name}.png` });
 }
 
-/** A take-out well before every bake window (UNDERBAKED -> the bake-FAILED card). See e2e/failed-hint-676.spec.ts for why 20-40 and not 3-15 (#394). */
-const RAW_BAKE = { start: 20, end: 40 };
+/** A take-out well before every bake window (UNDERBAKED -> the bake-FAILED card). See e2e/failed-hint-676.spec.ts for why 20-30 and not 3-15 (#394). */
+const RAW_BAKE = { start: 20, end: 30 };
 
 test("RAW_BAKE is a raw (UNDERBAKED) take-out for every recipe window and the Free Cooking window", () => {
   const windows = [FREE_COOK_BAKE_TARGET, ...RECIPES.map((r) => r.bakeTarget)];
@@ -86,7 +86,7 @@ test("RAW_BAKE is a raw (UNDERBAKED) take-out for every recipe window and the Fr
   for (let value = RAW_BAKE.start; value <= RAW_BAKE.end; value += 0.5) {
     for (const window of windows) expect(classifyBake(value, window), `needle ${value} vs window ${window.start}-${window.end}`).toBe("raw");
   }
-  // A margin, not just "earlier": a recipe whose window starts within 5 points of this take-out (the earliest today is 45, 5 above
+  // A margin, not just "earlier": a recipe whose window starts within 5 points of this take-out (the earliest today is 35, 5 above
   // RAW_BAKE.end) is where this window should be reviewed -- it would still be raw, but no longer clearly so.
   const earliestStart = Math.min(...windows.map((w) => w.start));
   expect(earliestStart - RAW_BAKE.end, `earliest window start ${earliestStart} vs RAW_BAKE.end ${RAW_BAKE.end}`).toBeGreaterThanOrEqual(5);

@@ -81,7 +81,7 @@ describe.each(ROWS)("$id", (row) => {
   it("is an ordinary recipe: lunchRush false, no CUT, generic bake window, every requirement placed before the bake", () => {
     expect(recipe.lunchRush).toBe(false);
     expect(isCutEligible(row.id)).toBe(false);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.requiredIngredients.every((q) => !("applicationPhase" in q))).toBe(true);
     expect(recipe.requiredIngredients.length).toBeLessThanOrEqual(6);
   });

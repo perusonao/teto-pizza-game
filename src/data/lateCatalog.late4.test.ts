@@ -88,11 +88,11 @@ describe("the shipped data (late catalog ON, as in Production)", () => {
     ]);
   });
 
-  it("both: bake 58-78, not in Lunch Rush, credited (no ladderCredit field), an order, key-free hint, PAINT sauce profile", () => {
+  it("both: bake 48-88, not in Lunch Rush, credited (no ladderCredit field), an order, key-free hint, PAINT sauce profile", () => {
     const sauces: Record<string, string> = { [WASABI_BEEF]: "soy-sauce", [TARAKO]: "fresh-cream-sauce" };
     for (const id of NEW_RECIPES) {
       const recipe = getRecipe(id)!;
-      expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+      expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
       expect(recipe.lunchRush).toBe(false);
       expect(recipe.baseRewardPitz).toBe(100);
       expect("ladderCredit" in recipe).toBe(false);

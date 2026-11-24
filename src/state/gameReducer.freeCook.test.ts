@@ -93,7 +93,7 @@ describe("START_FREE_COOK", () => {
   });
 
   it("the generic bake window is derived from the shipped recipes (median start/end)", () => {
-    expect(FREE_COOK_BAKE_TARGET).toEqual({ start: 58, end: 78 });
+    expect(FREE_COOK_BAKE_TARGET).toEqual({ start: 48, end: 88 });
     expect(FREE_COOK_RECIPE.bakeTarget).toBe(FREE_COOK_BAKE_TARGET);
   });
 

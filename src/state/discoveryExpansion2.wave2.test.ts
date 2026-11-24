@@ -81,7 +81,7 @@ describe("Expansion Wave 2 authoring: exact production data", () => {
       { ingredientId: "parsley", minCount: 2 },
     ]);
     expect(r.requiredIngredients.some((q) => getIngredient(q.ingredientId)!.category === "cheese")).toBe(false);
-    expect(r.bakeTarget).toEqual({ start: 62, end: 82 });
+    expect(r.bakeTarget).toEqual({ start: 52, end: 92 });
     expect(r.baseRewardPitz).toBe(100);
   });
 
@@ -100,7 +100,7 @@ describe("Expansion Wave 2 authoring: exact production data", () => {
       { ingredientId: "zucchini", minCount: 2 },
       { ingredientId: "bell-pepper", minCount: 2 },
     ]);
-    expect(r.bakeTarget).toEqual({ start: 50, end: 70 });
+    expect(r.bakeTarget).toEqual({ start: 40, end: 80 });
     expect(r.baseRewardPitz).toBe(100);
   });
 
@@ -120,7 +120,7 @@ describe("Expansion Wave 2 authoring: exact production data", () => {
       { ingredientId: "oregano", minCount: 1 },
     ]);
     expect(r.requiredIngredients.some((q) => getIngredient(q.ingredientId)!.category === "cheese")).toBe(false);
-    expect(r.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(r.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(r.baseRewardPitz).toBe(100);
   });
 

@@ -27,7 +27,7 @@ import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
  * B17-ONLY EXCEPTION (Owner decision 2026-11-03), not a general rule: reading the unspecified sauce field 'その他' as the サワークリーム sauce (sour-cream, the existing PAINT). No other unspecified-sauce row (caponata, tsukimi, pesto-genovese) is approved by this.
  * Unlike B15 / B16 no Jaccard exception is needed: the nearest neighbours (rendang-pizza, nigerian-suya-pizza) are at 0.33, under the global 0.4 criterion, which is NOT changed.
  *
- * The counts (sauce 1 / beef 3 / onion 3 / paprika-powder 2 = 8 non-sauce pieces), NO cheese, the generic 58-78 bake window, the colour `#f1ecdc`, the emoji 🍦 and the dab art are GAMEPLAY ASSUMPTIONS / CALIBRATION (Owner-confirmed as provisional).
+ * The counts (sauce 1 / beef 3 / onion 3 / paprika-powder 2 = 8 non-sauce pieces), NO cheese, the generic 48-88 bake window, the colour `#f1ecdc`, the emoji 🍦 and the dab art are GAMEPLAY ASSUMPTIONS / CALIBRATION (Owner-confirmed as provisional).
  * Every piece is placed BEFORE the bake (the source states no timing): no POST_BAKE, no FINISH step. No new technique, no spice-grinding / prep / sear / steam step.
  */
 const ID = "goulash-pizza";
@@ -92,7 +92,7 @@ describe(ID, () => {
     expect(recipe.ladderCredit).toBeUndefined(); // credited (the default)
     expect(recipe.lunchRush).toBe(false);
     expect(isCutEligible(ID)).toBe(false);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.baseRewardPitz).toBe(100);
     expect(recipe.requiredIngredients.every((q) => !("applicationPhase" in q))).toBe(true); // no POST_BAKE: the FINISH constraints are untouched
     expect(RECIPE_HINT_ROLES[ID]).toEqual({ keyFree: true });

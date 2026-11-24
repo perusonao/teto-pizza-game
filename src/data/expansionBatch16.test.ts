@@ -30,7 +30,7 @@ import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";
  *  2. its nearest neighbour shirasu-pizza shares mozzarella / shiso / whitebait (Jaccard 0.60, above the 0.4 criterion). The GLOBAL 0.4 criterion is NOT changed; what is pinned is the structural guarantee (no same / subset / superset
  *     ingredient set, the sauce included) and that shirasu-pizza is the ONLY recipe at or above 0.4.
  *
- * The counts (sauce 1 / mozzarella 2 / whitebait 4 / shiso 2 = 8 non-sauce pieces), the generic 58-78 bake window, the colour `#b8405a` and the emoji 🍑 are GAMEPLAY ASSUMPTIONS / CALIBRATION (Owner-confirmed as provisional).
+ * The counts (sauce 1 / mozzarella 2 / whitebait 4 / shiso 2 = 8 non-sauce pieces), the generic 48-88 bake window, the colour `#b8405a` and the emoji 🍑 are GAMEPLAY ASSUMPTIONS / CALIBRATION (Owner-confirmed as provisional).
  * Every piece is placed BEFORE the bake (the source states no timing): no POST_BAKE, no FINISH step. No new technique, no spice or other step.
  */
 const ID = "ume-shiso-pizza";
@@ -87,7 +87,7 @@ describe(ID, () => {
     expect(recipe.ladderCredit).toBeUndefined(); // credited (the default)
     expect(recipe.lunchRush).toBe(false);
     expect(isCutEligible(ID)).toBe(false);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.baseRewardPitz).toBe(100);
     expect(recipe.requiredIngredients.every((q) => !("applicationPhase" in q))).toBe(true); // no POST_BAKE: the FINISH constraints are untouched
     expect(RECIPE_HINT_ROLES[ID]).toEqual({ keyFree: true });

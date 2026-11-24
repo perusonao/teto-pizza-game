@@ -27,7 +27,7 @@ import matrix from "../../docs/design/data/TETO_RECIPE_172_GAME-DESIGN-CANDIDATE
  * (rendang-pizza) shares three of four ingredients (Jaccard 0.60, above the 0.4 criterion B12 pinned for jamaican-jerk). The GLOBAL 0.4 criterion is NOT changed here; what is pinned instead is
  * the structural guarantee that matters to the matcher: no other recipe has the same ingredient set, and none is a subset or a superset of it.
  *
- * The counts (mozzarella 2 / beef 3 / green-pepper 1 / onion 2 = 8 pieces), the generic 58-78 bake window and "every piece is placed before the bake" are GAMEPLAY ASSUMPTIONS / CALIBRATION
+ * The counts (mozzarella 2 / beef 3 / green-pepper 1 / onion 2 = 8 pieces), the generic 48-88 bake window and "every piece is placed before the bake" are GAMEPLAY ASSUMPTIONS / CALIBRATION
  * (Owner: provisionally approved). The suya spice is not in the source ingredient list and is NOT modelled (no spice step exists). No new material, technique or ladder step.
  */
 const ID = "nigerian-suya-pizza";
@@ -53,7 +53,7 @@ describe(ID, () => {
     expect(recipe.ladderCredit).toBe(false);
     expect(recipe.lunchRush).toBe(false);
     expect(isCutEligible(ID)).toBe(false);
-    expect(recipe.bakeTarget).toEqual({ start: 58, end: 78 });
+    expect(recipe.bakeTarget).toEqual({ start: 48, end: 88 });
     expect(recipe.baseRewardPitz).toBe(100);
     expect(recipe.requiredIngredients.every((q) => !("applicationPhase" in q))).toBe(true); // no POST_BAKE piece: the source states no timing
     expect(RECIPE_HINT_ROLES[ID]).toEqual({ keyFree: true });
