@@ -34,12 +34,12 @@ const DOUGH_RECT = { left: 0, top: 0, width: 300, height: 300, right: 300, botto
 
 function renderStage(
   recipeId: (typeof RECIPES)[number]["id"],
-  ingredientId: string,
+  ingredientId: string | null,
   overrides: { pizza?: PizzaState; referenceModeEnabled?: boolean } = {},
 ) {
   const recipe = getRecipe(recipeId);
-  const ingredient = getIngredient(ingredientId);
-  if (!recipe || !ingredient) throw new Error(`Missing fixture for ${recipeId}/${ingredientId}`);
+  const ingredient = ingredientId === null ? null : (getIngredient(ingredientId) ?? null);
+  if (!recipe || (ingredientId !== null && !ingredient)) throw new Error(`Missing fixture for ${recipeId}/${ingredientId}`);
 
   const onTap = vi.fn();
   const onDispenseProgress = vi.fn();
@@ -170,6 +170,18 @@ describe("Issue #891: sauce strokes may enter the dough after starting outside i
     expect(deposits).toEqual(
       expect.arrayContaining([expect.objectContaining({ x: 50, y: 50 })]),
     );
+  });
+});
+
+describe("Issue #892: unselected sauce drag feedback", () => {
+  it("asks the player to select a sauce after a drag without an active ingredient", () => {
+    const { dough, onTap, onDispenseCommit } = renderStage("margherita", null);
+
+    drag(dough);
+
+    expect(document.querySelector('[role="status"]')).toHaveTextContent("まずソースを選んでね");
+    expect(onTap).not.toHaveBeenCalled();
+    expect(onDispenseCommit).not.toHaveBeenCalled();
   });
 });
 

@@ -372,6 +372,7 @@ export function PizzaStage({
   // so that derived array is only ever rebuilt when a session mutation actually happened --
   // never on every unrelated re-render (e.g. a BAKE-overlay tick elsewhere on the page).
   const [pendingVersion, forceRender] = useReactReducer((c: number) => c + 1, 0);
+  const [showSauceSelectionHint, setShowSauceSelectionHint] = useState(false);
   const sessionTokenCounterRef = useRef(0);
   const activeSessionRef = useRef<DispenseSession | null>(null);
   const dispenseControllerRef = useRef<SauceDispenseController | null>(null);
@@ -387,6 +388,12 @@ export function PizzaStage({
    *  `pendingTotalRef` for the stroke in progress -- the same single source the remaining gauge will read (B3). */
   const pizzaRef = useRef(pizza);
   const activeIngredientIdRef = useRef<string | null>(activeIngredient?.id ?? null);
+
+  useEffect(() => {
+    if (makingStep !== "SAUCE" || activeIngredient !== null) {
+      setShowSauceSelectionHint(false);
+    }
+  }, [activeIngredient, makingStep]);
   /** Timestamp-preservation follow-up: one instance per active dispense session, built at
    *  pointerdown from that event's own `timeStamp` + a single `performance.now()` sample
    *  (see PointerTimestampNormalizer's doc comment) -- never re-created per pointermove
@@ -892,6 +899,9 @@ export function PizzaStage({
       const dy = clientY - g.startClientY;
       if (Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return;
       g.dragging = true;
+      if (makingStep === "SAUCE" && activeIngredient === null) {
+        setShowSauceSelectionHint(true);
+      }
       if (isPaintMode) appendTrailPoint(g.startDough.x, g.startDough.y);
     }
 
@@ -993,6 +1003,14 @@ export function PizzaStage({
     // Issue #891: releasing an outside-only armed PAINT gesture must preserve the old no-op
     // contract and must not fall through to the legacy onTap sauce path.
     if (isPaintMode) {
+      gestureRef.current = createGestureState();
+      return;
+    }
+
+    // Issue #892: the drag already surfaced the selection hint; do not route its release into
+    // the generic topping tap path. With no active ingredient that call is a no-op today, but
+    // keeping it out makes the feedback path explicit and prevents future accidental placement.
+    if (makingStep === "SAUCE" && activeIngredient === null && g.dragging) {
       gestureRef.current = createGestureState();
       return;
     }
@@ -1865,6 +1883,11 @@ export function PizzaStage({
             capBlocked={sauceGaugeDetail(pizza, activeIngredient?.id ?? sauceId ?? "", pendingTotalRef.current).capBlocked}
           />
         </div>
+      )}
+      {showSauceSelectionHint && (
+        <p className="pizza-stage__interaction-hint" role="status">
+          まずソースを選んでね
+        </p>
       )}
       {overlay}
       {searOverlay}

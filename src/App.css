@@ -7671,6 +7671,27 @@ p.hint-sheet__step {
   pointer-events: none;
 }
 
+/* Issue #892: an unselected SAUCE drag must explain why the pizza did not change. Kept out of
+   flow so the compact mobile cooking layout and pointer geometry stay exactly as before. */
+.pizza-stage__interaction-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 10;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 248, 229, 0.96);
+  box-shadow: 0 2px 8px rgba(72, 39, 18, 0.24);
+  color: #8a3f24;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 .sauce-remaining-gauge__fill {
   width: 100%;
   flex: none;
