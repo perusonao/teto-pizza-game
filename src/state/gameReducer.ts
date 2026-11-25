@@ -433,7 +433,7 @@ export interface GameState {
   researchExclusions: ResearchExclusions;
   /** B案 Phase 1b (Issue #901): the shop model's progression state (../logic/progression/shopProgress.ts), saved under
    *  `shopProgress` only once it differs from the default. Carried through every round transition; nothing in the reducer
-   *  changes it in Phase 1b (the legacy model never reads it). */
+   *  changes it in Phase 1b (the legacy model never reads it). A save without one starts from the default. */
   shop: ShopProgressState;
   /** P3-3a: the display-only result of the Trial Notebook record committed by this round's REGISTER_TO_DEX
    *  (`NEW` / `DUPLICATE` with the stable `#n`), or `null` (not recorded, or no ORIGINAL committed yet). Reset for

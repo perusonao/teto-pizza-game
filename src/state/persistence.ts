@@ -230,8 +230,8 @@ export interface PersistentSaveV2 {
    *  key `shopProgress`, save v2, no schema bump. OPTIONAL in memory: absent exactly when the stored save has no readable
    *  `shopProgress` object (every save today), so such a save loads as the very same object it always did; readers use
    *  `save.shopProgress ?? EMPTY_SHOP_PROGRESS`. A default state is never written (the key is not created by a legacy
-   *  session). Merged on write: reputation max, granted recipes union, the first recorded seed kept; unknown sub-keys, well-
-   *  formed unknown recipe ids, a seed this build cannot read and a non-object value a newer build stored are all kept. */
+   *  session). Merged on write: reputation max, granted recipes union; unknown sub-keys, well-formed unknown recipe ids
+   *  and a non-object value a newer build stored are all kept. No migration of older saves (pre-release: Owner 2026-11-26). */
   shopProgress?: ShopProgressState;
 }
 
@@ -1349,7 +1349,7 @@ export interface ProgressionSnapshot {
    *  merged per recipe as a set union (never lowered, never removed; known recipe ids only). */
   researchExclusions?: ResearchExclusions;
   /** B案 Phase 1b: the shop progression state. Optional -- absent leaves the stored value as it is; a given one is merged
-   *  (reputation max, granted recipes union, the stored seed kept). A default state on a save without the key writes
+   *  (reputation max, granted recipes union). A default state on a save without the key writes
    *  nothing, so a legacy session never creates `shopProgress`. */
   shopProgress?: ShopProgressState;
   /** DM-4-3: all-or-nothing for the Dinner settlement. When true and any record update

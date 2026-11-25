@@ -17,10 +17,10 @@ export const V2_SHOP_PROGRESS = JSON.stringify({
   discoveryHintFacts: { fugazza: ["ing:mozzarella"] },
   discoveredTechniqueIds: ["no-sauce"],
   researchExclusions: { margherita: ["onion"] },
-  shopProgress: { reputation: 250, grantedMenuRecipeIds: ["margherita"], reputationSeed: { source: "legacy-dex", value: 100 } },
+  shopProgress: { reputation: 250, grantedMenuRecipeIds: ["margherita"] },
 });
 
-/** A save a newer build might leave: an unknown recipe id, a seed source and a sub-key this build cannot read. */
+/** A save a newer build might leave: an unknown recipe id and sub-keys this build cannot read. */
 export const V2_SHOP_PROGRESS_FROM_NEWER_BUILD = JSON.stringify({
   schemaVersion: 2,
   dex: [{ recipeId: "margherita", discovered: true, bestScore: 82, bestStars: 4, timesMade: 3 }],
@@ -32,7 +32,7 @@ export const V2_SHOP_PROGRESS_FROM_NEWER_BUILD = JSON.stringify({
   shopProgress: {
     reputation: 640,
     grantedMenuRecipeIds: ["margherita", "future-pizza"],
-    reputationSeed: { source: "future-source", value: 300 },
+    futureMarker: { source: "future-source", value: 300 },
     chapterRewardsClaimed: [1, 2],
   },
 });

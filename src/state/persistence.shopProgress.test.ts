@@ -15,8 +15,9 @@ import { memoryStorage } from "./testSupport/memoryStorage";
 
 /**
  * B案再構成 Phase 1b (Issue #901), design §3.3: the `shopProgress` top-level key -- save v2 (no schema bump), read
- * fail-soft, never written while the state is the default, merged on write (reputation max, granted recipes union, the
- * first seed kept), and everything a newer build might store under it kept across this build's writes (rollback).
+ * fail-soft, never written while the state is the default, merged on write (reputation max, granted recipes union), and
+ * everything a newer build might store under it kept across this build's writes. Older saves are not migrated (pre-release,
+ * Owner 2026-11-26): a save without the key just starts from the default.
  */
 const stored = (s: ReturnType<typeof memoryStorage>) => JSON.parse(s.getItem(SAVE_STORAGE_KEY) ?? "null") as Record<string, unknown>;
 const progress = (extra: Partial<ProgressionSnapshot> = {}): ProgressionSnapshot => {
@@ -30,8 +31,7 @@ const progress = (extra: Partial<ProgressionSnapshot> = {}): ProgressionSnapshot
     ...extra,
   };
 };
-const seed = (value: number) => ({ source: "legacy-dex" as const, value });
-const SHOP: ShopProgressState = { reputation: 120, grantedMenuRecipeIds: ["margherita"], reputationSeed: seed(100) };
+const SHOP: ShopProgressState = { reputation: 120, grantedMenuRecipeIds: ["margherita"] };
 const base = (extra: Record<string, unknown>) => ({ schemaVersion: 2, dex: [], ...extra });
 
 describe("shopProgress: read", () => {
@@ -51,7 +51,7 @@ describe("shopProgress: read", () => {
   });
 
   it("invalid values are repaired fail-soft and never cost the rest of the save", () => {
-    const raw = JSON.stringify(base({ pitzBalance: 40, shopProgress: { reputation: -3, grantedMenuRecipeIds: "x", reputationSeed: 9 } }));
+    const raw = JSON.stringify(base({ pitzBalance: 40, shopProgress: { reputation: -3, grantedMenuRecipeIds: "x" } }));
     const save = loadSave(memoryStorage({ [SAVE_STORAGE_KEY]: raw }));
     expect(save.shopProgress).toEqual(EMPTY_SHOP_PROGRESS);
     expect(save.pitzBalance).toBe(40);
@@ -117,13 +117,6 @@ describe("shopProgress: write and merge", () => {
     expect(loadSave(s).shopProgress?.grantedMenuRecipeIds).toEqual(["margherita", "fugazza"]);
   });
 
-  it("the stored seed is kept: a later different seed never replaces it (R9)", () => {
-    const s = memoryStorage();
-    persistProgress(progress({ shopProgress: { ...SHOP, reputationSeed: seed(100) } }), s);
-    persistProgress(progress({ shopProgress: { ...SHOP, reputation: 999, reputationSeed: seed(250) } }), s);
-    expect(loadSave(s).shopProgress?.reputationSeed).toEqual(seed(100));
-  });
-
   it("a stored state survives writes that do not carry it (persistDex, Mission BEST, a snapshot without the field)", () => {
     const s = memoryStorage();
     persistProgress(progress({ shopProgress: SHOP }), s);
@@ -159,7 +152,6 @@ describe("shopProgress: rollback / forward compatibility (a newer build's data i
   const newer = {
     reputation: 800,
     grantedMenuRecipeIds: ["future-pizza", "margherita"],
-    reputationSeed: { source: "future-source", value: 3 },
     futureField: { stars: [1, 2] },
   };
 
@@ -170,13 +162,12 @@ describe("shopProgress: rollback / forward compatibility (a newer build's data i
     expect(stored(s).shopProgress).toEqual(newer);
   });
 
-  it("a write of this build's state merges into it: unknown sub-keys, unknown ids and the unreadable seed stay", () => {
+  it("a write of this build's state merges into it: unknown sub-keys and unknown ids stay", () => {
     const s = memoryStorage({ [SAVE_STORAGE_KEY]: JSON.stringify(base({ shopProgress: newer })) });
-    persistProgress(progress({ shopProgress: { reputation: 900, grantedMenuRecipeIds: ["margherita", "fugazza"], reputationSeed: seed(100) } }), s);
+    persistProgress(progress({ shopProgress: { reputation: 900, grantedMenuRecipeIds: ["margherita", "fugazza"] } }), s);
     expect(stored(s).shopProgress).toEqual({
       reputation: 900,
       grantedMenuRecipeIds: ["future-pizza", "margherita", "fugazza"],
-      reputationSeed: { source: "future-source", value: 3 },
       futureField: { stars: [1, 2] },
     });
   });
@@ -187,7 +178,7 @@ describe("shopProgress: rollback / forward compatibility (a newer build's data i
     expect(stored(s).shopProgress).toEqual(["opaque"]);
   });
 
-  it("shop -> legacy -> shop round trip: the reputation and the seed come back as they were", () => {
+  it("shop -> legacy -> shop round trip: the reputation and the granted recipes come back as they were", () => {
     const s = memoryStorage();
     persistProgress(progress({ shopProgress: SHOP }), s); // a shop-model session
     const legacy = loadSave(s);

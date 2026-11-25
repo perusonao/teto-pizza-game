@@ -14,7 +14,7 @@ import { memoryStorage } from "./testSupport/memoryStorage";
  * changes nothing. It starts as the default (or as stored), no transition touches it (the same object is carried
  * through every round path), and the state minus `shop` is exactly what it was before 1b.
  */
-const SHOP: ShopProgressState = { reputation: 250, grantedMenuRecipeIds: ["margherita"], reputationSeed: { source: "legacy-dex", value: 100 } };
+const SHOP: ShopProgressState = { reputation: 250, grantedMenuRecipeIds: ["margherita"] };
 
 function withoutShop(state: GameState): Omit<GameState, "shop"> {
   const { shop: _shop, ...rest } = state;
@@ -72,7 +72,7 @@ describe("shop state with the flag OFF (production default)", () => {
     expect(b.shop).toBe(SHOP);
   });
 
-  it("startup: a save with shopProgress starts with it as stored (no seed under legacy) and the rest equals the save without it", () => {
+  it("startup: a save with shopProgress starts with it as stored and the rest equals the save without it", () => {
     const save = {
       schemaVersion: 2,
       dex: [{ recipeId: "margherita", discovered: true, bestScore: 82, bestStars: 4, timesMade: 3 }],
@@ -86,11 +86,6 @@ describe("shop state with the flag OFF (production default)", () => {
     expect(plain.state.shop).toEqual(EMPTY_SHOP_PROGRESS);
     expect(seeded.state.shop).toEqual(SHOP);
     expect(withoutShop(seeded.state)).toEqual(withoutShop(plain.state));
-  });
-
-  it("startup: a save whose shopProgress has no seed is NOT seeded under legacy", () => {
-    const raw = JSON.stringify({ schemaVersion: 2, dex: [], shopProgress: { reputation: 0, grantedMenuRecipeIds: ["margherita"], reputationSeed: null } });
-    expect(buildStartup(memoryStorage({ [SAVE_STORAGE_KEY]: raw })).state.shop.reputationSeed).toBeNull();
   });
 
   it("the save snapshot carries the shop state", () => {

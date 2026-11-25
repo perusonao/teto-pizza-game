@@ -9,10 +9,9 @@ import {
   type ShopProgressState,
 } from "./shopProgress";
 
-/** B案 Phase 1b (Issue #901), design §3.3: the shop state's read (fail-soft), merge (max / union / first seed) and write rules. */
+/** B案 Phase 1b (Issue #901), design §3.3: the shop state's read (fail-soft), merge (max / union) and write rules. */
 const KNOWN = new Set(["margherita", "fugazza", "funghi"]);
 const isKnown = (id: string) => KNOWN.has(id);
-const seed = (value: number) => ({ source: "legacy-dex" as const, value });
 
 describe("sanitizeShopProgress", () => {
   it("absent or a non-object reads as undefined (the caller uses the default)", () => {
@@ -24,7 +23,7 @@ describe("sanitizeShopProgress", () => {
   });
 
   it("a valid object reads back as written", () => {
-    const raw = { reputation: 120, grantedMenuRecipeIds: ["margherita", "fugazza"], reputationSeed: seed(100) };
+    const raw = { reputation: 120, grantedMenuRecipeIds: ["margherita", "fugazza"] };
     expect(sanitizeShopProgress(raw, isKnown)).toEqual(raw);
   });
 
@@ -39,10 +38,8 @@ describe("sanitizeShopProgress", () => {
     expect(sanitizeShopProgress(raw, isKnown)?.grantedMenuRecipeIds).toEqual(["fugazza", "margherita"]);
   });
 
-  it("a seed this build cannot read (other source, bad value) reads as null", () => {
-    for (const reputationSeed of [{ source: "future", value: 1 }, { source: "legacy-dex", value: -1 }, { source: "legacy-dex" }, 5, "x"]) {
-      expect(sanitizeShopProgress({ reputationSeed }, isKnown)?.reputationSeed).toBeNull();
-    }
+  it("sub-keys this build does not know are not read into memory", () => {
+    expect(sanitizeShopProgress({ reputation: 1, futureField: 3 }, isKnown)).toEqual({ reputation: 1, grantedMenuRecipeIds: [] });
   });
 });
 
@@ -60,25 +57,20 @@ describe("mergeShopProgress / isDefault / same", () => {
     expect(mergeShopProgress(a, b).grantedMenuRecipeIds).toEqual(["fugazza", "margherita"]);
   });
 
-  it("the base's seed wins; the other's is used only when the base has none (R9)", () => {
-    const a: ShopProgressState = { ...EMPTY_SHOP_PROGRESS, reputationSeed: seed(100) };
-    const b: ShopProgressState = { ...EMPTY_SHOP_PROGRESS, reputationSeed: seed(250) };
-    expect(mergeShopProgress(a, b).reputationSeed).toEqual(seed(100));
-    expect(mergeShopProgress(EMPTY_SHOP_PROGRESS, b).reputationSeed).toEqual(seed(250));
-  });
-
   it("isDefault / same", () => {
     expect(isDefaultShopProgress(EMPTY_SHOP_PROGRESS)).toBe(true);
-    expect(isDefaultShopProgress({ ...EMPTY_SHOP_PROGRESS, reputationSeed: seed(0) })).toBe(false);
+    expect(isDefaultShopProgress({ ...EMPTY_SHOP_PROGRESS, reputation: 1 })).toBe(false);
+    expect(isDefaultShopProgress({ ...EMPTY_SHOP_PROGRESS, grantedMenuRecipeIds: ["margherita"] })).toBe(false);
     expect(sameShopProgress(undefined, undefined)).toBe(true);
     expect(sameShopProgress(undefined, EMPTY_SHOP_PROGRESS)).toBe(false);
-    expect(sameShopProgress({ ...EMPTY_SHOP_PROGRESS, reputationSeed: seed(1) }, { ...EMPTY_SHOP_PROGRESS, reputationSeed: seed(1) })).toBe(true);
+    expect(sameShopProgress({ reputation: 1, grantedMenuRecipeIds: ["a"] }, { reputation: 1, grantedMenuRecipeIds: ["a"] })).toBe(true);
+    expect(sameShopProgress({ ...EMPTY_SHOP_PROGRESS, reputation: 1 }, { ...EMPTY_SHOP_PROGRESS, reputation: 2 })).toBe(false);
     expect(sameShopProgress({ ...EMPTY_SHOP_PROGRESS, grantedMenuRecipeIds: ["a", "b"] }, { ...EMPTY_SHOP_PROGRESS, grantedMenuRecipeIds: ["b", "a"] })).toBe(false);
   });
 });
 
 describe("shopProgressForWrite: what storage keeps under `shopProgress`", () => {
-  const ours: ShopProgressState = { reputation: 200, grantedMenuRecipeIds: ["margherita"], reputationSeed: seed(100) };
+  const ours: ShopProgressState = { reputation: 200, grantedMenuRecipeIds: ["margherita"] };
 
   it("a default (or absent) state writes nothing new: storage keeps what it holds, verbatim", () => {
     expect(shopProgressForWrite(EMPTY_SHOP_PROGRESS, undefined)).toBeUndefined();
@@ -97,26 +89,20 @@ describe("shopProgressForWrite: what storage keeps under `shopProgress`", () => 
     expect(shopProgressForWrite(ours, 42)).toEqual(ours);
   });
 
-  it("a stored object is merged into: unknown sub-keys, unknown well-formed ids and the stored seed stay; reputation is the max", () => {
+  it("a stored object is merged into: unknown sub-keys and unknown well-formed ids stay; reputation is the max", () => {
     const stored = {
       reputation: 500,
       grantedMenuRecipeIds: ["future-pizza", "margherita", "Not An Id!"],
-      reputationSeed: { source: "future-source", value: 7 },
       futureField: { keep: true },
     };
     expect(shopProgressForWrite(ours, stored)).toEqual({
       reputation: 500,
       grantedMenuRecipeIds: ["future-pizza", "margherita"],
-      reputationSeed: { source: "future-source", value: 7 },
       futureField: { keep: true },
     });
   });
 
-  it("a stored object without a seed takes ours; a lower stored reputation is raised", () => {
-    expect(shopProgressForWrite(ours, { reputation: 50, reputationSeed: null })).toEqual({
-      reputation: 200,
-      grantedMenuRecipeIds: ["margherita"],
-      reputationSeed: seed(100),
-    });
+  it("a lower stored reputation is raised", () => {
+    expect(shopProgressForWrite(ours, { reputation: 50 })).toEqual({ reputation: 200, grantedMenuRecipeIds: ["margherita"] });
   });
 });

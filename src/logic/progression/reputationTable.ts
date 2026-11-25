@@ -4,8 +4,10 @@
  * Every value is `number | null` and Phase 1b leaves every one `null`: the numbers are an Owner decision (to be fixed
  * before Phase 2a) and must never become defaults by accident (R8). While any value is `null` the shop model cannot be
  * enabled -- `isReputationTableComplete` is the one test of that, and ./reputationTable.gate.test.ts pins it for the
- * production table. Same pattern as Dinner's `timeLimit: { seconds: null }` (unset = cannot START).
+ * production table (`canEnableShopProgression` also needs a non-empty curated catalog). Same pattern as Dinner's
+ * `timeLimit: { seconds: null }` (unset = cannot START).
  */
+import { MENU_CATALOG, type MenuCatalogEntry } from "../../data/menuCatalog";
 
 /** Q12: five chapters (the curated list's 5 stages x 12 recipes). */
 export const SHOP_CHAPTER_COUNT = 5;
@@ -47,4 +49,12 @@ export function isReputationTableComplete(table: ReputationTable): table is Repu
     if ((floors[i] as number) < (floors[i - 1] as number)) return false;
   }
   return isSetNumber(table.perOrderGain) && isSetNumber(table.menuDevelopmentBonus);
+}
+
+/** True when the shop model has what it needs to run: a complete reputation table and a non-empty curated catalog. */
+export function canEnableShopProgression(
+  table: ReputationTable = REPUTATION_TABLE,
+  catalog: readonly MenuCatalogEntry[] = MENU_CATALOG,
+): boolean {
+  return isReputationTableComplete(table) && catalog.length > 0;
 }

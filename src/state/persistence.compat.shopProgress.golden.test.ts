@@ -43,9 +43,9 @@ describe("golden saves without shopProgress (every existing era)", () => {
 });
 
 describe("golden saves with shopProgress", () => {
-  it("this build's shape loads and starts with it (legacy model: nothing recomputed)", () => {
+  it("this build's shape loads and starts with it", () => {
     const storage = memoryStorage({ [SAVE_STORAGE_KEY]: V2_SHOP_PROGRESS });
-    const expected = { reputation: 250, grantedMenuRecipeIds: ["margherita"], reputationSeed: { source: "legacy-dex", value: 100 } };
+    const expected = { reputation: 250, grantedMenuRecipeIds: ["margherita"] };
     expect(loadSave(storage).shopProgress).toEqual(expected);
     expect(buildStartup(storage).state.shop).toEqual(expected);
   });

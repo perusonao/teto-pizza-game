@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { MENU_CATALOG } from "../../data/menuCatalog";
-import { canEnableShopProgression, legacyReputationSeed } from "./reputationSeed";
-import { REPUTATION_TABLE, SHOP_CHAPTER_COUNT, isReputationTableComplete, type ReputationTable } from "./reputationTable";
+import {
+  REPUTATION_TABLE,
+  SHOP_CHAPTER_COUNT,
+  canEnableShopProgression,
+  isReputationTableComplete,
+  type ReputationTable,
+} from "./reputationTable";
 
 /**
  * B案 Phase 1b (Issue #901), design §3.2.6 / R8 gate: the reputation numbers are an Owner decision. Until every value is
@@ -41,8 +46,11 @@ describe("reputation table gate", () => {
     expect(isReputationTableComplete(four)).toBe(false);
   });
 
-  it("the production seed records nothing while the table is unset (and the curated catalog is empty)", () => {
+  it("a complete table alone is not enough: the curated catalog must not be empty (Phase 1b: it is)", () => {
+    const full: ReputationTable = { chapterFloors: [0, 1, 2, 3, 4], perOrderGain: 1, menuDevelopmentBonus: 1 };
     expect(MENU_CATALOG).toHaveLength(0);
-    expect(legacyReputationSeed({ ownedIngredientIds: [], unlockedForShopIngredientIds: [] })).toBeNull();
+    expect(canEnableShopProgression(full)).toBe(false);
+    expect(canEnableShopProgression(full, [{ recipeId: "margherita", chapter: 1 }])).toBe(true);
+    expect(canEnableShopProgression(REPUTATION_TABLE, [{ recipeId: "margherita", chapter: 1 }])).toBe(false);
   });
 });
