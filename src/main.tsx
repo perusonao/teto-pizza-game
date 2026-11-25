@@ -48,6 +48,14 @@ if (import.meta.env.VITE_PREVIEW_MODE && !inspectorRequested && !devStateRequest
   }
 }
 
+// Native app build only (`vite build --mode app`, M1 of #571): load the native save into memory BEFORE anything renders or
+// reads the save, so no render, save or reset can run against an unhydrated store. `import.meta.env.MODE` is replaced
+// statically, so the browser build drops this branch and the native storage code with it.
+if (import.meta.env.MODE === 'app') {
+  const { initNativeStorage } = await import('./state/nativeStorageBoot')
+  await initNativeStorage()
+}
+
 const root = createRoot(document.getElementById('root')!)
 
 if (inspectorRequested) {
