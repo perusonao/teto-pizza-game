@@ -20,6 +20,7 @@ import {
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import { SQUEEZE_MAX_LENGTH, SQUEEZE_MIN_LENGTH, SQUEEZE_MIN_STEP, capTrailLength, densifyTrail, isSqueezeIngredientId, trailAnchor, trailLength, trailPathD, type TrailPoint } from "../logic/squeeze";
 import { IngredientPieceVisual } from "./IngredientPieceVisual";
+import { IngredientGlyph } from "./IngredientGlyph";
 import { preparedPieceVisual } from "../logic/prep/beefDoneness";
 import { searedPieceVisual } from "../logic/sear/sausageSear";
 import { PostBakePiece } from "./PostBakePiece";
@@ -79,6 +80,7 @@ import { buildDragCutPath, buildTracedCutLine } from "../logic/cut/trace";
 import { requiredCutCount } from "../logic/cut/evaluation";
 import type { CutState } from "../logic/cut/state";
 import { computeGuideOpacity } from "../logic/bakeGuideFade";
+import { pizzaIngredientListItems } from "./pizzaIngredientList";
 
 /** Screen-space finger/mouse movement (px) before a press becomes a drag instead of a tap. */
 const DRAG_THRESHOLD_PX = 10;
@@ -334,6 +336,11 @@ export function PizzaStage({
   const doughGestureShapeRef = useRef<DoughShape | null>(null);
   const doughClipId = useId();
   const reliefFilterId = useId();
+  const ingredientListId = useId();
+  const resultIngredientItems = useMemo(
+    () => pizzaIngredientListItems(pizza.toppings),
+    [pizza.toppings],
+  );
 
   // Issue #33 D1: gates the DOUGH radial-stretch gesture branch below, mirroring isPaintMode's
   // own role for sauce -- mutually exclusive with it in practice (IngredientTray/activeIngredient
@@ -1293,10 +1300,18 @@ export function PizzaStage({
           {/* `smoke-rise`'s own keyframes (App.css) already drive this span's opacity each
               cycle -- a CSS animation always wins the cascade over an inline style on the
               same property, so `bakeCharIntensity` fades a wrapping element instead. */}
-          <span className="pizza-smoke-wrap" style={{ left: "32%", top: "18%", opacity: bakeCharIntensity }}>
+          <span
+            aria-hidden="true"
+            className="pizza-smoke-wrap"
+            style={{ left: "32%", top: "18%", opacity: bakeCharIntensity }}
+          >
             <span className="pizza-smoke">{"\u{1F4A8}"}</span>
           </span>
-          <span className="pizza-smoke-wrap" style={{ left: "62%", top: "24%", opacity: bakeCharIntensity }}>
+          <span
+            aria-hidden="true"
+            className="pizza-smoke-wrap"
+            style={{ left: "62%", top: "24%", opacity: bakeCharIntensity }}
+          >
             <span className="pizza-smoke pizza-smoke--delay">{"\u{1F4A8}"}</span>
           </span>
         </>
@@ -1656,12 +1671,25 @@ export function PizzaStage({
 
   return (
     <div className={stageClassName}>
+      {resultRevealed && resultIngredientItems.length > 0 && (
+        <ul id={ingredientListId} className="sr-only" aria-label="ピザの材料">
+          {resultIngredientItems.map((item) => (
+            <li key={item.ingredientId} data-ingredient-id={item.ingredientId}>
+              <span aria-hidden="true">
+                <IngredientGlyph ingredient={item.ingredient} />
+              </span>
+              {item.nameJa} ×{item.count}
+            </li>
+          ))}
+        </ul>
+      )}
       <div
         ref={setDoughElement}
         data-pizza-drop-target="true"
         role="button"
         tabIndex={isKeyboardPlaceable ? 0 : -1}
         aria-label={isKeyboardPlaceable ? "ピザ。選択中の素材を置くにはEnterまたはスペース" : "ピザ"}
+        aria-describedby={resultRevealed && resultIngredientItems.length > 0 ? ingredientListId : undefined}
         className={`pizza-dough ${interactive ? "pizza-dough--interactive" : ""} ${
           bakeState ? `pizza-dough--${bakeState}` : ""
         } ${showDoughShape && !squarePan ? "pizza-dough--has-shape-layer" : ""}${squarePan ? " pizza-dough--square-pan" : ""}${oval ? " pizza-dough--oval" : ""}`}
