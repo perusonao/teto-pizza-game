@@ -11,17 +11,12 @@
  * tray yet, so in Production it is closed for every player until Square Dough E adds the first such recipe (INV-TQ-4).
  */
 import type { DexState } from "../../state/dex";
-import { creditedDiscoveredCount } from "../../state/materialEntitlement";
 import type { GamePhase, MakingStep } from "../../state/gameReducer";
-import { isTechniqueAffordanceOpen, techniqueAffordanceStep } from "./registration";
-import { productionTechniqueContext, type TechniqueRoundEligibility, type TechniqueRuntimeContext } from "./runtime";
+import { isTechniqueAffordanceOpenFor, productionTechniqueContext, type TechniqueRoundEligibility, type TechniqueRuntimeContext } from "./runtime";
 
 /** Whether the tray technique's affordance is open for this Dex (the same rule `resolveRoundTechniques` applies). */
 export function isTrayAffordanceOpen(dex: DexState, context: TechniqueRuntimeContext = productionTechniqueContext()): boolean {
-  return isTechniqueAffordanceOpen(
-    techniqueAffordanceStep("tray", context.catalog, context.materialStep),
-    creditedDiscoveredCount(dex, context.countsTowardLadder),
-  );
+  return isTechniqueAffordanceOpenFor("tray", dex, context);
 }
 
 export interface PanSwitchInput {

@@ -2,9 +2,9 @@
  * The state the page starts from (moved out of App.tsx so the save -> state step, including R8's completion of a baked round, is
  * testable without React). A pure function of the stored save, apart from telling the write gate what this page loaded.
  */
+import { activeProgressionModel } from "../logic/progression/progressionModel";
 import { initialTechniqueLedger } from "../logic/techniques/runtime";
 import { createInitialGameState, type GameState } from "./gameReducer";
-import { resolveShopEntitlement } from "./materialEntitlement";
 import { loadStartupSave, type StorageLike } from "./persistence";
 import type { HeldPendingRoundReason, PendingRound } from "./pendingRound";
 import { settlePendingRound } from "./pendingRoundSettle";
@@ -30,11 +30,13 @@ export function buildStartup(storage?: StorageLike | null): Startup {
   // anything newly entitled starts at stock 0. Nothing is granted and
   // `starterGrantClaimedRecipeIds` is carried through unchanged (so a rollback to a pre-I4b
   // build never re-grants a claimed recipe). A complete no-op for an up-to-date save.
-  const entitlement = resolveShopEntitlement(
-    save.dex,
-    save.ownedIngredientIds,
-    save.unlockedForShopIngredientIds,
-  );
+  // B案 Phase 1a (#901): through the progression port (legacy = `resolveShopEntitlement`, unchanged output).
+  const entitlement = activeProgressionModel().resolveEntitlement({
+    dex: save.dex,
+    ownedIngredientIds: save.ownedIngredientIds,
+    unlockedForShopIngredientIds: save.unlockedForShopIngredientIds,
+    inventory: save.inventory,
+  });
   const initial = createInitialGameState(
     save.dex,
     save.ownedIngredientIds,

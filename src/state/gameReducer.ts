@@ -7,11 +7,8 @@ import {
   preBakeSteps,
   type CookingProfile,
 } from "../data/cookingProfiles";
-import {
-  buildMaterialUnlockNotice,
-  resolveShopEntitlement,
-  type MaterialUnlockNotice,
-} from "./materialEntitlement";
+import { buildMaterialUnlockNotice, type MaterialUnlockNotice } from "./materialEntitlement";
+import { activeProgressionModel } from "../logic/progression/progressionModel";
 import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
 import { exceedsSauceCaps, planSauceCommit, sauceUsedByKind } from "./sauceLedger";
@@ -1763,11 +1760,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // applied. EP4 is retired: nothing is granted, `ownedIngredientIds`/`inventory`/
       // `starterGrantClaimedRecipeIds` are carried through untouched, and a newly unlocked
       // material starts at stock 0 (OD-REC04-2) until its first pack is bought.
-      const entitlement = resolveShopEntitlement(
-        dex,
-        state.ownedIngredientIds,
-        state.unlockedForShopIngredientIds,
-      );
+      // B案 Phase 1a (#901): via the progression port (legacy = `resolveShopEntitlement`, same output).
+      const entitlement = activeProgressionModel().resolveEntitlement({ ...state, dex });
       // FREE only: Lunch Rush keeps its existing, unchanged per-run reward
       // (calculateMissionReward via CLAIM_MISSION_REWARD/MISSION_NEXT_ORDER) -- this per-pizza
       // credit must never also apply inside a Mission round, or a Lunch Rush pizza would earn
@@ -1901,11 +1895,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // I4b-3: the second (and last) place `dex` changes -- resolved here too for symmetry with
       // REGISTER_TO_DEX. Lunch Rush only serves discovered recipes, so in practice the count
       // does not move here; nothing is granted either way (EP4 retired).
-      const entitlement = resolveShopEntitlement(
-        dex,
-        state.ownedIngredientIds,
-        state.unlockedForShopIngredientIds,
-      );
+      const entitlement = activeProgressionModel().resolveEntitlement({ ...state, dex });
       const registered: GameState = {
         ...state,
         dex,

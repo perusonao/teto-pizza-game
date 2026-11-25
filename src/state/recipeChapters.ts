@@ -3,6 +3,7 @@ import { getIngredient } from "../data/ingredients";
 import { LATE_RECIPES } from "../data/lateCatalog";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { MATERIAL_PRICE_TIERS, materialLadderStep, priceTierForStep } from "../logic/materialShop";
+import { activeProgressionModel } from "../logic/progression/progressionModel";
 import { isDiscovered, type DexState } from "./dex";
 
 /**
@@ -27,11 +28,23 @@ export function recipeKeyStep(recipe: Recipe, ladder: DiscoveryLadder = DISCOVER
   return key;
 }
 
-/** 1-based chapter number = 1 + index of the key step's price tier (starter-only -> 1). */
-export function recipeChapter(recipe: Recipe, ladder: DiscoveryLadder = DISCOVERY_LADDER): number {
+/**
+ * The legacy chapter rule: 1-based chapter number = 1 + index of the key step's price tier (starter-only -> 1).
+ * `LEGACY_PROGRESSION.chapterOf` (../logic/progression/progressionModel.ts) delegates here.
+ */
+export function legacyRecipeChapter(recipe: Recipe, ladder: DiscoveryLadder = DISCOVERY_LADDER): number {
   const tier = priceTierForStep(Math.max(1, recipeKeyStep(recipe, ladder)));
   const index = tier ? MATERIAL_PRICE_TIERS.indexOf(tier) : MATERIAL_PRICE_TIERS.length - 1;
   return index + 1;
+}
+
+/**
+ * A recipe's chapter. B案 Phase 1a (Issue #901): with no ladder given, the chapter comes from the active progression
+ * model (legacy: `legacyRecipeChapter` on `DISCOVERY_LADDER`, the same number as before). An explicit ladder (catalog
+ * validators, tests) keeps the legacy rule on that ladder.
+ */
+export function recipeChapter(recipe: Recipe, ladder?: DiscoveryLadder): number {
+  return ladder === undefined ? activeProgressionModel().chapterOf(recipe) : legacyRecipeChapter(recipe, ladder);
 }
 
 export function chapterTitleJa(chapter: number): string {
@@ -48,7 +61,7 @@ export interface RecipeChapter {
 /** Non-empty chapters over `recipes`, ascending. */
 export function buildRecipeChapters(
   recipes: readonly Recipe[] = RECIPES,
-  ladder: DiscoveryLadder = DISCOVERY_LADDER,
+  ladder?: DiscoveryLadder,
 ): RecipeChapter[] {
   const byChapter = new Map<number, Recipe[]>();
   for (const recipe of recipes) {
@@ -95,7 +108,7 @@ export function isChapterCleared(
 export function recipeChapterSlot(
   recipe: Recipe,
   recipes: readonly Recipe[] = RECIPES,
-  ladder: DiscoveryLadder = DISCOVERY_LADDER,
+  ladder?: DiscoveryLadder,
 ): number {
   const chapter = recipeChapter(recipe, ladder);
   return recipes.filter((r) => recipeChapter(r, ladder) === chapter).findIndex((r) => r.id === recipe.id) + 1;

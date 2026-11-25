@@ -21,6 +21,7 @@ import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { TECHNIQUES, type TechniqueId } from "../../data/techniques";
 import { isDiscovered, type DexState } from "../../state/dex";
 import { creditedDiscoveredCount, ingredientUnlockStep } from "../../state/materialEntitlement";
+import { activeProgressionModel } from "../progression/progressionModel";
 import type { RuntimeSignature } from "../discovery/signature";
 import type { TechniqueTargetView } from "./detection";
 import {
@@ -50,12 +51,35 @@ export interface TechniqueRuntimeContext {
   countsTowardLadder?: (recipeId: string) => boolean;
 }
 
+/** The production reach rule's `materialStep` (one reference, so `isTechniqueAffordanceOpenFor` can recognise it). */
+const productionMaterialStep = (id: string): number | null => ingredientUnlockStep(id);
+
 /** The runtime catalog and the Discovery Ladder -- what the game uses. */
 export function productionTechniqueContext(): TechniqueRuntimeContext {
   return {
     catalog: RECIPE_DISCOVERY_CATALOG,
-    materialStep: (id) => ingredientUnlockStep(id),
+    materialStep: productionMaterialStep,
   };
+}
+
+/**
+ * Whether technique `id`'s affordance is open for this Dex: some catalog target requiring it has every item reached.
+ *
+ * B案 Phase 1a (Issue #901): with the production reach rule (`materialStep` and `countsTowardLadder` as
+ * `productionTechniqueContext` gives them; the catalog may differ), "reached" comes from the active progression model
+ * (legacy: ladder step <= credited discovered count -- the same answer as below). A context with its own reach rule
+ * (tests, synthetic ladders) keeps that rule.
+ */
+export function isTechniqueAffordanceOpenFor(id: TechniqueId, dex: DexState, context: TechniqueRuntimeContext): boolean {
+  if (context.materialStep === productionMaterialStep && context.countsTowardLadder === undefined) {
+    const model = activeProgressionModel();
+    // A material that is reached maps to step 0 and one that is not to null, so a target counts only when all its items are reached.
+    return techniqueAffordanceStep(id, context.catalog, (i) => (model.isMaterialReached(i, { dex }) ? 0 : null)) !== null;
+  }
+  return isTechniqueAffordanceOpen(
+    techniqueAffordanceStep(id, context.catalog, context.materialStep),
+    creditedDiscoveredCount(dex, context.countsTowardLadder),
+  );
 }
 
 /**
@@ -100,7 +124,6 @@ export function resolveRoundTechniques(input: RoundTechniqueInput): RoundTechniq
   const ledger = knownTechniqueIds(input.ledger);
   if (input.eligibility === "NONE") return { ledger, newlyDiscovered: [] };
 
-  const discoveredCount = creditedDiscoveredCount(input.dexBefore, input.context.countsTowardLadder);
   const usage =
     input.eligibility === "FREE_COOK" && input.completionPassed
       ? registerTechniqueDiscovery({
@@ -109,11 +132,7 @@ export function resolveRoundTechniques(input: RoundTechniqueInput): RoundTechniq
           completionPassed: true,
           // The recipe path below covers every discovered recipe, this round's match included.
           matchedTarget: null,
-          isAffordanceOpen: (id) =>
-            isTechniqueAffordanceOpen(
-              techniqueAffordanceStep(id, input.context.catalog, input.context.materialStep),
-              discoveredCount,
-            ),
+          isAffordanceOpen: (id) => isTechniqueAffordanceOpenFor(id, input.dexBefore, input.context),
         })
       : { ledger, newlyDiscovered: [] };
 
