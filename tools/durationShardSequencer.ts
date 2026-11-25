@@ -4,40 +4,44 @@ import { BaseSequencer, type TestSpecification, type Vitest } from "vitest/node"
 /**
  * Approximate isolated wall-clock cost, in milliseconds.
  *
- * The three hint suites are the 2026-11-26 Windows measurements from #855. The
- * research simulation weights preserve the split's existing ~1,300 s total
- * estimate and use the measured 25-36 s cost of one full-catalog walk. Exact
+ * These are the per-file durations from PR #905's first Linux CI run. Exact
  * values need not be perfect: LPT only needs the large files to be recognisable
  * instead of treating every file as equal, which is what Vitest's stock sharder
  * does. Unknown files get a small, non-zero weight and remain evenly spread.
  */
 export const DURATION_WEIGHTS_MS: Readonly<Record<string, number>> = Object.freeze({
-  "src/state/gameReducer.selectableHint.test.ts": 73_510,
-  "src/state/gameReducer.deductionHint.test.ts": 32_670,
-  "src/components/HintSheet.hint5.test.tsx": 12_470,
-  "src/logic/researchAttempt.sim.test.ts": 560_000,
-  "src/logic/researchAttempt.sim.mainOne.test.ts": 560_000,
-  "src/logic/researchAttempt.sim.sweepFull.test.ts": 90_000,
-  "src/logic/researchAttempt.sim.sweepOne.test.ts": 90_000,
-  "src/logic/hint5Economy.sim.test.ts": 120_000,
-  "src/logic/discoveryHintEconomy.sim.test.ts": 120_000,
+  "src/state/gameReducer.selectableHint.test.ts": 57_214,
+  "src/state/gameReducer.deductionHint.test.ts": 22_317,
+  "src/components/HintSheet.hint5.test.tsx": 5_255,
+  "src/components/HintSheet.test.tsx": 21_624,
+  "src/logic/researchAttempt.sim.test.ts": 434_368,
+  "src/logic/researchAttempt.sim.mainOne.test.ts": 414_760,
+  "src/logic/researchAttempt.sim.sweepFull.test.ts": 696_940,
+  "src/logic/researchAttempt.sim.sweepOne.test.ts": 663_689,
+  "src/logic/researchAttempt.replayAudit.test.ts": 627_676,
+  "src/logic/hint5Economy.sim.test.ts": 6_694,
+  "src/logic/discoveryHintEconomy.sim.test.ts": 74_638,
 });
 
 export const DEFAULT_SPEC_WEIGHT_MS = 1_000;
 
 /**
- * The measured hot files need an affinity as well as a weight. Pure LPT balances
- * totals by putting the two ~560 s research files on shards 1/2, but then packs
- * the remaining Hint/economy files together on shard 3 -- recreating #855's CPU
- * contention inside a nominally balanced total. Affinity seeds the three bins;
- * all remaining specs are still placed by LPT. It applies only to the CI's
- * three-shard topology; other shard counts use unpinned LPT.
+ * The measured hot files need an affinity as well as a weight. Pure LPT can
+ * still put multiple long-running simulations on one shard because
+ * they overlap under Vitest's worker pool. Affinity seeds the three bins using
+ * their observed Linux wall-clock cost; the six files named in #855 remain
+ * spread across all three shards. All remaining specs are placed by LPT. It
+ * applies only to the CI's three-shard topology; other shard counts use
+ * unpinned LPT.
  */
 export const DURATION_SHARD_3_AFFINITY: Readonly<Record<string, 1 | 2 | 3>> = Object.freeze({
   "src/logic/researchAttempt.sim.test.ts": 1,
+  "src/logic/researchAttempt.sim.sweepFull.test.ts": 1,
   "src/components/HintSheet.hint5.test.tsx": 1,
   "src/logic/researchAttempt.sim.mainOne.test.ts": 2,
+  "src/logic/researchAttempt.sim.sweepOne.test.ts": 2,
   "src/logic/hint5Economy.sim.test.ts": 2,
+  "src/logic/researchAttempt.replayAudit.test.ts": 3,
   "src/logic/discoveryHintEconomy.sim.test.ts": 3,
   "src/state/gameReducer.selectableHint.test.ts": 3,
   "src/state/gameReducer.deductionHint.test.ts": 3,
