@@ -280,7 +280,7 @@ test.describe("Issue #758: the shiso leaf in a 1.35em box", () => {
     await page.getByTestId("finish-complete").click();
     await page.waitForSelector(".result-panel");
     await expect(page.locator(".result-panel--discovery")).toContainText("たらこクリームピザ");
-    await expectEm(page, ".pizza-dough", "post-bake RESULT", 1);
+    await expectEm(page, ".pizza-post-layer", "post-bake RESULT", 1);
     await capture(page, "finish-result", project);
     await hold(page, 3000);
     flush(project, "tarako");
