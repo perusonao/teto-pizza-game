@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { availableParallelism } from "node:os";
 import { defineConfig, type Plugin } from "vitest/config";
 import { testHooksPlugin } from "./tools/testHooksPlugin.ts";
+import DurationShardSequencer from "./tools/durationShardSequencer.ts";
 
 /**
  * LC-R5-e-h (test-only): the Large Catalog hand ACTIVATION projects.
@@ -110,6 +111,12 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     pool: "forks",
     maxWorkers: MAX_WORKERS,
+    sequence: {
+      // #855: the stock SHA-1/file-count sharder placed every expensive Hint suite and three
+      // simulations in shard 2/3. LPT uses measured file weights while preserving one execution
+      // of every collected project/file spec; scripts/ci/test-vitest-shards.mjs pins the union.
+      sequencer: DurationShardSequencer,
+    },
     projects: [
       {
         extends: true,
