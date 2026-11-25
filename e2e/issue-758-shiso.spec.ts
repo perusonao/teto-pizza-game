@@ -207,7 +207,7 @@ test.describe("Issue #758: the shiso leaf in a 1.35em box", () => {
     await bakeToTarget(page, { start: 60, end: 76 });
     await page.waitForSelector(".result-panel");
     await expect(page.locator(".result-panel--discovery")).toContainText("梅しそピザ");
-    await expectEm(page, ".pizza-stage", "RESULT pizza", 2);
+    await expectEm(page, ".pizza-dough", "RESULT pizza", 2);
     await noOverflow(page, "RESULT");
     await capture(page, "result", project);
     await hold(page, 3000);
@@ -242,7 +242,7 @@ test.describe("Issue #758: the shiso leaf in a 1.35em box", () => {
     await hold(page, 2400);
     await bakeToTarget(page, { start: 60, end: 76 });
     await page.waitForSelector(".result-panel");
-    await expectEm(page, ".pizza-stage", "dense RESULT", 4);
+    await expectEm(page, ".pizza-dough", "dense RESULT", 4);
     measured["overlap (dense, RESULT)"] = await shisoOverlap(page);
     await capture(page, "dense-result", project);
     await hold(page, 2400);
@@ -280,7 +280,7 @@ test.describe("Issue #758: the shiso leaf in a 1.35em box", () => {
     await page.getByTestId("finish-complete").click();
     await page.waitForSelector(".result-panel");
     await expect(page.locator(".result-panel--discovery")).toContainText("たらこクリームピザ");
-    await expectEm(page, ".pizza-stage", "post-bake RESULT", 1);
+    await expectEm(page, ".pizza-dough", "post-bake RESULT", 1);
     await capture(page, "finish-result", project);
     await hold(page, 3000);
     flush(project, "tarako");
