@@ -626,7 +626,7 @@ Primary device: smartphone vertical. Verification baseline: 390×844.
 
 ## Current roadmap issues
 
-- Issue #22 — overall development roadmap / session handoff SSOT.
+- This file — overall development roadmap / session handoff SSOT (content-expansion planning: Issue #780; feature sequencing / progress: Issue #465).
 - Issue #32 — Reference / Recipe / Interaction consistency gate before Scoring 2.0 authority. **Complete** — Recipe correctness, Interaction Consistency Fresh Audit, and the sauce-parity/olive-oil-visibility fix (PR #45) have all landed.
 - **Issue #47 — Making UX Cleanup (実機レビュー導線・見本・再挑戦・操作性改善). Complete.** Fresh Audit — see `docs/reports/TETO_ISSUE-47_MAKING-UX_Fresh-Audit.md` (audited SHA `6e554918c42fc4d8ed267b715992e5ed5cf68e4f`). Verdict: **B. READY — 3 IMPLEMENTATION SLICES**. Slice A (PR #49, Findings A/B/C/D/E/K) and Slice B (PR #50, Findings F/H) are both **merged**, Human Feel **PASS**. Slice C's own findings: I (sauce repaint vs. one-way flow) confirmed already correct, no code change needed; J (Cheese/Topping drag scope) explicitly handed to **Issue #37 M2** rather than implemented here, per Issue #47's own "don't double-implement" scope guard — this hand-off is not unfinished Issue #47 work, it is Issue #47's own decision.
 - **Issue #33 — Dough Shaping. D1/D2 COMPLETE** via **PR #54** (base SHA
@@ -1112,7 +1112,7 @@ Rules for this sequence:
 ## New-session startup checklist
 
 1. Inspect fresh GitHub `main`, open PRs, issues and Actions state.
-2. Read this file, Issue #22 and the current execution issue.
+2. Read this file and the current execution issue (roadmap trackers: Issue #780 for content expansion, Issue #465 for feature sequencing).
 3. Treat fresh GitHub state as authoritative if anything conflicts.
    Decision records are authoritative for Owner decisions; do not re-ask (`docs/decisions/TETO_SESSION-OPERATIONS_1.0.md` §8).
 4. Read the latest relevant audit/result report before implementation.
@@ -1140,7 +1140,7 @@ Rules for this sequence:
    player's actual current `doughShape` silhouette; `SAUCE_TARGET_RADIUS` itself, and every
    Scoring 2.0 Sauce component/reference fixture, are unchanged. Do not re-implement this boundary
    test or re-litigate the render-only-vs-scoring split without a specific regression.
-9. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update both Issue #22 and this file.
+9. Whenever priority, completion status, estimates, architecture, navigation or visual direction changes, update this file (and the relevant tracker issue as needed — #780 for content expansion, #465 for feature sequencing).
 10. **PR #68 (M3A Bake Judgment) implementation is complete and READY FOR HUMAN REVIEW** — see
     `docs/reports/TETO_M3A_BAKE-JUDGMENT_Result.md`. Final head `de52b612bcd65e1990e38d0ca752b1663e4cea35`,
     Preview deployed, Review Playthrough delivered. Still OPEN/unmerged pending the user's Human
