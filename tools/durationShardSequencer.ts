@@ -36,12 +36,12 @@ export const DEFAULT_SPEC_WEIGHT_MS = 1_000;
  */
 export const DURATION_SHARD_3_AFFINITY: Readonly<Record<string, 1 | 2 | 3>> = Object.freeze({
   "src/logic/researchAttempt.sim.test.ts": 1,
-  "src/logic/researchAttempt.sim.sweepFull.test.ts": 1,
+  "src/logic/researchAttempt.replayAudit.test.ts": 1,
   "src/components/HintSheet.hint5.test.tsx": 1,
   "src/logic/researchAttempt.sim.mainOne.test.ts": 2,
   "src/logic/researchAttempt.sim.sweepOne.test.ts": 2,
   "src/logic/hint5Economy.sim.test.ts": 2,
-  "src/logic/researchAttempt.replayAudit.test.ts": 3,
+  "src/logic/researchAttempt.sim.sweepFull.test.ts": 3,
   "src/logic/discoveryHintEconomy.sim.test.ts": 3,
   "src/state/gameReducer.selectableHint.test.ts": 3,
   "src/state/gameReducer.deductionHint.test.ts": 3,
