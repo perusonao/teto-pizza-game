@@ -131,4 +131,15 @@ describe("Preview Hint 5.0 helper isolation (real vite builds)", () => {
     expect(preview.includes("PURCHASE_HINT5_RUNG")).toBe(true);
     expect(preview.length).toBeGreaterThan(production.length);
   });
+
+  // B案 Phase 1a (Issue #901, design §3.2.1): the progression-model flag. Production has neither the Preview key nor the
+  // DEV key; a Preview build has the Preview key (the scan can see it) but not the DEV key. Reuses the two builds above.
+  it("progression flag: the Preview key is Preview-only and the DEV key is in no non-DEV build", () => {
+    expect(production.length).toBeGreaterThan(100_000);
+    expect(preview.length).toBeGreaterThan(100_000);
+    expect(production.includes("teto-pizza-preview-progression-model"), "production bundle contains the progression Preview key").toBe(false);
+    expect(production.includes("teto.dev.progressionModel"), "production bundle contains the progression DEV key").toBe(false);
+    expect(preview.includes("teto-pizza-preview-progression-model"), "Preview bundle is missing the progression Preview key").toBe(true);
+    expect(preview.includes("teto.dev.progressionModel"), "Preview bundle contains the progression DEV key").toBe(false);
+  });
 });
