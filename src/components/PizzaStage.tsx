@@ -730,9 +730,9 @@ export function PizzaStage({
     const rect = circleRef.current.getBoundingClientRect();
     const dough = clientPointToDoughPercent(event.clientX, event.clientY, rect);
     // Issues #418/#891: CUT and PAINT strokes may start outside the pizza (the capture zone
-    // extends past it) and begin where the finger crosses the rim. PAINT must start its timed
-    // session here so later inside path samples can receive deposits; other gestures still need
-    // an inside press.
+    // extends past it) and become active where the finger crosses the rim. For PAINT this only
+    // arms the gesture; the timed session starts below for an inside press, or in
+    // processMovePoint for the first inside sample. Other gestures still need an inside press.
     if (!isCutStep && !isPaintMode && !pan.contains(dough.x, dough.y)) return;
     // design doc §8.4: once the cut limit is reached, a new press simply starts no gesture at
     // all (mirrors every other "reject at the source" gate in this component) -- ADD_CUT_LINE's
@@ -779,16 +779,18 @@ export function PizzaStage({
       // pointer-path stroke drawn on top of it is what iPhone retesting flagged
       // as "looks like a thick red line", not "sauce spreading" -- see
       // docs/reports/PIZZA_GAME_Phase4A-1B_iPhone-HumanFeel-Fix2_Result.md.
-      // Timestamp-preservation follow-up: one performance.now() sample here, shared by both
-      // the controller's own start() and the normalizer built alongside it -- every later
-      // pointermove sample (including each one inside a coalesced batch) is normalized
-      // relative to *this* pair, never re-stamped with a fresh performance.now() of its own.
+      // Timestamp-preservation follow-up: one performance.now() sample here seeds the
+      // normalizer even when an outside press only arms the gesture. An inside press shares it
+      // with controller.start(); an outside press uses the first inside move's normalized time
+      // as controller.start(), so time outside the dough never dispenses sauce.
       const startTimestamp = performance.now();
       timestampNormalizerRef.current = new PointerTimestampNormalizer(
         event.nativeEvent.timeStamp,
         startTimestamp,
       );
-      startDispenseSession(event.pointerId, activeIngredient.id, dough, startTimestamp);
+      if (pan.contains(dough.x, dough.y)) {
+        startDispenseSession(event.pointerId, activeIngredient.id, dough, startTimestamp);
+      }
     } else if (isDoughStep) {
       // Issue #33 D1: position-driven, no RAF/tick -- applying the very first stretch point
       // immediately at pointerdown (rather than waiting for the first pointermove) is what
@@ -814,6 +816,23 @@ export function PizzaStage({
 
     const dough = clientPointToDoughPercent(clientX, clientY, g.rect);
     const session = activeSessionRef.current;
+
+    // Issue #891: an outside PAINT press is an armed gesture, not a dispense session. Start
+    // the unchanged 50ms time-based controller at the first inside sample so an outside-only
+    // tap remains a no-op while an outside-to-inside stroke paints normally from entry onward.
+    if (
+      !session &&
+      isPaintMode &&
+      activeIngredient &&
+      pointerId === g.pointerId &&
+      pan.contains(dough.x, dough.y)
+    ) {
+      g.lastInsideDough = dough;
+      const normalizedTimestamp =
+        timestampNormalizerRef.current?.normalize(rawEventTimestamp) ?? performance.now();
+      startDispenseSession(pointerId, activeIngredient.id, dough, normalizedTimestamp);
+      return;
+    }
 
     if (session && session.pointerId === pointerId) {
       // Reference dispense mode: quantity is produced only by the timer loop started in
@@ -960,6 +979,13 @@ export function PizzaStage({
         const line = buildTracedCutLine(g.cutPath);
         if (line) onAddCutLine(line);
       }
+      gestureRef.current = createGestureState();
+      return;
+    }
+
+    // Issue #891: releasing an outside-only armed PAINT gesture must preserve the old no-op
+    // contract and must not fall through to the legacy onTap sauce path.
+    if (isPaintMode) {
       gestureRef.current = createGestureState();
       return;
     }
