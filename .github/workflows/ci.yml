@@ -26,8 +26,9 @@ jobs:
   # scripts, workflows, config, lockfiles, docs JSON that tests import, ...) -- and any classifier
   # failure or empty output -- leaves `docs_only` != 'true', so every step runs exactly as before.
   # scripts/ci/test-ci-docs-only.sh pins these invariants (including this file's own shape).
-  # Test speed-up: the full Vitest run is split with `--shard i/N` over parallel runners (the pattern of e2e-webkit.yml). Same coverage: every shard runs the
-  # whole project list (default + hand-on-9 / hand-on-12 / hand-off) restricted to its slice, so the union of the shards is exactly `npm test`.
+  # Test speed-up: the full Vitest run is split with `--shard i/N` over parallel runners (the pattern of e2e-webkit.yml). #855's duration-aware sequencer
+  # distributes the known expensive files instead of Vitest's stock SHA-1/file-count split. Same coverage: every shard runs the whole project list
+  # (default + hand-on-9 / hand-on-12 / hand-off) restricted to its slice, so the union of the shards is exactly `npm test`.
   # Each shard repeats the build job's checkout / SHA verification / docs-only classifier so a docs-only PR skips `npm ci` and Vitest here too, and the
   # shard still reports a (green) conclusion. `Vitest Gate` below is the check to require: it fails unless every shard succeeded.
   vitest:
@@ -76,6 +77,9 @@ jobs:
       - name: npm ci
         if: ${{ steps.classify.outputs.docs_only != 'true' }}
         run: npm ci
+      - name: Verify Vitest shard union
+        if: ${{ steps.classify.outputs.docs_only != 'true' }}
+        run: node scripts/ci/test-vitest-shards.mjs
       - name: Vitest (shard)
         if: ${{ steps.classify.outputs.docs_only != 'true' }}
         run: npx vitest run --shard ${{ matrix.shard }}/${{ matrix.total }}
