@@ -22,9 +22,11 @@ export const PROGRESSION_MODEL_DEV_KEY = "teto.dev.progressionModel";
 /** The production default. Phase 4 (Authority cutover) changes this one literal; setting it back is the rollback. */
 const PROGRESSION_MODEL_PRODUCTION_DEFAULT: ProgressionModelId = "legacy";
 
+// The env checks sit inside `try`: Vite replaces them statically (a production build folds them and drops the rest), and
+// plain Node -- Playwright specs that import game modules -- has no `import.meta.env`, so it lands on the production default.
 function devChoice(): ProgressionModelId | null {
-  if (!import.meta.env.DEV) return null;
   try {
+    if (!import.meta.env.DEV) return null;
     const stored = globalThis.localStorage?.getItem(PROGRESSION_MODEL_DEV_KEY);
     return stored === "shop" || stored === "legacy" ? stored : null;
   } catch {
@@ -33,8 +35,8 @@ function devChoice(): ProgressionModelId | null {
 }
 
 function previewChoice(): ProgressionModelId | null {
-  if (!(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE)) return null;
   try {
+    if (!(import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE)) return null;
     return resolveProgressionPreviewDecision(globalThis.location?.search ?? "", globalThis.localStorage ?? null);
   } catch {
     return null;
