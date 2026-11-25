@@ -3,6 +3,8 @@
  * testable without React). A pure function of the stored save, apart from telling the write gate what this page loaded.
  */
 import { activeProgressionModel } from "../logic/progression/progressionModel";
+import { startupShopProgress } from "../logic/progression/reputationSeed";
+import { EMPTY_SHOP_PROGRESS } from "../logic/progression/shopProgress";
 import { initialTechniqueLedger } from "../logic/techniques/runtime";
 import { createInitialGameState, type GameState } from "./gameReducer";
 import { loadStartupSave, type StorageLike } from "./persistence";
@@ -31,11 +33,21 @@ export function buildStartup(storage?: StorageLike | null): Startup {
   // `starterGrantClaimedRecipeIds` is carried through unchanged (so a rollback to a pre-I4b
   // build never re-grants a claimed recipe). A complete no-op for an up-to-date save.
   // B案 Phase 1a (#901): through the progression port (legacy = `resolveShopEntitlement`, unchanged output).
-  const entitlement = activeProgressionModel().resolveEntitlement({
+  // Phase 1b: the shop state rides along (a save without `shopProgress` reads as the default; legacy does not read it).
+  const model = activeProgressionModel();
+  const storedShop = save.shopProgress ?? EMPTY_SHOP_PROGRESS;
+  const entitlement = model.resolveEntitlement({
     dex: save.dex,
     ownedIngredientIds: save.ownedIngredientIds,
     unlockedForShopIngredientIds: save.unlockedForShopIngredientIds,
     inventory: save.inventory,
+    shop: storedShop,
+  });
+  // Phase 1b (design §3.3, Q3): the one-time reputation seed -- a shop-model step only (legacy: the stored state, same
+  // object). It records nothing while the reputation table is null and the curated catalog is empty (Phase 1b: always).
+  const shop = startupShopProgress(model.id, storedShop, {
+    ownedIngredientIds: save.ownedIngredientIds,
+    unlockedForShopIngredientIds: entitlement.unlockedForShopIngredientIds,
   });
   const initial = createInitialGameState(
     save.dex,
@@ -54,6 +66,7 @@ export function buildStartup(storage?: StorageLike | null): Startup {
     initialTechniqueLedger(save.discoveredTechniqueIds, save.dex),
     // Research 2.0 Phase 2: the persisted negative ledger (known recipe ids).
     save.researchExclusions,
+    shop,
   );
   if (pendingRound.kind === "held") return { state: initial, settled: null, held: pendingRound.reason };
   if (pendingRound.kind === "none") return { state: initial, settled: null, held: null };

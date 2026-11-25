@@ -459,6 +459,7 @@ function App() {
     state.researchExclusions,
     state.discoveredTechniqueIds,
     state.dinnerMissionRecordsState,
+    state.shop,
     state.unservedConsumption,
     state.pendingRound,
     settledRound,
