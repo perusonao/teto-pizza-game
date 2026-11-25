@@ -44,3 +44,6 @@ __pycache__/
 *.njsproj
 *.sln
 *.sw?
+
+# Capacitor native app build (M1, #571): bundle copied into the native projects, never committed
+dist-app

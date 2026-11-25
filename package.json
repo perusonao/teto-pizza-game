@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:app": "tsc -b && vite build --mode app",
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
@@ -13,11 +14,16 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/ios": "^8.6.2",
+    "@capacitor/preferences": "^8.0.1",
     "firebase": "^12.19.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.6.2",
     "@firebase/rules-unit-testing": "^5.0.2",
     "@playwright/test": "^1.56.1",
     "@testing-library/jest-dom": "^7.0.1",

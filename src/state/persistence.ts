@@ -1115,7 +1115,19 @@ export interface StorageLike {
   removeItem(key: string): void;
 }
 
+/**
+ * App build (M1 of #571): the one place the storage is chosen. `undefined` = the browser default below (synchronous
+ * `window.localStorage`); the native app installs its hydrated adapter here once, before the first render
+ * (./nativeStorageBoot.ts). Never set in the browser build.
+ */
+let defaultStorageOverride: StorageLike | null | undefined;
+
+export function setDefaultStorageOverride(storage: StorageLike | null | undefined): void {
+  defaultStorageOverride = storage;
+}
+
 export function getDefaultStorage(): StorageLike | null {
+  if (defaultStorageOverride !== undefined) return defaultStorageOverride;
   try {
     if (typeof window === "undefined" || !window.localStorage) return null;
     return window.localStorage;
