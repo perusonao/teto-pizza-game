@@ -8,13 +8,16 @@ import type { CompletionPolicy } from "../logic/completionGate";
  * - `FREE_COOK`:  a Free Cooking (discovery) round.
  * - `LUNCH_RUSH`: a Lunch Rush order.
  * - `DINNER`:     a Dinner Mission target, or the Dinner target-selection round between targets.
+ * - `PRACTICE`:   B案 Phase 2b (Issue #901, design §6 Q7; shop model only): a recipe-first round the player picked themself
+ *                 (Pizza Select, or a retry) -- cooked exactly like `GUIDED`, registered to the Dex like `GUIDED`, but it earns no
+ *                 Pitz and no reputation. Under the legacy model (Production) a round is never `PRACTICE`: these rounds stay `GUIDED`.
  *
  * The older booleans stay for the Lunch Rush / Free Cooking code that already reads them, and are
  * pinned to agree with this field (`isMissionRound` <=> LUNCH_RUSH, `freeCook` <=> FREE_COOK). New
  * code decides by these predicates, never by `isMissionRound` -- Dinner in particular is not a
  * Lunch Rush round and must not inherit any of its branches.
  */
-export type RoundKind = "GUIDED" | "FREE_COOK" | "LUNCH_RUSH" | "DINNER";
+export type RoundKind = "GUIDED" | "FREE_COOK" | "LUNCH_RUSH" | "DINNER" | "PRACTICE";
 
 export interface HasRoundKind {
   roundKind: RoundKind;
@@ -36,9 +39,25 @@ export function isGuidedRound(state: HasRoundKind): boolean {
   return state.roundKind === "GUIDED";
 }
 
+/** B案 Phase 2b: a practice round (shop model only) -- no Pitz, no reputation. */
+export function isPracticeRound(state: HasRoundKind): boolean {
+  return state.roundKind === "PRACTICE";
+}
+
+/** A recipe-first round the player cooks from its recipe: `GUIDED`, or its no-reward twin `PRACTICE` (shop model only). Every
+ *  cooking-side check that admits `GUIDED` admits `PRACTICE` through this, so a practice round cooks exactly like a guided one. */
+export function isRecipeFirstRound(state: HasRoundKind): boolean {
+  return state.roundKind === "GUIDED" || state.roundKind === "PRACTICE";
+}
+
+/** The rounds the per-step cooking affordances (prep / steam / sear / fry offers, the in-round dough / pan switches) run in. */
+export function isCookingStepRound(roundKind: RoundKind): boolean {
+  return roundKind === "GUIDED" || roundKind === "PRACTICE" || roundKind === "FREE_COOK";
+}
+
 /** Rounds that register to the Dex (and earn FREE Pitz) at RESULT through `REGISTER_TO_DEX`. */
 export function registersToDexAtResult(state: HasRoundKind): boolean {
-  return state.roundKind === "GUIDED" || state.roundKind === "FREE_COOK";
+  return isRecipeFirstRound(state) || state.roundKind === "FREE_COOK";
 }
 
 /**

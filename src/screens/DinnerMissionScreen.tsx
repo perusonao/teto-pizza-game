@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { shopCopy } from "../logic/progression/shopCopy";
 import type { QualityStars } from "../logic/scoring";
 import { DINNER_MISSIONS, type DinnerMissionDefinition } from "../mission/dinner/dinnerMission";
 import type { DexState } from "../state/dex";
@@ -97,7 +98,10 @@ function DinnerMissionCard({ card, onOpen }: { card: DinnerMissionCardView; onOp
           {"\u{1F512}"} {card.titleJa}
         </span>
         <span className="dinner-mission-card__count">ピザ {card.totalTargets} 種類</span>
-        <span className="dinner-mission-card__lock">あと{card.undiscoveredCount}種類のピザを発見すると解放</span>
+        <span className="dinner-mission-card__lock">{shopCopy(
+          `あと${card.undiscoveredCount}種類のピザを発見すると解放`,
+          `あと${card.undiscoveredCount}品メニュー開発すると解放`,
+        )}</span>
       </div>
     );
   }

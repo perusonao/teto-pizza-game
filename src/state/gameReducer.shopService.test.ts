@@ -14,6 +14,7 @@ import { activeProgressionModel } from "../logic/progression/progressionModel";
 import { REPUTATION_TABLE } from "../logic/progression/reputationTable";
 import { EMPTY_SHOP_PROGRESS, type ShopProgressState } from "../logic/progression/shopProgress";
 import { activeShopCatalog, materialChapterOf } from "../logic/progression/shopProgression";
+import { SHOP_RANKS } from "../logic/progression/shopRank";
 import { SHOP_MODEL_ACTIVE, shopReputationStatus } from "../logic/progression/shopStatus";
 import { applyPitzCredit } from "../logic/pitzReward";
 import type { QualityStars } from "../logic/scoring";
@@ -134,10 +135,33 @@ describe("the reputation opens chapters, and chapters open materials", () => {
     expect(s.unlockedForShopIngredientIds.every((id) => materialChapterOf(id, catalog) === 1)).toBe(true);
   });
 
+  // Phase 2b: the status also carries the owner's title (./shopRank.ts) -- the chapter fields are unchanged.
   it("HOME's status line reads the same chapter", () => {
-    expect(shopReputationStatus({ reputation: 0, grantedMenuRecipeIds: [] })).toEqual({ reputation: 0, chapter: 1, nextFloor: 40 });
-    expect(shopReputationStatus({ reputation: 115, grantedMenuRecipeIds: [] })).toEqual({ reputation: 115, chapter: 3, nextFloor: 210 });
-    expect(shopReputationStatus({ reputation: 400, grantedMenuRecipeIds: [] })).toEqual({ reputation: 400, chapter: 5, nextFloor: null });
+    const rank = (level: number) => SHOP_RANKS[level - 1];
+    expect(shopReputationStatus({ reputation: 0, grantedMenuRecipeIds: [] })).toEqual({
+      reputation: 0,
+      chapter: 1,
+      nextFloor: 40,
+      rank: rank(1),
+      nextRank: rank(2),
+      nextMaterialRank: rank(3),
+    });
+    expect(shopReputationStatus({ reputation: 115, grantedMenuRecipeIds: [] })).toEqual({
+      reputation: 115,
+      chapter: 3,
+      nextFloor: 210,
+      rank: rank(4),
+      nextRank: rank(5),
+      nextMaterialRank: rank(5),
+    });
+    expect(shopReputationStatus({ reputation: 400, grantedMenuRecipeIds: [] })).toEqual({
+      reputation: 400,
+      chapter: 5,
+      nextFloor: null,
+      rank: rank(6),
+      nextRank: null,
+      nextMaterialRank: null,
+    });
   });
 });
 

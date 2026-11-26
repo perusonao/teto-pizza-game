@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState, type RefObject } from "react";
+import { shopCopy } from "../logic/progression/shopCopy";
 import { getIngredient } from "../data/ingredients";
 import type { HintEmptyKind } from "../logic/discovery/hintTarget";
 import type { HintCategory } from "../logic/discovery/selectableHint";
@@ -87,8 +88,11 @@ const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
     body: "ホームのショップで、持っている材料を補充しよう。",
   },
   OPEN_POOL: {
-    title: "\u{1F3A8} まだ発見できるピザがあるよ！",
-    body: "いろいろな材料の組み合わせで、レシピ発見を試してみよう。",
+    title: shopCopy("\u{1F3A8} まだ発見できるピザがあるよ！", "\u{1F3A8} まだ開発できるメニューがあるよ！"),
+    body: shopCopy(
+      "いろいろな材料の組み合わせで、レシピ発見を試してみよう。",
+      "いろいろな材料の組み合わせで、メニュー開発を試してみよう。",
+    ),
   },
   COMPLETE: {
     title: "\u{1F3C6} 図鑑コンプリート！",

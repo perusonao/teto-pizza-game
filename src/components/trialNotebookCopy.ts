@@ -1,10 +1,12 @@
 /** Discovery 3.0 Notebook N1 copy: fixed strings, the same for every target and pool size. */
+import { shopCopy } from "../logic/progression/shopCopy";
+
 export const NOTEBOOK_COPY = {
   title: "\u{1F4D3} 試作ノート",
   back: "ヒントにもどる",
   researchContext: "いまの研究対象",
   empty: "まだ試作の記録はないよ。",
-  emptyHint: "レシピ発見で作ってみよう！",
+  emptyHint: shopCopy("レシピ発見で作ってみよう！", "メニュー開発で作ってみよう！"),
   order: "さいごに作った順にならんでるよ",
   sauce: "ソース",
   toppings: "のせたもの",

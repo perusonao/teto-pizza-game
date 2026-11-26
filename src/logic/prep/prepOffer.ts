@@ -4,7 +4,7 @@
  * state, never the recipe or a target, so it cannot hint at one (AC-12).
  */
 import { canPrepIngredient } from "../../data/prepIngredients";
-import type { RoundKind } from "../../state/roundKind";
+import { isCookingStepRound, type RoundKind } from "../../state/roundKind";
 
 /** Phase 1B: the "ちょうどいい！" moment before a best result closes the pan screen by itself (the timing rule is ./panDoneness.ts). */
 export const PREP_DONE_MS = 700;
@@ -26,7 +26,7 @@ export interface PrepOfferInput {
 export function prepOfferedIngredient(input: PrepOfferInput): string | null {
   if (!input.enabled || !input.active) return null;
   if (input.phase !== "PREPARE" || input.makingStep !== "TOPPING") return null;
-  if (input.roundKind !== "GUIDED" && input.roundKind !== "FREE_COOK") return null;
+  if (!isCookingStepRound(input.roundKind)) return null;
   const id = input.selectedIngredientId;
   if (id === null || !canPrepIngredient(id) || !input.ownedIngredientIds.includes(id)) return null;
   return id;

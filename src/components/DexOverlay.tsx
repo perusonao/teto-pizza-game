@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { shopCopy } from "../logic/progression/shopCopy";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
 import type { DexState } from "../state/dex";
@@ -147,7 +148,7 @@ function UndiscoveredSlot({
         tag &&
         cta && (
           <button type="button" className="dex-card__tag-cta" onClick={cta}>
-            {state === "DISCOVERABLE" ? "レシピ発見へ" : "ショップを見る"}
+            {state === "DISCOVERABLE" ? shopCopy("レシピ発見へ", "メニュー開発へ") : "ショップを見る"}
           </button>
         )
       )}
@@ -166,7 +167,7 @@ function AggregatedUnknownCard({ onGoFreeCook }: { onGoFreeCook?: () => void }) 
     >
       {onGoFreeCook && (
         <button type="button" className="dex-card__tag-cta" onClick={onGoFreeCook}>
-          レシピ発見へ
+          {shopCopy("レシピ発見へ", "メニュー開発へ")}
         </button>
       )}
     </AnonymousLockFrame>
@@ -280,7 +281,7 @@ export function DexOverlay({
           <div className={`dex-overlay__progress ${isComplete ? "dex-overlay__progress--complete" : ""}`}>
             <div className="dex-overlay__progress-row">
               <p className="dex-overlay__progress-count">
-                {isComplete ? `🏆 ${total} / ${total}` : `🍕 発見 ${discoveredCount} / ${total}`}
+                {isComplete ? `🏆 ${total} / ${total}` : `🍕 ${shopCopy("発見", "開発")} ${discoveredCount} / ${total}`}
               </p>
               <p className="dex-overlay__progress-sub">
                 {isComplete ? "コンプリート！" : `あと${total - discoveredCount}種類！`}

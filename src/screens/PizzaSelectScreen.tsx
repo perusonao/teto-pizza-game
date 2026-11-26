@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from "react";
+import { shopCopy, SHOP_COPY_ACTIVE } from "../logic/progression/shopCopy";
 import type { ShopProgressState } from "../logic/progression/shopProgress";
 import { RECIPES, type Recipe, type RecipeId } from "../data/recipes";
 import type { DexState } from "../state/dex";
@@ -100,9 +101,9 @@ function PromptCard({
   const toShop = prompt.kind === "SHOP";
   const message =
     prompt.kind === "FIRST_DISCOVERY"
-      ? "まずはレシピ発見で1枚目のピザを見つけよう！"
+      ? shopCopy("まずはレシピ発見で1枚目のピザを見つけよう！", "まずはメニュー開発で1枚目のピザを見つけよう！")
       : prompt.kind === "DISCOVERABLE"
-        ? "まだ見つけていないピザが、今の材料で作れるかも！"
+        ? shopCopy("まだ見つけていないピザが、今の材料で作れるかも！", "まだ開発していないメニューが、今の材料で作れるかも！")
         : "ショップに新しい材料が入荷しているよ！";
   return (
     <div className={`pizza-select-prompt${toShop ? " pizza-select-prompt--shop" : ""}`}>
@@ -114,7 +115,7 @@ function PromptCard({
         className="cta-button cta-button--primary pizza-select-prompt__cta"
         onClick={toShop ? onOpenShop : onGoFreeCook}
       >
-        {toShop ? <>{"\u{1F6D2}"} ショップを見る</> : <>{"\u{1F3A8}"} レシピ発見へ</>}
+        {toShop ? <>{"\u{1F6D2}"} ショップを見る</> : <>{"\u{1F3A8}"} {shopCopy("レシピ発見へ", "メニュー開発へ")}</>}
       </button>
     </div>
   );
@@ -200,8 +201,15 @@ export function PizzaSelectScreen({
         <button type="button" className="app-header__home-button" onClick={onBack}>
           {"\u{1F3E0}"} ホーム
         </button>
-        <h1 className="app-header__title">作るピザを選ぼう！</h1>
+        <h1 className="app-header__title">{shopCopy("作るピザを選ぼう！", "練習するピザを選ぼう！")}</h1>
       </header>
+
+      {/* B案 Phase 2b (shop model only, design §6 Q7): a pizza picked here is practice -- no Pitz, no reputation. */}
+      {SHOP_COPY_ACTIVE && (
+        <p className="pizza-select-practice-note" data-testid="pizza-select-practice-note">
+          {"\u{1F9D1}\u{200D}\u{1F373}"} ここで作るピザは練習です（Pitz・評判は入りません）
+        </p>
+      )}
 
       <div className="pizza-select-body" style={selected ? { display: "none" } : undefined}>
         {view.prompt && <PromptCard prompt={view.prompt} onGoFreeCook={onGoFreeCook} onOpenShop={onOpenShop} />}
@@ -210,7 +218,7 @@ export function PizzaSelectScreen({
             <h2 className="pizza-select-section__title">
               {chapter.titleJa}
               <span className="pizza-select-section__count">
-                発見 {chapter.discovered}/{chapter.total}
+                {shopCopy("発見", "開発")} {chapter.discovered}/{chapter.total}
               </span>
             </h2>
             {chapter.cards.length > 0 && (

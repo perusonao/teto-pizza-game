@@ -8494,3 +8494,44 @@ p.hint-sheet__step {
   font-weight: 600;
   color: #a1662f;
 }
+
+/* B案 Phase 2b (Issue #901, shop model only): a practice round's RESULT says it earned no Pitz / reputation, and Pizza Select says
+   its pizzas are practice. Neither renders under the legacy model. */
+.result-practice {
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 6px 10px;
+  background: #f1f4f7;
+  border: 2px dashed #9aa7b4;
+  border-radius: 14px;
+  color: #3d4a57;
+  text-align: center;
+}
+
+.result-practice p {
+  margin: 0;
+}
+
+.result-practice__text {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.result-practice__sub {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pizza-select-practice-note {
+  margin: 4px 16px 0;
+  padding: 4px 10px;
+  background: #f1f4f7;
+  border: 1px dashed #9aa7b4;
+  border-radius: 10px;
+  color: #3d4a57;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
