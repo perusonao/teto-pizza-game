@@ -1,5 +1,6 @@
 /** Player-facing copy for the R8 (#617) round journal: the completed-for-you notice, the kept-journal notice, and why a round could not be saved. */
 import { getIngredient } from "../data/ingredients";
+import { shopCopy } from "../logic/progression/shopCopy";
 import { getRecipe, type RecipeId } from "../data/recipes";
 import { TECHNIQUES } from "../data/techniques";
 import type { CommitFailure } from "./persistence";
@@ -18,9 +19,11 @@ export function describeSettledRound(summary: PendingRoundSummary): RoundNoticeC
   if (summary.outcome === "REGISTERED") {
     const name = summary.recipeId ? (getRecipe(summary.recipeId as RecipeId)?.nameJa ?? summary.recipeId) : "ピザ";
     lines.push(`${name}を図鑑に登録しました${summary.stars !== null ? `（★${summary.stars}）` : ""}。`);
-    if (summary.discovered) lines.push("新しい発見です。");
+    if (summary.discovered) lines.push(shopCopy("新しい発見です。", "新しいメニューを開発しました。"));
     if (summary.newBest) lines.push("ベスト更新です。");
     if (summary.earnedPitz > 0) lines.push(`Pitz +${summary.earnedPitz}`);
+    // B案 Phase 2b: a practice round (shop model only) completed as practice -- no Pitz, no reputation.
+    if (summary.practice) lines.push("練習のピザなので、Pitz・評判は入りません。");
   } else if (summary.outcome === "ORIGINAL") {
     lines.push("オリジナルのピザとして記録しました。");
   } else if (summary.outcome === "FAILED") {
@@ -145,7 +148,10 @@ export function describeHeldDiscardDialog(reason: HeldPendingRoundReason, replac
           reason === "unknown-version"
             ? "この記録は新しいバージョンのゲームが書いたものです。そのバージョンで開けば、自動で完了します。"
             : "この記録は、この版にはない材料やレシピを使っています。対応する版で開けば、自動で完了します。",
-          "破棄すると、そのピザの登録（発見・ベスト・Pitz）は行われません。",
+          shopCopy(
+            "破棄すると、そのピザの登録（発見・ベスト・Pitz）は行われません。",
+            "破棄すると、そのピザの登録（メニュー開発・ベスト・Pitz）は行われません。",
+          ),
         ]
       : null,
     checks,

@@ -4,7 +4,7 @@
  * cannot hint at one. Same kind of inputs as the other treatments' offers, plus the ingredients already steamed this round.
  */
 import { canSteamIngredient } from "../../data/steamIngredients";
-import type { RoundKind } from "../../state/roundKind";
+import { isCookingStepRound, type RoundKind } from "../../state/roundKind";
 
 export interface SteamOfferInput {
   enabled: boolean;
@@ -29,7 +29,7 @@ export function steamOffer(input: SteamOfferInput): SteamOffer | null {
   if (!input.enabled || !input.active) return null;
   if (input.phase !== "PREPARE" || input.makingStep !== "TOPPING") return null;
   // Lunch Rush (ranking fairness) and Dinner (no fixed recipe until START_BAKE) never offer it.
-  if (input.roundKind !== "GUIDED" && input.roundKind !== "FREE_COOK") return null;
+  if (!isCookingStepRound(input.roundKind)) return null;
   const id = input.selectedIngredientId;
   if (id === null || !canSteamIngredient(id) || !input.ownedIngredientIds.includes(id)) return null;
   return { ingredientId: id, done: input.steamedIngredientIds.includes(id) };

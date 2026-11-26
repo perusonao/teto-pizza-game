@@ -3,8 +3,10 @@
  * legacy model (Production), so a screen that branches on it renders exactly as before there.
  */
 import { activeProgressionModel, completeReputationTable } from "./progressionModel";
+import type { CompleteReputationTable } from "./reputationTable";
 import type { ShopProgressState } from "./shopProgress";
 import { chapterForReputation, nextChapterFloor } from "./shopProgression";
+import { nextRankAbove, rankAtFloor, rankForReputation, type ShopRank } from "./shopRank";
 
 /** True only while the shop model runs with its rules (the flag says shop -- Preview / DEV only -- and the table is complete). */
 export const SHOP_MODEL_ACTIVE: boolean = activeProgressionModel().id === "shop" && completeReputationTable() !== null;
@@ -15,15 +17,30 @@ export interface ShopReputationStatus {
   chapter: number;
   /** The next chapter's floor, or `null` once the last chapter is open. */
   nextFloor: number | null;
+  /** B案 Phase 2b: the owner's title (./shopRank.ts) -- what the screens show instead of the chapter. */
+  rank: ShopRank;
+  /** The next title, or `null` at the top of the ladder. */
+  nextRank: ShopRank | null;
+  /** The title the next chapter (new materials) opens with, or `null` once the last chapter is open. */
+  nextMaterialRank: ShopRank | null;
 }
 
 /** The HOME line's numbers, or `null` when the shop rules are not running. */
 export function shopReputationStatus(shop: ShopProgressState): ShopReputationStatus | null {
   const table = completeReputationTable();
   if (!SHOP_MODEL_ACTIVE || table === null) return null;
+  return buildShopReputationStatus(shop.reputation, table);
+}
+
+/** The status of a reputation under a complete table (pure; the screens' tests build it directly). */
+export function buildShopReputationStatus(reputation: number, table: CompleteReputationTable): ShopReputationStatus {
+  const nextFloor = nextChapterFloor(reputation, table.chapterFloors);
   return {
-    reputation: shop.reputation,
-    chapter: chapterForReputation(shop.reputation, table.chapterFloors),
-    nextFloor: nextChapterFloor(shop.reputation, table.chapterFloors),
+    reputation,
+    chapter: chapterForReputation(reputation, table.chapterFloors),
+    nextFloor,
+    rank: rankForReputation(reputation),
+    nextRank: nextRankAbove(reputation),
+    nextMaterialRank: nextFloor === null ? null : rankAtFloor(nextFloor),
   };
 }

@@ -4,7 +4,7 @@
  * target, so it cannot hint at one.
  */
 import { canFryIngredient } from "../../data/fryIngredients";
-import type { RoundKind } from "../../state/roundKind";
+import { isCookingStepRound, type RoundKind } from "../../state/roundKind";
 
 export interface FryOfferInput {
   enabled: boolean;
@@ -31,7 +31,7 @@ export function fryOffer(input: FryOfferInput): FryOffer | null {
   if (!input.enabled || !input.active) return null;
   if (input.phase !== "PREPARE" || input.makingStep !== "TOPPING") return null;
   // Lunch Rush (ranking fairness) and Dinner (no fixed recipe until START_BAKE) never offer it.
-  if (input.roundKind !== "GUIDED" && input.roundKind !== "FREE_COOK") return null;
+  if (!isCookingStepRound(input.roundKind)) return null;
   const id = input.selectedIngredientId;
   if (id === null || !canFryIngredient(id, input.pieceVisualOf) || !input.ownedIngredientIds.includes(id)) return null;
   return { ingredientId: id, done: input.friedIngredientIds.includes(id) };

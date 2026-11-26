@@ -88,7 +88,7 @@ import {
   type DinnerMissionRecordsState,
 } from "./dinnerMissionRecordsSave";
 import type { QualityStars } from "../logic/scoring";
-import { isDinnerRound, registersToDexAtResult, roundKindFor, type RoundKind } from "./roundKind";
+import { isCookingStepRound, isDinnerRound, isPracticeRound, registersToDexAtResult, roundKindFor, type RoundKind } from "./roundKind";
 import {
   addCutLine,
   createCutState,
@@ -887,7 +887,12 @@ function startPreparingRecipe(
 ): GameState | null {
   const order = findOrderForRecipe(recipeId);
   if (!order) return null;
-  return startPreparing(buildOrderState(order, carry, false), now);
+  const round = buildOrderState(order, carry, false);
+  // B案 Phase 2b (design §6 Q7): under the shop model a recipe the player picks themself (Pizza Select, a retry) is practice --
+  // the same guided round, without Pitz or reputation. Only a service order (the FREE Mito order, `nextOrderState`) pays. The
+  // legacy model (Production) never takes this branch: its picked rounds stay `GUIDED`, byte for byte.
+  const practice = activeProgressionModel().id === "shop" ? { ...round, roundKind: "PRACTICE" as const } : round;
+  return startPreparing(practice, now);
 }
 
 /** Progression 2.0 Phase 3-2: the free-cook counterpart of `startPreparingRecipe` -- the same
@@ -1234,7 +1239,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // Nothing is consumed and nothing but `preparedIngredientIds` changes, so pizza / score / completion / inventory are untouched.
       if (!prepExperienceEnabled()) return state;
       if (state.phase !== "PREPARE" || state.makingStep !== "TOPPING") return state;
-      if (state.roundKind !== "GUIDED" && state.roundKind !== "FREE_COOK") return state;
+      if (!isCookingStepRound(state.roundKind)) return state;
       if (!canPrepIngredient(action.ingredientId)) return state;
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       if (state.preparedIngredientIds?.includes(action.ingredientId)) return state;
@@ -1250,7 +1255,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // changes, so pizza / score / completion / inventory are untouched.
       if (!searExperienceEnabled()) return state;
       if (state.phase !== "PREPARE" || state.makingStep !== "TOPPING") return state;
-      if (state.roundKind !== "GUIDED" && state.roundKind !== "FREE_COOK") return state;
+      if (!isCookingStepRound(state.roundKind)) return state;
       if (!canSearIngredient(action.ingredientId)) return state;
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       if (state.searedLook?.[action.ingredientId] !== undefined) return state;
@@ -1263,7 +1268,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // The amount is only clamped here -- what it means (open / over) lives in ../logic/steam/steamPot.ts.
       if (!steamExperienceEnabled()) return state;
       if (state.phase !== "PREPARE" || state.makingStep !== "TOPPING") return state;
-      if (state.roundKind !== "GUIDED" && state.roundKind !== "FREE_COOK") return state;
+      if (!isCookingStepRound(state.roundKind)) return state;
       if (!canSteamIngredient(action.ingredientId)) return state;
       if (!state.ownedIngredientIds.includes(action.ingredientId)) return state;
       if (state.steamedLook?.[action.ingredientId] !== undefined) return state;
@@ -1795,7 +1800,10 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // B案 Phase 2a (shop model only): a served order earns reputation by its stars, a menu development (first discovery) the
       // bonus. Lunch Rush keeps its own run reward and earns none (R7). The entitlement below reads the raised reputation, so
       // a chapter reached by this order opens its materials in this same transition (and RESULT announces them).
-      const reputationTable = progression.id === "shop" && !state.isMissionRound ? completeReputationTable() : null;
+      // B案 Phase 2b (Q7): a practice round (shop model only) earns neither -- no reputation here, no Pitz below.
+      const practice = isPracticeRound(state);
+      const reputationTable =
+        progression.id === "shop" && !state.isMissionRound && !practice ? completeReputationTable() : null;
       const reputation = reputationTable
         ? addReputation(
             state.shop,
@@ -1817,7 +1825,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // itself (../logic/pitzReward.ts) -- unlike CT2's Efficiency bonus below, this one is
       // folded straight into the credit snapshot, since it is genuinely part of "what this
       // pizza's registration paid," not a separate cross-cutting system.
-      const lastPitzCredit = state.isMissionRound
+      const lastPitzCredit = state.isMissionRound || practice
         ? null
         : applyPitzCredit(
             state.recipe.baseRewardPitz,
@@ -1834,7 +1842,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // for a FREE round that reached RESULT via START_BAKE, but a defensive `null` check all the
       // same rather than asserting).
       const lastEfficiencyCredit =
-        !state.isMissionRound && state.cookingTiming?.completedMs != null
+        !state.isMissionRound && !practice && state.cookingTiming?.completedMs != null
           ? evaluateCookingEfficiency(
               state.recipe,
               state.cookingTiming.completedMs,

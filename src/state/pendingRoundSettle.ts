@@ -47,7 +47,8 @@ export function settlePendingRound(base: GameState, round: PendingRound): Settle
     recipe,
     pizza: pizzaFromJournal(round.pizza),
     freeCook,
-    roundKind: freeCook ? "FREE_COOK" : "GUIDED",
+    // B案 Phase 2b: a practice journal completes as the practice round it was (no Pitz, no reputation), never as an order.
+    roundKind: freeCook ? "FREE_COOK" : round.practice ? "PRACTICE" : "GUIDED",
     isMissionRound: false,
     dinner: null,
     score: null,
@@ -95,6 +96,7 @@ export function settlePendingRound(base: GameState, round: PendingRound): Settle
   const registered = gameReducer(scored, { type: "REGISTER_TO_DEX" });
   const summary = summarize(base, finalized.kind === "UNMATCHED_FREE_COOK", registered);
   if (round.finishPending && !round.finished) summary.unfinishedFinish = true;
+  if (round.practice && summary.outcome === "REGISTERED") summary.practice = true;
   // The inventory is kept again on the way out; `PLAY_AGAIN` carries the progression into a fresh round.
   const next = gameReducer({ ...registered, inventory: base.inventory }, { type: "PLAY_AGAIN" });
   return { state: next, settled: settledPendingRound(round, summary) };

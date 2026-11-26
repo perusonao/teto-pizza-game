@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ShopReputationStatus } from "../logic/progression/shopStatus";
+import { shopCopy } from "../logic/progression/shopCopy";
 import { INGREDIENTS, type Ingredient } from "../data/ingredients";
 import {
   familiesPresent,
@@ -204,7 +205,7 @@ export function ShopOverlay({
                 <>
                   {"\u{1F4E6}"} {feedback.ingredientNameJa}を仕入れました！（{feedback.quantityLabelJa}）
                   <br />
-                  {"\u{1F373}"} レシピ発見で使ってみよう
+                  {"\u{1F373}"} {shopCopy("レシピ発見で使ってみよう", "メニュー開発で使ってみよう")}
                 </>
               ) : (
                 <>
@@ -215,9 +216,11 @@ export function ShopOverlay({
           )}
 
           {shopStatus
-            ? shopStatus.nextFloor !== null && (
+            ? shopStatus.nextFloor !== null &&
+              shopStatus.nextMaterialRank !== null && (
+                // B案 Phase 2b: named by the title the next materials open with (駆け出し opens none, so it is skipped).
                 <p className="shop-overlay__progress" data-shop-reputation-progress="true">
-                  {"\u{1F51C}"} 評判があと{shopStatus.nextFloor - shopStatus.reputation}で第{shopStatus.chapter + 1}章：新しい材料が入荷
+                  {"\u{1F51C}"} 評判があと{shopStatus.nextFloor - shopStatus.reputation}で{shopStatus.nextMaterialRank.title}：新しい材料が入荷
                 </p>
               )
             : progress && (
@@ -235,7 +238,9 @@ export function ShopOverlay({
           )}
 
           {rows.length === 0 && (
-            <p className="shop-overlay__empty">新しいピザを発見すると、材料が入荷します</p>
+            <p className="shop-overlay__empty">
+              {shopStatus ? "評判が上がると、材料が入荷します" : "新しいピザを発見すると、材料が入荷します"}
+            </p>
           )}
 
           {/* #455: the tabs and the list share one wrapper so the tabs stay pinned (CSS `sticky`) while the

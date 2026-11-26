@@ -49,6 +49,8 @@ export interface PendingRoundSummary {
   /** The round was completed before its FINISH step was confirmed (Guided, recipe with FINISH): registered as baked, without the
    *  finishing touches. The notice says so (Owner condition 1). */
   unfinishedFinish?: true;
+  /** B案 Phase 2b: the round was a practice round (no Pitz, no reputation). The notice says so. */
+  practice?: true;
 }
 
 export interface PendingRound {
@@ -65,6 +67,11 @@ export interface PendingRound {
   finished?: true;
   /** A Guided round whose profile has a FINISH step that was not confirmed yet (cleared by `finished`). */
   finishPending?: true;
+  /** B案 Phase 2b (design §6 Q7): the `GUIDED` round was a practice round (`RoundKind` `PRACTICE`, shop model only), so completing
+   *  it from the journal pays no Pitz and no reputation, exactly like finishing it by hand. Absent = an ordinary guided round (every
+   *  journal written before Phase 2b, and every legacy-model round). Kept on a `GUIDED` journal rather than as a new `kind`, so a
+   *  journal stays readable by a build that predates it (it reads as the guided round it is cooked as). */
+  practice?: true;
   pizza: PendingRoundPizza;
   research?: { targetId: string | null; validAtStart: boolean };
   settled?: PendingRoundSummary;
@@ -139,6 +146,7 @@ export function buildPendingRound(source: JournalSource, roundId: string, bakeVa
     status: "pending",
     kind: freeCook ? "FREE_COOK" : "GUIDED",
     ...(freeCook ? {} : { recipeId: source.recipe.id }),
+    ...(source.roundKind === "PRACTICE" ? { practice: true as const } : {}),
     bakeValue,
     createdAt,
     ...(!freeCook && source.cookingProfile?.steps.includes("FINISH") ? { finishPending: true as const } : {}),
@@ -264,6 +272,7 @@ function readSummary(raw: unknown): PendingRoundSummary | null {
   const newTechniqueIds = ids(raw.newTechniqueIds);
   if (!newMaterialIds || !newTechniqueIds) return null;
   if (raw.unfinishedFinish !== undefined && raw.unfinishedFinish !== true) return null;
+  if (raw.practice !== undefined && raw.practice !== true) return null;
   return {
     outcome: raw.outcome as PendingRoundSummary["outcome"],
     recipeId: raw.recipeId as string | null,
@@ -274,6 +283,7 @@ function readSummary(raw: unknown): PendingRoundSummary | null {
     newMaterialIds,
     newTechniqueIds,
     ...(raw.unfinishedFinish === true ? { unfinishedFinish: true as const } : {}),
+    ...(raw.practice === true ? { practice: true as const } : {}),
   };
 }
 
@@ -305,6 +315,8 @@ export function readStoredPendingRound(raw: unknown): StoredPendingRound {
   }
   if (raw.finished !== undefined && raw.finished !== true) return { kind: "held", reason: "corrupt" };
   if (raw.finishPending !== undefined && raw.finishPending !== true) return { kind: "held", reason: "corrupt" };
+  // B案 Phase 2b: `practice` is `true` or absent, and only on a GUIDED journal (a Free Cooking round is never practice).
+  if (raw.practice !== undefined && (raw.practice !== true || raw.kind !== "GUIDED")) return { kind: "held", reason: "corrupt" };
   let research: PendingRound["research"];
   if (raw.research !== undefined) {
     const r = raw.research;
@@ -329,6 +341,7 @@ export function readStoredPendingRound(raw: unknown): StoredPendingRound {
       createdAt: raw.createdAt,
       ...(raw.finished === true ? { finished: true as const } : {}),
       ...(raw.finishPending === true ? { finishPending: true as const } : {}),
+      ...(raw.practice === true ? { practice: true as const } : {}),
       pizza: pizza.pizza,
       ...(research ? { research } : {}),
       ...(settled ? { settled } : {}),

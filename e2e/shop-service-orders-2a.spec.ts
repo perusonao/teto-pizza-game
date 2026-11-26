@@ -5,6 +5,8 @@ import { bakeToTarget, completeDoughStep, cutThreeLines, paintSauceRing, tapDoug
  * B案 Phase 2a (Issue #901): the service-order loop through the real UI, on the dev server (DEV accepts the same
  * `?progression=shop` instruction a Preview build does). Order -> cook -> evaluation -> Pitz + reputation -> chapter -> the
  * materials the Shop sells. The legacy (no parameter) HOME is checked to be unchanged first.
+ *
+ * Phase 2b (Owner 2026-11-26): the chapter wording became the owner's title ladder, so the lines that named 「第○章」 name the title.
  */
 
 const MARGHERITA_BAKE = { start: 60, end: 80 }; // src/data/recipes.ts
@@ -61,7 +63,7 @@ test.describe("B案 Phase 2a: service orders (shop model)", () => {
     test.setTimeout(120_000);
     await open(page, "?progression=shop", null);
     await expect(page.getByTestId("home-reputation")).toContainText("評判 0");
-    await expect(page.getByTestId("home-reputation")).toContainText("第1章");
+    await expect(page.getByTestId("home-reputation")).toContainText("見習い（屋台）");
 
     await page.getByRole("button", { name: /注文を受ける/ }).click();
     await expect(page.locator(".dialogue-area")).toBeVisible();
@@ -80,7 +82,7 @@ test.describe("B案 Phase 2a: service orders (shop model)", () => {
     await expect(page.getByTestId("home-reputation")).toContainText(`評判 ${reputation}`);
   });
 
-  test("crossing a chapter floor: 「第2章に進みました！」 and the new materials are announced", async ({ page }) => {
+  test("crossing a chapter floor: 「一人前（小さな店）に昇格しました！」 and the new materials are announced", async ({ page }) => {
     test.setTimeout(120_000);
     await open(page, "?progression=shop", {
       schemaVersion: 2,
@@ -90,11 +92,11 @@ test.describe("B案 Phase 2a: service orders (shop model)", () => {
       missionBest: {},
       shopProgress: { reputation: 39, grantedMenuRecipeIds: [] },
     });
-    await expect(page.getByTestId("home-reputation")).toContainText("次の章まで あと 1");
+    await expect(page.getByTestId("home-reputation")).toContainText("次のランクまで あと 1");
     await page.getByRole("button", { name: /注文を受ける/ }).click();
     await page.getByRole("button", { name: /ピザを作る/ }).click();
     await cookMargherita(page);
-    await expect(page.getByTestId("result-reputation")).toContainText("第2章に進みました！");
+    await expect(page.getByTestId("result-reputation")).toContainText("一人前（小さな店）に昇格しました！");
     await expect(page.locator(".material-unlock-notice")).toBeVisible();
   });
 });

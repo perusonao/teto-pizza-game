@@ -4,7 +4,7 @@
  * target, so it cannot hint at one.
  */
 import { canSearIngredient } from "../../data/searIngredients";
-import type { RoundKind } from "../../state/roundKind";
+import { isCookingStepRound, type RoundKind } from "../../state/roundKind";
 
 /** After a hold is released the result words show this long before the sear screen closes by itself. */
 export const SEAR_DONE_MS = 900;
@@ -25,7 +25,7 @@ export interface SearOfferInput {
 export function searOfferedIngredient(input: SearOfferInput): string | null {
   if (!input.enabled || !input.active) return null;
   if (input.phase !== "PREPARE" || input.makingStep !== "TOPPING") return null;
-  if (input.roundKind !== "GUIDED" && input.roundKind !== "FREE_COOK") return null;
+  if (!isCookingStepRound(input.roundKind)) return null;
   const id = input.selectedIngredientId;
   if (id === null || !canSearIngredient(id) || !input.ownedIngredientIds.includes(id)) return null;
   return id;

@@ -8,6 +8,8 @@ import { homeBubbleJa } from "../state/homeBubble";
 import { SaveNoticeBanner } from "../components/SaveNoticeBanner";
 import type { SaveNotice } from "../state/saveHealth";
 import type { ShopReputationStatus } from "../logic/progression/shopStatus";
+import { shopCopy } from "../logic/progression/shopCopy";
+import { rankLabel } from "../logic/progression/shopRank";
 
 /**
  * HOME screen (Issue #24, visual pass Issue #39 PS3). The app's landing screen and
@@ -131,7 +133,7 @@ export function HomeScreen({
           </span>
           <span
             className="app-header__dex-pill"
-            aria-label={`レシピ図鑑 発見数 ${discoveredCount} / ${totalRecipes}`}
+            aria-label={`レシピ図鑑 ${shopCopy("発見数", "開発数")} ${discoveredCount} / ${totalRecipes}`}
           >
             {"\u{1F451}"} レシピ {discoveredCount}/{totalRecipes}
           </span>
@@ -156,16 +158,19 @@ export function HomeScreen({
         <p
           className="home-reputation"
           data-testid="home-reputation"
-          aria-label={`評判 ${shopStatus.reputation}、第${shopStatus.chapter}章${
-            shopStatus.nextFloor !== null ? `、次の章まであと${shopStatus.nextFloor - shopStatus.reputation}` : ""
+          aria-label={`評判 ${shopStatus.reputation}、${rankLabel(shopStatus.rank)}${
+            shopStatus.nextRank !== null ? `、次のランクまであと${shopStatus.nextRank.floor - shopStatus.reputation}` : ""
           }`}
         >
+          {/* B案 Phase 2b (Owner 2026-11-26): the owner's title replaces 「第○章」 (./shopRank.ts). */}
           <span className="home-reputation__value">
             {"\u{2B50}"} 評判 <strong>{shopStatus.reputation}</strong>
           </span>
-          <span className="home-reputation__chapter">第{shopStatus.chapter}章</span>
+          <span className="home-reputation__chapter" data-shop-rank={shopStatus.rank.level}>
+            {rankLabel(shopStatus.rank)}
+          </span>
           <span className="home-reputation__next">
-            {shopStatus.nextFloor !== null ? `次の章まで あと ${shopStatus.nextFloor - shopStatus.reputation}` : "最終章"}
+            {shopStatus.nextRank !== null ? `次のランクまで あと ${shopStatus.nextRank.floor - shopStatus.reputation}` : "最高ランク"}
           </span>
         </p>
       )}
@@ -225,8 +230,10 @@ export function HomeScreen({
               className="cta-button cta-button--primary cta-button--home cta-button--free-cook cta-button--free-cook-lead"
               onClick={onStartFreeCook}
             >
-              {"\u{1F3A8}"} レシピ発見
-              <span className="cta-button__sub">持っている食材で、新しいレシピを発見しよう</span>
+              {"\u{1F3A8}"} {shopCopy("レシピ発見", "メニュー開発")}
+              <span className="cta-button__sub">
+                {shopCopy("持っている食材で、新しいレシピを発見しよう", "持っている食材で、新しいメニューを開発しよう")}
+              </span>
             </button>
           ) : (
             <button
@@ -234,12 +241,12 @@ export function HomeScreen({
               className="cta-button cta-button--secondary cta-button--home-secondary cta-button--free-cook"
               onClick={onStartFreeCook}
             >
-              {"\u{1F3A8}"} レシピ発見
+              {"\u{1F3A8}"} {shopCopy("レシピ発見", "メニュー開発")}
             </button>
           ))}
         {lunchRushLocked && (
           <p className="home-lunch-rush-hint">
-            {"\u{1F512}"} まず1枚ピザを発見しよう
+            {"\u{1F512}"} {shopCopy("まず1枚ピザを発見しよう", "まずメニューを1品開発しよう")}
           </p>
         )}
         {!lunchRushLocked && lunchRushNoCookable && (
@@ -249,7 +256,7 @@ export function HomeScreen({
         )}
         {onTakeOrder && (
           <button type="button" className="home-select-link" onClick={onStartFreePlay}>
-            {"\u{1F355}"} メニューから選んで作る
+            {"\u{1F355}"} メニューから選んで練習する
           </button>
         )}
       </div>
@@ -264,7 +271,7 @@ export function HomeScreen({
             <span className="home-menu__sub">
               {dinnerUnlockedCount > 0
                 ? `時間内に指定のピザを全部作ろう！（解放 ${dinnerUnlockedCount}）`
-                : "時間内に指定のピザを全部作ろう！ 発見で解放"}
+                : shopCopy("時間内に指定のピザを全部作ろう！ 発見で解放", "時間内に指定のピザを全部作ろう！ メニュー開発で解放")}
             </span>
           </button>
         )}
@@ -275,7 +282,7 @@ export function HomeScreen({
             {dexHasNew && <span className="home-menu__badge">NEW</span>}
           </span>
           <span className="home-menu__sub">
-            発見 {discoveredCount}/{totalRecipes}
+            {shopCopy("発見", "開発")} {discoveredCount}/{totalRecipes}
           </span>
         </button>
         <button type="button" className="home-menu__card" onClick={onOpenShop}>

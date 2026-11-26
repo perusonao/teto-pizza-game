@@ -21,6 +21,8 @@ import type { TechniqueId } from "../data/techniques";
 import { TechniqueReveal } from "./TechniqueReveal";
 import { useRevealOpenedResultDetail } from "./revealOpenedResultDetail";
 import type { ReputationGain } from "../logic/progression/shopProgression";
+import { shopCopy, SHOP_COPY_ACTIVE } from "../logic/progression/shopCopy";
+import { nextRankAbove, rankForReputation, rankLabel } from "../logic/progression/shopRank";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -121,6 +123,9 @@ interface ResultPanelProps {
   /** B案 Phase 2a (shop model only): 「次の注文へ」 -- the next service order. When wired it is the primary CTA and the retry
    *  becomes secondary; absent (legacy), the CTAs are as before. */
   onNextOrder?: () => void;
+  /** B案 Phase 2b (shop model only, design §6 Q7): this round was practice (Pizza Select / a retry) -- it earned no Pitz and no
+   *  reputation. RESULT says so, offers no 「次の注文へ」, and shows no reputation line. Absent / `false`: as before. */
+  practice?: boolean;
   /** Progression 2.0 W1-d: where the just-discovered recipe landed in the Dex (canonical
    *  chapter, fixed No. inside it, chapter progress after this discovery). Shown only on a
    *  NEW_DISCOVERY result. */
@@ -248,7 +253,8 @@ export function ResultPanel({
   onRetrySameRecipe,
   onBackToPizzaSelect,
   reputationGain = null,
-  onNextOrder,
+  onNextOrder: onNextOrderProp,
+  practice = false,
   dexRegistration = null,
   onOpenDex,
   nearMiss: nearMissLine = null,
@@ -284,6 +290,17 @@ export function ResultPanel({
       </div>
     ) : null;
 
+  // B案 Phase 2b: a practice RESULT never offers the next order (Q7). Under the shop model a retry and Pizza Select are practice,
+  // so their labels say so; the legacy labels are unchanged.
+  const onNextOrder = practice ? undefined : onNextOrderProp;
+  const retryLabel = freeCook
+    ? "もう一度試す"
+    : practice
+      ? "もう一度練習する"
+      : onNextOrder
+        ? "練習でもう一度つくる"
+        : "もう一度つくる";
+  const backLabel = freeCook ? "レシピを選んで作る" : SHOP_COPY_ACTIVE ? "メニューから選んで練習する" : "別のピザを作る";
   const actions = (
     <div className="action-row action-row--column result-panel__actions">
       {onNextOrder && (
@@ -296,10 +313,10 @@ export function ResultPanel({
         className={`cta-button ${onNextOrder ? "cta-button--secondary" : "cta-button--primary"}`}
         onClick={onRetrySameRecipe}
       >
-        {freeCook ? "もう一度試す" : "もう一度つくる"}
+        {retryLabel}
       </button>
       <button type="button" className="cta-button cta-button--secondary" onClick={onBackToPizzaSelect}>
-        {freeCook ? "レシピを選んで作る" : "別のピザを作る"}
+        {backLabel}
       </button>
     </div>
   );
@@ -459,7 +476,10 @@ export function ResultPanel({
             ? RESEARCH_UX_COPY.resultNote
             : freeCook
               ? TARGETLESS_ORIGINAL_NOTE
-              : "図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。"}
+              : shopCopy(
+                  "図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。",
+                  "図鑑のピザと同じ組み合わせで作ると「メニュー開発」＆Pitzがもらえるよ。",
+                )}
         </p>
         {research ? (
           <div className="action-row action-row--column result-panel__actions">
@@ -520,8 +540,9 @@ export function ResultPanel({
       {isDiscoveryResult ? (
         <>
           <p className="discovered-banner discovered-banner--new-pizza" aria-live="polite">
-            <span className="discovered-banner__stamp">NEW PIZZA! {"✨"}</span>{" "}
-            <span className="discovered-banner__name">{recipeNameJa}</span>を発見しました！
+            <span className="discovered-banner__stamp">{shopCopy("NEW PIZZA!", "NEW MENU!")} {"✨"}</span>{" "}
+            <span className="discovered-banner__name">{recipeNameJa}</span>
+            {shopCopy("を発見しました！", "を新メニューとして開発しました！")}
           </p>
           <div className="dex-registration-row">
             <p className="dex-registration-row__text">
@@ -582,7 +603,9 @@ export function ResultPanel({
           <p className="result-panel__pitz-inline">
             +{totalPitz} Pitz
             {pitzCredit && pitzCredit.discoveryBonusPitz > 0 && (
-              <span className="result-panel__pitz-bonus">（初回発見 +{pitzCredit.discoveryBonusPitz}）</span>
+              <span className="result-panel__pitz-bonus">
+                （{shopCopy("初回発見", "メニュー開発")} +{pitzCredit.discoveryBonusPitz}）
+              </span>
             )}
           </p>
         )}
@@ -595,7 +618,7 @@ export function ResultPanel({
       </div>
       {freeCookMatch === "ALREADY_DISCOVERED" && (
         <p className="free-cook-known" aria-live="polite">
-          {"\u{1F4D6}"} {recipeNameJa}ができた！（発見済み）
+          {"\u{1F4D6}"} {recipeNameJa}ができた！{shopCopy("（発見済み）", "（メニューにあります）")}
         </p>
       )}
       {freeCookMatch === "ALREADY_DISCOVERED" && nearMiss && hintRow(nearMiss, true)}
@@ -606,12 +629,19 @@ export function ResultPanel({
           aria-live="polite"
         >
           {justDiscovered
-            ? `✨ ${recipeNameJa}を発見しました！`
+            ? `✨ ${recipeNameJa}${shopCopy("を発見しました！", "を新メニューとして開発しました！")}`
             : `\u{1F31F} NEW BEST!`}
         </p>
       )}
 
-      {reputationGain && reputationGain.gained > 0 && (
+      {practice && (
+        <div className="result-practice" data-testid="result-practice">
+          <p className="result-practice__text">{"\u{1F9D1}\u{200D}\u{1F373}"} 練習なので、Pitz・評判は入りません</p>
+          <p className="result-practice__sub">Pitz と評判は「注文を受ける」から入ります</p>
+        </div>
+      )}
+
+      {!practice && reputationGain && reputationGain.gained > 0 && (
         <div className="result-reputation" data-testid="result-reputation" aria-live="polite">
           <p className="result-reputation__gain">
             {"\u{2B50}"} 評判 <strong>+{reputationGain.gained}</strong>
@@ -619,14 +649,16 @@ export function ResultPanel({
               （{reputationGain.before} → {reputationGain.after}）
             </span>
           </p>
-          {reputationGain.chapterAfter > reputationGain.chapterBefore ? (
-            <p className="result-reputation__chapter-up">
-              {"\u{1F389}"} 第{reputationGain.chapterAfter}章に進みました！
+          {/* B案 Phase 2b (Owner 2026-11-26): the owner's title replaces 「第○章」 (../logic/progression/shopRank.ts). 駆け出し is
+              a title-only promotion; the materials still open on the chapter floors (the notice below says when). */}
+          {rankForReputation(reputationGain.after).level > rankForReputation(reputationGain.before).level ? (
+            <p className="result-reputation__chapter-up" data-testid="result-rank-up">
+              {"\u{1F389}"} {rankLabel(rankForReputation(reputationGain.after))}に昇格しました！
             </p>
           ) : (
-            reputationGain.nextFloor !== null && (
+            nextRankAbove(reputationGain.after) !== null && (
               <p className="result-reputation__next">
-                第{reputationGain.chapterAfter + 1}章まで あと {reputationGain.nextFloor - reputationGain.after}
+                次のランクまで あと {nextRankAbove(reputationGain.after)!.floor - reputationGain.after}
               </p>
             )
           )}
@@ -690,7 +722,7 @@ export function ResultPanel({
                   on one screen. 手際ボーナス (a Pitz amount, not a timing fact) stays here. */}
               {pitzCredit.discoveryBonusPitz > 0 && (
                 <div className="pitz-credit-summary__row">
-                  <dt>初回発見ボーナス</dt>
+                  <dt>{shopCopy("初回発見ボーナス", "メニュー開発ボーナス")}</dt>
                   <dd>+{pitzCredit.discoveryBonusPitz} Pitz</dd>
                 </div>
               )}

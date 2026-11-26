@@ -95,7 +95,8 @@ import { buildRecipeChapters, chapterProgress, recipeChapter, recipeChapterSlot 
 import type { HintCategory } from "../logic/discovery/selectableHint";
 import { canUndoPlacement } from "../state/undoPlacement";
 import { canPlaceIngredient, canPlacePostBakeIngredient } from "../state/inventory";
-import { isLunchRushRound } from "../state/roundKind";
+import { isLunchRushRound, isPracticeRound } from "../state/roundKind";
+import { shopCopy } from "../logic/progression/shopCopy";
 import { CookingPrepLayer } from "../components/CookingPrepLayer";
 import { SearLayer } from "../components/SearLayer";
 
@@ -865,7 +866,7 @@ export function GameScreen({
           <div className="order-card__text">
             <span className="order-card__recipe-name">
               {state.freeCook ? (
-                researchResult ? <ResearchContextLine labelJa={researchResult.label} /> : <>{"\u{1F3A8}"} レシピ発見の試作</>
+                researchResult ? <ResearchContextLine labelJa={researchResult.label} /> : <>{"\u{1F3A8}"} {shopCopy("レシピ発見の試作", "メニュー開発の試作")}</>
               ) : (
                 state.recipe.nameJa
               )}
@@ -1263,7 +1264,7 @@ export function GameScreen({
               researchBoard={researchBoard}
               freeCookNote={
                 state.freeCook && !researchResult
-                  ? { titleJa: "\u{1F3A8} レシピ発見の試作", bodyJa: state.hint?.textJa ?? state.recipe.description }
+                  ? { titleJa: shopCopy("\u{1F3A8} レシピ発見の試作", "\u{1F3A8} メニュー開発の試作"), bodyJa: state.hint?.textJa ?? state.recipe.description }
                   : null
               }
               researchDetails={
@@ -1364,6 +1365,7 @@ export function GameScreen({
           onBackToPizzaSelect={onBackToPizzaSelect}
           reputationGain={state.lastReputationGain}
           onNextOrder={onNextOrder}
+          practice={isPracticeRound(state)}
           dexRegistration={dexRegistration}
           onOpenDex={onOpenDex}
           // (#346 S4: with a valid Research Target ResultPanel itself renders no near/far line.)
