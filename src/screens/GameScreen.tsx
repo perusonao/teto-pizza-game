@@ -624,7 +624,8 @@ export function GameScreen({
     isFreeResultScreen && state.lastDiscovery?.kind === "NEW_DISCOVERY"
       ? (() => {
           const chapter = buildRecipeChapters().find((c) => c.chapter === recipeChapter(state.recipe));
-          if (!chapter) return null;
+          // B案 Phase 3a: under the shop model a recipe outside the curated 60 has no Dex slot (legacy: every recipe has one).
+          if (!chapter || !chapter.recipes.some((r) => r.id === state.recipe.id)) return null;
           const progress = chapterProgress(chapter, state.dex);
           return {
             slot: recipeChapterSlot(state.recipe),

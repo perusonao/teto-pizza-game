@@ -4,7 +4,7 @@ import { RECIPES, type Recipe } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
 import type { DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
-import { buildRecipeChapters, chapterProgress, isChapterCleared } from "../state/recipeChapters";
+import { buildRecipeChapters, chapterProgress, dexDiscoveredCount, dexRecipes, isChapterCleared } from "../state/recipeChapters";
 import { recipeDiscoveryState, type RecipeDiscoveryState } from "../state/recipeDiscoveryState";
 import { totalStars } from "../logic/mastery";
 import { starLabel } from "../logic/scoring";
@@ -189,8 +189,10 @@ export function DexOverlay({
   onResearch,
   techniqueViews = [],
 }: DexOverlayProps) {
-  const total = RECIPES.length;
-  const discoveredCount = dex.filter((e) => e.discovered).length;
+  // B案 Phase 3a: the Dex's own recipes (legacy: every recipe, as before; shop: the curated 60). The hint-facing paths below
+  // (the aggregated 🎨 card, research entries) keep reading `RECIPES`: narrowing them to the 60 is Phase 3e.
+  const total = dexRecipes().length;
+  const discoveredCount = dexDiscoveredCount(dex);
   const isComplete = discoveredCount >= total;
   const mastery = totalStars(dex);
   const inputs = { dex, ownedIngredientIds, unlockedForShopIngredientIds, inventory };
