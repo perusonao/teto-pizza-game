@@ -28,6 +28,11 @@ function percent(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
+/** Preview builds show the raw metrics only when the URL carries `?debug=1`. */
+function isDebugQueryOn(): boolean {
+  return new URLSearchParams(window.location.search).get("debug") === "1";
+}
+
 function TierValue({ tier }: { tier: SauceTier }) {
   return (
     <strong className={`sauce-metrics-panel__tier sauce-metrics-panel__tier--${tier}`}>
@@ -58,6 +63,7 @@ export function SauceMetricsPanel({
   const [expanded, setExpanded] = useState(false);
   const evaluation = evaluateSauceForPlayer(metrics, reference);
   const liveMessage = isDispensing ? deriveSauceLiveMessage(metrics, reference) : null;
+  const showDebugMetrics = import.meta.env.VITE_PREVIEW_MODE && isDebugQueryOn();
 
   return (
     <div className="sauce-metrics-panel">
@@ -88,13 +94,13 @@ export function SauceMetricsPanel({
           {liveMessage ?? "\u00a0"}
         </p>
 
-        {/* Phase 4A-1B.1 Fix C: the toggle and its raw/debug detail below are Preview-only --
+        {/* Phase 4A-1B.1 Fix C: the toggle and its raw/debug detail below require Preview + ?debug=1 --
             import.meta.env.VITE_PREVIEW_MODE is the project's existing Preview/Production SSOT
             (see PreviewBadge.tsx, persistence.ts's SAVE_STORAGE_KEY), statically false in a
             production `vite build` so Vite dead-code-eliminates this whole subtree there. The
             player-facing 広さ/均一さ/ふち row and live message above are never gated -- only
             this internal-numbers block is. */}
-        {import.meta.env.VITE_PREVIEW_MODE && (
+        {showDebugMetrics && (
           <button
             type="button"
             className="sauce-metrics-panel__toggle"
@@ -107,7 +113,7 @@ export function SauceMetricsPanel({
         )}
       </div>
 
-      {import.meta.env.VITE_PREVIEW_MODE && (
+      {showDebugMetrics && (
         <>
           {expanded && (
             <div className="sauce-metrics-panel__detail">

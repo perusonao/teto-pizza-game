@@ -16,9 +16,14 @@ function ring(radius: number, count: number, amount = 0.02) {
   return deposits;
 }
 
+function setUrlSearch(search: string) {
+  window.history.replaceState({}, "", `/${search}`);
+}
+
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
+  setUrlSearch("");
 });
 
 /**
@@ -88,6 +93,7 @@ describe("SauceMetricsPanel: player-facing evaluation (Human Feel Fix 2)", () =>
 
   it("in Preview (VITE_PREVIEW_MODE), the detailed quantity/coverage/evenness/overflow numbers stay hidden until the 開発用 toggle expands", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
     const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);
     render(
       <SauceMetricsPanel
@@ -105,11 +111,9 @@ describe("SauceMetricsPanel: player-facing evaluation (Human Feel Fix 2)", () =>
 /**
  * Phase 4A-1B.1 Fix C (Production Prototype Metrics): the 🧪 Prototype Metrics toggle and its
  * raw/debug detail (量/被覆/均一性/はみ出し/ふち量, shadow-similarity numbers, per-piece
- * detail) must never reach a Production build -- reusing the project's existing Preview/
- * Production SSOT, `import.meta.env.VITE_PREVIEW_MODE` (see PreviewBadge.tsx), not a new env
- * mechanism. The player-facing 広さ/均一さ/ふち row (and the live message while painting)
- * must stay visible in both Production and Preview -- Fix C only gates the internal-numbers
- * block.
+ * detail) requires both the project's Preview/Production SSOT, `VITE_PREVIEW_MODE`, and the
+ * explicit `?debug=1` opt-in used by the other debug panels. The player-facing 広さ/均一さ/ふち
+ * row (and the live message while painting) stays visible in both Production and Preview.
  */
 describe("Production Prototype Metrics hiding (Phase 4A-1B.1 Fix C)", () => {
   it("Production (VITE_PREVIEW_MODE unset, the real production `vite build`'s value) never renders the Prototype Metrics toggle or its detail", () => {
@@ -126,7 +130,7 @@ describe("Production Prototype Metrics hiding (Phase 4A-1B.1 Fix C)", () => {
     expect(screen.queryByText("はみ出し")).not.toBeInTheDocument();
   });
 
-  it("Preview (VITE_PREVIEW_MODE true) still offers the Prototype Metrics toggle", () => {
+  it("Preview (VITE_PREVIEW_MODE true) without ?debug=1 hides the Prototype Metrics toggle", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
     const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);
     render(
@@ -136,7 +140,48 @@ describe("Production Prototype Metrics hiding (Phase 4A-1B.1 Fix C)", () => {
         reference={REFERENCE}
       />,
     );
+    expect(screen.queryByRole("button", { name: /Prototype Metrics/ })).not.toBeInTheDocument();
+  });
+
+  it("Preview + ?debug=1 offers the Prototype Metrics toggle", () => {
+    vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
+    const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);
+    render(
+      <SauceMetricsPanel
+        metrics={metrics}
+        shadowScore={scoreSauceAgainstReference(metrics, REFERENCE)}
+        reference={REFERENCE}
+      />,
+    );
     expect(screen.getByRole("button", { name: /Prototype Metrics/ })).toBeInTheDocument();
+  });
+
+  it.each(["?debug=0", "?debug=true"])("Preview + %s hides the Prototype Metrics toggle", (search) => {
+    vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch(search);
+    const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);
+    render(
+      <SauceMetricsPanel
+        metrics={metrics}
+        shadowScore={scoreSauceAgainstReference(metrics, REFERENCE)}
+        reference={REFERENCE}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: /Prototype Metrics/ })).not.toBeInTheDocument();
+  });
+
+  it("Production + ?debug=1 hides the Prototype Metrics toggle", () => {
+    setUrlSearch("?debug=1");
+    const metrics = computeSauceMetrics(IDEAL_MARGHERITA_SAUCE_FIXTURE);
+    render(
+      <SauceMetricsPanel
+        metrics={metrics}
+        shadowScore={scoreSauceAgainstReference(metrics, REFERENCE)}
+        reference={REFERENCE}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: /Prototype Metrics/ })).not.toBeInTheDocument();
   });
 
   it("Production still shows the player-facing 広さ/均一さ/ふち tiers -- Fix C hides only the internal-numbers block", () => {
