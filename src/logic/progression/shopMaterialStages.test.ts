@@ -60,7 +60,7 @@ const developableAt = (recipeId: string, chapter: number) =>
 describe("the material stages (77 materials: 17 / 9 / 13 / 23 / 15)", () => {
   it("each stage's materials are exactly the Owner's list", () => {
     for (const stage of [1, 2, 3, 4, 5]) {
-      const derived = [...new Set(MENU_CATALOG.filter((e) => e.chapter <= stage).flatMap((e) => getRecipe(e.recipeId).requiredIngredients.map((r) => r.ingredientId)))]
+      const derived = [...new Set(MENU_CATALOG.filter((e) => e.chapter <= stage).flatMap((e) => getRecipe(e.recipeId)!.requiredIngredients.map((r) => r.ingredientId)))]
         .filter((id) => !Object.values(STAGE_MATERIALS).slice(0, stage - 1).flat().includes(id));
       expect(new Set(derived), `stage ${stage}`).toEqual(new Set(STAGE_MATERIALS[stage]));
       for (const id of STAGE_MATERIALS[stage]) expect(materialChapterOf(id, catalog), id).toBe(STARTERS.includes(id) ? 0 : stage);
@@ -85,7 +85,7 @@ describe("the material stages (77 materials: 17 / 9 / 13 / 23 / 15)", () => {
     // The first half is exactly the stage-4 materials the other eight stage-4 recipes use; the second half is the rest, all
     // of it used by the last four (peking-duck-pizza also uses green-onion, a first-half material).
     const usedBy = (ids: readonly string[]) =>
-      new Set(ids.flatMap((id) => getRecipe(id as never).requiredIngredients.map((r) => r.ingredientId)).filter((id) => STAGE_MATERIALS[4].includes(id)));
+      new Set(ids.flatMap((id) => getRecipe(id as never)!.requiredIngredients.map((r) => r.ingredientId)).filter((id) => STAGE_MATERIALS[4].includes(id)));
     const firstEight = MENU_CATALOG.filter((e) => e.chapter === 4 && !STAGE_4_SECOND_HALF_RECIPES.includes(e.recipeId)).map((e) => e.recipeId);
     expect(firstEight).toHaveLength(8);
     expect(usedBy(firstEight)).toEqual(new Set(STAGE_4_FIRST_HALF));
