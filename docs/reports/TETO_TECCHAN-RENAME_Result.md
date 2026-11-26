@@ -33,7 +33,7 @@ Status: Draft PR（マージ・Draft 解除は Owner 承認待ち）
 - 出現箇所の洗い出し: 表示に関わるのは上表のみ（`ポテト` 等の無関係一致を除く）。想定外の広がりなし。
 - テスト期待値の更新: タイトル／キャラ名の文字列を直接見るテストは無く、更新不要。
 - lint: 警告のみ（既存、本変更と無関係）/ build: PASS
-- vitest: 下記「Test results」を参照。
+- vitest: PASS（688 files passed / 3 skipped、13054 tests passed / 20 skipped / 2 todo、2008s）
 
 ## Human Verification Videos
 
