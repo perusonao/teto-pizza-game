@@ -19,12 +19,11 @@
  * moment `MENU_CATALOG` is non-empty. `canEnableShopProgression` (./reputationTable.ts) still needs the curated catalog,
  * so it stays the gate for the Production cutover (Phase 4).
  */
-import { DISCOVERY_LADDER, type DiscoveryLadder } from "../../data/discoveryLadder";
 import { getIngredient } from "../../data/ingredients";
 import { MATERIAL_CHAPTER_OVERRIDES, MENU_CATALOG, type MenuCatalogEntry } from "../../data/menuCatalog";
 import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { isDiscovered, type DexState } from "../../state/dex";
-import type { ShopEntitlementResult } from "../../state/materialEntitlement";
+import { ingredientUnlockStep, obtainableIngredientIds, type ShopEntitlementResult } from "../../state/materialEntitlement";
 import { legacyRecipeChapter } from "../../state/recipeChapters";
 import type { CompleteReputationTable } from "./reputationTable";
 import type { ShopProgressState } from "./shopProgress";
@@ -138,7 +137,6 @@ export function resolveShopModelEntitlement(
   inputs: ShopEntitlementInputs,
   table: CompleteReputationTable,
   catalog: ShopCatalog,
-  ladder: DiscoveryLadder = DISCOVERY_LADDER,
 ): ShopEntitlementResult {
   const isFinite = (id: string) => !!getIngredient(id)?.unlockCondition;
   const unlocked: string[] = [...inputs.unlockedForShopIngredientIds];
@@ -150,18 +148,29 @@ export function resolveShopModelEntitlement(
     }
   }
   const newly: string[] = [];
-  for (const step of ladder.steps) {
-    for (const id of step.ingredientIds) {
-      if (seen.has(id) || !isMaterialOpenAt(id, inputs.shop.reputation, table, catalog)) continue;
-      unlocked.push(id);
-      newly.push(id);
-      seen.add(id);
-    }
+  // The ladder's materials in ladder order, read through the one runtime bridge to the ladder (../../state/materialEntitlement.ts).
+  for (const id of ladderMaterialsInOrder()) {
+    if (seen.has(id) || !isMaterialOpenAt(id, inputs.shop.reputation, table, catalog)) continue;
+    unlocked.push(id);
+    newly.push(id);
+    seen.add(id);
   }
   const unchanged =
     unlocked.length === inputs.unlockedForShopIngredientIds.length &&
     unlocked.every((id, i) => id === inputs.unlockedForShopIngredientIds[i]);
   return { unlockedForShopIngredientIds: unchanged ? inputs.unlockedForShopIngredientIds : unlocked, newlyUnlockedMaterialIds: newly };
+}
+
+let ladderOrder: readonly string[] | null = null;
+
+/** The finite materials the ladder sells, in ladder-step order (ties keep the catalog order). */
+function ladderMaterialsInOrder(): readonly string[] {
+  ladderOrder ??= obtainableIngredientIds()
+    .map((id, index) => ({ id, index, step: ingredientUnlockStep(id) }))
+    .filter((m): m is { id: string; index: number; step: number } => m.step !== null && m.step > 0)
+    .sort((a, b) => a.step - b.step || a.index - b.index)
+    .map((m) => m.id);
+  return ladderOrder;
 }
 
 export interface ShopMenuInputs {
