@@ -129,7 +129,7 @@ Video Verification: PASS（ffprobe：h264, 390×844, 56.96 s, 1,035,717 bytes。
 
 - typecheck（`tsc -b`）／oxlint／`npm run build`：OK
   - Production バンドルに progression の DEV／Preview キーが残っていないことを確認
-- vitest 全体：PR 本文に記載
+- vitest 全体：13196 passed／20 skipped（既存の skip）／2 todo、失敗 0（698 files）
 - e2e（Chromium 390×844）
   - 関連する既存 spec 9 本と、新規 spec：35 件 passed
   - 対象：free-cooking、onboarding、Lunch Rush の材料不足、Shop LOCKED、生地の種類、○/□ 切替、Completion Gate、CUT の HOME 確認、本 PR の spec
