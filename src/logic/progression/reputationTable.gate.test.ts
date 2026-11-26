@@ -51,14 +51,17 @@ describe("reputation table gate", () => {
     expect(isReputationTableComplete(four)).toBe(false);
   });
 
-  it("a complete table alone is not enough: the curated catalog must not be empty (Phase 1b: it is)", () => {
+  it("a complete table alone is not enough: the curated catalog must not be empty", () => {
     const full: ReputationTable = { chapterFloors: [0, 1, 2, 3, 4], perOrderGain: [1, 1, 1, 1, 1], menuDevelopmentBonus: 1 };
-    expect(MENU_CATALOG).toHaveLength(0);
-    expect(canEnableShopProgression()).toBe(false);
-    expect(canEnableShopProgression(full)).toBe(false);
+    expect(canEnableShopProgression(full, [])).toBe(false);
+    expect(canEnableShopProgression(REPUTATION_TABLE, [])).toBe(false);
+    // Phase 3a: the curated 60 landed, so the production table and catalog together pass the gate. The Production default
+    // stays legacy (progressionModelFlag.ts); this gate is a precondition of the Phase 4 cutover, not the cutover itself.
+    expect(MENU_CATALOG).toHaveLength(60);
+    expect(canEnableShopProgression()).toBe(true);
+    expect(canEnableShopProgression(full)).toBe(true);
     expect(canEnableShopProgression(full, [{ recipeId: "margherita", chapter: 1 }])).toBe(true);
-    // Phase 2a: the production table is complete, so only the curated catalog (Phase 3) is missing; an incomplete table
-    // still blocks it with a catalog.
+    // An incomplete table still blocks it with a catalog.
     expect(canEnableShopProgression(REPUTATION_TABLE, [{ recipeId: "margherita", chapter: 1 }])).toBe(true);
     expect(canEnableShopProgression({ ...full, menuDevelopmentBonus: null }, [{ recipeId: "margherita", chapter: 1 }])).toBe(false);
   });

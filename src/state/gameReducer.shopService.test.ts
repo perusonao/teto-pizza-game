@@ -54,7 +54,9 @@ describe("the shop model is selected", () => {
   it("the flag says shop and the table is complete, so the shop rules run", () => {
     expect(activeProgressionModel().id).toBe("shop");
     expect(SHOP_MODEL_ACTIVE).toBe(true);
-    expect(activeShopCatalog().interim).toBe(true);
+    // Phase 3a: the curated 60 drive the recipes; the materials stay on the Phase 2a interim rule until Phase 3b.
+    expect(activeShopCatalog().interim).toBe(false);
+    expect(activeShopCatalog().entries).toHaveLength(60);
   });
 });
 
