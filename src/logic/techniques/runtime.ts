@@ -22,6 +22,7 @@ import { TECHNIQUES, type TechniqueId } from "../../data/techniques";
 import { isDiscovered, type DexState } from "../../state/dex";
 import { creditedDiscoveredCount, ingredientUnlockStep } from "../../state/materialEntitlement";
 import { activeProgressionModel } from "../progression/progressionModel";
+import type { ShopProgressState } from "../progression/shopProgress";
 import type { RuntimeSignature } from "../discovery/signature";
 import type { TechniqueTargetView } from "./detection";
 import {
@@ -70,11 +71,17 @@ export function productionTechniqueContext(): TechniqueRuntimeContext {
  * (legacy: ladder step <= credited discovered count -- the same answer as below). A context with its own reach rule
  * (tests, synthetic ladders) keeps that rule.
  */
-export function isTechniqueAffordanceOpenFor(id: TechniqueId, dex: DexState, context: TechniqueRuntimeContext): boolean {
+export function isTechniqueAffordanceOpenFor(
+  id: TechniqueId,
+  dex: DexState,
+  context: TechniqueRuntimeContext,
+  shop?: ShopProgressState,
+): boolean {
   if (context.materialStep === productionMaterialStep && context.countsTowardLadder === undefined) {
     const model = activeProgressionModel();
     // A material that is reached maps to step 0 and one that is not to null, so a target counts only when all its items are reached.
-    return techniqueAffordanceStep(id, context.catalog, (i) => (model.isMaterialReached(i, { dex }) ? 0 : null)) !== null;
+    // B案 Phase 2a: `shop` reaches the shop model's rule (a material is reached once its chapter is open); legacy ignores it.
+    return techniqueAffordanceStep(id, context.catalog, (i) => (model.isMaterialReached(i, { dex, shop }) ? 0 : null)) !== null;
   }
   return isTechniqueAffordanceOpen(
     techniqueAffordanceStep(id, context.catalog, context.materialStep),
@@ -112,6 +119,8 @@ export interface RoundTechniqueInput {
   /** The Dex after this round's registration (the recipe path reads what is discovered now). */
   dexAfter: DexState;
   context: TechniqueRuntimeContext;
+  /** B案 Phase 2a: the shop state before this round (the shop model's affordance reads it; legacy does not). */
+  shop?: ShopProgressState;
 }
 
 export interface RoundTechniqueResult {
@@ -132,7 +141,7 @@ export function resolveRoundTechniques(input: RoundTechniqueInput): RoundTechniq
           completionPassed: true,
           // The recipe path below covers every discovered recipe, this round's match included.
           matchedTarget: null,
-          isAffordanceOpen: (id) => isTechniqueAffordanceOpenFor(id, input.dexBefore, input.context),
+          isAffordanceOpen: (id) => isTechniqueAffordanceOpenFor(id, input.dexBefore, input.context, input.shop),
         })
       : { ledger, newlyDiscovered: [] };
 

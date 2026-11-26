@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ShopReputationStatus } from "../logic/progression/shopStatus";
 import { INGREDIENTS, type Ingredient } from "../data/ingredients";
 import {
   familiesPresent,
@@ -41,6 +42,10 @@ interface ShopOverlayProps {
    *  `onPurchase` (see gameReducer.ts's RESTOCK_INGREDIENT case). */
   onRestock: (ingredientId: string) => void;
   onClose: () => void;
+  /** B案 Phase 2a (shop model only): materials come from the reputation's chapters, so the progress line names the next
+   *  chapter's reputation instead of a discovery count, and the star-gate line is not shown (R2: absorbed into the
+   *  reputation). Absent / `null` (legacy): both lines are as before. */
+  shopStatus?: ShopReputationStatus | null;
 }
 
 /**
@@ -124,6 +129,7 @@ export function ShopOverlay({
   onPurchase,
   onRestock,
   onClose,
+  shopStatus = null,
 }: ShopOverlayProps) {
   const rows = shopRows(ownedIngredientIds, unlockedForShopIngredientIds);
   const lockedCount = lockedMaterialCount(ownedIngredientIds, unlockedForShopIngredientIds);
@@ -208,15 +214,21 @@ export function ShopOverlay({
             </p>
           )}
 
-          {progress && (
-            <p className="shop-overlay__progress">
-              {"\u{1F51C}"} あと{progress.discoveriesNeeded}つ発見で新しい材料が入荷
-            </p>
-          )}
+          {shopStatus
+            ? shopStatus.nextFloor !== null && (
+                <p className="shop-overlay__progress" data-shop-reputation-progress="true">
+                  {"\u{1F51C}"} 評判があと{shopStatus.nextFloor - shopStatus.reputation}で第{shopStatus.chapter + 1}章：新しい材料が入荷
+                </p>
+              )
+            : progress && (
+                <p className="shop-overlay__progress">
+                  {"\u{1F51C}"} あと{progress.discoveriesNeeded}つ発見で新しい材料が入荷
+                </p>
+              )}
 
           {/* Batch 6 PR-3 (OD-B6-PR3-3): one aggregated line, outside the LOCKED slots. A number only -- no
               material, step or gate is nameable from here. */}
-          {starProgress && (
+          {!shopStatus && starProgress && (
             <p className="shop-overlay__progress" data-shop-star-progress="true">
               {"\u2B50"} あと{starProgress.starsNeeded}個で新しい材料が入荷
             </p>

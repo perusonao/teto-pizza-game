@@ -15,14 +15,15 @@
 import { activePanShape, panSwitchForcedOpen } from "../preview/panShapePreview";
 import { isPanSwitchVisible, isTrayAffordanceOpen } from "../logic/techniques/panSwitch";
 import { techniqueRoundEligibility } from "../logic/techniques/runtime";
+import type { ShopProgressState } from "../logic/progression/shopProgress";
 import type { DexState } from "./dex";
 import type { GamePhase, MakingStep } from "./gameReducer";
 import type { PanId, PizzaState } from "./pizzaState";
 
 export type PanChoice = "round" | PanId;
 
-export function isTrayAffordanceOpenNow(dex: DexState): boolean {
-  return panSwitchForcedOpen() || isTrayAffordanceOpen(dex);
+export function isTrayAffordanceOpenNow(dex: DexState, shop?: ShopProgressState): boolean {
+  return panSwitchForcedOpen() || isTrayAffordanceOpen(dex, undefined, shop);
 }
 
 export interface PanSwitchRound {
@@ -33,6 +34,8 @@ export interface PanSwitchRound {
   freeCook: boolean;
   recipe: Parameters<typeof activePanShape>[0];
   dex: DexState;
+  /** B案 Phase 2a: the shop model's affordance reads it (legacy does not). */
+  shop?: ShopProgressState;
 }
 
 export function panSwitchOffered(round: PanSwitchRound): boolean {
@@ -42,7 +45,7 @@ export function panSwitchOffered(round: PanSwitchRound): boolean {
       phase: round.phase,
       makingStep: round.makingStep,
       eligibility: techniqueRoundEligibility(round),
-      affordanceOpen: isTrayAffordanceOpenNow(round.dex),
+      affordanceOpen: isTrayAffordanceOpenNow(round.dex, round.shop),
     })
   );
 }

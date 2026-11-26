@@ -1,0 +1,222 @@
+/**
+ * B案再構成 Phase 2a (Issue #901): the shop model's rules, as pure functions. Design §3.2.3 / §3.2.4 / §6 (Q1, Q2, Q4, R2, R3).
+ * `SHOP_PROGRESSION` (./progressionModel.ts) is these functions bound to the production table and catalog.
+ *
+ * - **Chapters come from the reputation.** The open chapter is the highest one whose floor the reputation has reached
+ *   (`REPUTATION_TABLE.chapterFloors`, five chapters, Q12). The reputation never goes down (Q1), so a chapter never closes.
+ * - **Materials come from the chapters.** A material's chapter is the lowest chapter of an adopted recipe that requires it
+ *   (`MATERIAL_CHAPTER_OVERRIDES` first). Every ladder material whose chapter is open is entitled; like the legacy resolver
+ *   the result is a union with the ledger (and the finite materials already owned), so nothing is ever re-locked. The
+ *   ladder stays the source of the price and the order the Shop lists them in (R1); its discovered-count steps, its star
+ *   gates (R2) and the late floors (R3) are not read here.
+ * - **The menu** = (the first menu ∪ `shop.grantedMenuRecipeIds` ∪ the Dex's discovered recipes) ∩ the adopted recipes.
+ *   The first menu is margherita (Q2), derived rather than written, so a new save needs no grant step and a legacy save
+ *   gains no `shopProgress` key just by being opened.
+ *
+ * **The catalog in Phase 2a.** The curated 60 (`MENU_CATALOG`) are the Owner's selection (Phase 3) and still empty. Until
+ * they land, the shop model runs on an interim catalog: every recipe, at its legacy chapter (the ladder price tier of its
+ * key material: chapters 1-4, chapter 5 empty). This invents no chapter and no number; it is replaced as a whole the
+ * moment `MENU_CATALOG` is non-empty. `canEnableShopProgression` (./reputationTable.ts) still needs the curated catalog,
+ * so it stays the gate for the Production cutover (Phase 4).
+ */
+import { DISCOVERY_LADDER, type DiscoveryLadder } from "../../data/discoveryLadder";
+import { getIngredient } from "../../data/ingredients";
+import { MATERIAL_CHAPTER_OVERRIDES, MENU_CATALOG, type MenuCatalogEntry } from "../../data/menuCatalog";
+import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
+import { isDiscovered, type DexState } from "../../state/dex";
+import type { ShopEntitlementResult } from "../../state/materialEntitlement";
+import { legacyRecipeChapter } from "../../state/recipeChapters";
+import type { CompleteReputationTable } from "./reputationTable";
+import type { ShopProgressState } from "./shopProgress";
+
+/** Q2: a new player's first menu. */
+export const SHOP_FIRST_MENU_RECIPE_IDS: readonly RecipeId[] = Object.freeze(["margherita"]) as readonly RecipeId[];
+
+export interface ShopCatalog {
+  entries: readonly MenuCatalogEntry[];
+  /** Ingredient id -> chapter, overriding the derived chapter. */
+  materialOverrides: Readonly<Record<string, number>>;
+  /** `true` while the interim catalog stands in for the empty curated one. */
+  interim: boolean;
+}
+
+let interimEntries: readonly MenuCatalogEntry[] | null = null;
+
+/** Phase 2a's interim catalog: every recipe at its legacy chapter (see the header). */
+export function interimMenuCatalog(recipes: readonly Recipe[] = RECIPES): readonly MenuCatalogEntry[] {
+  if (recipes !== RECIPES) return recipes.map((r) => ({ recipeId: r.id, chapter: legacyRecipeChapter(r) }));
+  interimEntries ??= Object.freeze(RECIPES.map((r) => ({ recipeId: r.id, chapter: legacyRecipeChapter(r) })));
+  return interimEntries;
+}
+
+/** The catalog the shop model reads: the curated one once it has entries, the interim one until then. */
+export function activeShopCatalog(): ShopCatalog {
+  return MENU_CATALOG.length > 0
+    ? { entries: MENU_CATALOG, materialOverrides: MATERIAL_CHAPTER_OVERRIDES, interim: false }
+    : { entries: interimMenuCatalog(), materialOverrides: {}, interim: true };
+}
+
+/** The open chapter for a reputation: the highest chapter whose floor it has reached (at least chapter 1). */
+export function chapterForReputation(reputation: number, floors: CompleteReputationTable["chapterFloors"]): number {
+  let chapter = 1;
+  for (let i = 0; i < floors.length; i++) {
+    if (reputation >= floors[i]) chapter = i + 1;
+  }
+  return chapter;
+}
+
+/** The next chapter's floor, or `null` when the last chapter is already open. */
+export function nextChapterFloor(reputation: number, floors: CompleteReputationTable["chapterFloors"]): number | null {
+  const open = chapterForReputation(reputation, floors);
+  return open < floors.length ? floors[open] : null;
+}
+
+/** An adopted recipe's chapter, or `null` when the catalog does not adopt it. */
+export function catalogChapterOf(recipeId: string, catalog: ShopCatalog): number | null {
+  return catalog.entries.find((e) => e.recipeId === recipeId)?.chapter ?? null;
+}
+
+/**
+ * A material's chapter: 0 for an onboarding starter (always usable), the override when one exists, else the lowest chapter
+ * of an adopted recipe that requires it; `null` when no adopted recipe needs it (the shop model never sells it).
+ */
+export function materialChapterOf(
+  ingredientId: string,
+  catalog: ShopCatalog,
+  recipes: readonly Recipe[] = RECIPES,
+): number | null {
+  const ingredient = getIngredient(ingredientId);
+  if (!ingredient) return null;
+  if (!ingredient.unlockCondition) return 0;
+  const override = catalog.materialOverrides[ingredientId];
+  if (override !== undefined) return override;
+  return lowestRequiringChapters(catalog.entries, recipes).get(ingredientId) ?? null;
+}
+
+const lowestChapterCache = new WeakMap<readonly MenuCatalogEntry[], ReadonlyMap<string, number>>();
+
+/** Ingredient id -> the lowest chapter of an adopted recipe requiring it (cached per production catalog). */
+function lowestRequiringChapters(entries: readonly MenuCatalogEntry[], recipes: readonly Recipe[]): ReadonlyMap<string, number> {
+  const cacheable = recipes === RECIPES;
+  const cached = cacheable ? lowestChapterCache.get(entries) : undefined;
+  if (cached) return cached;
+  const byId = new Map(recipes.map((r) => [r.id as string, r]));
+  const lowest = new Map<string, number>();
+  for (const entry of entries) {
+    for (const { ingredientId } of byId.get(entry.recipeId)?.requiredIngredients ?? []) {
+      const current = lowest.get(ingredientId);
+      if (current === undefined || entry.chapter < current) lowest.set(ingredientId, entry.chapter);
+    }
+  }
+  if (cacheable) lowestChapterCache.set(entries, lowest);
+  return lowest;
+}
+
+/** Whether a material can be used at this reputation: a starter, or its chapter is open. */
+export function isMaterialOpenAt(
+  ingredientId: string,
+  reputation: number,
+  table: CompleteReputationTable,
+  catalog: ShopCatalog,
+): boolean {
+  const chapter = materialChapterOf(ingredientId, catalog);
+  return chapter !== null && chapter <= chapterForReputation(reputation, table.chapterFloors);
+}
+
+export interface ShopEntitlementInputs {
+  ownedIngredientIds: readonly string[];
+  unlockedForShopIngredientIds: readonly string[];
+  shop: ShopProgressState;
+}
+
+/**
+ * The shop model's material entitlement (see the header): the ledger ∪ the finite materials owned ∪ every ladder material
+ * whose chapter is open. Same result shape and the same "a no-op returns the input ledger by reference" rule as
+ * `resolveShopEntitlement`; `newlyUnlockedMaterialIds` is in ladder order.
+ */
+export function resolveShopModelEntitlement(
+  inputs: ShopEntitlementInputs,
+  table: CompleteReputationTable,
+  catalog: ShopCatalog,
+  ladder: DiscoveryLadder = DISCOVERY_LADDER,
+): ShopEntitlementResult {
+  const isFinite = (id: string) => !!getIngredient(id)?.unlockCondition;
+  const unlocked: string[] = [...inputs.unlockedForShopIngredientIds];
+  const seen = new Set(unlocked);
+  for (const id of inputs.ownedIngredientIds) {
+    if (isFinite(id) && !seen.has(id)) {
+      unlocked.push(id);
+      seen.add(id);
+    }
+  }
+  const newly: string[] = [];
+  for (const step of ladder.steps) {
+    for (const id of step.ingredientIds) {
+      if (seen.has(id) || !isMaterialOpenAt(id, inputs.shop.reputation, table, catalog)) continue;
+      unlocked.push(id);
+      newly.push(id);
+      seen.add(id);
+    }
+  }
+  const unchanged =
+    unlocked.length === inputs.unlockedForShopIngredientIds.length &&
+    unlocked.every((id, i) => id === inputs.unlockedForShopIngredientIds[i]);
+  return { unlockedForShopIngredientIds: unchanged ? inputs.unlockedForShopIngredientIds : unlocked, newlyUnlockedMaterialIds: newly };
+}
+
+export interface ShopMenuInputs {
+  dex: DexState;
+  shop: ShopProgressState;
+}
+
+/** The menu (see the header), in `RECIPES` order. */
+export function shopMenuRecipeIds(inputs: ShopMenuInputs, catalog: ShopCatalog, recipes: readonly Recipe[] = RECIPES): RecipeId[] {
+  const adopted = new Set(catalog.entries.map((e) => e.recipeId as string));
+  const granted = new Set<string>([...SHOP_FIRST_MENU_RECIPE_IDS, ...inputs.shop.grantedMenuRecipeIds]);
+  return recipes
+    .filter((r) => adopted.has(r.id) && (granted.has(r.id) || isDiscovered(inputs.dex, r.id)))
+    .map((r) => r.id);
+}
+
+/** One recipe's menu membership (the same rule as `shopMenuRecipeIds`, without building the list). */
+export function isOnShopMenu(recipeId: string, inputs: ShopMenuInputs, catalog: ShopCatalog): boolean {
+  if (catalogChapterOf(recipeId, catalog) === null) return false;
+  return (
+    SHOP_FIRST_MENU_RECIPE_IDS.includes(recipeId as RecipeId) ||
+    inputs.shop.grantedMenuRecipeIds.includes(recipeId) ||
+    isDiscovered(inputs.dex, recipeId)
+  );
+}
+
+/** What one round's reputation gain did (RESULT shows it once; never saved). */
+export interface ReputationGain {
+  gained: number;
+  before: number;
+  after: number;
+  chapterBefore: number;
+  chapterAfter: number;
+  /** The floor of the chapter after `chapterAfter`, or `null` once the last chapter is open. */
+  nextFloor: number | null;
+}
+
+/** Adds `gained` to the reputation (cumulative, Q1). A zero gain returns `shop` itself. */
+export function addReputation(
+  shop: ShopProgressState,
+  gained: number,
+  table: CompleteReputationTable,
+): { shop: ShopProgressState; gain: ReputationGain } {
+  const before = shop.reputation;
+  const safe = Number.isFinite(gained) && gained > 0 ? gained : 0;
+  const after = before + safe;
+  return {
+    shop: safe === 0 ? shop : { ...shop, reputation: after },
+    gain: {
+      gained: safe,
+      before,
+      after,
+      chapterBefore: chapterForReputation(before, table.chapterFloors),
+      chapterAfter: chapterForReputation(after, table.chapterFloors),
+      nextFloor: nextChapterFloor(after, table.chapterFloors),
+    },
+  };
+}
