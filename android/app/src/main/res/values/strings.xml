@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Teto Pizza PoC</string>
-    <string name="title_activity_main">Teto Pizza PoC</string>
+    <string name="app_name">Tecchan Pizza PoC</string>
+    <string name="title_activity_main">Tecchan Pizza PoC</string>
     <string name="package_name">com.example.tetopizza.poc</string>
     <string name="custom_url_scheme">com.example.tetopizza.poc</string>
 </resources>

@@ -114,7 +114,7 @@ export function BakeOverlay({ targetStart, targetEnd, showJustBand = false, onCo
         <div className="bake-oven">
           <span className="bake-oven__flame">{"\u{1F525}"}</span>
           <div className="bake-oven__caption-row">
-            <img className="bake-oven__caption-avatar" src={tetoImg} alt="テト" />
+            <img className="bake-oven__caption-avatar" src={tetoImg} alt="てっちゃん" />
             <p className="bake-oven__caption">{CAPTION}</p>
           </div>
         </div>

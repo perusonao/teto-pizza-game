@@ -10,7 +10,7 @@ const PORTRAITS: Record<Speaker, string> = {
 };
 
 const SPEAKER_LABEL: Record<Speaker, string> = {
-  teto: "テト",
+  teto: "てっちゃん",
   mito: "ミト",
   blue: "ブルー",
 };

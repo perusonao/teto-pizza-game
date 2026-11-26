@@ -1,7 +1,7 @@
 {
-  "name": "テトのピザ屋さん",
-  "short_name": "テトのピザ屋",
-  "description": "テトと一緒にピザを作ろう。おいしいピザで、しあわせの輪を広げよう。",
+  "name": "てっちゃんのピザ屋さん",
+  "short_name": "てっちゃんのピザ屋",
+  "description": "てっちゃんと一緒にピザを作ろう。おいしいピザで、しあわせの輪を広げよう。",
   "start_url": "/teto-pizza-game/",
   "scope": "/teto-pizza-game/",
   "display": "standalone",
