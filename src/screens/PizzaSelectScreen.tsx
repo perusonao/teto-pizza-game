@@ -1,7 +1,8 @@
 import { useState, type CSSProperties } from "react";
 import { shopCopy, SHOP_COPY_ACTIVE } from "../logic/progression/shopCopy";
 import type { ShopProgressState } from "../logic/progression/shopProgress";
-import { RECIPES, type Recipe, type RecipeId } from "../data/recipes";
+import type { Recipe, RecipeId } from "../data/recipes";
+import { dexRecipes } from "../state/recipeChapters";
 import type { DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
 import { buildPizzaSelectView, type DiscoveredRecipeCard, type PizzaSelectPrompt } from "../state/pizzaSelect";
@@ -184,7 +185,7 @@ export function PizzaSelectScreen({
   onGoFreeCook,
   onOpenShop,
   newlyDiscoveredId = null,
-  recipes = RECIPES,
+  recipes = dexRecipes(),
 }: PizzaSelectScreenProps) {
   const [selectedRecipeId, setSelectedRecipeId] = useState<RecipeId | null>(null);
   const view = buildPizzaSelectView(

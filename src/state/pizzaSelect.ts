@@ -1,10 +1,10 @@
-import { getRecipe, RECIPES, type Recipe } from "../data/recipes";
+import { getRecipe, type Recipe } from "../data/recipes";
 import type { QualityStars } from "../logic/scoring";
 import { discoveredRecipeIds, getDexEntry, isDiscovered, type DexState } from "./dex";
 import { totalStars } from "../logic/mastery";
 import { activeProgressionModel } from "../logic/progression/progressionModel";
 import { isRecipeAvailable } from "./progression";
-import { buildRecipeChapters } from "./recipeChapters";
+import { buildRecipeChapters, dexRecipes } from "./recipeChapters";
 import { canStartGuidedRound, countRecipeDiscoveryStates, type RecipeDiscoveryInputs } from "./recipeDiscoveryState";
 
 /**
@@ -195,7 +195,8 @@ export interface PizzaSelectView {
 
 export function buildPizzaSelectView(
   inputs: RecipeDiscoveryInputs,
-  recipes: readonly Recipe[] = RECIPES,
+  // B案 Phase 3a: the Dex's recipes (legacy: `RECIPES` itself; shop: the curated 60).
+  recipes: readonly Recipe[] = dexRecipes(),
   newlyDiscoveredId: string | null = null,
 ): PizzaSelectView {
   const counts = countRecipeDiscoveryStates(recipes, inputs);

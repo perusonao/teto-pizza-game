@@ -13,14 +13,18 @@
  *   The first menu is margherita (Q2), derived rather than written, so a new save needs no grant step and a legacy save
  *   gains no `shopProgress` key just by being opened.
  *
- * **The catalog in Phase 2a.** The curated 60 (`MENU_CATALOG`) are the Owner's selection (Phase 3) and still empty. Until
- * they land, the shop model runs on an interim catalog: every recipe, at its legacy chapter (the ladder price tier of its
- * key material: chapters 1-4, chapter 5 empty). This invents no chapter and no number; it is replaced as a whole the
- * moment `MENU_CATALOG` is non-empty. `canEnableShopProgression` (./reputationTable.ts) still needs the curated catalog,
- * so it stays the gate for the Production cutover (Phase 4).
+ * **The catalog.** Phase 2a ran on an interim catalog (every recipe at its legacy chapter: the ladder price tier of its key
+ * material, chapters 1-4, chapter 5 empty) because the curated 60 (`MENU_CATALOG`) were not selected yet. **Phase 3a**
+ * fills `MENU_CATALOG` with the Owner's 60 (5 stages x 12), so the recipes' stages, the menu and everything read through
+ * it (orders, Lunch Rush, the Dex) now follow the curated list.
+ *
+ * **The materials stay on the interim rule in Phase 3a.** Deriving a material's stage from the curated list (77 materials,
+ * the reputation-275 split of stage 4) is Phase 3b. Until then `ShopCatalog.materialEntries` is the interim catalog, so
+ * every material opens at the same reputation as in Phase 2a (pinned by ./shopProgression.test.ts). The interim
+ * catalog still stands in whole if `MENU_CATALOG` is ever empty.
  */
 import { getIngredient } from "../../data/ingredients";
-import { MATERIAL_CHAPTER_OVERRIDES, MENU_CATALOG, type MenuCatalogEntry } from "../../data/menuCatalog";
+import { MENU_CATALOG, type MenuCatalogEntry } from "../../data/menuCatalog";
 import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { isDiscovered, type DexState } from "../../state/dex";
 import { ingredientUnlockStep, obtainableIngredientIds, type ShopEntitlementResult } from "../../state/materialEntitlement";
@@ -32,10 +36,16 @@ import type { ShopProgressState } from "./shopProgress";
 export const SHOP_FIRST_MENU_RECIPE_IDS: readonly RecipeId[] = Object.freeze(["margherita"]) as readonly RecipeId[];
 
 export interface ShopCatalog {
+  /** The adopted recipes and their stages (the menu, the orders, the Dex). */
   entries: readonly MenuCatalogEntry[];
+  /**
+   * The entries a material's stage is derived from (the lowest stage of an entry requiring it). Defaults to `entries`.
+   * Phase 3a: the interim catalog, so the material stages do not move before Phase 3b.
+   */
+  materialEntries?: readonly MenuCatalogEntry[];
   /** Ingredient id -> chapter, overriding the derived chapter. */
   materialOverrides: Readonly<Record<string, number>>;
-  /** `true` while the interim catalog stands in for the empty curated one. */
+  /** `true` while the interim catalog stands in for an empty curated one (recipes included). */
   interim: boolean;
 }
 
@@ -48,11 +58,31 @@ export function interimMenuCatalog(recipes: readonly Recipe[] = RECIPES): readon
   return interimEntries;
 }
 
-/** The catalog the shop model reads: the curated one once it has entries, the interim one until then. */
+let curatedCatalog: ShopCatalog | null = null;
+let interimCatalog: ShopCatalog | null = null;
+
+/**
+ * The catalog the shop model reads: the curated one (Phase 3a) with the materials still on the interim rule (Phase 3b
+ * moves them), or the interim one whole while `MENU_CATALOG` is empty. Memoised: one object per page load.
+ */
 export function activeShopCatalog(): ShopCatalog {
-  return MENU_CATALOG.length > 0
-    ? { entries: MENU_CATALOG, materialOverrides: MATERIAL_CHAPTER_OVERRIDES, interim: false }
-    : { entries: interimMenuCatalog(), materialOverrides: {}, interim: true };
+  if (MENU_CATALOG.length > 0) {
+    curatedCatalog ??= Object.freeze({
+      entries: MENU_CATALOG,
+      materialEntries: interimMenuCatalog(),
+      materialOverrides: {},
+      interim: false,
+    });
+    return curatedCatalog;
+  }
+  interimCatalog ??= Object.freeze({ entries: interimMenuCatalog(), materialOverrides: {}, interim: true });
+  return interimCatalog;
+}
+
+/** The adopted recipes, in `RECIPES` order (the shop model's Dex / Pizza Select / Home counts read this). */
+export function catalogRecipes(catalog: ShopCatalog, recipes: readonly Recipe[] = RECIPES): readonly Recipe[] {
+  const adopted = new Set(catalog.entries.map((e) => e.recipeId as string));
+  return recipes.filter((r) => adopted.has(r.id));
 }
 
 /** The open chapter for a reputation: the highest chapter whose floor it has reached (at least chapter 1). */
@@ -89,7 +119,7 @@ export function materialChapterOf(
   if (!ingredient.unlockCondition) return 0;
   const override = catalog.materialOverrides[ingredientId];
   if (override !== undefined) return override;
-  return lowestRequiringChapters(catalog.entries, recipes).get(ingredientId) ?? null;
+  return lowestRequiringChapters(catalog.materialEntries ?? catalog.entries, recipes).get(ingredientId) ?? null;
 }
 
 const lowestChapterCache = new WeakMap<readonly MenuCatalogEntry[], ReadonlyMap<string, number>>();

@@ -12,6 +12,8 @@ import {
   SHOP_FIRST_MENU_RECIPE_IDS,
   activeShopCatalog,
   addReputation,
+  catalogChapterOf,
+  catalogRecipes,
   chapterForReputation,
   interimMenuCatalog,
   isOnShopMenu,
@@ -55,10 +57,38 @@ describe("chapters from the reputation", () => {
   });
 });
 
-describe("the catalog (Phase 2a: interim until MENU_CATALOG has entries)", () => {
-  it("the curated catalog is still empty, so the interim one stands in", () => {
-    expect(MENU_CATALOG).toHaveLength(0);
-    expect(activeShopCatalog().interim).toBe(true);
+describe("the catalog (Phase 3a: the curated 60; materials on the Phase 2a interim rule until Phase 3b)", () => {
+  it("the curated catalog drives the recipes", () => {
+    const catalog = activeShopCatalog();
+    expect(catalog.interim).toBe(false);
+    expect(catalog.entries).toBe(MENU_CATALOG);
+    expect(activeShopCatalog()).toBe(catalog);
+    for (const e of MENU_CATALOG) expect(catalogChapterOf(e.recipeId, catalog)).toBe(e.chapter);
+    expect(catalogRecipes(catalog).map((r) => r.id)).toEqual(
+      RECIPES.map((r) => r.id).filter((id) => MENU_CATALOG.some((e) => e.recipeId === id)),
+    );
+  });
+
+  it("a recipe the catalog does not adopt has no stage (it stays in RECIPES)", () => {
+    const rejected = RECIPES.find((r) => !MENU_CATALOG.some((e) => e.recipeId === r.id));
+    expect(rejected).toBeDefined();
+    expect(catalogChapterOf(rejected!.id, activeShopCatalog())).toBeNull();
+  });
+
+  it("every material keeps its Phase 2a stage (the interim catalog derives it until Phase 3b)", () => {
+    const curated = activeShopCatalog();
+    const interim: ShopCatalog = { entries: interimMenuCatalog(), materialOverrides: {}, interim: true };
+    expect(curated.materialEntries).toBe(interimMenuCatalog());
+    const all = resolveShopModelEntitlement(
+      { ownedIngredientIds: [], unlockedForShopIngredientIds: [], shop: { reputation: 10_000, grantedMenuRecipeIds: [] } },
+      TABLE,
+      interim,
+    ).unlockedForShopIngredientIds;
+    for (const id of all) expect(materialChapterOf(id, curated)).toBe(materialChapterOf(id, interim));
+    for (const reputation of [0, 39, 40, 110, 210, 340]) {
+      const inputs = { ownedIngredientIds: [], unlockedForShopIngredientIds: [], shop: { reputation, grantedMenuRecipeIds: [] } };
+      expect(resolveShopModelEntitlement(inputs, TABLE, curated)).toEqual(resolveShopModelEntitlement(inputs, TABLE, interim));
+    }
   });
 
   it("the interim catalog is every recipe at its legacy chapter -- no chapter invented", () => {

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import tetoImg from "../assets/characters/teto.webp";
 import mitoImg from "../assets/characters/mito.webp";
 import blueImg from "../assets/characters/blue.webp";
-import { RECIPES } from "../data/recipes";
+import { dexDiscoveredCount, dexRecipes } from "../state/recipeChapters";
 import type { DexState } from "../state/dex";
 import { homeBubbleJa } from "../state/homeBubble";
 import { SaveNoticeBanner } from "../components/SaveNoticeBanner";
@@ -120,8 +120,9 @@ export function HomeScreen({
   onTakeOrder,
   shopStatus = null,
 }: HomeScreenProps) {
-  const totalRecipes = RECIPES.length;
-  const discoveredCount = dex.filter((e) => e.discovered).length;
+  // B案 Phase 3a: the Dex's recipes (legacy: every recipe, as before; shop: the curated 60).
+  const totalRecipes = dexRecipes().length;
+  const discoveredCount = dexDiscoveredCount(dex);
 
   return (
     <div className="home-screen">

@@ -47,6 +47,25 @@ export function recipeChapter(recipe: Recipe, ladder?: DiscoveryLadder): number 
   return ladder === undefined ? activeProgressionModel().chapterOf(recipe) : legacyRecipeChapter(recipe, ladder);
 }
 
+/**
+ * B案 Phase 3a (Issue #901): the recipes the Dex lists and counts -- the active model's catalog. Legacy: `RECIPES` itself
+ * (the same array, so every legacy caller is unchanged). Shop: the curated 60 (`MENU_CATALOG`).
+ */
+export function dexRecipes(): readonly Recipe[] {
+  return activeProgressionModel().catalogRecipes();
+}
+
+/**
+ * The Dex's discovered count. Legacy: every discovered entry, exactly as before. Shop: only the adopted recipes count, so a
+ * recipe the catalog does not adopt never shows up as "x/60" progress.
+ */
+export function dexDiscoveredCount(dex: DexState): number {
+  const recipes = dexRecipes();
+  if (recipes === RECIPES) return dex.filter((e) => e.discovered).length;
+  const ids = new Set(recipes.map((r) => r.id as string));
+  return dex.filter((e) => e.discovered && ids.has(e.recipeId)).length;
+}
+
 export function chapterTitleJa(chapter: number): string {
   return `第${chapter}章`;
 }
@@ -58,9 +77,9 @@ export interface RecipeChapter {
   recipes: readonly Recipe[];
 }
 
-/** Non-empty chapters over `recipes`, ascending. */
+/** Non-empty chapters over `recipes` (default: the Dex's recipes, `dexRecipes()`), ascending. */
 export function buildRecipeChapters(
-  recipes: readonly Recipe[] = RECIPES,
+  recipes: readonly Recipe[] = dexRecipes(),
   ladder?: DiscoveryLadder,
 ): RecipeChapter[] {
   const byChapter = new Map<number, Recipe[]>();
@@ -104,10 +123,10 @@ export function isChapterCleared(
   return ordinary.length > 0 && ordinary.every((r) => isDiscovered(dex, r.id));
 }
 
-/** 1-based position of `recipe` inside its chapter (the Dex "No." within the chapter). */
+/** 1-based position of `recipe` inside its chapter (the Dex "No." within the chapter); 0 when `recipes` lacks it. */
 export function recipeChapterSlot(
   recipe: Recipe,
-  recipes: readonly Recipe[] = RECIPES,
+  recipes: readonly Recipe[] = dexRecipes(),
   ladder?: DiscoveryLadder,
 ): number {
   const chapter = recipeChapter(recipe, ladder);

@@ -15,7 +15,7 @@
  * Phase 1b (Issue #901) adds `ProgressionInputs.shop` (./shopProgress.ts). The legacy model never reads it, so every legacy
  * output is unchanged; the reducer passes it automatically (`{ ...state, dex }`), startup passes `save.shopProgress`.
  */
-import type { Recipe, RecipeId } from "../../data/recipes";
+import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { discoveredRecipeIds, isDiscovered, type DexState } from "../../state/dex";
 import type { InventoryState } from "../../state/inventory";
 import {
@@ -31,6 +31,7 @@ import { EMPTY_SHOP_PROGRESS, type ShopProgressState } from "./shopProgress";
 import {
   activeShopCatalog,
   catalogChapterOf,
+  catalogRecipes,
   chapterForReputation,
   isMaterialOpenAt,
   isOnShopMenu,
@@ -77,6 +78,11 @@ export interface ProgressionModel {
   isOnMenu(recipeId: string, inputs: MenuInputs): boolean;
   /** For the technique affordance: whether this material has been reached. */
   isMaterialReached(ingredientId: string, inputs: MaterialReachInputs): boolean;
+  /**
+   * Phase 3a: the recipes the Dex, HOME's Dex pill and Pizza Select list and count, in `RECIPES` order. Legacy: `RECIPES`
+   * itself (the same array). Shop: the adopted recipes (`MENU_CATALOG`).
+   */
+  catalogRecipes(): readonly Recipe[];
 }
 
 export const LEGACY_PROGRESSION: ProgressionModel = {
@@ -93,11 +99,13 @@ export const LEGACY_PROGRESSION: ProgressionModel = {
     const step = ingredientUnlockStep(ingredientId);
     return step !== null && creditedDiscoveredCount(inputs.dex) >= step;
   },
+  catalogRecipes: () => RECIPES,
 };
 
 /** The shop model bound to a complete table and the active catalog (./shopProgression.ts). */
 export function shopProgressionFor(table: CompleteReputationTable): ProgressionModel {
   const shopOf = (inputs: { shop?: ShopProgressState }) => inputs.shop ?? EMPTY_SHOP_PROGRESS;
+  let adopted: readonly Recipe[] | null = null;
   return {
     id: "shop",
     resolveEntitlement: (inputs) => resolveShopModelEntitlement(inputs, table, activeShopCatalog()),
@@ -107,6 +115,7 @@ export function shopProgressionFor(table: CompleteReputationTable): ProgressionM
     isOnMenu: (recipeId, inputs) => isOnShopMenu(recipeId, { dex: inputs.dex, shop: shopOf(inputs) }, activeShopCatalog()),
     isMaterialReached: (ingredientId, inputs) =>
       isMaterialOpenAt(ingredientId, shopOf(inputs).reputation, table, activeShopCatalog()),
+    catalogRecipes: () => (adopted ??= Object.freeze([...catalogRecipes(activeShopCatalog())])),
   };
 }
 
