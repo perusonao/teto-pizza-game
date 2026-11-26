@@ -99,4 +99,10 @@ Video Verification: PASS
 
 ## 6. ローカルの結果
 
-（PR 本文の「検証」を参照）
+- `tsc -b`／oxlint／`npm run build`：OK（oxlint の警告は既存のものだけ）
+- Vitest は、長時間シミュレーション 5 ファイル（`researchAttempt.sim*`・`researchAttempt.replayAudit`、各 7〜11 分）で 1 回目のフル計測が 25 分の上限に達したため、2 つに分けて計測した
+  - フル − その 5 ファイル（step 2 のコミット `2c08c84`）：**13154 passed**／20 skipped（既存）／2 todo、失敗 1（699 files passed、3 skipped）
+    - 失敗 1 件は `ShopOverlay.test.tsx`「at every ladder Dex … names no undiscovered recipe」の **30 秒タイムアウト**。計測中に e2e・dev サーバー 2 台・動画撮影を並行していた時間帯。単独で再実行すると pass（ファイル 26.0 秒）、`main` `828702a` でも同じ所要（27.3 秒）。legacy の経路で、このテストが読むコードは本 PR で変えていない
+  - その 5 ファイル（最終コミット）：**124 passed**、失敗 0（24 分）
+  - step 3 で追加した `gameReducer.shopCatalog3a.test.ts`：9 passed
+- e2e（Chromium、390×844 と 360×800）：`shop-catalog-3a`・`shop-service-orders-2a`・`shop-practice-2b` で **18 passed**
