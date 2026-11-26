@@ -113,4 +113,8 @@ Video Verification: PASS（ffprobe：h264、390×844、30.52 s、930,750 bytes�
 
 ## 6. ローカルの結果
 
-（Step 4 の計測結果を追記）
+- `tsc -b`／oxlint／`npm run build`：OK（oxlint の警告は既存のものだけ）
+- Vitest は 3a と同じく、長時間シミュレーション 5 ファイル（`researchAttempt.sim*`・`researchAttempt.replayAudit`）を分けて計測した（コミット `1200ac6`。以降の変更は docs のみ）
+  - フル − その 5 ファイル：**705 files passed／3 skipped、13209 passed／20 skipped（既存）／2 todo、失敗 0**（9 分 37 秒）
+  - その 5 ファイル：**124 passed、失敗 0**（22 分 19 秒）
+- e2e（Chromium、390×844 と 360×800）：`shop-stage-3b`・`shop-catalog-3a`・`shop-service-orders-2a`・`shop-practice-2b` で **22 passed**
