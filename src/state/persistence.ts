@@ -15,6 +15,15 @@ import {
 } from "./dinnerMissionRecordsSave";
 import { SAVE_ID_PATTERN } from "./saveIdGrammar";
 import {
+  EMPTY_SHOP_PROGRESS,
+  isDefaultShopProgress,
+  mergeShopProgress,
+  sameShopProgress,
+  sanitizeShopProgress,
+  shopProgressForWrite,
+  type ShopProgressState,
+} from "../logic/progression/shopProgress";
+import {
   PENDING_ROUND_KEY,
   PENDING_ROUND_MAX_BYTES,
   canonicalJson,
@@ -217,6 +226,13 @@ export interface PersistentSaveV2 {
    *  `writeSave`. An EMPTY ledger is never written: the key is absent until the first exclusion is stored (and stays
    *  absent for a save that never had one). It is never a Hint fact (INV-B9). */
   researchExclusions: Record<string, string[]>;
+  /** B案再構成 Phase 1b (Issue #901, design §3.3): the shop model's state (../logic/progression/shopProgress.ts). Top-level
+   *  key `shopProgress`, save v2, no schema bump. OPTIONAL in memory: absent exactly when the stored save has no readable
+   *  `shopProgress` object (every save today), so such a save loads as the very same object it always did; readers use
+   *  `save.shopProgress ?? EMPTY_SHOP_PROGRESS`. A default state is never written (the key is not created by a legacy
+   *  session). Merged on write: reputation max, granted recipes union; unknown sub-keys, well-formed unknown recipe ids
+   *  and a non-object value a newer build stored are all kept. No migration of older saves (pre-release: Owner 2026-11-26). */
+  shopProgress?: ShopProgressState;
 }
 
 /** TQ-1A: upper bound of stored technique ids (known + unknown). The registry is far smaller. */
@@ -650,6 +666,8 @@ interface ForwardCompatExtras {
   /** The stored `researchExclusions` value, verbatim, when it is not a plain object (a shape a newer build may use).
    *  Kept only while this build has no exclusion of its own to write. */
   researchExclusionsOpaque: unknown;
+  /** B案 Phase 1b: the stored `shopProgress` value, verbatim (`undefined` when absent). The write merges into it. */
+  shopProgressRaw: unknown;
 }
 
 const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
@@ -668,6 +686,8 @@ const KNOWN_SAVE_KEYS: ReadonlySet<string> = new Set([
   // Research 2.0 Phase 2: the negative ledger. Known => not an opaque extra; `extractForwardCompatExtras` reads its
   // unknown-id part (`researchExclusions` below) and `writeSave` unions it back.
   "researchExclusions",
+  // B案 Phase 1b: the shop progression state. Known => `writeSave` merges into the stored value (`shopProgressForWrite`).
+  "shopProgress",
   // DM-4-2: the in-memory name of the parsed Dinner state. Never stored; listed so a stray
   // serialized copy is neither read nor carried through as a forward-compat extra.
   "dinnerMissionRecordsState",
@@ -746,6 +766,7 @@ function extractForwardCompatExtras(raw: unknown): ForwardCompatExtras | null {
       r.researchExclusions !== undefined && (typeof r.researchExclusions !== "object" || r.researchExclusions === null || Array.isArray(r.researchExclusions))
         ? r.researchExclusions
         : undefined,
+    shopProgressRaw: r.shopProgress,
   };
 }
 
@@ -974,7 +995,7 @@ function writeSave(
   // DM-4-2: the Dinner records are merged into what storage holds -- never serialized from
   // `next` -- so a broken record, a future mission id or an unknown field is never dropped or
   // overwritten, and a save that never had a record stays without the key.
-  const { dinnerMissionRecordsState, researchExclusions: nextExclusions, ...nextFields } = next;
+  const { dinnerMissionRecordsState, researchExclusions: nextExclusions, shopProgress: nextShop, ...nextFields } = next;
   const dinner = mergeDinnerMissionRecordsForWrite(extras?.dinnerMissionRecordsRaw, dinnerMissionRecordsState.records);
   // DM-4-3: the all-or-nothing check again, against what storage holds *at this write* (another tab
   // may have broken the record since the caller's read). Refused -> nothing is stored.
@@ -989,8 +1010,11 @@ function writeSave(
     if (extras?.researchExclusionsOpaque !== undefined) return { ...value, researchExclusions: extras.researchExclusionsOpaque };
     return value;
   };
+  // B案 Phase 1b: `shopProgress` is merged into what storage holds; a default state writes nothing (no key is created).
+  const shopValue = shopProgressForWrite(nextShop, extras?.shopProgressRaw);
+  const withShop = <T extends object>(value: T) => (shopValue === undefined ? value : { ...value, shopProgress: shopValue });
   const withDinner = <T extends object>(value: T) =>
-    withLedger(dinner.value === undefined ? value : { ...value, dinnerMissionRecords: dinner.value });
+    withShop(withLedger(dinner.value === undefined ? value : { ...value, dinnerMissionRecords: dinner.value }));
   // R8 (#617): the `pendingRound` journal. `undefined` leaves whatever storage holds (it rides through `extras.topLevel` like any
   // key this build does not own); an object replaces it; `null` removes it. A held journal (one this build cannot act on) and a
   // journal of another round are never replaced or removed -- the caller is told, and nothing is written.
@@ -1104,7 +1128,15 @@ function sanitizeSave(raw: unknown): PersistentSaveV2 | null {
     dinnerMissionRecordsState: parseDinnerMissionRecords(r.dinnerMissionRecords),
     // Research 2.0 Phase 2: read from the stored root (like the Dinner records): known recipe ids only.
     researchExclusions: sanitizeResearchExclusions(r.researchExclusions, isKnownRecipeId),
+    // B案 Phase 1b: read from the stored root; the key is added only when a readable object is stored, so every save
+    // without one loads exactly as before.
+    ...shopProgressFieldOf(r.shopProgress),
   };
+}
+
+function shopProgressFieldOf(raw: unknown): { shopProgress?: ShopProgressState } {
+  const shopProgress = sanitizeShopProgress(raw, isKnownRecipeId);
+  return shopProgress === undefined ? {} : { shopProgress };
 }
 
 /** Minimal storage interface -- matches `Storage` (localStorage/sessionStorage) but lets
@@ -1316,6 +1348,10 @@ export interface ProgressionSnapshot {
   /** Research 2.0 Phase 2: the negative ledger. Optional -- absent leaves the stored ledger as it is; a given one is
    *  merged per recipe as a set union (never lowered, never removed; known recipe ids only). */
   researchExclusions?: ResearchExclusions;
+  /** B案 Phase 1b: the shop progression state. Optional -- absent leaves the stored value as it is; a given one is merged
+   *  (reputation max, granted recipes union). A default state on a save without the key writes
+   *  nothing, so a legacy session never creates `shopProgress`. */
+  shopProgress?: ShopProgressState;
   /** DM-4-3: all-or-nothing for the Dinner settlement. When true and any record update
    *  is refused (its mission became blocked in storage underneath this session), NOTHING is written
    *  -- not the Pitz either -- so a payout can never be saved without the record that proves it.
@@ -1504,6 +1540,9 @@ function persistProgressImpl(
         ? current.researchExclusions
         : unionResearchExclusions(current.researchExclusions, sanitizeResearchExclusions(snapshot.researchExclusions, isKnownRecipeId));
     const exclusionsUnchanged = sameResearchExclusions(nextResearchExclusions, current.researchExclusions);
+    // B案 Phase 1b: merged like the ledgers above. The default state is never stored where storage has none.
+    const nextShopProgress = nextShopProgressOf(current.shopProgress, snapshot.shopProgress);
+    const shopUnchanged = sameShopProgress(nextShopProgress, current.shopProgress);
     const journalUnchanged = pendingRoundUnchanged(snapshot.pendingRound, storage);
     if (
       dexUnchanged &&
@@ -1517,6 +1556,7 @@ function persistProgressImpl(
       techniquesUnchanged &&
       dinnerUnchanged &&
       exclusionsUnchanged &&
+      shopUnchanged &&
       journalUnchanged
     ) {
       return { refusedDinnerMissionIds };
@@ -1535,6 +1575,7 @@ function persistProgressImpl(
       discoveredTechniqueIds: nextDiscoveredTechniqueIds,
       dinnerMissionRecordsState: dinnerMerge.state,
       researchExclusions: nextResearchExclusions,
+      ...(nextShopProgress === undefined ? {} : { shopProgress: nextShopProgress }),
     };
     const written = writeSave(storage, next, {
       requireDinnerRecords: snapshot.requireDinnerRecords,
@@ -1559,6 +1600,17 @@ function persistProgressImpl(
     ...(dexUnknownKeysDropped ? { dexUnknownKeysDropped: true } : {}),
     ...(failure ? { failure } : {}),
   };
+}
+
+/** B案 Phase 1b: the shop state a write stores (`undefined` = none). The snapshot's (sanitized) state is merged into the
+ *  stored one; a merge that is still the default where storage holds none stays absent. */
+function nextShopProgressOf(
+  stored: ShopProgressState | undefined,
+  snapshot: ShopProgressState | undefined,
+): ShopProgressState | undefined {
+  if (snapshot === undefined) return stored;
+  const merged = mergeShopProgress(stored ?? EMPTY_SHOP_PROGRESS, sanitizeShopProgress(snapshot, isKnownRecipeId) ?? EMPTY_SHOP_PROGRESS);
+  return stored === undefined && isDefaultShopProgress(merged) ? undefined : merged;
 }
 
 /** R8: does storage already hold `wanted` in the journal slot? (`undefined` = the caller does not touch it.) */

@@ -26,6 +26,7 @@ import {
   progressionModelFor,
   type ProgressionInputs,
 } from "./progressionModel";
+import { EMPTY_SHOP_PROGRESS } from "./shopProgress";
 
 /**
  * B案 Phase 1a (Issue #901), design §3.4 `progressionModel.legacyEquivalence`: on a set of representative saves, every
@@ -60,7 +61,7 @@ interface Save {
 }
 
 function save(name: string, dex: DexState, owned: readonly string[] = [], unlocked: readonly string[] = []): Save {
-  return { name, inputs: { dex, ownedIngredientIds: owned, unlockedForShopIngredientIds: unlocked, inventory: {} } };
+  return { name, inputs: { dex, ownedIngredientIds: owned, unlockedForShopIngredientIds: unlocked, inventory: {}, shop: EMPTY_SHOP_PROGRESS } };
 }
 
 const lateFloorCounts = [...new Set(Object.values(LATE_ENTITLEMENT_FLOORS))].flatMap((f) => [f - 1, f]).filter((n) => n >= 0 && n <= CREDITED.length);

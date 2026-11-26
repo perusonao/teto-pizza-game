@@ -12,6 +12,7 @@ import { BaseSequencer, type TestSpecification, type Vitest } from "vitest/node"
 export const DURATION_WEIGHTS_MS: Readonly<Record<string, number>> = Object.freeze({
   "src/state/gameReducer.selectableHint.test.ts": 57_214,
   "src/state/gameReducer.deductionHint.test.ts": 22_317,
+  "src/state/gameReducer.hint5.test.ts": 33_000,
   "src/components/HintSheet.hint5.test.tsx": 5_255,
   "src/components/HintSheet.test.tsx": 21_624,
   "src/logic/researchAttempt.sim.test.ts": 434_368,

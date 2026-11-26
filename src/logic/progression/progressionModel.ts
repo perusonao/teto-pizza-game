@@ -11,7 +11,8 @@
  * - `SHOP_PROGRESSION` is a Phase 1a placeholder: it returns the legacy outputs under the id `"shop"`. The shop rules
  *   (reputation, `MENU_CATALOG`) arrive in Phase 1b / 2a; until then selecting it (Preview / DEV only) changes nothing.
  *
- * Phase 1a adds no state: `ProgressionInputs` has no `shop` field yet (Phase 1b adds `ShopProgressState`).
+ * Phase 1b (Issue #901) adds `ProgressionInputs.shop` (./shopProgress.ts). The legacy model never reads it, so every legacy
+ * output is unchanged; the reducer passes it automatically (`{ ...state, dex }`), startup passes `save.shopProgress`.
  */
 import type { Recipe, RecipeId } from "../../data/recipes";
 import { discoveredRecipeIds, type DexState } from "../../state/dex";
@@ -24,17 +25,23 @@ import {
 } from "../../state/materialEntitlement";
 import { legacyRecipeChapter } from "../../state/recipeChapters";
 import { PROGRESSION_MODEL_ID, type ProgressionModelId } from "./progressionModelFlag";
+import type { ShopProgressState } from "./shopProgress";
 
 export interface ProgressionInputs {
   dex: DexState;
   ownedIngredientIds: readonly string[];
   unlockedForShopIngredientIds: readonly string[];
   inventory: InventoryState;
+  /** Phase 1b: the shop model's state (reputation, granted menu recipes, seed). The legacy model does not read it. */
+  shop: ShopProgressState;
 }
 
 /**
- * What the technique affordance can supply today (its callers hold only the Dex). Phase 1b / 2a widen this when the shop
- * rule needs more (e.g. reputation); the legacy rule reads the Dex only.
+ * What the technique affordance can supply today (its callers hold only the Dex); the legacy rule reads the Dex only.
+ * Phase 1b decision: not widened yet. The shop rule ("the material is unlocked", design §2.1-A) will need
+ * `unlockedForShopIngredientIds` (and, through the chapters, `shop.reputation`), so Phase 2a -- where `SHOP_PROGRESSION` gets
+ * its own rule -- widens this together with the callers that build it (../techniques/runtime.ts `resolveRoundTechniques` via
+ * the reducer, dexView / doughSwitch / panSwitch). Widening it now would only thread unused state through those callers.
  */
 export type MaterialReachInputs = Pick<ProgressionInputs, "dex">;
 

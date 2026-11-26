@@ -39,6 +39,8 @@ export function progressionSnapshotOf(state: GameState, pendingRound: PendingRou
     // write's forward-compat merge).
     discoveredTechniqueIds: state.discoveredTechniqueIds,
     dinnerMissionRecordUpdates: state.dinnerMissionRecordsState.records,
+    // B案 Phase 1b: merged on write (reputation max, union); a default state never creates the key.
+    shopProgress: state.shop,
     pendingRound,
   };
 }
