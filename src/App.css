@@ -8507,6 +8507,10 @@ p.hint-sheet__step {
   line-height: 1.45;
 }
 
+.result-stage-opening__item strong {
+  white-space: nowrap;
+}
+
 .result-stage-opening__item + .result-stage-opening__item {
   margin-top: 2px;
 }

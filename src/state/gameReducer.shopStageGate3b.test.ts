@@ -118,6 +118,7 @@ describe("an exact match before the stage opens: identified (判明), held off t
     expect(isDiscovered(after.dex, EARLY)).toBe(true);
     expect(getDexEntry(after.dex, EARLY)?.bestStars).toBe(3);
     expect(after.justDiscovered).toBe(false);
+    expect(after.justGotNewBest).toBe(false);
     expect(after.lastPitzCredit?.discoveryBonusPitz).toBe(0);
     expect(after.shop.reputation).toBe(10);
     expect(after.shop.awaitingMenuRecipeIds).toEqual([EARLY]);

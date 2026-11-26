@@ -1918,7 +1918,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         dex,
         unlockedForShopIngredientIds: entitlement.unlockedForShopIngredientIds,
         justDiscovered: wasNewDiscovery,
-        justGotNewBest: isNewBest,
+        // Phase 3b: a first identification is not a NEW BEST (it is the recipe's first record, like a first discovery's).
+        justGotNewBest: isNewBest && !identifiedAwaiting?.firstTime,
         phase: "DISCOVERED",
         // The Efficiency bonus is credited on top of the quality-based balance above -- additive,
         // never compounded into `lastPitzCredit.balanceAfter` itself (that field stays exactly
