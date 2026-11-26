@@ -1327,6 +1327,7 @@ function App() {
         <HomeScreen
           pitzBalance={state.pitzBalance}
           dex={state.dex}
+          shop={state.shop}
           ownedIngredientCount={ingredientCollection.owned}
           totalIngredientCount={ingredientCollection.total}
           onStartFreePlay={handleStartFreePlay}
@@ -1492,6 +1493,7 @@ function App() {
       {isDexOpen && (
         <DexOverlay
           dex={state.dex}
+          shop={state.shop}
           newlyDiscoveredId={state.justDiscovered ? state.recipe.id : null}
           newBestRecipeId={!state.justDiscovered && state.justGotNewBest ? state.recipe.id : null}
           onClose={() => setDexOpen(false)}

@@ -23,6 +23,8 @@ import { useRevealOpenedResultDetail } from "./revealOpenedResultDetail";
 import type { ReputationGain } from "../logic/progression/shopProgression";
 import { shopCopy, SHOP_COPY_ACTIVE } from "../logic/progression/shopCopy";
 import { nextRankAbove, rankForReputation, rankLabel } from "../logic/progression/shopRank";
+import { identifiedAwaitingCopy, type StageOpeningView } from "../logic/progression/shopStageView";
+import type { MenuEntryNotice } from "../state/gameReducer";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -120,6 +122,14 @@ interface ResultPanelProps {
   /** B案 Phase 2a (shop model only): what this round added to the reputation (`state.lastReputationGain`). A zero gain or
    *  `null` renders nothing, so the legacy model's RESULT is unchanged. */
   reputationGain?: ReputationGain | null;
+  /** B案 Phase 3b (shop model only): this pizza is an exact match for a recipe whose stage is not open yet (`state.lastIdentifiedAwaiting`)
+   *  -- identified, not developed. RESULT says the shop is not ready for it and when it joins the menu, instead of 「NEW MENU!」. */
+  identifiedAwaiting?: { recipeNameJa: string; chapter: number; firstTime: boolean } | null;
+  /** B案 Phase 3b (shop model only): identified recipes that joined the menu now (`state.lastMenuEntries`); their Pitz bonus is part
+   *  of the Pitz total and balance shown here. */
+  menuEntries?: MenuEntryNotice | null;
+  /** B案 Phase 3b (shop model only): what the stage this round opened brings (`stageOpeningView`), listed under the promotion line. */
+  stageOpening?: StageOpeningView | null;
   /** B案 Phase 2a (shop model only): 「次の注文へ」 -- the next service order. When wired it is the primary CTA and the retry
    *  becomes secondary; absent (legacy), the CTAs are as before. */
   onNextOrder?: () => void;
@@ -253,6 +263,9 @@ export function ResultPanel({
   onRetrySameRecipe,
   onBackToPizzaSelect,
   reputationGain = null,
+  identifiedAwaiting = null,
+  menuEntries = null,
+  stageOpening = null,
   onNextOrder: onNextOrderProp,
   practice = false,
   dexRegistration = null,
@@ -525,13 +538,18 @@ export function ResultPanel({
   // Pitz on one line 4. the material arrival 5. the existing bottom CTA bar (unchanged; the Dex
   // link is never added to it). Teto's heading and the bake badge are left out of this variant
   // only. Known / guided / ORIGINAL / FAILED results keep their quality-first layout.
-  const isDiscoveryResult = freeCookMatch === "NEW_DISCOVERY";
+  // B案 Phase 3b: an identified recipe waiting for its stage is not a development -- no NEW MENU layout.
+  const isDiscoveryResult = freeCookMatch === "NEW_DISCOVERY" && !identifiedAwaiting;
+  const awaitingCopy = identifiedAwaiting
+    ? identifiedAwaitingCopy(identifiedAwaiting.recipeNameJa, identifiedAwaiting.chapter, identifiedAwaiting.firstTime)
+    : null;
+  const menuEntryBonusPitz = menuEntries?.bonusPitz ?? 0;
   // The registration row's primary CTA is 研究 / Shop (not the Dex link itself) -> the Dex link is added beside it.
   const primaryLeadsElsewhere =
     (postDiscovery?.kind === "RESEARCH_NEXT" && !!onResearchNext) ||
     (postDiscovery?.kind === "SHOP_NEW_MATERIAL" && !!onOpenShop);
   const totalPitz = pitzCredit
-    ? pitzCredit.earnedPitz + pitzCredit.discoveryBonusPitz + (efficiencyCredit?.bonusPitz ?? 0)
+    ? pitzCredit.earnedPitz + pitzCredit.discoveryBonusPitz + (efficiencyCredit?.bonusPitz ?? 0) + menuEntryBonusPitz
     : null;
 
   return (
@@ -616,7 +634,20 @@ export function ResultPanel({
         )}
         {quantityNoteJa && <p className="result-panel__quantity-note">{quantityNoteJa}</p>}
       </div>
-      {freeCookMatch === "ALREADY_DISCOVERED" && (
+      {awaitingCopy && (
+        <div className="result-identified" data-testid="result-identified" aria-live="polite">
+          <p className="result-identified__title">
+            {"\u{1F50D}"} {awaitingCopy.titleJa}
+          </p>
+          <p className="result-identified__body">{awaitingCopy.bodyJa}</p>
+          {identifiedAwaiting?.firstTime && onOpenDex && (
+            <button type="button" className="dex-registration-row__cta" onClick={onOpenDex}>
+              {"\u{1F4D6}"} 図鑑を見る
+            </button>
+          )}
+        </div>
+      )}
+      {freeCookMatch === "ALREADY_DISCOVERED" && !identifiedAwaiting && (
         <p className="free-cook-known" aria-live="polite">
           {"\u{1F4D6}"} {recipeNameJa}ができた！{shopCopy("（発見済み）", "（メニューにあります）")}
         </p>
@@ -652,9 +683,42 @@ export function ResultPanel({
           {/* B案 Phase 2b (Owner 2026-11-26): the owner's title replaces 「第○章」 (../logic/progression/shopRank.ts). 駆け出し is
               a title-only promotion; the materials still open on the chapter floors (the notice below says when). */}
           {rankForReputation(reputationGain.after).level > rankForReputation(reputationGain.before).level ? (
-            <p className="result-reputation__chapter-up" data-testid="result-rank-up">
-              {"\u{1F389}"} {rankLabel(rankForReputation(reputationGain.after))}に昇格しました！
-            </p>
+            <>
+              <p className="result-reputation__chapter-up" data-testid="result-rank-up">
+                {"\u{1F389}"} {rankLabel(rankForReputation(reputationGain.after))}に昇格しました！
+              </p>
+              {/* B案 Phase 3b: a promotion that opens a stage lists what it opened (駆け出し opens nothing: one line only). */}
+              {stageOpening && (
+                <ul className="result-stage-opening" data-testid="result-stage-opening">
+                  {stageOpening.newRecipeCount > 0 && (
+                    <li className="result-stage-opening__item" data-stage-opening="recipes">
+                      {"\u{1F355}"} 新しいメニューを開発できるようになった：<strong>{stageOpening.newRecipeCount}品</strong>
+                    </li>
+                  )}
+                  {stageOpening.materialNamesJa.length > 0 && (
+                    <li className="result-stage-opening__item" data-stage-opening="materials">
+                      {"\u{1F9FA}"} 新しい材料が入荷：
+                      {stageOpening.materialNamesJa.map((name, i) => (
+                        <span key={name} className="material-unlock-notice__name">
+                          {name}
+                          {i < stageOpening.materialNamesJa.length - 1 ? "・" : ""}
+                        </span>
+                      ))}
+                    </li>
+                  )}
+                  {stageOpening.enteredRecipeNamesJa.length > 0 && (
+                    <li className="result-stage-opening__item" data-stage-opening="entered">
+                      {"\u{1F4CB}"} お店が大きくなって、メニューに追加：{stageOpening.enteredRecipeNamesJa.join("・")}
+                      {menuEntries && (
+                        <span className="result-stage-opening__bonus">
+                          （メニュー開発ボーナス +{menuEntries.bonusPitz} Pitz・評判 +{menuEntries.reputation}）
+                        </span>
+                      )}
+                    </li>
+                  )}
+                </ul>
+              )}
+            </>
           ) : (
             nextRankAbove(reputationGain.after) !== null && (
               <p className="result-reputation__next">
@@ -665,7 +729,15 @@ export function ResultPanel({
         </div>
       )}
 
-      {materialUnlockNotice && (
+      {/* B案 Phase 3b: when a stage opened, the promotion banner above already lists the materials; only the Shop CTA stays. */}
+      {materialUnlockNotice && stageOpening && stageOpening.materialNamesJa.length > 0 && onOpenShop && (
+        <div className="material-unlock-notice material-unlock-notice--cta-only">
+          <button type="button" className="material-unlock-notice__cta" onClick={onOpenShop}>
+            {"\u{1F6D2}"} ショップへ
+          </button>
+        </div>
+      )}
+      {materialUnlockNotice && !(stageOpening && stageOpening.materialNamesJa.length > 0) && (
         <div className="material-unlock-notice" aria-live="polite">
           {/* Each name is its own non-breaking run, so lines break only between names. The "・"
               separator ends the *previous* run: a line may break after "・" but never before it
@@ -726,6 +798,12 @@ export function ResultPanel({
                   <dd>+{pitzCredit.discoveryBonusPitz} Pitz</dd>
                 </div>
               )}
+              {menuEntryBonusPitz > 0 && (
+                <div className="pitz-credit-summary__row">
+                  <dt>メニュー入りボーナス</dt>
+                  <dd>+{menuEntryBonusPitz} Pitz</dd>
+                </div>
+              )}
               {efficiencyCredit && efficiencyCredit.bonusPitz > 0 && (
                 <div className="pitz-credit-summary__row">
                   <dt>手際ボーナス</dt>
@@ -735,7 +813,7 @@ export function ResultPanel({
               <div className="pitz-credit-summary__row">
                 <dt>所持Pitz</dt>
                 <dd>
-                  {pitzCredit.balanceBefore} {"→"} {pitzCredit.balanceAfter + (efficiencyCredit?.bonusPitz ?? 0)}
+                  {pitzCredit.balanceBefore} {"→"} {pitzCredit.balanceAfter + (efficiencyCredit?.bonusPitz ?? 0) + menuEntryBonusPitz}
                 </dd>
               </div>
             </dl>

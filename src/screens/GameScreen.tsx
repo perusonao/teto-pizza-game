@@ -35,6 +35,7 @@ import {
 import { getDinnerMission } from "../mission/dinner/dinnerMission";
 import { getReferencePizza } from "../data/referencePizza";
 import { getRecipe, type RecipeId } from "../data/recipes";
+import { stageOpeningView } from "../logic/progression/shopStageView";
 import { ReferencePreview } from "../components/ReferencePreview";
 import { PlayerReferencePreview } from "../components/PlayerReferencePreview";
 import { ReferenceThumbnail } from "../components/ReferenceThumbnail";
@@ -1365,6 +1366,22 @@ export function GameScreen({
           onRetrySameRecipe={onRetrySameRecipe}
           onBackToPizzaSelect={onBackToPizzaSelect}
           reputationGain={state.lastReputationGain}
+          identifiedAwaiting={
+            state.lastIdentifiedAwaiting
+              ? {
+                  recipeNameJa: getRecipe(state.lastIdentifiedAwaiting.recipeId)?.nameJa ?? state.recipe.nameJa,
+                  chapter: state.lastIdentifiedAwaiting.chapter,
+                  firstTime: state.lastIdentifiedAwaiting.firstTime,
+                }
+              : null
+          }
+          menuEntries={state.lastMenuEntries}
+          stageOpening={stageOpeningView(
+            state.lastReputationGain,
+            state.dex,
+            state.lastMaterialUnlockNotice?.ingredientIds ?? [],
+            state.lastMenuEntries?.recipeIds ?? [],
+          )}
           onNextOrder={onNextOrder}
           practice={isPracticeRound(state)}
           dexRegistration={dexRegistration}

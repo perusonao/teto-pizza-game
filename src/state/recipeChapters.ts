@@ -4,6 +4,7 @@ import { LATE_RECIPES } from "../data/lateCatalog";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { MATERIAL_PRICE_TIERS, materialLadderStep, priceTierForStep } from "../logic/materialShop";
 import { activeProgressionModel } from "../logic/progression/progressionModel";
+import type { ShopProgressState } from "../logic/progression/shopProgress";
 import { isDiscovered, type DexState } from "./dex";
 
 /**
@@ -64,6 +65,17 @@ export function dexDiscoveredCount(dex: DexState): number {
   if (recipes === RECIPES) return dex.filter((e) => e.discovered).length;
   const ids = new Set(recipes.map((r) => r.id as string));
   return dex.filter((e) => e.discovered && ids.has(e.recipeId)).length;
+}
+
+/**
+ * B案 Phase 3b: the Dex the menu-development counts read. Legacy: `dex` itself. Shop: a recipe identified before its stage opened
+ * (判明, waiting off the menu) is left out, so 「開発 x/60」 and each stage's 「x/12」 count the recipes on the menu only.
+ */
+export function menuCountableDex(dex: DexState, shop?: ShopProgressState): DexState {
+  const model = activeProgressionModel();
+  if (model.id !== "shop") return dex;
+  const kept = dex.filter((e) => !e.discovered || model.isRecipeStageOpen(e.recipeId, { dex, shop }));
+  return kept.length === dex.length ? dex : kept;
 }
 
 export function chapterTitleJa(chapter: number): string {
