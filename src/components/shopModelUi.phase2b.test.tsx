@@ -55,7 +55,7 @@ it("the copy switch agrees with the model switch", () => {
 describe("RESULT of a practice round (Q7)", () => {
   it("says it earned nothing, shows no reputation line and no 「次の注文へ」 -- even when they are wired", () => {
     result({ practice: true, reputationGain: GAIN, onNextOrder: vi.fn() });
-    expect(screen.getByTestId("result-practice")).toHaveTextContent("練習のピザなので、Pitz・評判は入りません");
+    expect(screen.getByTestId("result-practice")).toHaveTextContent("練習なので、Pitz・評判は入りません");
     expect(screen.queryByTestId("result-reputation")).toBeNull();
     expect(screen.queryByRole("button", { name: /次の注文へ/ })).toBeNull();
     expect(screen.getByRole("button", { name: "もう一度練習する" })).toHaveClass("cta-button--primary");

@@ -636,7 +636,7 @@ export function ResultPanel({
 
       {practice && (
         <div className="result-practice" data-testid="result-practice">
-          <p className="result-practice__text">{"\u{1F9D1}\u{200D}\u{1F373}"} 練習のピザなので、Pitz・評判は入りません</p>
+          <p className="result-practice__text">{"\u{1F9D1}\u{200D}\u{1F373}"} 練習なので、Pitz・評判は入りません</p>
           <p className="result-practice__sub">Pitz と評判は「注文を受ける」から入ります</p>
         </div>
       )}

@@ -16,7 +16,7 @@
 | 図鑑 | 練習でも Dex の記録（BEST・作った回数）は従来どおり更新する。設計 Q7 で外すのは「報酬（Pitz・評判）」なので、記録は残した |
 | R8 ジャーナル | 練習のラウンドを焼いたときは、`GUIDED` のジャーナルに `practice: true` を付ける。中断→復帰で完成させるときは `PRACTICE` として採点・登録するので、**注文ラウンドに化けない**（Pitz・評判なし）。復帰の通知に「練習のピザなので、Pitz・評判は入りません。」を出す |
 | ジャーナルの互換 | 新しい `kind` は作らず、`GUIDED` に任意のフィールドを足した（Phase 2b より前のビルドでも読める）。`practice` が `true` 以外、または Free Cooking のジャーナルに付いているときは「corrupt」として保持し、推測では補わない |
-| RESULT | 練習では「🧑‍🍳 練習のピザなので、Pitz・評判は入りません」を出す。「評判 +N」と「次の注文へ」は出さない（渡されていても出さない）。主ボタンは「もう一度練習する」 |
+| RESULT | 練習では「🧑‍🍳 練習なので、Pitz・評判は入りません」を出す。「評判 +N」と「次の注文へ」は出さない（渡されていても出さない）。主ボタンは「もう一度練習する」 |
 
 ### Owner に確認をお願いしたい判断（1 点）
 
@@ -106,7 +106,7 @@
 | HOME のリンク | 🍕 メニューから選んで作る | 🍕 メニューから選んで練習する |
 | Pizza Select の見出し | 作るピザを選ぼう！ | 練習するピザを選ぼう！ |
 | Pizza Select の注記（新設） | — | 🧑‍🍳 ここで作るピザは練習です（Pitz・評判は入りません） |
-| RESULT（練習、新設） | — | 🧑‍🍳 練習のピザなので、Pitz・評判は入りません／Pitz と評判は「注文を受ける」から入ります |
+| RESULT（練習、新設） | — | 🧑‍🍳 練習なので、Pitz・評判は入りません／Pitz と評判は「注文を受ける」から入ります |
 | RESULT の主ボタン（練習） | もう一度つくる | もう一度練習する |
 | RESULT の副ボタン（注文） | もう一度つくる | 練習でもう一度つくる |
 | RESULT の副ボタン（練習・注文） | 別のピザを作る | メニューから選んで練習する |
@@ -144,9 +144,31 @@
 | `shopModelUi.phase2b.legacy.test.tsx` | 6 | legacy：文言が従来のまま、練習の行が出ない |
 | `e2e/shop-practice-2b.spec.ts` | 2 | 実ブラウザ：legacy の Pizza Select は不変／shop で練習は 0、注文で Pitz と評判 |
 
-- ローカルの結果は PR 本文に記載します
+- **ローカルの結果**
+  - `tsc -b`／oxlint／`npm run build`：OK（oxlint の警告は既存のものだけ）
+  - vitest 全体：**13258 passed**／20 skipped（既存）／2 todo、失敗 0（703 files passed、3 skipped）
+  - e2e（Chromium 390×844）：関連する既存 spec と新しい spec で **114 passed**／2 skipped（既存の opt-in）。shop の 2 spec は 360×800 でも 10 passed
 
 ## 7. Human Verification
 
-- スクリーンショット：`docs/reports/screenshots/b-phase-2b-practice/`
-- 動画（390×844）はセッション内で直接提出し、リポジトリには commit していません
+- スクリーンショット：`docs/reports/screenshots/b-phase-2b-practice/`（before 5 枚 = `main` `99f8f3d`、after 9 枚。390×844）
+
+| Video | Viewport | Duration | Size | Verification |
+|---|---|---:|---:|---|
+| `B-PHASE-2B_shop-practice_390x844.mp4`（H.264） | 390×844 | 45.2 s | 1.13 MB | PASS |
+
+Download: セッション内で直接提出しました（リポジトリには commit していません）。
+
+Video Verification: PASS
+
+確認ポイント（動画の順。評判 14・Pitz 100・マルゲリータ発見済みのセーブ）:
+1. legacy の HOME は変わっていない（「ピザを作る」「レシピ発見」）
+2. shop の HOME：「評判 14　見習い（屋台）　次のランクまで あと 1」、「メニュー開発」、「メニューから選んで練習する」
+3. Pizza Select：「練習するピザを選ぼう！」と練習の注記
+4. マルゲリータを練習 → RESULT：「練習なので、Pitz・評判は入りません」。「評判 +N」「次の注文へ」は出ない。Pitz は 100 のまま
+   - before（`main`）では、同じ操作で「評判 +3」「+83 Pitz」が入っていた（`before-04-result-pizza-select.png`）
+5. HOME：評判 14・Pitz 100 のまま
+6. 「注文を受ける」→ RESULT：「評判 +3（14 → 17）」「駆け出し（屋台）に昇格しました！」「+83 Pitz」、主ボタン「次の注文へ」、副ボタン「練習でもう一度つくる」
+7. HOME：「駆け出し（屋台）　次のランクまで あと 23」
+8. Shop：「評判があと23で一人前：新しい材料が入荷」
+9. 練習をカットの途中で再読み込み → 「中断していたピザを完成させました／練習のピザなので、Pitz・評判は入りません。」。セーブの Pitz と評判は増えず、ジャーナルは `settled`・`practice: true`（スクリプトで確認）

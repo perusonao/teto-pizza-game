@@ -83,7 +83,7 @@ test.describe("B案 Phase 2b: Pizza Select is practice (shop model)", () => {
     await page.getByRole("button", { name: /このピザを作る/ }).click();
     await cookMargherita(page);
 
-    await expect(page.getByTestId("result-practice")).toContainText("練習のピザなので、Pitz・評判は入りません");
+    await expect(page.getByTestId("result-practice")).toContainText("練習なので、Pitz・評判は入りません");
     await expect(page.getByTestId("result-reputation")).toHaveCount(0);
     await expect(page.getByRole("button", { name: /次の注文へ/ })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "もう一度練習する" })).toBeVisible();
