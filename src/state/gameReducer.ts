@@ -9,6 +9,7 @@ import {
 } from "../data/cookingProfiles";
 import { buildMaterialUnlockNotice, type MaterialUnlockNotice } from "./materialEntitlement";
 import { activeProgressionModel } from "../logic/progression/progressionModel";
+import { EMPTY_SHOP_PROGRESS, type ShopProgressState } from "../logic/progression/shopProgress";
 import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
 import { exceedsSauceCaps, planSauceCommit, sauceUsedByKind } from "./sauceLedger";
@@ -430,6 +431,10 @@ export interface GameState {
    *  REGISTER_TO_DEX's free-cook ORIGINAL branch (`researchAttemptResult`) from the NEGATIVE rows the RESULT disclosed
    *  (INV-B1), saved by App as an additive ledger. Never part of `discoveryHintFacts` (INV-B9). Not rendered yet. */
   researchExclusions: ResearchExclusions;
+  /** B案 Phase 1b (Issue #901): the shop model's progression state (../logic/progression/shopProgress.ts), saved under
+   *  `shopProgress` only once it differs from the default. Carried through every round transition; nothing in the reducer
+   *  changes it in Phase 1b (the legacy model never reads it). A save without one starts from the default. */
+  shop: ShopProgressState;
   /** P3-3a: the display-only result of the Trial Notebook record committed by this round's REGISTER_TO_DEX
    *  (`NEW` / `DUPLICATE` with the stable `#n`), or `null` (not recorded, or no ORIGINAL committed yet). Reset for
    *  every fresh round exactly like `lastDiscovery`; the RESULT must read this, never re-look-up the notebook. */
@@ -706,6 +711,8 @@ interface ProgressionCarry {
   trialNotebook: TrialNotebook;
   /** Research 2.0 Phase 2: the persisted negative ledger (disclosed NEGATIVE rows only) survives every round transition. */
   researchExclusions: ResearchExclusions;
+  /** B案 Phase 1b: the shop progression state survives every round transition like the Dex. */
+  shop: ShopProgressState;
 }
 
 /** Builds a fresh ORDER-phase state around an already-picked `order` -- the one place that
@@ -915,6 +922,7 @@ export function createInitialGameState(
   dinnerMissionRecordsState: DinnerMissionRecordsState = EMPTY_DINNER_MISSION_RECORDS_STATE,
   discoveredTechniqueIds: readonly TechniqueId[] = [],
   researchExclusions: ResearchExclusions = {},
+  shop: ShopProgressState = EMPTY_SHOP_PROGRESS,
 ): GameState {
   return nextOrderState(
     {
@@ -935,6 +943,7 @@ export function createInitialGameState(
       discoveredTechniqueIds,
       trialNotebook: createTrialNotebook(),
       researchExclusions,
+      shop,
     },
     { preferFirst: true },
   );
@@ -2267,6 +2276,7 @@ function carryOf(state: GameState): ProgressionCarry {
     discoveredTechniqueIds: state.discoveredTechniqueIds,
     trialNotebook: state.trialNotebook,
     researchExclusions: state.researchExclusions,
+    shop: state.shop,
   };
 }
 
