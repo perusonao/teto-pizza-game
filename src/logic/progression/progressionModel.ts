@@ -35,6 +35,7 @@ import {
   chapterForReputation,
   isMaterialOpenAt,
   isOnShopMenu,
+  isRecipeStageOpenAt,
   resolveShopModelEntitlement,
   shopMenuRecipeIds,
 } from "./shopProgression";
@@ -83,6 +84,11 @@ export interface ProgressionModel {
    * itself (the same array). Shop: the adopted recipes (`MENU_CATALOG`).
    */
   catalogRecipes(): readonly Recipe[];
+  /**
+   * Phase 3b: whether a recipe's stage is open (menu development, research and hint candidates read this). Legacy: always.
+   * Shop: an adopted recipe's stage has opened by the reputation; a recipe the catalog does not adopt reads as open.
+   */
+  isRecipeStageOpen(recipeId: string, inputs: MenuInputs): boolean;
 }
 
 export const LEGACY_PROGRESSION: ProgressionModel = {
@@ -100,6 +106,7 @@ export const LEGACY_PROGRESSION: ProgressionModel = {
     return step !== null && creditedDiscoveredCount(inputs.dex) >= step;
   },
   catalogRecipes: () => RECIPES,
+  isRecipeStageOpen: () => true,
 };
 
 /** The shop model bound to a complete table and the active catalog (./shopProgression.ts). */
@@ -111,11 +118,16 @@ export function shopProgressionFor(table: CompleteReputationTable): ProgressionM
     resolveEntitlement: (inputs) => resolveShopModelEntitlement(inputs, table, activeShopCatalog()),
     chapterOf: (recipe) => catalogChapterOf(recipe.id, activeShopCatalog()) ?? legacyRecipeChapter(recipe),
     isChapterOpen: (chapter, inputs) => chapter <= chapterForReputation(shopOf(inputs).reputation, table.chapterFloors),
-    menuRecipeIds: (inputs) => shopMenuRecipeIds({ dex: inputs.dex, shop: shopOf(inputs) }, activeShopCatalog()),
-    isOnMenu: (recipeId, inputs) => isOnShopMenu(recipeId, { dex: inputs.dex, shop: shopOf(inputs) }, activeShopCatalog()),
+    // Phase 3b: the menu waits for each recipe's stage (Owner 2026-11-27).
+    menuRecipeIds: (inputs) =>
+      shopMenuRecipeIds({ dex: inputs.dex, shop: shopOf(inputs) }, activeShopCatalog(), RECIPES, table.chapterFloors),
+    isOnMenu: (recipeId, inputs) =>
+      isOnShopMenu(recipeId, { dex: inputs.dex, shop: shopOf(inputs) }, activeShopCatalog(), table.chapterFloors),
     isMaterialReached: (ingredientId, inputs) =>
       isMaterialOpenAt(ingredientId, shopOf(inputs).reputation, table, activeShopCatalog()),
     catalogRecipes: () => (adopted ??= Object.freeze([...catalogRecipes(activeShopCatalog())])),
+    isRecipeStageOpen: (recipeId, inputs) =>
+      isRecipeStageOpenAt(recipeId, shopOf(inputs).reputation, table.chapterFloors, activeShopCatalog()),
   };
 }
 

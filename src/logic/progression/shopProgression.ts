@@ -36,7 +36,7 @@ import { isDiscovered, type DexState } from "../../state/dex";
 import { ingredientUnlockStep, obtainableIngredientIds, type ShopEntitlementResult } from "../../state/materialEntitlement";
 import { legacyRecipeChapter } from "../../state/recipeChapters";
 import type { CompleteReputationTable } from "./reputationTable";
-import type { ShopProgressState } from "./shopProgress";
+import { awaitingMenuRecipeIdsOf, menuEntryPaidRecipeIdsOf, type ShopProgressState } from "./shopProgress";
 
 /** Q2: a new player's first menu. */
 export const SHOP_FIRST_MENU_RECIPE_IDS: readonly RecipeId[] = Object.freeze(["margherita"]) as readonly RecipeId[];
@@ -238,23 +238,125 @@ export interface ShopMenuInputs {
   shop: ShopProgressState;
 }
 
-/** The menu (see the header), in `RECIPES` order. */
-export function shopMenuRecipeIds(inputs: ShopMenuInputs, catalog: ShopCatalog, recipes: readonly Recipe[] = RECIPES): RecipeId[] {
+/**
+ * Phase 3b (Owner 2026-11-27): whether an adopted recipe's stage is open at this reputation. A recipe the catalog does not
+ * adopt has no stage and reads as open (the stage rule never hides it; its own treatment is Phase 3e).
+ */
+export function isRecipeStageOpenAt(
+  recipeId: string,
+  reputation: number,
+  floors: CompleteReputationTable["chapterFloors"],
+  catalog: ShopCatalog,
+): boolean {
+  const chapter = catalogChapterOf(recipeId, catalog);
+  return chapter === null || chapter <= chapterForReputation(reputation, floors);
+}
+
+/**
+ * The menu (see the header), in `RECIPES` order. Phase 3b: with `floors`, a recipe is on the menu only once its stage is open
+ * (a recipe identified earlier waits in the Dex as 判明 and joins the menu the moment its stage opens).
+ */
+export function shopMenuRecipeIds(
+  inputs: ShopMenuInputs,
+  catalog: ShopCatalog,
+  recipes: readonly Recipe[] = RECIPES,
+  floors?: CompleteReputationTable["chapterFloors"],
+): RecipeId[] {
   const adopted = new Set(catalog.entries.map((e) => e.recipeId as string));
   const granted = new Set<string>([...SHOP_FIRST_MENU_RECIPE_IDS, ...inputs.shop.grantedMenuRecipeIds]);
   return recipes
-    .filter((r) => adopted.has(r.id) && (granted.has(r.id) || isDiscovered(inputs.dex, r.id)))
+    .filter(
+      (r) =>
+        adopted.has(r.id) &&
+        (granted.has(r.id) || isDiscovered(inputs.dex, r.id)) &&
+        (!floors || isRecipeStageOpenAt(r.id, inputs.shop.reputation, floors, catalog)),
+    )
     .map((r) => r.id);
 }
 
 /** One recipe's menu membership (the same rule as `shopMenuRecipeIds`, without building the list). */
-export function isOnShopMenu(recipeId: string, inputs: ShopMenuInputs, catalog: ShopCatalog): boolean {
+export function isOnShopMenu(
+  recipeId: string,
+  inputs: ShopMenuInputs,
+  catalog: ShopCatalog,
+  floors?: CompleteReputationTable["chapterFloors"],
+): boolean {
   if (catalogChapterOf(recipeId, catalog) === null) return false;
+  if (floors && !isRecipeStageOpenAt(recipeId, inputs.shop.reputation, floors, catalog)) return false;
   return (
     SHOP_FIRST_MENU_RECIPE_IDS.includes(recipeId as RecipeId) ||
     inputs.shop.grantedMenuRecipeIds.includes(recipeId) ||
     isDiscovered(inputs.dex, recipeId)
   );
+}
+
+/**
+ * Phase 3b: an adopted recipe that is in the Dex but whose stage is not open yet -- 判明 (identified), waiting for its stage.
+ * The Dex shows it as identified with the shop's stage it joins the menu at.
+ */
+export function isIdentifiedAwaitingStage(
+  recipeId: string,
+  inputs: ShopMenuInputs,
+  floors: CompleteReputationTable["chapterFloors"],
+  catalog: ShopCatalog,
+): boolean {
+  return (
+    catalogChapterOf(recipeId, catalog) !== null &&
+    isDiscovered(inputs.dex, recipeId) &&
+    !isRecipeStageOpenAt(recipeId, inputs.shop.reputation, floors, catalog)
+  );
+}
+
+/** Adds an identified-before-its-stage recipe to the awaiting ledger (idempotent: the same object when already there). */
+export function markAwaitingMenu(shop: ShopProgressState, recipeId: string): ShopProgressState {
+  const awaiting = awaitingMenuRecipeIdsOf(shop);
+  return awaiting.includes(recipeId) ? shop : { ...shop, awaitingMenuRecipeIds: [...awaiting, recipeId] };
+}
+
+/** What the menu entries of awaiting recipes did in one settlement (RESULT shows it once; never saved). */
+export interface MenuEntrySettlement {
+  shop: ShopProgressState;
+  /** The recipes that joined the menu now, in the order they were identified. Empty = nothing happened (`shop` unchanged). */
+  enteredRecipeIds: readonly RecipeId[];
+  /** The reputation the entries added (the menu-development bonus each). */
+  reputationGained: number;
+}
+
+/**
+ * Phase 3b: every awaiting recipe whose stage is open joins the menu now and earns the menu-development bonus, exactly once (it is
+ * written to `menuEntryPaidRecipeIds` in the same step). The bonus reputation can open the next stage, whose awaiting recipes
+ * then join too (repeated until nothing changes). The Pitz half of the bonus is the caller's (`PITZ_FIRST_DISCOVERY_BONUS` each).
+ */
+export function settleAwaitingMenu(
+  shop: ShopProgressState,
+  table: CompleteReputationTable,
+  catalog: ShopCatalog,
+): MenuEntrySettlement {
+  let current = shop;
+  const entered: RecipeId[] = [];
+  let reputationGained = 0;
+  for (;;) {
+    const paid = new Set(menuEntryPaidRecipeIdsOf(current));
+    const due = awaitingMenuRecipeIdsOf(current).filter(
+      (id) => !paid.has(id) && catalogChapterOf(id, catalog) !== null && isRecipeStageOpenAt(id, current.reputation, table.chapterFloors, catalog),
+    );
+    if (due.length === 0) break;
+    const bonus = table.menuDevelopmentBonus * due.length;
+    current = {
+      ...current,
+      reputation: current.reputation + bonus,
+      menuEntryPaidRecipeIds: [...menuEntryPaidRecipeIdsOf(current), ...due],
+    };
+    entered.push(...(due as RecipeId[]));
+    reputationGained += bonus;
+  }
+  return { shop: current, enteredRecipeIds: entered, reputationGained };
+}
+
+/** The adopted recipes of one stage, in `RECIPES` order (the stage-opening banner counts them). */
+export function stageRecipeIds(chapter: number, catalog: ShopCatalog, recipes: readonly Recipe[] = RECIPES): RecipeId[] {
+  const inStage = new Set(catalog.entries.filter((e) => e.chapter === chapter).map((e) => e.recipeId as string));
+  return recipes.filter((r) => inStage.has(r.id)).map((r) => r.id);
 }
 
 /** What one round's reputation gain did (RESULT shows it once; never saved). */
