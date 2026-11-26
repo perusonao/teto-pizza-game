@@ -18,13 +18,19 @@
  * fills `MENU_CATALOG` with the Owner's 60 (5 stages x 12), so the recipes' stages, the menu and everything read through
  * it (orders, Lunch Rush, the Dex) now follow the curated list.
  *
- * **The materials stay on the interim rule in Phase 3a.** Deriving a material's stage from the curated list (77 materials,
- * the reputation-275 split of stage 4) is Phase 3b. Until then `ShopCatalog.materialEntries` is the interim catalog, so
- * every material opens at the same reputation as in Phase 2a (pinned by ./shopProgression.test.ts). The interim
- * catalog still stands in whole if `MENU_CATALOG` is ever empty.
+ * **Phase 3b: the materials come from the curated list too.** A material's stage is the stage of the first adopted recipe
+ * that uses it (77 materials: 17 / 9 / 13 / 23 / 15, the three starters in stage 1), with one split inside stage 4: twelve
+ * of its materials arrive at reputation 275 (`MATERIAL_MID_STAGE_ARRIVALS`). No override (`MATERIAL_CHAPTER_OVERRIDES` is
+ * empty). The interim catalog still stands in whole if `MENU_CATALOG` is ever empty.
  */
 import { getIngredient } from "../../data/ingredients";
-import { MENU_CATALOG, type MenuCatalogEntry } from "../../data/menuCatalog";
+import {
+  MATERIAL_CHAPTER_OVERRIDES,
+  MATERIAL_MID_STAGE_ARRIVALS,
+  MENU_CATALOG,
+  type MaterialMidStageArrival,
+  type MenuCatalogEntry,
+} from "../../data/menuCatalog";
 import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { isDiscovered, type DexState } from "../../state/dex";
 import { ingredientUnlockStep, obtainableIngredientIds, type ShopEntitlementResult } from "../../state/materialEntitlement";
@@ -45,6 +51,11 @@ export interface ShopCatalog {
   materialEntries?: readonly MenuCatalogEntry[];
   /** Ingredient id -> chapter, overriding the derived chapter. */
   materialOverrides: Readonly<Record<string, number>>;
+  /**
+   * Phase 3b: materials that arrive later than their stage's floor (stage 4's second half at 275). A material listed here
+   * opens once its stage is open **and** the reputation reaches the arrival's reputation.
+   */
+  midStageArrivals?: readonly MaterialMidStageArrival[];
   /** `true` while the interim catalog stands in for an empty curated one (recipes included). */
   interim: boolean;
 }
@@ -62,15 +73,15 @@ let curatedCatalog: ShopCatalog | null = null;
 let interimCatalog: ShopCatalog | null = null;
 
 /**
- * The catalog the shop model reads: the curated one (Phase 3a) with the materials still on the interim rule (Phase 3b
- * moves them), or the interim one whole while `MENU_CATALOG` is empty. Memoised: one object per page load.
+ * The catalog the shop model reads: the curated one (Phase 3a recipes; Phase 3b: the materials derived from it too, with
+ * stage 4's mid-stage arrivals), or the interim one whole while `MENU_CATALOG` is empty. Memoised: one object per page load.
  */
 export function activeShopCatalog(): ShopCatalog {
   if (MENU_CATALOG.length > 0) {
     curatedCatalog ??= Object.freeze({
       entries: MENU_CATALOG,
-      materialEntries: interimMenuCatalog(),
-      materialOverrides: {},
+      materialOverrides: MATERIAL_CHAPTER_OVERRIDES,
+      midStageArrivals: MATERIAL_MID_STAGE_ARRIVALS,
       interim: false,
     });
     return curatedCatalog;
@@ -141,7 +152,24 @@ function lowestRequiringChapters(entries: readonly MenuCatalogEntry[], recipes: 
   return lowest;
 }
 
-/** Whether a material can be used at this reputation: a starter, or its chapter is open. */
+/**
+ * The reputation a material opens at: 0 for a starter, its stage's floor, or (Phase 3b) its mid-stage arrival when later;
+ * `null` when the shop model never sells it.
+ */
+export function materialOpenReputationOf(
+  ingredientId: string,
+  table: CompleteReputationTable,
+  catalog: ShopCatalog,
+): number | null {
+  const chapter = materialChapterOf(ingredientId, catalog);
+  if (chapter === null) return null;
+  if (chapter === 0) return 0;
+  const floor = table.chapterFloors[chapter - 1] ?? Number.POSITIVE_INFINITY;
+  const arrival = catalog.midStageArrivals?.find((a) => a.chapter === chapter && a.ingredientIds.includes(ingredientId));
+  return arrival ? Math.max(floor, arrival.reputation) : floor;
+}
+
+/** Whether a material can be used at this reputation: a starter, or its chapter is open (and its mid-stage arrival reached). */
 export function isMaterialOpenAt(
   ingredientId: string,
   reputation: number,
@@ -149,7 +177,9 @@ export function isMaterialOpenAt(
   catalog: ShopCatalog,
 ): boolean {
   const chapter = materialChapterOf(ingredientId, catalog);
-  return chapter !== null && chapter <= chapterForReputation(reputation, table.chapterFloors);
+  if (chapter === null || chapter > chapterForReputation(reputation, table.chapterFloors)) return false;
+  const opensAt = materialOpenReputationOf(ingredientId, table, catalog);
+  return opensAt !== null && reputation >= opensAt;
 }
 
 export interface ShopEntitlementInputs {
