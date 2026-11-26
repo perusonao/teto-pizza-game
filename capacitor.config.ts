@@ -4,7 +4,7 @@ import type { CapacitorConfig } from '@capacitor/cli'
 // Owner decisions for M3 and must not be treated as final.
 const config: CapacitorConfig = {
   appId: 'com.example.tetopizza.poc',
-  appName: 'Teto Pizza PoC',
+  appName: 'Tecchan Pizza PoC',
   webDir: 'dist-app',
 }
 

@@ -10,7 +10,7 @@ import type { SaveNotice } from "../state/saveHealth";
 
 /**
  * HOME screen (Issue #24, visual pass Issue #39 PS3). The app's landing screen and
- * navigation hub -- "テトのピザ屋さん", a warm wood/brick pizzeria storefront -- with a primary
+ * navigation hub -- "てっちゃんのピザ屋さん", a warm wood/brick pizzeria storefront -- with a primary
  * CTA into Pizza Select, a secondary CTA into Lunch Rush, and sub navigation into the game's
  * other existing features (Dex, Shop). Purely presentational -- every number shown here
  * (Pitz, Dex progress) comes from `GameState`/`persistence.ts` via props, never hard-coded,
@@ -116,7 +116,7 @@ export function HomeScreen({
   return (
     <div className="home-screen">
       <header className="app-header app-header--shop-sign">
-        <h1 className="app-header__title">{"\u{1F355}"} テトのピザ屋さん</h1>
+        <h1 className="app-header__title">{"\u{1F355}"} てっちゃんのピザ屋さん</h1>
         <div className="app-header__actions">
           <span className="app-header__pitz" aria-label={`Pitz残高 ${pitzBalance}`}>
             {"\u{1FA99}"} {pitzBalance}
@@ -151,7 +151,7 @@ export function HomeScreen({
         </div>
         <div className="home-hero__cast">
           <img className="home-hero__sidekick home-hero__sidekick--mito" src={mitoImg} alt="ミト" />
-          <img className="home-hero__teto" src={tetoImg} alt="テト" />
+          <img className="home-hero__teto" src={tetoImg} alt="てっちゃん" />
           <img className="home-hero__sidekick home-hero__sidekick--blue" src={blueImg} alt="ブルー" />
         </div>
       </section>

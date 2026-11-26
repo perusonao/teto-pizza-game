@@ -14,7 +14,7 @@ const BASE_ORDERS: Order[] = [
     id: "order-margherita",
     recipeId: "margherita",
     requestedBy: "mito",
-    lineJa: "マルゲリータが食べたいな！おすすめを教えてテト！",
+    lineJa: "マルゲリータが食べたいな！おすすめを教えて、てっちゃん！",
   },
   {
     id: "order-marinara",
