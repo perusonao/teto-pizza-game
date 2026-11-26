@@ -10,7 +10,7 @@
  *   Preview included (../../preview/previewIsolation.gate.test.ts scans for it).
  *
  * The flag is per build / page load, never per save (design §3.2.1). In Phase 1a `"shop"` selects a placeholder that
- * returns the legacy outputs (./progressionModel.ts `SHOP_PROGRESSION`), and nothing in the UI reads the flag.
+ * returned the legacy outputs; Phase 2a implements it (./progressionModel.ts `SHOP_PROGRESSION`, Preview / DEV only).
  */
 import type { ProgressionModelId } from "./progressionModelId";
 import { resolveProgressionPreviewDecision } from "./progressionPreviewOptIn";

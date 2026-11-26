@@ -11,6 +11,7 @@
  */
 import { TECHNIQUES, type TechniqueId } from "../../data/techniques";
 import type { DexState } from "../../state/dex";
+import type { ShopProgressState } from "../progression/shopProgress";
 import { knownTechniqueIds } from "./registration";
 import { isTechniqueAffordanceOpenFor, productionTechniqueContext, type TechniqueRuntimeContext } from "./runtime";
 
@@ -22,6 +23,7 @@ export function techniqueDexViews(
   ledger: readonly string[],
   dex: DexState,
   context: TechniqueRuntimeContext = productionTechniqueContext(),
+  shop?: ShopProgressState,
 ): TechniqueDexView[] {
   const known = new Set(knownTechniqueIds(ledger));
   const views: TechniqueDexView[] = [];
@@ -32,7 +34,7 @@ export function techniqueDexViews(
           ? { id: t.id, state: "DISCOVERED", nameJa: t.nameJa }
           : { id: t.id, state: "DISCOVERED", nameJa: t.nameJa, descriptionJa: t.descriptionJa },
       );
-    } else if (isTechniqueAffordanceOpenFor(t.id, dex, context)) {
+    } else if (isTechniqueAffordanceOpenFor(t.id, dex, context, shop)) {
       views.push({ id: t.id, state: "RIDDLE", riddleJa: t.riddleJa });
     }
   }

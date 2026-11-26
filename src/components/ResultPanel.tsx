@@ -20,6 +20,7 @@ import { ResearchLabel } from "./ResearchLabel";
 import type { TechniqueId } from "../data/techniques";
 import { TechniqueReveal } from "./TechniqueReveal";
 import { useRevealOpenedResultDetail } from "./revealOpenedResultDetail";
+import type { ReputationGain } from "../logic/progression/shopProgression";
 
 interface ResultPanelProps {
   /** Completion Gate Phase 1: when this is `{ status: "FAILED" }`, every prop below except
@@ -114,6 +115,12 @@ interface ResultPanelProps {
   onRetrySameRecipe: () => void;
   /** Issue #47 Finding D: returns to Pizza Select so the player can choose a different recipe. */
   onBackToPizzaSelect: () => void;
+  /** B案 Phase 2a (shop model only): what this round added to the reputation (`state.lastReputationGain`). A zero gain or
+   *  `null` renders nothing, so the legacy model's RESULT is unchanged. */
+  reputationGain?: ReputationGain | null;
+  /** B案 Phase 2a (shop model only): 「次の注文へ」 -- the next service order. When wired it is the primary CTA and the retry
+   *  becomes secondary; absent (legacy), the CTAs are as before. */
+  onNextOrder?: () => void;
   /** Progression 2.0 W1-d: where the just-discovered recipe landed in the Dex (canonical
    *  chapter, fixed No. inside it, chapter progress after this discovery). Shown only on a
    *  NEW_DISCOVERY result. */
@@ -240,6 +247,8 @@ export function ResultPanel({
   quantityNoteJa = null,
   onRetrySameRecipe,
   onBackToPizzaSelect,
+  reputationGain = null,
+  onNextOrder,
   dexRegistration = null,
   onOpenDex,
   nearMiss: nearMissLine = null,
@@ -277,7 +286,16 @@ export function ResultPanel({
 
   const actions = (
     <div className="action-row action-row--column result-panel__actions">
-      <button type="button" className="cta-button cta-button--primary" onClick={onRetrySameRecipe}>
+      {onNextOrder && (
+        <button type="button" className="cta-button cta-button--primary" onClick={onNextOrder}>
+          {"\u{1F9FE}"} 次の注文へ
+        </button>
+      )}
+      <button
+        type="button"
+        className={`cta-button ${onNextOrder ? "cta-button--secondary" : "cta-button--primary"}`}
+        onClick={onRetrySameRecipe}
+      >
         {freeCook ? "もう一度試す" : "もう一度つくる"}
       </button>
       <button type="button" className="cta-button cta-button--secondary" onClick={onBackToPizzaSelect}>
@@ -591,6 +609,28 @@ export function ResultPanel({
             ? `✨ ${recipeNameJa}を発見しました！`
             : `\u{1F31F} NEW BEST!`}
         </p>
+      )}
+
+      {reputationGain && reputationGain.gained > 0 && (
+        <div className="result-reputation" data-testid="result-reputation" aria-live="polite">
+          <p className="result-reputation__gain">
+            {"\u{2B50}"} 評判 <strong>+{reputationGain.gained}</strong>
+            <span className="result-reputation__total">
+              （{reputationGain.before} → {reputationGain.after}）
+            </span>
+          </p>
+          {reputationGain.chapterAfter > reputationGain.chapterBefore ? (
+            <p className="result-reputation__chapter-up">
+              {"\u{1F389}"} 第{reputationGain.chapterAfter}章に進みました！
+            </p>
+          ) : (
+            reputationGain.nextFloor !== null && (
+              <p className="result-reputation__next">
+                第{reputationGain.chapterAfter + 1}章まで あと {reputationGain.nextFloor - reputationGain.after}
+              </p>
+            )
+          )}
+        </div>
       )}
 
       {materialUnlockNotice && (

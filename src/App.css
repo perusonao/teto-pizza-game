@@ -8407,3 +8407,90 @@ p.hint-sheet__step {
 .ingredient-piece-visual__emoji .ingredient-glyph--pineapple-wedges > g > ellipse:first-child {
   display: none;
 }
+
+/* ---------- B案 Phase 2a (Issue #901): shop model only (Preview `?progression=shop`) ---------- */
+/* None of these classes render under the legacy model (Production). */
+.home-reputation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px 10px;
+  margin: 8px 16px 0;
+  padding: 6px 12px;
+  background: #fff3c9;
+  border: 2px solid #f2b705;
+  border-radius: 14px;
+  color: #6b3d12;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.home-reputation__value strong {
+  font-size: 16px;
+}
+
+.home-reputation__chapter {
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #e8562a;
+  color: #fff;
+}
+
+.home-reputation__next {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a1662f;
+}
+
+.home-select-link {
+  flex: 1 1 100%;
+  margin: 0;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  color: #a1662f;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.result-reputation {
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 6px 10px;
+  background: #fff8e1;
+  border: 2px solid #f2b705;
+  border-radius: 14px;
+  color: #6b3d12;
+  text-align: center;
+}
+
+.result-reputation p {
+  margin: 0;
+}
+
+.result-reputation__gain {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.result-reputation__total {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.result-reputation__chapter-up {
+  font-size: 14px;
+  font-weight: 800;
+  color: #e8562a;
+}
+
+.result-reputation__next {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a1662f;
+}

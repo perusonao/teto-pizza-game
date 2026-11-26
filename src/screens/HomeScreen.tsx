@@ -7,6 +7,7 @@ import type { DexState } from "../state/dex";
 import { homeBubbleJa } from "../state/homeBubble";
 import { SaveNoticeBanner } from "../components/SaveNoticeBanner";
 import type { SaveNotice } from "../state/saveHealth";
+import type { ShopReputationStatus } from "../logic/progression/shopStatus";
 
 /**
  * HOME screen (Issue #24, visual pass Issue #39 PS3). The app's landing screen and
@@ -83,6 +84,11 @@ interface HomeScreenProps {
   onAcknowledgeSaveNotice?: () => void;
   /** R8 (#617): the round journal's notices (a round completed for the player, a kept journal, a failed save). Optional. */
   roundNotices?: ReactNode;
+  /** B案 Phase 2a (shop model, Preview only): takes a service order (the Mito order from the menu). When wired, the primary
+   *  CTA becomes 「注文を受ける」 and Pizza Select moves to a small link under the CTAs. Absent under the legacy model. */
+  onTakeOrder?: () => void;
+  /** B案 Phase 2a (shop model only): the reputation line under the header. `null` / absent: nothing renders. */
+  shopStatus?: ShopReputationStatus | null;
 }
 
 export function HomeScreen({
@@ -109,6 +115,8 @@ export function HomeScreen({
   saveNotice = null,
   onAcknowledgeSaveNotice,
   roundNotices = null,
+  onTakeOrder,
+  shopStatus = null,
 }: HomeScreenProps) {
   const totalRecipes = RECIPES.length;
   const discoveredCount = dex.filter((e) => e.discovered).length;
@@ -144,6 +152,24 @@ export function HomeScreen({
 
       {roundNotices}
 
+      {shopStatus && (
+        <p
+          className="home-reputation"
+          data-testid="home-reputation"
+          aria-label={`評判 ${shopStatus.reputation}、第${shopStatus.chapter}章${
+            shopStatus.nextFloor !== null ? `、次の章まであと${shopStatus.nextFloor - shopStatus.reputation}` : ""
+          }`}
+        >
+          <span className="home-reputation__value">
+            {"\u{2B50}"} 評判 <strong>{shopStatus.reputation}</strong>
+          </span>
+          <span className="home-reputation__chapter">第{shopStatus.chapter}章</span>
+          <span className="home-reputation__next">
+            {shopStatus.nextFloor !== null ? `次の章まで あと ${shopStatus.nextFloor - shopStatus.reputation}` : "最終章"}
+          </span>
+        </p>
+      )}
+
       <section className="home-hero">
         <div className="home-hero__oven-glow" aria-hidden="true" />
         <div className="home-hero__bubble">
@@ -166,17 +192,23 @@ export function HomeScreen({
             still opens Pizza Select, whose margherita card routes back into Free Cooking, see
             PizzaSelectScreen), and ランチラッシュ stays disabled. The earlier fresh-save layout put
             all three in one row, where each label wrapped into a 5-7 line pill at 390/360px. */}
-        <button
-          type="button"
-          className={
-            lunchRushLocked && onStartFreeCook
-              ? "cta-button cta-button--secondary cta-button--home-secondary"
-              : "cta-button cta-button--primary cta-button--home"
-          }
-          onClick={onStartFreePlay}
-        >
-          {"\u{1F355}"} ピザを作る
-        </button>
+        {onTakeOrder ? (
+          <button type="button" className="cta-button cta-button--primary cta-button--home" onClick={onTakeOrder}>
+            {"\u{1F9FE}"} 注文を受ける
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={
+              lunchRushLocked && onStartFreeCook
+                ? "cta-button cta-button--secondary cta-button--home-secondary"
+                : "cta-button cta-button--primary cta-button--home"
+            }
+            onClick={onStartFreePlay}
+          >
+            {"\u{1F355}"} ピザを作る
+          </button>
+        )}
         <button
           type="button"
           className="cta-button cta-button--secondary cta-button--home-secondary"
@@ -214,6 +246,11 @@ export function HomeScreen({
           <p className="home-lunch-rush-hint home-lunch-rush-hint--no-stock">
             {"\u{1F6D2}"} 材料不足でランチラッシュできません
           </p>
+        )}
+        {onTakeOrder && (
+          <button type="button" className="home-select-link" onClick={onStartFreePlay}>
+            {"\u{1F355}"} メニューから選んで作る
+          </button>
         )}
       </div>
 

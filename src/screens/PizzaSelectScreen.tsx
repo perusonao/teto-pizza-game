@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from "react";
+import type { ShopProgressState } from "../logic/progression/shopProgress";
 import { RECIPES, type Recipe, type RecipeId } from "../data/recipes";
 import type { DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
@@ -31,6 +32,8 @@ interface PizzaSelectScreenProps {
   ownedIngredientIds: readonly string[];
   /** Shop ledger and stock -- the discovery state and cookability are derived from them. */
   unlockedForShopIngredientIds?: readonly string[];
+  /** B案 Phase 2a: the shop model's state (the menu reads it); the legacy model does not. */
+  shop?: ShopProgressState;
   inventory?: InventoryState;
   onSelectRecipe: (recipeId: RecipeId) => void;
   onBack: () => void;
@@ -174,6 +177,7 @@ export function PizzaSelectScreen({
   ownedIngredientIds,
   unlockedForShopIngredientIds = [],
   inventory = {},
+  shop,
   onSelectRecipe,
   onBack,
   onGoFreeCook,
@@ -183,7 +187,7 @@ export function PizzaSelectScreen({
 }: PizzaSelectScreenProps) {
   const [selectedRecipeId, setSelectedRecipeId] = useState<RecipeId | null>(null);
   const view = buildPizzaSelectView(
-    { dex, ownedIngredientIds, unlockedForShopIngredientIds, inventory },
+    { dex, ownedIngredientIds, unlockedForShopIngredientIds, inventory, shop },
     recipes,
     newlyDiscoveredId,
   );

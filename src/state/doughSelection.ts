@@ -12,12 +12,13 @@ import { isDoughKind, resolveDoughKind, type DoughKind } from "../logic/dough/do
 import { isDoughAffordanceOpen, isDoughSwitchVisible } from "../logic/techniques/doughSwitch";
 import { techniqueRoundEligibility } from "../logic/techniques/runtime";
 import { doughSwitchForcedOpen } from "../preview/doughKindPreview";
+import type { ShopProgressState } from "../logic/progression/shopProgress";
 import type { DexState } from "./dex";
 import type { GamePhase, MakingStep } from "./gameReducer";
 import { createEmptyPizza, type PizzaState } from "./pizzaState";
 
-export function isDoughAffordanceOpenNow(dex: DexState): boolean {
-  return doughSwitchForcedOpen() || isDoughAffordanceOpen(dex);
+export function isDoughAffordanceOpenNow(dex: DexState, shop?: ShopProgressState): boolean {
+  return doughSwitchForcedOpen() || isDoughAffordanceOpen(dex, undefined, shop);
 }
 
 export interface DoughSwitchRound {
@@ -28,6 +29,8 @@ export interface DoughSwitchRound {
   freeCook: boolean;
   recipe: object | null | undefined;
   dex: DexState;
+  /** B案 Phase 2a: the shop model's affordance reads it (legacy does not). */
+  shop?: ShopProgressState;
 }
 
 export function doughSwitchOffered(round: DoughSwitchRound): boolean {
@@ -37,7 +40,7 @@ export function doughSwitchOffered(round: DoughSwitchRound): boolean {
       phase: round.phase,
       makingStep: round.makingStep,
       eligibility: techniqueRoundEligibility(round),
-      affordanceOpen: isDoughAffordanceOpenNow(round.dex),
+      affordanceOpen: isDoughAffordanceOpenNow(round.dex, round.shop),
     })
   );
 }

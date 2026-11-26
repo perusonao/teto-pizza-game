@@ -71,6 +71,8 @@ import {
   type SaveWriteBlock,
   type ResetSaveResult,
 } from "./state/persistence";
+import { activeProgressionModel } from "./logic/progression/progressionModel";
+import { SHOP_MODEL_ACTIVE, shopReputationStatus } from "./logic/progression/shopStatus";
 import { techniqueDexViews } from "./logic/techniques/dexView";
 import { ingredientCollectionCount, newShopMaterialCount } from "./state/materialEntitlement";
 import { inspectSaveHealth, type SaveHealth } from "./state/saveHealth";
@@ -238,7 +240,11 @@ function App() {
   // Progression 2.0 Phase 3-3 (Issue #198): true once the player has discovered any recipe at
   // all -- gates Lunch Rush (HOME's own button + handleStartLunchRush below) until the player's
   // first discovery. Derived, never independently stored, same discipline as `activeCategory`.
-  const hasAnyDiscovery = state.dex.some((entry) => entry.discovered);
+  // B案 Phase 2a: under the shop model (Preview only) the gate is "the menu has a recipe" (the first menu, Q2); the legacy
+  // expression is unchanged.
+  const hasAnyDiscovery = SHOP_MODEL_ACTIVE
+    ? activeProgressionModel().menuRecipeIds(state).length > 0
+    : state.dex.some((entry) => entry.discovered);
   // Dinner Mission DM-3: unlocked missions, derived from the Dex (never saved).
   const dinnerUnlockedCount = DINNER_MISSIONS.filter((m) => isDinnerMissionUnlocked(m, state.dex)).length;
   // Issue #212 (OD-2): Lunch Rush also needs at least one discovered recipe that is cookable with
@@ -1116,6 +1122,14 @@ function App() {
     setScreen("PIZZA_SELECT");
   }
 
+  // B案 Phase 2a (shop model, Preview only): 「注文を受ける」 / RESULT's 「次の注文へ」 -- a service order. The FREE Mito order
+  // (the ORDER phase) drawn from the menu ∩ cookable by PLAY_AGAIN's `nextOrderState`; a FREE ORDER already waiting is kept.
+  function handleTakeOrder() {
+    const waitingOrder = state.phase === "ORDER" && !state.isMissionRound && state.dinner === null && mission.mode === "FREE";
+    if (!waitingOrder) dispatch({ type: "PLAY_AGAIN" });
+    setScreen("GAME");
+  }
+
   // Pizza Select's card tap -- starts a fresh FREE round for the explicitly chosen recipe
   // (SELECT_RECIPE, src/state/gameReducer.ts) and enters GAME. Discovery 2.0 (LK-8d / NF-2): GAME
   // is entered only when the reducer will accept the selection -- the same pure authority
@@ -1242,8 +1256,8 @@ function App() {
   // CTA can unlock mid-drag rather than only after the player releases.
   // Cooking Techniques TQ-1D: the Dex's 「調理法」 section, from the ledger + the Dex + the ladder only.
   const techniqueViews = useMemo(
-    () => techniqueDexViews(state.discoveredTechniqueIds, state.dex),
-    [state.discoveredTechniqueIds, state.dex],
+    () => techniqueDexViews(state.discoveredTechniqueIds, state.dex, undefined, state.shop),
+    [state.discoveredTechniqueIds, state.dex, state.shop],
   );
   const doughShapeComplete = useMemo(
     () => isDoughShapeComplete(pendingDoughShape ?? state.pizza.doughShape),
@@ -1316,6 +1330,8 @@ function App() {
           ownedIngredientCount={ingredientCollection.owned}
           totalIngredientCount={ingredientCollection.total}
           onStartFreePlay={handleStartFreePlay}
+          onTakeOrder={SHOP_MODEL_ACTIVE ? handleTakeOrder : undefined}
+          shopStatus={SHOP_MODEL_ACTIVE ? shopReputationStatus(state.shop) : null}
           onStartFreeCook={handleStartDiscovery}
           onStartLunchRush={handleStartLunchRush}
           onOpenDinner={() => setScreen("DINNER")}
@@ -1376,6 +1392,7 @@ function App() {
           ownedIngredientIds={state.ownedIngredientIds}
           unlockedForShopIngredientIds={state.unlockedForShopIngredientIds}
           inventory={state.inventory}
+          shop={state.shop}
           onSelectRecipe={handleSelectRecipe}
           onBack={handleBackFromPizzaSelect}
           onGoFreeCook={handleStartDiscovery}
@@ -1444,6 +1461,7 @@ function App() {
           onConfirmBake={handleConfirmBake}
           roundNotices={roundSaveFailure && <RoundSaveFailureNotice copy={roundSaveFailure} />}
           onRetrySameRecipe={handleRetrySameRecipe}
+          onNextOrder={SHOP_MODEL_ACTIVE ? handleTakeOrder : undefined}
           onBackToPizzaSelect={handleBackToPizzaSelectFromDiscovered}
           onOpenShop={openShop}
           onOpenDex={() => setDexOpen(true)}
@@ -1506,6 +1524,7 @@ function App() {
           onPurchase={handlePurchaseIngredient}
           onRestock={handleRestockIngredient}
           onClose={() => setShopOpen(false)}
+          shopStatus={SHOP_MODEL_ACTIVE ? shopReputationStatus(state.shop) : null}
         />
       )}
 

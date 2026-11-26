@@ -1,7 +1,9 @@
 import { getNextOrder, type Order } from "../data/orders";
 import { getRecipe, participatesInLunchRush, RECIPES, type Recipe, type RecipeId } from "../data/recipes";
-import { discoveredRecipeIds, type DexState } from "../state/dex";
+import type { DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
+import { activeProgressionModel } from "../logic/progression/progressionModel";
+import type { ShopProgressState } from "../logic/progression/shopProgress";
 import { availableRecipeIds } from "../state/progression";
 import { isRecipeCookable } from "../state/recipeDiscoveryState";
 import { EMPTY_MISSION_METRICS, recordServe, type MissionMetrics } from "../logic/missionScoring";
@@ -109,6 +111,8 @@ export interface MissionPoolInputs {
   dex: DexState;
   ownedIngredientIds: readonly string[];
   inventory: InventoryState;
+  /** B案 Phase 2a: the shop model's state (its menu reads it); the legacy model does not. */
+  shop?: ShopProgressState;
 }
 
 /**
@@ -121,7 +125,8 @@ export function missionOrderRecipeIds(
   soldOutRecipeIds: readonly string[] = [],
   recipes: readonly Pick<Recipe, "id" | "lunchRush">[] = RECIPES,
 ): RecipeId[] {
-  const discovered = new Set(discoveredRecipeIds(inputs.dex));
+  // B案 Phase 2a (Q8): the candidates are the menu (legacy: the discovered recipes, the same set as before).
+  const discovered = new Set<string>(activeProgressionModel().menuRecipeIds(inputs));
   const soldOut = new Set(soldOutRecipeIds);
   // The one merge point every Lunch Rush pool derives from: a recipe with `lunchRush: false`
   // (D-4) never enters it, so it is neither ordered nor counted as cookable for the run.

@@ -19,9 +19,14 @@ function idealEvaluation() {
   return evaluateCut([idealCutLine(0, 3), idealCutLine(1, 3), idealCutLine(2, 3)]);
 }
 
+function setUrlSearch(search: string) {
+  window.history.replaceState({}, "", `/${search}`);
+}
+
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
+  setUrlSearch("");
 });
 
 /**
@@ -41,21 +46,47 @@ describe("Production/Preview gating (mirrors ScoringV2DebugPanel's pattern)", ()
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("Preview (VITE_PREVIEW_MODE true) renders the debug panel with the cutScore line", () => {
+  it("Preview (VITE_PREVIEW_MODE true) WITHOUT ?debug=1 renders nothing (hidden by default)", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    const { container } = render(<CutDebugPanel evaluation={idealEvaluation()} />);
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByText(/CUT Debug/)).not.toBeInTheDocument();
+  });
+
+  it("Preview + a debug query other than exactly debug=1 (debug=0 / debug=true / other keys) renders nothing", () => {
+    vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    for (const search of ["?debug=0", "?debug=true", "?debug=", "?inspector=1"]) {
+      setUrlSearch(search);
+      const { container, unmount } = render(<CutDebugPanel evaluation={idealEvaluation()} />);
+      expect(container, search).toBeEmptyDOMElement();
+      unmount();
+    }
+  });
+
+  it("Production (VITE_PREVIEW_MODE unset) renders nothing even with ?debug=1", () => {
+    setUrlSearch("?debug=1");
+    const { container } = render(<CutDebugPanel evaluation={idealEvaluation()} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("Preview + ?debug=1 renders the debug panel with the cutScore line", () => {
+    vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
     render(<CutDebugPanel evaluation={idealEvaluation()} />);
     expect(screen.getByText(/CUT Debug/)).toBeInTheDocument();
     expect(screen.getByText(/cutScore: \d+ \/ 100/)).toBeInTheDocument();
   });
 
-  it("Preview + null evaluation (non-CUT recipe, or CUT not confirmed yet) renders nothing", () => {
+  it("Preview + ?debug=1 + null evaluation (non-CUT recipe, or CUT not confirmed yet) renders nothing", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
     const { container } = render(<CutDebugPanel evaluation={null} />);
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("Preview exposes the four raw 0-1 signals as percentages", () => {
+  it("Preview + ?debug=1 exposes the four raw 0-1 signals as percentages", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
     render(<CutDebugPanel evaluation={idealEvaluation()} />);
     expect(screen.getByText(/count \d+%/)).toBeInTheDocument();
     expect(screen.getByText(/complete \d+%/)).toBeInTheDocument();
@@ -88,6 +119,7 @@ describe("regions and thresholds (#427, Preview only)", () => {
 
   it("shows all regions / significant ones and the thresholds; a tiny centre triangle is 7 regions, 6 significant", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
     const lines = triangle(1);
     render(<CutDebugPanel evaluation={evaluateCut(lines)} lines={lines} />);
     expect(screen.getByText("全領域 7 / 有意 6")).toBeInTheDocument();
@@ -97,6 +129,7 @@ describe("regions and thresholds (#427, Preview only)", () => {
 
   it("the 本数 chip still counts every committed line (a groove included)", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
     const lines = [...triangle(0), { start: { x: 10, y: 50 }, end: { x: 90, y: 50 }, path: [{ x: 6, y: 50 }, { x: 40, y: 50 }] }];
     render(<CutDebugPanel evaluation={evaluateCut(lines)} lines={lines} />);
     expect(screen.getByText("本数 4")).toBeInTheDocument();
@@ -105,6 +138,7 @@ describe("regions and thresholds (#427, Preview only)", () => {
 
   it("without lines the original chips are unchanged and no regions chip appears", () => {
     vi.stubEnv("VITE_PREVIEW_MODE", "true");
+    setUrlSearch("?debug=1");
     render(<CutDebugPanel evaluation={idealEvaluation()} />);
     expect(screen.queryByText(/全領域/)).not.toBeInTheDocument();
     expect(screen.getByText("本数 3")).toBeInTheDocument();

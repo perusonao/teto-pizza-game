@@ -1,5 +1,7 @@
 import { getIngredient, type Ingredient } from "../data/ingredients";
 import { getRecipe, type Recipe, type RecipeId } from "../data/recipes";
+import { activeProgressionModel } from "../logic/progression/progressionModel";
+import type { ShopProgressState } from "../logic/progression/shopProgress";
 import { isDiscovered, type DexState } from "./dex";
 import type { InventoryState } from "./inventory";
 
@@ -29,6 +31,8 @@ export interface RecipeDiscoveryInputs {
   ownedIngredientIds: readonly string[];
   unlockedForShopIngredientIds: readonly string[];
   inventory: InventoryState;
+  /** B案 Phase 2a: the shop model's state (its menu reads it); the legacy model does not. */
+  shop?: ShopProgressState;
 }
 
 /** Stock one finite ingredient has; `Infinity` for an onboarding starter (never consumed). */
@@ -76,6 +80,8 @@ export interface GuidedRoundInputs {
   dex: DexState;
   ownedIngredientIds: readonly string[];
   inventory: InventoryState;
+  /** B案 Phase 2a: the shop model's state (its menu reads it). The legacy model does not; a `GameState` carries it. */
+  shop?: ShopProgressState;
 }
 
 /**
@@ -144,5 +150,6 @@ export function recipeStockShortage(
 export function canStartGuidedRound(recipeId: string, inputs: GuidedRoundInputs): boolean {
   const recipe = getRecipe(recipeId as RecipeId);
   if (!recipe) return false;
-  return isDiscovered(inputs.dex, recipe.id) && isRecipeCookable(recipe, inputs);
+  // B案 Phase 2a (R6): "on the menu" is the one test (legacy: DISCOVERED, the same `isDiscovered` as before).
+  return activeProgressionModel().isOnMenu(recipe.id, inputs) && isRecipeCookable(recipe, inputs);
 }

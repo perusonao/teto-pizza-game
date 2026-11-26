@@ -12,8 +12,8 @@ import {
  * B案 Phase 1b (Issue #901), design §3.2.6 / R8 gate: the reputation numbers are an Owner decision. Until every value is
  * set, the shop model cannot be enabled -- a provisional number can never become a default by accident.
  *
- * When the Owner fixes the table (before Phase 2a), the "still unset" case below is the one expected follow-up: replace
- * it with the approved values' own test. Never fill the table to make this gate pass.
+ * Phase 2a: the Owner fixed the table (2026-11-26). The Phase 1b "still unset" case is replaced, as that case's own note
+ * asked, by the approved values' own test -- it pins every number exactly, so no value can drift without a new decision.
  */
 describe("reputation table gate", () => {
   it("has five chapter floors (Q12)", () => {
@@ -21,16 +21,16 @@ describe("reputation table gate", () => {
     expect(REPUTATION_TABLE.chapterFloors).toHaveLength(SHOP_CHAPTER_COUNT);
   });
 
-  it("Phase 1b: every value is still unset (null) -- the numbers are not decided", () => {
-    expect(REPUTATION_TABLE.chapterFloors.every((v) => v === null)).toBe(true);
-    expect(REPUTATION_TABLE.perOrderGain).toBeNull();
-    expect(REPUTATION_TABLE.menuDevelopmentBonus).toBeNull();
+  it("Phase 2a: holds exactly the Owner-approved numbers (2026-11-26)", () => {
+    expect([...REPUTATION_TABLE.chapterFloors]).toEqual([0, 40, 110, 210, 340]);
+    expect(REPUTATION_TABLE.perOrderGain && [...REPUTATION_TABLE.perOrderGain]).toEqual([1, 2, 3, 5, 8]);
+    expect(REPUTATION_TABLE.menuDevelopmentBonus).toBe(3);
+    expect(isReputationTableComplete(REPUTATION_TABLE)).toBe(true);
+    expect(Object.isFrozen(REPUTATION_TABLE)).toBe(true);
   });
 
   it("a table with any null is not complete, so the shop model cannot be enabled", () => {
-    expect(isReputationTableComplete(REPUTATION_TABLE)).toBe(false);
-    expect(canEnableShopProgression()).toBe(false);
-    const full: ReputationTable = { chapterFloors: [0, 1, 2, 3, 4], perOrderGain: 1, menuDevelopmentBonus: 1 };
+    const full: ReputationTable = { chapterFloors: [0, 1, 2, 3, 4], perOrderGain: [1, 1, 1, 1, 1], menuDevelopmentBonus: 1 };
     expect(isReputationTableComplete(full)).toBe(true);
     for (let i = 0; i < SHOP_CHAPTER_COUNT; i++) {
       const floors = [...full.chapterFloors] as Array<number | null>;
@@ -38,19 +38,28 @@ describe("reputation table gate", () => {
       expect(isReputationTableComplete({ ...full, chapterFloors: floors as unknown as ReputationTable["chapterFloors"] })).toBe(false);
     }
     expect(isReputationTableComplete({ ...full, perOrderGain: null })).toBe(false);
+    for (let i = 0; i < 5; i++) {
+      const gains = [1, 1, 1, 1, 1] as Array<number | null>;
+      gains[i] = null;
+      expect(isReputationTableComplete({ ...full, perOrderGain: gains as unknown as ReputationTable["perOrderGain"] })).toBe(false);
+    }
     expect(isReputationTableComplete({ ...full, menuDevelopmentBonus: null })).toBe(false);
   });
 
   it("a table that is not exactly five floors is not complete", () => {
-    const four = { chapterFloors: [0, 1, 2, 3], perOrderGain: 1, menuDevelopmentBonus: 1 } as unknown as ReputationTable;
+    const four = { chapterFloors: [0, 1, 2, 3], perOrderGain: [1, 1, 1, 1, 1], menuDevelopmentBonus: 1 } as unknown as ReputationTable;
     expect(isReputationTableComplete(four)).toBe(false);
   });
 
   it("a complete table alone is not enough: the curated catalog must not be empty (Phase 1b: it is)", () => {
-    const full: ReputationTable = { chapterFloors: [0, 1, 2, 3, 4], perOrderGain: 1, menuDevelopmentBonus: 1 };
+    const full: ReputationTable = { chapterFloors: [0, 1, 2, 3, 4], perOrderGain: [1, 1, 1, 1, 1], menuDevelopmentBonus: 1 };
     expect(MENU_CATALOG).toHaveLength(0);
+    expect(canEnableShopProgression()).toBe(false);
     expect(canEnableShopProgression(full)).toBe(false);
     expect(canEnableShopProgression(full, [{ recipeId: "margherita", chapter: 1 }])).toBe(true);
-    expect(canEnableShopProgression(REPUTATION_TABLE, [{ recipeId: "margherita", chapter: 1 }])).toBe(false);
+    // Phase 2a: the production table is complete, so only the curated catalog (Phase 3) is missing; an incomplete table
+    // still blocks it with a catalog.
+    expect(canEnableShopProgression(REPUTATION_TABLE, [{ recipeId: "margherita", chapter: 1 }])).toBe(true);
+    expect(canEnableShopProgression({ ...full, menuDevelopmentBonus: null }, [{ recipeId: "margherita", chapter: 1 }])).toBe(false);
   });
 });

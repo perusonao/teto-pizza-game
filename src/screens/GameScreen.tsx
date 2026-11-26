@@ -206,6 +206,8 @@ interface GameScreenProps {
    *  (RETRY_SAME_RECIPE), replacing the old single "もう一度作る" button that always started a
    *  *different* recipe. */
   onRetrySameRecipe: () => void;
+  /** B案 Phase 2a (shop model only): RESULT's 「次の注文へ」 (App's `handleTakeOrder`). Absent under the legacy model. */
+  onNextOrder?: () => void;
   /** Issue #47 Finding D: DISCOVERED's "別のピザを作る" -- returns to Pizza Select so the
    *  player can explicitly choose a different recipe (mirrors HOME's own 「ピザを作る」 entry
    *  point rather than picking a new recipe at random). */
@@ -311,6 +313,7 @@ export function GameScreen({
   onConfirmBake,
   roundNotices = null,
   onRetrySameRecipe,
+  onNextOrder,
   onBackToPizzaSelect,
   onOpenShop,
   onOpenDex,
@@ -433,6 +436,7 @@ export function GameScreen({
       freeCook: state.freeCook,
       recipe: state.recipe,
       dex: state.dex,
+      shop: state.shop,
     });
   // Dough Kind P2 (#577): the dough-kind chips -- the dough technique's own affordance, independent of the ○/□ switch above.
   const showDoughSwitch =
@@ -445,6 +449,7 @@ export function GameScreen({
       freeCook: state.freeCook,
       recipe: state.recipe,
       dex: state.dex,
+      shop: state.shop,
     });
   const squareDoughStart = useMemo(
     () => state.pizza.squareDough ?? (squareDoughLumpyStart ? createLumpySquareDough() : createInitialSquareDough()),
@@ -1357,6 +1362,8 @@ export function GameScreen({
           quantityNoteJa={buildQuantityNote(state.scoringV2Result)}
           onRetrySameRecipe={onRetrySameRecipe}
           onBackToPizzaSelect={onBackToPizzaSelect}
+          reputationGain={state.lastReputationGain}
+          onNextOrder={onNextOrder}
           dexRegistration={dexRegistration}
           onOpenDex={onOpenDex}
           // (#346 S4: with a valid Research Target ResultPanel itself renders no near/far line.)

@@ -2,6 +2,7 @@ import { getRecipe, RECIPES, type Recipe } from "../data/recipes";
 import type { QualityStars } from "../logic/scoring";
 import { discoveredRecipeIds, getDexEntry, isDiscovered, type DexState } from "./dex";
 import { totalStars } from "../logic/mastery";
+import { activeProgressionModel } from "../logic/progression/progressionModel";
 import { isRecipeAvailable } from "./progression";
 import { buildRecipeChapters } from "./recipeChapters";
 import { canStartGuidedRound, countRecipeDiscoveryStates, type RecipeDiscoveryInputs } from "./recipeDiscoveryState";
@@ -209,7 +210,9 @@ export function buildPizzaSelectView(
   const chapters = buildRecipeChapters(recipes).map((c): PizzaSelectChapter => {
     const cards = c.recipes.flatMap((recipe): DiscoveredRecipeCard[] => {
       const entry = getDexEntry(inputs.dex, recipe.id);
-      if (!entry?.discovered) return [];
+      // B案 Phase 2a: a card is a recipe the player has made (it has a BEST) that is on the menu. Legacy: the menu is the
+      // discovered recipes, so this is `entry.discovered` as before. Shop: a recipe outside the menu gets no card.
+      if (!entry?.discovered || !activeProgressionModel().isOnMenu(recipe.id, inputs)) return [];
       return [
         {
           recipe,

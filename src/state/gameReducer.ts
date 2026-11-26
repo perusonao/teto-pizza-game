@@ -8,7 +8,9 @@ import {
   type CookingProfile,
 } from "../data/cookingProfiles";
 import { buildMaterialUnlockNotice, type MaterialUnlockNotice } from "./materialEntitlement";
-import { activeProgressionModel } from "../logic/progression/progressionModel";
+import { activeProgressionModel, completeReputationTable } from "../logic/progression/progressionModel";
+import { orderReputationGain, serviceQualityOf } from "../logic/progression/serviceQuality";
+import { addReputation, type ReputationGain } from "../logic/progression/shopProgression";
 import { EMPTY_SHOP_PROGRESS, type ShopProgressState } from "../logic/progression/shopProgress";
 import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
@@ -40,7 +42,7 @@ import {
 import { purchaseFirstPack, refillPack } from "../logic/materialShop";
 import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
 import { evaluateCookingEfficiency, type CookingEfficiencyCredit } from "../logic/efficiency";
-import { discoveredRecipeIds, isDiscovered, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
+import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
@@ -415,6 +417,9 @@ export interface GameState {
    *  `bonusPitz` on top of `lastPitzCredit.balanceAfter` when crediting `pitzBalance`. Reset to
    *  `null` for every fresh round exactly like `lastPitzCredit`. */
   lastEfficiencyCredit: CookingEfficiencyCredit | null;
+  /** B案 Phase 2a (Issue #901): what this round added to the reputation (shop model only; RESULT shows it once). `null` for
+   *  the legacy model, a Lunch Rush / Dinner round, and every fresh round. Never saved: the reputation itself is `shop`. */
+  lastReputationGain: ReputationGain | null;
   /** Progression 2.0 Phase 3-1 (Issue #192): what REGISTER_TO_DEX's signature match
    *  (../logic/discovery/) concluded for this round's pizza -- a new discovery, an already
    *  discovered recipe, an original pizza (no match), an ambiguous match, or an exact match to
@@ -793,6 +798,7 @@ function buildOrderState(
     lastMaterialUnlockNotice: null,
     missionMaterialUnlockIds: isMissionRound ? carry.missionMaterialUnlockIds : [],
     lastEfficiencyCredit: null,
+    lastReputationGain: null,
     lastDiscovery: null,
     lastTrialAttempt: null,
     lastResearchRows: null,
@@ -817,9 +823,13 @@ function nextOrderState(
   return order ? buildOrderState(order, carry, false) : buildOrderState(FREE_COOK_ORDER, carry, false, true);
 }
 
-/** Recipe ids a guided round may start for right now (DISCOVERED ∩ cookable), in RECIPES order. */
-function guidedRecipeIds(carry: Pick<ProgressionCarry, "dex" | "ownedIngredientIds" | "inventory">): RecipeId[] {
-  return discoveredRecipeIds(carry.dex).filter((id) => canStartGuidedRound(id, carry)) as RecipeId[];
+/** Recipe ids a guided round may start for right now (the menu ∩ cookable), in RECIPES order. B案 Phase 2a: the menu comes
+ *  from the progression model (legacy: DISCOVERED, the same list as before; shop: the shop menu -- the FREE Mito orders
+ *  are the shop model's service orders). */
+function guidedRecipeIds(carry: Pick<ProgressionCarry, "dex" | "ownedIngredientIds" | "inventory" | "shop">): RecipeId[] {
+  return activeProgressionModel()
+    .menuRecipeIds(carry)
+    .filter((id) => canStartGuidedRound(id, carry)) as RecipeId[];
 }
 
 /** Picks a fresh Mission order (see ../mission/lunchRush.ts's `pickMissionOrder`) and builds
@@ -843,7 +853,8 @@ function nextMissionOrderState(
   const pool = cookableOnly ? cookable : missionOrderRecipeIds(state, missionSoldOutRecipeIds);
   // Discovery 2.0 (OD-DISC-5): both pools are discovered-only already, so the discovered filter
   // inside `pickMissionOrder` is the unchanged Issue #200 backstop.
-  const order = pickMissionOrder(pool, discoveredRecipeIds(state.dex) as RecipeId[], state.recipe.id);
+  // B案 Phase 2a: the backstop reads the menu (legacy: the discovered list, as before).
+  const order = pickMissionOrder(pool, [...activeProgressionModel().menuRecipeIds(state)], state.recipe.id);
   if (!order) return null;
   return buildOrderState(
     order,
@@ -965,7 +976,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       if (
         !state.freeCook &&
         (state.isMissionRound
-          ? !isDiscovered(state.dex, state.recipe.id) || !isRecipeCookable(state.recipe, state)
+          ? !activeProgressionModel().isOnMenu(state.recipe.id, state) || !isRecipeCookable(state.recipe, state)
           : !canStartGuidedRound(state.recipe.id, state))
       ) {
         return state;
@@ -1352,6 +1363,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           freeCook: state.freeCook,
           recipe: state.recipe,
           dex: state.dex,
+          shop: state.shop,
         })
       ) {
         return state;
@@ -1372,6 +1384,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           freeCook: state.freeCook,
           recipe: state.recipe,
           dex: state.dex,
+          shop: state.shop,
         })
       ) {
         return state;
@@ -1740,11 +1753,18 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // a guided round only ever re-registers an already-discovered recipe. A guided round whose
       // recipe is undiscovered (unreachable behind SELECT_RECIPE/BEGIN_PREPARE/RETRY, kept as the
       // last backstop) writes nothing for that id -- only the matcher below may discover it.
-      const guidedIdOnly = !state.freeCook && !isDiscovered(state.dex, state.recipe.id);
+      // B案 Phase 2a: "already discovered" is "on the menu" (legacy: the same `isDiscovered`). The shop model's first menu
+      // (margherita, Q2) is on the menu before the Dex has it, so its first served order registers it.
+      const progression = activeProgressionModel();
+      const guidedIdOnly = !state.freeCook && !progression.isOnMenu(state.recipe.id, state);
       const selectedRegistration = guidedIdOnly
         ? { dex: state.dex, wasNewDiscovery: false, isNewBest: false }
         : registerScoreToDex(state.dex, state.recipe.id, state.score);
-      const { wasNewDiscovery, isNewBest } = selectedRegistration;
+      const { isNewBest } = selectedRegistration;
+      // A first discovery is menu development, so it comes from Free Cooking only. Legacy: a guided round only re-registers a
+      // discovered recipe, so this is `selectedRegistration.wasNewDiscovery` unchanged. Shop: serving a first-menu recipe
+      // registers it in the Dex, but it is an order, not a discovery (no discovery bonus, no NEW_DISCOVERY banner).
+      const wasNewDiscovery = selectedRegistration.wasNewDiscovery && (progression.id === "legacy" || state.freeCook);
       // The selected recipe is registered exactly as before; the discovery writer only adds a
       // recipe the pizza is an exact match for that the selected registration did not already
       // write (./discoveryRegistration.ts).
@@ -1770,7 +1790,22 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // `starterGrantClaimedRecipeIds` are carried through untouched, and a newly unlocked
       // material starts at stock 0 (OD-REC04-2) until its first pack is bought.
       // B案 Phase 1a (#901): via the progression port (legacy = `resolveShopEntitlement`, same output).
-      const entitlement = activeProgressionModel().resolveEntitlement({ ...state, dex });
+      // B案 Phase 2a: the rewards read the evaluation only through the adapter (Scoring 3.0 / #176 changes only the adapter).
+      const quality = serviceQualityOf(state.score, state.cutState.evaluation);
+      // B案 Phase 2a (shop model only): a served order earns reputation by its stars, a menu development (first discovery) the
+      // bonus. Lunch Rush keeps its own run reward and earns none (R7). The entitlement below reads the raised reputation, so
+      // a chapter reached by this order opens its materials in this same transition (and RESULT announces them).
+      const reputationTable = progression.id === "shop" && !state.isMissionRound ? completeReputationTable() : null;
+      const reputation = reputationTable
+        ? addReputation(
+            state.shop,
+            (!state.freeCook && !guidedIdOnly ? orderReputationGain(quality, reputationTable) : 0) +
+              (wasNewDiscovery ? reputationTable.menuDevelopmentBonus : 0),
+            reputationTable,
+          )
+        : null;
+      const shop = reputation ? reputation.shop : state.shop;
+      const entitlement = progression.resolveEntitlement({ ...state, dex, shop });
       // FREE only: Lunch Rush keeps its existing, unchanged per-run reward
       // (calculateMissionReward via CLAIM_MISSION_REWARD/MISSION_NEXT_ORDER) -- this per-pizza
       // credit must never also apply inside a Mission round, or a Lunch Rush pizza would earn
@@ -1786,7 +1821,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         ? null
         : applyPitzCredit(
             state.recipe.baseRewardPitz,
-            state.score.total,
+            quality.total,
             state.pitzBalance,
             wasNewDiscovery,
           );
@@ -1803,7 +1838,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
           ? evaluateCookingEfficiency(
               state.recipe,
               state.cookingTiming.completedMs,
-              state.score.total,
+              quality.total,
               state.recipe.baseRewardPitz,
             )
           : null;
@@ -1823,6 +1858,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         pitzBalance: pitzBalanceAfterQuality + (lastEfficiencyCredit?.bonusPitz ?? 0),
         lastPitzCredit,
         lastEfficiencyCredit,
+        shop,
+        lastReputationGain: reputation ? reputation.gain : null,
         lastMaterialUnlockNotice: buildMaterialUnlockNotice(entitlement.newlyUnlockedMaterialIds),
         lastDiscovery: discoveryRegistration?.outcome ?? null,
         discoveredTechniqueIds: techniques.ledger,
@@ -1898,7 +1935,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // itself (REGISTER_TO_DEX above) is untouched scope, not an oversight.
       // Discovery 2.0: Lunch Rush never discovers -- only an already-discovered recipe is
       // re-registered (its pool is discovered-only; this is the reducer backstop).
-      const dex = isDiscovered(state.dex, state.recipe.id)
+      // B案 Phase 2a: "on the menu" (legacy: the same `isDiscovered`).
+      const dex = activeProgressionModel().isOnMenu(state.recipe.id, state)
         ? registerScoreToDex(state.dex, state.recipe.id, state.score).dex
         : state.dex;
       // I4b-3: the second (and last) place `dex` changes -- resolved here too for symmetry with
@@ -2150,6 +2188,7 @@ function roundTechniques(state: GameState, dexAfter: DexState) {
     dexBefore: state.dex,
     dexAfter,
     context: productionTechniqueContext(),
+    shop: state.shop,
   });
   return result.newlyDiscovered.length > 0 ? result : { ...result, ledger: state.discoveredTechniqueIds };
 }

@@ -7,14 +7,19 @@
  * In Production no catalog target requires the dough technique (INV-TQ-4), so the affordance is closed for every player until P3.
  */
 import type { DexState } from "../../state/dex";
+import type { ShopProgressState } from "../progression/shopProgress";
 import type { GamePhase, MakingStep } from "../../state/gameReducer";
 import { TECHNIQUES } from "../../data/techniques";
 import { DOUGH_TECHNIQUE_ID } from "./detection";
 import { isTechniqueAffordanceOpenFor, productionTechniqueContext, type TechniqueRoundEligibility, type TechniqueRuntimeContext } from "./runtime";
 
 /** Whether the dough technique's affordance is open for this Dex (the same rule `resolveRoundTechniques` applies). */
-export function isDoughAffordanceOpen(dex: DexState, context: TechniqueRuntimeContext = productionTechniqueContext()): boolean {
-  return isTechniqueAffordanceOpenFor(DOUGH_TECHNIQUE_ID, dex, context);
+export function isDoughAffordanceOpen(
+  dex: DexState,
+  context: TechniqueRuntimeContext = productionTechniqueContext(),
+  shop?: ShopProgressState,
+): boolean {
+  return isTechniqueAffordanceOpenFor(DOUGH_TECHNIQUE_ID, dex, context, shop);
 }
 
 export interface DoughSwitchInput {

@@ -27,8 +27,14 @@ function round(value: number): number {
  * `.cut-evaluation-summary` (ResultPanel.tsx) never will; that one only ever shows the three
  * signals the design doc's own RESULT UI section calls for, as rounded 0-100 percentages/points.
  */
+/** Preview builds show the panel only when the URL carries `?debug=1`; a plain URL never does. */
+function isDebugQueryOn(): boolean {
+  return new URLSearchParams(window.location.search).get("debug") === "1";
+}
+
 export function CutDebugPanel({ evaluation, lines, shape }: CutDebugPanelProps) {
   if (!import.meta.env.VITE_PREVIEW_MODE) return null;
+  if (!isDebugQueryOn()) return null;
   if (!evaluation) return null;
 
   const thresholds = getCutSignificanceThresholds();
