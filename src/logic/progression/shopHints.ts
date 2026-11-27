@@ -25,7 +25,8 @@
  * ## Carried over from the Pitz hints (Owner: never charged twice)
  *
  * A name the player bought before (an `ing:` fact in `discoveryHintFacts`, or an Economy 1.0 level's named line) counts as a
- * revealed ingredient slot; the sauce counts as revealed once every sauce of the recipe was named. Nothing is copied: the
+ * revealed ingredient slot; the sauce counts as revealed once every sauce of the recipe was named. The ingredient a Research
+ * Entry already tells (its unlock fact) counts the same way, as the Hint 5.0 ladder treats it. Nothing is copied: the
  * legacy ledgers are read as they are and never written by the shop model. A classification (`cls:`) or a total names no
  * ingredient and carries nothing over.
  *
@@ -196,6 +197,11 @@ export interface ShopHintInputs {
   /** The legacy Pitz hint ledgers, read only (carried-over reveals). */
   discoveryHintFacts: Readonly<Record<string, readonly string[]>>;
   discoveryHintPurchases: unknown;
+  /**
+   * The ingredient a recipe's Research Entry already tells the player (its unlock fact, 「？？？ピザ（ソーセージ）」), if any. The Hint
+   * 5.0 ladder treats it as known too (a rung it completes costs 0). Optional: absent = none.
+   */
+  researchKnownIngredientIdOf?: (recipeId: string) => string | null;
 }
 
 /** Whether every item of `recipeId` is free right now (R4 #16). */
@@ -204,7 +210,10 @@ export function isShopHintFree(recipeId: string, discoveredCount: number): boole
 }
 
 /** The ingredient names the Pitz hints gave for this recipe (only names that are ingredients of it). */
-function carriedOverNames(answer: ShopHintAnswer, inputs: Pick<ShopHintInputs, "discoveryHintFacts" | "discoveryHintPurchases">): Set<string> {
+function carriedOverNames(
+  answer: ShopHintAnswer,
+  inputs: Pick<ShopHintInputs, "discoveryHintFacts" | "discoveryHintPurchases" | "researchKnownIngredientIdOf">,
+): Set<string> {
   const facts = inputs.discoveryHintFacts;
   const stored = Object.prototype.hasOwnProperty.call(facts, answer.recipeId) ? facts[answer.recipeId] : undefined;
   const names = new Set<string>();
@@ -213,6 +222,8 @@ function carriedOverNames(answer: ShopHintAnswer, inputs: Pick<ShopHintInputs, "
     const name = parseHintFactId(id);
     if (inRecipe(name)) names.add(name);
   }
+  const researchKnown = inputs.researchKnownIngredientIdOf?.(answer.recipeId) ?? null;
+  if (inRecipe(researchKnown)) names.add(researchKnown);
   const legacy = legacyHintMapping(answer.recipeId, inputs.discoveryHintPurchases);
   if (legacy && legacy.legacyLevel > 0) {
     for (const id of legacy.grantedFactIds) {

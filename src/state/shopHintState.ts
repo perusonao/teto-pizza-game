@@ -19,9 +19,12 @@ import { activeShopCatalog } from "../logic/progression/shopProgression";
 import type { ShopProgressState } from "../logic/progression/shopProgress";
 import { discoveredRecipeIds, type DexState } from "./dex";
 import { hintKeyToppingIdOf } from "./discoveryHint";
+import { deriveResearchEntries } from "../logic/discovery/researchEntry";
 
 export interface ShopHintStateInputs {
   dex: DexState;
+  /** For the Research Entries' unlock facts (carried over as known). Optional: absent = none owned. */
+  ownedIngredientIds?: readonly string[];
   shop: ShopProgressState;
   discoveryHintFacts: Readonly<Record<string, readonly string[]>>;
   discoveryHintPurchases: unknown;
@@ -32,8 +35,26 @@ export function shopHintsActive(): boolean {
   return activeProgressionModel().id === "shop" && completeReputationTable() !== null;
 }
 
+/** One-entry memo: the Dex renders a board per slot from the same state, so the projection is derived once. */
+let researchMemo: { dex: DexState; owned: readonly string[]; facts: unknown; unlock: ReadonlyMap<string, string> } | null = null;
+
+function researchUnlockOf(state: ShopHintStateInputs): ReadonlyMap<string, string> {
+  const owned = state.ownedIngredientIds ?? NO_IDS;
+  if (researchMemo && researchMemo.dex === state.dex && researchMemo.owned === owned && researchMemo.facts === state.discoveryHintFacts) {
+    return researchMemo.unlock;
+  }
+  const { entries } = deriveResearchEntries({ dex: state.dex, ownedIngredientIds: owned, discoveryHintFacts: state.discoveryHintFacts });
+  const unlock = new Map(entries.map((e) => [e.recipeId as string, e.unlockIngredientId]));
+  researchMemo = { dex: state.dex, owned, facts: state.discoveryHintFacts, unlock };
+  return unlock;
+}
+
+const NO_IDS: readonly string[] = Object.freeze([]);
+
 function inputsOf(state: ShopHintStateInputs): ShopHintInputs {
+  const unlock = researchUnlockOf(state);
   return {
+    researchKnownIngredientIdOf: (recipeId) => unlock.get(recipeId) ?? null,
     shop: state.shop,
     discoveredCount: discoveredRecipeIds(state.dex).length,
     discoveryHintFacts: state.discoveryHintFacts,

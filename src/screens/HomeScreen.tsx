@@ -144,8 +144,8 @@ export function HomeScreen({
             <span
               className="app-header__pitz app-header__research-points"
               data-testid="home-research-points"
-              aria-label={`${RESEARCH_POINTS_COPY.label} ${researchPointBalance}（${RESEARCH_POINTS_COPY.notYetUsable}）`}
-              title={RESEARCH_POINTS_COPY.notYetUsable}
+              aria-label={`${RESEARCH_POINTS_COPY.label} ${researchPointBalance}（${RESEARCH_POINTS_COPY.usable}）`}
+              title={RESEARCH_POINTS_COPY.usable}
             >
               {RESEARCH_POINTS_COPY.icon} {researchPointBalance}
             </span>

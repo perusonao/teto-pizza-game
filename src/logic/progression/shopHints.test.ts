@@ -263,6 +263,18 @@ describe("carried over from the Pitz hints (never charged twice)", () => {
   });
 });
 
+describe("the Research Entry's own clue counts as known", () => {
+  it("its unlock ingredient is revealed for free; buying goes on with the next slot", () => {
+    const state = inputs({}, { researchKnownIngredientIdOf: (id) => (id === "meat-lovers" ? "sausage" : null) });
+    const answer = shopHintAnswer("meat-lovers", catalog, hintKeyToppingIdOf)!;
+    const view = shopHintBoardView(answer, state);
+    expect(view.slots.filter((s) => s.ingredientId !== null).map((s) => s.ingredientId)).toEqual(["sausage"]);
+    expect(view.price).toBe(1);
+    const after = buy(state, "meat-lovers", "INGREDIENT");
+    expect(hintRevealsOf(after.shop, "meat-lovers")).toEqual(["ing:mozzarella"]);
+  });
+});
+
 describe("the free Margherita hint (R4 #16)", () => {
   it("while nothing is developed (Dex 0): every Margherita item costs 0 and nothing is spent", () => {
     let state = inputs({ researchPointsEarned: 0 }, { discoveredCount: 0 });

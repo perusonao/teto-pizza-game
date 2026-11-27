@@ -40,19 +40,22 @@ function buy(state: GameState, recipeId: string, kind: "INGREDIENT" | "SAUCE" | 
 describe("PURCHASE_SHOP_HINT", () => {
   it("charges research points by the table, reveals the item, and leaves Pitz alone", () => {
     const state = stateWith(shopAt(250, { researchPointsEarned: 20 }));
-    const after = buy(state, "flammkuchen", "SAUCE"); // stage 4: 3
+    const after = buy(state, "flammkuchen", "SHAPE"); // stage 4: 3
     expect(researchPointsSpentOf(after.shop)).toBe(3);
     expect(researchPointBalanceOf(after.shop)).toBe(17);
-    expect(hintRevealsOf(after.shop, "flammkuchen")).toEqual(["sauce"]);
+    expect(hintRevealsOf(after.shop, "flammkuchen")).toEqual(["shape"]);
     expect(after.pitzBalance).toBe(state.pitzBalance);
+    expect(boardOf(after, "flammkuchen").shape).toBe("round");
+    // Its Research Entry's clue is the sauce (「？？？ピザ（フロマージュブラン…）」): known from the start, never for sale.
     expect(boardOf(after, "flammkuchen").sauceIds).toEqual(["fromage-blanc-sauce"]);
+    expect(boardOf(after, "flammkuchen").forSale).not.toContain("SAUCE");
     const again = buy(after, "flammkuchen", "INGREDIENT"); // +1
     expect(researchPointsSpentOf(again.shop)).toBe(3 + 4);
   });
 
   it("not enough points: nothing changes (the same state)", () => {
     const state = stateWith(shopAt(250, { researchPointsEarned: 2 }));
-    expect(gameReducer(state, { type: "PURCHASE_SHOP_HINT", recipeId: "flammkuchen", kind: "SAUCE", expectedPrice: 3 })).toBe(state);
+    expect(gameReducer(state, { type: "PURCHASE_SHOP_HINT", recipeId: "flammkuchen", kind: "SHAPE", expectedPrice: 3 })).toBe(state);
     expect(boardOf(state, "flammkuchen")).toMatchObject({ price: 3, balance: 2, affordable: false });
   });
 
@@ -81,7 +84,9 @@ describe("PURCHASE_SHOP_HINT", () => {
     const reloaded = buildStartup(storage).state;
     expect(researchPointBalanceOf(reloaded.shop)).toBe(6);
     const board = boardOf(reloaded, "funghi");
-    expect(board.slots.map((s) => s.ingredientId)).toEqual(["mozzarella", null]);
+    // mozzarella bought; mushroom is funghi's Research Entry clue (known without a purchase).
+    expect(board.slots.map((s) => s.ingredientId)).toEqual(["mozzarella", "mushroom"]);
+    expect(board.slots.map((s) => s.carriedOver)).toEqual([false, true]);
     expect(board.countRevealed).toBe(true);
     expect(board.forSale).not.toContain("COUNT");
     expect(gameReducer(reloaded, { type: "PURCHASE_SHOP_HINT", recipeId: "funghi", kind: "COUNT", expectedPrice: board.price })).toBe(reloaded);
