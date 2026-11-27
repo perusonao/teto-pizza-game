@@ -18,7 +18,13 @@ import {
   settleAwaitingMenu,
   type ReputationGain,
 } from "../logic/progression/shopProgression";
-import { EMPTY_SHOP_PROGRESS, type ShopProgressState } from "../logic/progression/shopProgress";
+import {
+  EMPTY_SHOP_PROGRESS,
+  researchPointBalanceOf,
+  researchPointsEarnedOf,
+  type ShopProgressState,
+} from "../logic/progression/shopProgress";
+import { researchPointsForStage, researchTrialStage } from "../logic/progression/researchPoints";
 import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
 import { exceedsSauceCaps, planSauceCommit, sauceUsedByKind } from "./sauceLedger";
@@ -452,6 +458,11 @@ export interface GameState {
   /** B案 Phase 3b (shop model only): the identified recipes that joined the menu in this round because their stage opened, with
    *  the bonus they paid (Pitz +50 and reputation +3 each, once). `null` when none did and for every fresh round; never saved. */
   lastMenuEntries: MenuEntryNotice | null;
+  /** B案 Phase 3c (shop model only): the research points this Free Cooking trial earned, once, when its result came out (RESULT
+   *  shows "+N" and the balance). Also the per-round guard: while it is set, no further REGISTER_TO_DEX of this round pays again.
+   *  `null` for the legacy model, every guided / practice / Lunch Rush / Dinner round and every fresh round; never saved (the
+   *  points themselves are `shop.researchPointsEarned`). */
+  lastResearchPointGain: ResearchPointGain | null;
   /** Progression 2.0 Phase 3-1 (Issue #192): what REGISTER_TO_DEX's signature match
    *  (../logic/discovery/) concluded for this round's pizza -- a new discovery, an already
    *  discovered recipe, an original pizza (no match), an ambiguous match, or an exact match to
@@ -760,6 +771,35 @@ interface ProgressionCarry {
  *  Mission run id) passes through untouched -- a new round never resets progression.
  *  `isMissionRound` is set explicitly by each caller (never carried) since it describes the
  *  round about to start, not something to preserve from the previous one. */
+/** B案 Phase 3c: what one Free Cooking trial earned (see `GameState.lastResearchPointGain`). */
+export interface ResearchPointGain {
+  /** Points this trial earned (`RESEARCH_POINTS_BY_STAGE`, provisional). */
+  earned: number;
+  /** The stage the trial counted as (research target -> adopted exact match -> stage 1). */
+  stage: number;
+  /** The balance after this trial (`researchPointBalanceOf`). */
+  balanceAfter: number;
+}
+
+/**
+ * B案 Phase 3c (Owner 2026-11-27, shop model only): a Free Cooking trial (menu development) earns research points once its result
+ * is out -- matched, an original pizza, or a failed (burnt) one alike; a trial left before the bake never reaches RESULT and earns
+ * nothing. Orders, practice (Pizza Select), Lunch Rush and Dinner earn none. Exactly once per round: `before` must still be at
+ * RESULT (REGISTER_TO_DEX moves every passing round on to DISCOVERED) and must not have earned yet (`lastResearchPointGain`, which
+ * a failed round -- parked at RESULT -- carries from its first REGISTER_TO_DEX). The journal settle (restart / leaving for HOME)
+ * runs the same REGISTER_TO_DEX, and its `settled` journal never settles again, so a reload cannot pay twice either.
+ */
+function registerToDexWithResearch(before: GameState, after: GameState): GameState {
+  if (before.phase !== "RESULT" || before.lastResearchPointGain !== null) return after;
+  if (!before.freeCook || before.isMissionRound || isDinnerRound(before)) return after;
+  if (activeProgressionModel().id !== "shop") return after;
+  const exactMatchRecipeId = before.score ? before.recipe.id : null;
+  const { stage } = researchTrialStage(before.researchTargetId, exactMatchRecipeId, activeShopCatalog());
+  const earned = researchPointsForStage(stage);
+  const shop: ShopProgressState = { ...after.shop, researchPointsEarned: researchPointsEarnedOf(after.shop) + earned };
+  return { ...after, shop, lastResearchPointGain: { earned, stage, balanceAfter: researchPointBalanceOf(shop) } };
+}
+
 /**
  * The round's cooking profile: the recipe's own, minus CUT on a square pan (Square-Pan Dough D1-b), plus FINISH for a Free Cooking
  * round while the Free Cooking FINISH gate is open (FIN-E3a, UD-B). Every place that re-derives the profile mid-round (pan / dough
@@ -833,6 +873,7 @@ function buildOrderState(
     lastReputationGain: null,
     lastIdentifiedAwaiting: null,
     lastMenuEntries: null,
+    lastResearchPointGain: null,
     lastDiscovery: null,
     lastTrialAttempt: null,
     lastResearchRows: null,
@@ -2741,5 +2782,7 @@ function dinnerGuardedReducer(state: GameState, action: GameAction, session: Din
 export function gameReducer(state: GameState, action: GameAction): GameState {
   if (isDinnerAction(action)) return dinnerActionReducer(state, action);
   if (state.dinner !== null) return dinnerGuardedReducer(state, action, state.dinner);
-  return baseGameReducer(state, action);
+  const next = baseGameReducer(state, action);
+  // B案 Phase 3c: research points ride on the one transition that ends every Free Cooking trial (shop model only).
+  return action.type === "REGISTER_TO_DEX" ? registerToDexWithResearch(state, next) : next;
 }

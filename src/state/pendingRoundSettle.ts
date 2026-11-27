@@ -58,6 +58,7 @@ export function settlePendingRound(base: GameState, round: PendingRound): Settle
     pendingRound: null,
     unservedConsumption: null,
     cookingTiming: null,
+    lastResearchPointGain: null,
     researchTargetId: round.research ? round.research.targetId : base.researchTargetId,
     researchTargetValidAtStart: round.research ? round.research.validAtStart : false,
   };
