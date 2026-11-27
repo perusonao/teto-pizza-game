@@ -13,7 +13,7 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import { MENU_CATALOG } from "../data/menuCatalog";
 import type { RecipeId } from "../data/recipes";
 import type { ShopProgressState } from "../logic/progression/shopProgress";
-import { identifiedAwaitingCopy, stageOpeningView, stageShopForm } from "../logic/progression/shopStageView";
+import { identifiedAwaitingCopy, stageOpeningView, stageShopForm, stageUnlockLabel } from "../logic/progression/shopStageView";
 import { HomeScreen } from "../screens/HomeScreen";
 import type { DexEntry, DexState } from "../state/dex";
 import { DexOverlay } from "./DexOverlay";
@@ -210,5 +210,48 @@ describe("the Dex and HOME: an identified recipe is 判明, not developed", () =
       />,
     );
     expect(screen.getByLabelText("レシピ図鑑 開発数 1 / 60")).toBeInTheDocument();
+  });
+});
+
+describe("the Dex: a stage not open yet says what opens it (PR #915 play check, 2026-11-27)", () => {
+  const labels = () =>
+    [...document.querySelectorAll(".dex-overlay__chapter")].map((section) =>
+      section.querySelector("[data-testid='dex-stage-unlock']")?.textContent ?? null,
+    );
+
+  it("the labels come from the title ladder and the stage floors (駆け出し 15 is no stage)", () => {
+    expect([1, 2, 3, 4, 5].map(stageUnlockLabel)).toEqual([
+      null,
+      "一人前（評判40）で解放",
+      "職人（評判110）で解放",
+      "達人（評判210）で解放",
+      "匠（評判340）で解放",
+    ]);
+    expect([1, 2, 3, 4, 5].map(stageUnlockLabel).join("")).not.toContain("駆け出し");
+  });
+
+  it("reputation 45: stages 3-5 carry their condition in the heading; the open stages 1-2 carry none", () => {
+    render(<DexOverlay dex={dexOf("margherita")} shop={shopAt(45)} newlyDiscoveredId={null} newBestRecipeId={null} onClose={vi.fn()} />);
+    expect(labels()).toEqual([null, null, "🔒 職人（評判110）で解放", "🔒 達人（評判210）で解放", "🔒 匠（評判340）で解放"]);
+    const headings = [...document.querySelectorAll(".dex-overlay__chapter .dex-overlay__chapter-title")];
+    expect(headings[2]).toHaveTextContent("職人（評判110）で解放");
+    expect(headings[2]).toHaveTextContent("0/12");
+    expect(document.querySelectorAll("[data-stage-locked]")).toHaveLength(3);
+  });
+
+  it("a new shop (reputation 0): every stage but the first; at 340 none", () => {
+    render(<DexOverlay dex={dexOf("margherita")} shop={shopAt(0)} newlyDiscoveredId={null} newBestRecipeId={null} onClose={vi.fn()} />);
+    expect(labels()).toEqual([null, "🔒 一人前（評判40）で解放", "🔒 職人（評判110）で解放", "🔒 達人（評判210）で解放", "🔒 匠（評判340）で解放"]);
+    cleanup();
+    render(<DexOverlay dex={dexOf("margherita")} shop={shopAt(340)} newlyDiscoveredId={null} newBestRecipeId={null} onClose={vi.fn()} />);
+    expect(labels()).toEqual([null, null, null, null, null]);
+  });
+
+  it("the boundary: 39 still shows stage 2's condition, 40 does not", () => {
+    render(<DexOverlay dex={dexOf("margherita")} shop={shopAt(39)} newlyDiscoveredId={null} newBestRecipeId={null} onClose={vi.fn()} />);
+    expect(labels()[1]).toBe("🔒 一人前（評判40）で解放");
+    cleanup();
+    render(<DexOverlay dex={dexOf("margherita")} shop={shopAt(40)} newlyDiscoveredId={null} newBestRecipeId={null} onClose={vi.fn()} />);
+    expect(labels()[1]).toBeNull();
   });
 });

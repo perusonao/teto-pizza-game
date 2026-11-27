@@ -5260,6 +5260,19 @@
   color: #6b4226;
 }
 
+/* PR #915 (shop model only): a stage not open yet -- 「🔒 一人前（評判40）で解放」 under the stage name. */
+.dex-overlay__chapter-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dex-overlay__chapter-unlock {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f5fae;
+}
+
 .dex-overlay__chapter-count {
   font-size: 12px;
   font-weight: 700;

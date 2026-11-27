@@ -27,6 +27,17 @@ export function stageShopForm(chapter: number): string {
   return rankAtFloor(typeof floor === "number" ? floor : 0).stage;
 }
 
+/**
+ * PR #915 Muse play check (2026-11-27): the Dex heading of a stage that is not open yet says what opens it -- the title the stage opens
+ * with and its reputation floor, e.g. 「一人前（評判40）で解放」. Both come from the title ladder and `REPUTATION_TABLE.chapterFloors`
+ * (stages 1-5 at 0 / 40 / 110 / 210 / 340; 駆け出し 15 opens no stage, so it never appears here). `null` for stage 1 or an unknown one.
+ */
+export function stageUnlockLabel(chapter: number): string | null {
+  const floor = REPUTATION_TABLE.chapterFloors[chapter - 1];
+  if (chapter <= 1 || typeof floor !== "number") return null;
+  return `${rankAtFloor(floor).title}（評判${floor}）で解放`;
+}
+
 /** RESULT: an exact match for a recipe whose stage is not open yet. */
 export function identifiedAwaitingCopy(recipeNameJa: string, chapter: number, firstTime: boolean): { titleJa: string; bodyJa: string } {
   const form = stageShopForm(chapter);

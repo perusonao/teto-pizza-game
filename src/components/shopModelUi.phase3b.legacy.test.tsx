@@ -65,5 +65,9 @@ describe("legacy: nothing of Phase 3b applies", () => {
     expect(document.querySelector("[data-dex-identified]")).toBeNull();
     expect(screen.queryByText("判明")).toBeNull();
     expect(screen.getByText(/発見 2 \//)).toBeInTheDocument();
+    // PR #915: no stage condition in any chapter heading (legacy chapters are always open).
+    expect(document.querySelector("[data-testid='dex-stage-unlock']")).toBeNull();
+    expect(document.querySelector("[data-stage-locked]")).toBeNull();
+    expect(screen.queryByText(/で解放/)).toBeNull();
   });
 });

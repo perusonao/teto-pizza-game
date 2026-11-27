@@ -5,8 +5,8 @@ import { getIngredient } from "../data/ingredients";
 import type { DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
 import { activeProgressionModel } from "../logic/progression/progressionModel";
-import type { ShopProgressState } from "../logic/progression/shopProgress";
-import { identifiedAwaitingDexLine } from "../logic/progression/shopStageView";
+import { EMPTY_SHOP_PROGRESS, type ShopProgressState } from "../logic/progression/shopProgress";
+import { identifiedAwaitingDexLine, stageUnlockLabel } from "../logic/progression/shopStageView";
 import {
   buildRecipeChapters,
   chapterProgress,
@@ -365,12 +365,26 @@ export function DexOverlay({
           )}
           {/* W1-f: the canonical 6 / 9 / 10 chapters (OD-DISC-9), each slot numbered inside its
               chapter (No. = fixed position, not discovery order). */}
-          {buildRecipeChapters().map((chapter) => {
+          {(() => {
+            const model = activeProgressionModel();
+            return buildRecipeChapters().map((chapter) => {
             const progress = chapterProgress(chapter, countDex);
+            // PR #915 (shop model only): a stage not open yet says what opens it (legacy: every chapter is open, so nothing).
+            const unlockLabel =
+              model.id === "shop" && !model.isChapterOpen(chapter.chapter, { ...inputs, shop: shop ?? EMPTY_SHOP_PROGRESS })
+                ? stageUnlockLabel(chapter.chapter)
+                : null;
             return (
-              <section key={chapter.chapter} className="dex-overlay__chapter">
+              <section key={chapter.chapter} className="dex-overlay__chapter" data-stage-locked={unlockLabel ? "" : undefined}>
                 <h3 className="dex-overlay__chapter-title">
-                  {chapter.titleJa}
+                  <span className="dex-overlay__chapter-name">
+                    {chapter.titleJa}
+                    {unlockLabel && (
+                      <span className="dex-overlay__chapter-unlock" data-testid="dex-stage-unlock">
+                        {"\u{1F512}"} {unlockLabel}
+                      </span>
+                    )}
+                  </span>
                   <span className="dex-overlay__chapter-count">
                     {progress.discovered}/{progress.total}
                     {isChapterCleared(chapter, countDex) ? " ✓" : ""}
@@ -381,7 +395,8 @@ export function DexOverlay({
                 </div>
               </section>
             );
-          })}
+            });
+          })()}
           <div className="dex-overlay__footer">
             <button type="button" className="cta-button cta-button--primary" aria-label="図鑑を閉じる" onClick={onClose}>
               閉じる

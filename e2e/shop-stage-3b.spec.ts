@@ -177,6 +177,14 @@ test.describe("B案 Phase 3b: a recipe waits for its stage (shop model)", () => 
       await noOverflow(page, "Dex identified");
     }
     await capture(page, "03-dex-identified");
+    if (STRICT) {
+      // PR #915 play check: at 39 stage 2's heading says what opens it.
+      const stage2 = page.locator(".dex-overlay__chapter").nth(1).locator(".dex-overlay__chapter-title");
+      await expect(stage2).toContainText("🔒 一人前（評判40）で解放");
+      await stage2.scrollIntoViewIfNeeded();
+      await noOverflow(page, "Dex stage 2 heading");
+      await capture(page, "08-dex-stage-unlock-label");
+    }
     await hold(page, 2500);
     await page.locator(".dex-overlay__header").getByRole("button", { name: "閉じる" }).click();
 

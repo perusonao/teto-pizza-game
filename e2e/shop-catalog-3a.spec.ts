@@ -69,7 +69,14 @@ test.describe("B案 Phase 3a: the curated 60 are the shop's Dex (shop model)", (
     await openDex(page);
     // The Dex's recipe chapters (the 🍳 technique section above them is a separate section without a count).
     const titles = (await page.locator(".dex-overlay__chapter-title").allTextContents()).filter((t) => /^第\d+章/.test(t));
-    expect(titles).toEqual(["第1章1/12", "第2章1/12", "第3章0/12", "第4章0/12", "第5章0/12"]);
+    // PR #915 (Phase 3b play check): a stage not open yet (reputation 45: stages 3-5) shows what opens it in its heading.
+    expect(titles).toEqual([
+      "第1章1/12",
+      "第2章1/12",
+      "第3章🔒 職人（評判110）で解放0/12",
+      "第4章🔒 達人（評判210）で解放0/12",
+      "第5章🔒 匠（評判340）で解放0/12",
+    ]);
     await expect(page.locator(".dex-overlay__chapter .dex-card:not(.dex-card--technique)")).toHaveCount(60);
   });
 
