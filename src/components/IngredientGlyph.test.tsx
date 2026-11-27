@@ -35,12 +35,19 @@ import { buildRecipeChapters } from "../state/recipeChapters";
 afterEach(() => cleanup());
 
 const DEDICATED: readonly DedicatedIngredientVisual[] = [
+  "tomato-sauce-bowl",
+  "mozzarella-ball",
+  "basil-leaves",
+  "bacon-rashers",
+  "button-mushrooms",
+  "olive-oil-bottle",
   "tomato-slice",
   "caper-cluster",
   "clam-valve",
   "ricotta-mound",
   "feta-cubes",
   "sausage-slices",
+  "hot-dog-in-bun",
   "hot-dog-slices",
   "shiso-leaf",
   "whitebait-school",
@@ -85,6 +92,18 @@ const PILOT_A_DEDICATED: Record<string, DedicatedIngredientVisual> = {
   feta: "feta-cubes",
   ricotta: "ricotta-mound",
 };
+const PILOT_A_SELECTION: Record<string, DedicatedIngredientVisual> = {
+  ...PILOT_A_DEDICATED,
+  "hot-dog": "hot-dog-in-bun",
+};
+const ISSUE417_ICON_ONLY: Record<string, DedicatedIngredientVisual> = {
+  "tomato-sauce": "tomato-sauce-bowl",
+  mozzarella: "mozzarella-ball",
+  basil: "basil-leaves",
+  bacon: "bacon-rashers",
+  mushroom: "button-mushrooms",
+  "olive-oil": "olive-oil-bottle",
+};
 /** Batch 8b (PR #580 Owner Decision): dedicated art for the two new materials instead of emoji. */
 const BATCH8B_DEDICATED: Record<string, DedicatedIngredientVisual> = {
   shiso: "shiso-leaf",
@@ -128,7 +147,7 @@ const B23B_DEDICATED: Record<string, DedicatedIngredientVisual> = { banana: "ban
 const B25_DEDICATED: Record<string, DedicatedIngredientVisual> = { cauliflower: "cauliflower-floret", "kebab-sauce": "kebab-sauce-swirl", daikon: "daikon-matchsticks", "liver-pate": "liver-pate-quenelle", lime: "lime-wedge", asparagus: "asparagus-spears" };
 const ALL_DEDICATED: Record<string, DedicatedIngredientVisual> = { ...B23B_DEDICATED, ...B23_DEDICATED, ...B22_DEDICATED, ...B21_DEDICATED, ...B20A_DEDICATED, ...B19_DEDICATED, ...HERB_DEDICATED, ...B17_DEDICATED, ...ISSUE739_DEDICATED, ...PILOT_D_DEDICATED, ...PILOT_E_DEDICATED, ...PHASE_B1_DEDICATED, ...W1_DEDICATED, ...PILOT_A_DEDICATED, ...BATCH8B_DEDICATED, ...ARUGULA_DEDICATED, ...SHRIMP_DEDICATED, ...V1_DEDICATED, ...B11_DEDICATED, ...B12_DEDICATED, ...B13_DEDICATED, ...B14_DEDICATED, ...LATE_DEDICATED };
 /** Every production row that draws its emoji (no dedicated visual). */
-const EMOJI_ROWS = INGREDIENTS.filter((i) => i.pieceVisual === undefined);
+const EMOJI_ROWS = INGREDIENTS.filter((i) => i.iconVisual === undefined && i.pieceVisual === undefined);
 Object.assign(ALL_DEDICATED, B25_DEDICATED);
 
 /** The pre-P1 rendering of a glyph: the emoji as a bare text node. */
@@ -166,7 +185,7 @@ describe("IngredientGlyph: default emoji path (every production ingredient witho
   it("the emoji path is a single text node, not an element", () => {
     const { container } = render(
       <span data-testid="host">
-        <IngredientGlyph ingredient={getIngredient("basil")!} />
+        <IngredientGlyph ingredient={getIngredient("garlic")!} />
       </span>,
     );
     const host = container.firstElementChild!;
@@ -286,22 +305,34 @@ describe("I5a: W1 dedicated-visual materials never draw their emoji fallback", (
 describe("Ingredient Icons 2.0 Pilot A", () => {
   const ids = Object.keys(PILOT_A_DEDICATED);
 
-  it.each(Object.entries(PILOT_A_DEDICATED))("%s draws %s and never its emoji", (id, visual) => {
+  it.each(Object.entries(PILOT_A_SELECTION))("%s draws %s and never its emoji", (id, visual) => {
     const ingredient = getIngredient(id)!;
     const { container } = render(<IngredientGlyph ingredient={ingredient} />);
     expect(container.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
     expect(container.textContent).toBe("");
   });
 
-  it("hot-dog and sausage are different drawings (3 round slices vs 2 irregular chunks)", () => {
+  it("hot-dog selection is a long sausage in a bun, distinct from sausage slices", () => {
     const svg = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
     expect(svg("hot-dog")).not.toBe(svg("sausage"));
-    expect(svg("hot-dog").match(/<circle[^>]*r="11"/g)).toHaveLength(3);
+    expect(svg("hot-dog")).toContain('data-ingredient-visual="hot-dog-in-bun"');
+    expect(svg("hot-dog")).toContain('rx="8.5"');
+    expect(svg("hot-dog")).not.toContain('<circle');
+  });
+
+  it("keeps hot-dog placed rendering on the existing three-slice pieceVisual", () => {
+    const ingredient = getIngredient("hot-dog")!;
+    expect(ingredient.iconVisual).toBe("hot-dog-in-bun");
+    expect(ingredient.pieceVisual).toBe("hot-dog-slices");
+    const html = renderToStaticMarkup(<IngredientGlyph ingredient={ingredient} variant="placed" />);
+    expect(html).toContain('data-ingredient-visual="hot-dog-slices"');
+    expect(html.match(/<circle[^>]*r="11"/g)).toHaveLength(3);
+    expect(html).not.toContain("hot-dog-in-bun");
   });
 
   it("tray chips and Inventory use the SVG for feta / ricotta / hot-dog / sausage", () => {
     for (const [category, id] of [["cheese", "feta"], ["cheese", "ricotta"], ["topping", "hot-dog"], ["topping", "sausage"]] as const) {
-      const visual = PILOT_A_DEDICATED[id];
+      const visual = PILOT_A_SELECTION[id];
       const tray = render(
         <IngredientTray
           activeCategory={category}
@@ -327,7 +358,7 @@ describe("Ingredient Icons 2.0 Pilot A", () => {
 
   it("un-migrated cheese keeps its CSS shape in the tray chip and Inventory (no emoji regression)", () => {
     const migrated = ids.filter((id) => getIngredient(id)!.category === "cheese");
-    const legacyCheese = INGREDIENTS.filter((i) => i.category === "cheese" && !i.pieceVisual).map((i) => i.id);
+    const legacyCheese = INGREDIENTS.filter((i) => i.category === "cheese" && !i.iconVisual && !i.pieceVisual).map((i) => i.id);
     expect(legacyCheese.length).toBeGreaterThan(0);
     expect(legacyCheese).not.toContain("feta");
     expect(migrated.sort()).toEqual(["feta", "ricotta"]);
@@ -387,6 +418,53 @@ describe("Ingredient Icons 2.0 Pilot A", () => {
     }
   });
 
+  it("mozzarella uses its icon SVG in selection UI but keeps the CSS physical shape on the pizza", () => {
+    const mozzarella = getIngredient("mozzarella")!;
+    expect(mozzarella.iconVisual).toBe("mozzarella-ball");
+    expect(mozzarella.pieceVisual).toBeUndefined();
+    expect(renderToStaticMarkup(<IngredientGlyph ingredient={mozzarella} />)).toContain('data-ingredient-visual="mozzarella-ball"');
+    const { container } = render(<IngredientPieceVisual ingredient={mozzarella} />);
+    expect(container.querySelector(".pizza-cheese--mozzarella")).not.toBeNull();
+    expect(container.querySelector("svg")).toBeNull();
+  });
+
+});
+
+describe("Issue #417 Phase 1–2 icon-only pilot completion", () => {
+  it.each(Object.entries(ISSUE417_ICON_ONLY))("%s selects %s without its OS emoji", (id, visual) => {
+    const ingredient = getIngredient(id)!;
+    expect(ingredient.iconVisual).toBe(visual);
+    expect(ingredient.pieceVisual).toBeUndefined();
+    const html = renderToStaticMarkup(<IngredientGlyph ingredient={ingredient} />);
+    expect(html).toContain(`data-ingredient-visual="${visual}"`);
+    expect(html).not.toContain(ingredient.emoji);
+    expect(html).not.toContain("<text");
+  });
+
+  it("keeps icon-only topping pieces on their legacy fallback so #824 remains untouched", () => {
+    for (const id of ["basil", "bacon", "mushroom"]) {
+      const ingredient = getIngredient(id)!;
+      const html = renderToStaticMarkup(<IngredientPieceVisual ingredient={ingredient} />);
+      expect(html).toContain(ingredient.emoji);
+      expect(html).not.toContain("data-ingredient-visual");
+    }
+  });
+
+  it("keeps migrated and unmigrated rows on the same fallback-capable renderer", () => {
+    expect(renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient("mushroom")!} />)).toContain("button-mushrooms");
+    expect(renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient("garlic")!} />)).toBe(getIngredient("garlic")!.emoji);
+  });
+
+  it("distinguishes mushroom, meat, cheese, and green silhouettes structurally", () => {
+    const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
+    expect(html("mushroom")).not.toContain("#d8261b");
+    expect(html("hot-dog")).toContain("hot-dog-in-bun");
+    expect(html("hot-dog")).not.toContain('<circle');
+    expect(html("hot-dog")).not.toBe(html("sausage"));
+    expect(html("mozzarella")).not.toBe(html("ricotta"));
+    expect(html("basil")).not.toBe(html("oregano"));
+    expect(html("basil")).not.toBe(html("capers"));
+  });
 });
 
 describe("P1 / I5a scope guard: identity / save untouched", () => {
@@ -410,6 +488,7 @@ describe("P1 / I5a scope guard: identity / save untouched", () => {
   it("the save never carries a visual descriptor and keeps its key", () => {
     expect(SAVE_STORAGE_KEY).toBe("teto-pizza-save-v1");
     expect(JSON.stringify(createDefaultSave())).not.toContain("pieceVisual");
+    expect(JSON.stringify(createDefaultSave())).not.toContain("iconVisual");
   });
 });
 
@@ -525,10 +604,10 @@ describe("render sites with every current ingredient (emoji path)", () => {
     );
     const items = within(getByRole("list", { name: "使った材料" })).getAllByRole("listitem");
     expect(items.map((li) => li.textContent)).toEqual(
-      INGREDIENTS.map((i) => (i.pieceVisual ? ` ${i.nameJa}` : `${i.emoji} ${i.nameJa}`)),
+      INGREDIENTS.map((i) => (i.iconVisual || i.pieceVisual ? ` ${i.nameJa}` : `${i.emoji} ${i.nameJa}`)),
     );
     expect(getByRole("list", { name: "使った材料" }).querySelectorAll("svg")).toHaveLength(
-      Object.keys(ALL_DEDICATED).length,
+      INGREDIENTS.filter((i) => i.iconVisual || i.pieceVisual).length,
     );
   });
 
@@ -560,7 +639,7 @@ describe("render sites with every current ingredient (emoji path)", () => {
     expect(container.querySelector(".shop-item__emoji svg")).toBeNull();
   });
 
-  it("Pizza Select thumbnails show each recipe's non-cheese emoji text", () => {
+  it("Pizza Select thumbnails use only the placed pieceVisual/emoji representation", () => {
     for (const recipe of RECIPES as readonly Recipe[]) {
       const { container, unmount } = render(<PizzaThumbnail recipe={recipe} />);
       const pieces = recipe.requiredIngredients
@@ -568,11 +647,13 @@ describe("render sites with every current ingredient (emoji path)", () => {
         .filter((i) => i.category !== "sauce" && i.category !== "cheese");
       const rendered = Array.from(container.querySelectorAll(".pizza-thumbnail__piece-emoji"));
       expect(rendered).toHaveLength(pieces.length);
-      // Emoji-path pieces render their emoji text; the W1 dedicated visuals render their SVG only.
+      // Completed-pizza previews never use identification-only iconVisual art: a pieceVisual renders
+      // its SVG, while an iconVisual-only ingredient deliberately keeps its legacy placed emoji.
       rendered.forEach((e, index) => {
         const ingredient = pieces[index];
-        if (ingredient.pieceVisual) {
-          expect(e.querySelector(`svg[data-ingredient-visual="${ingredient.pieceVisual}"]`)).not.toBeNull();
+        const visual = ingredient.pieceVisual;
+        if (visual) {
+          expect(e.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
           expect(e.textContent).toBe("");
         } else {
           expect(e.innerHTML).toBe(ingredient.emoji);
@@ -592,11 +673,14 @@ describe("render sites with every current ingredient (emoji path)", () => {
     // W1-f: the Dex lists recipes by canonical chapter (6 / 9 / 10), RECIPES order inside each.
     const expected = buildRecipeChapters().flatMap((c) => c.recipes).flatMap((r) => r.requiredIngredients.map((req) => {
       const i = getIngredient(req.ingredientId)!;
-      return i.pieceVisual ? ` ${i.nameJa}` : `${i.emoji} ${i.nameJa}`;
+      return i.iconVisual || i.pieceVisual ? ` ${i.nameJa}` : `${i.emoji} ${i.nameJa}`;
     }));
     expect(chips.map((c) => c.textContent)).toEqual(expected);
     // Only the W1 dedicated-visual ingredients (capers / clam / fresh-tomato) draw an SVG chip.
-    const dedicatedChips = (RECIPES as readonly Recipe[]).flatMap((r) => r.requiredIngredients).filter((q) => getIngredient(q.ingredientId)!.pieceVisual);
+    const dedicatedChips = (RECIPES as readonly Recipe[]).flatMap((r) => r.requiredIngredients).filter((q) => {
+      const ingredient = getIngredient(q.ingredientId)!;
+      return ingredient.iconVisual || ingredient.pieceVisual;
+    });
     expect(container.querySelectorAll(".dex-card__ingredient svg")).toHaveLength(dedicatedChips.length);
   });
 });
@@ -1411,7 +1495,8 @@ describe("Issue #733: beef chunks / green-pepper rings (shape discrimination)", 
       expect(html, id).not.toContain("#6a3220");
     }
     // bacon / ham / salami / pepperoni / pork / lamb / prosciutto / chicken still print their emoji, so the beef SVG never shares their glyph.
-    for (const id of ["bacon", "ham", "salami", "pepperoni"]) expect(glyph(id)).toContain(getIngredient(id)!.emoji);
+    expect(glyph("bacon")).toContain("bacon-rashers");
+    for (const id of ["ham", "salami", "pepperoni"]) expect(glyph(id)).toContain(getIngredient(id)!.emoji);
   });
 
   it("green-pepper: two hollow ring slices (even-odd fill) with a pale inner wall; no strip / arc strokes left", () => {

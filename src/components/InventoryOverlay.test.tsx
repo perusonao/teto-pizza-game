@@ -168,7 +168,7 @@ describe("InventoryOverlay (read-only stock view)", () => {
     expect(screen.queryByRole("button", { name: "補充する" })).not.toBeInTheDocument();
   });
 
-  it("test 11: renders the shared cheese physical visual (not a plain emoji) for a cheese ingredient", () => {
+  it("test 11: renders the dedicated identification icon for a Pilot cheese ingredient", () => {
     render(
       <InventoryOverlay
         ownedIngredientIds={["mozzarella"]}
@@ -179,7 +179,8 @@ describe("InventoryOverlay (read-only stock view)", () => {
     const card = screen.getByText("モッツァレラ").closest(".inventory-card") as HTMLElement;
     // OD-C: a cheese card carries no category line and no family tag (the 大分類 tab says it).
     expect(card.querySelector(".inventory-card__category, .family-tag")).toBeNull();
-    expect(card.querySelector(".pizza-cheese")).toBeInTheDocument();
+    expect(card.querySelector('[data-ingredient-visual="mozzarella-ball"]')).toBeInTheDocument();
+    expect(card.querySelector(".pizza-cheese")).toBeNull();
   });
 
   it("test 12: a 具材 card shows its family tag; sauce / cheese cards show no category line", () => {
