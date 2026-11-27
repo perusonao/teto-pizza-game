@@ -166,7 +166,7 @@ describe("Phase 3e shop menu development targets", () => {
     const result = gameReducer(baked, { type: "CONFIRM_MAKING_STEP", now });
     expect(result.phase).toBe("RESULT");
     expect(result.score).toBeNull();
-    const settled = gameReducer(result, { type: "REGISTER_TO_DEX", now });
+    const settled = gameReducer(result, { type: "REGISTER_TO_DEX" });
     expect(settled.phase).toBe("DISCOVERED");
     expect(settled.lastDiscovery).toEqual({ kind: "ORIGINAL", blockedTargetIds: [] });
     expect(settled.dex).toBe(initial.dex);
