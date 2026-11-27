@@ -20,10 +20,11 @@ export const SHOP_HINT_COPY = {
   shapeRound: "まるい生地",
   shapeSquare: "四角い天板",
   methodPlain: "ふつうに焼く",
-  methodPinsa: "ピンサ生地で焼く",
+  // A special dough is named only by the technique registry (doughPrivacy.test.tsx): the board says only that it is special.
+  methodSpecialDough: "特別な生地で焼く",
   late: "後乗せ",
   sauceNone: "なし",
-  carriedOver: "以前のヒント",
+  carriedOver: "手がかり",
   free: "はじめてのピザはヒント無料！",
   complete: "ぜんぶわかった！あとは作ってみよう。",
   short: "研究ポイントが足りません",
@@ -46,7 +47,7 @@ function shapeText(board: ShopHintBoardView): string {
 
 function methodText(board: ShopHintBoardView): string {
   if (board.method === null) return SHOP_HINT_COPY.unknown;
-  const base = board.method.dough === "standard" ? SHOP_HINT_COPY.methodPlain : SHOP_HINT_COPY.methodPinsa;
+  const base = board.method.dough === "standard" ? SHOP_HINT_COPY.methodPlain : SHOP_HINT_COPY.methodSpecialDough;
   return board.method.lateCount > 0 ? `${base}＋${SHOP_HINT_COPY.late}（焼いたあとにのせる材料 ${board.method.lateCount}種）` : base;
 }
 
