@@ -9,7 +9,7 @@ const SAVE_KEY = "teto-pizza-save-v1";
 const TARGET = "margherita";
 const PILOT_VISUALS = [
   "tomato-sauce-bowl", "mozzarella-ball", "basil-leaves", "bacon-rashers", "button-mushrooms",
-  "salmon-fillet", "ricotta-mound", "hot-dog-slices", "pineapple-wedges", "olive-oil-bottle",
+  "salmon-fillet", "ricotta-mound", "hot-dog-in-bun", "pineapple-wedges", "olive-oil-bottle",
 ] as const;
 const AFTER = process.env.ICON417_AFTER !== "0";
 
