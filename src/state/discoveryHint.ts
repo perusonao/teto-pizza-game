@@ -48,6 +48,7 @@ import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
 import {
   HINT5_RUNG_MARKER,
   hint5ClassView,
+  isKeyFreeHintRoles,
   hint5Presentation,
   parseHint5ClassFactId,
   requestHint5Rung,
@@ -56,6 +57,7 @@ import {
 } from "../logic/discovery/hint5Ladder";
 import { deriveResearchEntries, researchEntryLabel, type ResearchEntry } from "../logic/discovery/researchEntry";
 import { getIngredient } from "../data/ingredients";
+import { RECIPE_HINT_ROLES } from "../data/recipeHintRoles";
 import { INGREDIENT_TOTAL_FACT_ID } from "../logic/discovery/deductionHint";
 import { TOPPING_TOTAL_FACT_ID } from "../logic/discovery/deductionGuard";
 import { deductionKnownLines, deductionOwnership, requestDeductionHint, type DeductionFamily } from "../logic/discovery/deductionRequest";
@@ -772,4 +774,15 @@ export function researchAttemptContext(state: DiscoveryHintState): ResearchAttem
     labelJa: view.label,
     knownIngredientIds: view.knownExactIngredientIds,
   };
+}
+
+/**
+ * B案 Phase 3d (shop model): a recipe's KEY_TOPPING from the Hint 5.0 role data, or `null` (key-free, no topping, unknown id). The
+ * research point hints open it last (../logic/progression/shopHints.ts reads it through here, the Hint 5.0 wiring boundary).
+ */
+export function hintKeyToppingIdOf(recipeId: string): string | null {
+  if (!Object.prototype.hasOwnProperty.call(RECIPE_HINT_ROLES, recipeId)) return null;
+  const roles = RECIPE_HINT_ROLES[recipeId as RecipeId];
+  if (isKeyFreeHintRoles(roles)) return null;
+  return typeof roles.hintKeyToppingId === "string" ? roles.hintKeyToppingId : null;
 }

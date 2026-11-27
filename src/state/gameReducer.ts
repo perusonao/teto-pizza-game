@@ -25,6 +25,8 @@ import {
   type ShopProgressState,
 } from "../logic/progression/shopProgress";
 import { researchPointsForStage, researchTrialStage } from "../logic/progression/researchPoints";
+import type { ShopHintItemKind } from "../logic/progression/shopHints";
+import { purchaseShopHintFor, shopHintsActive } from "./shopHintState";
 import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
 import { exceedsSauceCaps, planSauceCommit, sauceUsedByKind } from "./sauceLedger";
@@ -662,6 +664,9 @@ export type GameAction =
   // behind HINT5_LADDER_ENABLED (off in every build: a no-op). `expectedRungIndex` is the rung the
   // sheet offered; a double tap or a stale sheet no longer matches and changes nothing.
   | { type: "PURCHASE_HINT5_RUNG"; expectedRungIndex: number }
+  // B案 Phase 3d (shop model only): buys one research point hint item for `recipeId` (../logic/progression/shopHints.ts).
+  // `expectedPrice` is the price the board showed (a double tap or a stale board is refused). Legacy: a no-op.
+  | { type: "PURCHASE_SHOP_HINT"; recipeId: string; kind: ShopHintItemKind; expectedPrice: number }
   | { type: "CLOSE_HINT" }
   // Phase 3C-4 (Lunch Rush): both below reuse this same round machinery (an ORDER phase with
   // a freshly-picked, available recipe) -- there is no separate Mission round state. See
@@ -2140,6 +2145,8 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     // purchase debits `pitzBalance` and raises the ledger in this one step (never one without the
     // other), exactly like PURCHASE_INGREDIENT.
     case "PURCHASE_DISCOVERY_HINT": {
+      // B案 Phase 3d (Owner 2026-11-27): Pitz never buys a hint in the shop model (research points only, PURCHASE_SHOP_HINT).
+      if (shopHintsActive()) return state;
       if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
       // H3-3: only the free Dex-0 Margherita onboarding still reveals Hint 2.0 levels.
       if (!isOnboardingHintSession(state)) return state;
@@ -2153,6 +2160,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     // debits `pitzBalance` and extends `discoveryHintFacts` in this one step; GUIDANCE_ONLY only
     // sets the transient `hintOutcome`; any rejection returns `state` unchanged.
     case "PURCHASE_SELECTABLE_HINT": {
+      if (shopHintsActive()) return state;
       if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
       // Hint 5.0 (H5-2): with the ladder flag on, the ladder replaces 材料 / 構成 / 特徴, so a
       // sub-topping name is never sold (OD-H5-C3). With the flag off (every build) this line is inert.
@@ -2174,9 +2182,18 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
     // the rung index, the P-C price and the balance. A purchase debits `pitzBalance` and extends
     // `discoveryHintFacts` in this one step; anything else returns `state` unchanged.
     case "PURCHASE_HINT5_RUNG": {
+      if (shopHintsActive()) return state;
       if (!state.hintSheetOpen || state.phase !== "PREPARE" || !state.freeCook) return state;
       const patch = requestHint5RungFact(state, action.expectedRungIndex);
       return patch ? { ...state, ...patch } : state;
+    }
+
+    // B案 Phase 3d: the only place a research point hint is bought (shop model only). The pure authority re-checks the target
+    // (adopted, stage open), the item, that it is not revealed yet, the price the board showed and the balance; a success adds the
+    // item to `shop.hintRevealsByRecipe` and the price to `shop.researchPointsSpent` in this one step. Anything else: unchanged.
+    case "PURCHASE_SHOP_HINT": {
+      const result = purchaseShopHintFor(state, action);
+      return result.ok ? { ...state, shop: result.shop } : state;
     }
 
     case "CLOSE_HINT":
