@@ -67,7 +67,7 @@ export function PizzaThumbnail({ recipe }: PizzaThumbnailProps) {
               <IngredientPieceVisual ingredient={ingredient} />
             ) : (
               <span className="pizza-thumbnail__piece-emoji">
-                <IngredientGlyph ingredient={ingredient} />
+                <IngredientGlyph ingredient={ingredient} variant="placed" />
               </span>
             )}
           </span>

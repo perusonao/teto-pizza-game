@@ -621,7 +621,7 @@ describe("render sites with every current ingredient (emoji path)", () => {
     expect(container.querySelector(".shop-item__emoji svg")).toBeNull();
   });
 
-  it("Pizza Select thumbnails show each recipe's non-cheese emoji text", () => {
+  it("Pizza Select thumbnails use only the placed pieceVisual/emoji representation", () => {
     for (const recipe of RECIPES as readonly Recipe[]) {
       const { container, unmount } = render(<PizzaThumbnail recipe={recipe} />);
       const pieces = recipe.requiredIngredients
@@ -629,10 +629,11 @@ describe("render sites with every current ingredient (emoji path)", () => {
         .filter((i) => i.category !== "sauce" && i.category !== "cheese");
       const rendered = Array.from(container.querySelectorAll(".pizza-thumbnail__piece-emoji"));
       expect(rendered).toHaveLength(pieces.length);
-      // Emoji-path pieces render their emoji text; the W1 dedicated visuals render their SVG only.
+      // Completed-pizza previews never use identification-only iconVisual art: a pieceVisual renders
+      // its SVG, while an iconVisual-only ingredient deliberately keeps its legacy placed emoji.
       rendered.forEach((e, index) => {
         const ingredient = pieces[index];
-        const visual = ingredient.iconVisual ?? ingredient.pieceVisual;
+        const visual = ingredient.pieceVisual;
         if (visual) {
           expect(e.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
           expect(e.textContent).toBe("");

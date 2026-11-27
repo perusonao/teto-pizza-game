@@ -24,12 +24,14 @@ import { isLateRecipeId as recipeIsLate } from "../logic/catalog/testSupport/lat
  * Regenerated again for Ingredient Icons 2.0 Pilot D (#623, Owner-approved): `salmon` gained `pieceVisual: "salmon-fillet"` and `cream-cheese` gained `pieceVisual: "cream-cheese-block"` (the only two differences in the first 66 entries; no id, order, placement or unlock change).
  * Regenerated again for Ingredient Icons 2.0 Pilot E (#715, Owner-approved): `green-pepper`, `bell-pepper` and `pineapple` gained `pieceVisual` "green-pepper-strips" / "bell-pepper-quarter" / "pineapple-wedges" (the only three differences in the first 66 entries, checked by diffing the canonical JSON before / after; no id, order, emoji, placement or unlock change).
  * Regenerated again for the Ingredient Icons 2.0 herbs (#417, Owner R2 decision 2026-11-06): `oregano`, `rosemary`, `artichoke` and `spinach` gained `pieceVisual` "oregano-flakes" / "rosemary-sprigs" / "artichoke-quarter" / "spinach-leaves" (verified: removing those four fields reproduces the previous digest exactly; no id, order, placement or unlock change).
+ * Regenerated again for Ingredient Icons 2.0 Phase 1–2 (#417): `tomato-sauce`, `olive-oil`, `mozzarella`, `basil`, `mushroom` and `bacon` gained only their Pilot `iconVisual` fields. The assertion below removes exactly that field and proves the previous digest is reproduced; no id, order, emoji, `pieceVisual`, placement or unlock change is hidden by this update.
  */
 const canon = (value: unknown): string =>
   JSON.stringify(value, (_key, v) =>
     v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => (a < b ? -1 : 1))) : v,
   );
 const sha256 = (value: unknown): string => createHash("sha256").update(canon(value)).digest("hex");
+const PRE_ICON_VISUAL_INGREDIENTS_SHA256 = "03fc8f69cffe0aa23cf889d255c88792a94e9b3c8e6e18cb409f9a210d24c4e6";
 
 describe("late catalog OFF == the catalog before FIN-E4 (golden prefix digests)", () => {
   it("E5: Production has the late catalog on; the golden prefix below holds in either state (the OFF build itself is loaded in lateCatalog.ikura.test.ts)", () => {
@@ -44,7 +46,9 @@ describe("late catalog OFF == the catalog before FIN-E4 (golden prefix digests)"
 
   it("ingredients: the first N entries are unchanged and in the same order", () => {
     expect(INGREDIENTS.length).toBeGreaterThanOrEqual(golden.ingredients.count);
-    expect(sha256(INGREDIENTS.slice(0, golden.ingredients.count))).toBe(golden.ingredients.sha256);
+    const prefix = INGREDIENTS.slice(0, golden.ingredients.count);
+    expect(sha256(prefix)).toBe(golden.ingredients.sha256);
+    expect(sha256(prefix.map(({ iconVisual: _iconVisual, ...ingredient }) => ingredient))).toBe(PRE_ICON_VISUAL_INGREDIENTS_SHA256);
   });
 
   it("ladder: the first N steps (and the population id) are unchanged", () => {
