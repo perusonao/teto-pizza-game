@@ -25,6 +25,7 @@
  */
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_RECIPE } from "../../data/freeCook";
+import { MENU_CATALOG } from "../../data/menuCatalog";
 import { getRecipe, type BakeTarget, type Recipe, type RecipeId } from "../../data/recipes";
 import { discoveredRecipeIds, type DexState } from "../../state/dex";
 import { pizzaForFinalEvaluation } from "../../state/finishEngine";
@@ -35,6 +36,7 @@ import {
   type PizzaCompletionResult,
 } from "../completionGate";
 import { sanitizeStringArray, sanitizeToppings } from "../scoringV2/boundary";
+import { progressionModelId } from "../progression/progressionModelFlag";
 import { evaluateDiscovery, type DiscoveryOutcome, type RecipeDiscoveryTarget } from "./matcher";
 import { signatureOfPizza } from "./signature";
 
@@ -91,6 +93,18 @@ export function withFreeCookBakeWindow(recipe: Recipe): Recipe {
 export interface FreeCookResolveSources {
   catalog: readonly RecipeDiscoveryTarget[];
   getRecipe: (id: RecipeId) => Recipe | undefined;
+  allowsRecipe?: (id: RecipeId) => boolean;
+}
+
+const SHOP_DEVELOPMENT_SOURCES: FreeCookResolveSources = {
+  catalog: RECIPE_DISCOVERY_CATALOG,
+  getRecipe,
+  allowsRecipe: (id) => MENU_CATALOG.some((entry) => entry.recipeId === id),
+};
+
+/** Runtime entry point shared by baking and registering a finished Free Cooking pizza. */
+export function resolveMenuDevelopmentPizza(pizza: PizzaState, dex: DexState): FreeCookResolution {
+  return resolveFreeCookPizza(pizza, dex, progressionModelId() === "shop" ? SHOP_DEVELOPMENT_SOURCES : undefined);
 }
 
 export function resolveFreeCookPizza(
@@ -108,6 +122,9 @@ export function resolveFreeCookPizza(
   );
   if (outcome.kind !== "NEW_DISCOVERY" && outcome.kind !== "ALREADY_DISCOVERED") {
     return { kind: "ORIGINAL", outcome };
+  }
+  if (sources.allowsRecipe && !sources.allowsRecipe(outcome.recipeId)) {
+    return { kind: "ORIGINAL", outcome: { kind: "ORIGINAL", blockedTargetIds: [] } };
   }
   const recipe = sources.getRecipe(outcome.recipeId);
   // Identification and cooking share one contract: a late requirement is met by FINISH pieces only (`pizzaForFinalEvaluation`, the

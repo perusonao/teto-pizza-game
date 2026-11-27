@@ -43,7 +43,11 @@ function researchUnlockOf(state: ShopHintStateInputs): ReadonlyMap<string, strin
   if (researchMemo && researchMemo.dex === state.dex && researchMemo.owned === owned && researchMemo.facts === state.discoveryHintFacts) {
     return researchMemo.unlock;
   }
-  const { entries } = deriveResearchEntries({ dex: state.dex, ownedIngredientIds: owned, discoveryHintFacts: state.discoveryHintFacts });
+  const { entries } = deriveResearchEntries(
+    { dex: state.dex, ownedIngredientIds: owned, discoveryHintFacts: state.discoveryHintFacts },
+    undefined,
+    activeProgressionModel().catalogRecipes(),
+  );
   const unlock = new Map(entries.map((e) => [e.recipeId as string, e.unlockIngredientId]));
   researchMemo = { dex: state.dex, owned, facts: state.discoveryHintFacts, unlock };
   return unlock;

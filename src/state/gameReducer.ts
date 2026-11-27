@@ -72,7 +72,7 @@ import {
   techniqueRoundEligibility,
 } from "../logic/techniques/runtime";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
-import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
+import { resolveMenuDevelopmentPizza } from "../logic/discovery/freeCook";
 import { finalizeRound, type UnmatchedFreeCookFinalization } from "./finalizeRound";
 import { buildPendingRound, withJournalPizza, type PendingRound } from "./pendingRound";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
@@ -1784,7 +1784,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // original-pizza reward is Phase 3-3 economy work). Same RESULT guard => exactly once.
       if (state.freeCook && !state.score) {
         if (state.completion?.status !== "PASS") return state;
-        const resolution = resolveFreeCookPizza(state.pizza, state.dex);
+        const resolution = resolveMenuDevelopmentPizza(state.pizza, state.dex);
         if (resolution.kind !== "ORIGINAL") return state;
         // TQ-1C: an original pizza can still reveal a technique it used (usage path, affordance-
         // gated). The Dex does not change, so the recipe path adds nothing here. An AMBIGUOUS or

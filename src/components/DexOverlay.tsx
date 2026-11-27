@@ -19,6 +19,7 @@ import { recipeDiscoveryState, type RecipeDiscoveryState } from "../state/recipe
 import { totalStars } from "../logic/mastery";
 import { starLabel } from "../logic/scoring";
 import { researchEntryViews, type ResearchEntryView } from "../state/discoveryHint";
+import { discoverableHintCandidates } from "../logic/discovery/hintTarget";
 import { isResearchStockBlocked } from "../state/researchStockBlock";
 import type { TechniqueDexView } from "../logic/techniques/dexView";
 import { IngredientGlyph } from "./IngredientGlyph";
@@ -232,37 +233,29 @@ export function DexOverlay({
   techniqueViews = [],
   shopHint,
 }: DexOverlayProps) {
-  // B案 Phase 3a: the Dex's own recipes (legacy: every recipe, as before; shop: the curated 60). The hint-facing paths below
-  // (the aggregated 🎨 card, research entries) keep reading `RECIPES`: narrowing them to the 60 is Phase 3e.
+  // The Dex and its Hint/Research candidate list read the active catalog and shop stages.
   const total = dexRecipes().length;
   // B案 Phase 3b: counts read the menu (legacy: the Dex itself, the same array).
   const countDex = menuCountableDex(dex, shop);
   const discoveredCount = dexDiscoveredCount(countDex);
   const isComplete = discoveredCount >= total;
   const mastery = totalStars(dex);
-  const inputs = { dex, ownedIngredientIds, unlockedForShopIngredientIds, inventory };
+  const inputs = { dex, shop, ownedIngredientIds, unlockedForShopIngredientIds, inventory };
   // D-2 / D-3: a state-derived rule (any save). Two or more DISCOVERABLE unknowns collapse into
   // one aggregated card; their own slots then read as plain unknown slots, so neither the count
   // nor which slots they are reaches the DOM. Zero or one keeps the per-slot 🎨 card unchanged.
-  const aggregateUnknown = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").length > 1;
+  const discoverable = new Set(discoverableHintCandidates(inputs).map((recipe) => recipe.id as string));
+  const aggregateUnknown = discoverable.size > 1;
   // #346 S2/S3: S1's projection (+ the Hint ledger's own exact / class facts) is the only authority.
   // B案 Phase 3d (3b 論点): under the shop model only the entries of an open stage are listed (a recipe of a closed stage cannot be
   // researched, so its card would only be a dead end). Legacy: every stage reads as open, so the list is unchanged.
-  const stageModel = activeProgressionModel();
-  const researchEntries = researchEntryViews({ dex, ownedIngredientIds, discoveryHintFacts }).filter((view) =>
-    stageModel.isRecipeStageOpen(view.recipeId, { dex, shop: shop ?? EMPTY_SHOP_PROGRESS }),
-  );
+  const researchEntries = researchEntryViews({ dex, shop, ownedIngredientIds, discoveryHintFacts });
   // #346 S4 (OD-RX-1): a registered Research Entry is guided by its own card, so the aggregate card is shown
   // only while some aggregated DISCOVERABLE unknown is NOT a Research Entry. It only ever disappears (no
   // slot, count or existence is newly exposed): the aggregated slots above already read as plain unknowns.
   const researchIds = new Set(researchEntries.map((e) => e.recipeId));
-  const showAggregateCard =
-    aggregateUnknown &&
-    RECIPES.some((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE" && !researchIds.has(r.id));
-  const cookableNow = (recipeId: string) => {
-    const recipe = RECIPES.find((r) => r.id === recipeId);
-    return !!recipe && recipeDiscoveryState(recipe, inputs) === "DISCOVERABLE";
-  };
+  const showAggregateCard = aggregateUnknown && [...discoverable].some((id) => !researchIds.has(id));
+  const cookableNow = (recipeId: string) => discoverable.has(recipeId);
   // #378 Option 1: stock is the explicit cause (registered, every finite material owned, one at stock 0).
   const stockBlockedNow = (recipeId: string) => {
     const recipe = RECIPES.find((r) => r.id === recipeId);

@@ -20,7 +20,7 @@ import type { Recipe } from "../data/recipes";
 import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { classifyBake, type BakeState } from "../logic/bake";
 import { evaluatePizzaCompletion, type PizzaCompletionResult } from "../logic/completionGate";
-import { resolveFreeCookPizza, withFreeCookBakeWindow, type FreeCookResolution } from "../logic/discovery/freeCook";
+import { resolveMenuDevelopmentPizza, withFreeCookBakeWindow, type FreeCookResolution } from "../logic/discovery/freeCook";
 import type { ScoreBreakdown } from "../logic/scoring";
 import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
 import type { DexState } from "./dex";
@@ -92,7 +92,7 @@ export function finalizeRound(input: FinalizeRoundInput): FinalizedRound {
   // Progression 2.0 Phase 3-2: a free-cook pizza is identified here, once, by the Phase 3-1 matcher.
   // A MATCHED pizza becomes that recipe's round from this point on; anything else keeps the sentinel
   // and is either FAILED (not a dish) or an unscored ORIGINAL pizza.
-  const freeCook = input.freeCook ? resolveFreeCookPizza(pizza, input.dex) : null;
+  const freeCook = input.freeCook ? resolveMenuDevelopmentPizza(pizza, input.dex) : null;
   if (freeCook && freeCook.kind !== "MATCHED") {
     return {
       kind: "UNMATCHED_FREE_COOK",
