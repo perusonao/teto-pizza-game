@@ -96,6 +96,7 @@ import { canStartGuidedRound, countRecipeDiscoveryStates, isRecipeCookable } fro
 import { useDinnerRuntime } from "./state/useDinnerRuntime";
 import { isDinnerRound } from "./state/roundKind";
 import { resolveDinnerDurationMs, resolveDinnerMinimumStars } from "./state/dinnerView";
+import { dinnerMenuMembership } from "./state/dinnerProgression";
 import {
   DINNER_MISSIONS,
   getDinnerMission,
@@ -247,8 +248,13 @@ function App() {
   const hasAnyDiscovery = SHOP_MODEL_ACTIVE
     ? activeProgressionModel().menuRecipeIds(state).length > 0
     : state.dex.some((entry) => entry.discovered);
-  // Dinner Mission DM-3: unlocked missions, derived from the Dex (never saved).
-  const dinnerUnlockedCount = DINNER_MISSIONS.filter((m) => isDinnerMissionUnlocked(m, state.dex)).length;
+  const dinnerInputs = {
+    dex: state.dex,
+    ownedIngredientIds: state.ownedIngredientIds,
+    inventory: state.inventory,
+    isOnMenu: dinnerMenuMembership(state),
+  };
+  const dinnerUnlockedCount = DINNER_MISSIONS.filter((m) => isDinnerMissionUnlocked(m, state.dex, dinnerInputs.isOnMenu)).length;
   // Issue #212 (OD-2): Lunch Rush also needs at least one discovered recipe that is cookable with
   // the stock on hand -- otherwise every order would be short. Derived, like `hasAnyDiscovery`.
   const lunchRushCookable = canStartLunchRush(state);
@@ -998,7 +1004,7 @@ function App() {
     // Leave for GAME only with a run the reducer will accept (the same checks as startDinnerRun),
     // so a rejected START never lands on an unrelated non-Dinner round.
     const target = getDinnerMission(missionId);
-    if (!target || dinnerStartBlock(target, state) !== null || !Number.isFinite(durationMs) || durationMs <= 0) return;
+    if (!target || dinnerStartBlock(target, dinnerInputs) !== null || !Number.isFinite(durationMs) || durationMs <= 0) return;
     setDexOpen(false);
     dinnerRuntime.startDinner(missionId, durationMs, minimumStars);
     setScreen("GAME");
@@ -1012,7 +1018,7 @@ function App() {
     !dinnerRetryMission ||
     dinnerRetryDurationMs === null ||
     dinnerRetryMinimumStars === null ||
-    dinnerStartBlock(dinnerRetryMission, state) !== null;
+    dinnerStartBlock(dinnerRetryMission, dinnerInputs) !== null;
 
   function handleDinnerRetry() {
     if (!dinnerRetryMission || dinnerRetryDurationMs === null || dinnerRetryMinimumStars === null || dinnerRetryBlocked) return;
@@ -1380,6 +1386,7 @@ function App() {
       {screen === "DINNER" && (
         <DinnerMissionScreen
           dex={state.dex}
+          isOnMenu={dinnerInputs.isOnMenu}
           ownedIngredientIds={state.ownedIngredientIds}
           inventory={state.inventory}
           durationFor={dinnerDurationFor}

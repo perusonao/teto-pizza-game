@@ -164,9 +164,15 @@ export interface DinnerMissionUnlockView {
   undiscoveredCount: number;
 }
 
-/** Derived from the Dex on every call; nothing about unlocking is ever saved (OD-DM-12). */
-export function dinnerMissionUnlock(mission: DinnerMissionDefinition, dex: DexState): DinnerMissionUnlockView {
-  const discoveredTargetIds = mission.targetRecipeIds.filter((id) => isDiscovered(dex, id));
+export type DinnerMenuMembership = (recipeId: RecipeId) => boolean;
+
+/** Derived from the player menu in shop mode and the Dex in legacy. Never saved. */
+export function dinnerMissionUnlock(
+  mission: DinnerMissionDefinition,
+  dex: DexState,
+  isOnMenu?: DinnerMenuMembership,
+): DinnerMissionUnlockView {
+  const discoveredTargetIds = mission.targetRecipeIds.filter(isOnMenu ?? ((id) => isDiscovered(dex, id)));
   const undiscoveredCount = mission.targetRecipeIds.length - discoveredTargetIds.length;
   return {
     missionId: mission.missionId,
@@ -177,6 +183,10 @@ export function dinnerMissionUnlock(mission: DinnerMissionDefinition, dex: DexSt
   };
 }
 
-export function isDinnerMissionUnlocked(mission: DinnerMissionDefinition, dex: DexState): boolean {
-  return dinnerMissionUnlock(mission, dex).unlocked;
+export function isDinnerMissionUnlocked(
+  mission: DinnerMissionDefinition,
+  dex: DexState,
+  isOnMenu?: DinnerMenuMembership,
+): boolean {
+  return dinnerMissionUnlock(mission, dex, isOnMenu).unlocked;
 }

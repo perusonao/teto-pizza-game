@@ -87,6 +87,7 @@ import {
   type InventoryState, addInventory, consumedInventory } from "./inventory";
 import { cookableMissionRecipeIds, missionOrderRecipeIds, pickMissionOrder } from "../mission/lunchRush";
 import { getDinnerMission } from "../mission/dinner/dinnerMission";
+import { dinnerMenuMembership } from "./dinnerProgression";
 import { dinnerRunReducer, startDinnerRun, type DinnerRunState } from "../mission/dinner/dinnerRun";
 import {
   dinnerAttemptView,
@@ -2487,7 +2488,12 @@ function dinnerActionReducer(state: GameState, action: DinnerAction): GameState 
     if (!mission) return state;
     const started = startDinnerRun(
       mission,
-      { dex: state.dex, ownedIngredientIds: state.ownedIngredientIds, inventory: state.inventory },
+      {
+        dex: state.dex,
+        isOnMenu: dinnerMenuMembership(state),
+        ownedIngredientIds: state.ownedIngredientIds,
+        inventory: state.inventory,
+      },
       action.now,
       action.durationMs,
     );
@@ -2600,7 +2606,7 @@ function isDinnerAction(action: GameAction): action is DinnerAction {
  */
 function dinnerStartBake(state: GameState, session: DinnerSession, action: Extract<GameAction, { type: "START_BAKE" }>): GameState {
   if (state.phase !== "PREPARE") return state;
-  const plan = planDinnerBake(state.pizza);
+  const plan = planDinnerBake(state.pizza, undefined, dinnerMenuMembership(state));
   const view = dinnerBakePlanView(plan);
   const baked = baseGameReducer(state, action);
   const cookingProfile: CookingProfile = {
@@ -2632,6 +2638,7 @@ function dinnerResolve(
   cut: { completed: boolean; waivedFor: BakeCompletionFailure | null },
   now: number,
 ): GameState {
+  const isOnMenu = dinnerMenuMembership(next);
   const result = resolveDinnerAttempt({
     run: session.run,
     pizza: next.pizza,
@@ -2640,6 +2647,7 @@ function dinnerResolve(
     preConsumptionInventory,
     ownedIngredientIds: next.ownedIngredientIds,
     dex: next.dex,
+    isOnMenu,
     minimumStars: session.minimumStars,
     now,
   });
@@ -2651,7 +2659,7 @@ function dinnerResolve(
       ...session,
       run: result.run,
       pending: null,
-      lastResult: dinnerAttemptView(result.classification, next.dex),
+      lastResult: dinnerAttemptView(result.classification, next.dex, isOnMenu),
     },
   };
   // DM-4-3: the one authoritative settlement point -- the transition that turns this run CLEARED.
