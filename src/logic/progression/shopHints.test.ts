@@ -5,6 +5,7 @@ import { getIngredient } from "../../data/ingredients";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { REPUTATION_TABLE } from "./reputationTable";
 import { activeShopCatalog } from "./shopProgression";
+import { hintKeyToppingIdOf } from "../../state/discoveryHint";
 import { EMPTY_SHOP_PROGRESS, hintRevealsOf, researchPointBalanceOf, researchPointsSpentOf, type ShopProgressState } from "./shopProgress";
 import {
   SHOP_HINT_BASE_PRICE_BY_STAGE,
@@ -40,9 +41,9 @@ const isTargetFor = (state: ShopHintInputs) => (id: string) => isShopHintTargetA
 
 /** Buys `kind` at the price the board shows; returns the new inputs (throws on a refusal). */
 function buy(state: ShopHintInputs, recipeId: string, kind: ShopHintItemKind): ShopHintInputs {
-  const answer = shopHintAnswer(recipeId, catalog)!;
+  const answer = shopHintAnswer(recipeId, catalog, hintKeyToppingIdOf)!;
   const price = shopHintBoardView(answer, state).price;
-  const result = purchaseShopHint({ recipeId, kind, expectedPrice: price }, state, isTargetFor(state), catalog);
+  const result = purchaseShopHint({ recipeId, kind, expectedPrice: price }, state, isTargetFor(state), catalog, hintKeyToppingIdOf);
   if (!result.ok) throw new Error(`${recipeId} ${kind}: ${result.reason}`);
   return { ...state, shop: result.shop };
 }
@@ -74,24 +75,24 @@ describe("the provisional price table (Phase 3f tunes it here)", () => {
 
 describe("items and slot order", () => {
   it("every item kind is for sale on a fresh board", () => {
-    const view = shopHintBoardView(shopHintAnswer("margherita", catalog)!, inputs());
+    const view = shopHintBoardView(shopHintAnswer("margherita", catalog, hintKeyToppingIdOf)!, inputs());
     expect(view.forSale).toEqual(SHOP_HINT_ITEM_KINDS);
     expect(view.anyRevealed).toBe(false);
     expect(view.slots.every((s) => s.ingredientId === null && s.count === null)).toBe(true);
   });
 
   it("a cheese is a slot like any topping; the widely used ingredient opens first and the KEY_TOPPING last", () => {
-    expect(shopHintAnswer("margherita", catalog)!.slotIngredientIds).toEqual(["mozzarella", "basil"]);
-    const meat = shopHintAnswer("meat-lovers", catalog)!;
+    expect(shopHintAnswer("margherita", catalog, hintKeyToppingIdOf)!.slotIngredientIds).toEqual(["mozzarella", "basil"]);
+    const meat = shopHintAnswer("meat-lovers", catalog, hintKeyToppingIdOf)!;
     expect(meat.slotIngredientIds[0]).toBe("mozzarella");
     expect(meat.slotIngredientIds.at(-1)).toBe("ham");
-    expect(shopHintAnswer("capricciosa", catalog)!.slotIngredientIds.at(-1)).toBe("mushroom");
-    expect(shopHintAnswer("quattro-formaggi", catalog)!.slotIngredientIds).toHaveLength(4);
+    expect(shopHintAnswer("capricciosa", catalog, hintKeyToppingIdOf)!.slotIngredientIds.at(-1)).toBe("mushroom");
+    expect(shopHintAnswer("quattro-formaggi", catalog, hintKeyToppingIdOf)!.slotIngredientIds).toHaveLength(4);
   });
 
   it("every adopted recipe: each KEY_TOPPING is the last slot; slots + sauces = the existing 「全部で○種類」", () => {
     for (const entry of MENU_CATALOG) {
-      const answer = shopHintAnswer(entry.recipeId, catalog)!;
+      const answer = shopHintAnswer(entry.recipeId, catalog, hintKeyToppingIdOf)!;
       const recipe = getRecipe(entry.recipeId)!;
       const distinct = new Set(recipe.requiredIngredients.map((r) => r.ingredientId)).size;
       expect(answer.slotIngredientIds.length + answer.sauceIds.length, entry.recipeId).toBe(distinct);
@@ -103,7 +104,7 @@ describe("items and slot order", () => {
 
   it("only the item bought is revealed; an ingredient purchase reveals the next slot only", () => {
     let state = buy(inputs(), "breakfast-pizza", "INGREDIENT");
-    let view = shopHintBoardView(shopHintAnswer("breakfast-pizza", catalog)!, state);
+    let view = shopHintBoardView(shopHintAnswer("breakfast-pizza", catalog, hintKeyToppingIdOf)!, state);
     expect(view.slots.map((s) => s.ingredientId)).toEqual(["mozzarella", null, null]);
     expect(view.sauceIds).toBeNull();
     expect(view.shape).toBeNull();
@@ -111,14 +112,14 @@ describe("items and slot order", () => {
     expect(view.countRevealed).toBe(false);
     expect(view.totalKinds).toBeNull();
     state = buy(state, "breakfast-pizza", "COUNT");
-    view = shopHintBoardView(shopHintAnswer("breakfast-pizza", catalog)!, state);
+    view = shopHintBoardView(shopHintAnswer("breakfast-pizza", catalog, hintKeyToppingIdOf)!, state);
     expect(view.slots.map((s) => s.count)).toEqual([2, 1, 3]);
     expect(view.slots.map((s) => s.ingredientId)).toEqual(["mozzarella", null, null]);
   });
 
   it("the sauce item answers 「なし」 too, and only then the total shows", () => {
     const state = buy(inputs(), "aussie", "SAUCE");
-    const view = shopHintBoardView(shopHintAnswer("aussie", catalog)!, state);
+    const view = shopHintBoardView(shopHintAnswer("aussie", catalog, hintKeyToppingIdOf)!, state);
     expect(view.sauceIds).toEqual([]);
     expect(view.totalKinds).toBe(4);
   });
@@ -127,11 +128,11 @@ describe("items and slot order", () => {
 describe("purchase rules", () => {
   it("not enough points: refused, nothing changes (the balance never goes below 0)", () => {
     const state = inputs({ researchPointsEarned: 2, researchPointsSpent: 0 });
-    const answer = shopHintAnswer("flammkuchen", catalog)!; // stage 4: 3 points
+    const answer = shopHintAnswer("flammkuchen", catalog, hintKeyToppingIdOf)!; // stage 4: 3 points
     const view = shopHintBoardView(answer, state);
     expect(view.price).toBe(3);
     expect(view.affordable).toBe(false);
-    const result = purchaseShopHint({ recipeId: "flammkuchen", kind: "SAUCE", expectedPrice: 3 }, state, isTargetFor(state), catalog);
+    const result = purchaseShopHint({ recipeId: "flammkuchen", kind: "SAUCE", expectedPrice: 3 }, state, isTargetFor(state), catalog, hintKeyToppingIdOf);
     expect(result).toEqual({ ok: false, reason: "INSUFFICIENT_POINTS" });
   });
 
@@ -144,21 +145,21 @@ describe("purchase rules", () => {
   it("the same item cannot be bought twice; a stale price (a double tap) is refused", () => {
     const state = inputs();
     const once = buy(state, "margherita", "SAUCE");
-    expect(purchaseShopHint({ recipeId: "margherita", kind: "SAUCE", expectedPrice: 2 }, once, isTargetFor(once), catalog)).toEqual({
+    expect(purchaseShopHint({ recipeId: "margherita", kind: "SAUCE", expectedPrice: 2 }, once, isTargetFor(once), catalog, hintKeyToppingIdOf)).toEqual({
       ok: false,
       reason: "ALREADY_REVEALED",
     });
     // The same request the first board showed (price 1) is stale once the price rose.
-    expect(purchaseShopHint({ recipeId: "margherita", kind: "SHAPE", expectedPrice: 1 }, once, isTargetFor(once), catalog)).toEqual({
+    expect(purchaseShopHint({ recipeId: "margherita", kind: "SHAPE", expectedPrice: 1 }, once, isTargetFor(once), catalog, hintKeyToppingIdOf)).toEqual({
       ok: false,
       reason: "STALE",
     });
     let all = once;
     all = buy(all, "margherita", "INGREDIENT");
     all = buy(all, "margherita", "INGREDIENT");
-    const view = shopHintBoardView(shopHintAnswer("margherita", catalog)!, all);
+    const view = shopHintBoardView(shopHintAnswer("margherita", catalog, hintKeyToppingIdOf)!, all);
     expect(view.forSale).not.toContain("INGREDIENT");
-    expect(purchaseShopHint({ recipeId: "margherita", kind: "INGREDIENT", expectedPrice: view.price }, all, isTargetFor(all), catalog)).toEqual({
+    expect(purchaseShopHint({ recipeId: "margherita", kind: "INGREDIENT", expectedPrice: view.price }, all, isTargetFor(all), catalog, hintKeyToppingIdOf)).toEqual({
       ok: false,
       reason: "ALREADY_REVEALED",
     });
@@ -166,29 +167,29 @@ describe("purchase rules", () => {
 
   it("targets: adopted recipes of an open stage only (developed or not); anything else is refused", () => {
     const early = inputs({ reputation: 0 });
-    expect(purchaseShopHint({ recipeId: "napoletana", kind: "SAUCE", expectedPrice: 1 }, early, isTargetFor(early), catalog)).toEqual({
+    expect(purchaseShopHint({ recipeId: "napoletana", kind: "SAUCE", expectedPrice: 1 }, early, isTargetFor(early), catalog, hintKeyToppingIdOf)).toEqual({
       ok: false,
       reason: "NOT_A_TARGET",
     });
     const notAdopted = "calzone" as RecipeId;
-    expect(purchaseShopHint({ recipeId: notAdopted, kind: "SAUCE", expectedPrice: 1 }, early, () => true, catalog)).toEqual({ ok: false, reason: "NOT_A_TARGET" });
-    expect(purchaseShopHint({ recipeId: 3, kind: "SAUCE", expectedPrice: 1 }, early, () => true, catalog)).toEqual({ ok: false, reason: "NOT_A_TARGET" });
-    expect(purchaseShopHint({ recipeId: "margherita", kind: "NAME", expectedPrice: 1 }, early, isTargetFor(early), catalog)).toEqual({
+    expect(purchaseShopHint({ recipeId: notAdopted, kind: "SAUCE", expectedPrice: 1 }, early, () => true, catalog, hintKeyToppingIdOf)).toEqual({ ok: false, reason: "NOT_A_TARGET" });
+    expect(purchaseShopHint({ recipeId: 3, kind: "SAUCE", expectedPrice: 1 }, early, () => true, catalog, hintKeyToppingIdOf)).toEqual({ ok: false, reason: "NOT_A_TARGET" });
+    expect(purchaseShopHint({ recipeId: "margherita", kind: "NAME", expectedPrice: 1 }, early, isTargetFor(early), catalog, hintKeyToppingIdOf)).toEqual({
       ok: false,
       reason: "UNKNOWN_ITEM",
     });
     // Stage 2 opens at 40.
     const open = inputs({ reputation: 40 });
-    expect(purchaseShopHint({ recipeId: "napoletana", kind: "SAUCE", expectedPrice: 1 }, open, isTargetFor(open), catalog).ok).toBe(true);
+    expect(purchaseShopHint({ recipeId: "napoletana", kind: "SAUCE", expectedPrice: 1 }, open, isTargetFor(open), catalog, hintKeyToppingIdOf).ok).toBe(true);
   });
 
   it("any purchase order keeps spent <= earned and stores each item once", () => {
     let state = inputs({ researchPointsEarned: 25 });
     const order: ShopHintItemKind[] = ["COUNT", "INGREDIENT", "SAUCE", "INGREDIENT", "METHOD", "INGREDIENT", "SHAPE", "INGREDIENT"];
     for (const kind of order) {
-      const answer = shopHintAnswer("capricciosa", catalog)!;
+      const answer = shopHintAnswer("capricciosa", catalog, hintKeyToppingIdOf)!;
       const price = shopHintBoardView(answer, state).price;
-      const result = purchaseShopHint({ recipeId: "capricciosa", kind, expectedPrice: price }, state, isTargetFor(state), catalog);
+      const result = purchaseShopHint({ recipeId: "capricciosa", kind, expectedPrice: price }, state, isTargetFor(state), catalog, hintKeyToppingIdOf);
       if (result.ok) state = { ...state, shop: result.shop };
       expect(researchPointsSpentOf(state.shop)).toBeLessThanOrEqual(25);
       expect(researchPointBalanceOf(state.shop)).toBeGreaterThanOrEqual(0);
@@ -202,7 +203,7 @@ describe("reach guarantee: buying every item reaches the whole answer", () => {
   for (const entry of MENU_CATALOG) {
     it(entry.recipeId, () => {
       let state = inputs({ researchPointsEarned: 100000 });
-      const answer = shopHintAnswer(entry.recipeId, catalog)!;
+      const answer = shopHintAnswer(entry.recipeId, catalog, hintKeyToppingIdOf)!;
       for (let guard = 0; guard < 50; guard++) {
         const view = shopHintBoardView(answer, state);
         if (view.complete) break;
@@ -234,7 +235,7 @@ describe("reach guarantee: buying every item reaches the whole answer", () => {
 describe("carried over from the Pitz hints (never charged twice)", () => {
   it("a bought name reveals its slot, is not for sale again, and does not raise the price", () => {
     const state = inputs({}, { discoveryHintFacts: { margherita: ["ing:basil", "h5:key", "cls:basil"] } });
-    const answer = shopHintAnswer("margherita", catalog)!;
+    const answer = shopHintAnswer("margherita", catalog, hintKeyToppingIdOf)!;
     const view = shopHintBoardView(answer, state);
     expect(view.slots).toEqual([
       { ingredientId: null, count: null, late: false, carriedOver: false },
@@ -248,24 +249,24 @@ describe("carried over from the Pitz hints (never charged twice)", () => {
 
   it("the sauce counts as revealed once every sauce was named", () => {
     const named = inputs({}, { discoveryHintFacts: { "grandma-pizza": ["ing:tomato-sauce", "ing:olive-oil", "h5:sauce"] } });
-    expect(shopHintBoardView(shopHintAnswer("grandma-pizza", catalog)!, named).sauceIds).toEqual(["tomato-sauce", "olive-oil"]);
+    expect(shopHintBoardView(shopHintAnswer("grandma-pizza", catalog, hintKeyToppingIdOf)!, named).sauceIds).toEqual(["tomato-sauce", "olive-oil"]);
     const half = inputs({}, { discoveryHintFacts: { "grandma-pizza": ["ing:tomato-sauce"] } });
-    expect(shopHintBoardView(shopHintAnswer("grandma-pizza", catalog)!, half).sauceIds).toBeNull();
+    expect(shopHintBoardView(shopHintAnswer("grandma-pizza", catalog, hintKeyToppingIdOf)!, half).sauceIds).toBeNull();
   });
 
   it("an Economy 1.0 level's named line carries over too; a classification, a total or another recipe's name does not", () => {
     const legacy = inputs({}, { discoveryHintPurchases: { margherita: 4 } });
-    const view = shopHintBoardView(shopHintAnswer("margherita", catalog)!, legacy);
+    const view = shopHintBoardView(shopHintAnswer("margherita", catalog, hintKeyToppingIdOf)!, legacy);
     expect(view.slots.some((s) => s.carriedOver)).toBe(true);
     const nothing = inputs({}, { discoveryHintFacts: { margherita: ["cls:basil", "meta:ingredient-total", "ing:garlic"], funghi: ["ing:mozzarella"] } });
-    expect(shopHintBoardView(shopHintAnswer("margherita", catalog)!, nothing).anyRevealed).toBe(false);
+    expect(shopHintBoardView(shopHintAnswer("margherita", catalog, hintKeyToppingIdOf)!, nothing).anyRevealed).toBe(false);
   });
 });
 
 describe("the free Margherita hint (R4 #16)", () => {
   it("while nothing is developed (Dex 0): every Margherita item costs 0 and nothing is spent", () => {
     let state = inputs({ researchPointsEarned: 0 }, { discoveredCount: 0 });
-    const answer = shopHintAnswer("margherita", catalog)!;
+    const answer = shopHintAnswer("margherita", catalog, hintKeyToppingIdOf)!;
     expect(shopHintBoardView(answer, state)).toMatchObject({ price: 0, free: true, affordable: true });
     for (let i = 0; i < 6; i++) {
       const view = shopHintBoardView(answer, state);
@@ -277,7 +278,7 @@ describe("the free Margherita hint (R4 #16)", () => {
   });
 
   it("not another recipe, and not once something is developed", () => {
-    expect(shopHintBoardView(shopHintAnswer("marinara", catalog)!, inputs({}, { discoveredCount: 0 })).free).toBe(false);
-    expect(shopHintBoardView(shopHintAnswer("margherita", catalog)!, inputs({}, { discoveredCount: 1 })).free).toBe(false);
+    expect(shopHintBoardView(shopHintAnswer("marinara", catalog, hintKeyToppingIdOf)!, inputs({}, { discoveredCount: 0 })).free).toBe(false);
+    expect(shopHintBoardView(shopHintAnswer("margherita", catalog, hintKeyToppingIdOf)!, inputs({}, { discoveredCount: 1 })).free).toBe(false);
   });
 });

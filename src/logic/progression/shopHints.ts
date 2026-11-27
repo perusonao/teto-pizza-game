@@ -6,7 +6,7 @@
  * ## What can be bought, per target recipe
  *
  * - `INGREDIENT`: one ingredient slot (a cheese or a topping; a cheese is a slot like any other). Slots open in a fixed order,
- *   the most widely used ingredient first (how many adopted recipes use it), the recipe's KEY_TOPPING (`RECIPE_HINT_ROLES`) last.
+ *   the most widely used ingredient first (how many adopted recipes use it), the recipe's KEY_TOPPING (the Hint 5.0 role data) last.
  *   Each purchase reveals the next unrevealed slot's ingredient.
  * - `SAUCE`: the sauce(s), or that there is none.
  * - `SHAPE`: the dough's shape (a round pizza, or a square one on the tray).
@@ -34,7 +34,6 @@
  * Adopted recipes (`MENU_CATALOG`) whose stage is open (the Phase 3b stage rule), developed or not.
  */
 import { getIngredient, INGREDIENTS } from "../../data/ingredients";
-import { RECIPE_HINT_ROLES, type HintRoles } from "../../data/recipeHintRoles";
 import { RECIPES, type Recipe } from "../../data/recipes";
 import { resolvePanShape, type PanShape } from "../pan/panShape";
 import { resolveDoughKind, type DoughKind } from "../dough/doughKind";
@@ -118,11 +117,11 @@ function usageCounts(catalog: ShopCatalog, recipes: readonly Recipe[]): Map<stri
   return counts;
 }
 
-function keyToppingOf(roles: HintRoles | undefined): string | null {
-  if (!roles || (roles as { keyFree?: unknown }).keyFree === true) return null;
-  const key = (roles as { hintKeyToppingId?: unknown }).hintKeyToppingId;
-  return typeof key === "string" ? key : null;
-}
+/**
+ * The KEY_TOPPING of a recipe (`null`: key-free or no topping). Supplied by the caller (../../state/discoveryHint.ts's
+ * `hintKeyToppingIdOf`): the Hint 5.0 role data keeps its one wiring boundary (hint5Production.gate.test.ts).
+ */
+export type KeyToppingLookup = (recipeId: string) => string | null;
 
 function lateIdsOf(recipeId: string): string[] {
   const target = RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === recipeId);
@@ -137,8 +136,8 @@ function lateIdsOf(recipeId: string): string[] {
 export function shopHintAnswer(
   recipeId: unknown,
   catalog: ShopCatalog,
+  keyOf: KeyToppingLookup,
   recipes: readonly Recipe[] = RECIPES,
-  roles: Readonly<Record<string, HintRoles>> = RECIPE_HINT_ROLES,
 ): ShopHintAnswer | null {
   if (typeof recipeId !== "string") return null;
   const stage = catalogChapterOf(recipeId, catalog);
@@ -149,8 +148,7 @@ export function shopHintAnswer(
   const counts: Record<string, number> = {};
   for (const req of recipe.requiredIngredients) counts[req.ingredientId] = Math.max(counts[req.ingredientId] ?? 0, req.minCount);
   const sauceIds = ids.filter((id) => getIngredient(id)!.category === "sauce").sort((a, b) => catalogIndex(a) - catalogIndex(b));
-  const own = Object.prototype.hasOwnProperty.call(roles, recipe.id) ? roles[recipe.id] : undefined;
-  const key = keyToppingOf(own);
+  const key = keyOf(recipe.id);
   const keyToppingId = key !== null && ids.includes(key) ? key : null;
   const usage = usageCounts(catalog, recipes);
   const slots = ids
@@ -329,9 +327,10 @@ export function purchaseShopHint(
   inputs: ShopHintInputs,
   isTarget: (recipeId: string) => boolean,
   catalog: ShopCatalog,
+  keyOf: KeyToppingLookup,
 ): ShopHintResult {
   if (typeof request.recipeId !== "string" || !isTarget(request.recipeId)) return { ok: false, reason: "NOT_A_TARGET" };
-  const answer = shopHintAnswer(request.recipeId, catalog);
+  const answer = shopHintAnswer(request.recipeId, catalog, keyOf);
   if (!answer) return { ok: false, reason: "NOT_A_TARGET" };
   if (typeof request.kind !== "string" || !ITEM_KINDS.has(request.kind)) return { ok: false, reason: "UNKNOWN_ITEM" };
   const kind = request.kind as ShopHintItemKind;
