@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type MutableRefObject, type ReactNode } from "react";
+import { SHOP_MODEL_ACTIVE } from "../logic/progression/shopStatus";
+import { researchPointBalanceOf } from "../logic/progression/shopProgress";
 import type { FamilyFilter } from "../data/ingredientShelf";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
@@ -1264,6 +1266,7 @@ export function GameScreen({
               notebook={notebookRows}
               researchLabelJa={researchResult?.label ?? null}
               researchBoard={researchBoard}
+              researchPointBalance={SHOP_MODEL_ACTIVE && state.freeCook ? researchPointBalanceOf(state.shop) : null}
               freeCookNote={
                 state.freeCook && !researchResult
                   ? { titleJa: shopCopy("\u{1F3A8} レシピ発見の試作", "\u{1F3A8} メニュー開発の試作"), bodyJa: state.hint?.textJa ?? state.recipe.description }
@@ -1366,6 +1369,7 @@ export function GameScreen({
           onRetrySameRecipe={onRetrySameRecipe}
           onBackToPizzaSelect={onBackToPizzaSelect}
           reputationGain={state.lastReputationGain}
+          researchPointGain={state.lastResearchPointGain}
           identifiedAwaiting={
             state.lastIdentifiedAwaiting
               ? {
