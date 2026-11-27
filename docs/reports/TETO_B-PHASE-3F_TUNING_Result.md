@@ -15,7 +15,7 @@
 
 高い段階の対象を選んでも、第1段階のピザや採用レシピに完全一致しないピザの試作は +1 点。対象なしで一致した試作は一致レシピの段階で精算する。判明済みだがメニュー未掲載のピザも完全一致なら同じ判定を使う。試作の判定・保存・中断復帰は既存の精算経路を通る。
 
-依頼に記載された Muse の pr916 / pr918 プレイ検証では、第1段階の試作が +1 点、最初の2回の購入は 1 点と 2 点だった。残高ゼロから初回購入は1回、2回目までの合計は3回の試作で賄える。第2〜5段階のプレイ時間や購入頻度の実測は手元の資料で確認できなかったため、獲得量と基本価格は現行値を採用した。同段階の獲得量に対する1件目の価格は1〜2試作分以内で、下表の負担差は主に買い切り時に現れる。第1段階の基本価格はすでに1点で、ここを下げると実測の有料導入が変わる。 [Phase 3c #916](https://github.com/perusonao/teto-pizza-game/pull/916) · [Phase 3d #918](https://github.com/perusonao/teto-pizza-game/pull/918)
+依頼に記載された Muse の pr916 / pr918 プレイ検証では、第1段階の試作が +1 点、最初の2回の購入は 1 点と 2 点だった。残高ゼロから初回購入は1回、2回目までの合計は3回の試作で賄える。第2〜5段階のプレイ時間や購入頻度の実測は手元の資料で確認できなかったため、獲得量と基本価格は現行値を採用した。どの段階も、同段階の1試作で最初のヒントを購入できる。下表の負担差は主に買い切り時に現れる。第1段階の基本価格はすでに1点で、ここを下げると実測の有料導入が変わる。 [Phase 3c #916](https://github.com/perusonao/teto-pizza-game/pull/916) · [Phase 3d #918](https://github.com/perusonao/teto-pizza-game/pull/918)
 
 ### 全ヒントを買い切るまでの概算
 
@@ -35,12 +35,14 @@
 
 | 項目 | Phase 3e 時点 | Phase 3f |
 | --- | ---: | ---: |
-| 制限時間（両ミッション） | 360秒 | 計測確認中 |
-| GOLD 上限 | 240秒 | 計測確認中 |
-| SILVER 上限 | 300秒 | 計測確認中 |
-| BRONZE 上限 | 360秒 | 計測確認中 |
+| 制限時間（両ミッション） | 360秒 | 360秒（暫定） |
+| GOLD 上限 | 240秒 | 240秒（暫定） |
+| SILVER 上限 | 300秒 | 300秒（暫定） |
+| BRONZE 上限 | 360秒 | 360秒（暫定） |
 
 初回 150 + 100 / 50 / 20 Pitz、再挑戦 60 + 40 / 20 / 0 Pitz、初回評判 +5、品質 ★3 以上は Owner 決定値。
+
+Muse のクリアタイム一覧は PR #920 の本文・コメント・レビューおよび Epic #901 では確認できなかった。Phase 3e の Result Report には実装者の別収録で 41秒と53秒のクリア記録がある。実装者のキャプチャでは操作を自動化しており、Muse の実測分布を使う中央値×1.5とティア閾値の確定は保留。 [Phase 3e Result Report](TETO_B-PHASE-3E_DINNER-MENU_Result.md)
 
 ## 通常注文の抽選
 
@@ -55,8 +57,24 @@
 | 3c | 自由調理の試作精算で全レシピ共通の研究ポイントを付与。結果表示と保存復帰に接続。 [#916](https://github.com/perusonao/teto-pizza-game/pull/916) |
 | 3d | 研究ポイントで段階別のヒントを購入し、ヒント画面・図鑑・試作の下ごしらえで判明情報を表示。 [#918](https://github.com/perusonao/teto-pizza-game/pull/918) |
 | 3e | 特別注文のメニュー経由解放、品質と精算を接続。開発・研究・ヒント候補を採用品に限定。 [#920](https://github.com/perusonao/teto-pizza-game/pull/920) |
-| 3f | 試作の段階判定を修正し、研究ポイント・ヒント購入の負担を検証。特別注文の時間調整と全体回帰は以下に記録。 |
+| 3f | 試作の段階判定を修正し、研究ポイント・ヒント購入の負担を検証。特別注文の時間確定は Muse の計測値を待っている。 [#921](https://github.com/perusonao/teto-pizza-game/pull/921) |
 
 ## 回帰検証
 
-実行中。
+- typecheck、lint、build はローカルで通過。lint の既存警告と、Vite のチャンクサイズ警告を確認した。
+- 研究対象の段階と一致したピザの段階が異なるケースを、ポイント付与関数、reducer、ブラウザーで検証。390×844 のブラウザー比較では第2段階の対象を選んで第1段階のマルゲリータを作り、基準は +2、修正後は +1 と保存された。
+- フル Vitest、WebKit と Layout Contract の結果は、Draft PR の Checks で確認できる。 [PR #921 Checks](https://github.com/perusonao/teto-pizza-game/pull/921/checks)
+
+## Human Verification
+
+同じセーブと操作の 390×844 キャプチャ。レシピと出来栄えが同じまま、結果の研究ポイントが +2 から +1 に変わることを確認した。 [Before](screenshots/b-phase-3f/before-lower-stage-match.png) · [After](screenshots/b-phase-3f/after-lower-stage-match.png)
+
+### Human Verification Videos
+
+| Video | Viewport | Duration | Size | Codec | Verification |
+| --- | --- | ---: | ---: | --- | --- |
+| `teto-phase-3f-research-390x844.webm` | 390×844 | 53.32秒 | 844,808 bytes | VP8 | PASS |
+
+Download はセッション内の動画リンクを参照。ローカル Chromium で図鑑から第2段階の研究対象を選択し、調理操作を経てマルゲリータの結果と +1 点の表示に到達する。撮影環境の Playwright 出力を WebM で提出し、全1,333フレームのデコードを確認した。Owner の実機判定は別途。
+
+Video Verification: PASS
