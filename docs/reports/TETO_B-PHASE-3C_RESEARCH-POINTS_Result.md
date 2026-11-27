@@ -97,4 +97,7 @@ Video Verification: PASS（ffprobe：h264、390×844、22.60 s、485,035 bytes�
 
 - `tsc -b`／oxlint：OK（oxlint の警告は既存のものだけ）
 - e2e（Chromium、390×844 と 360×800）：`e2e/shop-*.spec.ts` の 7 ファイル（`shop-research-points-3c`・`shop-stage-3b`・`shop-catalog-3a`・`shop-service-orders-2a`・`shop-practice-2b`・`shop-locked-422`・`shop-buttons-sticky-tabs-455`）で **46 passed**
-- Vitest：§7 に記録
+- `npm run build`：OK（チャンクサイズの警告は既存のもの）
+- Vitest は 3a・3b と同じく、長時間シミュレーション 5 ファイル（`researchAttempt.sim*`・`researchAttempt.replayAudit`）を分けて計測した（コミット `f425398`）
+  - フル − その 5 ファイル：**711 files passed／3 skipped、13275 passed／20 skipped（既存）／2 todo、失敗 0**（10 分 24 秒）
+  - その 5 ファイル：**124 passed、失敗 0**（22 分 30 秒）
