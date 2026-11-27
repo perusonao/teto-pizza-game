@@ -106,3 +106,33 @@ describe("shopProgressForWrite: what storage keeps under `shopProgress`", () => 
     expect(shopProgressForWrite(ours, { reputation: 50 })).toEqual({ reputation: 200, grantedMenuRecipeIds: ["margherita"] });
   });
 });
+
+describe("Phase 3b: the awaiting / paid ledgers (unions, written only while non-empty)", () => {
+  const known = (id: string) => id !== "unknown-recipe";
+  it("a pre-3b state keeps its exact shape (no new keys) and stays the default when empty", () => {
+    expect(isDefaultShopProgress(EMPTY_SHOP_PROGRESS)).toBe(true);
+    expect(shopProgressForWrite({ reputation: 5, grantedMenuRecipeIds: [] }, undefined)).toEqual({ reputation: 5, grantedMenuRecipeIds: [] });
+    expect(sanitizeShopProgress({ reputation: 5, grantedMenuRecipeIds: [] }, known)).toEqual({ reputation: 5, grantedMenuRecipeIds: [] });
+  });
+
+  it("a state holding only an awaiting recipe is not the default, and both ledgers round-trip", () => {
+    const state = { reputation: 0, grantedMenuRecipeIds: [], awaitingMenuRecipeIds: ["meat-lovers"] };
+    expect(isDefaultShopProgress(state)).toBe(false);
+    const written = shopProgressForWrite({ ...state, menuEntryPaidRecipeIds: ["meat-lovers"] }, undefined);
+    expect(sanitizeShopProgress(JSON.parse(JSON.stringify(written)), known)).toEqual({ ...state, menuEntryPaidRecipeIds: ["meat-lovers"] });
+  });
+
+  it("merging is a union of each ledger (a paid recipe stays paid)", () => {
+    const a = { reputation: 38, grantedMenuRecipeIds: [], awaitingMenuRecipeIds: ["meat-lovers"] };
+    const b = { reputation: 43, grantedMenuRecipeIds: [], awaitingMenuRecipeIds: ["meat-lovers"], menuEntryPaidRecipeIds: ["meat-lovers"] };
+    expect(mergeShopProgress(a, b)).toEqual(b);
+    expect(mergeShopProgress(b, a)).toEqual(b);
+    expect(sameShopProgress(a, b)).toBe(false);
+  });
+
+  it("writing over a stored object keeps its ids (a newer build's included) and unions ours in", () => {
+    const stored = { reputation: 50, grantedMenuRecipeIds: [], menuEntryPaidRecipeIds: ["future-pizza"], other: 1 };
+    const written = shopProgressForWrite({ reputation: 43, grantedMenuRecipeIds: [], awaitingMenuRecipeIds: ["meat-lovers"], menuEntryPaidRecipeIds: ["meat-lovers"] }, stored);
+    expect(written).toEqual({ reputation: 50, grantedMenuRecipeIds: [], menuEntryPaidRecipeIds: ["future-pizza", "meat-lovers"], awaitingMenuRecipeIds: ["meat-lovers"], other: 1 });
+  });
+});

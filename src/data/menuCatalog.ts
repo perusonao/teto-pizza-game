@@ -7,8 +7,9 @@
  *   recipe that uses it, unless `MATERIAL_CHAPTER_OVERRIDES` says otherwise.
  * - Phase 1b shipped it empty; Phase 3a fills it with the Owner's selection (60 recipes, 12 per stage). Re-issue
  *   `MENU_CATALOG_ID` whenever the list changes (the same idea as the ladder's population id).
- * - Phase 3a reads only the recipes' stages (menu, orders, Dex). The materials still open by the Phase 2a interim rule
- *   (../logic/progression/shopProgression.ts); deriving them from this list (and `MATERIAL_CHAPTER_OVERRIDES`) is Phase 3b.
+ * - Phase 3a read only the recipes' stages (menu, orders, Dex). **Phase 3b** derives the materials' stages from this list too
+ *   (77 materials: 17 / 9 / 13 / 23 / 15, starters included in stage 1), with one split inside stage 4
+ *   (`MATERIAL_MID_STAGE_ARRIVALS`) and no override.
  */
 import type { RecipeId } from "./recipes";
 
@@ -97,5 +98,44 @@ export const MENU_CATALOG: readonly MenuCatalogEntry[] = Object.freeze(
   ).map((e) => Object.freeze(e)),
 );
 
-/** Exceptions to the derived material chapter (ingredient id -> chapter). Empty until Phase 3b (the material stages). */
+/**
+ * Exceptions to the derived material chapter (ingredient id -> chapter). Phase 3b (Owner 2026-11-27): kept empty -- a
+ * material's stage is always the stage its first adopted recipe appears in, and no recipe is pulled into an earlier or later
+ * stage by moving its materials (a recipe waits for its own stage instead: ../logic/progression/shopProgression.ts).
+ */
 export const MATERIAL_CHAPTER_OVERRIDES: Readonly<Record<string, number>> = {};
+
+/**
+ * Phase 3b (Owner 2026-11-27): the one split inside a stage. Stage 4 opens at reputation 210, but half of its new materials
+ * arrive only at 275 (the middle of the stage). They are exactly the materials stage 4's last four recipes (cuban-pizza,
+ * california-style-pizza, peking-duck-pizza, thai-chicken-pizza) are the first to use, so those four can be developed
+ * from 275 (pinned by ./menuCatalog.test.ts and ../logic/progression/shopMaterialStages.test.ts). The first eleven of
+ * stage 4 (fromage-blanc-sauce, doubanjiang, green-onion, curry-ketchup, lemon, shiso, whitebait, yuzu-kosho, porcini,
+ * mussel, squid) arrive at 210 with the stage.
+ */
+export interface MaterialMidStageArrival {
+  chapter: number;
+  reputation: number;
+  ingredientIds: readonly string[];
+}
+
+export const MATERIAL_MID_STAGE_ARRIVALS: readonly MaterialMidStageArrival[] = Object.freeze([
+  Object.freeze({
+    chapter: 4,
+    reputation: 275,
+    ingredientIds: Object.freeze([
+      "mustard",
+      "swiss-cheese",
+      "pork",
+      "pickles",
+      "goat-cheese",
+      "arugula",
+      "avocado",
+      "sweet-bean-sauce",
+      "cucumber",
+      "peking-duck",
+      "peanut-sauce",
+      "cilantro",
+    ]),
+  }),
+]);

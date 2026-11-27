@@ -9,7 +9,8 @@
  * - No reputation seed from older saves (Owner decision 2026-11-26, overriding design §6 Q3: pre-release, old saves are
  *   not carried over). A save without `shopProgress` simply starts from the default.
  *
- * Merge rules (Q1: the reputation never goes down): `reputation` = max, `grantedMenuRecipeIds` = union.
+ * Merge rules (Q1: the reputation never goes down): `reputation` = max, `grantedMenuRecipeIds` = union. Phase 3b adds two
+ * unions (`awaitingMenuRecipeIds`, `menuEntryPaidRecipeIds`), stored only while non-empty.
  */
 import { SAVE_ID_PATTERN } from "../../state/saveIdGrammar";
 
@@ -18,6 +19,17 @@ export interface ShopProgressState {
   reputation: number;
   /** Recipes on the menu by a route other than menu development (the first menu, a chapter grant). A union only. */
   grantedMenuRecipeIds: readonly string[];
+  /**
+   * Phase 3b (Owner 2026-11-27): adopted recipes the player identified (an exact match) before their stage opened. They are in
+   * the Dex (判明) but wait off the menu; the moment the stage opens they join it and the menu-development bonus is paid.
+   * A union only. Optional so every state literal written before Phase 3b still type-checks; absent = empty.
+   */
+  awaitingMenuRecipeIds?: readonly string[];
+  /**
+   * Phase 3b: the awaiting recipes whose menu entry (and bonus) has been paid. A union only, so the payment happens exactly once
+   * whatever a reload or a merge does: a recipe is still waiting exactly while it is in `awaitingMenuRecipeIds` and not here.
+   */
+  menuEntryPaidRecipeIds?: readonly string[];
 }
 
 export const EMPTY_SHOP_PROGRESS: ShopProgressState = Object.freeze({
@@ -25,9 +37,36 @@ export const EMPTY_SHOP_PROGRESS: ShopProgressState = Object.freeze({
   grantedMenuRecipeIds: Object.freeze([]) as readonly string[],
 });
 
+const NO_IDS: readonly string[] = Object.freeze([]);
+
+/** Phase 3b: the awaiting / paid ledgers, absent read as empty. */
+export function awaitingMenuRecipeIdsOf(state: ShopProgressState): readonly string[] {
+  return state.awaitingMenuRecipeIds ?? NO_IDS;
+}
+export function menuEntryPaidRecipeIdsOf(state: ShopProgressState): readonly string[] {
+  return state.menuEntryPaidRecipeIds ?? NO_IDS;
+}
+
 /** True for the state a save without `shopProgress` reads as (such a state is never written). */
 export function isDefaultShopProgress(state: ShopProgressState): boolean {
-  return state.reputation === 0 && state.grantedMenuRecipeIds.length === 0;
+  return (
+    state.reputation === 0 &&
+    state.grantedMenuRecipeIds.length === 0 &&
+    awaitingMenuRecipeIdsOf(state).length === 0 &&
+    menuEntryPaidRecipeIdsOf(state).length === 0
+  );
+}
+
+function unionIds(base: readonly string[], more: readonly string[]): string[] {
+  return [...base, ...more.filter((id) => !base.includes(id))];
+}
+
+/** The Phase 3b ledgers as a partial state: only the non-empty ones, so a pre-3b state keeps its exact shape. */
+function ledgerFields(awaiting: readonly string[], paid: readonly string[]): Pick<ShopProgressState, "awaitingMenuRecipeIds" | "menuEntryPaidRecipeIds"> {
+  return {
+    ...(awaiting.length > 0 ? { awaitingMenuRecipeIds: awaiting } : {}),
+    ...(paid.length > 0 ? { menuEntryPaidRecipeIds: paid } : {}),
+  };
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -61,6 +100,7 @@ export function sanitizeShopProgress(
   return {
     reputation: sanitizeReputation(raw.reputation),
     grantedMenuRecipeIds: idsIn(raw.grantedMenuRecipeIds, isKnownRecipeId),
+    ...ledgerFields(idsIn(raw.awaitingMenuRecipeIds, isKnownRecipeId), idsIn(raw.menuEntryPaidRecipeIds, isKnownRecipeId)),
   };
 }
 
@@ -68,16 +108,23 @@ export function sanitizeShopProgress(
 export function mergeShopProgress(base: ShopProgressState, more: ShopProgressState): ShopProgressState {
   return {
     reputation: Math.max(base.reputation, more.reputation),
-    grantedMenuRecipeIds: [...base.grantedMenuRecipeIds, ...more.grantedMenuRecipeIds.filter((id) => !base.grantedMenuRecipeIds.includes(id))],
+    grantedMenuRecipeIds: unionIds(base.grantedMenuRecipeIds, more.grantedMenuRecipeIds),
+    ...ledgerFields(
+      unionIds(awaitingMenuRecipeIdsOf(base), awaitingMenuRecipeIdsOf(more)),
+      unionIds(menuEntryPaidRecipeIdsOf(base), menuEntryPaidRecipeIdsOf(more)),
+    ),
   };
 }
+
+const sameIds = (a: readonly string[], b: readonly string[]) => a.length === b.length && a.every((id, i) => b[i] === id);
 
 export function sameShopProgress(a: ShopProgressState | undefined, b: ShopProgressState | undefined): boolean {
   if (a === undefined || b === undefined) return a === b;
   return (
     a.reputation === b.reputation &&
-    a.grantedMenuRecipeIds.length === b.grantedMenuRecipeIds.length &&
-    a.grantedMenuRecipeIds.every((id, i) => b.grantedMenuRecipeIds[i] === id)
+    sameIds(a.grantedMenuRecipeIds, b.grantedMenuRecipeIds) &&
+    sameIds(awaitingMenuRecipeIdsOf(a), awaitingMenuRecipeIdsOf(b)) &&
+    sameIds(menuEntryPaidRecipeIdsOf(a), menuEntryPaidRecipeIdsOf(b))
   );
 }
 
@@ -95,12 +142,18 @@ export function shopProgressForWrite(next: ShopProgressState | undefined, stored
   const ours = {
     reputation: next.reputation,
     grantedMenuRecipeIds: [...next.grantedMenuRecipeIds],
+    ...ledgerFields([...awaitingMenuRecipeIdsOf(next)], [...menuEntryPaidRecipeIdsOf(next)]),
   };
   if (!isPlainObject(stored)) return ours;
-  const storedIds = idsIn(stored.grantedMenuRecipeIds, (id) => SAVE_ID_PATTERN.test(id));
+  const wellFormed = (id: string) => SAVE_ID_PATTERN.test(id);
+  const storedIds = idsIn(stored.grantedMenuRecipeIds, wellFormed);
+  // Phase 3b ledgers: unions with what storage holds (a newer build's ids stay), written only when non-empty.
+  const awaiting = unionIds(idsIn(stored.awaitingMenuRecipeIds, wellFormed), awaitingMenuRecipeIdsOf(next));
+  const paid = unionIds(idsIn(stored.menuEntryPaidRecipeIds, wellFormed), menuEntryPaidRecipeIdsOf(next));
   return {
     ...stored,
     reputation: Math.max(sanitizeReputation(stored.reputation), ours.reputation),
     grantedMenuRecipeIds: [...storedIds, ...ours.grantedMenuRecipeIds.filter((id) => !storedIds.includes(id))],
+    ...ledgerFields(awaiting, paid),
   };
 }

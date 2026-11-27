@@ -4,7 +4,17 @@ import { RECIPES, type Recipe } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
 import type { DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
-import { buildRecipeChapters, chapterProgress, dexDiscoveredCount, dexRecipes, isChapterCleared } from "../state/recipeChapters";
+import { activeProgressionModel } from "../logic/progression/progressionModel";
+import { EMPTY_SHOP_PROGRESS, type ShopProgressState } from "../logic/progression/shopProgress";
+import { identifiedAwaitingDexLine, stageUnlockLabel } from "../logic/progression/shopStageView";
+import {
+  buildRecipeChapters,
+  chapterProgress,
+  dexDiscoveredCount,
+  dexRecipes,
+  isChapterCleared,
+  menuCountableDex,
+} from "../state/recipeChapters";
 import { recipeDiscoveryState, type RecipeDiscoveryState } from "../state/recipeDiscoveryState";
 import { totalStars } from "../logic/mastery";
 import { starLabel } from "../logic/scoring";
@@ -17,6 +27,9 @@ import { ANONYMOUS_LOCK_HINTS } from "./anonymousLockHints";
 
 interface DexOverlayProps {
   dex: DexState;
+  /** B案 Phase 3b (shop model only): the shop state -- a recipe identified before its stage opened shows as 判明 with the shop form it
+   *  joins the menu at, and is not counted as developed. Absent (legacy, older call sites): nothing changes. */
+  shop?: ShopProgressState;
   /** Recipe discovered for the very first time this round (drives the NEW badge). */
   newlyDiscoveredId: string | null;
   /** Recipe whose Dex BEST just improved on a repeat play this round (drives the NEW BEST
@@ -176,6 +189,7 @@ function AggregatedUnknownCard({ onGoFreeCook }: { onGoFreeCook?: () => void }) 
 
 export function DexOverlay({
   dex,
+  shop,
   newlyDiscoveredId,
   newBestRecipeId,
   onClose,
@@ -192,7 +206,9 @@ export function DexOverlay({
   // B案 Phase 3a: the Dex's own recipes (legacy: every recipe, as before; shop: the curated 60). The hint-facing paths below
   // (the aggregated 🎨 card, research entries) keep reading `RECIPES`: narrowing them to the 60 is Phase 3e.
   const total = dexRecipes().length;
-  const discoveredCount = dexDiscoveredCount(dex);
+  // B案 Phase 3b: counts read the menu (legacy: the Dex itself, the same array).
+  const countDex = menuCountableDex(dex, shop);
+  const discoveredCount = dexDiscoveredCount(countDex);
   const isComplete = discoveredCount >= total;
   const mastery = totalStars(dex);
   const inputs = { dex, ownedIngredientIds, unlockedForShopIngredientIds, inventory };
@@ -243,13 +259,25 @@ export function DexOverlay({
         />
       );
     }
+    // B案 Phase 3b (shop model only): identified before its stage opened -- 判明, joins the menu when the shop grows.
+    const awaitingChapter = countDex === dex || countDex.some((e) => e.recipeId === recipe.id) ? null : activeProgressionModel().chapterOf(recipe);
     return (
-      <div key={recipe.id} className={`dex-card ${isNew ? "dex-card--new" : ""}`}>
+      <div
+        key={recipe.id}
+        className={`dex-card ${isNew ? "dex-card--new" : ""}${awaitingChapter !== null ? " dex-card--identified" : ""}`}
+        data-dex-identified={awaitingChapter !== null ? "" : undefined}
+      >
         <h3>
           <span className="dex-card__no">No.{String(slot).padStart(2, "0")}</span> {recipe.nameJa}
+          {awaitingChapter !== null && <span className="dex-card__badge dex-card__badge--identified">判明</span>}
           {isNew && <span className="dex-card__badge">NEW</span>}
           {showNewBest && <span className="dex-card__badge dex-card__badge--best">NEW BEST!</span>}
         </h3>
+        {awaitingChapter !== null && (
+          <p className="dex-card__identified-line">
+            {"\u{1F3EA}"} {identifiedAwaitingDexLine(awaitingChapter)}
+          </p>
+        )}
         <p>{recipe.description}</p>
         <div className="dex-card__ingredients">
           {recipe.requiredIngredients.map((req) => {
@@ -337,15 +365,29 @@ export function DexOverlay({
           )}
           {/* W1-f: the canonical 6 / 9 / 10 chapters (OD-DISC-9), each slot numbered inside its
               chapter (No. = fixed position, not discovery order). */}
-          {buildRecipeChapters().map((chapter) => {
-            const progress = chapterProgress(chapter, dex);
+          {(() => {
+            const model = activeProgressionModel();
+            return buildRecipeChapters().map((chapter) => {
+            const progress = chapterProgress(chapter, countDex);
+            // PR #915 (shop model only): a stage not open yet says what opens it (legacy: every chapter is open, so nothing).
+            const unlockLabel =
+              model.id === "shop" && !model.isChapterOpen(chapter.chapter, { ...inputs, shop: shop ?? EMPTY_SHOP_PROGRESS })
+                ? stageUnlockLabel(chapter.chapter)
+                : null;
             return (
-              <section key={chapter.chapter} className="dex-overlay__chapter">
+              <section key={chapter.chapter} className="dex-overlay__chapter" data-stage-locked={unlockLabel ? "" : undefined}>
                 <h3 className="dex-overlay__chapter-title">
-                  {chapter.titleJa}
+                  <span className="dex-overlay__chapter-name">
+                    {chapter.titleJa}
+                    {unlockLabel && (
+                      <span className="dex-overlay__chapter-unlock" data-testid="dex-stage-unlock">
+                        {"\u{1F512}"} {unlockLabel}
+                      </span>
+                    )}
+                  </span>
                   <span className="dex-overlay__chapter-count">
                     {progress.discovered}/{progress.total}
-                    {isChapterCleared(chapter, dex) ? " ✓" : ""}
+                    {isChapterCleared(chapter, countDex) ? " ✓" : ""}
                   </span>
                 </h3>
                 <div className="dex-overlay__list">
@@ -353,7 +395,8 @@ export function DexOverlay({
                 </div>
               </section>
             );
-          })}
+            });
+          })()}
           <div className="dex-overlay__footer">
             <button type="button" className="cta-button cta-button--primary" aria-label="図鑑を閉じる" onClick={onClose}>
               閉じる

@@ -18,6 +18,7 @@ import {
   interimMenuCatalog,
   isOnShopMenu,
   materialChapterOf,
+  materialOpenReputationOf,
   nextChapterFloor,
   resolveShopModelEntitlement,
   shopMenuRecipeIds,
@@ -57,7 +58,7 @@ describe("chapters from the reputation", () => {
   });
 });
 
-describe("the catalog (Phase 3a: the curated 60; materials on the Phase 2a interim rule until Phase 3b)", () => {
+describe("the catalog (Phase 3a: the curated 60; Phase 3b: the materials derived from it)", () => {
   it("the curated catalog drives the recipes", () => {
     const catalog = activeShopCatalog();
     expect(catalog.interim).toBe(false);
@@ -75,19 +76,17 @@ describe("the catalog (Phase 3a: the curated 60; materials on the Phase 2a inter
     expect(catalogChapterOf(rejected!.id, activeShopCatalog())).toBeNull();
   });
 
-  it("every material keeps its Phase 2a stage (the interim catalog derives it until Phase 3b)", () => {
+  it("Phase 3b: every material's stage comes from the curated catalog (no interim material catalog, no override)", () => {
     const curated = activeShopCatalog();
-    const interim: ShopCatalog = { entries: interimMenuCatalog(), materialOverrides: {}, interim: true };
-    expect(curated.materialEntries).toBe(interimMenuCatalog());
-    const all = resolveShopModelEntitlement(
-      { ownedIngredientIds: [], unlockedForShopIngredientIds: [], shop: { reputation: 10_000, grantedMenuRecipeIds: [] } },
-      TABLE,
-      interim,
-    ).unlockedForShopIngredientIds;
-    for (const id of all) expect(materialChapterOf(id, curated)).toBe(materialChapterOf(id, interim));
-    for (const reputation of [0, 39, 40, 110, 210, 340]) {
-      const inputs = { ownedIngredientIds: [], unlockedForShopIngredientIds: [], shop: { reputation, grantedMenuRecipeIds: [] } };
-      expect(resolveShopModelEntitlement(inputs, TABLE, curated)).toEqual(resolveShopModelEntitlement(inputs, TABLE, interim));
+    expect(curated.materialEntries).toBeUndefined();
+    expect(curated.materialOverrides).toEqual({});
+    // A material's stage = the lowest stage of an adopted recipe that uses it.
+    for (const id of new Set(RECIPES.flatMap((r) => r.requiredIngredients.map((x) => x.ingredientId)))) {
+      const stages = MENU_CATALOG.filter((e) => RECIPES.find((r) => r.id === e.recipeId)!.requiredIngredients.some((x) => x.ingredientId === id)).map((e) => e.chapter);
+      const expected = stages.length === 0 ? null : Math.min(...stages);
+      const got = materialChapterOf(id, curated);
+      if (got === 0) continue; // a starter
+      expect(got, id).toBe(expected);
     }
   });
 
@@ -98,7 +97,8 @@ describe("the catalog (Phase 3a: the curated 60; materials on the Phase 2a inter
   });
 
   it("every ladder material has a chapter under the interim catalog (none is unsellable)", () => {
-    const catalog = activeShopCatalog();
+    // Phase 3b: the active catalog no longer derives materials from the interim one, so this pins the interim catalog itself.
+    const catalog: ShopCatalog = { entries: interimMenuCatalog(), materialOverrides: {}, interim: true };
     const unlocked = resolveShopModelEntitlement(
       { ownedIngredientIds: [], unlockedForShopIngredientIds: [], shop: { reputation: 10_000, grantedMenuRecipeIds: [] } },
       TABLE,
@@ -167,15 +167,16 @@ describe("the shop entitlement", () => {
     expect(again.newlyUnlockedMaterialIds).toEqual([]);
   });
 
-  it("each chapter adds exactly its own materials", () => {
+  it("each chapter adds exactly its own materials (Phase 3b: stage 4's second half at its mid-stage reputation 275)", () => {
     let ledger: readonly string[] = [];
-    for (let chapter = 1; chapter <= 5; chapter++) {
+    for (const reputation of [...FLOORS.slice(0, 4), 275, FLOORS[4]]) {
       const r = resolveShopModelEntitlement(
-        { ownedIngredientIds: [], unlockedForShopIngredientIds: ledger, shop: { reputation: FLOORS[chapter - 1], grantedMenuRecipeIds: [] } },
+        { ownedIngredientIds: [], unlockedForShopIngredientIds: ledger, shop: { reputation, grantedMenuRecipeIds: [] } },
         TABLE,
         catalog,
       );
-      expect(r.newlyUnlockedMaterialIds.every((id) => materialChapterOf(id, catalog) === chapter)).toBe(true);
+      expect(r.newlyUnlockedMaterialIds.length).toBeGreaterThan(0);
+      for (const id of r.newlyUnlockedMaterialIds) expect(materialOpenReputationOf(id, TABLE, catalog), id).toBe(reputation);
       ledger = r.unlockedForShopIngredientIds;
     }
   });

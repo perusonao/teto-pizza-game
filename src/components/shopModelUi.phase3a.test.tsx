@@ -125,7 +125,9 @@ describe("screens", () => {
 
   it("Pizza Select (practice): each stage counts x/12; a non-adopted recipe gets no card", () => {
     const dex = dexOf("margherita", "capricciosa", NOT_ADOPTED.id);
-    const view = buildPizzaSelectView({ dex, ownedIngredientIds: STARTER_INGREDIENT_IDS, unlockedForShopIngredientIds: [], inventory: {} });
+    // Phase 3b: capricciosa is a stage-2 recipe, so it is on the menu (and gets a card) once stage 2 is open (reputation 40).
+    const shop = { reputation: 40, grantedMenuRecipeIds: [] };
+    const view = buildPizzaSelectView({ dex, ownedIngredientIds: STARTER_INGREDIENT_IDS, unlockedForShopIngredientIds: [], inventory: {}, shop });
     expect(view.chapters.map((c) => [c.chapter, c.discovered, c.total])).toEqual([
       [1, 1, 12],
       [2, 1, 12],
@@ -134,9 +136,10 @@ describe("screens", () => {
       [5, 0, 12],
     ]);
     expect(view.chapters.flatMap((c) => c.cards.map((card) => card.recipe.id))).not.toContain(NOT_ADOPTED.id);
-    render(<PizzaSelectScreen dex={dex} ownedIngredientIds={STARTER_INGREDIENT_IDS} onSelectRecipe={vi.fn()} onBack={vi.fn()} onGoFreeCook={vi.fn()} />);
+    render(<PizzaSelectScreen dex={dex} ownedIngredientIds={STARTER_INGREDIENT_IDS} shop={shop} onSelectRecipe={vi.fn()} onBack={vi.fn()} onGoFreeCook={vi.fn()} />);
     const sections = document.querySelectorAll(".pizza-select-section");
     expect(sections).toHaveLength(5);
     expect(within(sections[0] as HTMLElement).getByText(/開発 1\/12/)).toBeInTheDocument();
+    expect(within(sections[1] as HTMLElement).getByText(/開発 1\/12/)).toBeInTheDocument();
   });
 });

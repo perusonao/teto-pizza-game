@@ -24,6 +24,7 @@ import { getIngredient } from "../../data/ingredients";
 import { RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import { recipeKeyStep } from "../../state/recipeChapters";
 import { recipeDiscoveryState, type RecipeDiscoveryInputs } from "../../state/recipeDiscoveryState";
+import { activeProgressionModel } from "../progression/progressionModel";
 
 export type HintTargetSource = "auto" | "dex" | "research";
 
@@ -74,8 +75,11 @@ export function discoverableHintCandidates(
   inputs: RecipeDiscoveryInputs,
   recipes: readonly Recipe[] = RECIPES,
 ): Recipe[] {
+  // B案 Phase 3b (shop model only): a recipe whose stage is not open is no candidate -- the Research Target, the researchable
+  // entries and the Hint target all read this list (legacy: every stage is open, so the list is unchanged).
+  const model = activeProgressionModel();
   return recipes
-    .filter((recipe) => recipeDiscoveryState(recipe, inputs) === "DISCOVERABLE")
+    .filter((recipe) => recipeDiscoveryState(recipe, inputs) === "DISCOVERABLE" && model.isRecipeStageOpen(recipe.id, inputs))
     .sort((a, b) => compareHintCandidates(a, b, recipes));
 }
 

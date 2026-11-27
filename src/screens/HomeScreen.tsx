@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import tetoImg from "../assets/characters/teto.webp";
 import mitoImg from "../assets/characters/mito.webp";
 import blueImg from "../assets/characters/blue.webp";
-import { dexDiscoveredCount, dexRecipes } from "../state/recipeChapters";
+import type { ShopProgressState } from "../logic/progression/shopProgress";
+import { dexDiscoveredCount, dexRecipes, menuCountableDex } from "../state/recipeChapters";
 import type { DexState } from "../state/dex";
 import { homeBubbleJa } from "../state/homeBubble";
 import { SaveNoticeBanner } from "../components/SaveNoticeBanner";
@@ -37,6 +38,8 @@ import { rankLabel } from "../logic/progression/shopRank";
 interface HomeScreenProps {
   pitzBalance: number;
   dex: DexState;
+  /** B案 Phase 3b (shop model only): the shop state, so an identified recipe waiting for its stage is not counted as developed. */
+  shop?: ShopProgressState;
   /** Inventory Screen: read-only "how many ingredients do I currently own" sub-label -- the
    *  same `ownedIngredientIds` SSOT already threaded through GAME (see GameState), never a
    *  separately-maintained count. */
@@ -96,6 +99,7 @@ interface HomeScreenProps {
 export function HomeScreen({
   pitzBalance,
   dex,
+  shop,
   ownedIngredientCount,
   totalIngredientCount,
   onStartFreePlay,
@@ -122,7 +126,7 @@ export function HomeScreen({
 }: HomeScreenProps) {
   // B案 Phase 3a: the Dex's recipes (legacy: every recipe, as before; shop: the curated 60).
   const totalRecipes = dexRecipes().length;
-  const discoveredCount = dexDiscoveredCount(dex);
+  const discoveredCount = dexDiscoveredCount(menuCountableDex(dex, shop));
 
   return (
     <div className="home-screen">

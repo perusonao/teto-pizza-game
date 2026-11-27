@@ -10,7 +10,14 @@ import {
 import { buildMaterialUnlockNotice, type MaterialUnlockNotice } from "./materialEntitlement";
 import { activeProgressionModel, completeReputationTable } from "../logic/progression/progressionModel";
 import { orderReputationGain, serviceQualityOf } from "../logic/progression/serviceQuality";
-import { addReputation, type ReputationGain } from "../logic/progression/shopProgression";
+import {
+  activeShopCatalog,
+  addReputation,
+  catalogChapterOf,
+  markAwaitingMenu,
+  settleAwaitingMenu,
+  type ReputationGain,
+} from "../logic/progression/shopProgression";
 import { EMPTY_SHOP_PROGRESS, type ShopProgressState } from "../logic/progression/shopProgress";
 import { buildHintLine } from "../data/hints";
 import { undoablePlacementIndex } from "./undoPlacement";
@@ -40,9 +47,9 @@ import {
   type PizzaCompletionResult,
 } from "../logic/completionGate";
 import { purchaseFirstPack, refillPack } from "../logic/materialShop";
-import { applyPitzCredit, type PitzCredit } from "../logic/pitzReward";
+import { applyPitzCredit, PITZ_FIRST_DISCOVERY_BONUS, type PitzCredit } from "../logic/pitzReward";
 import { evaluateCookingEfficiency, type CookingEfficiencyCredit } from "../logic/efficiency";
-import { discoveredRecipeIds, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
+import { discoveredRecipeIds, isDiscovered, registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";
 import { RECIPE_DISCOVERY_CATALOG } from "../data/discoveryCatalog";
 import { evaluateDiscovery, type DiscoveryOutcome } from "../logic/discovery/matcher";
 import { signatureOfPizza } from "../logic/discovery/signature";
@@ -189,6 +196,24 @@ export interface LastResearchRows {
   /** known(T) at evaluation time (before this attempt's positives were stored). Display-only: it lets the RESULT mark a
    *  used ingredient as "already known" (✓); it is never a judgment, never persisted, never in the Notebook. */
   knownIngredientIds: readonly string[];
+}
+
+/** B案 Phase 3b: an identified recipe waiting for its stage (RESULT copy). */
+export interface IdentifiedAwaiting {
+  recipeId: RecipeId;
+  /** The recipe's stage (1-5); the stage's shop form names when it joins the menu. */
+  chapter: number;
+  /** True when this round identified it (a first exact match); false for a repeat while it still waits. */
+  firstTime: boolean;
+}
+
+/** B案 Phase 3b: identified recipes that joined the menu in this round (RESULT's stage-opening banner). */
+export interface MenuEntryNotice {
+  recipeIds: readonly RecipeId[];
+  /** Pitz paid for them (the menu-development bonus each), already in `pitzBalance`. */
+  bonusPitz: number;
+  /** Reputation paid for them, already in `shop.reputation` and in `lastReputationGain`. */
+  reputation: number;
 }
 
 export interface GameState {
@@ -420,6 +445,13 @@ export interface GameState {
   /** B案 Phase 2a (Issue #901): what this round added to the reputation (shop model only; RESULT shows it once). `null` for
    *  the legacy model, a Lunch Rush / Dinner round, and every fresh round. Never saved: the reputation itself is `shop`. */
   lastReputationGain: ReputationGain | null;
+  /** B案 Phase 3b (shop model only): this round's pizza is an exact match for an adopted recipe whose stage is not open yet --
+   *  identified (判明), recorded in the Dex, kept off the menu until the stage opens. `firstTime` = identified by this round.
+   *  `null` otherwise and for every fresh round; never saved (the ledger is `shop.awaitingMenuRecipeIds`). */
+  lastIdentifiedAwaiting: IdentifiedAwaiting | null;
+  /** B案 Phase 3b (shop model only): the identified recipes that joined the menu in this round because their stage opened, with
+   *  the bonus they paid (Pitz +50 and reputation +3 each, once). `null` when none did and for every fresh round; never saved. */
+  lastMenuEntries: MenuEntryNotice | null;
   /** Progression 2.0 Phase 3-1 (Issue #192): what REGISTER_TO_DEX's signature match
    *  (../logic/discovery/) concluded for this round's pizza -- a new discovery, an already
    *  discovered recipe, an original pizza (no match), an ambiguous match, or an exact match to
@@ -799,6 +831,8 @@ function buildOrderState(
     missionMaterialUnlockIds: isMissionRound ? carry.missionMaterialUnlockIds : [],
     lastEfficiencyCredit: null,
     lastReputationGain: null,
+    lastIdentifiedAwaiting: null,
+    lastMenuEntries: null,
     lastDiscovery: null,
     lastTrialAttempt: null,
     lastResearchRows: null,
@@ -1769,7 +1803,19 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // A first discovery is menu development, so it comes from Free Cooking only. Legacy: a guided round only re-registers a
       // discovered recipe, so this is `selectedRegistration.wasNewDiscovery` unchanged. Shop: serving a first-menu recipe
       // registers it in the Dex, but it is an order, not a discovery (no discovery bonus, no NEW_DISCOVERY banner).
-      const wasNewDiscovery = selectedRegistration.wasNewDiscovery && (progression.id === "legacy" || state.freeCook);
+      const developedNow = selectedRegistration.wasNewDiscovery && (progression.id === "legacy" || state.freeCook);
+      // B案 Phase 3b (Owner 2026-11-27, shop model only): an exact match for an adopted recipe whose stage is not open yet is
+      // identified (判明) -- recorded in the Dex, but it joins the menu, and pays the menu-development bonus, only once its stage
+      // opens (`settleAwaitingMenu` below). A repeat while it still waits is shown the same way.
+      const awaitingChapter =
+        progression.id === "shop" && state.freeCook && !progression.isRecipeStageOpen(state.recipe.id, state)
+          ? catalogChapterOf(state.recipe.id, activeShopCatalog())
+          : null;
+      const identifiedAwaiting: IdentifiedAwaiting | null =
+        awaitingChapter !== null && (developedNow || isDiscovered(state.dex, state.recipe.id))
+          ? { recipeId: state.recipe.id, chapter: awaitingChapter, firstTime: developedNow }
+          : null;
+      const wasNewDiscovery = developedNow && identifiedAwaiting === null;
       // The selected recipe is registered exactly as before; the discovery writer only adds a
       // recipe the pizza is an exact match for that the selected registration did not already
       // write (./discoveryRegistration.ts).
@@ -1812,7 +1858,23 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
             reputationTable,
           )
         : null;
-      const shop = reputation ? reputation.shop : state.shop;
+      const raisedShop = reputation ? reputation.shop : state.shop;
+      // Phase 3b: the identified recipe waits; then every waiting recipe whose stage is open (this round's reputation may just have
+      // opened it) joins the menu and pays its bonus, exactly once (the paid ledger is written in the same step).
+      const waitingShop = identifiedAwaiting?.firstTime ? markAwaitingMenu(raisedShop, identifiedAwaiting.recipeId) : raisedShop;
+      const settlement = reputationTable ? settleAwaitingMenu(waitingShop, reputationTable, activeShopCatalog()) : null;
+      const shop = settlement ? settlement.shop : waitingShop;
+      const menuEntryBonusPitz = (settlement?.enteredRecipeIds.length ?? 0) * PITZ_FIRST_DISCOVERY_BONUS;
+      const lastMenuEntries: MenuEntryNotice | null =
+        settlement && settlement.enteredRecipeIds.length > 0
+          ? { recipeIds: settlement.enteredRecipeIds, bonusPitz: menuEntryBonusPitz, reputation: settlement.reputationGained }
+          : null;
+      const reputationGain: ReputationGain | null =
+        reputation && settlement && reputationTable && settlement.reputationGained > 0
+          ? addReputation(state.shop, shop.reputation - state.shop.reputation, reputationTable).gain
+          : reputation
+            ? reputation.gain
+            : null;
       const entitlement = progression.resolveEntitlement({ ...state, dex, shop });
       // FREE only: Lunch Rush keeps its existing, unchanged per-run reward
       // (calculateMissionReward via CLAIM_MISSION_REWARD/MISSION_NEXT_ORDER) -- this per-pizza
@@ -1856,18 +1918,21 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         dex,
         unlockedForShopIngredientIds: entitlement.unlockedForShopIngredientIds,
         justDiscovered: wasNewDiscovery,
-        justGotNewBest: isNewBest,
+        // Phase 3b: a first identification is not a NEW BEST (it is the recipe's first record, like a first discovery's).
+        justGotNewBest: isNewBest && !identifiedAwaiting?.firstTime,
         phase: "DISCOVERED",
         // The Efficiency bonus is credited on top of the quality-based balance above -- additive,
         // never compounded into `lastPitzCredit.balanceAfter` itself (that field stays exactly
         // what `applyPitzCredit` computed, so its own display keeps meaning "quality reward
         // only"; ResultPanel adds `lastEfficiencyCredit.bonusPitz` back in for the final
         // displayed balance arrow -- see its own comment).
-        pitzBalance: pitzBalanceAfterQuality + (lastEfficiencyCredit?.bonusPitz ?? 0),
+        pitzBalance: pitzBalanceAfterQuality + (lastEfficiencyCredit?.bonusPitz ?? 0) + menuEntryBonusPitz,
         lastPitzCredit,
         lastEfficiencyCredit,
         shop,
-        lastReputationGain: reputation ? reputation.gain : null,
+        lastReputationGain: reputationGain,
+        lastIdentifiedAwaiting: identifiedAwaiting,
+        lastMenuEntries,
         lastMaterialUnlockNotice: buildMaterialUnlockNotice(entitlement.newlyUnlockedMaterialIds),
         lastDiscovery: discoveryRegistration?.outcome ?? null,
         discoveredTechniqueIds: techniques.ledger,
