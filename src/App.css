@@ -922,6 +922,19 @@
   margin: -0.1em;
 }
 
+/* Issue #417 Phase 1–2 Pilot: icon-only production art uses the established 64-box margin
+   correction. The negative margin keeps every Shop / Tray layout box and tap target unchanged. */
+.ingredient-glyph--tomato-sauce-bowl,
+.ingredient-glyph--mozzarella-ball,
+.ingredient-glyph--basil-leaves,
+.ingredient-glyph--bacon-rashers,
+.ingredient-glyph--button-mushrooms,
+.ingredient-glyph--olive-oil-bottle {
+  width: 1.2em;
+  height: 1.2em;
+  margin: -0.1em;
+}
+
 /* ---------- Cheese identity (shape + size + texture differ per cheese) ---------- */
 /* Generic fallback so a new cheese ingredient is still visible before it gets a
    dedicated .pizza-cheese--<id> rule below. Each dedicated rule sets its own
