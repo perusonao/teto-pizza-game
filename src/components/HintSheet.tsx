@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState, type RefObject } from "react";
+import { ResearchPointsHintBalance } from "./ResearchPointsNote";
 import { shopCopy } from "../logic/progression/shopCopy";
 import { getIngredient } from "../data/ingredients";
 import type { HintEmptyKind } from "../logic/discovery/hintTarget";
@@ -182,6 +183,7 @@ export function HintSheet({
   researchBoard = null,
   researchDetails = null,
   freeCookNote = null,
+  researchPointBalance = null,
   onClose,
 }: {
   view: HintSheetView;
@@ -213,6 +215,9 @@ export function HintSheet({
   researchDetails?: { knownJa: string; guidanceJa: string } | null;
   /** A targetless Free Cooking round's PREPARE note (it used to be a card above the pizza): the title and the one line under it. */
   freeCookNote?: { titleJa: string; bodyJa: string } | null;
+  /** B案 Phase 3c (shop model only): the research point balance, with the line that it cannot buy a hint yet (Phase 3d). `null`
+   *  / absent: nothing renders. The hint prices themselves are unchanged (Pitz). */
+  researchPointBalance?: number | null;
   onClose: () => void;
 }) {
   const titleId = useId();
@@ -318,6 +323,7 @@ export function HintSheet({
             <p className="hint-sheet__note-line">{freeCookNote.bodyJa}</p>
           </div>
         )}
+        {researchPointBalance !== null && <ResearchPointsHintBalance balance={researchPointBalance} />}
 
         {view.kind === "SELECTABLE" && ladder ? (
           <Hint5LadderBody

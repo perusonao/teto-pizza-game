@@ -73,6 +73,7 @@ import {
 } from "./state/persistence";
 import { activeProgressionModel } from "./logic/progression/progressionModel";
 import { SHOP_MODEL_ACTIVE, shopReputationStatus } from "./logic/progression/shopStatus";
+import { researchPointBalanceOf } from "./logic/progression/shopProgress";
 import { techniqueDexViews } from "./logic/techniques/dexView";
 import { ingredientCollectionCount, newShopMaterialCount } from "./state/materialEntitlement";
 import { inspectSaveHealth, type SaveHealth } from "./state/saveHealth";
@@ -1333,6 +1334,7 @@ function App() {
           onStartFreePlay={handleStartFreePlay}
           onTakeOrder={SHOP_MODEL_ACTIVE ? handleTakeOrder : undefined}
           shopStatus={SHOP_MODEL_ACTIVE ? shopReputationStatus(state.shop) : null}
+          researchPointBalance={SHOP_MODEL_ACTIVE ? researchPointBalanceOf(state.shop) : null}
           onStartFreeCook={handleStartDiscovery}
           onStartLunchRush={handleStartLunchRush}
           onOpenDinner={() => setScreen("DINNER")}

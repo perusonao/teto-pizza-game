@@ -8628,3 +8628,56 @@ p.hint-sheet__step {
   font-weight: 700;
   text-align: center;
 }
+
+/* B案 Phase 3c (Issue #901, shop model only): research points -- the RESULT line and the hint sheet's balance. They cannot be
+   spent yet (Phase 3d), so each shows the short "not yet" line. None of them renders under the legacy model. */
+.result-research-points {
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 5px 10px;
+  background: #eef6ff;
+  border: 2px solid #7fb2e5;
+  border-radius: 14px;
+  color: #234a6e;
+  text-align: center;
+}
+
+.result-research-points p {
+  margin: 0;
+}
+
+.result-research-points__gain {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.result-research-points__total {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.result-research-points__note,
+.hint-sheet__research-points-note {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4f6f8c;
+}
+
+.hint-sheet__research-points {
+  margin: 0 0 6px;
+  padding: 4px 10px;
+  background: #eef6ff;
+  border-radius: 10px;
+  color: #234a6e;
+}
+
+.hint-sheet__research-points p {
+  margin: 0;
+}
+
+.hint-sheet__research-points-balance {
+  font-size: 13px;
+  font-weight: 700;
+}

@@ -3,6 +3,8 @@ import {
   EMPTY_SHOP_PROGRESS,
   isDefaultShopProgress,
   mergeShopProgress,
+  researchPointBalanceOf,
+  researchPointsEarnedOf,
   sameShopProgress,
   sanitizeShopProgress,
   shopProgressForWrite,
@@ -134,5 +136,59 @@ describe("Phase 3b: the awaiting / paid ledgers (unions, written only while non-
     const stored = { reputation: 50, grantedMenuRecipeIds: [], menuEntryPaidRecipeIds: ["future-pizza"], other: 1 };
     const written = shopProgressForWrite({ reputation: 43, grantedMenuRecipeIds: [], awaitingMenuRecipeIds: ["meat-lovers"], menuEntryPaidRecipeIds: ["meat-lovers"] }, stored);
     expect(written).toEqual({ reputation: 50, grantedMenuRecipeIds: [], menuEntryPaidRecipeIds: ["future-pizza", "meat-lovers"], awaitingMenuRecipeIds: ["meat-lovers"], other: 1 });
+  });
+});
+
+describe("Phase 3c: research points earned (a cumulative total: max, written only above 0)", () => {
+  const isKnownId = (id: string) => ["margherita"].includes(id);
+
+  it("a pre-3c state keeps its exact shape, reads 0 and stays the default", () => {
+    expect(researchPointsEarnedOf(EMPTY_SHOP_PROGRESS)).toBe(0);
+    expect(researchPointBalanceOf(EMPTY_SHOP_PROGRESS)).toBe(0);
+    expect(sanitizeShopProgress({ reputation: 0, grantedMenuRecipeIds: [] }, isKnownId)).not.toHaveProperty("researchPointsEarned");
+    expect(isDefaultShopProgress(sanitizeShopProgress({}, isKnownId)!)).toBe(true);
+  });
+
+  it("a state holding only research points is not the default and round-trips", () => {
+    const state: ShopProgressState = { ...EMPTY_SHOP_PROGRESS, researchPointsEarned: 7 };
+    expect(isDefaultShopProgress(state)).toBe(false);
+    const written = shopProgressForWrite(state, undefined);
+    expect(written).toEqual({ reputation: 0, grantedMenuRecipeIds: [], researchPointsEarned: 7 });
+    expect(sanitizeShopProgress(written, isKnownId)).toEqual(state);
+    expect(researchPointBalanceOf(state)).toBe(7);
+  });
+
+  it("invalid stored values read fail-soft as 0 (negative / NaN / string); a fraction is floored", () => {
+    for (const researchPointsEarned of [-3, Number.NaN, Number.POSITIVE_INFINITY, "5", null]) {
+      expect(researchPointsEarnedOf(sanitizeShopProgress({ researchPointsEarned }, isKnownId)!)).toBe(0);
+    }
+    expect(sanitizeShopProgress({ researchPointsEarned: 4.7 }, isKnownId)?.researchPointsEarned).toBe(4);
+  });
+
+  it("merging takes the max (a reload or a second tab never adds a trial twice)", () => {
+    const a: ShopProgressState = { ...EMPTY_SHOP_PROGRESS, researchPointsEarned: 9 };
+    const b: ShopProgressState = { ...EMPTY_SHOP_PROGRESS, researchPointsEarned: 4 };
+    expect(mergeShopProgress(a, b).researchPointsEarned).toBe(9);
+    expect(mergeShopProgress(b, a).researchPointsEarned).toBe(9);
+    expect(mergeShopProgress(EMPTY_SHOP_PROGRESS, EMPTY_SHOP_PROGRESS)).not.toHaveProperty("researchPointsEarned");
+  });
+
+  it("same: research points are compared", () => {
+    expect(sameShopProgress({ ...EMPTY_SHOP_PROGRESS, researchPointsEarned: 2 }, { ...EMPTY_SHOP_PROGRESS, researchPointsEarned: 3 })).toBe(false);
+    expect(sameShopProgress({ ...EMPTY_SHOP_PROGRESS, researchPointsEarned: 0 }, EMPTY_SHOP_PROGRESS)).toBe(true);
+  });
+
+  it("writing over a stored object keeps the max and its unknown sub-keys", () => {
+    const stored = { reputation: 10, grantedMenuRecipeIds: [], researchPointsEarned: 12, futureField: "x" };
+    const lower = shopProgressForWrite({ ...EMPTY_SHOP_PROGRESS, reputation: 10, researchPointsEarned: 5 }, stored) as Record<string, unknown>;
+    expect(lower.researchPointsEarned).toBe(12);
+    expect(lower.futureField).toBe("x");
+    const higher = shopProgressForWrite({ ...EMPTY_SHOP_PROGRESS, reputation: 10, researchPointsEarned: 15 }, stored) as Record<string, unknown>;
+    expect(higher.researchPointsEarned).toBe(15);
+  });
+
+  it("a stored object without the key gains none until points exist", () => {
+    const stored = { reputation: 10, grantedMenuRecipeIds: [] };
+    expect(shopProgressForWrite({ ...EMPTY_SHOP_PROGRESS, reputation: 10 }, stored)).not.toHaveProperty("researchPointsEarned");
   });
 });

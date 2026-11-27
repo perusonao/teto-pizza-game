@@ -10,7 +10,8 @@
  *   not carried over). A save without `shopProgress` simply starts from the default.
  *
  * Merge rules (Q1: the reputation never goes down): `reputation` = max, `grantedMenuRecipeIds` = union. Phase 3b adds two
- * unions (`awaitingMenuRecipeIds`, `menuEntryPaidRecipeIds`), stored only while non-empty.
+ * unions (`awaitingMenuRecipeIds`, `menuEntryPaidRecipeIds`), stored only while non-empty. Phase 3c adds the research points
+ * earned (`researchPointsEarned`, a cumulative total: max, like the reputation), stored only while above 0.
  */
 import { SAVE_ID_PATTERN } from "../../state/saveIdGrammar";
 
@@ -30,6 +31,13 @@ export interface ShopProgressState {
    * whatever a reload or a merge does: a recipe is still waiting exactly while it is in `awaitingMenuRecipeIds` and not here.
    */
   menuEntryPaidRecipeIds?: readonly string[];
+  /**
+   * Phase 3c (Owner 2026-11-27): the research points earned so far, in one pool shared by every recipe. A CUMULATIVE total that
+   * never goes down, so a reload, a second tab or a rollback build merges it by max exactly like the reputation. The balance the
+   * player sees is `researchPointBalanceOf` (Phase 3d spends points through a separate, equally monotonic total; 3c spends none).
+   * Optional so every state literal written before Phase 3c still type-checks; absent = 0.
+   */
+  researchPointsEarned?: number;
 }
 
 export const EMPTY_SHOP_PROGRESS: ShopProgressState = Object.freeze({
@@ -47,13 +55,27 @@ export function menuEntryPaidRecipeIdsOf(state: ShopProgressState): readonly str
   return state.menuEntryPaidRecipeIds ?? NO_IDS;
 }
 
+/** Phase 3c: the research points earned so far (absent = 0). */
+export function researchPointsEarnedOf(state: ShopProgressState): number {
+  return state.researchPointsEarned ?? 0;
+}
+
+/**
+ * Phase 3c: the research point balance -- what the player has to spend. Phase 3c has nothing to spend them on (the hint purchase
+ * is Phase 3d), so it is everything earned. Every reader of the balance goes through here, so 3d changes only this function.
+ */
+export function researchPointBalanceOf(state: ShopProgressState): number {
+  return researchPointsEarnedOf(state);
+}
+
 /** True for the state a save without `shopProgress` reads as (such a state is never written). */
 export function isDefaultShopProgress(state: ShopProgressState): boolean {
   return (
     state.reputation === 0 &&
     state.grantedMenuRecipeIds.length === 0 &&
     awaitingMenuRecipeIdsOf(state).length === 0 &&
-    menuEntryPaidRecipeIdsOf(state).length === 0
+    menuEntryPaidRecipeIdsOf(state).length === 0 &&
+    researchPointsEarnedOf(state) === 0
   );
 }
 
@@ -67,6 +89,16 @@ function ledgerFields(awaiting: readonly string[], paid: readonly string[]): Pic
     ...(awaiting.length > 0 ? { awaitingMenuRecipeIds: awaiting } : {}),
     ...(paid.length > 0 ? { menuEntryPaidRecipeIds: paid } : {}),
   };
+}
+
+/** Phase 3c: the research points as a partial state, present only above 0 (a pre-3c state keeps its exact shape). */
+function researchPointsField(earned: number): Pick<ShopProgressState, "researchPointsEarned"> {
+  return earned > 0 ? { researchPointsEarned: earned } : {};
+}
+
+/** A stored research point total: a finite non-negative whole number; anything else reads as 0, a fraction is floored. */
+export function sanitizeResearchPoints(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -101,6 +133,7 @@ export function sanitizeShopProgress(
     reputation: sanitizeReputation(raw.reputation),
     grantedMenuRecipeIds: idsIn(raw.grantedMenuRecipeIds, isKnownRecipeId),
     ...ledgerFields(idsIn(raw.awaitingMenuRecipeIds, isKnownRecipeId), idsIn(raw.menuEntryPaidRecipeIds, isKnownRecipeId)),
+    ...researchPointsField(sanitizeResearchPoints(raw.researchPointsEarned)),
   };
 }
 
@@ -113,6 +146,7 @@ export function mergeShopProgress(base: ShopProgressState, more: ShopProgressSta
       unionIds(awaitingMenuRecipeIdsOf(base), awaitingMenuRecipeIdsOf(more)),
       unionIds(menuEntryPaidRecipeIdsOf(base), menuEntryPaidRecipeIdsOf(more)),
     ),
+    ...researchPointsField(Math.max(researchPointsEarnedOf(base), researchPointsEarnedOf(more))),
   };
 }
 
@@ -124,7 +158,8 @@ export function sameShopProgress(a: ShopProgressState | undefined, b: ShopProgre
     a.reputation === b.reputation &&
     sameIds(a.grantedMenuRecipeIds, b.grantedMenuRecipeIds) &&
     sameIds(awaitingMenuRecipeIdsOf(a), awaitingMenuRecipeIdsOf(b)) &&
-    sameIds(menuEntryPaidRecipeIdsOf(a), menuEntryPaidRecipeIdsOf(b))
+    sameIds(menuEntryPaidRecipeIdsOf(a), menuEntryPaidRecipeIdsOf(b)) &&
+    researchPointsEarnedOf(a) === researchPointsEarnedOf(b)
   );
 }
 
@@ -143,6 +178,7 @@ export function shopProgressForWrite(next: ShopProgressState | undefined, stored
     reputation: next.reputation,
     grantedMenuRecipeIds: [...next.grantedMenuRecipeIds],
     ...ledgerFields([...awaitingMenuRecipeIdsOf(next)], [...menuEntryPaidRecipeIdsOf(next)]),
+    ...researchPointsField(researchPointsEarnedOf(next)),
   };
   if (!isPlainObject(stored)) return ours;
   const wellFormed = (id: string) => SAVE_ID_PATTERN.test(id);
@@ -155,5 +191,7 @@ export function shopProgressForWrite(next: ShopProgressState | undefined, stored
     reputation: Math.max(sanitizeReputation(stored.reputation), ours.reputation),
     grantedMenuRecipeIds: [...storedIds, ...ours.grantedMenuRecipeIds.filter((id) => !storedIds.includes(id))],
     ...ledgerFields(awaiting, paid),
+    // Phase 3c: the max of both (a cumulative total). Written only above 0; a stored value this build cannot read stays as it is.
+    ...researchPointsField(Math.max(sanitizeResearchPoints(stored.researchPointsEarned), researchPointsEarnedOf(next))),
   };
 }
