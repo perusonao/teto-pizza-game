@@ -58,6 +58,7 @@ export type DedicatedIngredientVisual =
   | "tortilla-chip-triangles"
   | "feta-cubes"
   | "sausage-slices"
+  | "hot-dog-in-bun"
   | "hot-dog-slices"
   | "pickle-slices"
   | "wurstel-links"
@@ -957,6 +958,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     emoji: "\u{1F362}",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
+    iconVisual: "hot-dog-in-bun",
     pieceVisual: "hot-dog-slices",
   },
   /** Batch 6 PR-2 (#420): finite ladder material, step 50 (T4), unlocked by the Ladder alone. Family `vegetable`. 🥑 is the real avocado glyph. */

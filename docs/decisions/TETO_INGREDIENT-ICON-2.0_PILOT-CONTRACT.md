@@ -46,7 +46,7 @@ All glyph SVGs are decorative (`aria-hidden="true"`, `focusable="false"`). The a
 ## Discrimination rules
 
 - Mushroom: a brown/beige edible button-mushroom cluster, with broad caps, pale gills/stems, and no red cap or white poison spots.
-- Hot-dog vs sausage: hot-dog is three uniform, smooth pink rounds; sausage is two irregular coarse-cut pieces with visible fat/grain. Count, contour, texture, and value all differ.
+- Hot-dog vs sausage: the identification icon is a side-view long sausage in a rounded bun with a mustard zigzag; sausage remains two irregular coarse-cut pieces with visible fat/grain. Silhouette, orientation, texture, and value all differ. The completed-pizza hot-dog pieces remain the existing three smooth rounds.
 - Cheese system: silhouette is the primary key. Mozzarella is a tied whole ball; ricotta is a granular mound. Future parmigiano remains a jagged aged-cheese chunk, so it cannot collapse into either white silhouette.
 - Red group: sauce uses a bowl/pool and spoon-like smear cue; tomato uses seeded slice anatomy; pepperoni uses compact cured-meat discs with fat flecks. Shape and internal structure must work before hue.
 - Green group: basil uses two large veined leaves; capers remain round buds; oregano remains a loose flake pile. Leaf / bud / flake silhouettes must remain distinct in grayscale.

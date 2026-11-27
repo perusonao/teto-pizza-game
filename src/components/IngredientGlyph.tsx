@@ -72,6 +72,7 @@ const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
   "powdered-sugar-dessert": "0 0 64 64",
   "feta-cubes": "0 0 64 64",
   "sausage-slices": "0 0 64 64",
+  "hot-dog-in-bun": "0 0 64 64",
   "hot-dog-slices": "0 0 64 64",
   "pickle-slices": "0 0 64 64",
   "wurstel-links": "0 0 64 64",
@@ -133,7 +134,7 @@ function DedicatedIngredientSvg({ visual, variant }: { visual: DedicatedIngredie
       aria-hidden="true"
       focusable="false"
     >
-      {(visual === "tomato-sauce-bowl" || visual === "mozzarella-ball" || visual === "basil-leaves" || visual === "bacon-rashers" || visual === "button-mushrooms" || visual === "olive-oil-bottle") && <PilotIngredientIcon visual={visual as PilotIconVisual} />}
+      {(visual === "tomato-sauce-bowl" || visual === "mozzarella-ball" || visual === "basil-leaves" || visual === "bacon-rashers" || visual === "button-mushrooms" || visual === "olive-oil-bottle" || visual === "hot-dog-in-bun") && <PilotIngredientIcon visual={visual as PilotIconVisual} />}
       {visual === "tomato-slice" && <TomatoSlice />}
       {visual === "caper-cluster" && <CaperCluster />}
       {visual === "clam-valve" && <ClamValve />}

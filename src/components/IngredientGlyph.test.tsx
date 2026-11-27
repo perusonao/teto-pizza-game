@@ -47,6 +47,7 @@ const DEDICATED: readonly DedicatedIngredientVisual[] = [
   "ricotta-mound",
   "feta-cubes",
   "sausage-slices",
+  "hot-dog-in-bun",
   "hot-dog-slices",
   "shiso-leaf",
   "whitebait-school",
@@ -90,6 +91,10 @@ const PILOT_A_DEDICATED: Record<string, DedicatedIngredientVisual> = {
   sausage: "sausage-slices",
   feta: "feta-cubes",
   ricotta: "ricotta-mound",
+};
+const PILOT_A_SELECTION: Record<string, DedicatedIngredientVisual> = {
+  ...PILOT_A_DEDICATED,
+  "hot-dog": "hot-dog-in-bun",
 };
 const ISSUE417_ICON_ONLY: Record<string, DedicatedIngredientVisual> = {
   "tomato-sauce": "tomato-sauce-bowl",
@@ -300,22 +305,34 @@ describe("I5a: W1 dedicated-visual materials never draw their emoji fallback", (
 describe("Ingredient Icons 2.0 Pilot A", () => {
   const ids = Object.keys(PILOT_A_DEDICATED);
 
-  it.each(Object.entries(PILOT_A_DEDICATED))("%s draws %s and never its emoji", (id, visual) => {
+  it.each(Object.entries(PILOT_A_SELECTION))("%s draws %s and never its emoji", (id, visual) => {
     const ingredient = getIngredient(id)!;
     const { container } = render(<IngredientGlyph ingredient={ingredient} />);
     expect(container.querySelector(`svg[data-ingredient-visual="${visual}"]`)).not.toBeNull();
     expect(container.textContent).toBe("");
   });
 
-  it("hot-dog and sausage are different drawings (3 round slices vs 2 irregular chunks)", () => {
+  it("hot-dog selection is a long sausage in a bun, distinct from sausage slices", () => {
     const svg = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
     expect(svg("hot-dog")).not.toBe(svg("sausage"));
-    expect(svg("hot-dog").match(/<circle[^>]*r="11"/g)).toHaveLength(3);
+    expect(svg("hot-dog")).toContain('data-ingredient-visual="hot-dog-in-bun"');
+    expect(svg("hot-dog")).toContain('rx="8.5"');
+    expect(svg("hot-dog")).not.toContain('<circle');
+  });
+
+  it("keeps hot-dog placed rendering on the existing three-slice pieceVisual", () => {
+    const ingredient = getIngredient("hot-dog")!;
+    expect(ingredient.iconVisual).toBe("hot-dog-in-bun");
+    expect(ingredient.pieceVisual).toBe("hot-dog-slices");
+    const html = renderToStaticMarkup(<IngredientGlyph ingredient={ingredient} variant="placed" />);
+    expect(html).toContain('data-ingredient-visual="hot-dog-slices"');
+    expect(html.match(/<circle[^>]*r="11"/g)).toHaveLength(3);
+    expect(html).not.toContain("hot-dog-in-bun");
   });
 
   it("tray chips and Inventory use the SVG for feta / ricotta / hot-dog / sausage", () => {
     for (const [category, id] of [["cheese", "feta"], ["cheese", "ricotta"], ["topping", "hot-dog"], ["topping", "sausage"]] as const) {
-      const visual = PILOT_A_DEDICATED[id];
+      const visual = PILOT_A_SELECTION[id];
       const tray = render(
         <IngredientTray
           activeCategory={category}
@@ -441,7 +458,8 @@ describe("Issue #417 Phase 1–2 icon-only pilot completion", () => {
   it("distinguishes mushroom, meat, cheese, and green silhouettes structurally", () => {
     const html = (id: string) => renderToStaticMarkup(<IngredientGlyph ingredient={getIngredient(id)!} />);
     expect(html("mushroom")).not.toContain("#d8261b");
-    expect(html("hot-dog").match(/<circle[^>]*r="11"/g)).toHaveLength(3);
+    expect(html("hot-dog")).toContain("hot-dog-in-bun");
+    expect(html("hot-dog")).not.toContain('<circle');
     expect(html("hot-dog")).not.toBe(html("sausage"));
     expect(html("mozzarella")).not.toBe(html("ricotta"));
     expect(html("basil")).not.toBe(html("oregano"));

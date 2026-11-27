@@ -2,7 +2,7 @@ import type { DedicatedIngredientVisual } from "../data/ingredients";
 
 export type PilotIconVisual = Extract<
   DedicatedIngredientVisual,
-  "tomato-sauce-bowl" | "mozzarella-ball" | "basil-leaves" | "bacon-rashers" | "button-mushrooms" | "olive-oil-bottle"
+  "tomato-sauce-bowl" | "mozzarella-ball" | "basil-leaves" | "bacon-rashers" | "button-mushrooms" | "olive-oil-bottle" | "hot-dog-in-bun"
 >;
 
 export function PilotIngredientIcon({ visual }: { visual: PilotIconVisual }) {
@@ -11,6 +11,7 @@ export function PilotIngredientIcon({ visual }: { visual: PilotIconVisual }) {
   if (visual === "basil-leaves") return <BasilLeaves />;
   if (visual === "bacon-rashers") return <BaconRashers />;
   if (visual === "button-mushrooms") return <ButtonMushrooms />;
+  if (visual === "hot-dog-in-bun") return <HotDogInBun />;
   return <OliveOilBottle />;
 }
 
@@ -73,6 +74,18 @@ function ButtonMushrooms() {
       <path d="M13 26h19c-1 5-5 8-10 8s-8-3-9-8z" fill="#f1dfc1" stroke="#6f5238" strokeWidth="2.8" />
       <path d="M18 33h9l2 18H16z" fill="#f4e6ce" stroke="#6f5238" strokeWidth="3" strokeLinejoin="round" />
     </g>
+  </g>;
+}
+
+function HotDogInBun() {
+  return <g>
+    <GroundShadow rx={25} />
+    <path d="M7 31c0-12 8-20 19-20h12c11 0 19 8 19 20v5c0 11-8 19-19 19H26C15 55 7 47 7 36z" fill="#d99a4f" stroke="#6f3d20" strokeWidth="2.6" strokeLinejoin="round" />
+    <path d="M11 28c3-8 8-12 16-12h10c8 0 14 4 17 12-10-3-33-3-43 0z" fill="#efbc70" />
+    <rect x="9" y="27" width="46" height="17" rx="8.5" fill="#a94830" stroke="#642719" strokeWidth="2.5" />
+    <path d="M15 35l5-4 5 7 6-7 6 7 6-7 6 4" stroke="#f4c62f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    <path d="M10 43c10 5 34 5 44 0-3 6-9 9-17 9H27c-8 0-14-3-17-9z" fill="#e8ad62" />
+    <path d="M16 21c5-4 11-5 18-5" stroke="#f7d69d" strokeWidth="3" strokeLinecap="round" fill="none" />
   </g>;
 }
 
