@@ -35,9 +35,13 @@ The final E2E checks no horizontal document overflow. The 1.2em SVG correction u
 | TypeScript (`tsc -b`) | PASS |
 | Chromium E2E, 390×844 + 360×800 | PASS — 4 tests |
 | Before scenario on base, both viewports | PASS — 4 tests |
-| Lint | pending final gate |
-| Build | pending final gate |
-| Full Vitest | pending final gate |
+| Lint | PASS — existing warnings only |
+| Build | PASS — existing chunk-size warning only |
+| Full Vitest shard-union check | PASS — exactly 713 specs, no duplicates or omissions |
+| Full Vitest execution | BLOCKED by a base failure — `catalogBoundary.test.ts` expects a 4-space source substring while base `App.tsx` uses 2 spaces |
+| Contention-timeout recheck | PASS — the 5 files that timed out during the first concurrent full run pass alone, 5 files / 150 tests |
+
+The full run was first attempted concurrently with the production build and produced 5-second seeded-simulation timeouts. Those five files were rerun serially without changing test settings and passed (150/150). The repository's official three-shard union was then verified as the exact 713-spec collection. Shard 1 reached `src/logic/catalog/catalogBoundary.test.ts`, whose static whitespace assertion fails identically on both the PR head and the detached base `ea379daa` worktree. Reproduction: `npx vitest run src/logic/catalog/catalogBoundary.test.ts --maxWorkers=1`. The unrelated production source or test was not changed to mask this base failure.
 
 Existing test changes: `IngredientGlyph.test.tsx` changed its dedicated-selection predicate from `pieceVisual` only to `iconVisual || pieceVisual` and added responsibility-boundary assertions. No test was removed, skipped, or relaxed.
 
