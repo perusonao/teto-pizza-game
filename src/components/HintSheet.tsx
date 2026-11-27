@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type RefObject } from "react";
+import { ResearchPointsHintBalance } from "./ResearchPointsNote";
+import { ShopHintBoard } from "./ShopHintBoard";
+import type { ShopHintBoardView, ShopHintItemKind } from "../logic/progression/shopHints";
 import { shopCopy } from "../logic/progression/shopCopy";
 import { getIngredient } from "../data/ingredients";
 import type { HintEmptyKind } from "../logic/discovery/hintTarget";
@@ -182,6 +185,9 @@ export function HintSheet({
   researchBoard = null,
   researchDetails = null,
   freeCookNote = null,
+  researchPointBalance = null,
+  shopHint = null,
+  onBuyShopHint = () => {},
   onClose,
 }: {
   view: HintSheetView;
@@ -213,6 +219,14 @@ export function HintSheet({
   researchDetails?: { knownJa: string; guidanceJa: string } | null;
   /** A targetless Free Cooking round's PREPARE note (it used to be a card above the pizza): the title and the one line under it. */
   freeCookNote?: { titleJa: string; bodyJa: string } | null;
+  /** B案 Phase 3c (shop model only): the research point balance, with the line that it cannot buy a hint yet (Phase 3d). `null`
+   *  / absent: nothing renders. The hint prices themselves are unchanged (Pitz). */
+  researchPointBalance?: number | null;
+  /** B案 Phase 3d (shop model only): the research point hint board of the session target. Present (non-null) exactly under the
+   *  shop model; then a sheet with a target shows this board instead of every Pitz hint body (Pitz never buys a hint there).
+   *  `board: null`: the target has no research point hints (not an adopted recipe of an open stage) -- nothing is for sale. */
+  shopHint?: { board: ShopHintBoardView | null } | null;
+  onBuyShopHint?: (recipeId: string, kind: ShopHintItemKind, expectedPrice: number) => void;
   onClose: () => void;
 }) {
   const titleId = useId();
@@ -231,13 +245,23 @@ export function HintSheet({
     },
     [],
   );
-  const next = view.kind === "TARGET" ? view.next : null;
-  const ladder = view.kind === "SELECTABLE" ? hint5 : null;
-  const ladderClosed = view.kind === "SELECTABLE" && !ladder && hint5Active;
+  // B案 Phase 3d: under the shop model a sheet with a target serves the research point board, never a Pitz body.
+  const shopBody = shopHint !== null && (view.kind === "TARGET" || view.kind === "SELECTABLE");
+  const next = view.kind === "TARGET" && !shopBody ? view.next : null;
+  const ladder = view.kind === "SELECTABLE" && !shopBody ? hint5 : null;
+  const ladderClosed = view.kind === "SELECTABLE" && !shopBody && !ladder && hint5Active;
   // SELECTABLE: the 「ヒントをもらう」 entry is always enabled (it only opens the family panel; the
   // panel manages its own focus). Hint 5.0: the one rung request, whenever a rung is offered (#360 S3:
   // never gated on the balance, so the sheet cannot tell a fully known rung from an unknown one).
-  const ctaEnabled = ladder ? !!ladder.next : ladderClosed ? false : view.kind === "SELECTABLE" ? true : !!next && next.affordable;
+  const ctaEnabled = shopBody
+    ? false
+    : ladder
+      ? !!ladder.next
+      : ladderClosed
+        ? false
+        : view.kind === "SELECTABLE"
+          ? true
+          : !!next && next.affordable;
   const latch = (): boolean => {
     if (buyLatchRef.current) return false;
     buyLatchRef.current = true;
@@ -275,7 +299,7 @@ export function HintSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         data-hint-kind={view.kind}
-        data-hint-ladder={ladder ? "hint5" : ladderClosed ? "hint5-closed" : undefined}
+        data-hint-ladder={shopBody ? "shop" : ladder ? "hint5" : ladderClosed ? "hint5-closed" : undefined}
         // Notebook N1: while the notebook is over this sheet nothing underneath may take focus or a keypress
         // (Shift+Tab / Enter / Escape would otherwise act on the Hint behind it).
         inert={notebookOpen || undefined}
@@ -318,8 +342,21 @@ export function HintSheet({
             <p className="hint-sheet__note-line">{freeCookNote.bodyJa}</p>
           </div>
         )}
+        {researchPointBalance !== null && !shopBody && <ResearchPointsHintBalance balance={researchPointBalance} />}
 
-        {view.kind === "SELECTABLE" && ladder ? (
+        {shopBody ? (
+          shopHint.board ? (
+            <ShopHintBoard
+              board={shopHint.board}
+              headingLevel="h3"
+              onBuy={(kind, expectedPrice) => onBuyShopHint(shopHint.board!.recipeId, kind, expectedPrice)}
+            />
+          ) : (
+            <div className="hint-sheet__footer">
+              <p className="hint-sheet__guidance">{HINT5_COPY.unavailable}</p>
+            </div>
+          )
+        ) : view.kind === "SELECTABLE" && ladder ? (
           <Hint5LadderBody
             view={view}
             ladder={ladder}

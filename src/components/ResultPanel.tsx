@@ -21,6 +21,8 @@ import type { TechniqueId } from "../data/techniques";
 import { TechniqueReveal } from "./TechniqueReveal";
 import { useRevealOpenedResultDetail } from "./revealOpenedResultDetail";
 import type { ReputationGain } from "../logic/progression/shopProgression";
+import type { ResearchPointGain } from "../state/gameReducer";
+import { ResearchPointsResultLine } from "./ResearchPointsNote";
 import { shopCopy, SHOP_COPY_ACTIVE } from "../logic/progression/shopCopy";
 import { nextRankAbove, rankForReputation, rankLabel } from "../logic/progression/shopRank";
 import { identifiedAwaitingCopy, type StageOpeningView } from "../logic/progression/shopStageView";
@@ -122,6 +124,9 @@ interface ResultPanelProps {
   /** B案 Phase 2a (shop model only): what this round added to the reputation (`state.lastReputationGain`). A zero gain or
    *  `null` renders nothing, so the legacy model's RESULT is unchanged. */
   reputationGain?: ReputationGain | null;
+  /** B案 Phase 3c (shop model only): the research points this Free Cooking trial earned (`state.lastResearchPointGain`), shown
+   *  on every Free Cooking card (matched, original, failed). `null` / absent: nothing renders (legacy, orders, practice). */
+  researchPointGain?: ResearchPointGain | null;
   /** B案 Phase 3b (shop model only): this pizza is an exact match for a recipe whose stage is not open yet (`state.lastIdentifiedAwaiting`)
    *  -- identified, not developed. RESULT says the shop is not ready for it and when it joins the menu, instead of 「NEW MENU!」. */
   identifiedAwaiting?: { recipeNameJa: string; chapter: number; firstTime: boolean } | null;
@@ -263,6 +268,7 @@ export function ResultPanel({
   onRetrySameRecipe,
   onBackToPizzaSelect,
   reputationGain = null,
+  researchPointGain = null,
   identifiedAwaiting = null,
   menuEntries = null,
   stageOpening = null,
@@ -376,6 +382,8 @@ export function ResultPanel({
             does not read how the last round ended (a FAILED and an ORIGINAL round open the same sheet). */}
         {freeCook && hintRow(null, true)}
 
+        {researchPointGain && <ResearchPointsResultLine gain={researchPointGain} />}
+
         <div className="pitz-credit-summary pitz-credit-summary--failed">
           <p className="pitz-credit-summary__headline">
             今回の獲得 <strong>+0 Pitz</strong>
@@ -484,6 +492,7 @@ export function ResultPanel({
         </div>
         {freeCook && hintRow(null, true)}
         {freeCook && trialNoticeText && <p className="original-pizza__trial-notice">{trialNoticeText}</p>}
+        {researchPointGain && <ResearchPointsResultLine gain={researchPointGain} />}
         <p className="original-pizza__note">
           {research
             ? RESEARCH_UX_COPY.resultNote
@@ -736,6 +745,8 @@ export function ResultPanel({
           )}
         </div>
       )}
+
+      {researchPointGain && <ResearchPointsResultLine gain={researchPointGain} />}
 
       {/* B案 Phase 3b: when a stage opened, the promotion banner above already lists the materials; only the Shop CTA stays. */}
       {materialUnlockNotice && stageOpening && stageOpening.materialNamesJa.length > 0 && onOpenShop && (

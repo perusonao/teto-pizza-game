@@ -9,6 +9,7 @@ import { homeBubbleJa } from "../state/homeBubble";
 import { SaveNoticeBanner } from "../components/SaveNoticeBanner";
 import type { SaveNotice } from "../state/saveHealth";
 import type { ShopReputationStatus } from "../logic/progression/shopStatus";
+import { RESEARCH_POINTS_COPY } from "../components/ResearchPointsNote";
 import { shopCopy } from "../logic/progression/shopCopy";
 import { rankLabel } from "../logic/progression/shopRank";
 
@@ -94,6 +95,8 @@ interface HomeScreenProps {
   onTakeOrder?: () => void;
   /** B案 Phase 2a (shop model only): the reputation line under the header. `null` / absent: nothing renders. */
   shopStatus?: ShopReputationStatus | null;
+  /** B案 Phase 3c (shop model only): the research point balance, as a pill beside Pitz. `null` / absent: nothing renders. */
+  researchPointBalance?: number | null;
 }
 
 export function HomeScreen({
@@ -123,6 +126,7 @@ export function HomeScreen({
   roundNotices = null,
   onTakeOrder,
   shopStatus = null,
+  researchPointBalance = null,
 }: HomeScreenProps) {
   // B案 Phase 3a: the Dex's recipes (legacy: every recipe, as before; shop: the curated 60).
   const totalRecipes = dexRecipes().length;
@@ -136,6 +140,16 @@ export function HomeScreen({
           <span className="app-header__pitz" aria-label={`Pitz残高 ${pitzBalance}`}>
             {"\u{1FA99}"} {pitzBalance}
           </span>
+          {researchPointBalance !== null && (
+            <span
+              className="app-header__pitz app-header__research-points"
+              data-testid="home-research-points"
+              aria-label={`${RESEARCH_POINTS_COPY.label} ${researchPointBalance}（${RESEARCH_POINTS_COPY.usable}）`}
+              title={RESEARCH_POINTS_COPY.usable}
+            >
+              {RESEARCH_POINTS_COPY.icon} {researchPointBalance}
+            </span>
+          )}
           <span
             className="app-header__dex-pill"
             aria-label={`レシピ図鑑 ${shopCopy("発見数", "開発数")} ${discoveredCount} / ${totalRecipes}`}

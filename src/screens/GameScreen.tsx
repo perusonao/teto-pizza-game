@@ -1,4 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type MutableRefObject, type ReactNode } from "react";
+import { SHOP_MODEL_ACTIVE } from "../logic/progression/shopStatus";
+import { researchPointBalanceOf } from "../logic/progression/shopProgress";
+import type { ShopHintItemKind } from "../logic/progression/shopHints";
+import { shopHintBoardFor } from "../state/shopHintState";
+import { ShopHintStrip } from "../components/ShopHintBoard";
 import type { FamilyFilter } from "../data/ingredientShelf";
 import { DialogueBox } from "../components/DialogueBox";
 import { PizzaStage } from "../components/PizzaStage";
@@ -189,6 +194,8 @@ interface GameScreenProps {
   onBuySelectableHint?: (preference: HintCategory, expectedPaidCount: number, family?: HintFamily) => void;
   /** Hint 5.0 H5-3: request the offered ladder rung (PURCHASE_HINT5_RUNG; a no-op with the flag OFF). */
   onBuyHint5Rung?: (expectedRungIndex: number) => void;
+  /** B案 Phase 3d (shop model only): buy one research point hint item (PURCHASE_SHOP_HINT). */
+  onBuyShopHint?: (recipeId: string, kind: ShopHintItemKind, expectedPrice: number) => void;
   onCloseHint?: () => void;
   /** Discovery Hint 2.0 (229-C): the Free Cooking RESULT's 「💡 ヒントを見る」 -- cook freely again
    *  with the hint sheet open. */
@@ -304,6 +311,7 @@ export function GameScreen({
   onUnlockHint = () => {},
   onBuySelectableHint = () => {},
   onBuyHint5Rung = () => {},
+  onBuyShopHint = () => {},
   onCloseHint = () => {},
   onRetryWithHint,
   onChangeCategory,
@@ -363,6 +371,10 @@ export function GameScreen({
   const notebookRows = notebookView(state.trialNotebook);
   // The RESULT keeps the research context even if the trial used up the target's last stock (not cookable now).
   const researchResult = state.freeCook ? researchResultView(state) : null;
+  // B案 Phase 3d (shop model only): the research point hints of this trial's target (the hint sheet's session target, else the
+  // Research Target), for the compact line at the top edge of PREPARE.
+  const shopHintStripBoard =
+    SHOP_MODEL_ACTIVE && state.freeCook ? shopHintBoardFor(state, state.hintSession?.targetId ?? state.researchTargetId) : null;
   // Research Board (Phase 2 / S4): the S1 read model of the selected Research Target only; no target -> no Board.
   const researchBoard = researchResult
     ? researchBoardOf(
@@ -809,6 +821,10 @@ export function GameScreen({
           height it took goes back to the pizza. The same already-public strings, nothing new. */}
 
       {/* Owner decision (#401 HV): the targetless Free Cooking note card above the pizza is gone too; it is in the ヒント sheet. */}
+
+      {/* B案 Phase 3d (shop model only): what the research point hints revealed about this trial's target, as one compact line
+          at the top edge (revealed items only; nothing for sale, no 「？」). Absent while nothing is revealed. */}
+      {SHOP_MODEL_ACTIVE && state.phase === "PREPARE" && state.freeCook && shopHintStripBoard && <ShopHintStrip board={shopHintStripBoard} />}
 
       {state.phase === "PREPARE" && !state.freeCook && state.dinner === null && (
         <div className="order-card">
@@ -1264,6 +1280,9 @@ export function GameScreen({
               notebook={notebookRows}
               researchLabelJa={researchResult?.label ?? null}
               researchBoard={researchBoard}
+              researchPointBalance={SHOP_MODEL_ACTIVE && state.freeCook ? researchPointBalanceOf(state.shop) : null}
+              shopHint={SHOP_MODEL_ACTIVE ? { board: shopHintBoardFor(state, state.hintSession?.targetId) } : null}
+              onBuyShopHint={onBuyShopHint}
               freeCookNote={
                 state.freeCook && !researchResult
                   ? { titleJa: shopCopy("\u{1F3A8} レシピ発見の試作", "\u{1F3A8} メニュー開発の試作"), bodyJa: state.hint?.textJa ?? state.recipe.description }
@@ -1366,6 +1385,7 @@ export function GameScreen({
           onRetrySameRecipe={onRetrySameRecipe}
           onBackToPizzaSelect={onBackToPizzaSelect}
           reputationGain={state.lastReputationGain}
+          researchPointGain={state.lastResearchPointGain}
           identifiedAwaiting={
             state.lastIdentifiedAwaiting
               ? {

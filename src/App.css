@@ -8641,3 +8641,241 @@ p.hint-sheet__step {
   font-weight: 700;
   text-align: center;
 }
+
+/* B案 Phase 3c (Issue #901, shop model only): research points -- the RESULT line and the hint sheet's balance. They cannot be
+   spent yet (Phase 3d), so each shows the short "not yet" line. None of them renders under the legacy model. */
+.result-research-points {
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 5px 10px;
+  background: #eef6ff;
+  border: 2px solid #7fb2e5;
+  border-radius: 14px;
+  color: #234a6e;
+  text-align: center;
+}
+
+.result-research-points p {
+  margin: 0;
+}
+
+.result-research-points__gain {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.result-research-points__total {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.result-research-points__note,
+.hint-sheet__research-points-note {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4f6f8c;
+}
+
+.hint-sheet__research-points {
+  margin: 0 0 6px;
+  padding: 4px 10px;
+  background: #eef6ff;
+  border-radius: 10px;
+  color: #234a6e;
+}
+
+.hint-sheet__research-points p {
+  margin: 0;
+}
+
+.hint-sheet__research-points-balance {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* B案 Phase 3d (Issue #901, shop model only): the research point hint board (the hint sheet, the Dex fold) and the cooking
+   screen's compact line. Nothing here renders under the legacy model. */
+.shop-hint {
+  margin: 4px 0 6px;
+  padding: 8px 10px;
+  background: #f5f9ff;
+  border: 1.5px solid #b9d3ee;
+  border-radius: 12px;
+  color: #234a6e;
+  text-align: left;
+}
+
+.shop-hint__title {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.shop-hint__rows {
+  margin: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.shop-hint__row {
+  display: grid;
+  grid-template-columns: 6.5em 1fr;
+  gap: 6px;
+  align-items: baseline;
+  font-size: 12.5px;
+}
+
+.shop-hint__row dt {
+  font-weight: 700;
+  color: #4f6f8c;
+}
+
+.shop-hint__row dd {
+  margin: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.shop-hint__row--slots {
+  grid-template-columns: 1fr;
+}
+
+.shop-hint__slots {
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.shop-hint__slot {
+  padding: 2px 8px;
+  background: #ffffff;
+  border: 1.5px solid #7fb2e5;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.shop-hint__slot--unknown {
+  min-width: 2.2em;
+  text-align: center;
+  border-style: dashed;
+  color: #7d93a8;
+}
+
+.shop-hint__count {
+  margin-left: 3px;
+  font-weight: 800;
+}
+
+.shop-hint__tag {
+  margin-left: 4px;
+  padding: 0 5px;
+  background: #fff1d6;
+  border-radius: 6px;
+  font-size: 10.5px;
+  color: #8a5a00;
+}
+
+.shop-hint__tag--carried {
+  background: #e7eef5;
+  color: #4f6f8c;
+}
+
+.shop-hint__total,
+.shop-hint__done,
+.shop-hint__free,
+.shop-hint__short,
+.shop-hint__wallet {
+  margin: 5px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.shop-hint__price-note {
+  font-weight: 600;
+  color: #4f6f8c;
+}
+
+.shop-hint__short {
+  color: #a43b2b;
+}
+
+.shop-hint__buttons {
+  margin-top: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.shop-hint__buy {
+  min-height: 36px;
+  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #2f6fb0;
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.shop-hint__buy:disabled {
+  background: #b7c4d1;
+  cursor: not-allowed;
+}
+
+.shop-hint__buy-price {
+  padding: 0 5px;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+}
+
+.dex-card__shop-hint {
+  margin-top: 6px;
+  width: 100%;
+}
+
+.dex-card__shop-hint-summary {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  color: #2f6fb0;
+}
+
+.shop-hint-strip {
+  margin: 2px 8px 0;
+  padding: 2px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(238, 246, 255, 0.92);
+  border: 1px solid #b9d3ee;
+  border-radius: 999px;
+  color: #234a6e;
+  font-size: 11.5px;
+  font-weight: 700;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.shop-hint-strip__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 8px;
+  white-space: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}

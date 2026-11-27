@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { shopCopy } from "../logic/progression/shopCopy";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { getIngredient } from "../data/ingredients";
@@ -22,6 +22,8 @@ import { researchEntryViews, type ResearchEntryView } from "../state/discoveryHi
 import { isResearchStockBlocked } from "../state/researchStockBlock";
 import type { TechniqueDexView } from "../logic/techniques/dexView";
 import { IngredientGlyph } from "./IngredientGlyph";
+import { ShopHintBoard } from "./ShopHintBoard";
+import type { ShopHintBoardView, ShopHintItemKind } from "../logic/progression/shopHints";
 import { AnonymousLockFrame } from "./AnonymousLockFrame";
 import { ANONYMOUS_LOCK_HINTS } from "./anonymousLockHints";
 
@@ -59,6 +61,28 @@ interface DexOverlayProps {
   /** Cooking Techniques TQ-1D: the 「調理法」 section (../logic/techniques/dexView.ts). A discovered technique shows
    *  its name; an undiscovered one whose affordance is open shows only 「？？？」 and its riddle; the rest are absent. */
   techniqueViews?: readonly TechniqueDexView[];
+  /** B案 Phase 3d (shop model only): the research point hints. Every recipe of an open stage (developed or not) gets a 「🔬 ヒント」
+   *  fold with its board (what is known, the 「？」 slots, the items for sale). Absent (legacy): nothing renders. */
+  shopHint?: {
+    boardOf: (recipeId: string) => ShopHintBoardView | null;
+    onBuy: (recipeId: string, kind: ShopHintItemKind, expectedPrice: number) => void;
+  };
+}
+
+/** B案 Phase 3d: one recipe's research point hint fold (closed by default; the summary says how much is known). */
+function ShopHintFold({ board, onBuy }: { board: ShopHintBoardView; onBuy: (kind: ShopHintItemKind, expectedPrice: number) => void }) {
+  const known =
+    board.slots.filter((s) => s.ingredientId !== null).length +
+    [board.shape, board.method, board.sauceIds].filter((v) => v !== null).length +
+    (board.countRevealed ? 1 : 0);
+  return (
+    <details className="dex-card__shop-hint" data-testid="dex-shop-hint">
+      <summary className="dex-card__shop-hint-summary">
+        {"\u{1F52C}"} ヒント{known > 0 ? `（わかったこと ${known}）` : ""}
+      </summary>
+      <ShopHintBoard board={board} onBuy={onBuy} headingLevel="h4" />
+    </details>
+  );
 }
 
 /** #346 S2/S3: one anonymous Research Entry card. The label is a plain "this card" marker in the
@@ -131,6 +155,7 @@ function UndiscoveredSlot({
   onGoFreeCook,
   onOpenShop,
   onShowHint,
+  shopHintFold,
 }: {
   slot: number;
   state: Exclude<RecipeDiscoveryState, "DISCOVERED">;
@@ -138,6 +163,8 @@ function UndiscoveredSlot({
   onOpenShop?: () => void;
   /** 229-D: already bound to this slot's recipe by the parent (a closure, not a prop value). */
   onShowHint?: () => void;
+  /** B案 Phase 3d: the slot's research point hint fold (shop model, open stage), already bound by the parent. */
+  shopHintFold?: ReactNode;
 }) {
   const tag =
     state === "DISCOVERABLE"
@@ -165,6 +192,7 @@ function UndiscoveredSlot({
           </button>
         )
       )}
+      {shopHintFold}
     </AnonymousLockFrame>
   );
 }
@@ -202,6 +230,7 @@ export function DexOverlay({
   discoveryHintFacts,
   onResearch,
   techniqueViews = [],
+  shopHint,
 }: DexOverlayProps) {
   // B案 Phase 3a: the Dex's own recipes (legacy: every recipe, as before; shop: the curated 60). The hint-facing paths below
   // (the aggregated 🎨 card, research entries) keep reading `RECIPES`: narrowing them to the 60 is Phase 3e.
@@ -217,7 +246,12 @@ export function DexOverlay({
   // nor which slots they are reaches the DOM. Zero or one keeps the per-slot 🎨 card unchanged.
   const aggregateUnknown = RECIPES.filter((r) => recipeDiscoveryState(r, inputs) === "DISCOVERABLE").length > 1;
   // #346 S2/S3: S1's projection (+ the Hint ledger's own exact / class facts) is the only authority.
-  const researchEntries = researchEntryViews({ dex, ownedIngredientIds, discoveryHintFacts });
+  // B案 Phase 3d (3b 論点): under the shop model only the entries of an open stage are listed (a recipe of a closed stage cannot be
+  // researched, so its card would only be a dead end). Legacy: every stage reads as open, so the list is unchanged.
+  const stageModel = activeProgressionModel();
+  const researchEntries = researchEntryViews({ dex, ownedIngredientIds, discoveryHintFacts }).filter((view) =>
+    stageModel.isRecipeStageOpen(view.recipeId, { dex, shop: shop ?? EMPTY_SHOP_PROGRESS }),
+  );
   // #346 S4 (OD-RX-1): a registered Research Entry is guided by its own card, so the aggregate card is shown
   // only while some aggregated DISCOVERABLE unknown is NOT a Research Entry. It only ever disappears (no
   // slot, count or existence is newly exposed): the aggregated slots above already read as plain unknowns.
@@ -243,6 +277,11 @@ export function DexOverlay({
 
   function renderSlot(recipe: Recipe, slot: number) {
     const entry = dex.find((e) => e.recipeId === recipe.id && e.discovered);
+    const hintBoard = shopHint?.boardOf(recipe.id) ?? null;
+    const hintFold =
+      shopHint && hintBoard ? (
+        <ShopHintFold board={hintBoard} onBuy={(kind, expectedPrice) => shopHint.onBuy(recipe.id, kind, expectedPrice)} />
+      ) : null;
     const isNew = !!entry && recipe.id === newlyDiscoveredId;
     const showNewBest = !!entry && recipe.id === newBestRecipeId;
     if (!entry) {
@@ -256,6 +295,7 @@ export function DexOverlay({
           onGoFreeCook={onGoFreeCook}
           onOpenShop={onOpenShop}
           onShowHint={shownState === "DISCOVERABLE" && onShowHint ? () => onShowHint(recipe.id) : undefined}
+          shopHintFold={hintFold}
         />
       );
     }
@@ -294,6 +334,7 @@ export function DexOverlay({
           <span className="dex-card__best-score">BEST {Math.round(entry.bestScore)}</span>
           <span className="dex-card__times-made">{entry.timesMade}回作成</span>
         </div>
+        {hintFold}
       </div>
     );
   }

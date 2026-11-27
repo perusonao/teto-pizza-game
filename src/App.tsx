@@ -73,6 +73,8 @@ import {
 } from "./state/persistence";
 import { activeProgressionModel } from "./logic/progression/progressionModel";
 import { SHOP_MODEL_ACTIVE, shopReputationStatus } from "./logic/progression/shopStatus";
+import { researchPointBalanceOf } from "./logic/progression/shopProgress";
+import { shopHintBoardFor } from "./state/shopHintState";
 import { techniqueDexViews } from "./logic/techniques/dexView";
 import { ingredientCollectionCount, newShopMaterialCount } from "./state/materialEntitlement";
 import { inspectSaveHealth, type SaveHealth } from "./state/saveHealth";
@@ -1333,6 +1335,7 @@ function App() {
           onStartFreePlay={handleStartFreePlay}
           onTakeOrder={SHOP_MODEL_ACTIVE ? handleTakeOrder : undefined}
           shopStatus={SHOP_MODEL_ACTIVE ? shopReputationStatus(state.shop) : null}
+          researchPointBalance={SHOP_MODEL_ACTIVE ? researchPointBalanceOf(state.shop) : null}
           onStartFreeCook={handleStartDiscovery}
           onStartLunchRush={handleStartLunchRush}
           onOpenDinner={() => setScreen("DINNER")}
@@ -1451,6 +1454,7 @@ function App() {
             dispatch({ type: "PURCHASE_SELECTABLE_HINT", preference, expectedPaidCount, ...(family && family !== "material" ? { family } : {}) })
           }
           onBuyHint5Rung={(expectedRungIndex) => dispatch({ type: "PURCHASE_HINT5_RUNG", expectedRungIndex })}
+          onBuyShopHint={(recipeId, kind, expectedPrice) => dispatch({ type: "PURCHASE_SHOP_HINT", recipeId, kind, expectedPrice })}
           onCloseHint={() => dispatch({ type: "CLOSE_HINT" })}
           onRetryWithHint={handleRetryWithHint}
           onChangeCategory={handleChangeCategory}
@@ -1502,6 +1506,14 @@ function App() {
           inventory={state.inventory}
           discoveryHintFacts={state.discoveryHintFacts}
           techniqueViews={techniqueViews}
+          shopHint={
+            SHOP_MODEL_ACTIVE
+              ? {
+                  boardOf: (recipeId) => shopHintBoardFor(state, recipeId),
+                  onBuy: (recipeId, kind, expectedPrice) => dispatch({ type: "PURCHASE_SHOP_HINT", recipeId, kind, expectedPrice }),
+                }
+              : undefined
+          }
           onGoFreeCook={
             mission.mode === "FREE"
               ? () => {

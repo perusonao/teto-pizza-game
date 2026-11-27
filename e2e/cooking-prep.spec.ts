@@ -381,6 +381,28 @@ async function gradeAfter(page: Page, ms: number): Promise<string | null> {
   return g;
 }
 
+/**
+ * Lets React install the finished-pan arming timer before expecting its virtual 300 ms to elapse.
+ * Advancing the whole interval in one `runFor` can race the passive effect that creates the timer:
+ * WebKit may render the result, return to the test, and only then run that effect. Small advances
+ * return control to the page between polls, so the effect can register its timer; the assertion
+ * still requires the choices to become armed, and the button to become genuinely enabled.
+ */
+async function armFinishedPanChoices(page: Page) {
+  const choices = page.getByTestId("cooking-prep-choices");
+  await expect(choices).toHaveAttribute("data-armed", "false");
+  await expect
+    .poll(
+      async () => {
+        await page.clock.runFor(25);
+        return choices.getAttribute("data-armed");
+      },
+      { intervals: [0], message: "finished pan choices arm after their virtual delay" },
+    )
+    .toBe("true");
+  await expect(page.getByTestId("cooking-prep-use")).toBeEnabled();
+}
+
 test.describe("Cooking Prep Phase 1B: timing game", () => {
   test("grades the press by its own moment, half-open: 4200 ms exactly is overdone; a press inside 300 ms is no grade", async ({ page }) => {
     await toFrozenTopping(page);
@@ -488,8 +510,7 @@ test.describe("Cooking Prep Phase 1B: timing game", () => {
     await expect(page.getByTestId("cooking-prep-choices")).toHaveAttribute("data-armed", "false");
     await page.getByTestId("cooking-prep-use").click({ force: true });
     await expect(pan(page)).toBeVisible(); // too soon: nothing was kept
-    await page.clock.runFor(300);
-    await expect(page.getByTestId("cooking-prep-choices")).toHaveAttribute("data-armed", "true");
+    await armFinishedPanChoices(page);
     await page.getByTestId("cooking-prep-retry").click();
     await expect(pan(page)).toHaveAttribute("data-mode", "running");
     await expect(pan(page)).toHaveAttribute("data-stage", "0");
@@ -498,7 +519,7 @@ test.describe("Cooking Prep Phase 1B: timing game", () => {
     // the fresh run has its own clock; run it to the time-out (burnt) and keep that
     await page.clock.runFor(6000);
     await expect(pan(page)).toHaveAttribute("data-grade", "overdone");
-    await page.clock.runFor(300);
+    await armFinishedPanChoices(page);
     await shot(page, "1b-overdone-choices");
     await page.getByTestId("cooking-prep-use").click();
     await expect(page.getByTestId("cooking-prep-done")).toHaveText("✓ 炒め済み");
