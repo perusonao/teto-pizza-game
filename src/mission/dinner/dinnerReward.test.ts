@@ -3,6 +3,7 @@ import {
   DINNER_CLEAR_TIERS,
   DINNER_PHASE1_REWARD_TABLE_ID,
   DINNER_REWARD_TABLES,
+  SHOP_DINNER_REWARD_TABLE_ID,
   dinnerClearTier,
   getDinnerRewardTable,
   quoteDinnerReward,
@@ -21,8 +22,18 @@ const TUNED: DinnerRewardTable = {
 };
 
 describe("Phase 1 reward table (OD-DM-9: shape only)", () => {
-  it("ships one untuned table: no thresholds, no Pitz", () => {
-    expect(DINNER_REWARD_TABLES).toEqual([{ tableId: DINNER_PHASE1_REWARD_TABLE_ID, thresholds: null, pitz: null }]);
+  it("ships the untuned legacy table and the Phase 3e shop table", () => {
+    expect(DINNER_REWARD_TABLES).toEqual([
+      { tableId: DINNER_PHASE1_REWARD_TABLE_ID, thresholds: null, pitz: null },
+      {
+        tableId: SHOP_DINNER_REWARD_TABLE_ID,
+        thresholds: { goldMaxClearMs: 240_000, silverMaxClearMs: 300_000, bronzeMaxClearMs: 360_000 },
+        pitz: {
+          firstClear: { clear: 150, tierBonus: { GOLD: 100, SILVER: 50, BRONZE: 20 } },
+          repeatClear: { clear: 60, tierBonus: { GOLD: 40, SILVER: 20, BRONZE: 0 } },
+        },
+      },
+    ]);
     expect(DINNER_REWARD_TABLES.flatMap(validateDinnerRewardTable)).toEqual([]);
   });
 

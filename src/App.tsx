@@ -101,6 +101,7 @@ import {
   DINNER_MISSIONS,
   getDinnerMission,
   isDinnerMissionUnlocked,
+  shopDinnerMission,
   type DinnerMissionDefinition,
 } from "./mission/dinner/dinnerMission";
 import { dinnerStartBlock } from "./mission/dinner/dinnerRun";
@@ -146,7 +147,10 @@ const DINNER_PREVIEW_ALLOWED = Boolean(import.meta.env.DEV || import.meta.env.VI
  * duration exists in what ships.
  */
 function dinnerDurationFor(mission: DinnerMissionDefinition): number | null {
-  return resolveDinnerDurationMs(mission, DINNER_PREVIEW_ALLOWED ? window.location.search : "");
+  return resolveDinnerDurationMs(
+    SHOP_MODEL_ACTIVE ? shopDinnerMission(mission) : mission,
+    DINNER_PREVIEW_ALLOWED ? window.location.search : "",
+  );
 }
 
 /**
@@ -155,7 +159,11 @@ function dinnerDurationFor(mission: DinnerMissionDefinition): number | null {
  * none (so START stays unavailable, like the duration above).
  */
 function dinnerMinimumStarsFor(mission: DinnerMissionDefinition): QualityStars | null {
-  return resolveDinnerMinimumStars(mission, DINNER_PREVIEW_ALLOWED ? window.location.search : "", DINNER_PREVIEW_ALLOWED);
+  return resolveDinnerMinimumStars(
+    SHOP_MODEL_ACTIVE ? shopDinnerMission(mission) : mission,
+    DINNER_PREVIEW_ALLOWED ? window.location.search : "",
+    DINNER_PREVIEW_ALLOWED,
+  );
 }
 
 /** Issue #32 Phase 2: `activeCategory` is a *view* of the reducer's own `state.makingStep`,

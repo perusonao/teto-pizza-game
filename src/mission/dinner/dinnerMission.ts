@@ -1,7 +1,8 @@
 import { getRecipe, RECIPES, type Recipe, type RecipeId } from "../../data/recipes";
 import type { QualityStars } from "../../logic/scoring";
 import { isDiscovered, type DexState } from "../../state/dex";
-import { getDinnerRewardTable } from "./dinnerReward";
+import { getDinnerRewardTable, SHOP_DINNER_REWARD_TABLE_ID } from "./dinnerReward";
+import { SHOP_DINNER_MINIMUM_STARS, SHOP_DINNER_TIME_LIMIT_SECONDS } from "./dinnerShopBalance";
 
 /**
  * Dinner Mission DM-1 (Issue #236): mission definitions and the derived unlock.
@@ -83,6 +84,16 @@ export const DINNER_MISSIONS: readonly DinnerMissionDefinition[] = [
 
 export function getDinnerMission(missionId: string): DinnerMissionDefinition | undefined {
   return DINNER_MISSIONS.find((m) => m.missionId === missionId);
+}
+
+/** Apply Phase 3e's shop rules to the existing missions and record IDs. */
+export function shopDinnerMission(mission: DinnerMissionDefinition): DinnerMissionDefinition {
+  return {
+    ...mission,
+    timeLimit: { seconds: SHOP_DINNER_TIME_LIMIT_SECONDS },
+    quality: { minimumStars: SHOP_DINNER_MINIMUM_STARS },
+    reward: { tableId: SHOP_DINNER_REWARD_TABLE_ID },
+  };
 }
 
 /** The target recipes, in definition order; `null` if any id is unknown (fails closed). */

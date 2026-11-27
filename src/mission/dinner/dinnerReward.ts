@@ -9,6 +9,8 @@
  * (`totalStars`, ../../logic/mastery.ts).
  */
 
+import { SHOP_DINNER_TIME_LIMIT_SECONDS } from "./dinnerShopBalance";
+
 export type DinnerClearTier = "GOLD" | "SILVER" | "BRONZE";
 
 export const DINNER_CLEAR_TIERS: readonly DinnerClearTier[] = ["GOLD", "SILVER", "BRONZE"];
@@ -41,9 +43,22 @@ export interface DinnerRewardTable {
 }
 
 export const DINNER_PHASE1_REWARD_TABLE_ID = "dinner-phase1-untuned";
+export const SHOP_DINNER_REWARD_TABLE_ID = "dinner-shop-phase3e";
 
 export const DINNER_REWARD_TABLES: readonly DinnerRewardTable[] = [
   { tableId: DINNER_PHASE1_REWARD_TABLE_ID, thresholds: null, pitz: null },
+  {
+    tableId: SHOP_DINNER_REWARD_TABLE_ID,
+    thresholds: {
+      goldMaxClearMs: 240_000,
+      silverMaxClearMs: 300_000,
+      bronzeMaxClearMs: SHOP_DINNER_TIME_LIMIT_SECONDS * 1000,
+    },
+    pitz: {
+      firstClear: { clear: 150, tierBonus: { GOLD: 100, SILVER: 50, BRONZE: 20 } },
+      repeatClear: { clear: 60, tierBonus: { GOLD: 40, SILVER: 20, BRONZE: 0 } },
+    },
+  },
 ];
 
 export function getDinnerRewardTable(tableId: string): DinnerRewardTable | undefined {

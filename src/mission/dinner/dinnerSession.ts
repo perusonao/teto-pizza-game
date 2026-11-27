@@ -20,6 +20,8 @@ export type DinnerSettlementView =
       kind: "SETTLED";
       runKey: string;
       pitz: number;
+      /** Shop first clear only. Kept with the Pitz delta for a refused save rollback. */
+      reputation?: number;
       schedule: DinnerPaySchedule;
       tier: DinnerClearTier | null;
       clearMs: number;
@@ -36,9 +38,7 @@ export type DinnerSettlementView =
  */
 export interface DinnerSession {
   run: DinnerRunState;
-  /** DM-4-3: the reward authority for this run, resolved once at DINNER_START from the mission's
-   *  `reward.tableId` (`null` when unknown). Production has only the untuned table until DM-5-2, so a
-   *  production clear pays 0 -- wiring is complete, balance activation is not (OD-DM5-5). */
+  /** The reward authority for this run, resolved once at DINNER_START (`null` when unknown). */
   rewardTable: DinnerRewardTable | null;
   /** DM-4-3: the settlement of this run's CLEAR, or `null` while no CLEAR has happened. */
   settlement: DinnerSettlementView | null;

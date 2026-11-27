@@ -1464,6 +1464,7 @@ export function GameScreen({
           run={dinnerRun}
           titleJa={dinnerTitleJa}
           lastResult={dinnerSession?.lastResult ?? null}
+          settlement={SHOP_MODEL_ACTIVE ? dinnerSession?.settlement : undefined}
           retryBlocked={dinnerUi.retryBlocked}
           onRetry={dinnerUi.onRetry}
           onHome={dinnerUi.onHome}
