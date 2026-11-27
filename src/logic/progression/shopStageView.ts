@@ -9,9 +9,17 @@
 import { getIngredient } from "../../data/ingredients";
 import { getRecipe, type RecipeId } from "../../data/recipes";
 import { isDiscovered, type DexState } from "../../state/dex";
-import { REPUTATION_TABLE } from "./reputationTable";
+import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
+import { REPUTATION_TABLE, isReputationTableComplete } from "./reputationTable";
 import { rankAtFloor } from "./shopRank";
-import { activeShopCatalog, stageRecipeIds, type ReputationGain, type ShopCatalog } from "./shopProgression";
+import {
+  activeShopCatalog,
+  isMaterialOpenAt,
+  materialOpenReputationOf,
+  stageRecipeIds,
+  type ReputationGain,
+  type ShopCatalog,
+} from "./shopProgression";
 
 /** The shop form a stage opens with: stage 2 小さな店, 3 人気店, 4 有名店, 5 伝説の店 (stage 1 屋台). */
 export function stageShopForm(chapter: number): string {
@@ -35,8 +43,15 @@ export function identifiedAwaitingDexLine(chapter: number): string {
 
 /** What the promotion banner lists when this round opened one or more stages. */
 export interface StageOpeningView {
-  /** The adopted recipes of the opened stages not in the Dex yet (they can be developed from now on). */
+  /** The adopted recipes of the opened stages not in the Dex yet whose materials are all open now (developable from now on). */
   newRecipeCount: number;
+  /**
+   * Owner decision 2026-11-27: the opened stages' recipes not in the Dex yet that still wait for a material (stage 4's last four
+   * until reputation 275), counted from the materials open at this reputation -- never a fixed number. 0 = none waits.
+   */
+  waitingRecipeCount: number;
+  /** The reputations the waiting recipes' last materials arrive at, ascending (e.g. [275]). Empty when none waits. */
+  waitingArrivalReputations: readonly number[];
   /** The materials that arrived with it (this round's material notice), in notice order. */
   materialNamesJa: readonly string[];
   /** Identified recipes that joined the menu now. */
@@ -56,12 +71,28 @@ export function stageOpeningView(
   catalog: ShopCatalog = activeShopCatalog(),
 ): StageOpeningView | null {
   if (!gain || gain.chapterAfter <= gain.chapterBefore) return null;
+  const table = isReputationTableComplete(REPUTATION_TABLE) ? REPUTATION_TABLE : null;
   let newRecipeCount = 0;
+  let waitingRecipeCount = 0;
+  const arrivals = new Set<number>();
   for (let chapter = gain.chapterBefore + 1; chapter <= gain.chapterAfter; chapter++) {
-    newRecipeCount += stageRecipeIds(chapter, catalog).filter((id) => !isDiscovered(dexAfter, id)).length;
+    for (const id of stageRecipeIds(chapter, catalog)) {
+      if (isDiscovered(dexAfter, id)) continue;
+      const items = RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === id)?.items ?? [];
+      const closed = table ? items.filter((m) => !isMaterialOpenAt(m, gain.after, table, catalog)) : [];
+      if (closed.length === 0) {
+        newRecipeCount += 1;
+        continue;
+      }
+      waitingRecipeCount += 1;
+      const at = Math.max(...closed.map((m) => (table ? materialOpenReputationOf(m, table, catalog) ?? 0 : 0)));
+      if (at > 0) arrivals.add(at);
+    }
   }
   return {
     newRecipeCount,
+    waitingRecipeCount,
+    waitingArrivalReputations: [...arrivals].sort((a, b) => a - b),
     materialNamesJa: materialIds.map((id) => getIngredient(id)?.nameJa ?? id),
     enteredRecipeNamesJa: enteredRecipeIds.map((id) => getRecipe(id)?.nameJa ?? id),
   };

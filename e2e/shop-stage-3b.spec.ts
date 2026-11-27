@@ -223,6 +223,26 @@ test.describe("B案 Phase 3b: a recipe waits for its stage (shop model)", () => 
     expect(errors).toEqual([]);
   });
 
+  test("stage 4 opens: 8 developable now, 4 waiting for materials (reputation 275) -- Owner 2026-11-27", async ({ page }) => {
+    await open(page, "?progression=shop", {
+      schemaVersion: 2,
+      dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }],
+      pitzBalance: 0,
+      ownedIngredientIds: STARTERS,
+      missionBest: {},
+      shopProgress: { reputation: 209, grantedMenuRecipeIds: [] },
+    });
+    await serveMargheritaOrder(page);
+    await expect(page.getByTestId("result-rank-up")).toContainText("達人（有名店）に昇格しました！");
+    await expect(page.getByTestId("result-stage-opening")).toContainText(
+      "新しいメニューを開発できるようになった：8品／あと4品は材料の入荷待ち（評判275で入荷）",
+    );
+    await noOverflow(page, "RESULT stage 4");
+    await page.getByTestId("result-reputation").scrollIntoViewIfNeeded();
+    await capture(page, "07-result-stage4-split");
+    await hold(page, 3500);
+  });
+
   test("legacy (no parameter): the same pizza is a discovery, as before", async ({ page }) => {
     await open(page, "", save(0));
     await cookMeatLoversFreely(page);

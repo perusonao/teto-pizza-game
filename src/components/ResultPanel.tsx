@@ -690,9 +690,17 @@ export function ResultPanel({
               {/* B案 Phase 3b: a promotion that opens a stage lists what it opened (駆け出し opens nothing: one line only). */}
               {stageOpening && (
                 <ul className="result-stage-opening" data-testid="result-stage-opening">
-                  {stageOpening.newRecipeCount > 0 && (
+                  {(stageOpening.newRecipeCount > 0 || stageOpening.waitingRecipeCount > 0) && (
                     <li className="result-stage-opening__item" data-stage-opening="recipes">
                       {"\u{1F355}"} 新しいメニューを開発できるようになった：<strong>{stageOpening.newRecipeCount}品</strong>
+                      {/* Owner 2026-11-27: the recipes still waiting for a material are counted apart, with when it arrives. */}
+                      {stageOpening.waitingRecipeCount > 0 && (
+                        <span className="result-stage-opening__waiting" data-stage-opening="waiting">
+                          ／あと<strong>{stageOpening.waitingRecipeCount}品</strong>は材料の入荷待ち
+                          {stageOpening.waitingArrivalReputations.length > 0 &&
+                            `（評判${stageOpening.waitingArrivalReputations.join("・")}で入荷）`}
+                        </span>
+                      )}
                     </li>
                   )}
                   {stageOpening.materialNamesJa.length > 0 && (

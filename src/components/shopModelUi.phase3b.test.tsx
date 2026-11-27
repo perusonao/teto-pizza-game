@@ -92,7 +92,13 @@ describe("RESULT: the promotion banner lists what the stage opened", () => {
   it("the new recipes, the arrived materials and the identified recipes that joined the menu (with the bonus)", () => {
     const stage2 = MENU_CATALOG.filter((e) => e.chapter === 2).map((e) => e.recipeId as string);
     const view = stageOpeningView(gain, dexOf("margherita", "meat-lovers"), ["anchovy", "tuna"], ["meat-lovers" as RecipeId]);
-    expect(view).toEqual({ newRecipeCount: stage2.length - 1, materialNamesJa: ["アンチョビ", "ツナ"], enteredRecipeNamesJa: ["ミートラヴァーズ"] });
+    expect(view).toEqual({
+      newRecipeCount: stage2.length - 1,
+      waitingRecipeCount: 0,
+      waitingArrivalReputations: [],
+      materialNamesJa: ["アンチョビ", "ツナ"],
+      enteredRecipeNamesJa: ["ミートラヴァーズ"],
+    });
     result({
       reputationGain: gain,
       onNextOrder: vi.fn(),
@@ -104,6 +110,7 @@ describe("RESULT: the promotion banner lists what the stage opened", () => {
     expect(screen.getByTestId("result-rank-up")).toHaveTextContent("一人前（小さな店）に昇格しました！");
     const list = screen.getByTestId("result-stage-opening");
     expect(list).toHaveTextContent("新しいメニューを開発できるようになった：11品");
+    expect(list).not.toHaveTextContent("入荷待ち");
     expect(list).toHaveTextContent("新しい材料が入荷：アンチョビ・ツナ");
     expect(list).toHaveTextContent("メニューに追加：ミートラヴァーズ");
     expect(list).toHaveTextContent("メニュー開発ボーナス +50 Pitz・評判 +3");
@@ -112,6 +119,38 @@ describe("RESULT: the promotion banner lists what the stage opened", () => {
     expect(screen.getByRole("button", { name: /ショップへ/ })).toBeInTheDocument();
     // The entry bonus is part of this round's Pitz.
     expect(screen.getByText(/今回の獲得/)).toHaveTextContent("+150 Pitz");
+  });
+
+  it("stage 4 (Owner 2026-11-27): developable now and waiting for materials are counted apart -- 8品／あと4品（評判275で入荷）", () => {
+    const g4 = { gained: 8, before: 205, after: 213, chapterBefore: 3, chapterAfter: 4, nextFloor: 340 };
+    const view = stageOpeningView(g4, dexOf("margherita"), [], [])!;
+    expect(view.newRecipeCount).toBe(8);
+    expect(view.waitingRecipeCount).toBe(4);
+    expect(view.waitingArrivalReputations).toEqual([275]);
+    result({ reputationGain: g4, onNextOrder: vi.fn(), stageOpening: view });
+    expect(screen.getByTestId("result-rank-up")).toHaveTextContent("達人（有名店）に昇格しました！");
+    expect(screen.getByTestId("result-stage-opening")).toHaveTextContent(
+      "新しいメニューを開発できるようになった：8品／あと4品は材料の入荷待ち（評判275で入荷）",
+    );
+  });
+
+  it("the split is counted from the materials, not fixed: the waiting four are キューバン・カリフォルニア・北京ダック・タイチキン", () => {
+    const g4 = { gained: 8, before: 205, after: 213, chapterBefore: 3, chapterAfter: 4, nextFloor: 340 };
+    // Already in the Dex: one waiting recipe and one developable one leave each count.
+    const fewer = stageOpeningView(g4, dexOf("margherita", "cuban-pizza", "flammkuchen"), [], [])!;
+    expect([fewer.newRecipeCount, fewer.waitingRecipeCount]).toEqual([7, 3]);
+    // A jump straight past 275 (e.g. from 205 to 280) waits for nothing.
+    const past = stageOpeningView({ ...g4, after: 280 }, dexOf("margherita"), [], [])!;
+    expect([past.newRecipeCount, past.waitingRecipeCount, past.waitingArrivalReputations]).toEqual([12, 0, []]);
+    // Which four wait: removing each from the Dex count changes only the waiting count.
+    for (const id of ["cuban-pizza", "california-style-pizza", "peking-duck-pizza", "thai-chicken-pizza"]) {
+      expect(stageOpeningView(g4, dexOf("margherita", id), [], [])!.waitingRecipeCount, id).toBe(3);
+    }
+    // Stages 2, 3 and 5 wait for nothing at their floors.
+    for (const [before, after, from, to] of [[39, 40, 1, 2], [109, 110, 2, 3], [339, 340, 4, 5]] as const) {
+      const v = stageOpeningView({ gained: after - before, before, after, chapterBefore: from, chapterAfter: to, nextFloor: null }, dexOf("margherita"), [], [])!;
+      expect(v.waitingRecipeCount, `stage ${to}`).toBe(0);
+    }
   });
 
   it("駆け出し (15) is a title-only promotion: the one line, nothing listed", () => {
