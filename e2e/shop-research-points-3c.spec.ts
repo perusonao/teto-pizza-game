@@ -105,6 +105,10 @@ async function serveMargheritaOrder(page: Page) {
   await page.getByRole("button", { name: /注文を受ける/ }).click();
   await expect(page.locator(".dialogue-area")).toBeVisible();
   await page.getByRole("button", { name: /ピザを作る/ }).click();
+  await cookMargherita(page);
+}
+
+async function cookMargherita(page: Page) {
   await completeDoughStep(page);
   await page.getByRole("button", { name: /次へ/ }).click();
   await page.getByRole("button", { name: /トマトソース/ }).click();
@@ -211,6 +215,21 @@ test.describe("B案 Phase 3c: research points (shop model)", () => {
     expect((await saved(page)).shopProgress.researchPointsEarned).toBe(7);
     await home(page);
     await expect(pill(page)).toHaveText("🔬 7");
+  });
+
+  test("a stage-1 Margherita earns one point under a stage-2 research target", async ({ page }) => {
+    await open(page, "?progression=shop", save());
+    await page.getByRole("button", { name: /図鑑/ }).first().click();
+    await page.locator(".dex-overlay__research").getByRole("button", { name: /ソーセージ.*を研究する/ }).click();
+    await hold(page);
+    await cookMargherita(page);
+    const line = page.getByTestId("result-research-points");
+    await expect(line).toContainText("研究ポイント +1");
+    await expect(line).toContainText("所持 1");
+    expect((await saved(page)).shopProgress.researchPointsEarned).toBe(1);
+    await line.scrollIntoViewIfNeeded();
+    await capture(page, "07-lower-stage-match");
+    await hold(page, 3000);
   });
 
   test("legacy (no parameter): no research points anywhere, and the save gains no shopProgress", async ({ page }) => {

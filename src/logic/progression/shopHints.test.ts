@@ -5,6 +5,7 @@ import { getIngredient } from "../../data/ingredients";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { REPUTATION_TABLE } from "./reputationTable";
 import { activeShopCatalog } from "./shopProgression";
+import { researchPointsForStage } from "./researchPoints";
 import { hintKeyToppingIdOf } from "../../state/discoveryHint";
 import { EMPTY_SHOP_PROGRESS, hintRevealsOf, researchPointBalanceOf, researchPointsSpentOf, type ShopProgressState } from "./shopProgress";
 import {
@@ -21,7 +22,7 @@ import {
 } from "./shopHints";
 
 /**
- * B案 Phase 3d (Issue #901): research point hints -- the provisional price table, the items, the slot order, the purchase rules,
+ * B案 Phase 3d (Issue #901): research point hints -- the price table, the items, the slot order, the purchase rules,
  * the reach guarantee (buying everything reaches the whole answer) and what is carried over from the Pitz hints.
  */
 const catalog = activeShopCatalog();
@@ -48,7 +49,7 @@ function buy(state: ShopHintInputs, recipeId: string, kind: ShopHintItemKind): S
   return { ...state, shop: result.shop };
 }
 
-describe("the provisional price table (Phase 3f tunes it here)", () => {
+describe("the shop hint price table", () => {
   it("base by stage 1 / 1 / 2 / 3 / 4, +1 per earlier purchase on the same recipe, no cap", () => {
     expect(SHOP_HINT_BASE_PRICE_BY_STAGE).toEqual([1, 1, 2, 3, 4]);
     expect(SHOP_HINT_PRICE_STEP).toBe(1);
@@ -202,8 +203,14 @@ describe("purchase rules", () => {
 describe("reach guarantee: buying every item reaches the whole answer", () => {
   for (const entry of MENU_CATALOG) {
     it(entry.recipeId, () => {
-      let state = inputs({ researchPointsEarned: 100000 });
       const answer = shopHintAnswer(entry.recipeId, catalog, hintKeyToppingIdOf)!;
+      const itemCount = answer.slotIngredientIds.length + 4; // sauce, shape, method, count
+      const totalPrice = Array.from({ length: itemCount }, (_, index) => shopHintPrice(entry.chapter, index))
+        .reduce((total, price) => total + price, 0);
+      const pointsPerTrial = researchPointsForStage(entry.chapter);
+      expect(pointsPerTrial).toBeGreaterThan(0);
+      const trials = Math.ceil(totalPrice / pointsPerTrial);
+      let state = inputs({ researchPointsEarned: trials * pointsPerTrial });
       for (let guard = 0; guard < 50; guard++) {
         const view = shopHintBoardView(answer, state);
         if (view.complete) break;
@@ -211,6 +218,7 @@ describe("reach guarantee: buying every item reaches the whole answer", () => {
       }
       const view = shopHintBoardView(answer, state);
       expect(view.complete).toBe(true);
+      expect(researchPointsSpentOf(state.shop)).toBe(totalPrice);
       const recipe = getRecipe(entry.recipeId)!;
       const target = RECIPE_DISCOVERY_CATALOG.find((t) => t.recipeId === entry.recipeId)!;
       // The ingredient set and the sauce the matcher compares.

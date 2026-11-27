@@ -16,7 +16,7 @@
  * Buying every item reaches the whole answer the matcher compares (ingredient set, sauce, pan, dough, late) plus the counts
  * (./shopHints.test.ts pins it for every adopted recipe). There is no cap: buying on always gets there.
  *
- * ## Price (PROVISIONAL, Phase 3f tunes it here and only here)
+ * ## Price (retained in Phase 3f)
  *
  * `SHOP_HINT_BASE_PRICE_BY_STAGE[stage - 1] + SHOP_HINT_PRICE_STEP * (items already revealed on that recipe by the shop ledger)`.
  * Items carried over from the Pitz hints (below) cost nothing and do not raise the price. The free Margherita hint (R4 #16):
@@ -52,7 +52,7 @@ import {
   type ShopProgressState,
 } from "./shopProgress";
 
-/** Base price of one hint item, by the recipe's stage (index 0 = stage 1). Provisional (Phase 3f). */
+/** Base price of one hint item, by the recipe's stage (index 0 = stage 1). */
 export const SHOP_HINT_BASE_PRICE_BY_STAGE: readonly [number, number, number, number, number] = Object.freeze([1, 1, 2, 3, 4]) as unknown as readonly [
   number,
   number,
@@ -61,7 +61,7 @@ export const SHOP_HINT_BASE_PRICE_BY_STAGE: readonly [number, number, number, nu
   number,
 ];
 
-/** What each earlier purchase on the same recipe adds to the next one's price. Provisional (Phase 3f). No cap. */
+/** What each earlier purchase on the same recipe adds to the next one's price. No cap. */
 export const SHOP_HINT_PRICE_STEP = 1;
 
 /** R4 #16: the recipe whose hints are free while nothing has been developed yet. */
