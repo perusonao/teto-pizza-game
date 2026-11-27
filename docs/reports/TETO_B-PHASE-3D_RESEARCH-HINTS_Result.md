@@ -122,4 +122,10 @@ Video Verification: PASS（ffprobe：h264、390×844、18.16 s、386,133 bytes�
 
 ## 6. ローカルの結果
 
-（step 4 の検証結果を追記）
+- `tsc -b`／oxlint：OK（oxlint の警告は既存と同種だけ。`ShopHintBoard.tsx` の only-export-components は `ResearchPointsNote.tsx` と同じ形）
+- `npm run build`：OK（チャンクサイズの警告は既存のもの）
+- e2e（Chromium）：`e2e/shop-*.spec.ts` の 8 ファイル × 390×844／360×800 で **52 passed**。legacy のヒント・図鑑・研究系の e2e 21 ファイル（390×844）で **67 passed**
+- Vitest は 3a〜3c と同じく、長時間シミュレーション 5 ファイル（`researchAttempt.sim*`・`researchAttempt.replayAudit`）を分けて計測した
+  - フル − その 5 ファイル（`72e416d`）：**716 files passed／3 skipped、13386 passed／20 skipped（既存）／2 todo、失敗 0**（11 分 10 秒）
+  - その 5 ファイル：**124 passed、失敗 0**（24 分 11 秒）
+  - 途中の 1 回目（`3023e96`）で `doughPrivacy.test.tsx`（特別な生地の名前はアプリの文言に出さない）に 1 件失敗した。ボードの文言「ピンサ生地で焼く」が原因だったため、テストは変えずに文言を「特別な生地で焼く」に直した（`72e416d`）。2 回目は失敗 0
