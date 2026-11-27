@@ -45,23 +45,26 @@ export interface DinnerRewardTable {
 export const DINNER_PHASE1_REWARD_TABLE_ID = "dinner-phase1-untuned";
 export const SHOP_DINNER_REWARD_TABLE_ID = "dinner-shop-phase3e";
 
+/** Tables used by the legacy mission definitions and the legacy progression estimates. */
 export const DINNER_REWARD_TABLES: readonly DinnerRewardTable[] = [
   { tableId: DINNER_PHASE1_REWARD_TABLE_ID, thresholds: null, pitz: null },
-  {
-    tableId: SHOP_DINNER_REWARD_TABLE_ID,
-    thresholds: {
-      goldMaxClearMs: 240_000,
-      silverMaxClearMs: 300_000,
-      bronzeMaxClearMs: SHOP_DINNER_TIME_LIMIT_SECONDS * 1000,
-    },
-    pitz: {
-      firstClear: { clear: 150, tierBonus: { GOLD: 100, SILVER: 50, BRONZE: 20 } },
-      repeatClear: { clear: 60, tierBonus: { GOLD: 40, SILVER: 20, BRONZE: 0 } },
-    },
-  },
 ];
 
+const SHOP_DINNER_REWARD_TABLE: DinnerRewardTable = {
+  tableId: SHOP_DINNER_REWARD_TABLE_ID,
+  thresholds: {
+    goldMaxClearMs: 240_000,
+    silverMaxClearMs: 300_000,
+    bronzeMaxClearMs: SHOP_DINNER_TIME_LIMIT_SECONDS * 1000,
+  },
+  pitz: {
+    firstClear: { clear: 150, tierBonus: { GOLD: 100, SILVER: 50, BRONZE: 20 } },
+    repeatClear: { clear: 60, tierBonus: { GOLD: 40, SILVER: 20, BRONZE: 0 } },
+  },
+};
+
 export function getDinnerRewardTable(tableId: string): DinnerRewardTable | undefined {
+  if (tableId === SHOP_DINNER_REWARD_TABLE_ID) return SHOP_DINNER_REWARD_TABLE;
   return DINNER_REWARD_TABLES.find((t) => t.tableId === tableId);
 }
 
