@@ -524,7 +524,7 @@ export function IngredientTray({
         onLostPointerCapture={handleLostPointerCapture}
         onClick={(event) => handleClick(event, ingredient)}
       >
-        {ingredient.category === "cheese" && !ingredient.pieceVisual ? (
+        {ingredient.category === "cheese" && !ingredient.iconVisual && !ingredient.pieceVisual ? (
           <span className="ingredient-chip__cheese-slot">
             <IngredientPieceVisual ingredient={ingredient} />
           </span>

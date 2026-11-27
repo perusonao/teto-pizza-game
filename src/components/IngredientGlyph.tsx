@@ -4,6 +4,7 @@ import { WalnutGlyph } from "./walnutGlyph/WalnutGlyph";
 import { StagedGlyph } from "./stagedGlyphs/StagedGlyphs";
 import { DessertGlyph } from "./dessertGlyphs/DessertGlyphs";
 import type { DessertGlyphId } from "./dessertGlyphs/dessertPalette";
+import { PilotIngredientIcon, type PilotIconVisual } from "./PilotIngredientIcons";
 
 /**
  * Production Visual P1: the single entry point for drawing an ingredient's glyph -- every place
@@ -26,13 +27,20 @@ import type { DessertGlyphId } from "./dessertGlyphs/dessertPalette";
 export type IngredientGlyphVariant = "selection" | "placed";
 
 export function IngredientGlyph({ ingredient, variant = "selection" }: { ingredient: Ingredient; variant?: IngredientGlyphVariant }) {
-  if (!ingredient.pieceVisual) return <>{ingredient.emoji}</>;
-  return <DedicatedIngredientSvg visual={ingredient.pieceVisual} variant={variant} />;
+  const visual = variant === "selection" ? ingredient.iconVisual ?? ingredient.pieceVisual : ingredient.pieceVisual;
+  if (!visual) return <>{ingredient.emoji}</>;
+  return <DedicatedIngredientSvg visual={visual} variant={variant} />;
 }
 
 /** Style Lock v2 §4.2: the original 3 visuals keep their 32x32 art; Ingredient Icons 2.0 art is 64x64.
  *  Both render at 1em, so callers' font-size applies unchanged. */
 const VISUAL_VIEWBOX: Record<DedicatedIngredientVisual, string> = {
+  "tomato-sauce-bowl": "0 0 64 64",
+  "mozzarella-ball": "0 0 64 64",
+  "basil-leaves": "0 0 64 64",
+  "bacon-rashers": "0 0 64 64",
+  "button-mushrooms": "0 0 64 64",
+  "olive-oil-bottle": "0 0 64 64",
   "cauliflower-floret": "0 0 64 64",
   "kebab-sauce-swirl": "0 0 64 64",
   "daikon-matchsticks": "0 0 64 64",
@@ -125,6 +133,7 @@ function DedicatedIngredientSvg({ visual, variant }: { visual: DedicatedIngredie
       aria-hidden="true"
       focusable="false"
     >
+      {(visual === "tomato-sauce-bowl" || visual === "mozzarella-ball" || visual === "basil-leaves" || visual === "bacon-rashers" || visual === "button-mushrooms" || visual === "olive-oil-bottle") && <PilotIngredientIcon visual={visual as PilotIconVisual} />}
       {visual === "tomato-slice" && <TomatoSlice />}
       {visual === "caper-cluster" && <CaperCluster />}
       {visual === "clam-valve" && <ClamValve />}

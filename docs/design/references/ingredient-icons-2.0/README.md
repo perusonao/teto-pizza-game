@@ -2,7 +2,7 @@
 
 Authority: [`docs/decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md`](../../../decisions/TETO_INGREDIENT-ICON-2.0_STYLE-LOCK-V2.md)
 
-This directory holds only the **Owner-adopted** icons: 30 SVGs (25 from Style Lock §1 / §1b, plus `shiso` and `whitebait` added by Batch 8b, plus `green-pepper` / `bell-pepper` / `pineapple` added by Pilot E; `salmon-roe` is in PR #584 and is not here) (`<ingredient id>.svg`, 64×64, transparent background) plus
+This directory holds the **Owner-adopted** icons plus the Issue #417 Phase 1 pilot production references (`tomato-sauce`, `basil`, `mushroom`, and `olive-oil`). The pilot references follow the same 64×64 transparent Style Lock grammar; `mozzarella` and `bacon` already had adopted references, while `ricotta`, `hot-dog`, `pineapple`, and `salmon` were already wired before this pilot completion. (`salmon-roe` is in PR #584 and is not here.) The directory also contains
 `style-lock-v2-comparison-sheet.png`. `clam` is intentionally absent (the existing 32×32 `clam-valve` is kept).
 
 Not here, and not adopted: everything under

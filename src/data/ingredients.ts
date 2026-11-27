@@ -21,6 +21,12 @@ export interface IngredientUnlockCondition {
  * fresh-tomato B / capers / clam B). Drawn by ../components/IngredientGlyph.tsx.
  */
 export type DedicatedIngredientVisual =
+  | "tomato-sauce-bowl"
+  | "mozzarella-ball"
+  | "basil-leaves"
+  | "bacon-rashers"
+  | "button-mushrooms"
+  | "olive-oil-bottle"
   | "cauliflower-floret"
   | "kebab-sauce-swirl"
   | "daikon-matchsticks"
@@ -92,6 +98,11 @@ export interface Ingredient {
   nameJa: string;
   color: string;
   emoji: string;
+  /** Ingredient Icons 2.0: identification-UI art. Unlike `pieceVisual`, this never changes the
+   * pizza-surface representation (#824 owns that). IngredientGlyph uses it for Shop / Tray /
+   * Research / Hint / Notebook / RESULT-list / Dex and keeps `emoji` as the gradual-migration
+   * fallback. */
+  iconVisual?: DedicatedIngredientVisual;
   /** "spread" covers the whole pizza in one tap; "scatter" is placed point by point. */
   placement: "spread" | "scatter";
   /** Absent for every current (Starter Set) ingredient -- a starter ingredient has no
@@ -158,6 +169,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     // SAUCE_TOMATO_HEX's doc comment (../logic/sauceField.ts) for why.
     color: SAUCE_TOMATO_HEX,
     emoji: "\u{1F345}",
+    iconVisual: "tomato-sauce-bowl",
     placement: "spread",
   },
   /**
@@ -190,6 +202,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "オリーブオイル",
     color: "#e9d9a0",
     emoji: "\u{1FAD2}",
+    iconVisual: "olive-oil-bottle",
     placement: "spread",
     unlockCondition: { minTotalStars: 0 },
     // Economy Tuning 1 (docs/reports/TETO_ECONOMY-TUNING-1_Implementation-Result.md): restock
@@ -216,6 +229,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "モッツァレラ",
     color: "#fdf6e3",
     emoji: "\u{1F9C0}",
+    iconVisual: "mozzarella-ball",
     placement: "scatter",
   },
   {
@@ -260,6 +274,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "バジル",
     color: "#3f7d3a",
     emoji: "\u{1F33F}",
+    iconVisual: "basil-leaves",
     placement: "scatter",
     bakeRoastResistant: true,
   },
@@ -320,6 +335,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "マッシュルーム",
     color: "#b08968",
     emoji: "\u{1F344}",
+    iconVisual: "button-mushrooms",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pricePitz: 150,
@@ -479,6 +495,7 @@ const BASE_INGREDIENTS: Ingredient[] = [
     nameJa: "ベーコン",
     color: "#c26b4e",
     emoji: "\u{1F953}",
+    iconVisual: "bacon-rashers",
     placement: "scatter",
     unlockCondition: { minTotalStars: 0 },
     pricePitz: 140,
