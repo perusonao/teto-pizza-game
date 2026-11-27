@@ -105,9 +105,9 @@
 
 ### Preview（Owner 承認 2026-11-27）
 
-- URL：https://perusonao.github.io/teto-pizza-game-preview/pr/pr-915-85cf2f0/?progression=shop （`?progression=shop` を外すと legacy）
-- 公開した commit：PR #915 の head `85cf2f08cdb137d7a7a5fdacd3da684ad0b06eb5`（preview リポジトリ `105f90c`、Pages の deploy は success）
-- 上限 5 件のため、検証済み・マージ済みの pr-910（`0b2963e`）を削除（Owner 承認）。pr-875・pr-877 は残した
+- URL：https://perusonao.github.io/teto-pizza-game-preview/pr/pr-915-f0177df/?progression=shop （`?progression=shop` を外すと legacy）
+- 公開した commit：PR #915 の `f0177dfb849a4611d26a6a0a1860542bb0e2d4ad`（図鑑の解放条件を含む。preview リポジトリ `8782f66`）
+- 経緯：1 回目は `85cf2f0`（pr-915-85cf2f0）。上限 5 件のため検証済み・マージ済みの pr-910 を削除（Owner 承認）。図鑑の修正後、旧ページ pr-915-85cf2f0 を削除して `f0177df` を公開。pr-875・pr-877 は残した
 - Preview のセーブは全 Preview 共通のキー（`teto-pizza-preview-save-v1`）なので、他の PR ページのセーブと混ざる
 
 ## Human Verification Videos
