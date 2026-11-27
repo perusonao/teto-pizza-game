@@ -95,6 +95,13 @@
 | 06 | legacy で同じピザ | 発見（NEW PIZZA） | 変化なし |
 | 07 | 評判 209 から注文で第4段階が開いた RESULT | （before は PR #915 の旧 head `f043f72`）「新しいメニューを開発できるようになった：12品」 | 「8品／あと4品は材料の入荷待ち（評判275で入荷）」 |
 
+### Preview（Owner 承認 2026-11-27）
+
+- URL：https://perusonao.github.io/teto-pizza-game-preview/pr/pr-915-85cf2f0/?progression=shop （`?progression=shop` を外すと legacy）
+- 公開した commit：PR #915 の head `85cf2f08cdb137d7a7a5fdacd3da684ad0b06eb5`（preview リポジトリ `105f90c`、Pages の deploy は success）
+- 上限 5 件のため、検証済み・マージ済みの pr-910（`0b2963e`）を削除（Owner 承認）。pr-875・pr-877 は残した
+- Preview のセーブは全 Preview 共通のキー（`teto-pizza-preview-save-v1`）なので、他の PR ページのセーブと混ざる
+
 ## Human Verification Videos
 
 | Video | Viewport | Duration | Size | Verification |
