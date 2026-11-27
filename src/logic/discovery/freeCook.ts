@@ -91,6 +91,7 @@ export function withFreeCookBakeWindow(recipe: Recipe): Recipe {
 export interface FreeCookResolveSources {
   catalog: readonly RecipeDiscoveryTarget[];
   getRecipe: (id: RecipeId) => Recipe | undefined;
+  allowsRecipe?: (id: RecipeId) => boolean;
 }
 
 export function resolveFreeCookPizza(
@@ -108,6 +109,9 @@ export function resolveFreeCookPizza(
   );
   if (outcome.kind !== "NEW_DISCOVERY" && outcome.kind !== "ALREADY_DISCOVERED") {
     return { kind: "ORIGINAL", outcome };
+  }
+  if (sources.allowsRecipe && !sources.allowsRecipe(outcome.recipeId)) {
+    return { kind: "ORIGINAL", outcome: { kind: "ORIGINAL", blockedTargetIds: [] } };
   }
   const recipe = sources.getRecipe(outcome.recipeId);
   // Identification and cooking share one contract: a late requirement is met by FINISH pieces only (`pizzaForFinalEvaluation`, the

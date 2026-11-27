@@ -10,6 +10,7 @@ import {
   resolveDinnerTargets,
   validateDinnerMissions,
   type DinnerMissionDefinition,
+  type DinnerMenuMembership,
 } from "./dinnerMission";
 
 /**
@@ -110,6 +111,7 @@ export type DinnerStartBlock =
 
 export interface DinnerStartInputs extends RecipeSetInputs {
   dex: DexState;
+  isOnMenu?: DinnerMenuMembership;
 }
 
 /**
@@ -123,7 +125,7 @@ export function dinnerStartBlock(
   const problems = validateDinnerMissions([mission]);
   const targets = resolveDinnerTargets(mission);
   if (problems.length > 0 || !targets) return { reason: "INVALID_MISSION", problems };
-  const unlock = dinnerMissionUnlock(mission, inputs.dex);
+  const unlock = dinnerMissionUnlock(mission, inputs.dex, inputs.isOnMenu);
   if (!unlock.unlocked) return { reason: "LOCKED", undiscoveredCount: unlock.undiscoveredCount };
   const shortages = recipeSetStockShortage(targets, inputs);
   if (shortages.length > 0) return { reason: "INSUFFICIENT_STOCK", shortages };

@@ -41,7 +41,8 @@ import {
   type DiscoveryHintPurchases,
 } from "../logic/discovery/hintPurchase";
 import { buildHintSteps, type HintLevel, type HintStep } from "../logic/discovery/hintSteps";
-import { discoverableHintCandidates, selectHintTarget, type HintEmptyKind } from "../logic/discovery/hintTarget";
+import { discoverableHintCandidates, hintRecipePopulation, selectHintTarget, type HintEmptyKind } from "../logic/discovery/hintTarget";
+import { activeProgressionModel, type MenuInputs } from "../logic/progression/progressionModel";
 import { selectableHintSavedState } from "../logic/discovery/hintFactMigration";
 import { DEDUCTION_HINT_PRICE, DEDUCTION_HINTS_ENABLED } from "../logic/discovery/deductionFlag";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
@@ -85,8 +86,7 @@ export interface HintSession {
   fromDex?: boolean;
 }
 
-export interface DiscoveryHintState {
-  dex: DexState;
+export interface DiscoveryHintState extends MenuInputs {
   ownedIngredientIds: readonly string[];
   unlockedForShopIngredientIds: readonly string[];
   inventory: InventoryState;
@@ -249,9 +249,9 @@ export function resolveHintSession(state: DiscoveryHintState, pinnedRecipeId?: s
  * nor lift it, and nothing about the recipes' contents. One entry (or none) is unchanged.
  */
 export function needsResearchTargetChoice(
-  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts" | "researchTargetId">,
+  state: ResearchTargetInputs & Pick<DiscoveryHintState, "researchTargetId">,
 ): boolean {
-  if (deriveResearchEntries(state).entries.length < 2) return false;
+  if (activeResearchEntries(state).length < 2) return false;
   return !isValidResearchTarget(state, state.researchTargetId);
 }
 
@@ -510,7 +510,7 @@ function deductionSheetView(state: DiscoveryHintState, context: NonNullable<Retu
  */
 function derivedUnlockFactIds(state: DiscoveryHintState, recipeId: string): string[] {
   if (!state.researchTargetId || state.researchTargetId !== recipeId) return [];
-  const entry = deriveResearchEntries(state).entries.find((e) => e.recipeId === recipeId);
+  const entry = activeResearchEntries(state).find((e) => e.recipeId === recipeId);
   return entry ? [hintFactId(entry.unlockIngredientId)] : [];
 }
 
@@ -646,12 +646,12 @@ export function isHintSheetVisible(state: { hintSheetOpen: boolean; phase: strin
 /** The Research Target is valid only while it is a registered entry AND a DISCOVERABLE Hint candidate
  *  (so cooking it is possible and `selectHintTarget` can honour it). Anything else is no target. */
 export function isValidResearchTarget(
-  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts">,
+  state: ResearchTargetInputs,
   recipeId: string | null | undefined,
 ): boolean {
   if (!recipeId) return false;
   return (
-    deriveResearchEntries(state).entries.some((e) => e.recipeId === recipeId) &&
+    activeResearchEntries(state).some((e) => e.recipeId === recipeId) &&
     discoverableHintCandidates(state).some((r) => r.id === recipeId)
   );
 }
@@ -670,7 +670,15 @@ export interface ResearchEntryView {
   totalIngredientCount: number | null;
 }
 
-type ResearchViewInputs = Pick<DiscoveryHintState, "dex" | "ownedIngredientIds"> & Partial<Pick<DiscoveryHintState, "discoveryHintFacts">>;
+type ResearchTargetInputs =
+  MenuInputs & Pick<DiscoveryHintState, "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts">;
+type ResearchViewInputs = MenuInputs & Pick<DiscoveryHintState, "ownedIngredientIds"> & Partial<Pick<DiscoveryHintState, "discoveryHintFacts">>;
+
+function activeResearchEntries(state: ResearchViewInputs): readonly ResearchEntry[] {
+  const model = activeProgressionModel();
+  const { entries } = deriveResearchEntries(state, undefined, hintRecipePopulation());
+  return model.id === "shop" ? entries.filter((entry) => model.isRecipeStageOpen(entry.recipeId, state)) : entries;
+}
 
 function viewOf(entry: ResearchEntry, stored: readonly string[]): ResearchEntryView {
   const recipe = getRecipe(entry.recipeId as RecipeId);
@@ -703,8 +711,9 @@ function viewOf(entry: ResearchEntry, stored: readonly string[]): ResearchEntryV
 
 /** Every registered Research Entry as the UI may show it, in S1's stable anonymous order. */
 export function researchEntryViews(state: ResearchViewInputs): ResearchEntryView[] {
-  const { entries } = deriveResearchEntries(state);
-  return entries.map((entry) => viewOf(entry, storedFactIds({ discoveryHintFacts: state.discoveryHintFacts ?? {} }, entry.recipeId)));
+  return activeResearchEntries(state).map((entry) =>
+    viewOf(entry, storedFactIds({ discoveryHintFacts: state.discoveryHintFacts ?? {} }, entry.recipeId)),
+  );
 }
 
 /** The Research Target's view for the cooking context, or `null` without a valid target. */
@@ -717,11 +726,11 @@ export function researchTargetView(state: DiscoveryHintState): ResearchEntryView
  *  DISCOVERABLE), in S1's anonymous order. Opaque ids for wiring only -- the post-discovery CTA reads
  *  "is there one" and, for exactly one, starts it; no count is ever rendered. */
 export function researchableEntryIds(
-  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts">,
+  state: ResearchTargetInputs,
 ): string[] {
   const cookable = new Set(discoverableHintCandidates(state).map((r) => r.id as string));
-  return deriveResearchEntries(state)
-    .entries.map((e) => e.recipeId)
+  return activeResearchEntries(state)
+    .map((e) => e.recipeId)
     .filter((id) => cookable.has(id));
 }
 
@@ -735,7 +744,7 @@ export type HomeDiscoveryRoute =
   | { kind: "CHOOSE" };
 
 export function homeDiscoveryRoute(
-  state: Pick<DiscoveryHintState, "dex" | "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts">,
+  state: ResearchTargetInputs,
 ): HomeDiscoveryRoute {
   const ids = researchableEntryIds(state);
   if (ids.length === 0) return { kind: "TARGETLESS" };

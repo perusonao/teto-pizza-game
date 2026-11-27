@@ -3,6 +3,7 @@ import {
   DINNER_CLEAR_TIERS,
   DINNER_PHASE1_REWARD_TABLE_ID,
   DINNER_REWARD_TABLES,
+  SHOP_DINNER_REWARD_TABLE_ID,
   dinnerClearTier,
   getDinnerRewardTable,
   quoteDinnerReward,
@@ -44,6 +45,19 @@ describe("Phase 1 reward table (OD-DM-9: shape only)", () => {
     expect(DINNER_CLEAR_TIERS).toEqual(["GOLD", "SILVER", "BRONZE"]);
     for (const tier of DINNER_CLEAR_TIERS) expect(typeof tier).toBe("string");
   });
+});
+
+it("resolves the separate Phase 3e shop table with its exact thresholds and payouts", () => {
+  const table = getDinnerRewardTable(SHOP_DINNER_REWARD_TABLE_ID)!;
+  expect(table).toEqual({
+    tableId: SHOP_DINNER_REWARD_TABLE_ID,
+    thresholds: { goldMaxClearMs: 240_000, silverMaxClearMs: 300_000, bronzeMaxClearMs: 360_000 },
+    pitz: {
+      firstClear: { clear: 150, tierBonus: { GOLD: 100, SILVER: 50, BRONZE: 20 } },
+      repeatClear: { clear: 60, tierBonus: { GOLD: 40, SILVER: 20, BRONZE: 0 } },
+    },
+  });
+  expect(validateDinnerRewardTable(table)).toEqual([]);
 });
 
 describe("tier boundaries (inclusive upper bounds)", () => {

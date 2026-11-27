@@ -20,6 +20,7 @@ import type { PizzaState } from "../../state/pizzaState";
 import type { SetIngredientShortage } from "../../state/recipeSetFeasibility";
 import { completionPolicyForRound } from "../../state/roundKind";
 import type { CutConfig } from "../../logic/cut/types";
+import type { DinnerMenuMembership } from "./dinnerMission";
 import {
   dinnerRunReducer,
   isDinnerClockExpired,
@@ -90,8 +91,10 @@ function identifiedRecipe(identity: DinnerIdentity): Recipe | null {
 export function planDinnerBake(
   pizza: PizzaState,
   catalog: readonly RecipeDiscoveryTarget[] = RECIPE_DISCOVERY_CATALOG,
+  isOnMenu?: DinnerMenuMembership,
 ): DinnerBakePlan {
-  const identity = resolveDinnerIdentity(pizza, catalog);
+  const match = resolveDinnerIdentity(pizza, catalog);
+  const identity = match.kind === "RECIPE" && isOnMenu && !isOnMenu(match.recipeId) ? { kind: "NONE" as const } : match;
   const recipe = identifiedRecipe(identity);
   if (!recipe) {
     // No match, an ambiguous match, or an id with no recipe: the Free Cooking fallback -- the
@@ -180,6 +183,8 @@ export interface DinnerAttemptInput {
   ownedIngredientIds: readonly string[];
   /** Read only for what may be shown (OD-R4). Never written. */
   dex: DexState;
+  /** In shop, only recipes on the menu can take on a named Dinner identity. */
+  isOnMenu?: DinnerMenuMembership;
   /** The quality gate S, injected (OD-R2: undecided until DM-5). An integer 1..5. */
   minimumStars: QualityStars;
   now: number;
@@ -248,7 +253,7 @@ function classify(
     };
   }
 
-  if (isDiscovered(dex, recipe.id)) return { category: "NON_TARGET", recipeId: recipe.id };
+  if (input.isOnMenu?.(recipe.id) ?? isDiscovered(dex, recipe.id)) return { category: "NON_TARGET", recipeId: recipe.id };
   return { category: "ORIGINAL", reason: "UNDISCOVERED_RECIPE", internalRecipeId: recipe.id };
 }
 
@@ -273,6 +278,7 @@ export function dinnerAttemptRecord(
   classification: DinnerAttemptClassification,
   consumed: Readonly<Record<string, number>>,
   dex: DexState,
+  isOnMenu?: DinnerMenuMembership,
 ): DinnerAttempt {
   const stars =
     classification.category === "TARGET_PASS"
@@ -284,7 +290,7 @@ export function dinnerAttemptRecord(
     at: 0,
     category: classification.category,
     identityRecipeId: plan.identity.kind === "RECIPE" ? plan.identity.recipeId : null,
-    displayedRecipeId: displayedRecipeIdOf(dinnerAttemptView(classification, dex)),
+    displayedRecipeId: displayedRecipeIdOf(dinnerAttemptView(classification, dex, isOnMenu)),
     completedTargetId: classification.category === "TARGET_PASS" ? classification.recipeId : null,
     stars,
     consumed,
@@ -336,7 +342,7 @@ export function resolveDinnerAttempt(input: DinnerAttemptInput): DinnerAttemptRe
   }
 
   // The identity is composition-only, so Stage A on the finished pizza is Stage A at START_BAKE.
-  const plan = planDinnerBake(pizza, input.catalog);
+  const plan = planDinnerBake(pizza, input.catalog, input.isOnMenu);
   const cutPending = plan.cutRequired && !input.cutCompleted;
   const cutWaivedFor = cutPending ? (input.cutWaivedFor ?? null) : null;
   if (cutPending && cutWaivedFor === null) return { status: "REJECTED", reason: "CUT_PENDING" };
@@ -358,6 +364,7 @@ export function resolveDinnerAttempt(input: DinnerAttemptInput): DinnerAttemptRe
     classification,
     consumedBetween(input.preConsumptionInventory, postConsumptionInventory),
     input.dex,
+    input.isOnMenu,
   );
   const settled = settleRun(run, attempt, { ownedIngredientIds: input.ownedIngredientIds, inventory: postConsumptionInventory }, now);
   return {
@@ -392,13 +399,17 @@ export type DinnerAttemptView =
   | { category: "ORIGINAL" }
   | { category: "INVALID_PIZZA"; reason: CompletionFailureReason };
 
-export function dinnerAttemptView(classification: DinnerAttemptClassification, dex: DexState): DinnerAttemptView {
+export function dinnerAttemptView(
+  classification: DinnerAttemptClassification,
+  dex: DexState,
+  isOnMenu?: DinnerMenuMembership,
+): DinnerAttemptView {
   if (classification.category === "ORIGINAL") return { category: "ORIGINAL" };
   if (classification.category === "INVALID_PIZZA") {
     return { category: "INVALID_PIZZA", reason: classification.completion.reason };
   }
   const recipe = getRecipe(classification.recipeId);
-  if (!recipe || !isDiscovered(dex, recipe.id)) return { category: "ORIGINAL" };
+  if (!recipe || !(isOnMenu?.(recipe.id) ?? isDiscovered(dex, recipe.id))) return { category: "ORIGINAL" };
   const named = { recipeId: recipe.id, nameJa: recipe.nameJa };
   switch (classification.category) {
     case "TARGET_PASS":

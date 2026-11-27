@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { shopCopy } from "../logic/progression/shopCopy";
 import type { QualityStars } from "../logic/scoring";
-import { DINNER_MISSIONS, type DinnerMissionDefinition } from "../mission/dinner/dinnerMission";
+import { DINNER_MISSIONS, type DinnerMenuMembership, type DinnerMissionDefinition } from "../mission/dinner/dinnerMission";
 import type { DexState } from "../state/dex";
 import type { InventoryState } from "../state/inventory";
 import {
@@ -13,6 +13,7 @@ import {
 
 interface DinnerMissionScreenProps {
   dex: DexState;
+  isOnMenu?: DinnerMenuMembership;
   ownedIngredientIds: readonly string[];
   inventory: InventoryState;
   /** The START duration for a mission, or `null` while no time limit exists (OD-DM3-1). */
@@ -33,6 +34,7 @@ interface DinnerMissionScreenProps {
  */
 export function DinnerMissionScreen({
   dex,
+  isOnMenu,
   ownedIngredientIds,
   inventory,
   durationFor,
@@ -43,7 +45,7 @@ export function DinnerMissionScreen({
   missions = DINNER_MISSIONS,
 }: DinnerMissionScreenProps) {
   const [detailId, setDetailId] = useState<string | null>(null);
-  const cards = missions.map((m) => dinnerMissionCardView(m, dex));
+  const cards = missions.map((m) => dinnerMissionCardView(m, dex, isOnMenu));
   // Detail resolves from the same list the cards came from, so `missions` controls the whole screen.
   const detailMission = detailId ? missions.find((m) => m.missionId === detailId) : undefined;
   const detailCard = cards.find((c) => c.missionId === detailId);
@@ -67,7 +69,7 @@ export function DinnerMissionScreen({
           card={detailCard}
           readiness={dinnerReadiness(
             detailMission,
-            { dex, ownedIngredientIds, inventory },
+            { dex, isOnMenu, ownedIngredientIds, inventory },
             durationFor(detailMission),
             minimumStarsFor(detailMission),
           )}

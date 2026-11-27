@@ -70,17 +70,27 @@ export function compareHintCandidates(a: Recipe, b: Recipe, recipes: readonly Re
   );
 }
 
-/** Every DISCOVERABLE recipe, in hint order (the first one is the automatic target). */
+/** Shop Hint and Research share the adopted population before choosing an eligible target. */
+export function hintRecipePopulation(recipes?: readonly Recipe[]): readonly Recipe[] {
+  const catalog = activeProgressionModel().catalogRecipes();
+  if (catalog === RECIPES) return recipes ?? catalog;
+  if (!recipes || recipes === RECIPES) return catalog;
+  const adopted = new Set(catalog.map((recipe) => recipe.id));
+  return recipes.filter((recipe) => adopted.has(recipe.id));
+}
+
+/** Every DISCOVERABLE recipe in the active population, in hint order. */
 export function discoverableHintCandidates(
   inputs: RecipeDiscoveryInputs,
-  recipes: readonly Recipe[] = RECIPES,
+  recipes?: readonly Recipe[],
 ): Recipe[] {
   // B案 Phase 3b (shop model only): a recipe whose stage is not open is no candidate -- the Research Target, the researchable
   // entries and the Hint target all read this list (legacy: every stage is open, so the list is unchanged).
   const model = activeProgressionModel();
-  return recipes
+  const population = hintRecipePopulation(recipes);
+  return population
     .filter((recipe) => recipeDiscoveryState(recipe, inputs) === "DISCOVERABLE" && model.isRecipeStageOpen(recipe.id, inputs))
-    .sort((a, b) => compareHintCandidates(a, b, recipes));
+    .sort((a, b) => compareHintCandidates(a, b, population));
 }
 
 function emptyKind(inputs: RecipeDiscoveryInputs, recipes: readonly Recipe[]): HintEmptyKind {
@@ -99,8 +109,7 @@ function emptyKind(inputs: RecipeDiscoveryInputs, recipes: readonly Recipe[]): H
 }
 
 export function selectHintTarget(inputs: RecipeDiscoveryInputs, options: HintTargetOptions = {}): HintTargetResult {
-  const recipes = options.recipes ?? RECIPES;
-  const candidates = discoverableHintCandidates(inputs, recipes);
+  const candidates = discoverableHintCandidates(inputs, options.recipes);
   // S3: an explicit player-selected Research Target is the one exception to OPEN_POOL privacy. It is
   // the player's own choice (picked from an anonymous card), so it leaks nothing about the pool; with
   // no Research Target every branch below is exactly as before.
@@ -116,5 +125,5 @@ export function selectHintTarget(inputs: RecipeDiscoveryInputs, options: HintTar
   // D-1: a lone candidate is unambiguous; with 2+ and no pin / sticky / purchase, choose nothing.
   if (candidates.length === 1) return { kind: "TARGET", recipeId: candidates[0].id, source: "auto" };
   if (candidates.length > 1) return { kind: "OPEN_POOL" };
-  return { kind: emptyKind(inputs, recipes) };
+  return { kind: emptyKind(inputs, hintRecipePopulation(options.recipes)) };
 }

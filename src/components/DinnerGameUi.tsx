@@ -4,6 +4,7 @@ import { getRecipe, type RecipeId } from "../data/recipes";
 import { getReferencePizza } from "../data/referencePizza";
 import type { DinnerAttemptView } from "../mission/dinner/dinnerResultDetection";
 import type { DinnerRunState } from "../mission/dinner/dinnerRun";
+import type { DinnerSettlementView } from "../mission/dinner/dinnerSession";
 import { dinnerAttemptCopy, dinnerLastPizzaLabel, dinnerTargetRowItems, formatDinnerClock } from "../state/dinnerView";
 import { ReferenceThumbnail } from "./ReferenceThumbnail";
 
@@ -149,11 +150,12 @@ export function DinnerAttemptResultPanel({
   );
 }
 
-/** CLEAR / FAILED (TIME_UP, INFEASIBLE). No reward row until DM-4. */
+/** CLEAR / FAILED (TIME_UP, INFEASIBLE). The shop passes the completed settlement for display. */
 export function DinnerResultOverlay({
   run,
   titleJa,
   lastResult,
+  settlement,
   retryBlocked,
   onRetry,
   onHome,
@@ -164,6 +166,7 @@ export function DinnerResultOverlay({
   /** The pizza that ended the run, when one did (CLEAR / INFEASIBLE): shown as one line. TIME_UP
    *  never shows it -- the clock, not a pizza, ended the run. */
   lastResult: DinnerAttemptView | null;
+  settlement?: DinnerSettlementView | null;
   retryBlocked: boolean;
   onRetry: () => void;
   onHome: () => void;
@@ -187,6 +190,12 @@ export function DinnerResultOverlay({
             <p className="dinner-result__row">
               クリアタイム <strong>{formatDinnerClock(outcome.clearMs)}</strong>
             </p>
+            {settlement?.kind === "SETTLED" && (
+              <p className="dinner-result__row">
+                報酬 <strong>{settlement.tier}　+{settlement.pitz} Pitz</strong>
+                {settlement.reputation ? <>　評判 <strong>+{settlement.reputation}</strong></> : null}
+              </p>
+            )}
             {lastResult && (
               <p className="dinner-result__last" data-testid="dinner-result-last">
                 最後のピザ：{dinnerLastPizzaLabel(lastResult)}

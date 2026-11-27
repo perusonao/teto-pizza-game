@@ -1,11 +1,10 @@
 import { getIngredient } from "../data/ingredients";
 import { getRecipe, type RecipeId } from "../data/recipes";
 import type { QualityStars } from "../logic/scoring";
-import { dinnerMissionUnlock, type DinnerMissionDefinition } from "../mission/dinner/dinnerMission";
+import { dinnerMissionUnlock, type DinnerMenuMembership, type DinnerMissionDefinition } from "../mission/dinner/dinnerMission";
 import type { DinnerAttemptView } from "../mission/dinner/dinnerResultDetection";
-import { dinnerStartBlock, remainingTargetIds, type DinnerRunState } from "../mission/dinner/dinnerRun";
+import { dinnerStartBlock, remainingTargetIds, type DinnerRunState, type DinnerStartInputs } from "../mission/dinner/dinnerRun";
 import type { DexState } from "./dex";
-import type { InventoryState } from "./inventory";
 
 /**
  * Dinner Mission DM-3 (Issue #242, ported from PR #243) / DM-3R-2 (Issue #250): pure view models
@@ -80,8 +79,12 @@ function targetView(recipeId: string): DinnerTargetView {
   return { recipeId, nameJa: getRecipe(recipeId as RecipeId)?.nameJa ?? recipeId };
 }
 
-export function dinnerMissionCardView(mission: DinnerMissionDefinition, dex: DexState): DinnerMissionCardView {
-  const unlock = dinnerMissionUnlock(mission, dex);
+export function dinnerMissionCardView(
+  mission: DinnerMissionDefinition,
+  dex: DexState,
+  isOnMenu?: DinnerMenuMembership,
+): DinnerMissionCardView {
+  const unlock = dinnerMissionUnlock(mission, dex, isOnMenu);
   const base = { missionId: mission.missionId, titleJa: mission.display.titleJa, totalTargets: unlock.totalTargets };
   if (!unlock.unlocked) return { ...base, unlocked: false, undiscoveredCount: unlock.undiscoveredCount };
   return { ...base, unlocked: true, targets: mission.targetRecipeIds.map(targetView) };
@@ -104,7 +107,7 @@ export type DinnerReadinessView =
 
 export function dinnerReadiness(
   mission: DinnerMissionDefinition,
-  inputs: { dex: DexState; ownedIngredientIds: readonly string[]; inventory: InventoryState },
+  inputs: DinnerStartInputs,
   durationMs: number | null,
   minimumStars: QualityStars | null,
 ): DinnerReadinessView {

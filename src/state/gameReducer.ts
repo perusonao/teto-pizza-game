@@ -72,8 +72,7 @@ import {
   techniqueRoundEligibility,
 } from "../logic/techniques/runtime";
 import { FREE_COOK_BAKE_TARGET, FREE_COOK_ORDER, FREE_COOK_RECIPE, isFreeCookRecipe } from "../data/freeCook";
-import { resolveFreeCookPizza } from "../logic/discovery/freeCook";
-import { finalizeRound, type UnmatchedFreeCookFinalization } from "./finalizeRound";
+import { finalizeRound, resolveMenuDevelopmentPizza, type UnmatchedFreeCookFinalization } from "./finalizeRound";
 import { buildPendingRound, withJournalPizza, type PendingRound } from "./pendingRound";
 import { RESEARCH_IDENTIFY_ENABLED } from "../logic/discovery/researchIdentifyFlag";
 import { addResearchExclusions, type ResearchExclusions } from "./researchExclusions";
@@ -86,7 +85,9 @@ import {
   EMPTY_INVENTORY,
   type InventoryState, addInventory, consumedInventory } from "./inventory";
 import { cookableMissionRecipeIds, missionOrderRecipeIds, pickMissionOrder } from "../mission/lunchRush";
-import { getDinnerMission } from "../mission/dinner/dinnerMission";
+import { getDinnerMission, shopDinnerMission } from "../mission/dinner/dinnerMission";
+import { SHOP_DINNER_FIRST_CLEAR_REPUTATION } from "../mission/dinner/dinnerShopBalance";
+import { dinnerMenuMembership } from "./dinnerProgression";
 import { dinnerRunReducer, startDinnerRun, type DinnerRunState } from "../mission/dinner/dinnerRun";
 import {
   dinnerAttemptView,
@@ -1782,7 +1783,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // original-pizza reward is Phase 3-3 economy work). Same RESULT guard => exactly once.
       if (state.freeCook && !state.score) {
         if (state.completion?.status !== "PASS") return state;
-        const resolution = resolveFreeCookPizza(state.pizza, state.dex);
+        const resolution = resolveMenuDevelopmentPizza(state.pizza, state.dex);
         if (resolution.kind !== "ORIGINAL") return state;
         // TQ-1C: an original pizza can still reveal a technique it used (usage path, affordance-
         // gated). The Dex does not change, so the recipe path adds nothing here. An AMBIGUOUS or
@@ -2481,25 +2482,31 @@ function dinnerActionReducer(state: GameState, action: DinnerAction): GameState 
   if (action.type === "DINNER_START") {
     // One run at a time, never on top of a Lunch Rush round.
     if (state.dinner !== null || state.isMissionRound) return state;
-    // DM-3R-2: S is required (DM-5 decides it; until then the caller injects it). No default.
-    if (!isValidMinimumStars(action.minimumStars)) return state;
-    const mission = getDinnerMission(action.missionId);
-    if (!mission) return state;
+    const definition = getDinnerMission(action.missionId);
+    if (!definition) return state;
+    const isOnMenu = dinnerMenuMembership(state);
+    const mission = isOnMenu ? shopDinnerMission(definition) : definition;
+    const minimumStars = mission.quality.minimumStars ?? action.minimumStars;
+    if (!isValidMinimumStars(minimumStars)) return state;
     const started = startDinnerRun(
       mission,
-      { dex: state.dex, ownedIngredientIds: state.ownedIngredientIds, inventory: state.inventory },
+      {
+        dex: state.dex,
+        isOnMenu,
+        ownedIngredientIds: state.ownedIngredientIds,
+        inventory: state.inventory,
+      },
       action.now,
-      action.durationMs,
+      isOnMenu ? undefined : action.durationMs,
     );
     if (!started.ok) return state;
     const session: DinnerSession = {
       run: started.state,
-      // DM-4-3: the reward authority is captured once for the run (never changes mid-run). The
-      // shipped Phase 1 table is untuned, so production pays 0 until DM-5-2 (OD-DM5-5).
+      // DM-4-3: the reward authority is captured once for the run.
       rewardTable: getDinnerRewardTable(mission.reward.tableId) ?? null,
       settlement: null,
       abandonRequested: false,
-      minimumStars: action.minimumStars,
+      minimumStars,
       roundSeq: 0,
       pending: null,
       lastResult: null,
@@ -2600,7 +2607,7 @@ function isDinnerAction(action: GameAction): action is DinnerAction {
  */
 function dinnerStartBake(state: GameState, session: DinnerSession, action: Extract<GameAction, { type: "START_BAKE" }>): GameState {
   if (state.phase !== "PREPARE") return state;
-  const plan = planDinnerBake(state.pizza);
+  const plan = planDinnerBake(state.pizza, undefined, dinnerMenuMembership(state));
   const view = dinnerBakePlanView(plan);
   const baked = baseGameReducer(state, action);
   const cookingProfile: CookingProfile = {
@@ -2632,6 +2639,7 @@ function dinnerResolve(
   cut: { completed: boolean; waivedFor: BakeCompletionFailure | null },
   now: number,
 ): GameState {
+  const isOnMenu = dinnerMenuMembership(next);
   const result = resolveDinnerAttempt({
     run: session.run,
     pizza: next.pizza,
@@ -2640,6 +2648,7 @@ function dinnerResolve(
     preConsumptionInventory,
     ownedIngredientIds: next.ownedIngredientIds,
     dex: next.dex,
+    isOnMenu,
     minimumStars: session.minimumStars,
     now,
   });
@@ -2651,7 +2660,7 @@ function dinnerResolve(
       ...session,
       run: result.run,
       pending: null,
-      lastResult: dinnerAttemptView(result.classification, next.dex),
+      lastResult: dinnerAttemptView(result.classification, next.dex, isOnMenu),
     },
   };
   // DM-4-3: the one authoritative settlement point -- the transition that turns this run CLEARED.
@@ -2667,15 +2676,19 @@ function dinnerRecordsRefused(state: GameState, missionIds: readonly string[]): 
   const ids = [...new Set(missionIds)].filter((id) => typeof id === "string" && !recs.blockedMissionIds.includes(id));
   if (ids.length === 0) return state;
   const records = Object.fromEntries(Object.entries(recs.records).filter(([id]) => !ids.includes(id)));
-  let { pitzBalance, dinner } = state;
+  let { pitzBalance, dinner, shop } = state;
   const settlement = dinner?.settlement;
   if (dinner && settlement?.kind === "SETTLED" && ids.includes(dinner.run.missionId)) {
     pitzBalance = Math.max(0, pitzBalance - settlement.pitz);
+    if (settlement.reputation) {
+      shop = { ...shop, reputation: Math.max(0, shop.reputation - settlement.reputation) };
+    }
     dinner = { ...dinner, settlement: { kind: "BLOCKED", runKey: settlement.runKey, pitz: 0 } };
   }
   return {
     ...state,
     pitzBalance,
+    shop,
     dinner,
     dinnerMissionRecordsState: { ...recs, records, blockedMissionIds: [...recs.blockedMissionIds, ...ids] },
   };
@@ -2686,8 +2699,8 @@ function dinnerRecordsRefused(state: GameState, missionIds: readonly string[]): 
  * DM-4-1 `decideDinnerSettlement` (reward, first-clear vs repeat, tier, record update, replay
  * refusal) and DM-4-2 `dinnerRecordForSettlement` (a broken saved record blocks its mission; it is
  * never read as "no record"). Pitz and the record change in this one state step, so App's
- * persistence effect writes them in one save write (`requireDinnerRecords`). No Dex, discovery,
- * hint or Shop state is touched. No reward policy lives here.
+ * persistence effect writes them with any first-clear shop reputation in one save write
+ * (`requireDinnerRecords`). The Dex and hint ledgers are unchanged.
  */
 function dinnerSettle(state: GameState): GameState {
   const session = state.dinner;
@@ -2718,11 +2731,14 @@ function dinnerSettle(state: GameState): GameState {
     return withSettlement({ kind: "REFUSED", runKey, pitz: 0, problems: [decision.reason, ...decision.problems] });
   }
   const records = state.dinnerMissionRecordsState;
+  const reputation = activeProgressionModel().id === "shop" && decision.schedule === "FIRST_CLEAR"
+    ? SHOP_DINNER_FIRST_CLEAR_REPUTATION : 0;
   return withSettlement(
     {
       kind: "SETTLED",
       runKey: decision.runKey,
       pitz: decision.pitz,
+      ...(reputation ? { reputation } : {}),
       schedule: decision.schedule,
       tier: decision.tier,
       clearMs: decision.clearMs,
@@ -2731,6 +2747,7 @@ function dinnerSettle(state: GameState): GameState {
     },
     {
       pitzBalance: state.pitzBalance + decision.pitz,
+      ...(reputation ? { shop: { ...state.shop, reputation: state.shop.reputation + reputation } } : {}),
       dinnerMissionRecordsState: { ...records, records: { ...records.records, [decision.missionId]: decision.record } },
     },
   );
