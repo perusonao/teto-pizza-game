@@ -1,3 +1,4 @@
+import "../../test/legacyProgression";
 import { INGREDIENTS } from "../../data/ingredients";
 import { describe, expect, it } from "vitest";
 import {

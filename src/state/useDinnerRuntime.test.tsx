@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { act, renderHook } from "@testing-library/react";
 import { useReducer } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

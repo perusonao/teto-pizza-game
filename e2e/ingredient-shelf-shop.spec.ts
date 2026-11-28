@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 
 /**
@@ -30,7 +31,7 @@ function save(unlocked: string[], owned: string[] = []) {
 async function openShop(page: Page, data: unknown) {
   await page.goto("icons/icon-16.png");
   await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, [SAVE_KEY, JSON.stringify(data)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ショップ/ }).click();
   await page.waitForSelector(".shop-overlay__body");

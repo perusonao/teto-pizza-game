@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { buildPizzaSelectView } from "./pizzaSelect";
 import { selectHintTarget } from "../logic/discovery/hintTarget";

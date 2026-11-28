@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { discoveredRecipeIds, EMPTY_DEX } from "../state/dex";
 import { createInitialGameState, gameReducer, type GameState } from "../state/gameReducer";

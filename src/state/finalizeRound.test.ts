@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { RECIPES } from "../data/recipes";

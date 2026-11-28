@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expect, test, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { FREE_COOK_BAKE_TARGET } from "../src/data/freeCook";
@@ -57,7 +58,7 @@ async function open(page: Page, research: boolean) {
     localStorage.clear();
     if (v) localStorage.setItem(k, v);
   }, [SAVE_KEY, research ? JSON.stringify(RESEARCH_SAVE) : ""] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
   if (research) {
     await page.getByRole("button", { name: /ピザ図鑑/ }).click();

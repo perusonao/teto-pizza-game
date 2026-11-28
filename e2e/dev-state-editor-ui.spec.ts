@@ -1,5 +1,6 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
+import { PROGRESSION_PREVIEW_KEY } from "../src/logic/progression/progressionPreviewOptIn";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { PREVIEW_BASE, PREVIEW_KEY, PROD_BASE, PROD_KEY, startDevStateServers, type DevStateServers } from "./support/devStateBuilds";
 
@@ -43,7 +44,7 @@ async function seed(page: Page, entries: Record<string, string>) {
   await page.evaluate((e) => {
     localStorage.clear();
     for (const [k, v] of Object.entries(e)) localStorage.setItem(k, v);
-  }, entries);
+  }, { [PROGRESSION_PREVIEW_KEY]: "legacy", ...entries });
 }
 const stored = (page: Page, key = PREVIEW_KEY) => page.evaluate((k) => localStorage.getItem(k), key);
 const hold = (page: Page, ms = 1500) => (VIDEO ? page.waitForTimeout(ms) : Promise.resolve());

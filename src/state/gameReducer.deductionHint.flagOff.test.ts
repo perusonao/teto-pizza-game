@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { openHintSheetOn } from "./testSupport/hintSheetOpen";
 import { describe, expect, it, vi } from "vitest";
 

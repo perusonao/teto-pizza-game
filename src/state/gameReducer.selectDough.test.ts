@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { resetDoughKindPreviewForTest } from "../preview/doughKindPreview";
 import { resetPreviewPanShapeForTest } from "../preview/panShapePreview";

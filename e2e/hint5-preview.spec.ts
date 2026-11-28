@@ -4,6 +4,7 @@ import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 /**
@@ -141,7 +142,7 @@ async function visit(page: Page, url: string) {
   await page.goto(url);
 }
 
-const previewUrl = (query: string) => `${origin}${PREVIEW_BASE}${query}`;
+const previewUrl = (query: string) => legacyProgressionUrl(`${origin}${PREVIEW_BASE}${query}`);
 const nextTitle = (page: Page) => page.locator(".hint-sheet__h5-next .hint-sheet__card-title");
 const cta = (page: Page) => page.locator(".hint-sheet__h5-next .hint-sheet__next");
 const wallet = (page: Page) => page.locator(".hint-sheet__footer--h5 .hint-sheet__wallet").last();
@@ -192,7 +193,7 @@ test.describe("production build: the Preview parameters do nothing (P2 / P3)", (
   test("?hint5=1&hv=cheese-none: the old sheet, no seed, no Preview key, the production save untouched", async ({ page }) => {
     const save = meatLoversSave(999);
     await seedStorage(page, { [PROD_KEY]: JSON.stringify(save) });
-    await visit(page, `${origin}${PROD_BASE}?hint5=1&hv=cheese-none`);
+    await visit(page, legacyProgressionUrl(`${origin}${PROD_BASE}?hint5=1&hv=cheese-none`));
     const dialog = await openHintSheet(page);
     // P2: the ladder is ON by default in production (H5-6); the Preview parameter changes nothing about that.
     await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
@@ -211,7 +212,7 @@ test.describe("production build: the Preview parameters do nothing (P2 / P3)", (
 
   test("?hint5=0 (the Preview kill switch) does not turn the production ladder off, and a stored Preview opt-in is left alone", async ({ page }) => {
     await seedStorage(page, { [PROD_KEY]: JSON.stringify(meatLoversSave(999)), [OPT_IN_KEY]: "1" });
-    await visit(page, `${origin}${PROD_BASE}?hint5=0`);
+    await visit(page, legacyProgressionUrl(`${origin}${PROD_BASE}?hint5=0`));
     const dialog = await openHintSheet(page);
     await expect(dialog).toHaveAttribute("data-hint-ladder", "hint5");
     await expect(dialog.getByRole("button", { name: "ヒントをもらう" })).toHaveCount(0);
@@ -222,7 +223,7 @@ test.describe("production build: the Preview parameters do nothing (P2 / P3)", (
 // ---- Preview build ---------------------------------------------------------------------------------
 
 test.describe("Preview build: opt-in, seeds, isolation (P4 to P8)", () => {
-  test("P4: without a parameter the Preview build behaves like production (the ladder is ON by default)", async ({ page }) => {
+  test("P4: without a hint5 parameter the Preview build behaves like production (the ladder is ON by default)", async ({ page }) => {
     await seedStorage(page, { [PREVIEW_KEY]: JSON.stringify(meatLoversSave(999)) });
     await visit(page, previewUrl(""));
     const dialog = await openHintSheet(page);

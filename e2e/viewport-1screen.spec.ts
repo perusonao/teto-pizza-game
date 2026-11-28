@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect } from "@playwright/test";
 import {
   playFullMargheritaRound,
@@ -18,7 +19,7 @@ import {
  */
 
 async function freshHome(page: import("@playwright/test").Page) {
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");
@@ -71,7 +72,7 @@ test.describe("Recipe Select: browse grid scrolls internally, not the page", () 
         missionBest: {},
       }));
     });
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl("/"));
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /ピザを作る/ }).click();
 
@@ -210,7 +211,7 @@ async function seedLunchRushUnlockedOnly(page: import("@playwright/test").Page) 
 test.describe("Lunch Rush RESULT -> Weekly Ranking stack never scrolls the page", () => {
   test("mission result + ranking overlay stacked", async ({ page }) => {
     await seedLunchRushUnlockedOnly(page);
-    await page.goto("/?missionDuration=1");
+    await page.goto(legacyProgressionUrl("/?missionDuration=1"));
     await page.evaluate(() => localStorage.clear());
     await page.reload();
     await page.waitForSelector(".app-frame");
@@ -249,7 +250,7 @@ test.describe("Lunch Rush RESULT -> Weekly Ranking stack never scrolls the page"
  */
 async function reachLunchRushResult(page: import("@playwright/test").Page) {
   await seedLunchRushUnlockedOnly(page);
-  await page.goto("/?missionDuration=1");
+  await page.goto(legacyProgressionUrl("/?missionDuration=1"));
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");

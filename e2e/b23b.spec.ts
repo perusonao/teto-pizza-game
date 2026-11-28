@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
@@ -55,7 +56,7 @@ async function open(page: Page, json: string) {
     localStorage.clear();
     localStorage.setItem(key, value);
   }, [SAVE_KEY, json] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
 }
 /** Places `chip` once per Reference position of `ingredientId` (dough percent, the Reference's own multi-ring slots). */

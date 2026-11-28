@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expectResearchLead } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
@@ -50,7 +51,7 @@ test("Expansion Slice 3: Shop (almond NEW -> bought) -> Research Entry (no name 
     localStorage.clear();
     localStorage.setItem(key, value);
   }, [SAVE_KEY, saveJson()] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`36/${CATALOG_COUNTS.recipes}`));
 

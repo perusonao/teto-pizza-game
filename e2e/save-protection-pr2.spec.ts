@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { SAVE_KEY } from "./support/starGateSave";
@@ -37,7 +38,7 @@ async function seed(page: Page, entries: Record<string, string>) {
     localStorage.clear();
     for (const [k, v] of Object.entries(e)) localStorage.setItem(k, v);
   }, entries);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
 }
 async function expectFits(page: Page, selector: string, where: string) {

@@ -1,3 +1,4 @@
+import "../../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { DISCOVERY_LADDER } from "../../data/discoveryLadder";
 import { INGREDIENTS } from "../../data/ingredients";
@@ -156,7 +157,7 @@ describe("rewired technique affordance = the pre-1a formula", () => {
 });
 
 describe("the flag picks the model", () => {
-  it("this build (no Preview / DEV instruction) runs LEGACY_PROGRESSION", () => {
+  it("selecting legacy runs LEGACY_PROGRESSION", () => {
     expect(activeProgressionModel()).toBe(LEGACY_PROGRESSION);
     expect(activeProgressionModel().id).toBe("legacy");
   });

@@ -21,7 +21,7 @@ export const CATALOG_COUNTS = {
   ingredients: INGREDIENTS.length,
   toppings: INGREDIENTS.filter((i) => i.category === "topping").length,
   ladderSteps: DISCOVERY_LADDER.steps.length,
-  chapterSizes: buildRecipeChapters().map((c) => c.recipes.length),
+  chapterSizes: buildRecipeChapters(RECIPES, DISCOVERY_LADDER).map((c) => c.recipes.length),
   lunchRushPool: ALL_RECIPES.filter((r) => participatesInLunchRush(r.id)).length,
 } as const;
 

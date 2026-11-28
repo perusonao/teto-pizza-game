@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
@@ -37,7 +38,7 @@ async function open(page: Page) {
     localStorage.clear();
     localStorage.setItem(key, value);
   }, [SAVE_KEY, saveJson()] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
 }
 

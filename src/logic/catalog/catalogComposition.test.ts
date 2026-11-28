@@ -1,3 +1,4 @@
+import "../../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { ingredientAttributeFamily } from "../../data/ingredientTaxonomy";
 import { INGREDIENTS } from "../../data/ingredients";

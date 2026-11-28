@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import "@testing-library/jest-dom/vitest";
 import { useReducer, useState } from "react";
 import { afterEach, describe, expect, it } from "vitest";

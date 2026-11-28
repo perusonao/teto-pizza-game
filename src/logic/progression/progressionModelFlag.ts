@@ -20,7 +20,7 @@ export type { ProgressionModelId } from "./progressionModelId";
 export const PROGRESSION_MODEL_DEV_KEY = "teto.dev.progressionModel";
 
 /** The production default. Phase 4 (Authority cutover) changes this one literal; setting it back is the rollback. */
-const PROGRESSION_MODEL_PRODUCTION_DEFAULT: ProgressionModelId = "legacy";
+const PROGRESSION_MODEL_PRODUCTION_DEFAULT: ProgressionModelId = "shop";
 
 function devChoice(): ProgressionModelId | null {
   try {

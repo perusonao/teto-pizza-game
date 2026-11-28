@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it, vi } from "vitest";
 import { pinsaEnabled } from "../data/pinsaGate";
 import { LATE_ENTITLEMENT_FLOORS, lateCatalogEnabled } from "../data/lateCatalog";

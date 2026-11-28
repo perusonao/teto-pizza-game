@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { SAVE_STORAGE_KEY, loadSave, persistProgress, type PersistentSaveV2, type ProgressionSnapshot } from "./persistence";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";

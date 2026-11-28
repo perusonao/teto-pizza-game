@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { buildCompletionFailureMessage } from "../data/completionMessages";

@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
 import { EMPTY_DEX, type DexEntry } from "./dex";

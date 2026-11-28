@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { completeDoughStep, cutThreeLines, enterBakePaused, landNeedleAndTakeOut, paintSauceRing, tapDoughPercent } from "./gestures";
 
@@ -13,7 +14,7 @@ async function openRound(page: Page, query: string) {
   await page.addInitScript((save) => {
     if (!localStorage.getItem("teto-pizza-save-v1")) localStorage.setItem("teto-pizza-save-v1", save);
   }, SAVE);
-  await page.goto(`/${query}`);
+  await page.goto(legacyProgressionUrl(`/${query}`));
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /マルゲリータ、/ }).click();
@@ -121,10 +122,10 @@ test.describe("#486 Canvas mozzarella as the default display", () => {
     expect(await page.locator(".pizza-cheese").count()).toBeGreaterThan(0);
     expect(await noHorizontalOverflow(page)).toBe(true);
     // remembered without the parameter (still "0"), and switched back on with =1
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl("/"));
     await page.waitForSelector(".app-frame");
     expect(await page.evaluate(() => localStorage.getItem("teto-pizza-cheese-canvas"))).toBe("0");
-    await page.goto("/?cheeseCanvas=1");
+    await page.goto(legacyProgressionUrl("/?cheeseCanvas=1"));
     await page.waitForSelector(".app-frame");
     expect(await page.evaluate(() => localStorage.getItem("teto-pizza-cheese-canvas"))).toBe("1");
   });

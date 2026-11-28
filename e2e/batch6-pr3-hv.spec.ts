@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { playFullMargheritaRound } from "./gestures";
@@ -57,7 +58,7 @@ async function open(page: Page, json: string, query = "") {
     localStorage.clear();
     localStorage.setItem(key, value);
   }, [SAVE_KEY, json] as const);
-  await page.goto(`/${query}`);
+  await page.goto(legacyProgressionUrl(`/${query}`));
   await page.waitForSelector(".app-frame");
 }
 async function openShop(page: Page) {

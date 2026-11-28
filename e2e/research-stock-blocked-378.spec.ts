@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { getIngredient } from "../src/data/ingredients";
@@ -38,7 +39,7 @@ test("stock-blocked research card -> Shop (在庫なし) -> refill -> close -> r
     localStorage.clear();
     localStorage.setItem(key, value);
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
 
   await page.getByRole("button", { name: /ピザ図鑑/ }).click();

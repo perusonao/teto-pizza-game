@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expect, test, type Page } from "@playwright/test";
 import { BAKE_SPEED_PCT_PER_S } from "../src/logic/bakeProgress";
 import { SEAR_FULL_MS, SEAR_LOOK_COPY, searAmountAt, searLookOf } from "../src/logic/sear/searHold";
@@ -26,7 +27,7 @@ async function openEntry(page: Page, query: string) {
     sessionStorage.clear();
     localStorage.setItem(k, v);
   }, [SAVE_KEY, REAL] as const);
-  await page.goto(`/${query}`);
+  await page.goto(legacyProgressionUrl(`/${query}`));
 }
 
 /**

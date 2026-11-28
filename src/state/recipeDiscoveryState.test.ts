@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";

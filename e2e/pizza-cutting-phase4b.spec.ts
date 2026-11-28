@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect } from "@playwright/test";
 import { runOnlyOnWidth } from "./support/projectGuard";
 import {
@@ -194,7 +195,7 @@ test.describe("Scenario D: Lunch Rush eligible recipe -> CUT -> serve", () => {
     await page.addInitScript((rawSave) => {
       localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
     }, save);
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl("/"));
     await page.waitForSelector(".app-frame");
 
     await page.getByRole("button", { name: /ランチラッシュ/ }).click();

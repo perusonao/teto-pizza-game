@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 
 /**
@@ -10,7 +11,7 @@ const INTERNAL = /#\d|\bPR\b|\bIssue\b|\bSHA\b|\bS[0-4]\b|\bCI\b|WebKit|matcher|
 async function openHome(page: Page) {
   await page.goto("icons/icon-16.png");
   await page.evaluate(() => localStorage.clear());
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
 }
 

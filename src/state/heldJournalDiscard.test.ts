@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { beforeEach, describe, expect, it } from "vitest";
 import { SAVE_STORAGE_KEY } from "./persistence";
 import { persistProgress } from "./persistence";
