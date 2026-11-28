@@ -1455,11 +1455,32 @@ export function commitProgress(
   snapshot: ProgressionSnapshot,
   storage: StorageLike | null = getDefaultStorage(),
 ): CommitResult {
-  if (!storage) return { status: "failed", failure: "unavailable" };
-  if (snapshot.pendingRound && pendingRoundByteLength(snapshot.pendingRound) > PENDING_ROUND_MAX_BYTES) {
-    return { status: "failed", failure: "oversize" };
+  return commitResultOf(verifyProgress({ ...snapshot, requireDinnerRecords: false }, storage));
+}
+
+/** Dinner's balance and reputation can only be committed with its clear record. */
+export function commitDinnerProgress(
+  snapshot: ProgressionSnapshot,
+  storage: StorageLike | null = getDefaultStorage(),
+): CommitResult | { status: "records-refused"; missionIds: readonly string[] } {
+  const result = verifyProgress({ ...snapshot, requireDinnerRecords: true }, storage);
+  if (result.refusedDinnerMissionIds.length > 0) {
+    return { status: "records-refused", missionIds: result.refusedDinnerMissionIds };
   }
-  const result = persistProgressImpl({ ...snapshot, requireDinnerRecords: false }, storage, true);
+  return commitResultOf(result);
+}
+
+type VerifiedProgressResult = PersistProgressResult & { failure?: CommitFailure };
+
+function verifyProgress(snapshot: ProgressionSnapshot, storage: StorageLike | null): VerifiedProgressResult {
+  if (!storage) return { refusedDinnerMissionIds: [], failure: "unavailable" };
+  if (snapshot.pendingRound && pendingRoundByteLength(snapshot.pendingRound) > PENDING_ROUND_MAX_BYTES) {
+    return { refusedDinnerMissionIds: [], failure: "oversize" };
+  }
+  return persistProgressImpl(snapshot, storage, true);
+}
+
+function commitResultOf(result: VerifiedProgressResult): CommitResult {
   if (result.blocked) return { status: "blocked", block: result.blocked };
   if (result.failure) return { status: "failed", failure: result.failure };
   if (result.journalOccupied) return { status: "failed", failure: "occupied" };
@@ -1470,7 +1491,7 @@ function persistProgressImpl(
   snapshot: ProgressionSnapshot,
   storage: StorageLike | null,
   strict: boolean,
-): PersistProgressResult & { failure?: CommitFailure } {
+): VerifiedProgressResult {
   // DM-4-2: Dinner record updates this call refused (blocked mission, broken container, invalid
   // record). Reported so DM-4-3 can assert it never paid for a record that could not be stored.
   let refusedDinnerMissionIds: string[] = [];

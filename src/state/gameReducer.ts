@@ -221,7 +221,7 @@ export interface MenuEntryNotice {
   recipeIds: readonly RecipeId[];
   /** Pitz paid for them (the menu-development bonus each), already in `pitzBalance`. */
   bonusPitz: number;
-  /** Reputation paid for them, already in `shop.reputation` and in `lastReputationGain`. */
+  /** Reputation paid for them, already in `shop.reputation`. */
   reputation: number;
 }
 
@@ -528,6 +528,8 @@ export interface GameState {
 }
 
 export type GameAction =
+  /** HOME menu entries whose balance, reputation and paid ledger have been written and verified. */
+  | { type: "APPLY_HOME_MENU_SETTLEMENT"; progress: Pick<GameState, "shop" | "pitzBalance" | "unlockedForShopIngredientIds"> }
   // Cooking Time CT1: `now` is optional so every pre-existing call site (production and the
   // ~50 tests that dispatch this with no timing concern at all) keeps compiling unchanged --
   // omitting it simply leaves `cookingTiming` at `null` (timing not measured for that
@@ -2705,9 +2707,8 @@ function dinnerRecordsRefused(state: GameState, missionIds: readonly string[]): 
  * DM-4-3 (OD-DM4-3): settles a run's CLEAR exactly once, entirely through the approved authorities --
  * DM-4-1 `decideDinnerSettlement` (reward, first-clear vs repeat, tier, record update, replay
  * refusal) and DM-4-2 `dinnerRecordForSettlement` (a broken saved record blocks its mission; it is
- * never read as "no record"). Pitz and the record change in this one state step, so App's
- * persistence effect writes them with any first-clear shop reputation in one save write
- * (`requireDinnerRecords`). The Dex and hint ledgers are unchanged.
+ * never read as "no record"). Pitz, the record and any first-clear shop reputation
+ * change in one state step. The shop flow verifies their save before applying that step.
  */
 function dinnerSettle(state: GameState): GameState {
   const session = state.dinner;
@@ -2827,6 +2828,9 @@ export function registerRoundResult(state: GameState, progression = activeProgre
 }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
+  if (action.type === "APPLY_HOME_MENU_SETTLEMENT") {
+    return state.dinner === null ? { ...state, ...action.progress } : state;
+  }
   if (isDinnerAction(action)) return dinnerActionReducer(state, action);
   if (state.dinner !== null) return dinnerGuardedReducer(state, action, state.dinner);
   return action.type === "REGISTER_TO_DEX" ? registerRoundResult(state) : baseGameReducer(state, action);

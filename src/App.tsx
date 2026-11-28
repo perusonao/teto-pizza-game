@@ -26,7 +26,7 @@ import { DOUGH_CHIP_OTHER_JA } from "./components/DoughKindSwitch";
 import type { CutLine } from "./logic/cut/types";
 import type { SauceDeposit } from "./state/pizzaState";
 import { liveSauceDeposits } from "./state/sauceLedger";
-import { RECIPES, type RecipeId } from "./data/recipes";
+import { getRecipe, RECIPES, type RecipeId } from "./data/recipes";
 import { getIngredient, STARTER_INGREDIENT_IDS, type Ingredient, type IngredientCategory } from "./data/ingredients";
 import { isDoughShapeComplete, type DoughShape } from "./logic/doughShape";
 import { doughSizeStatus } from "./logic/doughFeedback";
@@ -35,6 +35,7 @@ import {
   gameReducer,
   type GameState,
   type MakingStep,
+  type MenuEntryNotice,
 } from "./state/gameReducer";
 import { remainingStock } from "./state/inventory";
 import {
@@ -42,8 +43,11 @@ import {
   progressionSnapshotOf,
   runAcknowledgeSettled,
   runBake,
+  runDinnerClear,
+  runHomeMenuSettlement,
   runLeaveRound,
   runPostBakeStep,
+  type DinnerClearAction,
 } from "./state/roundCommit";
 import { buildStartup } from "./state/startup";
 import type { PendingRound } from "./state/pendingRound";
@@ -239,7 +243,7 @@ function App() {
   const [heldDiscardDone, setHeldDiscardDone] = useState(false);
   // R8: why the last round commit did not go through (the game did not move on); shown on GAME and HOME until dismissed or retried.
   const [roundSaveFailure, setRoundSaveFailure] = useState<RoundNoticeCopy | null>(null);
-  // R8: the state a bake was last committed for, so a double tap on 焼き上げ commits (and dispatches) once.
+  // The state a bake or Dinner clear last committed for, so a double tap commits and dispatches once.
   const bakeCommittedForRef = useRef<GameState | null>(null);
   // Dinner Mission DM-2 / DM-3R-2 (Issues #239, #250): the Dinner run's clock, START and HOME exit;
   // the run itself lives in `state.dinner` (./state/gameReducer.ts).
@@ -248,6 +252,7 @@ function App() {
   // hydration produced -- a resumed ORDER-phase round from a prior session is simply what
   // GAME shows once the player taps into it from HOME.
   const [screen, setScreen] = useState<Screen>("HOME");
+  const [homeMenuNotice, setHomeMenuNotice] = useState<MenuEntryNotice | null>(null);
   // Progression 2.0 Phase 3-3 (Issue #198): true once the player has discovered any recipe at
   // all -- gates Lunch Rush (HOME's own button + handleStartLunchRush below) until the player's
   // first discovery. Derived, never independently stored, same discipline as `activeCategory`.
@@ -488,6 +493,19 @@ function App() {
     refreshSaveHealth,
   ]);
 
+  useEffect(() => {
+    if (screen !== "HOME" || !SHOP_MODEL_ACTIVE) return;
+    const step = runHomeMenuSettlement(state, state.pendingRound ?? settledRound ?? undefined);
+    if (step.status === "ignored") return;
+    lastWriteBlockRef.current = step.status === "refused" && step.commit.status === "blocked" ? step.commit.block : null;
+    refreshSaveHealth();
+    if (step.status === "committed") {
+      for (const action of step.actions) dispatch(action);
+      setHomeMenuNotice(step.notice);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- each arrival at HOME, including startup, after the save effect above.
+  }, [screen, refreshSaveHealth]);
+
   // Firebase Ranking 1.0 Phase 1A (Issue #87): establishes an anonymous Firebase identity in
   // the background, ahead of Phase 1B's score-submission path actually needing one -- purely
   // fire-and-forget, no UI, no gameplay dependency. `isFirebaseAvailable()` is `false` for
@@ -688,7 +706,7 @@ function App() {
   // MISSION_NEXT_ORDER/MISSION_SERVE path, untouched by this change.
   // R8 (#617): a round commit is the SAME write the save effect would make, done now, synchronously, and checked (read back). The
   // game moves on only when it says `ok`; otherwise the round stays where it is and the player is told why. Returns true on `ok`.
-  function reportRoundCommit(result: CommitResult, step: "bake" | "post-bake" | "leave"): boolean {
+  function reportRoundCommit(result: CommitResult, step: "bake" | "post-bake" | "leave" | "dinner-clear"): boolean {
     lastWriteBlockRef.current = result.status === "blocked" ? result.block : null;
     refreshSaveHealth();
     if (result.status === "ok") {
@@ -746,6 +764,17 @@ function App() {
     if (reportRoundCommit(runAcknowledgeSettled(state), "leave")) setSettledRound(null);
   }
 
+  function confirmDinnerClear(action: DinnerClearAction): boolean | null {
+    if (bakeCommittedForRef.current === state) return true;
+    const step = runDinnerClear(state, action);
+    if (step.status === "ignored") return null;
+    if (step.status === "refused") return reportRoundCommit(step.commit, "dinner-clear");
+    if (step.status === "committed") reportRoundCommit({ status: "ok" }, "dinner-clear");
+    bakeCommittedForRef.current = state;
+    for (const committedAction of step.actions) dispatch(committedAction);
+    return true;
+  }
+
   function handleConfirmBake(value: number): boolean {
     if (bakeCommittedForRef.current === state) return true;
     // R8: the bake (and, when no CUT / FINISH follows, the registration) is saved in ONE verified write first -- consumed stock
@@ -767,7 +796,10 @@ function App() {
       for (const action of step.actions) dispatch(action);
       return true;
     }
-    dispatch({ type: "CONFIRM_BAKE", value, now });
+    const bake = { type: "CONFIRM_BAKE", value, now } as const;
+    const dinnerClear = confirmDinnerClear(bake);
+    if (dinnerClear !== null) return dinnerClear;
+    dispatch(bake);
     // Dinner Mission DM-2: a Dinner target never registers (its result goes to the Dinner run).
     if (!state.isMissionRound && !isDinnerRound(state)) {
       dispatch({ type: "REGISTER_TO_DEX" });
@@ -795,7 +827,9 @@ function App() {
       for (const action of step.actions) dispatch(action);
       return;
     }
-    dispatch({ type: "CONFIRM_MAKING_STEP", now });
+    const confirm = { type: "CONFIRM_MAKING_STEP", now } as const;
+    if (confirmDinnerClear(confirm) !== null) return;
+    dispatch(confirm);
     if (!state.isMissionRound && !isDinnerRound(state)) {
       dispatch({ type: "REGISTER_TO_DEX" });
     }
@@ -1369,6 +1403,16 @@ function App() {
           onAcknowledgeSaveNotice={handleAcknowledgeSaveNotice}
           roundNotices={
             <>
+              {homeMenuNotice && (
+                <section className="save-notice save-notice--info" role="status" aria-labelledby="home-menu-entry-title">
+                  <h2 className="save-notice__title" id="home-menu-entry-title">メニューに加わりました</h2>
+                  <p className="save-notice__body">{homeMenuNotice.recipeIds.map((id) => getRecipe(id)?.nameJa ?? id).join("・")}</p>
+                  <p className="save-notice__body">メニュー開発ボーナス +{homeMenuNotice.bonusPitz} Pitz・評判 +{homeMenuNotice.reputation}</p>
+                  <div className="save-notice__actions">
+                    <button type="button" className="save-notice__button" onClick={() => setHomeMenuNotice(null)}>確認した</button>
+                  </div>
+                </section>
+              )}
               {heldRoundReason && <HeldRoundNotice copy={describeHeldRound(heldRoundReason)} onDiscard={handleOpenHeldDiscard} />}
               {heldDiscardDone && !heldRoundReason && (
                 <SettledRoundNotice copy={describeHeldDiscardDone()} onAcknowledge={() => setHeldDiscardDone(false)} />

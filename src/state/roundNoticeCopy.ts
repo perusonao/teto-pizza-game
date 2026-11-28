@@ -85,7 +85,7 @@ const FAILURE_REASON: Record<CommitFailure, string> = {
 /** Why the round could not be saved, and what the player may do (the game never goes on without the save holding the round). */
 export function describeRoundSaveFailure(
   cause: { kind: "blocked"; block: SaveWriteBlock } | { kind: "failed"; failure: CommitFailure },
-  step: "bake" | "post-bake" | "leave",
+  step: "bake" | "post-bake" | "leave" | "dinner-clear",
   held = false,
 ): RoundNoticeCopy {
   // A kept journal that this build cannot act on is not something HOME can confirm: say what is true.
@@ -99,6 +99,12 @@ export function describeRoundSaveFailure(
     return {
       title: "完了を保存できませんでした",
       lines: [reason, "保存データには焼成時点の記録が残っています。保存できる状態でもう一度お試しください（ページを再読み込みしても完了します）。"],
+    };
+  }
+  if (step === "dinner-clear") {
+    return {
+      title: "ディナーの報酬を保存できませんでした",
+      lines: [reason, "保存できる状態で、制限時間内にもう一度お試しください。"],
     };
   }
   return {
