@@ -3,12 +3,12 @@ import { MENU_CATALOG } from "../../data/menuCatalog";
 import { RESEARCH_FALLBACK_STAGE, RESEARCH_POINTS_BY_STAGE, researchPointsForStage, researchTrialStage } from "./researchPoints";
 import { activeShopCatalog } from "./shopProgression";
 
-/** B案 Phase 3c (Issue #901): the research point table (provisional, Phase 3f tunes it) and how a trial's stage is decided. */
+/** B案 Phase 3f (Issue #901): the research point table and how a trial's stage is decided. */
 const catalog = activeShopCatalog();
 const firstOfStage = (stage: number) => MENU_CATALOG.find((e) => e.chapter === stage)!.recipeId;
 
-describe("RESEARCH_POINTS_BY_STAGE (provisional, Owner 2026-11-27)", () => {
-  it("is the placeholder 1 / 2 / 3 / 4 / 5 -- a change here is a Phase 3f decision", () => {
+describe("RESEARCH_POINTS_BY_STAGE", () => {
+  it("awards 1 / 2 / 3 / 4 / 5 points by stage", () => {
     expect([...RESEARCH_POINTS_BY_STAGE]).toEqual([1, 2, 3, 4, 5]);
   });
 
@@ -31,9 +31,15 @@ describe("researchTrialStage", () => {
     for (let stage = 1; stage <= 5; stage++) expect(firstOfStage(stage)).toBeTruthy();
   });
 
-  it("a research target decides the stage, whatever the pizza matched", () => {
-    expect(researchTrialStage(firstOfStage(4), firstOfStage(2), catalog)).toEqual({ stage: 4, source: "RESEARCH_TARGET" });
-    expect(researchTrialStage(firstOfStage(3), null, catalog)).toEqual({ stage: 3, source: "RESEARCH_TARGET" });
+  it("takes the lower of the target and adopted match stages", () => {
+    expect(researchTrialStage(firstOfStage(4), firstOfStage(1), catalog)).toEqual({ stage: 1, source: "EXACT_MATCH" });
+    expect(researchTrialStage(firstOfStage(2), firstOfStage(4), catalog)).toEqual({ stage: 2, source: "RESEARCH_TARGET" });
+    expect(researchTrialStage(firstOfStage(4), firstOfStage(4), catalog)).toEqual({ stage: 4, source: "EXACT_MATCH" });
+  });
+
+  it("an adopted target alone still earns at stage 1", () => {
+    expect(researchTrialStage(firstOfStage(3), null, catalog)).toEqual({ stage: 1, source: "FALLBACK" });
+    expect(researchTrialStage(firstOfStage(3), "not-adopted", catalog)).toEqual({ stage: 1, source: "FALLBACK" });
   });
 
   it("with no target, an adopted exact match decides it", () => {

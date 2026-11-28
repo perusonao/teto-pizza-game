@@ -22,7 +22,7 @@ import { onionPizza, SEED_SAVE, Tab } from "./testSupport/r8Harness";
 
 /**
  * B案 Phase 3c (Issue #901, Owner 2026-11-27): a Free Cooking trial (menu development) earns research points once its result is
- * out -- by its stage (research target -> adopted exact match -> stage 1), from the provisional table. Never for an order, a
+ * out. Phase 3f takes the adopted match stage capped by the research target (stage 1 without a match). Never for an order, a
  * practice round, Lunch Rush, or a trial left before the bake; never twice for one trial (a repeated dispatch, a reload, a settle).
  */
 
@@ -55,7 +55,7 @@ function freeCookResult(state: GameState, recipeId: RecipeId | null, options: { 
     : ({ ...s, phase: "RESULT", score: null, completion } as GameState);
 }
 
-describe("how much one trial earns (the provisional table, by stage)", () => {
+describe("how much one trial earns by stage", () => {
   it("an adopted exact match earns its stage's entry, stage 1..5", () => {
     for (let stage = 1; stage <= 5; stage++) {
       // A reputation high enough that every stage is open (an exact match before its stage is the Phase 3b 判明 path, which
@@ -76,15 +76,22 @@ describe("how much one trial earns (the provisional table, by stage)", () => {
     expect(after.lastResearchPointGain).toMatchObject({ earned: 2, stage: 2 });
   });
 
-  it("a research target decides the stage, whatever the pizza turned out to be", () => {
+  it("a high-stage research target cannot raise the points for an easier match or an original pizza", () => {
     const base = stocked(shopAt(400), ["margherita"]);
     const target = firstOfStage(4);
     const started = gameReducer(base, { type: "START_FREE_COOK", researchTargetId: target });
     expect(started.researchTargetId).toBe(target);
     const matchedOther = gameReducer(freeCookResult(base, firstOfStage(2), { researchTargetId: target }), { type: "REGISTER_TO_DEX" });
-    expect(matchedOther.lastResearchPointGain).toMatchObject({ earned: 4, stage: 4 });
+    expect(matchedOther.lastResearchPointGain).toEqual({ earned: 2, stage: 2, balanceAfter: 2 });
     const original = gameReducer(freeCookResult(base, null, { researchTargetId: target }), { type: "REGISTER_TO_DEX" });
-    expect(original.lastResearchPointGain).toMatchObject({ earned: 4, stage: 4 });
+    expect(original.lastResearchPointGain).toEqual({ earned: 1, stage: 1, balanceAfter: 1 });
+  });
+
+  it("a low-stage research target caps a higher-stage exact match", () => {
+    const base = stocked(shopAt(400));
+    const atResult = freeCookResult(base, firstOfStage(4), { researchTargetId: firstOfStage(2) });
+    const after = gameReducer(atResult, { type: "REGISTER_TO_DEX" });
+    expect(after.lastResearchPointGain).toEqual({ earned: 2, stage: 2, balanceAfter: 2 });
   });
 
   it("no target and no adopted match (an original pizza, a non-adopted match): stage 1", () => {
