@@ -61,7 +61,7 @@ async function open(page: Page, json: string, query = "") {
   await page.waitForSelector(".app-frame");
 }
 const openShop = async (page: Page) => {
-  await page.getByRole("button", { name: /ショップ/ }).first().click();
+  await page.getByRole("button", { name: /お店/ }).first().click();
   await page.waitForSelector(".shop-overlay__panel");
 };
 const LEDGER_49 = materialsUpTo(49);

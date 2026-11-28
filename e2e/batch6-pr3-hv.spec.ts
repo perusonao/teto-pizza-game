@@ -62,7 +62,7 @@ async function open(page: Page, json: string, query = "") {
   await page.waitForSelector(".app-frame");
 }
 async function openShop(page: Page) {
-  await page.getByRole("button", { name: /ショップ/ }).first().click();
+  await page.getByRole("button", { name: /お店/ }).first().click();
   await page.waitForSelector(".shop-overlay__panel");
 }
 const row = (page: Page, id: string) => page.locator(`[data-ingredient-id="${id}"]`);

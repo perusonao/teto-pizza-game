@@ -141,7 +141,7 @@ describe("C3: the targetless ORIGINAL note", () => {
     targetlessOriginal(ORDINARY);
     const note = screen.getByText(TARGETLESS_ORIGINAL_NOTE);
     expect(note).toHaveClass("original-pizza__note");
-    expect(screen.queryByText(/図鑑のピザと同じ組み合わせ/)).toBeNull();
+    expect(screen.queryByText(/ピザ図鑑のピザと同じ組み合わせ/)).toBeNull();
     expect(screen.getByRole("button", { name: HINT }).compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -173,7 +173,7 @@ describe("C3: the targetless ORIGINAL note", () => {
 describe("ported from the duplicate #678: other screens stay as they were (AC-P6)", () => {
   it("a non-Free-Cook ORIGINAL card keeps its legacy Dex-match note (the new sentence is Free Cook only)", () => {
     targetlessOriginal(ORDINARY, { freeCook: false, onShowHint: undefined });
-    expect(document.querySelector(".original-pizza__note")).toHaveTextContent("図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。");
+    expect(document.querySelector(".original-pizza__note")).toHaveTextContent("ピザ図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。");
     expect(document.body.textContent).not.toContain(TARGETLESS_ORIGINAL_NOTE);
   });
 

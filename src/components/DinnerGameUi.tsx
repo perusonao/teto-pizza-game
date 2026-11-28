@@ -26,7 +26,7 @@ export function DinnerHud({ run, now }: { run: DinnerRunState; now: number }) {
   const left = remainingMs(run, now);
   return (
     <div className={`mission-hud dinner-hud${left <= URGENT_MS ? " mission-hud--urgent" : ""}`} data-testid="dinner-hud">
-      <span className="dinner-hud__label">{"\u{1F319}"} DINNER</span>
+      <span className="dinner-hud__label">{"\u{1F319}"} 特別注文</span>
       <span className="mission-hud__timer" aria-label="残り時間">
         {"⏱"} {formatDinnerClock(left)}
       </span>
@@ -81,7 +81,7 @@ export function DinnerTargetRow({
           {"\u{1F319}"} {run.completedRecipeIds.length}/{run.targetRecipeIds.length}
         </span>
       </div>
-      <ul className="dinner-bar__targets" aria-label="ディナーのターゲット">
+      <ul className="dinner-bar__targets" aria-label="特別注文のピザ">
         {items.map((item) => (
           <li key={item.recipeId} className="dinner-bar__item">
             <button
@@ -178,12 +178,12 @@ export function DinnerResultOverlay({
   const total = run.targetRecipeIds.length;
   const cleared = outcome.kind === "CLEAR";
   return (
-    <div className="mission-overlay" role="dialog" aria-modal="true" aria-label="ディナーミッション結果">
+    <div className="mission-overlay" role="dialog" aria-modal="true" aria-label="特別注文の結果">
       <div className={`mission-overlay__panel dinner-result${cleared ? " dinner-result--clear" : " dinner-result--failed"}`}>
         <p className="dinner-result__mission">{titleJa}</p>
         {cleared ? (
           <>
-            <h2 className="mission-overlay__title dinner-result__title">{"\u{1F389}"} DINNER CLEAR!</h2>
+            <h2 className="mission-overlay__title dinner-result__title">{"\u{1F389}"} 特別注文クリア！</h2>
             <p className="dinner-result__row">
               作ったピザ <strong>{done} / {total}</strong>
             </p>
@@ -245,7 +245,7 @@ export function DinnerResultOverlay({
             <>
               <p className="dinner-result__blocked">{"\u{1F6D2}"} 材料を補充すると再挑戦できます</p>
               <button type="button" className="secondary-button" onClick={onOpenShop}>
-                ショップへ
+                お店へ
               </button>
             </>
           )}
@@ -264,7 +264,7 @@ export function DinnerAbandonDialog({ onContinue, onQuit }: { onContinue: () => 
     <div className="mission-overlay" role="alertdialog" aria-modal="true" aria-labelledby="dinner-abandon-title">
       <div className="mission-overlay__panel dinner-abandon">
         <h2 id="dinner-abandon-title" className="mission-overlay__title">
-          ディナーミッションをやめますか？
+          特別注文をやめますか？
         </h2>
         <p className="mission-overlay__body">
           ここまで使った材料は戻りません。

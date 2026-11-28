@@ -215,7 +215,7 @@ test("HV: edit, review, apply, reload, the game, backup, restore", async ({ page
   await page.getByRole("link", { name: "ゲームへ戻る" }).click();
   await page.waitForSelector(".app-frame");
   await expect(page.locator('[aria-label="Pitz残高 777"]')).toBeVisible();
-  const dexLabel = await page.locator('[aria-label^="レシピ図鑑 発見数"]').getAttribute("aria-label");
+  const dexLabel = await page.locator('[aria-label^="ピザ図鑑 発見数"]').getAttribute("aria-label");
   const dexInStore = (JSON.parse((await stored(page))!).dex as { discovered: boolean }[]).filter((d) => d.discovered).length;
   expect(dexLabel).toContain(`発見数 ${dexInStore} /`);
   await noDevEntry(page, "Preview game HOME");

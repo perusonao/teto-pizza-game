@@ -24,18 +24,18 @@ function noPageScroll(page: Page) {
 
 async function start(page: Page, save: unknown, query = RUN) {
   await openWithSave(page, save, query);
-  await openDinnerDetail(page, /ディナーミッション 1/);
+  await openDinnerDetail(page, /特別注文 1/);
   await page.getByRole("button", { name: /スタート/ }).click();
   await expect(page.getByTestId("dinner-target-row")).toBeVisible();
 }
 
 const result = (page: Page) => page.getByTestId("dinner-attempt-result");
-const overlay = (page: Page) => page.getByRole("dialog", { name: "ディナーミッション結果" });
+const overlay = (page: Page) => page.getByRole("dialog", { name: "特別注文の結果" });
 
 test.describe("Dinner Mission DM-3R-2", () => {
   test("HOME entry; with nothing unlocked, locked cards leak no target identity", async ({ page }) => {
     await openWithSave(page, dinnerSave(["margherita"]), RUN);
-    const entry = page.getByRole("button", { name: /ディナーミッション/ });
+    const entry = page.getByRole("button", { name: /特別注文/ });
     await expect(entry).toContainText("発見で解放");
     expect(await noPageScroll(page)).toEqual({ v: true, h: true });
     await entry.click();
@@ -47,16 +47,16 @@ test.describe("Dinner Mission DM-3R-2", () => {
 
   test("a shortage disables START, lists need / have, and offers the Shop", async ({ page }) => {
     await openWithSave(page, dinnerSave([...DM_A], { egg: 1 }), RUN);
-    await openDinnerDetail(page, /ディナーミッション 1/);
+    await openDinnerDetail(page, /特別注文 1/);
     await expect(page.getByRole("alert")).toContainText("たまご 必要 2 / 所持 1");
     await expect(page.getByRole("button", { name: /スタート/ })).toBeDisabled();
-    await page.getByRole("button", { name: /ショップで補充する/ }).click();
+    await page.getByRole("button", { name: /お店で補充する/ }).click();
     await expect(page.locator(".shop-overlay__balance")).toBeVisible();
   });
 
   test("OD-DM3-1: without an injected duration START stays disabled (制限時間を調整中)", async ({ page }) => {
     await openWithSave(page, dinnerSave([...DM_A]), LEGACY_PROGRESSION_QUERY);
-    await openDinnerDetail(page, /ディナーミッション 1/);
+    await openDinnerDetail(page, /特別注文 1/);
     await expect(page.locator(".dinner-detail")).toContainText("調整中");
     await expect(page.getByRole("button", { name: /スタート/ })).toBeDisabled();
   });
@@ -67,7 +67,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
     await expect(row).toContainText("0/4");
     await expect(page.locator(".dinner-board, .order-card")).toHaveCount(0); // no Target Board, no recipe card
     await expect(page.getByRole("button", { name: "ヒント" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /ショップ/ })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /お店/ })).toHaveCount(0);
     expect(await noPageScroll(page)).toEqual({ v: true, h: true });
     await page.getByTestId("dinner-chip-bismarck").click();
     const popover = page.getByRole("dialog", { name: /ビスマルクの見本/ });
@@ -85,7 +85,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
     test.setTimeout(300_000);
     await openWithSave(page, dinnerSave([...DM_A]), RUN);
     const before = await readSave(page);
-    await openDinnerDetail(page, /ディナーミッション 1/);
+    await openDinnerDetail(page, /特別注文 1/);
     await page.getByRole("button", { name: /スタート/ }).click();
     const order: [keyof typeof import("./support/dinner").PIZZAS, string][] = [
       ["breakfast-pizza", "ブレックファストピザ"],
@@ -104,7 +104,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
         await expect(page.getByTestId("dinner-target-row")).toContainText(`${i + 1}/4`);
       }
     }
-    await expect(overlay(page)).toContainText("DINNER CLEAR!");
+    await expect(overlay(page)).toContainText("特別注文クリア！");
     await expect(overlay(page)).toContainText("4 / 4");
     // OD-DUI-3a: the last pizza by name and ★, not a result headline.
     await expect(page.getByTestId("dinner-result-last")).toHaveText(new RegExp(`^最後のピザ：${order[order.length - 1][1]} ★[1-5]$`));
@@ -191,14 +191,14 @@ test.describe("Dinner Mission DM-3R-2", () => {
   test("R20: the clock reaching 0 -> 時間切れ", async ({ page }) => {
     await page.clock.install();
     await openWithSave(page, dinnerSave([...DM_A]), `${LEGACY_PROGRESSION_QUERY}&dinnerDuration=30`);
-    await openDinnerDetail(page, /ディナーミッション 1/);
+    await openDinnerDetail(page, /特別注文 1/);
     await page.getByRole("button", { name: /スタート/ }).click();
     await expect(page.getByTestId("dinner-hud")).toContainText("00:30");
     await page.clock.fastForward(31_000);
     await expect(overlay(page)).toContainText("時間切れ！");
     await expect(overlay(page)).toContainText("0 / 4");
     await overlay(page).getByRole("button", { name: /ホーム/ }).click();
-    await expect(page.getByRole("button", { name: /ディナーミッション/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /特別注文/ })).toBeVisible();
   });
 
   test("R26: HOME asks in-app; 続ける keeps the run; やめる abandons and keeps consumption", async ({ page }) => {
@@ -211,13 +211,13 @@ test.describe("Dinner Mission DM-3R-2", () => {
     await nextDinnerPizza(page);
     await page.getByRole("button", { name: /ホーム/ }).click();
     const dialog = page.getByRole("alertdialog");
-    await expect(dialog).toContainText("ディナーミッションをやめますか？");
+    await expect(dialog).toContainText("特別注文をやめますか？");
     await dialog.getByRole("button", { name: "続ける" }).click();
     await expect(dialog).toHaveCount(0);
     await expect(page.getByTestId("dinner-target-row")).toContainText("1/4");
     await page.getByRole("button", { name: /ホーム/ }).click();
     await page.getByRole("alertdialog").getByRole("button", { name: "やめる" }).click();
-    await expect(page.getByRole("button", { name: /ディナーミッション/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /特別注文/ })).toBeVisible();
     expect((await readSave(page)).inventory.egg).toBe(4);
   });
 
@@ -226,7 +226,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
     await page.reload();
     await page.waitForSelector(".app-frame");
     await expect(page.getByTestId("dinner-target-row")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /ディナーミッション/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /特別注文/ })).toBeVisible();
     await expect(page.locator("body")).not.toContainText("再開");
   });
 });

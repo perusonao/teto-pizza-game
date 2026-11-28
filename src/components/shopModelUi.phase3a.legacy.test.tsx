@@ -61,7 +61,7 @@ describe("legacy: the Dex is every recipe (unchanged by Phase 3a)", () => {
         onOpenRanking={vi.fn()}
       />,
     );
-    expect(screen.getByLabelText(`レシピ図鑑 発見数 2 / ${RECIPES.length}`)).toBeInTheDocument();
+    expect(screen.getByLabelText(`ピザ図鑑 発見数 2 / ${RECIPES.length}`)).toBeInTheDocument();
   });
 
   it("the Dex lists every recipe", () => {

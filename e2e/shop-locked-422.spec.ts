@@ -29,7 +29,7 @@ async function openShop(page: Page, data: unknown) {
   await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, [SAVE_KEY, JSON.stringify(data)] as const);
   await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /ショップ/ }).click();
+  await page.getByRole("button", { name: /お店/ }).click();
   await page.waitForSelector(".shop-overlay__body");
 }
 
@@ -45,7 +45,7 @@ test.describe("Shop LOCKED section (#422 PR-B)", () => {
     await shot(page, "before");
     await page.reload();
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__body");
 
     const section = page.locator("[data-shop-locked-section]");

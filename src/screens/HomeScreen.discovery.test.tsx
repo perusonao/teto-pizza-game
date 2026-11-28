@@ -39,7 +39,7 @@ function renderHome(p: { newShopMaterialCount?: number; dexHasNew?: boolean; dis
 describe("W1-e HOME badges and bubble", () => {
   it("Shop card shows NEW n only while NEW materials wait; Dex card shows NEW only after a discovery", () => {
     renderHome({ newShopMaterialCount: 2, dexHasNew: true });
-    expect(within(screen.getByRole("button", { name: /ショップ/ })).getByText("NEW 2")).toBeInTheDocument();
+    expect(within(screen.getByRole("button", { name: /お店/ })).getByText("NEW 2")).toBeInTheDocument();
     expect(within(screen.getByRole("button", { name: /ピザ図鑑/ })).getByText("NEW")).toBeInTheDocument();
     cleanup();
     renderHome({});
@@ -49,7 +49,7 @@ describe("W1-e HOME badges and bubble", () => {
   it("bubble priority: Dex 0 -> NEW Shop material -> DISCOVERABLE -> default, never a recipe name", () => {
     const cases = [
       [{ lunchRushLocked: true, newShopMaterialCount: 1, discoverableCount: 1 }, "まずはレシピ発見で最初の1枚を見つけよう！"],
-      [{ lunchRushLocked: false, newShopMaterialCount: 1, discoverableCount: 1 }, "ショップに新しい材料が入ったよ！"],
+      [{ lunchRushLocked: false, newShopMaterialCount: 1, discoverableCount: 1 }, "お店に新しい材料が入ったよ！"],
       [{ lunchRushLocked: false, newShopMaterialCount: 0, discoverableCount: 2 }, "今の材料で新しいピザが作れるかも！"],
       [{ lunchRushLocked: false, newShopMaterialCount: 0, discoverableCount: 0 }, "今日はどんなピザを作ろう？"],
     ] as const;

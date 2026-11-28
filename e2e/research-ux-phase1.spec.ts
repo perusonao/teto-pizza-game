@@ -184,7 +184,7 @@ test("Research UX Phase 1: PREPARE guidance / notebook / hint label -> RESULT no
   await cookOriginalFromPrepare(page);
   const result = page.locator(".result-panel--original");
   await expect(result).toContainText("試作結果とノートを見て、次に試す材料を考えてみよう。");
-  await expect(result).not.toContainText("図鑑のピザと同じ組み合わせ");
+  await expect(result).not.toContainText("ピザ図鑑のピザと同じ組み合わせ");
   expect(await result.innerText()).not.toMatch(ORACLE);
   await expectNoOverflow(page, "RESULT");
   await shot(page, "p1-04-result");

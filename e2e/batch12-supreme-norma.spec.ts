@@ -121,7 +121,7 @@ test.describe("Expansion Batch 12 (supreme-pizza / pizza-alla-norma, played end 
       await hold(page);
 
       // 1. Shop: the step's material is NEW (T4: 120 Pitz, no star gate). supreme-pizza adds none: its materials are all owned, so there is nothing new to buy.
-      await page.getByRole("button", { name: /ショップ/ }).click();
+      await page.getByRole("button", { name: /お店/ }).click();
       await page.waitForSelector(".shop-overlay__panel");
       if (c.newMaterial) {
         const [id, nameJa, shot] = c.newMaterial;

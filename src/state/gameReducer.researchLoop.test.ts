@@ -192,7 +192,7 @@ describe("F/G/H. post-discovery primary CTA (OD-RX-4)", () => {
     expect(p.directResearchId).toBe(a); // exactly one left -> start it
   });
 
-  it("H. nothing to research and no new material -> 「図鑑を見る」", () => {
+  it("H. nothing to research and no new material -> 「ピザ図鑑を見る」", () => {
     const done = cookExactly(startResearch(single(), "pesto-pollo"), "pesto-pollo");
     const owned = new Set(done.ownedIngredientIds);
     const noNew = { ...done, unlockedForShopIngredientIds: done.unlockedForShopIngredientIds.filter((id) => owned.has(id)) };

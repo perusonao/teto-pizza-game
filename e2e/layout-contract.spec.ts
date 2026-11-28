@@ -244,8 +244,8 @@ test.describe("I5b-5 Layout Contract", () => {
       ctaBar: ".dex-registration-row",
       names: { name: ".discovered-banner__name", card: ".result-panel" },
     });
-    // 「📖 図鑑を見る」 on the Dex-registration row is reachable too.
-    await cp({ label: "FREE Discovery RESULT (図鑑を見る)", meta: { phase: "RESULT" } }, ["L-A"], {
+    // 「📖 ピザ図鑑を見る」 on the Dex-registration row is reachable too.
+    await cp({ label: "FREE Discovery RESULT (ピザ図鑑を見る)", meta: { phase: "RESULT" } }, ["L-A"], {
       primary: ".dex-registration-row button",
       ctaBar: ".dex-registration-row",
     });
@@ -461,7 +461,7 @@ test.describe("I5b-5 Layout Contract", () => {
 
     await page.getByRole("button", { name: /レシピ一覧に戻る/ }).click();
     await page.getByRole("button", { name: /ホーム/ }).click();
-    await page.locator(".home-menu__card").filter({ hasText: "ショップ" }).click();
+    await page.locator(".home-menu__card").filter({ hasText: "お店" }).click();
     await page.waitForSelector(".shop-overlay__list");
     // The Shop list scrolls inside `.dex-overlay__body` (its bottom padding includes the inset). #422 PR-B
     // appends the anonymous LOCKED grid below the list, so the very end of the body is no longer the last
@@ -739,8 +739,8 @@ test.describe("DM-3R-2 Dinner Stage Size Stability (LC-S1..LC-S4)", () => {
     const mount = lc.mountProfile("short");
     await openWithSave(page, makeSave(["margherita", "bismarck", "breakfast-pizza", "funghi"]), "?dinnerDuration=900");
     await lc.apply(mount);
-    await page.getByRole("button", { name: /ディナーミッション/ }).click();
-    await page.locator(".dinner-mission-card", { hasText: /ディナーミッション 1/ }).click();
+    await page.getByRole("button", { name: /特別注文/ }).click();
+    await page.locator(".dinner-mission-card", { hasText: /特別注文 1/ }).click();
     await page.getByRole("button", { name: /スタート/ }).click();
     await page.waitForSelector(".pizza-stage");
     await expect(page.getByTestId("dinner-target-row")).toBeVisible();

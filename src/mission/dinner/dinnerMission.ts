@@ -67,7 +67,7 @@ export const DINNER_MISSIONS: readonly DinnerMissionDefinition[] = [
     quality: { minimumStars: null },
     reward: { tableId: "dinner-phase1-untuned" },
     unlock: { kind: "ALL_TARGETS_DISCOVERED" },
-    display: { titleJa: "ディナーミッション 1", order: 1, band: "EARLY" },
+    display: { titleJa: "特別注文 1", order: 1, band: "EARLY" },
   },
   {
     missionId: "dm-b",
@@ -78,7 +78,7 @@ export const DINNER_MISSIONS: readonly DinnerMissionDefinition[] = [
     quality: { minimumStars: null },
     reward: { tableId: "dinner-phase1-untuned" },
     unlock: { kind: "ALL_TARGETS_DISCOVERED" },
-    display: { titleJa: "ディナーミッション 2", order: 2, band: "EARLY" },
+    display: { titleJa: "特別注文 2", order: 2, band: "EARLY" },
   },
 ];
 

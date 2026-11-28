@@ -70,7 +70,7 @@ test.describe("New Sauces Phase A (representative: step 55 flammkuchen; fromage-
     await hold(page);
 
     // 1. Shop: the sauce is NEW (T4: 120 Pitz; a spread sauce, k = 1 -> one pack is 10 uses), no per-ingredient price.
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     const row = page.locator('.shop-item[data-ingredient-id="fromage-blanc-sauce"]');
     await row.scrollIntoViewIfNeeded();

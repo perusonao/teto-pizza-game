@@ -137,9 +137,9 @@ function ResearchEntryCard({
               type="button"
               className="dex-card__tag-cta dex-card__tag-cta--shop"
               onClick={onOpenShop}
-              aria-label={`${view.label}の材料をショップで補充する`}
+              aria-label={`${view.label}の材料をお店で補充する`}
             >
-              {"\u{1F6D2}"} ショップで補充する
+              {"\u{1F6D2}"} お店で補充する
             </button>
           )}
         </>
@@ -189,7 +189,7 @@ function UndiscoveredSlot({
         tag &&
         cta && (
           <button type="button" className="dex-card__tag-cta" onClick={cta}>
-            {state === "DISCOVERABLE" ? shopCopy("レシピ発見へ", "メニュー開発へ") : "ショップを見る"}
+            {state === "DISCOVERABLE" ? shopCopy("レシピ発見へ", "メニュー開発へ") : "お店を見る"}
           </button>
         )
       )}
@@ -336,7 +336,7 @@ export function DexOverlay({
     <div className="dex-overlay">
       <div className="dex-overlay__panel">
         <div className="dex-overlay__header">
-          <h2>レシピ図鑑</h2>
+          <h2>ピザ図鑑</h2>
           <button type="button" className="dex-overlay__close dex-overlay__close--tap44" onClick={onClose}>
             閉じる
           </button>
@@ -345,7 +345,7 @@ export function DexOverlay({
           <div className={`dex-overlay__progress ${isComplete ? "dex-overlay__progress--complete" : ""}`}>
             <div className="dex-overlay__progress-row">
               <p className="dex-overlay__progress-count">
-                {isComplete ? `🏆 ${total} / ${total}` : `🍕 ${shopCopy("発見", "開発")} ${discoveredCount} / ${total}`}
+                {isComplete ? `🏆 ${total} / ${total}` : `🍕 ${shopCopy("発見", "メニュー")} ${discoveredCount} / ${total}`}
               </p>
               <p className="dex-overlay__progress-sub">
                 {isComplete ? "コンプリート！" : `あと${total - discoveredCount}種類！`}
@@ -432,7 +432,7 @@ export function DexOverlay({
             });
           })()}
           <div className="dex-overlay__footer">
-            <button type="button" className="cta-button cta-button--primary" aria-label="図鑑を閉じる" onClick={onClose}>
+            <button type="button" className="cta-button cta-button--primary" aria-label="ピザ図鑑を閉じる" onClick={onClose}>
               閉じる
             </button>
           </div>

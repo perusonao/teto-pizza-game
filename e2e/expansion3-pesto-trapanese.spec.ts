@@ -56,7 +56,7 @@ test("Expansion Slice 3: Shop (almond NEW -> bought) -> Research Entry (no name 
   await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`36/${CATALOG_COUNTS.recipes}`));
 
   // 1. Shop: almond is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
-  await page.getByRole("button", { name: /ショップ/ }).click();
+  await page.getByRole("button", { name: /お店/ }).click();
   await page.waitForSelector(".shop-overlay__panel");
   const almond = page.locator('.shop-item[data-ingredient-id="almond"]');
   await expect(almond).toHaveCount(1);

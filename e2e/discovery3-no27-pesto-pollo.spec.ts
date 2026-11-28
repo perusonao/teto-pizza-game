@@ -115,7 +115,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
     await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`29/${CATALOG_COUNTS.recipes}`));
 
     // Shop: step 25 reached, chicken is NEW and not bought yet.
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     const chicken = page.locator('.shop-item[data-ingredient-id="chicken"]');
     await expect(chicken).toHaveCount(1);

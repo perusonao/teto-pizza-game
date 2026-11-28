@@ -26,7 +26,7 @@ describe("MissionShortagePanel", () => {
     expect(items.map((li) => li.getAttribute("data-ingredient-id"))).toEqual(["olive-oil", "gorgonzola", "fontina"]);
     expect(items[1]).toHaveTextContent("ゴルゴンゾーラ1/2");
     expect(screen.getByLabelText("オリーブオイル 在庫0 必要1")).toBeInTheDocument();
-    expect(screen.getByText("補充はランチラッシュのあとでショップへ")).toBeInTheDocument();
+    expect(screen.getByText("補充はランチラッシュのあとでお店へ")).toBeInTheDocument();
   });
 
   it("「この注文をスキップ」 is the only CTA and calls onSkip once per tap", async () => {

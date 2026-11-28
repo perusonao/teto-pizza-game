@@ -85,9 +85,9 @@ describe("HintSheet -- target view", () => {
 
 describe("HintSheet -- empty states", () => {
   it.each([
-    ["SHOP_NEW", /ショップに入荷した材料/],
+    ["SHOP_NEW", /お店に入荷した材料/],
     ["REFILL", /材料が足りない/],
-    ["COMPLETE", /図鑑コンプリート/],
+    ["COMPLETE", /ピザ図鑑コンプリート/],
   ] as const)("%s shows its message, no next-hint CTA", (kind, text) => {
     renderSheet({ kind });
     expect(screen.getByRole("dialog")).toHaveAttribute("data-hint-kind", kind);

@@ -499,8 +499,8 @@ export function ResultPanel({
             : freeCook
               ? TARGETLESS_ORIGINAL_NOTE
               : shopCopy(
-                  "図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。",
-                  "図鑑のピザと同じ組み合わせで作ると「メニュー開発」＆Pitzがもらえるよ。",
+                  "ピザ図鑑のピザと同じ組み合わせで作ると「発見」＆Pitzがもらえるよ。",
+                  "ピザ図鑑のピザと同じ組み合わせで作ると「メニュー開発」＆Pitzがもらえるよ。",
                 )}
         </p>
         {research ? (
@@ -597,7 +597,7 @@ export function ResultPanel({
             ) : (
               onOpenDex && (
                 <button type="button" className="dex-registration-row__cta" onClick={onOpenDex}>
-                  {"\u{1F4D6}"} 図鑑を見る
+                  {"\u{1F4D6}"} ピザ図鑑を見る
                 </button>
               )
             )}
@@ -605,7 +605,7 @@ export function ResultPanel({
                 Dex opens as an overlay over this result, so closing it returns here. The primary CTA is unchanged. */}
             {onOpenDex && primaryLeadsElsewhere && (
               <button type="button" className="dex-registration-row__cta" onClick={onOpenDex}>
-                {"\u{1F4D6}"} 図鑑を見る
+                {"\u{1F4D6}"} ピザ図鑑を見る
               </button>
             )}
           </div>
@@ -651,7 +651,7 @@ export function ResultPanel({
           <p className="result-identified__body">{awaitingCopy.bodyJa}</p>
           {identifiedAwaiting?.firstTime && onOpenDex && (
             <button type="button" className="dex-registration-row__cta" onClick={onOpenDex}>
-              {"\u{1F4D6}"} 図鑑を見る
+              {"\u{1F4D6}"} ピザ図鑑を見る
             </button>
           )}
         </div>
@@ -752,7 +752,7 @@ export function ResultPanel({
       {materialUnlockNotice && stageOpening && stageOpening.materialNamesJa.length > 0 && onOpenShop && (
         <div className="material-unlock-notice material-unlock-notice--cta-only">
           <button type="button" className="material-unlock-notice__cta" onClick={onOpenShop}>
-            {"\u{1F6D2}"} ショップへ
+            {"\u{1F6D2}"} お店へ
           </button>
         </div>
       )}
@@ -774,7 +774,7 @@ export function ResultPanel({
               a message only -- one Shop CTA, not two with the same destination. */}
           {onOpenShop && !(isDiscoveryResult && postDiscovery?.kind === "SHOP_NEW_MATERIAL") && (
             <button type="button" className="material-unlock-notice__cta" onClick={onOpenShop}>
-              {"\u{1F6D2}"} ショップへ
+              {"\u{1F6D2}"} お店へ
             </button>
           )}
         </div>

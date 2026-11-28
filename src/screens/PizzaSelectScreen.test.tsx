@@ -146,7 +146,7 @@ describe("Pizza Select A′: cards are DISCOVERED recipes only", () => {
     expect(cta).toBeDisabled();
     await userEvent.click(cta);
     expect(onSelectRecipe).not.toHaveBeenCalled();
-    await userEvent.click(within(detailPanel()).getByRole("button", { name: /ショップで補充する/ }));
+    await userEvent.click(within(detailPanel()).getByRole("button", { name: /お店で補充する/ }));
     expect(onOpenShop).toHaveBeenCalledTimes(1);
   });
 
@@ -200,8 +200,8 @@ describe("Pizza Select A′: the one anonymous prompt card", () => {
   it("only a Shop-gated recipe (egg arrived, not bought): 'new material in the Shop' -> Shop", async () => {
     const { onOpenShop, onGoFreeCook } = renderSelect({ dex: dexDiscovering(["margherita"]), unlockedForShopIngredientIds: ["egg"] });
     const prompt = document.querySelector(".pizza-select-prompt--shop") as HTMLElement;
-    expect(prompt).toHaveTextContent("ショップに新しい材料が入荷しているよ！");
-    await userEvent.click(within(prompt).getByRole("button", { name: /ショップを見る/ }));
+    expect(prompt).toHaveTextContent("お店に新しい材料が入荷しているよ！");
+    await userEvent.click(within(prompt).getByRole("button", { name: /お店を見る/ }));
     expect(onOpenShop).toHaveBeenCalledTimes(1);
     expect(onGoFreeCook).not.toHaveBeenCalled();
   });

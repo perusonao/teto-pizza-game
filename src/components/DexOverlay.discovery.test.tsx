@@ -77,8 +77,8 @@ describe("W1-f Dex", () => {
     // Margherita discovered, egg arrived but not bought: bismarck is Shop-gated.
     const shop = renderDex({ dex: discoveredDex(["margherita"]), unlocked: ["egg"] });
     const shopSlot = document.querySelector<HTMLElement>('[data-dex-state="KNOWN_BUT_MISSING_MATERIAL"]')!;
-    expect(shopSlot).toHaveTextContent("🏪 ショップの材料で作れるかも");
-    await userEvent.click(within(shopSlot).getByRole("button", { name: "ショップを見る" }));
+    expect(shopSlot).toHaveTextContent("🏪 お店の材料で作れるかも");
+    await userEvent.click(within(shopSlot).getByRole("button", { name: "お店を見る" }));
     expect(shop.onOpenShop).toHaveBeenCalledTimes(1);
     expect(document.querySelectorAll('[data-dex-state="KNOWN_BUT_MISSING_MATERIAL"]')).toHaveLength(1);
     cleanup();

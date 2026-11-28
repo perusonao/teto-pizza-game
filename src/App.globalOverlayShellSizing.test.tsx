@@ -69,7 +69,7 @@ describe("HOME Global Overlay shell sizing (Dex/Shop/Inventory share one rule)",
   it("Shop overlay panel uses the same shared shell as Dex", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const panel = document.querySelector<HTMLElement>(".dex-overlay__panel")!;
     expect(panel).toBeInTheDocument();
     expect(panel).toHaveClass("shop-overlay__panel");

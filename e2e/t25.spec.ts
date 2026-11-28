@@ -174,7 +174,7 @@ test.describe("Expansion Batch 25 independent (train T25-R2c-independent, played
       await hold(page);
 
       // 1. Shop: the step's materials are NEW; buy them.
-      await page.getByRole("button", { name: /ショップ/ }).click();
+      await page.getByRole("button", { name: /お店/ }).click();
       await page.waitForSelector(".shop-overlay__panel");
       for (const [id, nameJa] of plan.materials) {
         const row = page.locator(`.shop-item[data-ingredient-id="${id}"]`);

@@ -55,12 +55,12 @@ describe("Mission Select privacy", () => {
     }
     // A locked card is not interactive at all.
     expect(container.querySelectorAll(".dinner-mission-card--locked button")).toHaveLength(0);
-    expect(screen.queryByRole("button", { name: /ディナーミッション 2/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /特別注文 2/ })).toBeNull();
   });
 
   it("DM-A unlocked lists its names; DM-B stays anonymous", () => {
     const { container } = renderScreen(DM_A_IDS, {});
-    expect(screen.getByRole("button", { name: /ディナーミッション 1/ })).toHaveTextContent("ブレックファストピザ");
+    expect(screen.getByRole("button", { name: /特別注文 1/ })).toHaveTextContent("ブレックファストピザ");
     const dom = domStrings(container);
     for (const id of ["melanzane-pizza", "parmigiana-pizza"]) {
       const r = RECIPES.find((x) => x.id === id)!;
@@ -73,7 +73,7 @@ describe("Mission Select privacy", () => {
 describe("Mission Detail", () => {
   it("READY: targets, time limit, the injected ★ line and an enabled START that passes duration and S", () => {
     const { onStart } = renderScreen(DM_A_IDS, { egg: 2, bacon: 3, mushroom: 3 }, 300_000, 4);
-    fireEvent.click(screen.getByRole("button", { name: /ディナーミッション 1/ }));
+    fireEvent.click(screen.getByRole("button", { name: /特別注文 1/ }));
     expect(screen.getByText("材料はそろっています", { exact: false })).toBeInTheDocument();
     expect(screen.getByText("05:00")).toBeInTheDocument();
     expect(screen.getByText("★4 以上")).toBeInTheDocument();
@@ -84,27 +84,27 @@ describe("Mission Detail", () => {
 
   it("OD-R2: no S (production until DM-5) -> START disabled like a missing duration", () => {
     renderScreen(DM_A_IDS, { egg: 2, bacon: 3, mushroom: 3 }, 300_000, null);
-    fireEvent.click(screen.getByRole("button", { name: /ディナーミッション 1/ }));
+    fireEvent.click(screen.getByRole("button", { name: /特別注文 1/ }));
     expect(screen.getByRole("button", { name: /スタート/ })).toBeDisabled();
     expect(screen.queryByText(/以上/)).toBeNull();
   });
 
   it("SHORTAGE: 材料が足りません with need / have, START disabled, Shop offered", () => {
     const { onStart, onOpenShop } = renderScreen(DM_A_IDS, { egg: 1, bacon: 3, mushroom: 3 });
-    fireEvent.click(screen.getByRole("button", { name: /ディナーミッション 1/ }));
+    fireEvent.click(screen.getByRole("button", { name: /特別注文 1/ }));
     expect(screen.getByRole("alert")).toHaveTextContent("材料が足りません");
     expect(screen.getByRole("alert")).toHaveTextContent("たまご 必要 2 / 所持 1");
     const start = screen.getByRole("button", { name: /スタート/ });
     expect(start).toBeDisabled();
     fireEvent.click(start);
     expect(onStart).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: /ショップで補充する/ }));
+    fireEvent.click(screen.getByRole("button", { name: /お店で補充する/ }));
     expect(onOpenShop).toHaveBeenCalled();
   });
 
   it("OD-DM3-1: no duration -> 調整中 and START disabled", () => {
     renderScreen(DM_A_IDS, { egg: 2, bacon: 3, mushroom: 3 }, null);
-    fireEvent.click(screen.getByRole("button", { name: /ディナーミッション 1/ }));
+    fireEvent.click(screen.getByRole("button", { name: /特別注文 1/ }));
     expect(screen.getByText("調整中")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /スタート/ })).toBeDisabled();
   });
@@ -139,9 +139,9 @@ describe("Mission Detail", () => {
 
   it("← もどる returns to the list; ホーム leaves", () => {
     const { onBack } = renderScreen(DM_A_IDS, {});
-    fireEvent.click(screen.getByRole("button", { name: /ディナーミッション 1/ }));
+    fireEvent.click(screen.getByRole("button", { name: /特別注文 1/ }));
     fireEvent.click(screen.getByRole("button", { name: /もどる/ }));
-    expect(screen.getByRole("button", { name: /ディナーミッション 1/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /特別注文 1/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /ホーム/ }));
     expect(onBack).toHaveBeenCalled();
   });

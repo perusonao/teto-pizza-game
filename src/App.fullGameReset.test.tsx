@@ -235,7 +235,7 @@ describe("Post-reset fresh state (reload simulated via unmount + remount)", () =
   it("HOME shows Pitz 0 and 0 discovered recipes", async () => {
     await resetAndSimulateReload();
     expect(screen.getByLabelText("Pitz残高 0")).toBeInTheDocument();
-    expect(screen.getByLabelText(/レシピ図鑑 発見数 0 \//)).toBeInTheDocument();
+    expect(screen.getByLabelText(/ピザ図鑑 発見数 0 \//)).toBeInTheDocument();
   });
 
   it("a reset save's Pizza Select has no recipe card at all -- only the first-discovery prompt to Free Cooking (Discovery 2.0 A′)", async () => {

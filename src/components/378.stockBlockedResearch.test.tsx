@@ -60,14 +60,14 @@ describe("A. stock-blocked Research card: notice + Shop CTA", () => {
     render(<DexOverlay {...DexProps(s)} onClose={vi.fn()} onResearch={vi.fn()} onOpenShop={vi.fn()} />);
     expect(within(researchSection()).getByRole("button", { name: /を研究する/ })).toBeInTheDocument();
     expect(researchSection().textContent).not.toContain(RESEARCH_STOCK_NOTICE_JA);
-    expect(within(researchSection()).queryByText(/ショップで補充する/)).toBeNull();
+    expect(within(researchSection()).queryByText(/お店で補充する/)).toBeNull();
   });
 
   it("2: a required material at stock 0 -> the fixed notice and the Shop CTA (no research CTA)", () => {
     const s = single(["chicken"]);
     render(<DexOverlay {...DexProps(s)} onClose={vi.fn()} onResearch={vi.fn()} onOpenShop={vi.fn()} />);
     expect(researchSection()).toHaveTextContent(RESEARCH_STOCK_NOTICE_JA);
-    expect(within(researchSection()).getByRole("button", { name: /ショップで補充する/ })).toBeInTheDocument();
+    expect(within(researchSection()).getByRole("button", { name: /お店で補充する/ })).toBeInTheDocument();
     expect(within(researchSection()).queryByRole("button", { name: /を研究する/ })).toBeNull();
   });
 
@@ -136,7 +136,7 @@ describe("C. Dex -> Shop -> refill -> Dex loop", () => {
   it("3-5: the CTA opens the Shop; closing returns to the Dex; a refill brings the research CTA back", async () => {
     const user = userEvent.setup();
     render(<Harness initial={single(["chicken"])} />);
-    await user.click(within(researchSection()).getByRole("button", { name: /ショップで補充する/ }));
+    await user.click(within(researchSection()).getByRole("button", { name: /お店で補充する/ }));
     const shop = document.querySelector<HTMLElement>(".shop-overlay__panel")!; // 3: ShopOverlay opened
     expect(shop).toBeInTheDocument();
     const chickenRow = shop.querySelector<HTMLElement>('[data-ingredient-id="chicken"]')!;
@@ -245,8 +245,8 @@ describe("F. the Dex footer 「閉じる」 closes only (#457: label matches the
       const onGoFreeCook = vi.fn();
       render(<DexOverlay {...DexProps(single(zero))} onClose={onClose} onOpenShop={onOpenShop} onResearch={onResearch} onGoFreeCook={onGoFreeCook} />);
       expect(screen.queryByRole("button", { name: "次のピザを作る" })).toBeNull();
-      expect(screen.getByRole("button", { name: "図鑑を閉じる" })).toHaveTextContent("閉じる");
-      await user.click(screen.getByRole("button", { name: "図鑑を閉じる" }));
+      expect(screen.getByRole("button", { name: "ピザ図鑑を閉じる" })).toHaveTextContent("閉じる");
+      await user.click(screen.getByRole("button", { name: "ピザ図鑑を閉じる" }));
       expect(onClose).toHaveBeenCalledTimes(1);
       expect(onOpenShop).not.toHaveBeenCalled();
       expect(onResearch).not.toHaveBeenCalled();

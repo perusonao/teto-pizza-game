@@ -152,9 +152,9 @@ export function HomeScreen({
           )}
           <span
             className="app-header__dex-pill"
-            aria-label={`レシピ図鑑 ${shopCopy("発見数", "開発数")} ${discoveredCount} / ${totalRecipes}`}
+            aria-label={`ピザ図鑑 ${shopCopy("発見数", "メニュー")} ${discoveredCount} / ${totalRecipes}`}
           >
-            {"\u{1F451}"} レシピ {discoveredCount}/{totalRecipes}
+            {"\u{1F451}"} メニュー {discoveredCount}/{totalRecipes}
           </span>
           <button
             type="button"
@@ -286,7 +286,7 @@ export function HomeScreen({
         {onOpenDinner && (
           <button type="button" className="home-menu__card home-menu__card--wide home-menu__card--dinner" onClick={onOpenDinner}>
             <span className="home-menu__icon">{"\u{1F319}"}</span>
-            <span className="home-menu__label">ディナーミッション</span>
+            <span className="home-menu__label">特別注文</span>
             <span className="home-menu__sub">
               {dinnerUnlockedCount > 0
                 ? `時間内に指定のピザを全部作ろう！（解放 ${dinnerUnlockedCount}）`
@@ -301,13 +301,13 @@ export function HomeScreen({
             {dexHasNew && <span className="home-menu__badge">NEW</span>}
           </span>
           <span className="home-menu__sub">
-            {shopCopy("発見", "開発")} {discoveredCount}/{totalRecipes}
+            {shopCopy("発見", "メニュー")} {discoveredCount}/{totalRecipes}
           </span>
         </button>
         <button type="button" className="home-menu__card" onClick={onOpenShop}>
           <span className="home-menu__icon">{"\u{1F3EA}"}</span>
           <span className="home-menu__label">
-            ショップ
+            お店
             {newShopMaterialCount > 0 && <span className="home-menu__badge">NEW {newShopMaterialCount}</span>}
           </span>
           <span className="home-menu__sub">所持 Pitz {pitzBalance}</span>

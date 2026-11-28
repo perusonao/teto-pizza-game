@@ -368,7 +368,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await selectRecipeInPizzaSelect(user, "bismarck"); // Pizza Select -> GAME/PREPARE
     const header = document.querySelector<HTMLElement>(".game-screen .app-header")!;
     expect(within(header).queryByText(/Shop/)).not.toBeInTheDocument();
-    expect(within(header).queryByText(/レシピ図鑑/)).not.toBeInTheDocument();
+    expect(within(header).queryByText(/ピザ図鑑/)).not.toBeInTheDocument();
     expect(within(header).getByRole("button", { name: /ホーム/ })).toBeInTheDocument();
   });
 
@@ -404,7 +404,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
     expect(document.querySelector(".game-screen")).toBeInTheDocument();
     expect(document.querySelector(".mission-overlay")).toBeInTheDocument();
-    expect(screen.getByText(/LUNCH RUSH/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /ランチラッシュ/ })).toBeInTheDocument();
   });
 
   // Issue #47 Finding C only changes SELECT_RECIPE (Pizza Select's own path) -- Mission's own
@@ -600,7 +600,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
   it("opens the Shop overlay from HOME without leaving HOME underneath", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     expect(document.querySelector(".dex-overlay")).toBeInTheDocument(); // ShopOverlay reuses this container class
     expect(document.querySelector(".home-screen")).toBeInTheDocument();
   });
@@ -1048,7 +1048,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     expect(screen.getByLabelText("Pitz残高 250")).toBeInTheDocument();
     // 15 total recipes (src/data/recipes.ts, Recipe Expansion Batch 1A + Batch 1B-A + Batch
     // 1B-B + Batch 1B-C) -- 1 discovered from the seeded save.
-    expect(screen.getByLabelText(new RegExp(`レシピ図鑑 発見数 1 / ${RECIPES.length}`))).toBeInTheDocument();
+    expect(screen.getByLabelText(new RegExp(`ピザ図鑑 発見数 1 / ${RECIPES.length}`))).toBeInTheDocument();
     expect(screen.getByText(new RegExp(`発見 1/${RECIPES.length}`))).toBeInTheDocument();
   });
 
@@ -1100,7 +1100,7 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
     const user = userEvent.setup();
     seedSaveV2({ pitzBalance: 200, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     // I4b-4 (REC-04): onion is ladder step 10 (T2) -> refill 40 Pitz for one 10-pizza pack
     // (10 x k, k = 4 -> 40 pieces), all read from the same `materialOffer` the reducer charges.
@@ -1117,7 +1117,7 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
     const user = userEvent.setup();
     seedSaveV2({ pitzBalance: 200, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     await user.click(within(shop).getByRole("button", { name: "補充する" }));
     expect(within(shop).getByText(/在庫 42/)).toBeInTheDocument(); // 2 + 40
@@ -1129,7 +1129,7 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
     const user = userEvent.setup();
     seedSaveV2({ pitzBalance: 39, ownedIngredientIds: ownedWithOnion, inventory: { onion: 2 } });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     const button = within(shop).getByRole("button", { name: "補充する" });
     expect(button).toBeDisabled();
@@ -1145,7 +1145,7 @@ describe("Shop 2.0 restock (Economy & Progression 1.0 EP3)", () => {
     // and LOCKED rows are never listed at all.
     seedSaveV2({ pitzBalance: 999, ownedIngredientIds: [...STARTER_INGREDIENT_IDS] });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).queryByRole("button", { name: "補充する" })).not.toBeInTheDocument();
     expect(within(shop).queryByText(/在庫/)).not.toBeInTheDocument();
@@ -1169,7 +1169,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
     const user = userEvent.setup();
     seedSaveV2({ pitzBalance: 0, ownedIngredientIds: [...STARTER_INGREDIENT_IDS] });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).getByText("新しいピザを発見すると、材料が入荷します")).toBeInTheDocument();
     expect(within(shop).getByText(/あと1つ発見で新しい材料が入荷/)).toBeInTheDocument();
@@ -1185,7 +1185,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
       inventory: { mushroom: 3 },
     });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).getByText(/あと1つ発見で新しい材料が入荷/)).toBeInTheDocument();
     expect(within(shop).getByText("マッシュルーム")).toBeInTheDocument();
@@ -1201,7 +1201,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
       inventory: Object.fromEntries([...MANY, ...UNOFFERED].map((id) => [id, 5])),
     });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(within(shop).queryByText(/発見で新しい材料が入荷/)).not.toBeInTheDocument();
     expect(within(shop).getAllByRole("button", { name: "補充する" }).length).toBe(MANY.length);
@@ -1218,7 +1218,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
       inventory: { "olive-oil": 3, gorgonzola: 6, mushroom: 9, onion: 12 },
     });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
     await user.click(within(shop).getByRole("button", { name: "ソース" }));
@@ -1247,7 +1247,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
       inventory: { "olive-oil": 3, gorgonzola: 6 },
     });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
     const chips = within(shop).getByRole("group", { name: "材料の大分類" });
@@ -1266,7 +1266,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
       inventory: { onion: 2, "olive-oil": 3 },
     });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
     await user.click(within(shop).getByRole("button", { name: "具材" }));
@@ -1289,7 +1289,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
       inventory: { mushroom: 9 },
     });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
     await user.click(within(shop).getByRole("button", { name: "すべて" }));
@@ -1308,7 +1308,7 @@ describe("Shop Visual Polish 1C: empty state + scalability", () => {
       inventory: { onion: 7, "olive-oil": 3 },
     });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
 
     await user.click(within(shop).getByRole("button", { name: "ソース" }));
@@ -1464,7 +1464,7 @@ describe("Lunch Rush material shortage (Issue #212)", () => {
 
     expect(screen.getByText("作れるピザがなくなったので終了しました")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "もう一度" })).toBeDisabled();
-    expect(screen.getByText(/ショップで材料を補充すると再挑戦できます/)).toBeInTheDocument();
+    expect(screen.getByText(/お店で材料を補充すると再挑戦できます/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "この注文をスキップ" })).not.toBeInTheDocument();
     expect(screen.getByText(/\+0 Pitz/)).toBeInTheDocument();
     const stored = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);

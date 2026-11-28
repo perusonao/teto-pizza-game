@@ -73,7 +73,7 @@ test.describe("New Sauces Phase B U1 (representative: the late step; yuzu-kosho 
     await hold(page);
 
     // 1. Shop: the sauce is NEW (T4: 120 Pitz; a spread sauce, k = 1 -> one pack is 10 uses).
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     const row = page.locator('.shop-item[data-ingredient-id="yuzu-kosho"]');
     await row.scrollIntoViewIfNeeded();
@@ -177,7 +177,7 @@ test.describe("New Sauces Phase B U1 (representative: the late step; yuzu-kosho 
     }, [SAVE_KEY, saveJson(discovered, withoutLate)] as const);
     await page.goto(legacyProgressionUrl("/"));
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     for (const id of ["salmon-roe", "yuzu-kosho"]) {
       const row = page.locator(`.shop-item[data-ingredient-id="${id}"]`);

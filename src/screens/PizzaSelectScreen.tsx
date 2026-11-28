@@ -105,7 +105,7 @@ function PromptCard({
       ? shopCopy("まずはレシピ発見で1枚目のピザを見つけよう！", "まずはメニュー開発で1枚目のピザを見つけよう！")
       : prompt.kind === "DISCOVERABLE"
         ? shopCopy("まだ見つけていないピザが、今の材料で作れるかも！", "まだ開発していないメニューが、今の材料で作れるかも！")
-        : "ショップに新しい材料が入荷しているよ！";
+        : "お店に新しい材料が入荷しているよ！";
   return (
     <div className={`pizza-select-prompt${toShop ? " pizza-select-prompt--shop" : ""}`}>
       <p className="pizza-select-prompt__message">
@@ -116,7 +116,7 @@ function PromptCard({
         className="cta-button cta-button--primary pizza-select-prompt__cta"
         onClick={toShop ? onOpenShop : onGoFreeCook}
       >
-        {toShop ? <>{"\u{1F6D2}"} ショップを見る</> : <>{"\u{1F3A8}"} {shopCopy("レシピ発見へ", "メニュー開発へ")}</>}
+        {toShop ? <>{"\u{1F6D2}"} お店を見る</> : <>{"\u{1F3A8}"} {shopCopy("レシピ発見へ", "メニュー開発へ")}</>}
       </button>
     </div>
   );
@@ -154,7 +154,7 @@ function RecipeDetail({
         <CardStatusContent card={card} />
         {!card.cookable && onOpenShop && (
           <button type="button" className="cta-button cta-button--secondary pizza-select-detail__shop" onClick={onOpenShop}>
-            {"\u{1F6D2}"} ショップで補充する
+            {"\u{1F6D2}"} お店で補充する
           </button>
         )}
       </div>
@@ -219,7 +219,7 @@ export function PizzaSelectScreen({
             <h2 className="pizza-select-section__title">
               {chapter.titleJa}
               <span className="pizza-select-section__count">
-                {shopCopy("発見", "開発")} {chapter.discovered}/{chapter.total}
+                {shopCopy("発見", "メニュー")} {chapter.discovered}/{chapter.total}
               </span>
             </h2>
             {chapter.cards.length > 0 && (

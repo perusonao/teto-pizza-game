@@ -101,7 +101,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await hold(page);
 
     // 1. Shop: shrimp is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     const shrimp = page.locator('.shop-item[data-ingredient-id="shrimp"]');
     await expect(shrimp).toHaveCount(1);
@@ -250,7 +250,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await capture(page, "exp1-378-dex-stock-blocked", project);
     await hold(page, 2500);
 
-    await section.getByRole("button", { name: /ショップで補充する/ }).click();
+    await section.getByRole("button", { name: /お店で補充する/ }).click();
     const shop = page.locator(".shop-overlay__panel");
     await expect(shop).toBeVisible();
     const row = shop.locator('[data-ingredient-id="shrimp"]');

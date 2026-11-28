@@ -60,7 +60,7 @@ export function DinnerMissionScreen({
         >
           {detailId ? "← もどる" : `${"\u{1F3E0}"} ホーム`}
         </button>
-        <h1 className="app-header__title">{"\u{1F319}"} ディナーミッション</h1>
+        <h1 className="app-header__title">{"\u{1F319}"} 特別注文</h1>
       </header>
 
       {detailMission && detailCard?.unlocked ? (
@@ -167,7 +167,7 @@ function DinnerMissionDetail({
               ))}
             </ul>
             <button type="button" className="cta-button cta-button--secondary" onClick={onOpenShop}>
-              {"\u{1F6D2}"} ショップで補充する
+              {"\u{1F6D2}"} お店で補充する
             </button>
           </div>
         )}
@@ -182,7 +182,7 @@ function DinnerMissionDetail({
           </p>
         )}
         <p className="dinner-detail__note">
-          材料を使いすぎて残りのピザが作れなくなると失敗です。始めたらショップには行けません。
+          材料を使いすぎて残りのピザが作れなくなると失敗です。始めたらお店には行けません。
         </p>
       </div>
       <div className="action-row dinner-detail__cta-bar">

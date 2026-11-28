@@ -146,7 +146,7 @@ test.describe("Expansion Wave 2", () => {
     await hold(page);
 
     // 1. Shop: parsley ☘️ is NEW, then bought (finite T3 material, 20 pieces).
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     await buyInShop(page, project, "parsley", "☘️", "パセリ", "exp2-shop-parsley");
     await capture(page, "exp2-shop-parsley-bought", project);
@@ -265,7 +265,7 @@ test.describe("Expansion Wave 2", () => {
     await hold(page);
 
     // 1. Shop: both materials are NEW at once, then bought.
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     await buyInShop(page, project, "bell-pepper", { visual: "bell-pepper-quarter" }, "パプリカ", "exp2-shop-bell-pepper");
     await buyInShop(page, project, "zucchini", "🥒", "ズッキーニ", "exp2-shop-zucchini");
@@ -394,7 +394,7 @@ test.describe("Expansion Wave 2", () => {
     await capture(page, "exp2-378-dex-stock-blocked", project);
     await hold(page, 2500);
 
-    await section.getByRole("button", { name: /ショップで補充する/ }).click();
+    await section.getByRole("button", { name: /お店で補充する/ }).click();
     const shop = page.locator(".shop-overlay__panel");
     await expect(shop).toBeVisible();
     const row = shop.locator('[data-ingredient-id="parsley"]');

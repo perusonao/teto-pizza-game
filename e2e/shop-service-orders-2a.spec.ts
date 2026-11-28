@@ -65,7 +65,7 @@ test.describe("B案 Phase 2a: service orders (shop model)", () => {
     await open(page, "?progression=shop", legacyStartupSave);
     await expect(page.getByTestId("home-reputation")).toContainText("評判 0");
     await expect(page.getByLabel("Pitz残高 731")).toBeVisible();
-    await expect(page.getByLabel("レシピ図鑑 開発数 1 / 60")).toBeVisible();
+    await expect(page.getByLabel("ピザ図鑑 メニュー 1 / 60")).toBeVisible();
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect.poll(() => page.evaluate(() => ({
       save: JSON.parse(localStorage.getItem("teto-pizza-save-v1") ?? "null"),

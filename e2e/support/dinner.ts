@@ -51,7 +51,7 @@ export async function readSave(page: Page) {
 
 /** HOME -> Mission Select -> Detail of `title`. */
 export async function openDinnerDetail(page: Page, title: RegExp) {
-  await page.getByRole("button", { name: /ディナーミッション/ }).click();
+  await page.getByRole("button", { name: /特別注文/ }).click();
   await page.locator(".dinner-mission-card", { hasText: title }).click();
   await expect(page.locator(".dinner-detail")).toBeVisible();
 }

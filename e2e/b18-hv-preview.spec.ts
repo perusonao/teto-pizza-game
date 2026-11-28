@@ -243,7 +243,7 @@ for (const c of CASES) {
     await hold(page, 2000);
 
     // 1. Shop: cilantro is NEW (T4: 120 Pitz) -> buy.
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     const row = page.locator('.shop-item[data-ingredient-id="cilantro"]');
     await row.scrollIntoViewIfNeeded();

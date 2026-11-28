@@ -147,7 +147,7 @@ describe("ResultPanel", () => {
     );
     const message = document.querySelector(".material-unlock-notice__message")!;
     expect(message.textContent).toBe("\u{1F195} 新しい材料が入荷：たまご");
-    await userEvent.click(screen.getByRole("button", { name: /ショップへ/ }));
+    await userEvent.click(screen.getByRole("button", { name: /お店へ/ }));
     expect(onOpenShop).toHaveBeenCalledTimes(1);
   });
 
@@ -177,7 +177,7 @@ describe("ResultPanel", () => {
     expect(names).toHaveLength(3);
     expect(names.slice(0, 2).every((n) => n?.endsWith("・"))).toBe(true);
     expect(names[2]?.endsWith("・")).toBe(false);
-    expect(screen.getByRole("button", { name: /ショップへ/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /お店へ/ })).toBeInTheDocument();
   });
 
   it("never reads as a free gift", () => {
@@ -191,7 +191,7 @@ describe("ResultPanel", () => {
     expect(document.querySelector(".material-unlock-notice")).toBeNull();
     unmount();
     render(<ResultPanel {...baseProps()} materialUnlockNotice={buildMaterialUnlockNotice(["egg"])} />);
-    expect(screen.queryByRole("button", { name: /ショップへ/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /お店へ/ })).not.toBeInTheDocument();
   });
 
   // Cooking Time CT2.
@@ -682,9 +682,9 @@ describe("W1-d: Discovery Result hierarchy", () => {
     expect(document.querySelector(".result-panel__bake-badge")).toBeNull();
   });
 
-  it("#358: a NEW PIZZA result has no bottom CTA bar -- no 「もう一度試す」 / 「レシピを選んで作る」; 「📖 図鑑を見る」 stays on the registration row", async () => {
+  it("#358: a NEW PIZZA result has no bottom CTA bar -- no 「もう一度試す」 / 「レシピを選んで作る」; 「📖 ピザ図鑑を見る」 stays on the registration row", async () => {
     const { onOpenDex } = renderDiscovery();
-    const dexCta = screen.getByRole("button", { name: /図鑑を見る/ });
+    const dexCta = screen.getByRole("button", { name: /ピザ図鑑を見る/ });
     expect(document.querySelector(".dex-registration-row")!.contains(dexCta)).toBe(true);
     expect(document.querySelector(".result-panel__actions")).toBeNull();
     expect(screen.queryByRole("button", { name: "もう一度試す" })).not.toBeInTheDocument();
@@ -700,13 +700,13 @@ describe("W1-d: Discovery Result hierarchy", () => {
     const notice = document.querySelector(".material-unlock-notice")!;
     expect(notice).toHaveTextContent("新しい材料が入荷：ベーコン");
     expect(notice.querySelector("button")).toBeNull();
-    expect(screen.queryByRole("button", { name: /ショップへ/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /お店へ/ })).not.toBeInTheDocument();
     const shopButtons = screen.getAllByRole("button", { name: /新しい食材を見る/ });
     expect(shopButtons).toHaveLength(1);
     await userEvent.click(shopButtons[0]);
     expect(onOpenShop).toHaveBeenCalledTimes(1);
     // #457: the primary stays the Shop; the Dex is a secondary link beside it (not a second primary).
-    const dexLink = screen.getByRole("button", { name: /図鑑を見る/ });
+    const dexLink = screen.getByRole("button", { name: /ピザ図鑑を見る/ });
     expect(dexLink).not.toHaveClass("dex-registration-row__cta--primary");
     expect(document.querySelector(".dex-registration-row")!.contains(dexLink)).toBe(true);
     expect(document.querySelectorAll(".dex-registration-row__cta--primary")).toHaveLength(1);
@@ -718,7 +718,7 @@ describe("W1-d: Discovery Result hierarchy", () => {
       onResearchNext: vi.fn(),
     });
     expect(screen.getByRole("button", { name: /次のピザを研究する/ })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /ショップへ/ })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /お店へ/ })).toHaveLength(1);
     expect(document.querySelector(".result-panel__actions")).toBeNull();
   });
 
@@ -727,7 +727,7 @@ describe("W1-d: Discovery Result hierarchy", () => {
     const notice = document.querySelector(".material-unlock-notice")!;
     expect(notice).toHaveTextContent("新しい材料が入荷：ベーコン");
     expect(notice).not.toHaveTextContent(/作れる|ピザ/);
-    await userEvent.click(screen.getByRole("button", { name: /ショップへ/ }));
+    await userEvent.click(screen.getByRole("button", { name: /お店へ/ }));
     expect(onOpenShop).toHaveBeenCalledTimes(1);
   });
 

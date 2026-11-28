@@ -42,8 +42,8 @@ afterEach(() => {
 });
 
 async function openDetail(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("button", { name: /ディナーミッション/ }));
-  await user.click(screen.getByRole("button", { name: /ディナーミッション 1/ }));
+  await user.click(screen.getByRole("button", { name: /特別注文/ }));
+  await user.click(screen.getByRole("button", { name: /特別注文 1/ }));
 }
 
 describe("App: Dinner Mission (DM-3 / DM-3R-2)", () => {
@@ -53,7 +53,7 @@ describe("App: Dinner Mission (DM-3 / DM-3R-2)", () => {
     expect(screen.getByRole("button", { name: /ピザを作る/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
     expect(screen.getByRole("button", { name: /レシピ発見/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /ディナーミッション/ })).toHaveTextContent("解放 1");
+    expect(screen.getByRole("button", { name: /特別注文/ })).toHaveTextContent("解放 1");
   });
 
   it("without ?dinnerDuration START is disabled (制限時間を調整中)", async () => {
@@ -91,7 +91,7 @@ describe("App: Dinner Mission (DM-3 / DM-3R-2)", () => {
 
     await user.click(screen.getByRole("button", { name: /ホーム/ }));
     await user.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "やめる" }));
-    expect(screen.getByRole("button", { name: /ディナーミッション/ })).toBeInTheDocument(); // HOME
+    expect(screen.getByRole("button", { name: /特別注文/ })).toBeInTheDocument(); // HOME
     expect(confirmSpy).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
   });
@@ -123,7 +123,7 @@ describe("App: Dinner Mission (DM-3 / DM-3R-2)", () => {
     await user.click(screen.getByTestId("dinner-chip-margherita"));
     expect(screen.getByRole("dialog", { name: /マルゲリータ/ })).toBeInTheDocument();
 
-    const result = await screen.findByRole("dialog", { name: "ディナーミッション結果" }, { timeout: 3000 });
+    const result = await screen.findByRole("dialog", { name: "特別注文の結果" }, { timeout: 3000 });
     expect(result).toHaveTextContent("時間切れ！");
     await user.click(within(result).getByRole("button", { name: "もう一度" }));
     expect(screen.getByTestId("dinner-target-row")).toBeInTheDocument();

@@ -83,12 +83,12 @@ import { ResearchContextLine } from "./ResearchLabel";
  */
 const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
   SHOP_NEW: {
-    title: "\u{1F3EA} ショップに入荷した材料で、新しいピザが作れそう！",
-    body: "ホームのショップで、新しい材料をチェックしてみよう。",
+    title: "\u{1F3EA} お店に入荷した材料で、新しいピザが作れそう！",
+    body: "ホームのお店で、新しい材料をチェックしてみよう。",
   },
   REFILL: {
     title: "\u{1F4E6} 材料が足りないみたい。",
-    body: "ホームのショップで、持っている材料を補充しよう。",
+    body: "ホームのお店で、持っている材料を補充しよう。",
   },
   OPEN_POOL: {
     title: shopCopy("\u{1F3A8} まだ発見できるピザがあるよ！", "\u{1F3A8} まだ開発できるメニューがあるよ！"),
@@ -98,7 +98,7 @@ const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
     ),
   },
   COMPLETE: {
-    title: "\u{1F3C6} 図鑑コンプリート！",
+    title: "\u{1F3C6} ピザ図鑑コンプリート！",
     body: "ぜんぶのピザを見つけたよ。好きなピザを作ろう！",
   },
 };

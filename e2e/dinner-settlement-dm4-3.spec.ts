@@ -13,17 +13,17 @@ import { LEGACY_PROGRESSION_QUERY } from "./support/legacyProgression";
  */
 
 const RUN = `${LEGACY_PROGRESSION_QUERY}&dinnerDuration=900&dinnerMinStars=1`;
-const overlay = (page: import("@playwright/test").Page) => page.getByRole("dialog", { name: "ディナーミッション結果" });
+const overlay = (page: import("@playwright/test").Page) => page.getByRole("dialog", { name: "特別注文の結果" });
 
 async function clearDmA(page: import("@playwright/test").Page) {
-  await openDinnerDetail(page, /ディナーミッション 1/);
+  await openDinnerDetail(page, /特別注文 1/);
   await page.getByRole("button", { name: /スタート/ }).click();
   const order = ["funghi", "margherita", "breakfast-pizza", "bismarck"] as const;
   for (const [i, id] of order.entries()) {
     await cookDinnerPizza(page, id);
     if (i < order.length - 1) await nextDinnerPizza(page);
   }
-  await expect(overlay(page)).toContainText("DINNER CLEAR!");
+  await expect(overlay(page)).toContainText("特別注文クリア！");
 }
 
 test("a CLEAR is recorded with its settlement (0 Pitz under the untuned table); reload never re-settles", async ({ page }) => {

@@ -151,7 +151,7 @@ describe("which cards get 「💡 ヒントを見る」", () => {
     renderDex(inputs);
     expect(hintButtons()).toHaveLength(0);
     expect(document.querySelectorAll('[data-dex-state="KNOWN_BUT_MISSING_MATERIAL"]').length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("button", { name: "ショップを見る" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("button", { name: "お店を見る" }).length).toBeGreaterThan(0);
     for (const card of document.querySelectorAll('[data-dex-state="UNKNOWN"]')) expect(card.querySelector("button")).toBeNull();
     expectNoUndiscoveredIdentity(inputs, "KBMM");
   });

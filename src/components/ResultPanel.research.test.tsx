@@ -62,11 +62,11 @@ describe("Research ORIGINAL copy", () => {
   it("Research RESULT note is the target-independent notebook sentence; targetless FREE shows the #676 hint-pointing sentence", () => {
     original(ORDINARY);
     expect(screen.getByText("試作結果とノートを見て、次に試す材料を考えてみよう。")).toBeInTheDocument();
-    expect(screen.queryByText(/図鑑のピザと同じ組み合わせ/)).toBeNull();
+    expect(screen.queryByText(/ピザ図鑑のピザと同じ組み合わせ/)).toBeNull();
     cleanup();
     original(ORDINARY, { researchLabelJa: null });
     expect(screen.getByText("ヒントを見ながら、次に試す材料を考えてみよう。")).toBeInTheDocument();
-    expect(screen.queryByText(/図鑑のピザと同じ組み合わせ/)).toBeNull();
+    expect(screen.queryByText(/ピザ図鑑のピザと同じ組み合わせ/)).toBeNull();
     expect(screen.queryByText(/試作結果とノートを見て/)).toBeNull();
   });
 
@@ -154,7 +154,7 @@ describe("post-discovery primary CTA on a NEW_DISCOVERY result", () => {
     fireEvent.click(screen.getByRole("button", { name: "🔎 次のピザを研究する" }));
     expect(one.onResearchNext).toHaveBeenCalledWith("e1");
     // #457: the Dex link is a secondary beside the primary, never the primary itself.
-    expect(screen.getByRole("button", { name: "📖 図鑑を見る" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "📖 ピザ図鑑を見る" })).toBeInTheDocument();
     const many = discovered(postDiscoveryPrimary({ researchableEntryIds: ["e1", "e2"], newMaterialAvailable: false }));
     fireEvent.click(screen.getByRole("button", { name: "🔎 次のピザを選んで研究する" }));
     expect(many.onResearchNext).toHaveBeenCalledWith(null);
@@ -174,7 +174,7 @@ describe("post-discovery primary CTA on a NEW_DISCOVERY result", () => {
     ]) {
       const cb = discovered(postDiscoveryPrimary(input));
       const row = document.querySelector(".dex-registration-row")!;
-      const dex = screen.getAllByRole("button", { name: "📖 図鑑を見る" });
+      const dex = screen.getAllByRole("button", { name: "📖 ピザ図鑑を見る" });
       expect(dex).toHaveLength(1);
       expect(row.contains(dex[0])).toBe(true);
       expect(dex[0]).not.toHaveClass("dex-registration-row__cta--primary");
@@ -185,9 +185,9 @@ describe("post-discovery primary CTA on a NEW_DISCOVERY result", () => {
     }
   });
 
-  it("H: neither -> 「図鑑を見る」 opens the Dex", () => {
+  it("H: neither -> 「ピザ図鑑を見る」 opens the Dex", () => {
     const cb = discovered(postDiscoveryPrimary({ researchableEntryIds: [], newMaterialAvailable: false }));
-    fireEvent.click(screen.getByRole("button", { name: "📖 図鑑を見る" }));
+    fireEvent.click(screen.getByRole("button", { name: "📖 ピザ図鑑を見る" }));
     expect(cb.onOpenDex).toHaveBeenCalledTimes(1);
   });
 

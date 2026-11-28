@@ -4,7 +4,7 @@ import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from
 
 /**
  * #457 (Phase A of the first-play UX audit): a NEW PIZZA result keeps its primary CTA (「🛒 新しい食材を見る」) and gains a
- * secondary 「📖 図鑑を見る」 that opens the Dex over the result; closing the Dex returns to the same result. The Dex footer
+ * secondary 「📖 ピザ図鑑を見る」 that opens the Dex over the result; closing the Dex returns to the same result. The Dex footer
  * is 「閉じる」 and does exactly that. Driven through the real UI at 390x844 and 360x800 (the iphone-* projects).
  */
 
@@ -54,7 +54,7 @@ async function expectNoHorizontalOverflow(page: Page) {
 }
 
 test.describe("#457 discovery result -> Dex link", () => {
-  test("RESULT keeps the Shop primary, adds 図鑑を見る, opens the Dex and returns to the same RESULT", async ({ page }, testInfo) => {
+  test("RESULT keeps the Shop primary, adds ピザ図鑑を見る, opens the Dex and returns to the same RESULT", async ({ page }, testInfo) => {
     test.setTimeout(120_000);
     await discoverMargherita(page);
     const shot = (name: string) =>
@@ -62,7 +62,7 @@ test.describe("#457 discovery result -> Dex link", () => {
 
     const row = page.locator(".dex-registration-row");
     const shop = row.getByRole("button", { name: "🛒 新しい食材を見る" });
-    const dexLink = row.getByRole("button", { name: "📖 図鑑を見る" });
+    const dexLink = row.getByRole("button", { name: "📖 ピザ図鑑を見る" });
     await expect(shop).toHaveClass(/dex-registration-row__cta--primary/);
     await expect(dexLink).toBeVisible();
     await expect(dexLink).not.toHaveClass(/dex-registration-row__cta--primary/);

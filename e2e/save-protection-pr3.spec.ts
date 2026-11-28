@@ -101,7 +101,7 @@ test("#282: a tab whose save is out of date does not overwrite what another tab 
   await other.close();
 
   // This (stale) tab buys something: it would save its own Pitz balance.
-  await page.getByRole("button", { name: /ショップ/ }).click();
+  await page.getByRole("button", { name: /お店/ }).click();
   await page.waitForSelector(".shop-overlay__body");
   await hold(page, 1000);
   await page.getByRole("button", { name: "仕入れる" }).first().click();

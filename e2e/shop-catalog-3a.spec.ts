@@ -62,7 +62,7 @@ test.describe("B案 Phase 3a: the curated 60 are the shop's Dex (shop model)", (
   test("shop: HOME's pill reads x/60, counting only adopted recipes", async ({ page }) => {
     await open(page, "?progression=shop");
     expect(await dexPillCounts(page)).toEqual([2, 60]);
-    await expect(page.locator(".app-header__dex-pill")).toHaveAttribute("aria-label", "レシピ図鑑 開発数 2 / 60");
+    await expect(page.locator(".app-header__dex-pill")).toHaveAttribute("aria-label", "ピザ図鑑 メニュー 2 / 60");
   });
 
   test("shop: the Dex lists the 60 in five stages of 12", async ({ page }) => {
@@ -87,6 +87,6 @@ test.describe("B案 Phase 3a: the curated 60 are the shop's Dex (shop model)", (
     await expect(page.getByRole("heading", { name: "練習するピザを選ぼう！" })).toBeVisible();
     const headings = await page.locator(".pizza-select-section").allTextContents();
     expect(headings.length).toBe(5);
-    for (const h of headings) expect(h).toMatch(/開発 \d+\/12/);
+    for (const h of headings) expect(h).toMatch(/メニュー \d+\/12/);
   });
 });

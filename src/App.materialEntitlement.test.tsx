@@ -109,7 +109,7 @@ function seedEggNew(pitzBalance: number): void {
 }
 
 async function openShop(user: ReturnType<typeof userEvent.setup>): Promise<HTMLElement> {
-  await user.click(screen.getByRole("button", { name: /ショップ/ }));
+  await user.click(screen.getByRole("button", { name: /お店/ }));
   return document.querySelector<HTMLElement>(".dex-overlay")!;
 }
 

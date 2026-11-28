@@ -151,7 +151,7 @@ describe("I5b-3 migration matrix A-G through the App load path", () => {
     }
 
     // The Shop shows the newly reached materials as NEW at stock 0.
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     const newRows = Array.from(shop.querySelectorAll<HTMLElement>('.shop-item[data-shop-state="NEW"]')).map(
       (e) => e.dataset.ingredientId,

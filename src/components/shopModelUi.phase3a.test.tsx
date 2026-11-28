@@ -100,9 +100,9 @@ describe("the shop model's Dex recipes are the curated 60", () => {
 describe("screens", () => {
   it("HOME's Dex pill reads x/60 and ignores a non-adopted discovery", () => {
     home(dexOf("margherita", NOT_ADOPTED.id));
-    expect(screen.getByText(/レシピ 1\/60/)).toBeInTheDocument();
-    expect(screen.getByLabelText("レシピ図鑑 開発数 1 / 60")).toBeInTheDocument();
-    expect(screen.getByText(/開発 1\/60/)).toBeInTheDocument();
+    expect(screen.getByText(/^\u{1F451} メニュー 1\/60$/u)).toBeInTheDocument();
+    expect(screen.getByLabelText("ピザ図鑑 メニュー 1 / 60")).toBeInTheDocument();
+    expect(screen.getByText(/^メニュー 1\/60$/)).toBeInTheDocument();
   });
 
   it("the Dex lists 60 slots in five stages of 12 and counts x/60", () => {
@@ -119,7 +119,7 @@ describe("screens", () => {
       "0/12",
     ]);
     expect(container.querySelectorAll(".dex-overlay__chapter .dex-card")).toHaveLength(60);
-    expect(screen.getByText(/開発 1 \/ 60/)).toBeInTheDocument();
+    expect(screen.getByText(/メニュー 1 \/ 60/)).toBeInTheDocument();
     expect(screen.queryByText(NOT_ADOPTED.nameJa)).toBeNull();
   });
 
@@ -139,7 +139,7 @@ describe("screens", () => {
     render(<PizzaSelectScreen dex={dex} ownedIngredientIds={STARTER_INGREDIENT_IDS} shop={shop} onSelectRecipe={vi.fn()} onBack={vi.fn()} onGoFreeCook={vi.fn()} />);
     const sections = document.querySelectorAll(".pizza-select-section");
     expect(sections).toHaveLength(5);
-    expect(within(sections[0] as HTMLElement).getByText(/開発 1\/12/)).toBeInTheDocument();
-    expect(within(sections[1] as HTMLElement).getByText(/開発 1\/12/)).toBeInTheDocument();
+    expect(within(sections[0] as HTMLElement).getByText(/メニュー 1\/12/)).toBeInTheDocument();
+    expect(within(sections[1] as HTMLElement).getByText(/メニュー 1\/12/)).toBeInTheDocument();
   });
 });

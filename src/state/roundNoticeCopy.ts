@@ -18,7 +18,7 @@ export function describeSettledRound(summary: PendingRoundSummary): RoundNoticeC
   const lines: string[] = [];
   if (summary.outcome === "REGISTERED") {
     const name = summary.recipeId ? (getRecipe(summary.recipeId as RecipeId)?.nameJa ?? summary.recipeId) : "ピザ";
-    lines.push(`${name}を図鑑に登録しました${summary.stars !== null ? `（★${summary.stars}）` : ""}。`);
+    lines.push(`${name}をピザ図鑑に登録しました${summary.stars !== null ? `（★${summary.stars}）` : ""}。`);
     if (summary.discovered) lines.push(shopCopy("新しい発見です。", "新しいメニューを開発しました。"));
     if (summary.newBest) lines.push("ベスト更新です。");
     if (summary.earnedPitz > 0) lines.push(`Pitz +${summary.earnedPitz}`);
@@ -103,7 +103,7 @@ export function describeRoundSaveFailure(
   }
   if (step === "dinner-clear") {
     return {
-      title: "ディナーの報酬を保存できませんでした",
+      title: "特別注文の報酬を保存できませんでした",
       lines: [reason, "保存できる状態で、制限時間内にもう一度お試しください。"],
     };
   }
@@ -133,7 +133,7 @@ export interface HeldDiscardDialogCopy {
 export function describeHeldDiscardDialog(reason: HeldPendingRoundReason, replacesLatest: boolean): HeldDiscardDialogCopy {
   const completable = reason === "unknown-version" || reason === "unresolvable";
   const checks: HeldDiscardDialogCopy["checks"] = [
-    { id: "irreversible", label: "このピザは図鑑に登録されず、使った材料も戻らないことを理解しました" },
+    { id: "irreversible", label: "このピザはピザ図鑑に登録されず、使った材料も戻らないことを理解しました" },
   ];
   if (completable) {
     checks.push({ id: "completable", label: "対応する版で開けば完了できた可能性があることを理解しました" });
@@ -145,7 +145,7 @@ export function describeHeldDiscardDialog(reason: HeldPendingRoundReason, replac
     title: "この調理の記録を破棄しますか？",
     lines: [
       "ゲームデータ全体の控えを端末に保存し、その控えを確認できてから、この調理の記録だけを取り除きます。",
-      "図鑑・Pitz・所持材料などのほかのデータは変わりません。",
+      "ピザ図鑑・Pitz・所持材料などのほかのデータは変わりません。",
       "控えが保存できなかったときは、何も破棄しません。",
       "この画面から控えを元に戻すことはできません。",
     ],

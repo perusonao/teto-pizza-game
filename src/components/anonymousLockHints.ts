@@ -8,7 +8,7 @@ export const ANONYMOUS_LOCK_HINTS = {
   /** Cookable now from owned ingredients (Dex 🎨 tag). */
   DISCOVERABLE: "\u{1F3A8} 今の材料で作れるかも",
   /** Cookable once the Shop's materials are bought (Dex 🏪 tag). */
-  SHOP: "\u{1F3EA} ショップの材料で作れるかも",
+  SHOP: "\u{1F3EA} お店の材料で作れるかも",
   /** The D-2 aggregated card: there is still a pizza to find, no number, no slot. */
   AGGREGATED: shopCopy("\u{1F3A8} まだ発見できるピザがあるよ", "\u{1F3A8} まだ開発できるメニューがあるよ"),
   /** #422 PR-B: a Shop slot for a material that is not unlocked yet -- the same line for every one. */

@@ -64,7 +64,7 @@ describe("RESULT: identified before its stage opens", () => {
     expect(box).toHaveTextContent("ミートラヴァーズのレシピが判明した！");
     expect(box).toHaveTextContent("仕込みも設備もまだ追いつかなくて");
     expect(box).toHaveTextContent("小さな店になったらメニューに載せよう！");
-    expect(within(box).getByRole("button", { name: /図鑑を見る/ })).toBeInTheDocument();
+    expect(within(box).getByRole("button", { name: /ピザ図鑑を見る/ })).toBeInTheDocument();
     expect(container).not.toHaveTextContent("NEW MENU");
     expect(container).not.toHaveTextContent("新メニューとして開発");
     expect(container).not.toHaveTextContent("保留");
@@ -116,7 +116,7 @@ describe("RESULT: the promotion banner lists what the stage opened", () => {
     expect(list).toHaveTextContent("メニュー開発ボーナス +50 Pitz・評判 +3");
     // The materials are listed once (in the banner); the Shop CTA stays.
     expect(screen.getAllByText(/アンチョビ/)).toHaveLength(1);
-    expect(screen.getByRole("button", { name: /ショップへ/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /お店へ/ })).toBeInTheDocument();
     // The entry bonus is part of this round's Pitz.
     expect(screen.getByText(/今回の獲得/)).toHaveTextContent("+150 Pitz");
   });
@@ -178,7 +178,7 @@ describe("the Dex and HOME: an identified recipe is 判明, not developed", () =
     expect(card).toHaveTextContent("判明");
     expect(card).toHaveTextContent("小さな店でメニュー入り");
     expect(document.querySelectorAll("[data-dex-identified]")).toHaveLength(1);
-    expect(screen.getByText(/開発 1 \/ 60/)).toBeInTheDocument();
+    expect(screen.getByText(/メニュー 1 \/ 60/)).toBeInTheDocument();
   });
 
   it("once the stage is open it is an ordinary developed card", () => {
@@ -186,7 +186,7 @@ describe("the Dex and HOME: an identified recipe is 判明, not developed", () =
       <DexOverlay dex={dexOf("margherita", "meat-lovers")} shop={shopAt(40)} newlyDiscoveredId={null} newBestRecipeId={null} onClose={vi.fn()} />,
     );
     expect(document.querySelector("[data-dex-identified]")).toBeNull();
-    expect(screen.getByText(/開発 2 \/ 60/)).toBeInTheDocument();
+    expect(screen.getByText(/メニュー 2 \/ 60/)).toBeInTheDocument();
   });
 
   it("HOME's pill counts the menu only", () => {
@@ -209,7 +209,7 @@ describe("the Dex and HOME: an identified recipe is 判明, not developed", () =
         onTakeOrder={vi.fn()}
       />,
     );
-    expect(screen.getByLabelText("レシピ図鑑 開発数 1 / 60")).toBeInTheDocument();
+    expect(screen.getByLabelText("ピザ図鑑 メニュー 1 / 60")).toBeInTheDocument();
   });
 });
 
