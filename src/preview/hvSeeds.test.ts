@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildHint5Ladder, hint5Presentation } from "../logic/discovery/hint5Ladder";
 import { discoverableHintCandidates, selectHintTarget } from "../logic/discovery/hintTarget";

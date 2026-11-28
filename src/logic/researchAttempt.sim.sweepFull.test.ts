@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { afterAll, describe, expect, it, vi } from "vitest";
 
 /**

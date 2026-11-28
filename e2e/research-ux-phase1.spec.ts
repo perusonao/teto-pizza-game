@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -39,7 +40,7 @@ async function open(page: Page) {
     localStorage.clear();
     localStorage.setItem(key, value);
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
 }
 
@@ -218,7 +219,7 @@ test("Research UX Phase 1: last-stock retry has no ○× promise; targetless FRE
   await page.getByRole("dialog", { name: /ヒント/ }).getByRole("button", { name: "閉じる" }).click();
   await shot(page, "p1-05-last-stock-retry");
 
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
   await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");

@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";
 import { buildIdealSauceFixture } from "../data/referencePizza";

@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState, type MakingStep } from "./gameReducer";
 import { registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";

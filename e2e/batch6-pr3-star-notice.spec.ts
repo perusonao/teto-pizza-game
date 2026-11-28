@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES, countsTowardLadder } from "../src/data/recipes";
@@ -56,7 +57,7 @@ async function open(page: Page, json: string, query = "") {
     localStorage.clear();
     localStorage.setItem(key, value);
   }, [SAVE_KEY, json] as const);
-  await page.goto(`/${query}`);
+  await page.goto(legacyProgressionUrl(`/${query}`));
   await page.waitForSelector(".app-frame");
 }
 const openShop = async (page: Page) => {

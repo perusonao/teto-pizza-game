@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { INGREDIENTS } from "../src/data/ingredients";
 
@@ -31,7 +32,7 @@ function save(unlocked: string[], owned: string[] = []) {
 async function load(page: Page, data: unknown) {
   await page.goto("icons/icon-16.png");
   await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, [SAVE_KEY, JSON.stringify(data)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
 }
 const openIngredients = async (page: Page) => {

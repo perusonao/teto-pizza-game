@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expect, test, type Page } from "@playwright/test";
 import { runOnlyOnWidth } from "./support/projectGuard";
 import { completeDoughStep, cutThreeLines, enterBakePaused, landNeedleAndTakeOut, tapDoughPercent } from "./gestures";
@@ -26,7 +27,7 @@ async function openMargherita(page: Page, width: number, height: number) {
     localStorage.clear();
     localStorage.setItem(k, v);
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).first().click();
   await page.getByRole("button", { name: /^マルゲリータ、/ }).click();
@@ -144,7 +145,7 @@ for (const [label, width, height] of [
       localStorage.clear();
       localStorage.setItem(k, v);
     }, [SAVE_KEY, JSON.stringify(DINNER_SAVE)] as const);
-    await page.goto("/?dinnerDuration=900");
+    await page.goto(legacyProgressionUrl("/?dinnerDuration=900"));
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /ディナーミッション/ }).click();
     await page.locator(".dinner-mission-card", { hasText: /ディナーミッション 1/ }).click();

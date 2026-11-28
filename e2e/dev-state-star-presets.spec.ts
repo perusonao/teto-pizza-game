@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { PREVIEW_BASE, PREVIEW_KEY, PROD_BASE, PROD_KEY, startDevStateServers, type DevStateServers } from "./support/devStateBuilds";
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { loadStarSaves, type StarSaves } from "./support/starSaves";
 
 /**
@@ -48,7 +49,7 @@ test.beforeAll(async () => {
 });
 test.afterAll(async () => servers?.close());
 
-const editorUrl = () => `${servers.origin}${PREVIEW_BASE}?dev=state`;
+const editorUrl = () => legacyProgressionUrl(`${servers.origin}${PREVIEW_BASE}?dev=state`);
 const BACKUP_ORIGINAL_KEY = `${PREVIEW_KEY}.dev-backup-v1.original`;
 const stored = (page: Page, key = PREVIEW_KEY) => page.evaluate((k) => localStorage.getItem(k), key);
 const hold = (page: Page, ms = 1500) => (VIDEO ? page.waitForTimeout(ms) : Promise.resolve());
@@ -158,7 +159,7 @@ test("HV: ⭐119 / 120 / 129 / 130 presets apply, the game's Shop follows the st
 test("production: ?dev=state is inert, no star preset or backup key exists, the production save is untouched", async ({ page }) => {
   await seed(page, { [PROD_KEY]: PROD_SAVE });
   await page.goto("about:blank");
-  await page.goto(`${servers.origin}${PROD_BASE}?dev=state`);
+  await page.goto(legacyProgressionUrl(`${servers.origin}${PROD_BASE}?dev=state`));
   await page.waitForSelector(".app-frame");
   expect(await page.locator("[data-dev-state-editor]").count()).toBe(0);
   expect(await page.locator("[data-preset-id]").count()).toBe(0);

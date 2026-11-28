@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import {
   bakeToTarget,
@@ -95,7 +96,7 @@ test.describe("Issue #215 Completion Gate partial-quantity", () => {
     page,
   }) => {
     test.setTimeout(60_000);
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl("/"));
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /レシピ発見/ }).click();
     await page.waitForSelector(".pizza-stage");

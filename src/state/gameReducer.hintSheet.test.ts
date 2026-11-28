@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it, vi } from "vitest";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { EMPTY_DEX, registerScoreToDex, type DexState } from "./dex";

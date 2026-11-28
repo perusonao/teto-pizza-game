@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, cutThreeLines, enterBakePaused, landNeedleAndTakeOut, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -38,7 +39,7 @@ test("R8 HV story", async ({ page }) => {
   mkdirSync(OUT!, { recursive: true });
   await page.goto("icons/icon-16.png");
   await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, [SAVE_KEY, JSON.stringify(save)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /マルゲリータ、/ }).click();

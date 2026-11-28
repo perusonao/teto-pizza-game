@@ -3,6 +3,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { INGREDIENTS } from "../src/data/ingredients";
 import { RECIPES } from "../src/data/recipes";
 import { completeDoughStep } from "./gestures";
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
 
 const SAVE_KEY = "teto-pizza-save-v1";
@@ -31,7 +32,7 @@ async function open(page: Page) {
   const root = process.env.ICON417_TARGET_URL ?? "/";
   await page.goto(new URL("icons/icon-16.png", new URL(root, "http://localhost:5183/teto-pizza-game/")).toString());
   await page.evaluate(([key, value]) => { localStorage.clear(); localStorage.setItem(key, value); }, [SAVE_KEY, saveJson()] as const);
-  await page.goto(root);
+  await page.goto(legacyProgressionUrl(root));
   await page.waitForSelector(".app-frame");
 }
 

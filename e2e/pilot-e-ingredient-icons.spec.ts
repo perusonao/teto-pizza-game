@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
@@ -65,7 +66,7 @@ test.describe("Pilot E ingredient icons (green-pepper / bell-pepper / pineapple)
       starterGrantClaimedRecipeIds: [],
       unlockedForShopIngredientIds: [...owned],
     })] as const);
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl("/"));
     await page.waitForSelector(".app-frame");
     await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${discovered.length}/${CATALOG_COUNTS.recipes}`));
 

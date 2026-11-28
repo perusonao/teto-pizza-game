@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { writeFileSync } from "node:fs";
 import { cutThreeLines, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -20,7 +21,7 @@ async function prepareToBake(page: Page, mode: string) {
       missionBest: {},
     }));
   });
-  await page.goto(`/?cheese=${mode}`);
+  await page.goto(legacyProgressionUrl(`/?cheese=${mode}`));
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");
@@ -116,7 +117,7 @@ test.describe("S2-B perf capture", () => {
   test("cold generation in the browser (first pool of a seed: geometry + first render), 1x and 4x CPU throttle", async ({ page }) => {
     test.setTimeout(180_000);
     const cold: Record<string, unknown> = {};
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl("/"));
     const cdp = await page.context().newCDPSession(page);
     for (const throttle of [1, 4]) {
       await cdp.send("Emulation.setCPUThrottlingRate", { rate: throttle });

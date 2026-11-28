@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { CATALOG_COUNTS } from "../logic/catalog/testSupport/catalogDerived";
 import { COMPOSED } from "../logic/catalog/testSupport/composedForBuild";

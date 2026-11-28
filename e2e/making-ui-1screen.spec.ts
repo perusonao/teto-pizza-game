@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { runOnlyOnWidth } from "./support/projectGuard";
 import {
@@ -55,7 +56,7 @@ async function seedGuidedSelectUnlocked(page: Page) {
 async function freshMargheritaAt(page: Page, width: number, height: number) {
   await seedGuidedSelectUnlocked(page);
   await page.setViewportSize({ width, height });
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");
@@ -261,7 +262,7 @@ test.describe("Sauce lock (Issue #159 P0): no second sauce ever offered once SAU
     await page.addInitScript((rawSave) => {
       localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
     }, save);
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl("/"));
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /ピザを作る/ }).click();
     await page.getByRole("button", { name: /マルゲリータ、/ }).click();

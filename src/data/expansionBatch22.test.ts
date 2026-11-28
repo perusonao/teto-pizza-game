@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { DISCOVERY_LADDER } from "./discoveryLadder";
 import { getIngredient, INGREDIENTS, STARTER_INGREDIENT_IDS } from "./ingredients";

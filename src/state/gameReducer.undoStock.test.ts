@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { gameReducer, type GameAction, type GameState } from "./gameReducer";
 import { startGuidedPrepare } from "./testSupport/guidedRound";

@@ -1,3 +1,4 @@
+import "../../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { W1_25_DISCOVERY_LADDER } from "../../data/discoveryLadder";

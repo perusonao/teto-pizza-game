@@ -15,10 +15,26 @@ async function expectLegacyHome(page: Page) {
   await expect(page.getByRole("button", { name: /注文を受ける/ })).toHaveCount(0);
 }
 
+async function expectShopHome(page: Page) {
+  await expect(page.getByRole("heading", { name: /てっちゃんのピザ屋さん/ })).toBeVisible();
+  await expect(page.getByTestId("home-reputation")).toContainText("評判 0");
+  await expect(page.getByRole("button", { name: /注文を受ける/ })).toBeVisible();
+}
+
 test("the production Web build opens under its default in a clean context", async ({ page }) => {
   await page.goto("./");
+  await expectShopHome(page);
+  await expect(page.getByLabel("Pitz残高 0")).toBeVisible();
+  await page.getByRole("button", { name: /注文を受ける/ }).click();
+  await expect(page.locator(".dialogue-area")).toBeVisible();
+});
+
+test("the production legacy override lasts for one page load in a clean context", async ({ page }) => {
+  await page.goto("./?progression=legacy");
   await expectLegacyHome(page);
   await expect(page.getByLabel("Pitz残高 0")).toBeVisible();
+  await page.goto("./");
+  await expectShopHome(page);
   const keys = await page.evaluate(() => Object.keys(localStorage));
   expect(keys).not.toContain(PREVIEW_KEY);
   expect(keys).not.toContain(DEV_KEY);
@@ -28,18 +44,29 @@ test("production startup keeps the shared save and isolates the remembered choic
   await page.goto("icons/icon-16.png");
   await page.evaluate((entries) => {
     for (const [key, value] of Object.entries(entries)) localStorage.setItem(key, value);
-  }, { [SAVE_KEY]: JSON.stringify(legacyStartupSave), [PREVIEW_KEY]: "shop", [DEV_KEY]: "shop" });
+  }, { [SAVE_KEY]: JSON.stringify(legacyStartupSave), [PREVIEW_KEY]: "legacy", [DEV_KEY]: "legacy" });
 
-  for (const search of [
-    "", "?progression=legacy", "", "?progression=shop", "?progression=", "?progression=unknown",
-    "?progression=legacy&progression=shop", "?progression=shop&progression=legacy",
-  ]) {
+  for (const [search, mode] of [
+    ["", "shop"],
+    ["?progression=legacy", "legacy"],
+    ["", "shop"],
+    ["?progression=shop", "shop"],
+    ["?progression=", "shop"],
+    ["?progression=unknown", "shop"],
+    ["?progression=legacy&progression=shop", "legacy"],
+    ["?progression=shop&progression=legacy", "shop"],
+  ] as const) {
     await test.step(`load ${search || "(no query)"}`, async () => {
       await page.goto("about:blank");
       await page.goto(`./${search}`);
-      await expectLegacyHome(page);
+      if (mode === "legacy") {
+        await expectLegacyHome(page);
+      } else {
+        await expectShopHome(page);
+      }
       await expect(page.getByLabel("Pitz残高 731")).toBeVisible();
-      await expect(page.getByLabel(/レシピ図鑑 発見数 1 \/ /)).toBeVisible();
+      const dexCount = mode === "shop" ? "開発数" : "発見数";
+      await expect(page.getByLabel(new RegExp(`レシピ図鑑 ${dexCount} 1 / `))).toBeVisible();
       const stored = await page.evaluate(([saveKey, previewKey, devKey]) => ({
         save: JSON.parse(localStorage.getItem(saveKey) ?? "null"),
         preview: localStorage.getItem(previewKey),
@@ -47,8 +74,8 @@ test("production startup keeps the shared save and isolates the remembered choic
       }), [SAVE_KEY, PREVIEW_KEY, DEV_KEY] as const);
       expect(stored.save).toMatchObject(legacyStartupSave);
       expect(stored.save.shopProgress).toBeUndefined();
-      expect(stored.preview).toBe("shop");
-      expect(stored.dev).toBe("shop");
+      expect(stored.preview).toBe("legacy");
+      expect(stored.dev).toBe("legacy");
     });
   }
 });

@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 // Pins the pre-neutralization pool-distance classifier (`legacyResultNearMiss`), which has no production caller since
 // Near/Far Neutralization Phase 1; the production `resultNearMiss` is pinned in resultNearMiss.neutral.test.ts.
 import { describe, expect, it } from "vitest";

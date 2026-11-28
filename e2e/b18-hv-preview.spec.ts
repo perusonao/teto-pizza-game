@@ -6,6 +6,7 @@ import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
 import { chipOnTrayOrPin } from "./support/handPick";
+import { legacyProgressionUrl } from "./support/legacyProgression";
 
 /**
  * Expansion Batch 18 (#748, PR #759): the Preview-only B18 HV seeds (src/preview/b18HvSeeds.ts; Owner approach A,
@@ -231,7 +232,7 @@ for (const c of CASES) {
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(String(e)));
     await plantStorage(page, { [PROD_KEY]: PRODUCTION_SENTINEL });
-    await visit(page, `${origin}${PREVIEW_BASE}?hv=${c.hv}`);
+    await visit(page, legacyProgressionUrl(`${origin}${PREVIEW_BASE}?hv=${c.hv}`));
     expect(await stored(page, PROD_KEY)).toBe(PRODUCTION_SENTINEL);
     const seeded = await savedJson(page, PREVIEW_KEY);
     expect(seeded.pitzBalance).toBe(500);
@@ -332,7 +333,7 @@ for (const c of CASES) {
 
 test("Preview ?hv=b18-bbq: bbq-chicken-pizza (undiscovered, bbq-sauce then cilantro owned) shows the Owner-approved 「？？？ピザ B（パクチー）」", async ({ page }) => {
   await plantStorage(page, { [PROD_KEY]: PRODUCTION_SENTINEL });
-  await visit(page, `${origin}${PREVIEW_BASE}?hv=b18-bbq`);
+  await visit(page, legacyProgressionUrl(`${origin}${PREVIEW_BASE}?hv=b18-bbq`));
   const seeded = await savedJson(page, PREVIEW_KEY);
   expect(seeded.ownedIngredientIds.slice(-2)).toEqual(["bbq-sauce", "cilantro"]);
   expect(seeded.dex.map((e: { recipeId: string }) => e.recipeId)).not.toContain("bbq-chicken-pizza");
@@ -355,7 +356,7 @@ test("Preview ?hv=b18-bbq: bbq-chicken-pizza (undiscovered, bbq-sauce then cilan
 
 test("Preview: the legacy `?hv=normal` Hint 5.0 seed still applies (meat-lovers save, no cilantro)", async ({ page }) => {
   await plantStorage(page, { [PROD_KEY]: PRODUCTION_SENTINEL });
-  await visit(page, `${origin}${PREVIEW_BASE}?hint5=1&hv=normal`);
+  await visit(page, legacyProgressionUrl(`${origin}${PREVIEW_BASE}?hint5=1&hv=normal`));
   const seeded = await savedJson(page, PREVIEW_KEY);
   expect(seeded.pitzBalance).toBe(300);
   expect(seeded.ownedIngredientIds).toContain("ham");

@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createEmptyPizza, type PizzaState } from "../state/pizzaState";
 import { PINSA_ROMANA_BATCH } from "../logic/catalog/testSupport/recipeBatchManifest";

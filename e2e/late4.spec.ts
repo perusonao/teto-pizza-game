@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
@@ -80,7 +81,7 @@ test.describe("PR-2 late4 (representative: wasabi-beef-pizza and tarako-cream-pi
         localStorage.clear();
         localStorage.setItem(key, value);
       }, [SAVE_KEY, saveJson(discovered, materialsUpTo(plan.step))] as const);
-      await page.goto("/");
+      await page.goto(legacyProgressionUrl("/"));
       await page.waitForSelector(".app-frame");
       await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${discovered.length}/${CATALOG_COUNTS.recipes}`));
       await hold(page);
@@ -151,7 +152,7 @@ test.describe("PR-2 late4 (representative: wasabi-beef-pizza and tarako-cream-pi
       localStorage.clear();
       localStorage.setItem(key, value);
     }, [SAVE_KEY, saveJson(discovered, withoutLate)] as const);
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl("/"));
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /ショップ/ }).click();
     await page.waitForSelector(".shop-overlay__panel");

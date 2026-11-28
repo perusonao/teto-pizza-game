@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { applyStarterGrants, STARTER_STOCK_PLAYS_CHAPTER_1 } from "./starterStock";
 import { registerScoreToDex, EMPTY_DEX, type DexState } from "./dex";

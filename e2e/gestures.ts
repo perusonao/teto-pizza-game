@@ -2,6 +2,7 @@ import { expect, type Page } from "@playwright/test";
 import { JUST_HALF_WIDTH_PT } from "../src/logic/bake";
 import { BAKE_SPEED_PCT_PER_S } from "../src/logic/bakeProgress";
 import { cutMarkCount, diagMouse, installPointerTrace, reportCutCommit } from "./support/diag";
+import { legacyProgressionUrl } from "./support/legacyProgression";
 
 /**
  * Real-mouse (not synthetic PointerEvent dispatch) gesture helpers for driving a FREE round
@@ -422,7 +423,7 @@ export async function startFreshMargherita(page: Page, query = "") {
       }),
     );
   });
-  await page.goto(`/${query}`);
+  await page.goto(legacyProgressionUrl(`/${query}`));
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");
@@ -544,7 +545,7 @@ export async function startQuattroFormaggiHeavyInventory(page: Page) {
   await page.addInitScript((rawSave) => {
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
   }, save);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /クアトロ/ }).click();
@@ -621,7 +622,7 @@ export async function startCapricciosaUnlocked(page: Page, query = "") {
   await page.addInitScript((rawSave) => {
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
   }, save);
-  await page.goto(`/${query}`);
+  await page.goto(legacyProgressionUrl(`/${query}`));
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /カプリチョーザ、/ }).click();
@@ -744,7 +745,7 @@ export async function startLunchRushMission(page: Page, durationSeconds: number)
       }),
     );
   });
-  await page.goto(`/?missionDuration=${durationSeconds}`);
+  await page.goto(legacyProgressionUrl(`/?missionDuration=${durationSeconds}`));
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");
@@ -830,7 +831,7 @@ export async function startSalsicciaUnlocked(page: Page) {
   await page.addInitScript((rawSave) => {
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
   }, save);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /サルシッチャ、/ }).click();
@@ -872,7 +873,7 @@ export async function startMarinaraUnlocked(page: Page) {
   await page.addInitScript((rawSave) => {
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(rawSave));
   }, save);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /マリナーラ、/ }).click();

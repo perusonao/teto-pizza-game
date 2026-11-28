@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expect, test, type Page } from "@playwright/test";
 import { completeDoughStep } from "./gestures";
 import { base, SAVE_KEY } from "./support/familyTray";
@@ -22,7 +23,7 @@ async function open(page: Page, query: string, save: object = {}) {
     localStorage.clear();
     localStorage.setItem(k, v);
   }, [SAVE_KEY, JSON.stringify({ ...base(["tomato-sauce", "mozzarella", "basil"]), ...save })] as const);
-  await page.goto(`/${query}`);
+  await page.goto(legacyProgressionUrl(`/${query}`));
   await page.waitForSelector(".app-frame");
 }
 

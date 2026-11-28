@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { writeFileSync } from "node:fs";
 import { cutThreeLines, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -23,7 +24,7 @@ async function toBake(page: Page, query: string, css: string) {
   await page.addInitScript(() => {
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify({ schemaVersion: 1, dex: [{ recipeId: "margherita", discovered: true, bestScore: 60, bestStars: 1, timesMade: 1 }], pitzBalance: 0, ownedIngredientIds: ["tomato-sauce", "mozzarella", "basil"], missionBest: {} }));
   });
-  await page.goto(`/?cheese=${query}&cheesePx=62`);
+  await page.goto(legacyProgressionUrl(`/?cheese=${query}&cheesePx=62`));
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");

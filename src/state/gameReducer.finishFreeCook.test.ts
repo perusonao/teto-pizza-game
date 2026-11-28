@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_COOKING_PROFILE, getCookingProfile, visibleCookingTabCount } from "../data/cookingProfiles";
 import { DISCOVERY_LADDER } from "../data/discoveryLadder";

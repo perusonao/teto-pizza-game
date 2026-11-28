@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { RECIPES, countsTowardLadder, getRecipe } from "../data/recipes";
 import { INGREDIENTS, getIngredient } from "../data/ingredients";

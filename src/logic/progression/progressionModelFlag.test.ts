@@ -39,19 +39,19 @@ afterEach(() => {
 });
 
 describe("progression model flag", () => {
-  it("the production default is the literal \"legacy\", written once", () => {
+  it("the production default is the literal \"shop\", written once", () => {
     const defaults = flagSource.match(/^const PROGRESSION_MODEL_PRODUCTION_DEFAULT: ProgressionModelId = "(\w+)";$/gm) ?? [];
-    expect(defaults).toEqual(['const PROGRESSION_MODEL_PRODUCTION_DEFAULT: ProgressionModelId = "legacy";']);
+    expect(defaults).toEqual(['const PROGRESSION_MODEL_PRODUCTION_DEFAULT: ProgressionModelId = "shop";']);
   });
 
-  it("nothing set: legacy", async () => {
-    expect(await idFor("")).toBe("legacy");
-    expect(await activeIdFor("")).toBe("legacy");
+  it("nothing set: shop", async () => {
+    expect(await idFor("")).toBe("shop");
+    expect(await activeIdFor("")).toBe("shop");
   });
 
   it("an unrelated parameter or an unknown value changes nothing", async () => {
-    expect(await idFor("?hv=normal")).toBe("legacy");
-    expect(await idFor("?progression=reputation")).toBe("legacy");
+    expect(await idFor("?hv=normal")).toBe("shop");
+    expect(await idFor("?progression=reputation")).toBe("shop");
     expect(window.localStorage.getItem(PREVIEW_KEY)).toBeNull();
   });
 
@@ -66,12 +66,12 @@ describe("progression model flag", () => {
   });
 
   it("the DEV key selects a model; the Preview instruction wins over it", async () => {
-    window.localStorage.setItem(DEV_KEY, "shop");
-    expect(await idFor("")).toBe("shop");
-    expect(await idFor("?progression=legacy")).toBe("legacy");
+    window.localStorage.setItem(DEV_KEY, "legacy");
+    expect(await idFor("")).toBe("legacy");
+    expect(await idFor("?progression=shop")).toBe("shop");
     window.localStorage.clear();
     window.localStorage.setItem(DEV_KEY, "nonsense");
-    expect(await idFor("")).toBe("legacy");
+    expect(await idFor("")).toBe("shop");
   });
 
   it("the Preview key is separate from the save keys and leaves the save untouched", async () => {
@@ -82,13 +82,14 @@ describe("progression model flag", () => {
     expect(PREVIEW_KEY).not.toBe("teto-pizza-preview-save-v1");
   });
 
-  it("production ignores a shop request and both remembered choices while its default is legacy", async () => {
+  it("a shop request cannot override a production rollback to legacy", async () => {
     vi.stubEnv("DEV", false);
     vi.stubEnv("VITE_PREVIEW_MODE", "");
     window.localStorage.setItem(DEV_KEY, "shop");
     window.localStorage.setItem(PREVIEW_KEY, "shop");
-    expect(await idFor("?progression=shop")).toBe("legacy");
-    expect(await activeIdFor("?progression=shop")).toBe("legacy");
+    await idFor("?progression=shop");
+    const { resolveProgressionModelId } = await import("./progressionModelFlag");
+    expect(resolveProgressionModelId("legacy")).toBe("legacy");
   });
 
   it.each(["", "?progression=", "?progression=reputation", "?progression=shop", "?progression=shop&progression=legacy"])(
@@ -100,7 +101,7 @@ describe("progression model flag", () => {
       window.localStorage.setItem(PREVIEW_KEY, "legacy");
       const read = vi.spyOn(Storage.prototype, "getItem");
       const write = vi.spyOn(Storage.prototype, "setItem");
-      expect(await idFor(search)).toBe("legacy");
+      expect(await idFor(search)).toBe("shop");
       const { resolveProgressionModelId } = await import("./progressionModelFlag");
       expect(resolveProgressionModelId("shop")).toBe("shop");
       expect(read).not.toHaveBeenCalled();
@@ -131,7 +132,7 @@ describe("progression model flag", () => {
     vi.stubGlobal("location", undefined);
     vi.resetModules();
     const { PROGRESSION_MODEL_ID, resolveProgressionModelId } = await import("./progressionModelFlag");
-    expect(PROGRESSION_MODEL_ID).toBe("legacy");
+    expect(PROGRESSION_MODEL_ID).toBe("shop");
     expect(resolveProgressionModelId("shop")).toBe("shop");
   });
 
@@ -172,12 +173,12 @@ describe("progression model flag", () => {
   it("a Preview build (not DEV) honours the URL / Preview key but not the DEV key", async () => {
     vi.stubEnv("DEV", false);
     vi.stubEnv("VITE_PREVIEW_MODE", "1");
-    window.localStorage.setItem(DEV_KEY, "shop");
-    expect(await idFor("")).toBe("legacy");
-    expect(await idFor("?progression=shop")).toBe("shop");
+    window.localStorage.setItem(DEV_KEY, "legacy");
     expect(await idFor("")).toBe("shop");
     expect(await idFor("?progression=legacy&progression=shop")).toBe("legacy");
     expect(await idFor("")).toBe("legacy");
+    expect(await idFor("?progression=shop")).toBe("shop");
+    expect(await idFor("")).toBe("shop");
   });
 });
 

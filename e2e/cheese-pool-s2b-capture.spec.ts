@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { cutThreeLines, completeDoughStep, enterBakePaused, landNeedleAndTakeOut, paintSauceRing, tapDoughPercent } from "./gestures";
 
@@ -31,7 +32,7 @@ async function startMargherita(page: Page, mode: string) {
       missionBest: {},
     }));
   });
-  await page.goto(`/?cheese=${mode}`);
+  await page.goto(legacyProgressionUrl(`/?cheese=${mode}`));
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");

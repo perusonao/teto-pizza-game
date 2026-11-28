@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect } from "@playwright/test";
 import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
@@ -39,7 +40,7 @@ test("a save carrying future recipe/ingredient data loads unchanged and survives
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(save));
   }, FUTURE_SAVE);
 
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`1/${CATALOG_COUNTS.recipes}`));
   await expect(page.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();

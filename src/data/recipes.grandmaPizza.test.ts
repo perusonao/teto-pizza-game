@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { getCookingProfile, isCutEligible } from "./cookingProfiles";
 import { RECIPE_DISCOVERY_CATALOG } from "./discoveryCatalog";

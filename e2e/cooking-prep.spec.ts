@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expect, test, type Page } from "@playwright/test";
 import { completeDoughStep, tapDoughPercent } from "./gestures";
 import { base, HAND_ON_OWNED, SAVE_KEY } from "./support/familyTray";
@@ -21,7 +22,7 @@ async function toTopping(page: Page, query: string, variant: "round" | "oval" | 
     localStorage.clear();
     localStorage.setItem(k, v);
   }, [SAVE_KEY, JSON.stringify(base(HAND_ON_OWNED))] as const);
-  await page.goto(`/${query}`);
+  await page.goto(legacyProgressionUrl(`/${query}`));
   await page.waitForSelector(".app-frame");
   await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
@@ -113,7 +114,7 @@ test.describe("Cooking Prep: HV entry (?cookPrepHv=1)", () => {
       localStorage.clear();
       localStorage.setItem(k, v);
     }, [SAVE_KEY, REAL] as const);
-    await page.goto(`/${query}`);
+    await page.goto(legacyProgressionUrl(`/${query}`));
   }
 
   test("one URL lands on the TOPPING step with the beef selected and unprepared, and the real save is never touched", async ({ page, context }) => {

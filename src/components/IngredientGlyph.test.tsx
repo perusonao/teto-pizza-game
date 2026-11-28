@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import "@testing-library/jest-dom/vitest";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { cleanup, render, within } from "@testing-library/react";

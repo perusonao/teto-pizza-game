@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 
 /**
@@ -32,7 +33,7 @@ function save(pitz: number) {
 async function openApp(page: Page, pitz: number) {
   await page.goto("icons/icon-16.png");
   await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, [SAVE_KEY, JSON.stringify(save(pitz))] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
 }
 

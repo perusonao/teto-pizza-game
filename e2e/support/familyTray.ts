@@ -4,6 +4,7 @@ import { INGREDIENTS, ingredientsByCategory } from "../../src/data/ingredients";
 import { FAMILY_DISPLAY } from "../../src/data/familyDisplay";
 import { CHIP_ROW_FADE_PX } from "../../src/logic/chipRowAlign";
 import { completeDoughStep, paintSauceRing, tapDoughPercent } from "../gestures";
+import { legacyProgressionUrl } from "./legacyProgression";
 import { startTargetlessFreeCook } from "./startFreeCook";
 
 /**
@@ -47,7 +48,7 @@ export async function openWith(page: Page, width: number, height: number, save: 
     localStorage.clear();
     localStorage.setItem(k, v);
   }, [SAVE_KEY, JSON.stringify(save)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
 }
 
