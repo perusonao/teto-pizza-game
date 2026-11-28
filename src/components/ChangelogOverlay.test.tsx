@@ -84,7 +84,7 @@ describe("HOME 更新情報 entry", () => {
     renderHome(onOpenChangelog);
     await userEvent.click(screen.getByRole("button", { name: /更新情報/ }));
     expect(onOpenChangelog).toHaveBeenCalledTimes(1);
-    for (const name of [/ピザを作る/, /レシピ発見/, /ランチラッシュ/, /ピザ図鑑/, /ショップ/, /材料/, /ランキング/, "設定"]) {
+    for (const name of [/ピザを作る/, /レシピ発見/, /ランチラッシュ/, /ピザ図鑑/, /お店/, /材料/, /ランキング/, "設定"]) {
       expect(screen.getByRole("button", { name })).toBeInTheDocument();
     }
   });

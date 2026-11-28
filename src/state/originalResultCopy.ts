@@ -50,7 +50,7 @@ export function duplicateTrialNoticeJa(number: unknown): string | null {
 }
 
 /** OD-P2-1 = A: shared by ORDINARY and AMBIGUOUS. OD-P2-5: no next action in the lead. */
-const NEUTRAL_LEAD = "図鑑にはまだ載っていないピザ！";
+const NEUTRAL_LEAD = "ピザ図鑑にはまだ載っていないピザ！";
 
 /**
  * Issue #676 (C3, Owner 2026-10-27): the note under a targetless Free Cook ORIGINAL card. One fixed sentence for every

@@ -28,7 +28,7 @@ const shopAt = (reputation: number): ShopProgressState => ({ reputation, granted
 const PITZ = { baseReward: 100, multiplier: 1, earnedPitz: 100, discoveryBonusPitz: 0, balanceBefore: 0, balanceAfter: 100 } as never;
 const GAIN = { earned: 2, stage: 2, balanceAfter: 9 };
 // Phase 3d: the points now buy hints, so the line says where (it was 「ヒントと交換できるようになるのは、もう少し先です」 in 3c).
-const NOT_YET = "図鑑やヒント画面で、ヒントと交換できます";
+const NOT_YET = "ピザ図鑑やヒント画面で、ヒントと交換できます";
 
 function result(extra: Partial<Parameters<typeof ResultPanel>[0]> = {}) {
   return render(

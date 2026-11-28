@@ -153,7 +153,7 @@ test.describe("B案 Phase 3c: research points (shop model)", () => {
     if (STRICT) {
       await expect(line).toContainText("研究ポイント +2");
       await expect(line).toContainText("所持 2");
-      await expect(line).toContainText("図鑑やヒント画面で、ヒントと交換できます");
+      await expect(line).toContainText("ピザ図鑑やヒント画面で、ヒントと交換できます");
       await noOverflow(page, "RESULT research points");
       expect((await saved(page)).shopProgress.researchPointsEarned).toBe(2);
     }
@@ -184,7 +184,7 @@ test.describe("B案 Phase 3c: research points (shop model)", () => {
       await expect(sheet).toBeVisible();
       if (STRICT) {
         await expect(page.getByTestId("hint-research-points")).toContainText("研究ポイント 2");
-        await expect(page.getByTestId("hint-research-points")).toContainText("図鑑やヒント画面で、ヒントと交換できます");
+        await expect(page.getByTestId("hint-research-points")).toContainText("ピザ図鑑やヒント画面で、ヒントと交換できます");
         await noOverflow(page, "hint sheet");
       }
       await capture(page, "04-hint-sheet-rp");

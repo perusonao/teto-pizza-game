@@ -333,7 +333,7 @@ describe("DM-3R-0: one PREPARE dock for the whole round", () => {
 // Progression 2.0 W1-d: the Discovery Result's registration row comes from a real Free Cooking
 // matcher discovery and the canonical chapter functions (OD-DISC-9).
 describe("W1-d: Discovery Result from a real Free Cooking discovery", () => {
-  it("bismarck discovered after margherita: No.02（第1章 2/6）, 図鑑を見る on that row", () => {
+  it("bismarck discovered after margherita: No.02（第1章 2/6）, ピザ図鑑を見る on that row", () => {
     const REFERENCE = getReferencePizzaForTest("bismarck");
     let state = createInitialGameState(
       [{ recipeId: "margherita", discovered: true, bestScore: 70, bestStars: 3, timesMade: 1 }],

@@ -368,7 +368,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await selectRecipeInPizzaSelect(user, "bismarck"); // Pizza Select -> GAME/PREPARE
     const header = document.querySelector<HTMLElement>(".game-screen .app-header")!;
     expect(within(header).queryByText(/Shop/)).not.toBeInTheDocument();
-    expect(within(header).queryByText(/レシピ図鑑/)).not.toBeInTheDocument();
+    expect(within(header).queryByText(/ピザ図鑑/)).not.toBeInTheDocument();
     expect(within(header).getByRole("button", { name: /ホーム/ })).toBeInTheDocument();
   });
 

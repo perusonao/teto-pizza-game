@@ -244,8 +244,8 @@ test.describe("I5b-5 Layout Contract", () => {
       ctaBar: ".dex-registration-row",
       names: { name: ".discovered-banner__name", card: ".result-panel" },
     });
-    // 「📖 図鑑を見る」 on the Dex-registration row is reachable too.
-    await cp({ label: "FREE Discovery RESULT (図鑑を見る)", meta: { phase: "RESULT" } }, ["L-A"], {
+    // 「📖 ピザ図鑑を見る」 on the Dex-registration row is reachable too.
+    await cp({ label: "FREE Discovery RESULT (ピザ図鑑を見る)", meta: { phase: "RESULT" } }, ["L-A"], {
       primary: ".dex-registration-row button",
       ctaBar: ".dex-registration-row",
     });

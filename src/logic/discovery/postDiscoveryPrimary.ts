@@ -34,7 +34,7 @@ export const POST_DISCOVERY_LABEL_JA: Readonly<Record<PostDiscoveryPrimaryKind |
   /** RESEARCH_NEXT with 2+ researchable entries: the player picks on the Dex's anonymous Research cards. */
   RESEARCH_NEXT_CHOOSE: "\u{1F50E} 次のピザを選んで研究する",
   SHOP_NEW_MATERIAL: "\u{1F6D2} 新しい食材を見る",
-  DEX: "\u{1F4D6} 図鑑を見る",
+  DEX: "\u{1F4D6} ピザ図鑑を見る",
 };
 
 export function postDiscoveryPrimary(input: PostDiscoveryPrimaryInput): PostDiscoveryPrimary {

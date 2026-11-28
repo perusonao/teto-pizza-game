@@ -245,8 +245,8 @@ describe("F. the Dex footer 「閉じる」 closes only (#457: label matches the
       const onGoFreeCook = vi.fn();
       render(<DexOverlay {...DexProps(single(zero))} onClose={onClose} onOpenShop={onOpenShop} onResearch={onResearch} onGoFreeCook={onGoFreeCook} />);
       expect(screen.queryByRole("button", { name: "次のピザを作る" })).toBeNull();
-      expect(screen.getByRole("button", { name: "図鑑を閉じる" })).toHaveTextContent("閉じる");
-      await user.click(screen.getByRole("button", { name: "図鑑を閉じる" }));
+      expect(screen.getByRole("button", { name: "ピザ図鑑を閉じる" })).toHaveTextContent("閉じる");
+      await user.click(screen.getByRole("button", { name: "ピザ図鑑を閉じる" }));
       expect(onClose).toHaveBeenCalledTimes(1);
       expect(onOpenShop).not.toHaveBeenCalled();
       expect(onResearch).not.toHaveBeenCalled();

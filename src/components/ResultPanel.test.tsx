@@ -682,9 +682,9 @@ describe("W1-d: Discovery Result hierarchy", () => {
     expect(document.querySelector(".result-panel__bake-badge")).toBeNull();
   });
 
-  it("#358: a NEW PIZZA result has no bottom CTA bar -- no 「もう一度試す」 / 「レシピを選んで作る」; 「📖 図鑑を見る」 stays on the registration row", async () => {
+  it("#358: a NEW PIZZA result has no bottom CTA bar -- no 「もう一度試す」 / 「レシピを選んで作る」; 「📖 ピザ図鑑を見る」 stays on the registration row", async () => {
     const { onOpenDex } = renderDiscovery();
-    const dexCta = screen.getByRole("button", { name: /図鑑を見る/ });
+    const dexCta = screen.getByRole("button", { name: /ピザ図鑑を見る/ });
     expect(document.querySelector(".dex-registration-row")!.contains(dexCta)).toBe(true);
     expect(document.querySelector(".result-panel__actions")).toBeNull();
     expect(screen.queryByRole("button", { name: "もう一度試す" })).not.toBeInTheDocument();
@@ -706,7 +706,7 @@ describe("W1-d: Discovery Result hierarchy", () => {
     await userEvent.click(shopButtons[0]);
     expect(onOpenShop).toHaveBeenCalledTimes(1);
     // #457: the primary stays the Shop; the Dex is a secondary link beside it (not a second primary).
-    const dexLink = screen.getByRole("button", { name: /図鑑を見る/ });
+    const dexLink = screen.getByRole("button", { name: /ピザ図鑑を見る/ });
     expect(dexLink).not.toHaveClass("dex-registration-row__cta--primary");
     expect(document.querySelector(".dex-registration-row")!.contains(dexLink)).toBe(true);
     expect(document.querySelectorAll(".dex-registration-row__cta--primary")).toHaveLength(1);

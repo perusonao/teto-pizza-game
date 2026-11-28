@@ -218,7 +218,7 @@ const GO_HOME_CONFIRM_MESSAGE =
   "ピザ作りを中断してホームに戻りますか？作りかけのピザは失われます。";
 /** R8 (#617): leaving a baked pizza that still has CUT / FINISH to go. Its ingredients are already used, so it is registered as it is. */
 const GO_HOME_BAKED_CONFIRM_MESSAGE =
-  "ホームに戻りますか？焼き上がったピザは、いまの状態でそのまま完成として図鑑に登録されます（残りの工程は行われません）。";
+  "ホームに戻りますか？焼き上がったピザは、いまの状態でそのまま完成としてピザ図鑑に登録されます（残りの工程は行われません）。";
 
 function newRoundId(now: number): string {
   return `r${now.toString(36)}${Math.random().toString(36).slice(2, 8)}`;

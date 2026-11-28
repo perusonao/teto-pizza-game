@@ -98,7 +98,7 @@ const EMPTY_COPY: Record<HintEmptyKind, { title: string; body: string }> = {
     ),
   },
   COMPLETE: {
-    title: "\u{1F3C6} 図鑑コンプリート！",
+    title: "\u{1F3C6} ピザ図鑑コンプリート！",
     body: "ぜんぶのピザを見つけたよ。好きなピザを作ろう！",
   },
 };

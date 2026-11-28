@@ -9,6 +9,6 @@ export const OPEN_POOL_ACTIONS = {
  *  ingredient or fact; the player picks one of the Dex's anonymous Research cards. */
 export const CHOOSE_RESEARCH_COPY = {
   title: "\u{1F50E} 研究するピザを選ぼう",
-  body: "図鑑の「研究中のピザ」から、研究するピザを選ぶと、そのピザのヒントが見られるよ。",
+  body: "ピザ図鑑の「研究中のピザ」から、研究するピザを選ぶと、そのピザのヒントが見られるよ。",
   button: "\u{1F50E} 研究するピザを選ぶ",
 } as const;

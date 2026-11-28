@@ -119,7 +119,7 @@ describe("screens", () => {
       "0/12",
     ]);
     expect(container.querySelectorAll(".dex-overlay__chapter .dex-card")).toHaveLength(60);
-    expect(screen.getByText(/開発 1 \/ 60/)).toBeInTheDocument();
+    expect(screen.getByText(/メニュー 1 \/ 60/)).toBeInTheDocument();
     expect(screen.queryByText(NOT_ADOPTED.nameJa)).toBeNull();
   });
 

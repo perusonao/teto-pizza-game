@@ -10,7 +10,7 @@ export const RESEARCH_POINTS_COPY = {
   label: "研究ポイント",
   icon: "\u{1F52C}",
   /** Phase 3d: what they are for (Phase 3c said 「ヒントと交換できるようになるのは、もう少し先です」 until hints could be bought). */
-  usable: "図鑑やヒント画面で、ヒントと交換できます",
+  usable: "ピザ図鑑やヒント画面で、ヒントと交換できます",
 } as const;
 
 /** RESULT: what this trial earned and the balance after it. */

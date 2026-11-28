@@ -336,7 +336,7 @@ export function DexOverlay({
     <div className="dex-overlay">
       <div className="dex-overlay__panel">
         <div className="dex-overlay__header">
-          <h2>レシピ図鑑</h2>
+          <h2>ピザ図鑑</h2>
           <button type="button" className="dex-overlay__close dex-overlay__close--tap44" onClick={onClose}>
             閉じる
           </button>
@@ -345,7 +345,7 @@ export function DexOverlay({
           <div className={`dex-overlay__progress ${isComplete ? "dex-overlay__progress--complete" : ""}`}>
             <div className="dex-overlay__progress-row">
               <p className="dex-overlay__progress-count">
-                {isComplete ? `🏆 ${total} / ${total}` : `🍕 ${shopCopy("発見", "開発")} ${discoveredCount} / ${total}`}
+                {isComplete ? `🏆 ${total} / ${total}` : `🍕 ${shopCopy("発見", "メニュー")} ${discoveredCount} / ${total}`}
               </p>
               <p className="dex-overlay__progress-sub">
                 {isComplete ? "コンプリート！" : `あと${total - discoveredCount}種類！`}
@@ -432,7 +432,7 @@ export function DexOverlay({
             });
           })()}
           <div className="dex-overlay__footer">
-            <button type="button" className="cta-button cta-button--primary" aria-label="図鑑を閉じる" onClick={onClose}>
+            <button type="button" className="cta-button cta-button--primary" aria-label="ピザ図鑑を閉じる" onClick={onClose}>
               閉じる
             </button>
           </div>

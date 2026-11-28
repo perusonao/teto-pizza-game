@@ -165,7 +165,7 @@ test("C3: the targetless ORIGINAL note is the fixed sentence, under the hint row
   await expect(card).toBeVisible();
   const note = card.locator(".original-pizza__note");
   await expect(note).toHaveText(NOTE);
-  await expect(card).not.toContainText("図鑑のピザと同じ組み合わせ");
+  await expect(card).not.toContainText("ピザ図鑑のピザと同じ組み合わせ");
   const hint = card.getByRole("button", { name: /ヒントを見る/ });
   await expect(hint).toHaveCount(1);
   const noteBox = (await note.boundingBox())!;
