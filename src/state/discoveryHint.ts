@@ -41,8 +41,8 @@ import {
   type DiscoveryHintPurchases,
 } from "../logic/discovery/hintPurchase";
 import { buildHintSteps, type HintLevel, type HintStep } from "../logic/discovery/hintSteps";
-import { discoverableHintCandidates, hintRecipePopulation, selectHintTarget, type HintEmptyKind } from "../logic/discovery/hintTarget";
-import { activeProgressionModel, type MenuInputs } from "../logic/progression/progressionModel";
+import { discoverableHintCandidates, selectHintTarget, type HintEmptyKind } from "../logic/discovery/hintTarget";
+import { activeProgressionModel, type MenuInputs, type ProgressionModel } from "../logic/progression/progressionModel";
 import { selectableHintSavedState } from "../logic/discovery/hintFactMigration";
 import { DEDUCTION_HINT_PRICE, DEDUCTION_HINTS_ENABLED } from "../logic/discovery/deductionFlag";
 import { HINT5_LADDER_ENABLED } from "../logic/discovery/hint5Flag";
@@ -674,9 +674,8 @@ type ResearchTargetInputs =
   MenuInputs & Pick<DiscoveryHintState, "ownedIngredientIds" | "unlockedForShopIngredientIds" | "inventory" | "discoveryHintFacts">;
 type ResearchViewInputs = MenuInputs & Pick<DiscoveryHintState, "ownedIngredientIds"> & Partial<Pick<DiscoveryHintState, "discoveryHintFacts">>;
 
-function activeResearchEntries(state: ResearchViewInputs): readonly ResearchEntry[] {
-  const model = activeProgressionModel();
-  const { entries } = deriveResearchEntries(state, undefined, hintRecipePopulation());
+function activeResearchEntries(state: ResearchViewInputs, model = activeProgressionModel()): readonly ResearchEntry[] {
+  const { entries } = deriveResearchEntries(state, undefined, model.catalogRecipes());
   return model.id === "shop" ? entries.filter((entry) => model.isRecipeStageOpen(entry.recipeId, state)) : entries;
 }
 
@@ -710,8 +709,8 @@ function viewOf(entry: ResearchEntry, stored: readonly string[]): ResearchEntryV
 }
 
 /** Every registered Research Entry as the UI may show it, in S1's stable anonymous order. */
-export function researchEntryViews(state: ResearchViewInputs): ResearchEntryView[] {
-  return activeResearchEntries(state).map((entry) =>
+export function researchEntryViews(state: ResearchViewInputs, progression?: ProgressionModel): ResearchEntryView[] {
+  return activeResearchEntries(state, progression).map((entry) =>
     viewOf(entry, storedFactIds({ discoveryHintFacts: state.discoveryHintFacts ?? {} }, entry.recipeId)),
   );
 }
@@ -755,9 +754,9 @@ export function homeDiscoveryRoute(
  *  `researchTargetView` it does not require the target to still be cookable: a trial that used up the last unit
  *  of a finite ingredient is still a research attempt (entries are ownership-derived, never stock-derived). Null
  *  once the target is discovered or was never a registered entry. */
-export function researchResultView(state: DiscoveryHintState): ResearchEntryView | null {
+export function researchResultView(state: DiscoveryHintState, progression?: ProgressionModel): ResearchEntryView | null {
   if (!state.researchTargetId) return null;
-  return researchEntryViews(state).find((v) => v.recipeId === state.researchTargetId) ?? null;
+  return researchEntryViews(state, progression).find((v) => v.recipeId === state.researchTargetId) ?? null;
 }
 
 // ---- Contract 2.1 (RESULT-based identification): the Research Target context of one finished attempt ----
@@ -775,8 +774,8 @@ export interface ResearchAttemptContext {
  * stock-derived (the same basis as `researchResultView`): an attempt that used the target's last finite stock still
  * has its context (OD-RB-18). It reads no recipe membership for the player-facing label.
  */
-export function researchAttemptContext(state: DiscoveryHintState): ResearchAttemptContext | null {
-  const view = researchResultView(state);
+export function researchAttemptContext(state: DiscoveryHintState, progression?: ProgressionModel): ResearchAttemptContext | null {
+  const view = researchResultView(state, progression);
   if (!view) return null;
   // The one label authority (`researchEntryLabel`) already carries the unlock fact: no recomposition here.
   return {

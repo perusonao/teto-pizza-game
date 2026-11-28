@@ -2,7 +2,7 @@
  * The state the page starts from (moved out of App.tsx so the save -> state step, including R8's completion of a baked round, is
  * testable without React). A pure function of the stored save, apart from telling the write gate what this page loaded.
  */
-import { activeProgressionModel } from "../logic/progression/progressionModel";
+import { activeProgressionModel, progressionModelFor } from "../logic/progression/progressionModel";
 import { EMPTY_SHOP_PROGRESS } from "../logic/progression/shopProgress";
 import { initialTechniqueLedger } from "../logic/techniques/runtime";
 import { createInitialGameState, type GameState } from "./gameReducer";
@@ -34,7 +34,11 @@ export function buildStartup(storage?: StorageLike | null): Startup {
   // B案 Phase 1a (#901): through the progression port (legacy = `resolveShopEntitlement`, unchanged output).
   // Phase 1b: the shop state rides along (a save without `shopProgress` starts from the default; legacy does not read it).
   const shop = save.shopProgress ?? EMPTY_SHOP_PROGRESS;
-  const entitlement = activeProgressionModel().resolveEntitlement({
+  const activeModel = activeProgressionModel();
+  const entitlementModel = pendingRound.kind === "round" && pendingRound.round.status === "pending"
+    ? progressionModelFor(pendingRound.round.originMode ?? "legacy")
+    : activeModel;
+  const entitlement = entitlementModel.resolveEntitlement({
     dex: save.dex,
     ownedIngredientIds: save.ownedIngredientIds,
     unlockedForShopIngredientIds: save.unlockedForShopIngredientIds,
@@ -68,6 +72,11 @@ export function buildStartup(storage?: StorageLike | null): Startup {
   // second initialization builds the same state.
   const completed = settlePendingRound(initial, pendingRound.round);
   if (!completed) return { state: initial, settled: null, held: "unresolvable" };
+  if (entitlementModel !== activeModel) {
+    // The round has finished. Apply this page's load-time entitlement to the progress it produced.
+    const { unlockedForShopIngredientIds } = activeModel.resolveEntitlement(completed.state);
+    return { state: { ...completed.state, unlockedForShopIngredientIds }, settled: completed.settled, held: null };
+  }
   return { state: completed.state, settled: completed.settled, held: null };
 }
 

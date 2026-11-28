@@ -21,7 +21,7 @@ import { RECIPE_DISCOVERY_CATALOG } from "../../data/discoveryCatalog";
 import { TECHNIQUES, type TechniqueId } from "../../data/techniques";
 import { isDiscovered, type DexState } from "../../state/dex";
 import { creditedDiscoveredCount, ingredientUnlockStep } from "../../state/materialEntitlement";
-import { activeProgressionModel } from "../progression/progressionModel";
+import { activeProgressionModel, type ProgressionModel } from "../progression/progressionModel";
 import type { ShopProgressState } from "../progression/shopProgress";
 import type { RuntimeSignature } from "../discovery/signature";
 import type { TechniqueTargetView } from "./detection";
@@ -76,9 +76,10 @@ export function isTechniqueAffordanceOpenFor(
   dex: DexState,
   context: TechniqueRuntimeContext,
   shop?: ShopProgressState,
+  progression?: ProgressionModel,
 ): boolean {
   if (context.materialStep === productionMaterialStep && context.countsTowardLadder === undefined) {
-    const model = activeProgressionModel();
+    const model = progression ?? activeProgressionModel();
     // A material that is reached maps to step 0 and one that is not to null, so a target counts only when all its items are reached.
     // B案 Phase 2a: `shop` reaches the shop model's rule (a material is reached once its chapter is open); legacy ignores it.
     return techniqueAffordanceStep(id, context.catalog, (i) => (model.isMaterialReached(i, { dex, shop }) ? 0 : null)) !== null;
@@ -121,6 +122,7 @@ export interface RoundTechniqueInput {
   context: TechniqueRuntimeContext;
   /** B案 Phase 2a: the shop state before this round (the shop model's affordance reads it; legacy does not). */
   shop?: ShopProgressState;
+  progression?: ProgressionModel;
 }
 
 export interface RoundTechniqueResult {
@@ -141,7 +143,7 @@ export function resolveRoundTechniques(input: RoundTechniqueInput): RoundTechniq
           completionPassed: true,
           // The recipe path below covers every discovered recipe, this round's match included.
           matchedTarget: null,
-          isAffordanceOpen: (id) => isTechniqueAffordanceOpenFor(id, input.dexBefore, input.context, input.shop),
+          isAffordanceOpen: (id) => isTechniqueAffordanceOpenFor(id, input.dexBefore, input.context, input.shop, input.progression),
         })
       : { ledger, newlyDiscovered: [] };
 

@@ -1,7 +1,8 @@
+import "../test/legacyProgression";
 import { beforeEach, describe, expect, it } from "vitest";
 import { SAVE_STORAGE_KEY, commitProgress, loadSave, persistProgress, readStoredJournal } from "./persistence";
 import { gameReducer } from "./gameReducer";
-import { PENDING_ROUND_MAX_BYTES, pendingRoundByteLength } from "./pendingRound";
+import { PENDING_ROUND_MAX_BYTES, PENDING_ROUND_VERSION, pendingRoundByteLength } from "./pendingRound";
 import { progressionSnapshotOf } from "./roundCommit";
 import { memoryStorage } from "./testSupport/memoryStorage";
 import { walkPostBakeToResult } from "./testSupport/postBakeFlow";
@@ -378,7 +379,7 @@ describe("older builds, kept journals and a changing catalog", () => {
   });
 
   it("a journal this build cannot act on is held byte-for-byte through other saves, announced, and never replaced", () => {
-    const future = { v: 2, id: "future-1", status: "pending", anything: { new: "shape" } };
+    const future = { v: PENDING_ROUND_VERSION + 1, id: "future-1", status: "pending", anything: { new: "shape" } };
     const raw = JSON.stringify({ schemaVersion: 2, dex: [], pitzBalance: 40, ownedIngredientIds: ["onion"], missionBest: {}, inventory: { onion: 20 }, pendingRound: future });
     const storage = memoryStorage({ [SAVE_STORAGE_KEY]: raw });
     const tab = new Tab(storage);

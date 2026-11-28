@@ -8,7 +8,7 @@ import {
   type CookingProfile,
 } from "../data/cookingProfiles";
 import { buildMaterialUnlockNotice, type MaterialUnlockNotice } from "./materialEntitlement";
-import { activeProgressionModel, completeReputationTable } from "../logic/progression/progressionModel";
+import { activeProgressionModel, completeReputationTable, type ProgressionModel } from "../logic/progression/progressionModel";
 import { orderReputationGain, serviceQualityOf } from "../logic/progression/serviceQuality";
 import {
   activeShopCatalog,
@@ -795,10 +795,10 @@ export interface ResearchPointGain {
  * a failed round -- parked at RESULT -- carries from its first REGISTER_TO_DEX). The journal settle (restart / leaving for HOME)
  * runs the same REGISTER_TO_DEX, and its `settled` journal never settles again, so a reload cannot pay twice either.
  */
-function registerToDexWithResearch(before: GameState, after: GameState): GameState {
+function registerToDexWithResearch(before: GameState, after: GameState, progression: ProgressionModel): GameState {
   if (before.phase !== "RESULT" || before.lastResearchPointGain !== null) return after;
   if (!before.freeCook || before.isMissionRound || isDinnerRound(before)) return after;
-  if (activeProgressionModel().id !== "shop") return after;
+  if (progression.id !== "shop") return after;
   const exactMatchRecipeId = before.score ? before.recipe.id : null;
   const { stage } = researchTrialStage(before.researchTargetId, exactMatchRecipeId, activeShopCatalog());
   const earned = researchPointsForStage(stage);
@@ -1049,7 +1049,7 @@ export function createInitialGameState(
 let placedIdCounter = 0;
 let placementTokenCounter = 0;
 
-function baseGameReducer(state: GameState, action: GameAction): GameState {
+function baseGameReducer(state: GameState, action: GameAction, registrationModel?: ProgressionModel): GameState {
   switch (action.type) {
     case "BEGIN_PREPARE":
       // Issue #212: only an ORDER round can begin preparing. Without this, a BEGIN_PREPARE that
@@ -1775,6 +1775,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // timesMade / BEST, no FREE Pitz. (The Dinner guard in `gameReducer` already rejects this
       // action during a run; this is the per-case backstop.)
       if (isDinnerRound(state)) return state;
+      const progression = registrationModel ?? activeProgressionModel();
       // Progression 2.0 Phase 3-2: an unmatched free-cook pizza (CONFIRM_BAKE left `score` null
       // and the sentinel recipe in place). A FAILED one stays parked exactly like any FAILED
       // round. A finished ORIGINAL pizza is a normal result, not a failure: it moves on to
@@ -1783,7 +1784,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // original-pizza reward is Phase 3-3 economy work). Same RESULT guard => exactly once.
       if (state.freeCook && !state.score) {
         if (state.completion?.status !== "PASS") return state;
-        const resolution = resolveMenuDevelopmentPizza(state.pizza, state.dex);
+        const resolution = resolveMenuDevelopmentPizza(state.pizza, state.dex, progression.id);
         if (resolution.kind !== "ORIGINAL") return state;
         // TQ-1C: an original pizza can still reveal a technique it used (usage path, affordance-
         // gated). The Dex does not change, so the recipe path adds nothing here. An AMBIGUOUS or
@@ -1791,12 +1792,12 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
         // included (Codex review on #289; gate T7).
         const techniques =
           resolution.outcome.kind === "ORIGINAL"
-            ? roundTechniques(state, state.dex)
+            ? roundTechniques(state, state.dex, progression)
             : { ledger: state.discoveredTechniqueIds, newlyDiscovered: [] };
         // P3-3a (OD-P3-17): the exactly-once Trial Notebook commit. The RESULT guard above makes this transition
         // happen once per round; `recordTrialAttempt` records an ORIGINAL / AMBIGUOUS / INCOMPLETE_MATCH outcome
         // (OD-P3-16 as updated by OD-D3-23: an INCOMPLETE_MATCH must not stand out by being unrecorded).
-        const research = researchAttemptResult(state);
+        const research = researchAttemptResult(state, progression);
         const trial = recordTrialAttempt(state, resolution.outcome, research.feedback);
         return {
           ...state,
@@ -1841,7 +1842,6 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // last backstop) writes nothing for that id -- only the matcher below may discover it.
       // B案 Phase 2a: "already discovered" is "on the menu" (legacy: the same `isDiscovered`). The shop model's first menu
       // (margherita, Q2) is on the menu before the Dex has it, so its first served order registers it.
-      const progression = activeProgressionModel();
       const guidedIdOnly = !state.freeCook && !progression.isOnMenu(state.recipe.id, state);
       const selectedRegistration = guidedIdOnly
         ? { dex: state.dex, wasNewDiscovery: false, isNewBest: false }
@@ -1880,7 +1880,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
       // TQ-1C: techniques in the same transition as the Dex -- the usage path (Free Cooking only)
       // and the recipe path (INV-TQ-1: every recipe discovered now implies its techniques). Lunch
       // Rush records nothing (`techniqueRoundEligibility`); Dinner never reaches this case.
-      const techniques = roundTechniques(state, dex);
+      const techniques = roundTechniques(state, dex, progression);
       // Progression 2.0 W1 Integration I4b-3 (REC-04): this is one of the two places `dex` can
       // change (the other is MISSION_NEXT_ORDER below), so it is where the Discovery Ladder is
       // resolved -- atomically with the Dex update, exactly where EP4's Starter Grant used to be
@@ -2307,7 +2307,7 @@ function baseGameReducer(state: GameState, action: GameAction): GameState {
  *  `dexAfter` is the Dex this transition writes. The usage path needs a Completion Gate PASS; the
  *  recipe path follows `dexAfter`. The ledger keeps its identity when nothing was discovered, so
  *  App's persistence effect does not re-run for nothing. */
-function roundTechniques(state: GameState, dexAfter: DexState) {
+function roundTechniques(state: GameState, dexAfter: DexState, progression: ProgressionModel) {
   const result = resolveRoundTechniques({
     eligibility: techniqueRoundEligibility({
       isMissionRound: state.isMissionRound,
@@ -2321,6 +2321,7 @@ function roundTechniques(state: GameState, dexAfter: DexState) {
     dexAfter,
     context: productionTechniqueContext(),
     shop: state.shop,
+    progression,
   });
   return result.newlyDiscovered.length > 0 ? result : { ...result, ledger: state.discoveredTechniqueIds };
 }
@@ -2330,7 +2331,11 @@ function roundTechniques(state: GameState, dexAfter: DexState) {
  * the state, finalized exactly once per round: at CONFIRM_BAKE for a one-pass round (or a failed bake that skips FINISH), at the
  * FINISH confirmation (CONFIRM_MAKING_STEP) for a round that ran FINISH (FIN-E3a). The caller sets `phase`.
  */
-export function unmatchedFreeCookPatch(state: GameState, finalized: UnmatchedFreeCookFinalization): Partial<GameState> {
+export function unmatchedFreeCookPatch(
+  state: GameState,
+  finalized: UnmatchedFreeCookFinalization,
+  progression?: ProgressionModel,
+): Partial<GameState> {
   const { pizza, freeCook } = finalized;
   // Progression 2.0 Phase 3-3 (Issue #198): a free-cook round that didn't match anything
   // new (ORIGINAL/AMBIGUOUS/INCOMPLETE_MATCH/FAILED, all folded into this one branch)
@@ -2345,7 +2350,9 @@ export function unmatchedFreeCookPatch(state: GameState, finalized: UnmatchedFre
   // here (once per round) rather than in REGISTER_TO_DEX, where a FAILED round stays parked.
   // An empty pizza (no sauce, no piece) discloses and writes nothing. Dex / Technique / Pitz are untouched: FAILED
   // never reaches the registration branches, and the inventory is consumed exactly as before.
-  const failedResearch = freeCook.kind === "FAILED" && hasPlacedIngredient(pizza) ? researchAttemptResult({ ...state, pizza }) : null;
+  const failedResearch = freeCook.kind === "FAILED" && hasPlacedIngredient(pizza)
+    ? researchAttemptResult({ ...state, pizza }, progression)
+    : null;
   const failedTrial =
     failedResearch && failedResearch.lastResearchRows ? recordFailedResearchAttempt({ ...state, pizza }, failedResearch.feedback) : null;
   return {
@@ -2383,7 +2390,7 @@ export function unmatchedFreeCookPatch(state: GameState, finalized: UnmatchedFre
  *   topping is never stored.
  * - The Notebook line is built from the same disclosed rows (S2); no rows -> `null`.
  */
-function researchAttemptResult(state: GameState): {
+function researchAttemptResult(state: GameState, progression?: ProgressionModel): {
   discoveryHintFacts: GameState["discoveryHintFacts"];
   researchExclusions: GameState["researchExclusions"];
   lastResearchRows: LastResearchRows | null;
@@ -2397,7 +2404,7 @@ function researchAttemptResult(state: GameState): {
   };
   const targetId = state.researchTargetId;
   if (!RESEARCH_IDENTIFY_ENABLED || !targetId || !state.researchTargetValidAtStart) return none;
-  const context = researchAttemptContext(state);
+  const context = researchAttemptContext(state, progression);
   if (!context) return none;
   const result = researchResultRows({ targetRecipeId: targetId, pizza: state.pizza, knownIngredientIds: context.knownIngredientIds });
   const feedback = researchRowsFeedback({ labelJa: context.labelJa, rows: result.rows });
@@ -2813,10 +2820,14 @@ function dinnerGuardedReducer(state: GameState, action: GameAction, session: Din
   return baseGameReducer(state, action);
 }
 
+/** Register a result using the selected rules, including the once-per-trial research credit. */
+export function registerRoundResult(state: GameState, progression = activeProgressionModel()): GameState {
+  const next = baseGameReducer(state, { type: "REGISTER_TO_DEX" }, progression);
+  return registerToDexWithResearch(state, next, progression);
+}
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   if (isDinnerAction(action)) return dinnerActionReducer(state, action);
   if (state.dinner !== null) return dinnerGuardedReducer(state, action, state.dinner);
-  const next = baseGameReducer(state, action);
-  // B案 Phase 3c: research points ride on the one transition that ends every Free Cooking trial (shop model only).
-  return action.type === "REGISTER_TO_DEX" ? registerToDexWithResearch(state, next) : next;
+  return action.type === "REGISTER_TO_DEX" ? registerRoundResult(state) : baseGameReducer(state, action);
 }

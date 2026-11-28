@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it, vi } from "vitest";
 import { getCookingProfile, postBakeSteps, type CookingProfile } from "../data/cookingProfiles";
 import { INGREDIENTS } from "../data/ingredients";

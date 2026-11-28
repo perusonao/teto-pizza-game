@@ -14,8 +14,9 @@
  */
 import { FREE_COOK_RECIPE } from "../data/freeCook";
 import { getRecipe, type RecipeId } from "../data/recipes";
+import { progressionModelFor } from "../logic/progression/progressionModel";
 import { finalizeRound } from "./finalizeRound";
-import { gameReducer, unmatchedFreeCookPatch, type GameState } from "./gameReducer";
+import { gameReducer, registerRoundResult, unmatchedFreeCookPatch, type GameState } from "./gameReducer";
 import {
   pizzaFromJournal,
   settledPendingRound,
@@ -40,6 +41,7 @@ export function settlePendingRound(base: GameState, round: PendingRound): Settle
   const freeCook = round.kind === "FREE_COOK";
   const recipe = freeCook ? FREE_COOK_RECIPE : getRecipe(round.recipeId as RecipeId);
   if (!recipe) return null;
+  const progression = progressionModelFor(round.originMode ?? "legacy");
 
   const roundState: GameState = {
     ...base,
@@ -75,11 +77,11 @@ export function settlePendingRound(base: GameState, round: PendingRound): Settle
     // A Free round is identified by the FINAL pass either way; a Guided round whose FINISH was never confirmed is completed with the
     // evaluation the bake produced (the late requirement left out of the gate), a finished one with the FINAL evaluation.
     finalization: freeCook || round.finished ? "FINAL" : "PROVISIONAL",
-  });
+  }, progression.id);
 
   let scored: GameState;
   if (finalized.kind === "UNMATCHED_FREE_COOK") {
-    scored = { ...roundState, ...unmatchedFreeCookPatch(roundState, finalized), phase: "RESULT" };
+    scored = { ...roundState, ...unmatchedFreeCookPatch(roundState, finalized, progression), phase: "RESULT" };
   } else {
     scored = {
       ...roundState,
@@ -94,7 +96,7 @@ export function settlePendingRound(base: GameState, round: PendingRound): Settle
   // The stock was consumed (and saved) when the bake was confirmed: keep it exactly, whatever the re-scoring consumed.
   scored = { ...scored, inventory: base.inventory };
 
-  const registered = gameReducer(scored, { type: "REGISTER_TO_DEX" });
+  const registered = registerRoundResult(scored, progression);
   const summary = summarize(base, finalized.kind === "UNMATCHED_FREE_COOK", registered);
   if (round.finishPending && !round.finished) summary.unfinishedFinish = true;
   if (round.practice && summary.outcome === "REGISTERED") summary.practice = true;

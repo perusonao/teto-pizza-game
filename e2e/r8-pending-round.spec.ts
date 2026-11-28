@@ -103,6 +103,7 @@ test("Guided CUT: a reload in the middle of CUT registers the baked pizza once, 
   // The bake wrote the journal (and nothing is registered yet): that is what a reload will complete.
   const mid = await readSave(page);
   expect(mid?.pendingRound?.status).toBe("pending");
+  expect(mid?.pendingRound?.originMode).toBe("legacy");
   expect(mid?.dex.find((e: any) => e.recipeId === "margherita").timesMade).toBe(1);
   await shot(page, "r8-01-cut-in-progress", info.project.name);
 
@@ -130,6 +131,60 @@ test("Guided CUT: a reload in the middle of CUT registers the baked pizza once, 
   await expect(notice(page)).toHaveCount(0);
   await shot(page, "r8-03-home-after-confirm", info.project.name);
 });
+
+for (const [origin, destination] of [["legacy", "shop"], ["shop", "legacy"]] as const) {
+  test(`Guided CUT: ${origin} → ${destination} settles using the origin and preserves it on the return trip`, async ({ page }, info) => {
+    test.setTimeout(90_000);
+    const shopProgress = {
+      reputation: 39, grantedMenuRecipeIds: [], awaitingMenuRecipeIds: ["meat-lovers", "funghi"], menuEntryPaidRecipeIds: ["funghi"],
+    };
+    await seed(page, { ...guidedSave(), shopProgress });
+    const open = async (mode: string) => {
+      await page.goto("about:blank");
+      await page.goto(`./?progression=${mode}`);
+    };
+    await open(origin);
+    if (origin === "shop") {
+      await page.getByRole("button", { name: /注文を受ける/ }).click();
+      await page.getByRole("button", { name: /ピザを作る/ }).click();
+    } else {
+      await page.getByRole("button", { name: /ピザを作る/ }).click();
+      await page.getByRole("button", { name: /マルゲリータ、/ }).click();
+      await page.getByRole("button", { name: /このピザを作る/ }).click();
+    }
+    await prepareGuidedMargherita(page);
+    await bakeToTarget(page, MARGHERITA_BAKE);
+    await expect(page.getByRole("button", { name: /切り終わる/ })).toBeVisible();
+    const pending = await readSave(page);
+    expect(pending?.pendingRound).toMatchObject({ status: "pending", originMode: origin });
+    await shot(page, `r8-${origin}-to-${destination}-pending`, info.project.name);
+
+    await open(destination);
+    await expect(notice(page)).toBeVisible();
+    await expect.poll(async () => (await readSave(page))?.pendingRound?.status).toBe("settled");
+    const settled = await readSave(page);
+    expect(settled?.pendingRound).toMatchObject({ originMode: origin, settled: { outcome: "REGISTERED", recipeId: "margherita" } });
+    expect(settled?.dex.find((entry: { recipeId: string }) => entry.recipeId === "margherita").timesMade).toBe(2);
+    expect(settled?.inventory).toEqual(pending?.inventory);
+    if (origin === "legacy") {
+      await expect(page.getByTestId("home-reputation")).toContainText("評判 39");
+      expect(settled?.shopProgress).toEqual(shopProgress);
+    } else {
+      await expect(page.getByTestId("home-reputation")).toHaveCount(0);
+      expect(settled?.shopProgress.reputation).toBeGreaterThan(42);
+      expect(settled?.shopProgress.menuEntryPaidRecipeIds).toEqual(["funghi", "meat-lovers"]);
+    }
+    await shot(page, `r8-${origin}-to-${destination}-settled`, info.project.name);
+
+    await open(origin);
+    await expect(notice(page)).toBeVisible();
+    expect(await readSave(page)).toMatchObject({ dex: settled?.dex, shopProgress: settled?.shopProgress, pitzBalance: settled?.pitzBalance });
+    await notice(page).getByRole("button", { name: "確認した" }).click();
+    await expect(notice(page)).toHaveCount(0);
+    await expect.poll(async () => (await readSave(page))?.pendingRound).toBeUndefined();
+    if (origin === "shop") await expect(page.getByTestId("home-reputation")).toContainText(`評判 ${settled?.shopProgress.reputation}`);
+  });
+}
 
 test("Guided CUT: HOME completes the round the same way a restart does", async ({ page }, info) => {
   test.setTimeout(90_000);
@@ -265,7 +320,7 @@ test("a save that cannot take the bake stops the round at BAKE, says why, and a 
 });
 
 test("a journal this build cannot act on is kept untouched and the notice explains how to recover", async ({ page }, info) => {
-  const future = { v: 2, id: "from-a-newer-build", status: "pending", anything: { new: "shape" } };
+  const future = { v: 3, id: "from-a-newer-build", status: "pending", anything: { new: "shape" } };
   await seed(page, { ...guidedSave(), pendingRound: future });
   await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
