@@ -113,7 +113,7 @@ test.describe("Batch 8b (representative: step 54 shirasu-pizza NO_SAUCE; shiso +
     await hold(page);
 
     // 1. Shop: both step-54 materials are NEW (T4: 120 Pitz each, no star gate). Packs: shiso k=2 -> 20 pieces, whitebait k=4 -> 40 (Expansion Batch 16 raised both: ume-shiso-pizza uses shiso x2 / whitebait x4; the Owner-approved consumption, was k=1 / k=3).
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     await buyNew(page, project, "shiso", "shiso-leaf", "大葉", "10ピザ分（20個）", "batch8b-shiso");
     await buyNew(page, project, "whitebait", "whitebait-school", "しらす", "10ピザ分（40個）", "batch8b-whitebait");

@@ -52,7 +52,7 @@ test.describe("Issue #417 Phase 1–2 pilot identification UI", () => {
 
   test("Shop and Dex share Pilot SVGs", async ({ page }, testInfo) => {
     await open(page);
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     if (AFTER) {
       await expect(page.locator(".shop-overlay__panel svg.ingredient-glyph--olive-oil-bottle")).toBeAttached();

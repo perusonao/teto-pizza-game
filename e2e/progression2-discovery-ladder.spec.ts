@@ -83,7 +83,7 @@ async function cookPizza(page: Page, toppings: { name: RegExp; at: [number, numb
 const shopRow = (page: Page, id: string) => page.locator(`.shop-item[data-ingredient-id="${id}"]`);
 
 async function openShopFromHome(page: Page) {
-  await page.getByRole("button", { name: /ショップ/ }).click();
+  await page.getByRole("button", { name: /お店/ }).click();
   await page.waitForSelector(".shop-overlay__panel");
 }
 
@@ -357,7 +357,7 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
     await page.getByRole("button", { name: "ゲームデータをリセット" }).click();
     await page.getByRole("button", { name: "最初からやり直す" }).click();
     await page.waitForSelector(".app-frame");
-    await expect(page.locator(".app-header__dex-pill")).toHaveText(/レシピ 0\//);
+    await expect(page.locator(".app-header__dex-pill")).toHaveText(/メニュー 0\//);
     await openShopFromHome(page);
     await expect(page.locator(".shop-item")).toHaveCount(0);
     await expect(page.locator(".shop-overlay__progress")).toHaveText(/あと1つ発見で新しい材料が入荷/);

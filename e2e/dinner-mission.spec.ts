@@ -35,7 +35,7 @@ const overlay = (page: Page) => page.getByRole("dialog", { name: "ディナー�
 test.describe("Dinner Mission DM-3R-2", () => {
   test("HOME entry; with nothing unlocked, locked cards leak no target identity", async ({ page }) => {
     await openWithSave(page, dinnerSave(["margherita"]), RUN);
-    const entry = page.getByRole("button", { name: /ディナーミッション/ });
+    const entry = page.getByRole("button", { name: /特別注文/ });
     await expect(entry).toContainText("発見で解放");
     expect(await noPageScroll(page)).toEqual({ v: true, h: true });
     await entry.click();
@@ -67,7 +67,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
     await expect(row).toContainText("0/4");
     await expect(page.locator(".dinner-board, .order-card")).toHaveCount(0); // no Target Board, no recipe card
     await expect(page.getByRole("button", { name: "ヒント" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /ショップ/ })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /お店/ })).toHaveCount(0);
     expect(await noPageScroll(page)).toEqual({ v: true, h: true });
     await page.getByTestId("dinner-chip-bismarck").click();
     const popover = page.getByRole("dialog", { name: /ビスマルクの見本/ });
@@ -198,7 +198,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
     await expect(overlay(page)).toContainText("時間切れ！");
     await expect(overlay(page)).toContainText("0 / 4");
     await overlay(page).getByRole("button", { name: /ホーム/ }).click();
-    await expect(page.getByRole("button", { name: /ディナーミッション/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /特別注文/ })).toBeVisible();
   });
 
   test("R26: HOME asks in-app; 続ける keeps the run; やめる abandons and keeps consumption", async ({ page }) => {
@@ -217,7 +217,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
     await expect(page.getByTestId("dinner-target-row")).toContainText("1/4");
     await page.getByRole("button", { name: /ホーム/ }).click();
     await page.getByRole("alertdialog").getByRole("button", { name: "やめる" }).click();
-    await expect(page.getByRole("button", { name: /ディナーミッション/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /特別注文/ })).toBeVisible();
     expect((await readSave(page)).inventory.egg).toBe(4);
   });
 
@@ -226,7 +226,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
     await page.reload();
     await page.waitForSelector(".app-frame");
     await expect(page.getByTestId("dinner-target-row")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /ディナーミッション/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /特別注文/ })).toBeVisible();
     await expect(page.locator("body")).not.toContainText("再開");
   });
 });

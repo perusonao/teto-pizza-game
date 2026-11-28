@@ -133,7 +133,7 @@ describe("「発見」 reads 「メニュー開発」 under the shop model", () 
       />,
     );
     expect(screen.getByRole("button", { name: /^\u{1F3A8} メニュー開発$/u })).toBeInTheDocument();
-    expect(screen.getByText(/開発 0\//)).toBeInTheDocument();
+    expect(screen.getByText(/^メニュー 0\//)).toBeInTheDocument();
     expect(screen.getByText(/メニュー開発で解放/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /メニューから選んで練習する/ })).toBeInTheDocument();
     expect(screen.queryByText(/発見/)).toBeNull();

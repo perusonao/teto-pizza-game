@@ -101,7 +101,7 @@ test.describe("Expansion Slice 1: pesto-gamberi + shrimp", () => {
     await hold(page);
 
     // 1. Shop: shrimp is NEW (T3: first pack 100 Pitz, 30 pieces), then bought.
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     const shrimp = page.locator('.shop-item[data-ingredient-id="shrimp"]');
     await expect(shrimp).toHaveCount(1);

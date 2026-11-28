@@ -84,7 +84,7 @@ test.describe("B20-A (pesto-noci-pizza, played end to end)", () => {
     await hold(page);
 
     // 1. Shop: the step's two materials are NEW (T4: 120 Pitz, no star gate).
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     for (const [id, nameJa, shot] of materials) {
       const row = page.locator(`.shop-item[data-ingredient-id="${id}"]`);

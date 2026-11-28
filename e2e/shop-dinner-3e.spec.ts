@@ -41,7 +41,7 @@ async function clearDinner(page: Page, record: boolean) {
 
 test("shop counts only missing menu targets and keeps locked targets private", async ({ page }) => {
   await openWithSave(page, menuSave(["funghi"]), SHOP);
-  await page.getByRole("button", { name: /ディナーミッション/ }).click();
+  await page.getByRole("button", { name: /特別注文/ }).click();
   const cards = page.locator(".dinner-mission-card");
   await expect(cards.filter({ hasText: title })).toContainText("あと1品メニュー開発すると解放");
   await expect(cards.filter({ hasText: /ディナーミッション 2/ })).toContainText("あと2品メニュー開発すると解放");
@@ -63,7 +63,7 @@ test("shop starts with the four menu targets, clears at ★3+, pays first and re
   test.setTimeout(300_000);
   await openWithSave(page, menuSave(), SHOP);
   const before = await readSave(page);
-  await page.getByRole("button", { name: /ディナーミッション/ }).click();
+  await page.getByRole("button", { name: /特別注文/ }).click();
   const card = page.getByRole("button", { name: title });
   await expect(card.locator(".dinner-mission-card__targets")).toContainText("マルゲリータ");
   await capture(page, "01-menu-unlock");
@@ -186,7 +186,7 @@ test("shop takes the 360-second timeout without a reward or record", async ({ pa
 
 test("legacy still requires Dex discovery and has no default START", async ({ page }) => {
   await openWithSave(page, menuSave(), "?progression=legacy");
-  await page.getByRole("button", { name: /ディナーミッション/ }).click();
+  await page.getByRole("button", { name: /特別注文/ }).click();
   await expect(page.locator(".dinner-mission-card", { hasText: title })).toContainText("あと3種類のピザを発見すると解放");
   await openWithSave(page, menuSave([], [...DM_A]), "?progression=legacy");
   await openDinnerDetail(page, title);

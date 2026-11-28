@@ -100,9 +100,9 @@ describe("the shop model's Dex recipes are the curated 60", () => {
 describe("screens", () => {
   it("HOME's Dex pill reads x/60 and ignores a non-adopted discovery", () => {
     home(dexOf("margherita", NOT_ADOPTED.id));
-    expect(screen.getByText(/レシピ 1\/60/)).toBeInTheDocument();
-    expect(screen.getByLabelText("レシピ図鑑 開発数 1 / 60")).toBeInTheDocument();
-    expect(screen.getByText(/開発 1\/60/)).toBeInTheDocument();
+    expect(screen.getByText(/^\u{1F451} メニュー 1\/60$/u)).toBeInTheDocument();
+    expect(screen.getByLabelText("ピザ図鑑 メニュー 1 / 60")).toBeInTheDocument();
+    expect(screen.getByText(/^メニュー 1\/60$/)).toBeInTheDocument();
   });
 
   it("the Dex lists 60 slots in five stages of 12 and counts x/60", () => {

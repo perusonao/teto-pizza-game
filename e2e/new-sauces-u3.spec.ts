@@ -73,7 +73,7 @@ test.describe("New Sauces Phase B U3 (representative: the late step; tahini + po
     await hold(page);
 
     // 1. Shop: both late materials are NEW (T4: 120 Pitz; the sauce is a spread, k = 1 -> one pack is 10 uses; the pomegranate is two pieces per pizza).
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     const row = page.locator('.shop-item[data-ingredient-id="tahini"]');
     const pomRow = page.locator('.shop-item[data-ingredient-id="pomegranate"]');
@@ -184,7 +184,7 @@ test.describe("New Sauces Phase B U3 (representative: the late step; tahini + po
     }, [SAVE_KEY, saveJson(discovered, withoutLate)] as const);
     await page.goto(legacyProgressionUrl("/"));
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     for (const id of LATE) {
       const row = page.locator(`.shop-item[data-ingredient-id="${id}"]`);

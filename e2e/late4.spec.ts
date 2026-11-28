@@ -154,7 +154,7 @@ test.describe("PR-2 late4 (representative: wasabi-beef-pizza and tarako-cream-pi
     }, [SAVE_KEY, saveJson(discovered, withoutLate)] as const);
     await page.goto(legacyProgressionUrl("/"));
     await page.waitForSelector(".app-frame");
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     for (const id of LATE) {
       const row = page.locator(`.shop-item[data-ingredient-id="${id}"]`);

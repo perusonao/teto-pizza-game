@@ -94,7 +94,7 @@ test.describe("Expansion Batch 14 (moussaka-style-pizza, played end to end)", ()
     await hold(page);
 
     // 1. Shop: cinnamon is NEW (T4: 120 Pitz, no star gate).
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     const row = page.locator('.shop-item[data-ingredient-id="cinnamon"]');
     await row.scrollIntoViewIfNeeded();

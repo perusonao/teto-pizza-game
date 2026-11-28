@@ -125,7 +125,7 @@ test("HV: ⭐119 / 120 / 129 / 130 presets apply, the game's Shop follows the st
     await page.goto(`${servers.origin}${PREVIEW_BASE}`);
     await page.waitForSelector(".app-frame");
     await expect(page.locator('[aria-label="Pitz残高 300"]')).toBeVisible();
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__body");
     const want = EXPECT_NEW[target];
     expect(await shopState(page, GOAT), `${target}: ${GOAT} in the Shop`).toBe(want.goat ? "NEW" : null);

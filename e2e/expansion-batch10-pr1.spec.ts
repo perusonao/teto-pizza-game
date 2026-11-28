@@ -121,7 +121,7 @@ test.describe("Expansion Batch 10 PR-1 (representative: curry-pizza-japan, cuban
       await hold(page);
 
       // 1. Shop: every material of the step is NEW (T4: 120 Pitz, no star gate).
-      await page.getByRole("button", { name: /ショップ/ }).click();
+      await page.getByRole("button", { name: /お店/ }).click();
       await page.waitForSelector(".shop-overlay__panel");
       for (const [id, nameJa, shot] of c.materials) {
         const row = page.locator(`.shop-item[data-ingredient-id="${id}"]`);

@@ -105,7 +105,7 @@ describe("Inventory Screen (read-only stock view)", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const shop = document.querySelector<HTMLElement>(".dex-overlay")!;
     await user.click(within(shop).getByRole("button", { name: "補充する" }));
     await user.click(within(shop).getByRole("button", { name: "閉じる" }));
@@ -140,7 +140,7 @@ describe("Inventory Screen (read-only stock view)", () => {
   it("regression: Shop overlay still opens correctly from HOME after the Inventory wiring change", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /ショップ/ }));
+    await user.click(screen.getByRole("button", { name: /お店/ }));
     const overlay = document.querySelector<HTMLElement>(".dex-overlay")!;
     expect(overlay).toBeInTheDocument();
     expect(overlay.querySelector(".shop-overlay__panel")).toBeInTheDocument();

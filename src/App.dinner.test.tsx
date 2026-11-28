@@ -42,7 +42,7 @@ afterEach(() => {
 });
 
 async function openDetail(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("button", { name: /ディナーミッション/ }));
+  await user.click(screen.getByRole("button", { name: /特別注文/ }));
   await user.click(screen.getByRole("button", { name: /ディナーミッション 1/ }));
 }
 
@@ -53,7 +53,7 @@ describe("App: Dinner Mission (DM-3 / DM-3R-2)", () => {
     expect(screen.getByRole("button", { name: /ピザを作る/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
     expect(screen.getByRole("button", { name: /レシピ発見/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /ディナーミッション/ })).toHaveTextContent("解放 1");
+    expect(screen.getByRole("button", { name: /特別注文/ })).toHaveTextContent("解放 1");
   });
 
   it("without ?dinnerDuration START is disabled (制限時間を調整中)", async () => {
@@ -91,7 +91,7 @@ describe("App: Dinner Mission (DM-3 / DM-3R-2)", () => {
 
     await user.click(screen.getByRole("button", { name: /ホーム/ }));
     await user.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "やめる" }));
-    expect(screen.getByRole("button", { name: /ディナーミッション/ })).toBeInTheDocument(); // HOME
+    expect(screen.getByRole("button", { name: /特別注文/ })).toBeInTheDocument(); // HOME
     expect(confirmSpy).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
   });

@@ -39,7 +39,7 @@ async function openApp(page: Page, pitz: number) {
 
 async function openShop(page: Page, pitz = 70) {
   await openApp(page, pitz);
-  await page.getByRole("button", { name: /ショップ/ }).click();
+  await page.getByRole("button", { name: /お店/ }).click();
   await page.waitForSelector(".shop-overlay__body");
 }
 

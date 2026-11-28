@@ -40,7 +40,7 @@ const openIngredients = async (page: Page) => {
   await page.waitForSelector(".inventory-grid");
 };
 const openShop = async (page: Page) => {
-  await page.getByRole("button", { name: /ショップ/ }).click();
+  await page.getByRole("button", { name: /お店/ }).click();
   await page.waitForSelector(".shop-overlay__body");
 };
 const close = (page: Page) => page.getByRole("button", { name: "閉じる" }).first().click();

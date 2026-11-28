@@ -33,7 +33,7 @@ async function openShop(page: Page, data: unknown) {
   await page.evaluate(([k, v]) => { localStorage.clear(); localStorage.setItem(k, v); }, [SAVE_KEY, JSON.stringify(data)] as const);
   await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
-  await page.getByRole("button", { name: /ショップ/ }).click();
+  await page.getByRole("button", { name: /お店/ }).click();
   await page.waitForSelector(".shop-overlay__body");
 }
 
@@ -144,7 +144,7 @@ test.describe("Shop shelf tabs (two tiers)", () => {
     expect(after.pitzBalance).toBeLessThan(999);
     // Close and reopen: nothing changed by the filter; the filter itself starts fresh at すべて.
     await page.getByRole("button", { name: "閉じる" }).first().click();
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     const reopened = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)!), SAVE_KEY);
     expect(reopened).toEqual(after);
     await expect(row(page, MAJOR).getByRole("button", { name: "すべて" })).toHaveAttribute("aria-pressed", "true");

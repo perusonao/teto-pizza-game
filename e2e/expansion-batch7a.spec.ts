@@ -116,7 +116,7 @@ test.describe("Batch 7a (representative: step 53 new-zealand-lamb-pizza NO_SAUCE
     await hold(page);
 
     // 1. Shop: both step-53 materials are NEW (T4: 120 Pitz each). Packs: lamb k=3 -> 30 pieces, sweet-potato k=2 -> 20.
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     await buyNew(page, project, "lamb", "🐑", "ラム", "10ピザ分（30個）", "batch7a-lamb");
     await buyNew(page, project, "sweet-potato", "🍠", "さつまいも", "10ピザ分（20個）", "batch7a-sweet-potato");
@@ -177,7 +177,7 @@ test.describe("Batch 7a (representative: step 53 new-zealand-lamb-pizza NO_SAUCE
     // Step 53's materials are entitled by the ladder but not bought, so lamb is not researchable: exactly one Research Entry (mint's).
     const discovered = ALL_IDS.filter((id) => id !== EGGPLANT && id !== LAMB);
     await open(page, saveJson(discovered, materialsUpTo(LAST_STEP - 2)));
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     await buyNew(page, project, "mint", "🍀", "ミント", "10ピザ分（20個）", "batch7a-mint");
     await page.locator(".shop-overlay__panel").getByRole("button", { name: "閉じる" }).click();

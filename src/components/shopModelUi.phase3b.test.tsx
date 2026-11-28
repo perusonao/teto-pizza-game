@@ -209,7 +209,7 @@ describe("the Dex and HOME: an identified recipe is 判明, not developed", () =
         onTakeOrder={vi.fn()}
       />,
     );
-    expect(screen.getByLabelText("レシピ図鑑 開発数 1 / 60")).toBeInTheDocument();
+    expect(screen.getByLabelText("ピザ図鑑 メニュー 1 / 60")).toBeInTheDocument();
   });
 });
 

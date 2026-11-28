@@ -84,7 +84,7 @@ test.describe("New Sauces Phase B-1 (representative: sichuan-eggplant-pizza; dou
     await hold(page);
 
     // 1. Shop: both materials of the newest step are NEW (T4: 120 Pitz each, no star gate). doubanjiang k=1 -> 10 uses; green-onion k=2 -> 20 pieces.
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     for (const [id, nameJa, pack, shot] of [
       ["doubanjiang", "豆板醤", "10ピザ分", "b1-doubanjiang"],

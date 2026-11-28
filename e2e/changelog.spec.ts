@@ -55,7 +55,7 @@ test("HOME -> 更新情報 -> close -> HOME", async ({ page }) => {
   await close.click();
 
   await expect(dialog).toHaveCount(0);
-  for (const name of [/ピザを作る/, /レシピ発見/, /ピザ図鑑/, /ショップ/]) {
+  for (const name of [/ピザを作る/, /レシピ発見/, /ピザ図鑑/, /お店/]) {
     await expect(page.getByRole("button", { name }).first()).toBeVisible();
   }
 });

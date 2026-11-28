@@ -140,7 +140,7 @@ test.describe("Issue #758: the shiso leaf in a 1.35em box", () => {
     await hold(page);
 
     // Shop: the shiso row.
-    await page.getByRole("button", { name: /ショップ/ }).click();
+    await page.getByRole("button", { name: /お店/ }).click();
     await page.waitForSelector(".shop-overlay__panel");
     const row = page.locator('.shop-item[data-ingredient-id="shiso"]');
     await row.scrollIntoViewIfNeeded();
