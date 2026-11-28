@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expectFreeNote } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -15,7 +16,7 @@ import { startTargetlessFreeCook } from "./support/startFreeCook";
 const FREE_COOK_BAKE_TARGET = { start: 58, end: 78 };
 
 async function openHomeFresh(page: Page) {
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
 }
 

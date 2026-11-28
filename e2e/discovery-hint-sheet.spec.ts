@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expect, type Page } from "@playwright/test";
 import { test } from "./support/failureEvidence"; // #394: DOM / waiting location on failure
 import { LADDER_PLAY, ladderSave } from "../src/logic/catalog/testSupport/catalogDerived";
@@ -38,7 +39,7 @@ async function openWithSave(page: Page, save: { dex: unknown[] }) {
     // Hint 5.0 is ON by default (H5-6); this suite covers the pre-Hint-5.0 sheet (the rollback path).
     localStorage.setItem("teto.dev.hint5Ladder", "0");
   }, [SAVE_KEY, JSON.stringify(save)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${save.dex.length}/${RECIPES.length}`));
 }

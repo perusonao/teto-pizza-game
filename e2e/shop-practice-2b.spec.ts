@@ -1,10 +1,11 @@
+import { LEGACY_PROGRESSION_QUERY } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, cutThreeLines, paintSauceRing, tapDoughPercent } from "./gestures";
 
 /**
  * B案 Phase 2b (Issue #901, design §6 Q7): under the shop model (`?progression=shop`, DEV / Preview) Pizza Select is a no-reward
  * 「練習」: a pizza picked there earns no Pitz and no reputation, and RESULT says so. A service order still pays as in Phase 2a.
- * The shop owner's title replaces 「第○章」. Legacy (no parameter) Pizza Select is checked to be unchanged.
+ * The shop owner's title replaces 「第○章」. Legacy Pizza Select is checked to be unchanged.
  */
 
 const MARGHERITA_BAKE = { start: 60, end: 80 }; // src/data/recipes.ts
@@ -61,8 +62,8 @@ async function saved(page: Page): Promise<{ pitzBalance: number; reputation: num
 }
 
 test.describe("B案 Phase 2b: Pizza Select is practice (shop model)", () => {
-  test("legacy (no parameter): Pizza Select is unchanged -- no practice note", async ({ page }) => {
-    await open(page, "");
+  test("legacy: Pizza Select is unchanged -- no practice note", async ({ page }) => {
+    await open(page, LEGACY_PROGRESSION_QUERY);
     await page.getByRole("button", { name: /ピザを作る/ }).click();
     await expect(page.getByRole("heading", { name: "作るピザを選ぼう！" })).toBeVisible();
     await expect(page.getByTestId("pizza-select-practice-note")).toHaveCount(0);

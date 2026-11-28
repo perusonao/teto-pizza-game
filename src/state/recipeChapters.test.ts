@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { RECIPES, type Recipe } from "../data/recipes";
 import { SHIPPED_15_DISCOVERY_LADDER } from "../data/discoveryLadder";

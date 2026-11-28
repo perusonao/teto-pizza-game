@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import {
   playFullMargheritaRound,
@@ -110,7 +111,7 @@ test.describe("Lunch Rush RESULT: attempt/success/failure/success-rate stats (Ph
  * names explicitly (task spec: rendered "under each ranking row's display name").
  */
 async function freshHome(page: Page) {
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.waitForSelector(".app-frame");

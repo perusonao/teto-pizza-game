@@ -8,10 +8,8 @@
  * - menu development (a first discovery): reputation +3 (the +50 Pitz bonus itself is unchanged, Q5).
  * Change a value here only on a new Owner decision. ./reputationTable.gate.test.ts pins these exact values.
  *
- * While any value is `null` the shop model cannot run: `isReputationTableComplete` is the one test of that
- * (../progression/progressionModel.ts falls back to legacy). `canEnableShopProgression` additionally needs the curated
- * catalog (`MENU_CATALOG`, Phase 3) and stays the gate for the Production cutover (Phase 4); Phase 2a's Preview-only shop
- * model runs on an interim catalog instead (./shopProgression.ts). Same pattern as Dinner's `timeLimit: { seconds: null }`.
+ * `canEnableShopProgression` checks both the table and the curated catalog (`MENU_CATALOG`, Phase 3).
+ * Startup uses this gate to resolve the effective model (./progressionModelFlag.ts).
  */
 import { MENU_CATALOG, type MenuCatalogEntry } from "../../data/menuCatalog";
 

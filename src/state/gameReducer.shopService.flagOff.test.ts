@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES, getRecipe, participatesInLunchRush, type RecipeId } from "../data/recipes";
@@ -14,7 +15,7 @@ import { availableRecipeIds } from "./progression";
 import { canStartGuidedRound, isRecipeCookable } from "./recipeDiscoveryState";
 
 /**
- * B案 Phase 2a (Issue #901): with the flag at its production default (legacy), every path Phase 2a re-pointed at the
+ * B案 Phase 2a (Issue #901): with legacy selected, every path Phase 2a re-pointed at the
  * progression port behaves exactly as before. The shop model's own behaviour is ./gameReducer.shopService.test.ts.
  *
  * "As before" is written out literally here (the discovered-list expressions the call sites used before Phase 2a), and a

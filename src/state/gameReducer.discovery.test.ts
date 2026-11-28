@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { describe, expect, it } from "vitest";
 import { createInitialGameState, gameReducer, type GameState } from "./gameReducer";

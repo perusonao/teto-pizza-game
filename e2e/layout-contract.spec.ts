@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test as base, expect, type Page } from "@playwright/test";
 import {
   completeDoughStep,
@@ -107,7 +108,7 @@ async function openWithSave(page: Page, save: { dex: unknown[] } | null, query =
     },
     [SAVE_KEY, save ? JSON.stringify(save) : null] as const,
   );
-  await page.goto(`/${query}`);
+  await page.goto(legacyProgressionUrl(`/${query}`));
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill"), "seeded save loaded").toHaveText(new RegExp(`${save ? save.dex.length : 0}/${CATALOG_COUNTS.recipes}`));
 }

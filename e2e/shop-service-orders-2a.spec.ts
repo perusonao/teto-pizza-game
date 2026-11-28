@@ -1,10 +1,12 @@
+import { LEGACY_PROGRESSION_QUERY } from "./support/legacyProgression";
+import { legacyStartupSave } from "./support/legacyStartupSave";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, cutThreeLines, paintSauceRing, tapDoughPercent } from "./gestures";
 
 /**
  * B案 Phase 2a (Issue #901): the service-order loop through the real UI, on the dev server (DEV accepts the same
  * `?progression=shop` instruction a Preview build does). Order -> cook -> evaluation -> Pitz + reputation -> chapter -> the
- * materials the Shop sells. The legacy (no parameter) HOME is checked to be unchanged first.
+ * materials the Shop sells. The legacy HOME is checked to be unchanged first.
  *
  * Phase 2b (Owner 2026-11-26): the chapter wording became the owner's title ladder, so the lines that named 「第○章」 name the title.
  */
@@ -52,11 +54,29 @@ async function savedShop(page: Page): Promise<{ reputation: number } | undefined
 }
 
 test.describe("B案 Phase 2a: service orders (shop model)", () => {
-  test("legacy (no parameter): HOME is unchanged -- no reputation line, 「ピザを作る」 leads", async ({ page }) => {
-    await open(page, "", null);
+  test("legacy: HOME is unchanged -- no reputation line, 「ピザを作る」 leads", async ({ page }) => {
+    await open(page, LEGACY_PROGRESSION_QUERY, null);
     await expect(page.getByTestId("home-reputation")).toHaveCount(0);
     await expect(page.getByRole("button", { name: /注文を受ける/ })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /ピザを作る/ })).toBeVisible();
+  });
+
+  test("a legacy save opens in shop at reputation zero with the shared progress and order entry", async ({ page }) => {
+    await open(page, "?progression=shop", legacyStartupSave);
+    await expect(page.getByTestId("home-reputation")).toContainText("評判 0");
+    await expect(page.getByLabel("Pitz残高 731")).toBeVisible();
+    await expect(page.getByLabel("レシピ図鑑 開発数 1 / 60")).toBeVisible();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect.poll(() => page.evaluate(() => ({
+      save: JSON.parse(localStorage.getItem("teto-pizza-save-v1") ?? "null"),
+      keys: Object.keys(localStorage),
+    }))).toMatchObject({
+      save: legacyStartupSave,
+      keys: expect.arrayContaining(["teto-pizza-save-v1", "teto-pizza-preview-progression-model"]),
+    });
+
+    await page.getByRole("button", { name: /注文を受ける/ }).click();
+    await expect(page.locator(".dialogue-area")).toBeVisible();
   });
 
   test("a new save: take margherita's order, serve it, earn reputation, take the next order", async ({ page }) => {

@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
@@ -12,7 +13,7 @@ import { ResultPanel } from "./ResultPanel";
 import { NOTEBOOK_COPY } from "./trialNotebookCopy";
 
 /**
- * B案 Phase 2b (Issue #901): under the legacy model (Production default) every string Phase 2b switches is the legacy one, and
+ * B案 Phase 2b (Issue #901): under the legacy model every string Phase 2b switches is the legacy one, and
  * the practice line never renders. The shop side is ./shopModelUi.phase2b.test.tsx.
  */
 

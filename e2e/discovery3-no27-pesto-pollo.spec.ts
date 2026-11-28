@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -109,7 +110,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
       localStorage.clear();
       localStorage.setItem(key, value);
     }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl());
     await page.waitForSelector(".app-frame");
     await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`29/${CATALOG_COUNTS.recipes}`));
 
@@ -207,7 +208,7 @@ test.describe("Discovery 3.0 No.27: pesto-pollo + chicken", () => {
       localStorage.clear();
       localStorage.setItem(key, value);
     }, [SAVE_KEY, JSON.stringify(save)] as const);
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl());
     await page.waitForSelector(".app-frame");
     // Two own ORIGINAL tries (an extra oregano keeps both off the recipe's identity): without, then with chicken.
     await cookPestoPollo(page, { chicken: 0, oregano: 1, from: "HOME" });

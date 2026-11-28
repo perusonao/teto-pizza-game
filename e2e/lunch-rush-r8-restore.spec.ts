@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expect, type Page } from "@playwright/test";
 import { test } from "./support/failureEvidence"; // #394: DOM / waiting location on failure
 import { bakeToTarget, completeDoughStep, cutThreeLines, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -60,7 +61,7 @@ async function openRun(page: Page, save = missionSave()) {
     },
     [SAVE_KEY, JSON.stringify(save)] as const,
   );
-  await page.goto("./?missionDuration=300");
+  await page.goto(legacyProgressionUrl("./?missionDuration=300"));
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ランチラッシュ/ }).click();
   await page.getByRole("button", { name: "スタート" }).click();

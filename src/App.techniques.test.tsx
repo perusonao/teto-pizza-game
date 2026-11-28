@@ -1,3 +1,4 @@
+import "./test/legacyProgression";
 import "@testing-library/jest-dom/vitest";
 import { BAKE_SPEED_PCT_PER_S } from "./logic/bakeProgress";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -66,7 +67,7 @@ async function openWithSave(page: Page, save: object, pill: RegExp) {
     localStorage.clear();
     localStorage.setItem(key, value);
   }, [SAVE_KEY, JSON.stringify(save)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill")).toHaveText(pill);
 }

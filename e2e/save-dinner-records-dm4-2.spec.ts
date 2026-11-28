@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect } from "@playwright/test";
 
 /**
@@ -36,7 +37,7 @@ test("dinner records (valid, broken, future) survive the real mount write and a 
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(save));
   }, SAVE);
 
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   // The rest of the game is not blocked by a broken Dinner record.
   await expect(page.getByRole("button", { name: /ランチラッシュ/ })).toBeEnabled();
@@ -64,7 +65,7 @@ test("a save that never met Dinner gets no dinnerMissionRecords key from the mou
     sessionStorage.setItem("__e2e_seeded_once", "1");
     localStorage.setItem("teto-pizza-save-v1", JSON.stringify(save));
   }, plain);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   const readSave = () => page.evaluate(() => JSON.parse(localStorage.getItem("teto-pizza-save-v1") ?? "null"));
   await expect.poll(async () => (await readSave()).unlockedForShopIngredientIds).toContain("egg");

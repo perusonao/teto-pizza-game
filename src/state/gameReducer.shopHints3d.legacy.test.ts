@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { INGREDIENTS } from "../data/ingredients";
 import type { DexEntry, DexState } from "./dex";

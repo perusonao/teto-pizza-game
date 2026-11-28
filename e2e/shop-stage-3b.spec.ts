@@ -1,3 +1,4 @@
+import { LEGACY_PROGRESSION_QUERY } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, completeEmptyFinishIfOffered, cutThreeLines, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -11,7 +12,7 @@ import { MENU_CATALOG } from "../src/data/menuCatalog";
  *    and when it joins the menu; the Dex shows it as 判明 with 「小さな店でメニュー入り」, HOME / the Dex do not count it;
  * 2. a served order crossing 40 promotes the owner and the banner lists what opened (the new recipes, the materials, and the
  *    identified recipe that joined the menu with its bonus) -- paid once (the save records it; a reload pays nothing);
- * 3. legacy (no parameter) still discovers it as before.
+ * 3. legacy still discovers it as before.
  *
  * `HV_VIDEO=1` records the Human Verification video, `HV_SCREENSHOT_DIR=<dir>` writes the screenshots; `HV_BEFORE=1` only captures
  * (for the `main` "before" screenshots, where the Phase 3b UI does not exist).
@@ -251,8 +252,8 @@ test.describe("B案 Phase 3b: a recipe waits for its stage (shop model)", () => 
     await hold(page, 3500);
   });
 
-  test("legacy (no parameter): the same pizza is a discovery, as before", async ({ page }) => {
-    await open(page, "", save(0));
+  test("legacy: the same pizza is a discovery, as before", async ({ page }) => {
+    await open(page, LEGACY_PROGRESSION_QUERY, save(0));
     await cookMeatLoversFreely(page);
     await expect(page.locator(".result-panel--discovery")).toContainText("ミートラヴァーズ");
     await expect(page.getByTestId("result-identified")).toHaveCount(0);

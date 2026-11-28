@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, cutThreeLines, enterBakePaused, landNeedleAndTakeOut, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -65,7 +66,7 @@ const confirmButton = (page: Page) => page.locator("[data-held-discard-confirm]"
 
 async function boot(page: Page, journal: object) {
   await seed(page, journal);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await expect(held(page)).toBeVisible();
 }

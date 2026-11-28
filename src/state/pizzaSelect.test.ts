@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { buildRecipeSections, recipeCardState } from "./pizzaSelect";
 import { getRecipe, RECIPES, type Recipe, type RecipeId } from "../data/recipes";

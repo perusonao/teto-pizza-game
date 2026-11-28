@@ -1,3 +1,4 @@
+import "./test/legacyProgression";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BAKE_SPEED_PCT_PER_S } from "./logic/bakeProgress";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";

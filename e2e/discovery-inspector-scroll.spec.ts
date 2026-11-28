@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
@@ -8,7 +9,7 @@ import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived"
  * 360×800 on Chromium and WebKit. Read-only: the Inspector never writes the save.
  */
 
-const URL = "/teto-pizza-game/?inspector=discovery";
+const URL = legacyProgressionUrl("/teto-pizza-game/?inspector=discovery");
 
 async function openInspector(page: Page) {
   await page.goto(URL);
@@ -60,7 +61,7 @@ test("Inspector still scrolls after the search box and a filter chip, and with a
 });
 
 test("the game shell's scroll lock is unchanged: the normal app has no scrolling document", async ({ page }) => {
-  await page.goto("/teto-pizza-game/");
+  await page.goto(legacyProgressionUrl("/teto-pizza-game/"));
   await page.waitForSelector(".app-frame");
   const r = await page.evaluate(() => ({
     html: getComputedStyle(document.documentElement).overflow,

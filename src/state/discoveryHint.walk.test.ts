@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { replayForGateStars } from "../logic/testSupport/starGateReplay";
 import { panFieldsFor } from "../logic/testSupport/requiredSauces";
 import { describe, expect, it, vi } from "vitest";

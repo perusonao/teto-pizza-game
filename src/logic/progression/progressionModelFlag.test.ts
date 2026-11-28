@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import flagSource from "./progressionModelFlag.ts?raw";
-import { parseProgressionPreviewParam, resolveProgressionPreviewDecision } from "./progressionPreviewOptIn";
+import { parseProgressionParam } from "./progressionParam";
+import { resolveProgressionPreviewDecision } from "./progressionPreviewOptIn";
 import { memoryStorage } from "../../state/testSupport/memoryStorage";
 
 /**
- * B案 Phase 1a (Issue #901), design §3.4 `progressionModelFlag`: the production default is legacy, and only Preview / DEV
- * instructions change it (vitest is a DEV build, so those paths are live here). The flag is a module constant, so every
- * case imports a fresh copy. The production bundle side is in ../../preview/previewIsolation.gate.test.ts.
+ * Phase 4 switch design §2: the flag is resolved once at module initialization.
+ * The production bundle is also exercised by the isolation gate and the built-Web smoke test.
  */
 
 const DEV_KEY = "teto.dev.progressionModel";
@@ -31,6 +31,10 @@ afterEach(() => {
   window.localStorage.clear();
   window.history.replaceState({}, "", "/");
   vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+  vi.doUnmock("../../data/menuCatalog");
+  vi.doUnmock("./reputationTable");
   vi.resetModules();
 });
 
@@ -78,7 +82,7 @@ describe("progression model flag", () => {
     expect(PREVIEW_KEY).not.toBe("teto-pizza-preview-save-v1");
   });
 
-  it("a production build (neither DEV nor Preview) ignores the URL, the Preview key and the DEV key", async () => {
+  it("production ignores a shop request and both remembered choices while its default is legacy", async () => {
     vi.stubEnv("DEV", false);
     vi.stubEnv("VITE_PREVIEW_MODE", "");
     window.localStorage.setItem(DEV_KEY, "shop");
@@ -87,22 +91,106 @@ describe("progression model flag", () => {
     expect(await activeIdFor("?progression=shop")).toBe("legacy");
   });
 
+  it.each(["", "?progression=", "?progression=reputation", "?progression=shop", "?progression=shop&progression=legacy"])(
+    "production keeps the configured default for %j",
+    async (search) => {
+      vi.stubEnv("DEV", false);
+      vi.stubEnv("VITE_PREVIEW_MODE", "");
+      window.localStorage.setItem(DEV_KEY, "legacy");
+      window.localStorage.setItem(PREVIEW_KEY, "legacy");
+      const read = vi.spyOn(Storage.prototype, "getItem");
+      const write = vi.spyOn(Storage.prototype, "setItem");
+      expect(await idFor(search)).toBe("legacy");
+      const { resolveProgressionModelId } = await import("./progressionModelFlag");
+      expect(resolveProgressionModelId("shop")).toBe("shop");
+      expect(read).not.toHaveBeenCalled();
+      expect(write).not.toHaveBeenCalled();
+    },
+  );
+
+  it("production applies the first legacy query for one load without consulting storage", async () => {
+    vi.stubEnv("DEV", false);
+    vi.stubEnv("VITE_PREVIEW_MODE", "");
+    window.localStorage.setItem(DEV_KEY, "shop");
+    window.localStorage.setItem(PREVIEW_KEY, "shop");
+    const read = vi.spyOn(Storage.prototype, "getItem");
+    const write = vi.spyOn(Storage.prototype, "setItem");
+    expect(await idFor("?progression=legacy&progression=shop")).toBe("legacy");
+    const { resolveProgressionModelId, progressionModelId } = await import("./progressionModelFlag");
+    expect(resolveProgressionModelId("shop")).toBe("legacy");
+    window.history.replaceState({}, "", "/");
+    expect(progressionModelId()).toBe("legacy");
+    expect(resolveProgressionModelId("shop")).toBe("shop");
+    expect(read).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
+  });
+
+  it("production treats a missing location as no query", async () => {
+    vi.stubEnv("DEV", false);
+    vi.stubEnv("VITE_PREVIEW_MODE", "");
+    vi.stubGlobal("location", undefined);
+    vi.resetModules();
+    const { PROGRESSION_MODEL_ID, resolveProgressionModelId } = await import("./progressionModelFlag");
+    expect(PROGRESSION_MODEL_ID).toBe("legacy");
+    expect(resolveProgressionModelId("shop")).toBe("shop");
+  });
+
+  it.each(["empty catalog", "incomplete reputation table"])("an %s resolves shop to legacy across the model and UI", async (missing) => {
+    if (missing === "empty catalog") {
+      vi.doMock("../../data/menuCatalog", async (importOriginal) => ({
+        ...await importOriginal<typeof import("../../data/menuCatalog")>(),
+        MENU_CATALOG: [],
+      }));
+    } else {
+      // The gate's default argument closes over its module's table, so use its actual validator with the incomplete table.
+      vi.doMock("./reputationTable", async (importOriginal) => {
+        const actual = await importOriginal<typeof import("./reputationTable")>();
+        const table = { ...actual.REPUTATION_TABLE, menuDevelopmentBonus: null };
+        return { ...actual, REPUTATION_TABLE: table, canEnableShopProgression: () => actual.canEnableShopProgression(table) };
+      });
+    }
+    vi.stubEnv("DEV", false);
+    vi.stubEnv("VITE_PREVIEW_MODE", "");
+    expect(await idFor("")).toBe("legacy");
+    const { resolveProgressionModelId } = await import("./progressionModelFlag");
+    expect(resolveProgressionModelId("shop")).toBe("legacy");
+
+    vi.stubEnv("VITE_PREVIEW_MODE", "1");
+    expect(await idFor("?progression=shop")).toBe("legacy");
+    expect(window.localStorage.getItem(PREVIEW_KEY)).toBe("shop");
+    const { activeProgressionModel, LEGACY_PROGRESSION } = await import("./progressionModel");
+    const { SHOP_COPY_ACTIVE, shopCopy } = await import("./shopCopy");
+    const { SHOP_MODEL_ACTIVE, shopReputationStatus } = await import("./shopStatus");
+    const { EMPTY_SHOP_PROGRESS } = await import("./shopProgress");
+    expect(activeProgressionModel()).toBe(LEGACY_PROGRESSION);
+    expect(SHOP_COPY_ACTIVE).toBe(false);
+    expect(shopCopy("レシピ発見", "メニュー開発")).toBe("レシピ発見");
+    expect(SHOP_MODEL_ACTIVE).toBe(false);
+    expect(shopReputationStatus(EMPTY_SHOP_PROGRESS)).toBeNull();
+  });
+
   it("a Preview build (not DEV) honours the URL / Preview key but not the DEV key", async () => {
     vi.stubEnv("DEV", false);
     vi.stubEnv("VITE_PREVIEW_MODE", "1");
     window.localStorage.setItem(DEV_KEY, "shop");
     expect(await idFor("")).toBe("legacy");
     expect(await idFor("?progression=shop")).toBe("shop");
+    expect(await idFor("")).toBe("shop");
+    expect(await idFor("?progression=legacy&progression=shop")).toBe("legacy");
+    expect(await idFor("")).toBe("legacy");
   });
 });
 
 describe("Preview instruction parsing", () => {
   it("parses only shop / legacy", () => {
-    expect(parseProgressionPreviewParam("?progression=shop")).toBe("shop");
-    expect(parseProgressionPreviewParam("?progression=legacy")).toBe("legacy");
-    expect(parseProgressionPreviewParam("?progression=")).toBeNull();
-    expect(parseProgressionPreviewParam("?progression=SHOP")).toBeNull();
-    expect(parseProgressionPreviewParam(undefined)).toBeNull();
+    expect(parseProgressionParam("?progression=shop")).toBe("shop");
+    expect(parseProgressionParam("?progression=legacy")).toBe("legacy");
+    expect(parseProgressionParam("?progression=")).toBeNull();
+    expect(parseProgressionParam("?progression=SHOP")).toBeNull();
+    expect(parseProgressionParam(undefined)).toBeNull();
+    expect(parseProgressionParam("?progression=legacy&progression=shop")).toBe("legacy");
+    expect(parseProgressionParam("?progression=shop&progression=legacy")).toBe("shop");
+    expect(parseProgressionParam("?progression=unknown&progression=legacy")).toBeNull();
   });
 
   it("a failing storage never throws: the parameter still counts, nothing stored reads as null", () => {

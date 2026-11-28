@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { getRecipe, type RecipeId } from "../data/recipes";
@@ -10,7 +11,7 @@ import { buildStartup } from "./startup";
 import { memoryStorage } from "./testSupport/memoryStorage";
 
 /**
- * B案 Phase 1b (Issue #901), design §3.4: with the flag at its production default (legacy), the new `GameState.shop`
+ * B案 Phase 1b (Issue #901), design §3.4: with the flag explicitly set to legacy (legacy), the new `GameState.shop`
  * changes nothing. It starts as the default (or as stored), no transition touches it (the same object is carried
  * through every round path), and the state minus `shop` is exactly what it was before 1b.
  */
@@ -30,7 +31,7 @@ function freeResult(base: GameState, recipeId: RecipeId): GameState {
   } as GameState;
 }
 
-describe("shop state with the flag OFF (production default)", () => {
+describe("shop state with legacy selected", () => {
   it("the build runs the legacy model", () => {
     expect(PROGRESSION_MODEL_ID).toBe("legacy");
   });
