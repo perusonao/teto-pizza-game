@@ -779,9 +779,9 @@ interface ProgressionCarry {
  *  round about to start, not something to preserve from the previous one. */
 /** B案 Phase 3c: what one Free Cooking trial earned (see `GameState.lastResearchPointGain`). */
 export interface ResearchPointGain {
-  /** Points this trial earned (`RESEARCH_POINTS_BY_STAGE`, provisional). */
+  /** Points this trial earned (`RESEARCH_POINTS_BY_STAGE`). */
   earned: number;
-  /** The stage the trial counted as (research target -> adopted exact match -> stage 1). */
+  /** The adopted match stage capped by the research target, or stage 1 without an adopted match. */
   stage: number;
   /** The balance after this trial (`researchPointBalanceOf`). */
   balanceAfter: number;

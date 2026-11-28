@@ -8,13 +8,12 @@
  *   5. sauces and cheeses are hint subjects too (Phase 3d);
  *   6. what a hint reveals shows in the Dex and on the cooking screen (Phase 3d).
  *
- * The amounts below are PROVISIONAL (the Owner's placeholder: stage 1 = 1 ... stage 5 = 5). Phase 3f tunes them here, and only
- * here: every earning reads this one table. ./researchPoints.test.ts pins the placeholder so a change is deliberate.
+ * Phase 3f retained the initial amounts. Every earning reads this table.
  */
 import { SHOP_CHAPTER_COUNT } from "./reputationTable";
 import { catalogChapterOf, type ShopCatalog } from "./shopProgression";
 
-/** Research points one finished trial earns, by its stage (index 0 = stage 1 ... index 4 = stage 5). Provisional (Phase 3f). */
+/** Research points one finished trial earns, by its stage (index 0 = stage 1 ... index 4 = stage 5). */
 export const RESEARCH_POINTS_BY_STAGE: readonly [number, number, number, number, number] = Object.freeze([1, 2, 3, 4, 5]) as unknown as readonly [
   number,
   number,
@@ -23,7 +22,7 @@ export const RESEARCH_POINTS_BY_STAGE: readonly [number, number, number, number,
   number,
 ];
 
-/** The stage a trial counts as when it has neither a research target nor an adopted exact match. */
+/** The stage a trial counts as when it has no adopted exact match. */
 export const RESEARCH_FALLBACK_STAGE = 1;
 
 /** What decided a trial's stage (shown nowhere today; kept for tests and the Result Report). */
@@ -35,19 +34,19 @@ export interface ResearchTrialStage {
 }
 
 /**
- * A trial's stage (Owner 2026-11-27): the research target's stage when a target is set; else the stage of the adopted recipe the
- * pizza is an exact match for; else stage 1. A target or a match outside the adopted catalog has no stage and falls through.
+ * An adopted exact match sets the trial's stage, capped by the adopted research target's stage if present.
+ * A trial with no adopted exact match earns at stage 1.
  */
 export function researchTrialStage(
   researchTargetId: string | null,
   exactMatchRecipeId: string | null,
   catalog: ShopCatalog,
 ): ResearchTrialStage {
-  const targetStage = researchTargetId === null ? null : catalogChapterOf(researchTargetId, catalog);
-  if (targetStage !== null) return { stage: targetStage, source: "RESEARCH_TARGET" };
   const matchStage = exactMatchRecipeId === null ? null : catalogChapterOf(exactMatchRecipeId, catalog);
-  if (matchStage !== null) return { stage: matchStage, source: "EXACT_MATCH" };
-  return { stage: RESEARCH_FALLBACK_STAGE, source: "FALLBACK" };
+  if (matchStage === null) return { stage: RESEARCH_FALLBACK_STAGE, source: "FALLBACK" };
+  const targetStage = researchTargetId === null ? null : catalogChapterOf(researchTargetId, catalog);
+  if (targetStage !== null && targetStage < matchStage) return { stage: targetStage, source: "RESEARCH_TARGET" };
+  return { stage: matchStage, source: "EXACT_MATCH" };
 }
 
 /** The research points a trial of `stage` earns (a stage outside 1..5 is clamped into it). */
