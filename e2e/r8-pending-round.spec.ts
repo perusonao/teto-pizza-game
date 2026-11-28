@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import {
@@ -60,7 +61,7 @@ const readSave = (page: Page) =>
 
 async function startGuidedMargherita(page: Page) {
   await seed(page, guidedSave());
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await page.getByRole("button", { name: /ピザを作る/ }).click();
   await page.getByRole("button", { name: /マルゲリータ、/ }).click();
@@ -165,7 +166,7 @@ test("Guided CUT: confirming the cut registers and removes the journal in one go
 
 async function bootFreeFinish(page: Page, save: object) {
   await seed(page, save);
-  await page.goto("/?freeFinish=on");
+  await page.goto(legacyProgressionUrl("/?freeFinish=on"));
   await page.waitForSelector(".app-frame");
   await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");
@@ -200,7 +201,7 @@ test("Free Cooking FINISH: a reload in FINISH registers the previous pizza, the 
   expect(mid?.dex).toEqual([]);
   await shot(page, "r8-05-free-finish-before-reload", info.project.name);
 
-  await page.goto("/"); // the reload without ?freeFinish=on: completing the journal does not depend on the gate
+  await page.goto(legacyProgressionUrl()); // the reload without ?freeFinish=on: completing the journal does not depend on the gate
   await page.waitForSelector(".app-frame");
   await expect(notice(page)).toBeVisible();
   await expect(notice(page)).toContainText("マルゲリータ");
@@ -266,7 +267,7 @@ test("a save that cannot take the bake stops the round at BAKE, says why, and a 
 test("a journal this build cannot act on is kept untouched and the notice explains how to recover", async ({ page }, info) => {
   const future = { v: 2, id: "from-a-newer-build", status: "pending", anything: { new: "shape" } };
   await seed(page, { ...guidedSave(), pendingRound: future });
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   const held = page.locator('[data-round-notice="held"]');
   await expect(held).toBeVisible();

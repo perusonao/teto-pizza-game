@@ -1,10 +1,11 @@
+import { LEGACY_PROGRESSION_QUERY } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 
 /**
  * B案 Phase 3a (Issue #901): the curated 60 (`MENU_CATALOG`, 5 stages x 12) are the shop model's catalog. Under
  * `?progression=shop` (DEV / Preview) the Dex, HOME's Dex pill and Pizza Select count and show only those 60, grouped by
  * the Owner's stages; a recipe the catalog does not adopt stays in the game data but is not part of the shop's Dex.
- * Legacy (no parameter) is checked to be unchanged: every recipe, at its legacy chapter.
+ * Legacy is checked to be unchanged: every recipe, at its legacy chapter.
  */
 
 /** A recipe that exists in `RECIPES` but is not one of the curated 60 (src/data/menuCatalog.ts). */
@@ -46,8 +47,8 @@ async function openDex(page: Page) {
 }
 
 test.describe("B案 Phase 3a: the curated 60 are the shop's Dex (shop model)", () => {
-  test("legacy (no parameter): HOME's Dex pill and the Dex still count every recipe", async ({ page }) => {
-    await open(page, "");
+  test("legacy: HOME's Dex pill and the Dex still count every recipe", async ({ page }) => {
+    await open(page, LEGACY_PROGRESSION_QUERY);
     const [found, total] = await dexPillCounts(page);
     expect(found).toBe(3);
     expect(total).toBeGreaterThan(60);

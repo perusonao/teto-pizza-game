@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect } from "@playwright/test";
 import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
 
@@ -35,7 +36,7 @@ test("the fact ledger and the legacy ledger survive a real mount write and a rel
     localStorage.setItem("teto-pizza-save-v1", raw.replace('"discoveryHintFacts":{', '"discoveryHintFacts":{"__proto__":["ing:egg"],'));
   }, JSON.stringify(SAVE));
 
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`1/${CATALOG_COUNTS.recipes}`));
 

@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { startTargetlessFreeCook } from "./support/startFreeCook";
 
@@ -36,7 +37,7 @@ async function open(page: Page) {
     localStorage.setItem(key, value);
     localStorage.setItem("teto.dev.hint5Ladder", "0");
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
 }
 

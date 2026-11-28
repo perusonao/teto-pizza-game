@@ -4,7 +4,7 @@
  *
  * **Isolation (the same principle as ../../preview/hint5PreviewOptIn.ts).** Only ./progressionModelFlag.ts imports
  * this module, and it calls it only behind `import.meta.env.DEV || import.meta.env.VITE_PREVIEW_MODE`. Vite replaces both
- * statically, so a production `vite build` drops this module, its key and the URL parser
+ * statically, so a production `vite build` drops this module and its key
  * (../../preview/previewIsolation.gate.test.ts scans the production bundle for the key).
  *
  * The choice is remembered in its own Preview-only localStorage key, apart from the save, so it survives a reload without
@@ -12,22 +12,16 @@
  */
 import type { StorageLike } from "../../state/persistence";
 import type { ProgressionModelId } from "./progressionModelId";
+import { parseProgressionParam } from "./progressionParam";
 
 export const PROGRESSION_PREVIEW_KEY = "teto-pizza-preview-progression-model";
-
-/** `?progression=shop` / `?progression=legacy`; anything else (or nothing) is `null`. */
-export function parseProgressionPreviewParam(search: unknown): ProgressionModelId | null {
-  if (typeof search !== "string") return null;
-  const value = new URLSearchParams(search).get("progression");
-  return value === "shop" || value === "legacy" ? value : null;
-}
 
 /**
  * What the Preview instruction says for this page load: the URL parameter (stored), else the stored value, else `null`
  * (the production default applies).
  */
 export function resolveProgressionPreviewDecision(search: unknown, storage: StorageLike | null): ProgressionModelId | null {
-  const param = parseProgressionPreviewParam(search);
+  const param = parseProgressionParam(search);
   try {
     if (param !== null) {
       storage?.setItem(PROGRESSION_PREVIEW_KEY, param);

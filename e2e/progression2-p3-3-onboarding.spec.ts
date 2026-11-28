@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expectFreeNote, freeNoteText } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -15,7 +16,7 @@ import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived"
 const FREE_COOK_BAKE_TARGET = { start: 58, end: 78 };
 
 async function openHomeFresh(page: Page) {
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
 }
 
@@ -201,7 +202,7 @@ test.describe("Progression 2.0 Phase 3-3 onboarding (Issue #198)", () => {
         }),
       );
     });
-    await page.goto("/");
+    await page.goto(legacyProgressionUrl());
     await page.waitForSelector(".app-frame");
     await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`1/${CATALOG_COUNTS.recipes}`));
 

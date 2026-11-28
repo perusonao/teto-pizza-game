@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, cutThreeLines, playFullMargheritaRound, tapDoughPercent } from "./gestures";
 import { CATALOG_COUNTS } from "../src/logic/catalog/testSupport/catalogDerived";
@@ -42,7 +43,7 @@ async function openWithSave(page: Page, raw: { dex: unknown[] }, query = "") {
     },
     [SAVE_KEY, JSON.stringify(raw)] as const,
   );
-  await page.goto(`./${query}`);
+  await page.goto(legacyProgressionUrl(`./${query}`));
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`${raw.dex.length}/${CATALOG_COUNTS.recipes}`));
 }

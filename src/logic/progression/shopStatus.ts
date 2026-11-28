@@ -1,15 +1,16 @@
 /**
  * B案再構成 Phase 2a (Issue #901): what the UI reads about the shop model. Everything here is `false` / `null` under the
- * legacy model (Production), so a screen that branches on it renders exactly as before there.
+ * legacy model.
  */
-import { activeProgressionModel, completeReputationTable } from "./progressionModel";
+import { completeReputationTable } from "./progressionModel";
+import { PROGRESSION_MODEL_ID } from "./progressionModelFlag";
 import type { CompleteReputationTable } from "./reputationTable";
 import type { ShopProgressState } from "./shopProgress";
 import { chapterForReputation, nextChapterFloor } from "./shopProgression";
 import { nextRankAbove, rankAtFloor, rankForReputation, type ShopRank } from "./shopRank";
 
-/** True only while the shop model runs with its rules (the flag says shop -- Preview / DEV only -- and the table is complete). */
-export const SHOP_MODEL_ACTIVE: boolean = activeProgressionModel().id === "shop" && completeReputationTable() !== null;
+/** True for a page load that selected the shop model. */
+export const SHOP_MODEL_ACTIVE: boolean = PROGRESSION_MODEL_ID === "shop";
 
 export interface ShopReputationStatus {
   reputation: number;

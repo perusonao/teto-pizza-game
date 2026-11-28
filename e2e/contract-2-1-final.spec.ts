@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expectResearchLead } from "./support/hintNote";
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
@@ -43,7 +44,7 @@ async function open(page: Page, opts: SaveOpts & { flagOff?: boolean } = {}) {
     localStorage.setItem(key, value);
     if (off) localStorage.setItem(optKey, "0");
   }, [SAVE_KEY, saveJson(opts), OPT_OUT_KEY, !!opts.flagOff] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
 }
 

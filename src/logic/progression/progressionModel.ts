@@ -9,8 +9,7 @@
  * - `LEGACY_PROGRESSION` only delegates to the existing functions. It writes no new logic, so its outputs are the current
  *   ones (pinned by ./progressionModel.legacyEquivalence.test.ts and ../../state/gameReducer.progressionFlagOff.test.ts).
  * - `SHOP_PROGRESSION` (Phase 2a) is the shop model: chapters from the reputation, materials from the chapters, the menu
- *   from the first menu / grants / Dex (./shopProgression.ts). Selectable on Preview / DEV only (`?progression=shop`); it
- *   runs only while the reputation table is complete (R8), else the legacy model stands in.
+ *   from the first menu / grants / Dex (./shopProgression.ts). Startup selects it through the readiness gate in the flag.
  *
  * Phase 1b (Issue #901) adds `ProgressionInputs.shop` (./shopProgress.ts). The legacy model never reads it, so every legacy
  * output is unchanged; the reducer passes it automatically (`{ ...state, dex }`), startup passes `save.shopProgress`.
@@ -131,14 +130,10 @@ export function shopProgressionFor(table: CompleteReputationTable): ProgressionM
   };
 }
 
-/**
- * The shop model. R8: while the production reputation table has a `null`, the shop rules cannot run on an unset number, so
- * this is the Phase 1a placeholder instead (the legacy outputs under the id `"shop"`). Phase 2a: the table holds the
- * Owner-approved values, so this is the shop model.
- */
+/** Bind the model to the real table. Startup only selects shop after its readiness gate passes. */
 export const SHOP_PROGRESSION: ProgressionModel = isReputationTableComplete(REPUTATION_TABLE)
   ? shopProgressionFor(REPUTATION_TABLE)
-  : { ...LEGACY_PROGRESSION, id: "shop" };
+  : LEGACY_PROGRESSION;
 
 /** The production table when complete (the reducer reads the reputation gains through it), else `null`. */
 export function completeReputationTable(): CompleteReputationTable | null {
@@ -149,7 +144,7 @@ export function progressionModelFor(id: ProgressionModelId): ProgressionModel {
   return id === "shop" ? SHOP_PROGRESSION : LEGACY_PROGRESSION;
 }
 
-/** The model this page load uses (the flag; Production: legacy). */
+/** The model this page load uses. */
 export function activeProgressionModel(): ProgressionModel {
   return progressionModelFor(PROGRESSION_MODEL_ID);
 }

@@ -1,7 +1,8 @@
+import "../test/legacyProgression";
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-// B案 Phase 3b: the legacy model (Production's default; no flag mock here). Every Phase 3b path must read as before.
+// B案 Phase 3b: legacy selected. Every Phase 3b path must read as before.
 import { cleanup, render, screen } from "@testing-library/react";
 import { INGREDIENTS } from "../data/ingredients";
 import { RECIPES, getRecipe } from "../data/recipes";

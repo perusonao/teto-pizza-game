@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { RECIPES, countsTowardLadder, getRecipe, type RecipeId } from "../data/recipes";
@@ -11,8 +12,8 @@ import { buildStartup } from "./startup";
 import { memoryStorage } from "./testSupport/memoryStorage";
 
 /**
- * B案 Phase 1a (Issue #901), design §3.4 `gameReducer.progressionFlagOff`: with the flag at its production default
- * (legacy), the three entitlement call sites that now go through the progression port -- REGISTER_TO_DEX,
+ * B案 Phase 1a (Issue #901), design §3.4 `gameReducer.progressionFlagOff`: with legacy selected,
+ * the three entitlement call sites that now go through the progression port -- REGISTER_TO_DEX,
  * MISSION_NEXT_ORDER and the startup load -- produce exactly the state the pre-1a code produced.
  *
  * "The pre-1a code" is reproduced literally: the port's method is replaced by the call the site made before 1a

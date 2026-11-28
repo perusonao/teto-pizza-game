@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { INGREDIENTS, STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { findOrderForRecipe } from "../data/orders";

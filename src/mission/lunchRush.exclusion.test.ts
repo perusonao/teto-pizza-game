@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { participatesInLunchRush, RECIPES, type Recipe } from "../data/recipes";
 import { discoverAll } from "../logic/testSupport/branchingFixture";

@@ -1,3 +1,4 @@
+import { LEGACY_PROGRESSION_QUERY } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { completeDoughStep } from "./gestures";
@@ -10,7 +11,7 @@ import { RECIPES } from "../src/data/recipes";
  * 3. the cooking screen lists what is revealed at its top edge;
  * 4. the Dex shows the same on that recipe's slot, and a reload keeps all of it;
  * 5. not enough points: the buttons are disabled and the sheet says so;
- * 6. legacy (no parameter): the hint sheet is the Pitz ladder, as before.
+ * 6. legacy: the hint sheet is the Pitz ladder, as before.
  *
  * `HV_VIDEO=1` records the Human Verification video, `HV_SCREENSHOT_DIR=<dir>` writes the screenshots; `HV_BEFORE=1` only captures
  * (for the `main` "before" screenshots, where the Phase 3d UI does not exist).
@@ -170,9 +171,9 @@ test.describe("B案 Phase 3d: research point hints (shop model)", () => {
     await capture(page, "06-hint-sheet-short");
   });
 
-  test("legacy (no parameter): the hint sheet is the Pitz ladder, unchanged", async ({ page }) => {
+  test("legacy: the hint sheet is the Pitz ladder, unchanged", async ({ page }) => {
     const { shopProgress: _drop, ...legacySave } = save();
-    await open(page, "", legacySave);
+    await open(page, LEGACY_PROGRESSION_QUERY, legacySave);
     await startTrialWithHintSheet(page);
     await expect(page.getByTestId("shop-hint-board")).toHaveCount(0);
     await expect(page.locator(".hint-sheet")).toContainText("Pitz");

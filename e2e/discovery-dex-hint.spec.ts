@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { completeDoughStep } from "./gestures";
 import { PROFILES, ProfileDriver, readViewport, type Profile } from "./support/layoutProfiles";
@@ -44,7 +45,7 @@ async function openWithSave(page: Page) {
     // Hint 5.0 is ON by default (H5-6); this suite covers the pre-Hint-5.0 sheet (the rollback path).
     localStorage.setItem("teto.dev.hint5Ladder", "0");
   }, [SAVE_KEY, JSON.stringify(DEX11_SAVE)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`11/${CATALOG_COUNTS.recipes}`));
 }

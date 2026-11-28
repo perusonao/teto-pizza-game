@@ -1,3 +1,4 @@
+import { LEGACY_PROGRESSION_QUERY } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { bakeToTarget, completeDoughStep, completeEmptyFinishIfOffered, cutThreeLines, paintSauceRing, tapDoughPercent } from "./gestures";
@@ -10,7 +11,7 @@ import { RECIPES } from "../src/data/recipes";
  * 2. a Free Cooking trial (menu development) of a stage-2 recipe earns +2 on RESULT, with the balance and the "not yet" line;
  * 3. HOME shows the new balance, the save holds it, and a reload neither loses nor repeats it;
  * 4. the hint sheet of the next trial shows the balance and that it cannot buy a hint yet;
- * 5. a served order earns none; legacy (no parameter) shows none of it.
+ * 5. a served order earns none; legacy shows none of it.
  *
  * `HV_VIDEO=1` records the Human Verification video, `HV_SCREENSHOT_DIR=<dir>` writes the screenshots; `HV_BEFORE=1` only captures
  * (for the `main` "before" screenshots, where the Phase 3c UI does not exist).
@@ -213,9 +214,9 @@ test.describe("B案 Phase 3c: research points (shop model)", () => {
     await expect(pill(page)).toHaveText("🔬 7");
   });
 
-  test("legacy (no parameter): no research points anywhere, and the save gains no shopProgress", async ({ page }) => {
+  test("legacy: no research points anywhere, and the save gains no shopProgress", async ({ page }) => {
     const { shopProgress: _drop, ...legacySave } = save();
-    await open(page, "", legacySave);
+    await open(page, LEGACY_PROGRESSION_QUERY, legacySave);
     await expect(pill(page)).toHaveCount(0);
     await capture(page, "05-home-legacy");
     await cookMeatLoversFreely(page);

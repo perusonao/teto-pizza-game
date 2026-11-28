@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
@@ -16,7 +17,7 @@ import {
 } from "../state/recipeChapters";
 import { DexOverlay } from "./DexOverlay";
 
-// B案 Phase 3a: flag OFF (the Production default, legacy). The Dex, HOME's Dex pill and Pizza Select read every recipe at
+// B案 Phase 3a: legacy selected. The Dex, HOME's Dex pill and Pizza Select read every recipe at
 // its legacy chapter, exactly as before the curated catalog landed. The shop side is ./shopModelUi.phase3a.test.tsx.
 
 afterEach(cleanup);

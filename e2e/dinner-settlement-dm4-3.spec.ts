@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { cookDinnerPizza, DM_A, dinnerSave, nextDinnerPizza, openDinnerDetail, openWithSave, readSave } from "./support/dinner";
 import { reloadApp } from "./support/diag";
+import { LEGACY_PROGRESSION_QUERY } from "./support/legacyProgression";
 
 /**
  * Dinner Mission DM-4-3: the CLEAR settlement, end to end in a real browser, with the SHIPPED
@@ -11,7 +12,7 @@ import { reloadApp } from "./support/diag";
  * DEV/Preview-only query (the dev server is a DEV build).
  */
 
-const RUN = "?dinnerDuration=900&dinnerMinStars=1";
+const RUN = `${LEGACY_PROGRESSION_QUERY}&dinnerDuration=900&dinnerMinStars=1`;
 const overlay = (page: import("@playwright/test").Page) => page.getByRole("dialog", { name: "ディナーミッション結果" });
 
 async function clearDmA(page: import("@playwright/test").Page) {

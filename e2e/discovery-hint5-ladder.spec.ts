@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { test, expect, type Page } from "@playwright/test";
 import { RECIPES } from "../src/data/recipes";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
@@ -78,7 +79,7 @@ async function openSheet(page: Page, s: object, optIn: boolean) {
     },
     [SAVE_KEY, JSON.stringify(s), OPT_IN_KEY, optIn] as const,
   );
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await startTargetlessFreeCook(page);
   await page.waitForSelector(".pizza-stage");

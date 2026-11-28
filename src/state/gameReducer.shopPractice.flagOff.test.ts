@@ -1,3 +1,4 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import { STARTER_INGREDIENT_IDS } from "../data/ingredients";
 import { getRecipe } from "../data/recipes";
@@ -13,7 +14,7 @@ import { describeSettledRound } from "./roundNoticeCopy";
 import { fugazzaAtBake } from "./testSupport/r8Harness";
 
 /**
- * B案 Phase 2b (Issue #901): the legacy model (Production default, no `?progression`) is untouched by the practice round.
+ * B案 Phase 2b (Issue #901): the explicit legacy model is untouched by the practice round.
  * Pizza Select and a retry stay `GUIDED` and pay the FREE Pitz exactly as before, the journal carries no `practice` field, and
  * every wording switch returns the legacy string. The shop side is ./gameReducer.shopPractice.test.ts.
  */

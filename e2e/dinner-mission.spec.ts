@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { expectNoUndiscoveredIdentity } from "./support/antiSpoiler";
 import { cookDinnerPizza, DM_A, dinnerSave, nextDinnerPizza, openDinnerDetail, openWithSave, readSave } from "./support/dinner";
+import { LEGACY_PROGRESSION_QUERY } from "./support/legacyProgression";
 
 /**
  * Dinner Mission DM-3 (Issue #242, ported from PR #243) / DM-3R-2 (Issue #250): the playable
@@ -12,7 +13,7 @@ import { cookDinnerPizza, DM_A, dinnerSave, nextDinnerPizza, openDinnerDetail, o
  * quality gate.
  */
 
-const RUN = "?dinnerDuration=900&dinnerMinStars=1";
+const RUN = `${LEGACY_PROGRESSION_QUERY}&dinnerDuration=900&dinnerMinStars=1`;
 
 function noPageScroll(page: Page) {
   return page.evaluate(() => ({
@@ -54,7 +55,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
   });
 
   test("OD-DM3-1: without an injected duration START stays disabled (制限時間を調整中)", async ({ page }) => {
-    await openWithSave(page, dinnerSave([...DM_A]));
+    await openWithSave(page, dinnerSave([...DM_A]), LEGACY_PROGRESSION_QUERY);
     await openDinnerDetail(page, /ディナーミッション 1/);
     await expect(page.locator(".dinner-detail")).toContainText("調整中");
     await expect(page.getByRole("button", { name: /スタート/ })).toBeDisabled();
@@ -158,7 +159,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
 
   test("R5/R9: ★ below S -> QUALITY_FAIL; a raw pizza -> INVALID_PIZZA; the targets stay open", async ({ page }) => {
     test.setTimeout(180_000);
-    await start(page, dinnerSave([...DM_A], { egg: 5 }), "?dinnerDuration=900&dinnerMinStars=5");
+    await start(page, dinnerSave([...DM_A], { egg: 5 }), `${LEGACY_PROGRESSION_QUERY}&dinnerDuration=900&dinnerMinStars=5`);
     await cookDinnerPizza(page, "bismarck");
     await expect(result(page)).toHaveAttribute("data-category", "QUALITY_FAIL");
     await expect(result(page)).toContainText("もう少し丁寧に作ろう");
@@ -189,7 +190,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
 
   test("R20: the clock reaching 0 -> 時間切れ", async ({ page }) => {
     await page.clock.install();
-    await openWithSave(page, dinnerSave([...DM_A]), "?dinnerDuration=30");
+    await openWithSave(page, dinnerSave([...DM_A]), `${LEGACY_PROGRESSION_QUERY}&dinnerDuration=30`);
     await openDinnerDetail(page, /ディナーミッション 1/);
     await page.getByRole("button", { name: /スタート/ }).click();
     await expect(page.getByTestId("dinner-hud")).toContainText("00:30");

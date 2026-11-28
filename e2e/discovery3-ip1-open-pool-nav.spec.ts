@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import { completeDoughStep, paintSauceRing } from "./gestures";
@@ -53,7 +54,7 @@ async function startDex12Free(page: Page) {
     localStorage.clear();
     localStorage.setItem(key, value);
   }, [SAVE_KEY, JSON.stringify(DEX12_SAVE)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`12/${CATALOG_COUNTS.recipes}`));
   await startTargetlessFreeCook(page);

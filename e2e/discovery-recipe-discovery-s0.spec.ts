@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { expectFreeNote, freeNoteText } from "./support/hintNote";
 import { test, expect, type Page } from "@playwright/test";
 import { DISCOVERY_LADDER } from "../src/data/discoveryLadder";
@@ -40,7 +41,7 @@ async function open(page: Page) {
     localStorage.clear();
     localStorage.setItem(key, value);
   }, [SAVE_KEY, JSON.stringify(SAVE)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
 }
 
@@ -96,7 +97,7 @@ const OLD_WORDING = /フリークッキング|フリープレイ|オリジナル
 test("fresh HOME: レシピ発見 is the lead CTA with a short supporting line, no overflow", async ({ page }) => {
   await page.goto("icons/icon-16.png");
   await page.evaluate(() => localStorage.clear());
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl());
   await page.waitForSelector(".app-frame");
   const cta = page.getByRole("button", { name: /レシピ発見/ });
   await expect(cta).toBeVisible();
