@@ -7,18 +7,20 @@
  * registration (./pendingRoundSettle.ts). It is an optional top-level key of save v2 (no schema bump).
  *
  * This module is pure: the journal's shape, how it is built from a round, and how a stored value is read back. It stores
- * only what scoring needs to be re-run -- never the score, the clock, UI state or stock.
+ * only the inputs needed to re-run scoring and registration -- never the score, the clock, UI state or stock.
  */
 import { getIngredient } from "../data/ingredients";
 import { getRecipe, type RecipeId } from "../data/recipes";
 import { isDoughKind, type DoughKind } from "../logic/dough/doughKind";
 import { DOUGH_SHAPE_POINTS, type DoughShape } from "../logic/doughShape";
 import { SQUARE_DOUGH_GRID, type SquareDough } from "../logic/pan/squareDough";
+import { progressionModelId, type ProgressionModelId } from "../logic/progression/progressionModelFlag";
+import { canEnableShopProgression } from "../logic/progression/reputationTable";
 import { SAVE_ID_PATTERN } from "./saveIdGrammar";
 import type { PanId, PizzaState, PlacedTopping, SauceDeposit, SauceOrigin } from "./pizzaState";
 
 export const PENDING_ROUND_KEY = "pendingRound";
-export const PENDING_ROUND_VERSION = 1;
+export const PENDING_ROUND_VERSION = 2;
 /** Provisional hard cap (Owner decision): UTF-8 bytes of the journal's JSON. The measured worst case is about 39 KB. */
 export const PENDING_ROUND_MAX_BYTES = 64 * 1024;
 
@@ -53,8 +55,7 @@ export interface PendingRoundSummary {
   practice?: true;
 }
 
-export interface PendingRound {
-  v: typeof PENDING_ROUND_VERSION;
+interface PendingRoundFields {
   id: string;
   status: PendingRoundStatus;
   kind: PendingRoundKind;
@@ -69,13 +70,19 @@ export interface PendingRound {
   finishPending?: true;
   /** B案 Phase 2b (design §6 Q7): the `GUIDED` round was a practice round (`RoundKind` `PRACTICE`, shop model only), so completing
    *  it from the journal pays no Pitz and no reputation, exactly like finishing it by hand. Absent = an ordinary guided round (every
-   *  journal written before Phase 2b, and every legacy-model round). Kept on a `GUIDED` journal rather than as a new `kind`, so a
-   *  journal stays readable by a build that predates it (it reads as the guided round it is cooked as). */
+   *  journal written before Phase 2b, and every legacy-model round). The flag stays on the `GUIDED` kind across journal versions. */
   practice?: true;
   pizza: PendingRoundPizza;
   research?: { targetId: string | null; validAtStart: boolean };
   settled?: PendingRoundSummary;
 }
+
+type PendingRoundFormat =
+  | { v: 1; originMode?: never }
+  | { v: typeof PENDING_ROUND_VERSION; originMode: ProgressionModelId };
+
+/** Older readers hold v2 journals, so they cannot replay a shop round without its origin rules. */
+export type PendingRound = PendingRoundFields & PendingRoundFormat;
 
 /** Why a stored `pendingRound` is kept as it is and not acted on. The original text is never touched. */
 export type HeldPendingRoundReason = "unknown-version" | "corrupt" | "unresolvable" | "oversize";
@@ -137,11 +144,12 @@ function journalPizza(pizza: PizzaState): PendingRoundPizza {
   };
 }
 
-/** Builds the `pending` journal of a round that was just baked. `roundId` comes from the caller (the action), never from here. */
+/** Builds the `pending` journal of a round that was just baked. The active mode is fixed for the lifetime of the page. */
 export function buildPendingRound(source: JournalSource, roundId: string, bakeValue: number, createdAt: number): PendingRound {
   const freeCook = source.roundKind === "FREE_COOK";
   return {
     v: PENDING_ROUND_VERSION,
+    originMode: progressionModelId(),
     id: roundId,
     status: "pending",
     kind: freeCook ? "FREE_COOK" : "GUIDED",
@@ -294,7 +302,7 @@ function readSummary(raw: unknown): PendingRoundSummary | null {
 export function readStoredPendingRound(raw: unknown): StoredPendingRound {
   if (raw === undefined) return { kind: "none" };
   if (!isRecord(raw)) return { kind: "held", reason: "corrupt" };
-  if (raw.v !== PENDING_ROUND_VERSION) return { kind: "held", reason: typeof raw.v === "number" && raw.v > PENDING_ROUND_VERSION ? "unknown-version" : "corrupt" };
+  if (raw.v !== 1 && raw.v !== PENDING_ROUND_VERSION) return { kind: "held", reason: typeof raw.v === "number" && raw.v > PENDING_ROUND_VERSION ? "unknown-version" : "corrupt" };
   let bytes: number;
   try {
     bytes = utf8ByteLength(JSON.stringify(raw));
@@ -303,6 +311,17 @@ export function readStoredPendingRound(raw: unknown): StoredPendingRound {
   }
   if (bytes > PENDING_ROUND_MAX_BYTES) return { kind: "held", reason: "oversize" };
   if (!isSafeId(raw.id) || (raw.status !== "pending" && raw.status !== "settled")) return { kind: "held", reason: "corrupt" };
+  let format: PendingRoundFormat;
+  if (raw.v === 1) {
+    format = { v: 1 };
+  } else {
+    const originMode = raw.originMode;
+    if (originMode !== "legacy" && originMode !== "shop") return { kind: "held", reason: "corrupt" };
+    if (raw.status === "pending" && originMode === "shop" && !canEnableShopProgression()) {
+      return { kind: "held", reason: "unresolvable" };
+    }
+    format = { v: PENDING_ROUND_VERSION, originMode };
+  }
   if (raw.kind !== "GUIDED" && raw.kind !== "FREE_COOK") return { kind: "held", reason: "corrupt" };
   if (!isFiniteNumber(raw.bakeValue) || !isFiniteNumber(raw.createdAt)) return { kind: "held", reason: "corrupt" };
   const pizza = readPizza(raw.pizza);
@@ -332,7 +351,7 @@ export function readStoredPendingRound(raw: unknown): StoredPendingRound {
   return {
     kind: "round",
     round: {
-      v: PENDING_ROUND_VERSION,
+      ...format,
       id: raw.id,
       status: raw.status,
       kind: raw.kind,

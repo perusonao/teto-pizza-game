@@ -38,7 +38,7 @@ const baseSave = () => ({
 });
 
 const JOURNALS = {
-  "unknown-version": { v: 2, id: "from-a-newer-build", status: "pending", anything: { new: "shape" } },
+  "unknown-version": { v: 3, id: "from-a-newer-build", status: "pending", anything: { new: "shape" } },
   unresolvable: {
     v: 1, id: "late-1", status: "pending", kind: "GUIDED", recipeId: "margherita", bakeValue: 70, createdAt: 1,
     pizza: {

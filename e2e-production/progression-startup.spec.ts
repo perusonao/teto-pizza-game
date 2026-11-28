@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { legacyStartupSave } from "../e2e/support/legacyStartupSave";
+import { buildIdealSauceFixture, getReferencePizza } from "../src/data/referencePizza";
+import { createInitialDoughShape } from "../src/logic/doughShape";
 
 const SAVE_KEY = "teto-pizza-save-v1";
 const PREVIEW_KEY = "teto-pizza-preview-progression-model";
@@ -49,4 +51,51 @@ test("production startup keeps the shared save and isolates the remembered choic
       expect(stored.dev).toBe("shop");
     });
   }
+});
+
+test("production legacy startup settles a shop-origin journal exactly once", async ({ page }) => {
+  const reference = getReferencePizza("margherita")!;
+  const save = {
+    ...legacyStartupSave,
+    shopProgress: {
+      reputation: 39, grantedMenuRecipeIds: [], awaitingMenuRecipeIds: ["meat-lovers"], menuEntryPaidRecipeIds: [],
+    },
+    pendingRound: {
+      v: 2, id: "prod-shop-order", status: "pending", kind: "GUIDED", originMode: "shop", recipeId: "margherita",
+      bakeValue: 70, createdAt: 1,
+      pizza: {
+        doughShape: createInitialDoughShape(),
+        sauceIds: ["tomato-sauce"],
+        sauceOrigin: null,
+        sauceDeposits: buildIdealSauceFixture(),
+        toppings: reference.pieceGroups.flatMap((group, g) => group.positions.map((position, i) => ({
+          ...position, id: `piece-${g}-${i}`, ingredientId: group.ingredientId,
+        }))),
+      },
+    },
+  };
+  await page.goto("icons/icon-16.png");
+  await page.evaluate(([key, raw]) => localStorage.setItem(key, raw), [SAVE_KEY, JSON.stringify(save)] as const);
+
+  const readSave = () => page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? "null"), SAVE_KEY);
+  const expected = {
+    pitzBalance: 901,
+    dex: [expect.objectContaining({ recipeId: "margherita", timesMade: 2 })],
+    inventory: legacyStartupSave.inventory,
+    discoveryHintPurchases: legacyStartupSave.discoveryHintPurchases,
+    dinnerMissionRecords: legacyStartupSave.dinnerMissionRecords,
+    shopProgress: { ...save.shopProgress, reputation: 50, menuEntryPaidRecipeIds: ["meat-lovers"] },
+  };
+  const notice = page.locator('[data-round-notice="settled"]');
+  await page.goto("./?progression=legacy");
+  await expectLegacyHome(page);
+  await expect(notice).toBeVisible();
+  await expect.poll(readSave).toMatchObject({ ...expected, pendingRound: { originMode: "shop", status: "settled" } });
+
+  await page.reload();
+  await expect(notice).toBeVisible();
+  expect(await readSave()).toMatchObject(expected);
+  await notice.getByRole("button", { name: "確認した" }).click();
+  await expect.poll(async () => (await readSave()).pendingRound).toBeUndefined();
+  expect(await readSave()).toMatchObject(expected);
 });

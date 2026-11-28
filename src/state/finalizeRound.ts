@@ -23,7 +23,7 @@ import { FREE_COOK_BAKE_TARGET } from "../data/freeCook";
 import { classifyBake, type BakeState } from "../logic/bake";
 import { evaluatePizzaCompletion, type PizzaCompletionResult } from "../logic/completionGate";
 import { resolveFreeCookPizza, withFreeCookBakeWindow, type FreeCookResolution, type FreeCookResolveSources } from "../logic/discovery/freeCook";
-import { progressionModelId } from "../logic/progression/progressionModelFlag";
+import { progressionModelId, type ProgressionModelId } from "../logic/progression/progressionModelFlag";
 import type { ScoreBreakdown } from "../logic/scoring";
 import { computeScoringV2, toLegacyScoreBreakdown, type ScoringV2Result } from "../logic/scoringV2";
 import type { DexState } from "./dex";
@@ -96,19 +96,19 @@ const SHOP_DEVELOPMENT_SOURCES: FreeCookResolveSources = {
 };
 
 /** Shared by finalizing and registering a finished Free Cooking pizza. */
-export function resolveMenuDevelopmentPizza(pizza: PizzaState, dex: DexState): FreeCookResolution {
-  return progressionModelId() === "shop"
+export function resolveMenuDevelopmentPizza(pizza: PizzaState, dex: DexState, mode = progressionModelId()): FreeCookResolution {
+  return mode === "shop"
     ? resolveFreeCookPizza(pizza, dex, SHOP_DEVELOPMENT_SOURCES)
     : resolveFreeCookPizza(pizza, dex);
 }
 
-export function finalizeRound(input: FinalizeRoundInput): FinalizedRound {
+export function finalizeRound(input: FinalizeRoundInput, mode?: ProgressionModelId): FinalizedRound {
   const { bakeValue } = input;
   const pizza: PizzaState = { ...input.pizza, bakeResult: bakeValue };
   // Progression 2.0 Phase 3-2: a free-cook pizza is identified here, once, by the Phase 3-1 matcher.
   // A MATCHED pizza becomes that recipe's round from this point on; anything else keeps the sentinel
   // and is either FAILED (not a dish) or an unscored ORIGINAL pizza.
-  const freeCook = input.freeCook ? resolveMenuDevelopmentPizza(pizza, input.dex) : null;
+  const freeCook = input.freeCook ? resolveMenuDevelopmentPizza(pizza, input.dex, mode) : null;
   if (freeCook && freeCook.kind !== "MATCHED") {
     return {
       kind: "UNMATCHED_FREE_COOK",

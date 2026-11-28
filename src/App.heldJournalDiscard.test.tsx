@@ -37,7 +37,7 @@ describe("HOME: a kept journal offers the discard", () => {
 
   it("the dialog opens on キャンセル focus, the button stays disabled until every check is ticked, cancel changes nothing", async () => {
     const user = userEvent.setup();
-    seed({ v: 2, id: "future-1", status: "pending" });
+    seed({ v: 3, id: "future-1", status: "pending" });
     render(<App />);
     const after = window.localStorage.getItem(SAVE_STORAGE_KEY);
     await user.click(screen.getByRole("button", { name: "この記録を退避して破棄…" }));

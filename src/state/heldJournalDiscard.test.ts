@@ -28,7 +28,7 @@ const stray = {
 };
 
 const HELD: Record<HeldPendingRoundReason, unknown> = {
-  "unknown-version": { v: 2, id: "future-1", status: "pending", anything: { new: "shape" } },
+  "unknown-version": { v: 3, id: "future-1", status: "pending", anything: { new: "shape" } },
   corrupt: { v: 1, id: 5, status: "pending" },
   unresolvable: stray,
   oversize: { v: 1, id: "big-1", status: "pending", padding: "x".repeat(70 * 1024) },

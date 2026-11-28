@@ -95,7 +95,7 @@ test("R8 HV story", async ({ page }) => {
 
   // (5) a journal this build cannot act on
   const current = await readSave(page);
-  await page.evaluate(([k, v]) => localStorage.setItem(k, v), [SAVE_KEY, JSON.stringify({ ...current, pendingRound: { v: 2, id: "from-a-newer-build", status: "pending" } })] as const);
+  await page.evaluate(([k, v]) => localStorage.setItem(k, v), [SAVE_KEY, JSON.stringify({ ...current, pendingRound: { v: 3, id: "from-a-newer-build", status: "pending" } })] as const);
   await page.reload();
   await page.waitForSelector(".app-frame");
   await expect(page.locator('[data-round-notice="held"]')).toBeVisible();

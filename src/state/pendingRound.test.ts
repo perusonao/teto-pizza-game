@@ -1,6 +1,8 @@
+import "../test/legacyProgression";
 import { describe, expect, it } from "vitest";
 import {
   PENDING_ROUND_MAX_BYTES,
+  PENDING_ROUND_VERSION,
   buildPendingRound,
   canonicalJson,
   pizzaFromJournal,
@@ -28,7 +30,8 @@ const summary = { outcome: "REGISTERED" as const, recipeId: "fugazza", stars: 3,
 describe("the pendingRound journal", () => {
   it("stores only what scoring needs: no score, clock, UI state or stock", () => {
     const round = buildPendingRound(source(), "r1", 70, 123);
-    expect(Object.keys(round).sort()).toEqual(["bakeValue", "createdAt", "id", "kind", "pizza", "recipeId", "status", "v"]);
+    expect(Object.keys(round).sort()).toEqual(["bakeValue", "createdAt", "id", "kind", "originMode", "pizza", "recipeId", "status", "v"]);
+    expect(round.originMode).toBe("legacy");
     expect(Object.keys(round.pizza).sort()).toEqual(["doughShape", "sauceDeposits", "sauceIds", "sauceOrigin", "toppings"]);
     const text = JSON.stringify(round);
     for (const forbidden of ["inventory", "score", "cookingTiming", "hint", "sauceToken", "bakeResult"]) expect(text).not.toContain(forbidden);
@@ -99,8 +102,10 @@ describe("a stored value this build cannot act on is held, never repaired", () =
     ["not an object", 5, "corrupt"],
     ["null", null, "corrupt"],
     ["an array", [], "corrupt"],
-    ["a newer version", { ...valid(), v: 2 }, "unknown-version"],
+    ["a newer version", { ...valid(), v: PENDING_ROUND_VERSION + 1 }, "unknown-version"],
     ["an unreadable version", { ...valid(), v: "x" }, "corrupt"],
+    ["a missing origin in the new format", { ...valid(), originMode: undefined }, "corrupt"],
+    ["an unknown origin", { ...valid(), originMode: "future-mode" }, "corrupt"],
     ["a bad id", { ...valid(), id: "Bad Id" }, "corrupt"],
     ["a bad status", { ...valid(), status: "done" }, "corrupt"],
     ["a bad kind", { ...valid(), kind: "LUNCH_RUSH" }, "corrupt"],
