@@ -1,3 +1,16 @@
+/* ---------- Phase 4 UI review P1: shared palette foundation ---------- */
+:root {
+  --teto-ground-cream: #fff7e8;
+  --teto-ink-brown: #4a2e1b;
+  --teto-action-order: #f6ad55;
+  --teto-action-research: #8fd3e8;
+  --teto-action-shop: #b8d986;
+  --teto-action-lunch: #ffd66b;
+  /* Dinner remains an intentional night palette outside the four daytime actions. */
+  --dinner-night: #2f2a52;
+  --dinner-night-soft: #ece8fb;
+}
+
 /* ---------- Preview badge (perusonao/teto-pizza-game-preview only) ---------- */
 .preview-badge {
   position: fixed;
@@ -29,7 +42,8 @@
   max-width: 390px;
   height: 100svh;
   height: 100dvh;
-  background: linear-gradient(180deg, #f7ecd4 0%, #efdcb3 100%);
+  color: var(--teto-ink-brown);
+  background: var(--teto-ground-cream);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -2636,7 +2650,8 @@
 .dex-overlay__panel {
   width: 100%;
   max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
-  background: #fff8ea;
+  color: var(--teto-ink-brown);
+  background: var(--teto-ground-cream);
   border-radius: 20px 20px 0 0;
   display: flex;
   flex-direction: column;
@@ -2891,6 +2906,12 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
+.mission-hud:not(.dinner-hud) {
+  background: var(--teto-action-lunch);
+  color: var(--teto-ink-brown);
+  box-shadow: 0 2px 6px rgba(74, 46, 27, 0.22);
+}
+
 .mission-hud__timer,
 .mission-hud__served {
   font-size: 14px;
@@ -2936,6 +2957,20 @@
   gap: 12px;
   text-align: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.mission-overlay--lunch .mission-overlay__panel {
+  background: var(--teto-ground-cream);
+  border: 3px solid var(--teto-action-lunch);
+}
+
+.mission-overlay--lunch .mission-overlay__title {
+  color: var(--teto-ink-brown);
+}
+
+.mission-overlay--lunch .cta-button--primary {
+  background: var(--teto-action-lunch);
+  color: var(--teto-ink-brown);
 }
 
 .mission-overlay__close {
@@ -3282,6 +3317,13 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.shop-overlay__panel .dex-overlay__header {
+  margin-bottom: 0;
+  padding-bottom: 12px;
+  background: var(--teto-action-shop);
+  border-bottom: 2px solid var(--teto-ink-brown);
 }
 
 .shop-overlay__balance {
@@ -3961,7 +4003,7 @@
       transparent 1px,
       transparent 34px
     ),
-    linear-gradient(180deg, #f7ecd4 0%, #efdcb3 100%);
+    linear-gradient(180deg, #fffaf2 0%, var(--teto-ground-cream) 100%);
 }
 
 /* ---------- HOME header extras ---------- */
@@ -4157,6 +4199,28 @@
   padding-right: 12px;
 }
 
+.home-action--order {
+  border: 2px solid var(--teto-ink-brown);
+  background: var(--teto-action-order);
+  color: var(--teto-ink-brown);
+}
+
+.home-action--research {
+  border: 2px solid var(--teto-ink-brown);
+  background: var(--teto-action-research);
+  color: var(--teto-ink-brown);
+}
+
+.home-action--lunch {
+  border: 2px solid var(--teto-ink-brown);
+  background: var(--teto-action-lunch);
+  color: var(--teto-ink-brown);
+}
+
+.home-action--lunch:disabled {
+  background: var(--teto-action-lunch);
+}
+
 /* Progression 2.0 Phase 3-2 (Issue #194): フリークッキング takes its own full-width second row
    (after, and overriding, .cta-button--home-secondary's `flex: 1`), so the existing
    ピザを作る / ランチラッシュ pair keeps its 1:1 row and never orphan-wraps (Issue #47 Finding B).
@@ -4221,6 +4285,23 @@
   padding: 10px 10px;
   text-align: left;
   box-shadow: 0 2px 5px rgba(107, 66, 38, 0.12);
+}
+
+.home-menu__card--shop {
+  border-color: var(--teto-ink-brown);
+  background: var(--teto-action-shop);
+}
+
+.game-screen--order > .app-header {
+  box-shadow: inset 0 -4px 0 var(--teto-action-order), 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.game-screen--research > .app-header {
+  box-shadow: inset 0 -4px 0 var(--teto-action-research), 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.game-screen--lunch > .app-header {
+  box-shadow: inset 0 -4px 0 var(--teto-action-lunch), 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .home-menu__icon {
@@ -6615,11 +6696,6 @@ p.hint-sheet__step {
 /* ---------- Dinner Mission DM-3 (Issue #242) ----------
    Reuses the existing skeletons (home-menu card, pizza-select screen, mission-hud,
    mission-serve-panel, mission-overlay); Dinner only adds a light "night" accent. */
-:root {
-  --dinner-night: #2f2a52;
-  --dinner-night-soft: #ece8fb;
-}
-
 /* One slim row (icon | label + sub) so HOME keeps the vertical slack the hero relies on. */
 .home-menu__card--wide {
   grid-column: 1 / -1;

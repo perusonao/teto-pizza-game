@@ -217,7 +217,7 @@ export function HomeScreen({
             PizzaSelectScreen), and ランチラッシュ stays disabled. The earlier fresh-save layout put
             all three in one row, where each label wrapped into a 5-7 line pill at 390/360px. */}
         {onTakeOrder ? (
-          <button type="button" className="cta-button cta-button--primary cta-button--home" onClick={onTakeOrder}>
+          <button type="button" className="cta-button cta-button--primary cta-button--home home-action--order" onClick={onTakeOrder}>
             {"\u{1F9FE}"} 注文を受ける
           </button>
         ) : (
@@ -235,7 +235,7 @@ export function HomeScreen({
         )}
         <button
           type="button"
-          className="cta-button cta-button--secondary cta-button--home-secondary"
+          className="cta-button cta-button--secondary cta-button--home-secondary home-action--lunch"
           onClick={onStartLunchRush}
           disabled={lunchRushLocked || lunchRushNoCookable}
           aria-disabled={lunchRushLocked || lunchRushNoCookable}
@@ -246,7 +246,7 @@ export function HomeScreen({
           (lunchRushLocked ? (
             <button
               type="button"
-              className="cta-button cta-button--primary cta-button--home cta-button--free-cook cta-button--free-cook-lead"
+              className="cta-button cta-button--primary cta-button--home cta-button--free-cook cta-button--free-cook-lead home-action--research"
               onClick={onStartFreeCook}
             >
               {"\u{1F3A8}"} {shopCopy("レシピ発見", "メニュー開発")}
@@ -257,7 +257,7 @@ export function HomeScreen({
           ) : (
             <button
               type="button"
-              className="cta-button cta-button--secondary cta-button--home-secondary cta-button--free-cook"
+              className="cta-button cta-button--secondary cta-button--home-secondary cta-button--free-cook home-action--research"
               onClick={onStartFreeCook}
             >
               {"\u{1F3A8}"} {shopCopy("レシピ発見", "メニュー開発")}
@@ -304,7 +304,7 @@ export function HomeScreen({
             {shopCopy("発見", "開発")} {discoveredCount}/{totalRecipes}
           </span>
         </button>
-        <button type="button" className="home-menu__card" onClick={onOpenShop}>
+        <button type="button" className="home-menu__card home-menu__card--shop" onClick={onOpenShop}>
           <span className="home-menu__icon">{"\u{1F3EA}"}</span>
           <span className="home-menu__label">
             ショップ

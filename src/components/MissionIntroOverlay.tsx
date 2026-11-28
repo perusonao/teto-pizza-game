@@ -17,7 +17,7 @@ function formatDuration(durationSeconds: number): string {
 export function MissionIntroOverlay({ durationSeconds, onStart, onClose }: MissionIntroOverlayProps) {
   const duration = formatDuration(durationSeconds);
   return (
-    <div className="mission-overlay">
+    <div className="mission-overlay mission-overlay--lunch">
       <div className="mission-overlay__panel">
         <button type="button" className="mission-overlay__close" onClick={onClose}>
           閉じる
