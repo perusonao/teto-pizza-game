@@ -245,7 +245,7 @@ export function DinnerResultOverlay({
             <>
               <p className="dinner-result__blocked">{"\u{1F6D2}"} 材料を補充すると再挑戦できます</p>
               <button type="button" className="secondary-button" onClick={onOpenShop}>
-                ショップへ
+                お店へ
               </button>
             </>
           )}

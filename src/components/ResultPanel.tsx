@@ -752,7 +752,7 @@ export function ResultPanel({
       {materialUnlockNotice && stageOpening && stageOpening.materialNamesJa.length > 0 && onOpenShop && (
         <div className="material-unlock-notice material-unlock-notice--cta-only">
           <button type="button" className="material-unlock-notice__cta" onClick={onOpenShop}>
-            {"\u{1F6D2}"} ショップへ
+            {"\u{1F6D2}"} お店へ
           </button>
         </div>
       )}
@@ -774,7 +774,7 @@ export function ResultPanel({
               a message only -- one Shop CTA, not two with the same destination. */}
           {onOpenShop && !(isDiscoveryResult && postDiscovery?.kind === "SHOP_NEW_MATERIAL") && (
             <button type="button" className="material-unlock-notice__cta" onClick={onOpenShop}>
-              {"\u{1F6D2}"} ショップへ
+              {"\u{1F6D2}"} お店へ
             </button>
           )}
         </div>

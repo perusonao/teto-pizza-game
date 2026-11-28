@@ -404,7 +404,7 @@ describe("HOME/GAME separation (Issue #24)", () => {
     await user.click(screen.getByRole("button", { name: /ランチラッシュ/ }));
     expect(document.querySelector(".game-screen")).toBeInTheDocument();
     expect(document.querySelector(".mission-overlay")).toBeInTheDocument();
-    expect(screen.getByText(/LUNCH RUSH/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /ランチラッシュ/ })).toBeInTheDocument();
   });
 
   // Issue #47 Finding C only changes SELECT_RECIPE (Pizza Select's own path) -- Mission's own
@@ -1464,7 +1464,7 @@ describe("Lunch Rush material shortage (Issue #212)", () => {
 
     expect(screen.getByText("作れるピザがなくなったので終了しました")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "もう一度" })).toBeDisabled();
-    expect(screen.getByText(/ショップで材料を補充すると再挑戦できます/)).toBeInTheDocument();
+    expect(screen.getByText(/お店で材料を補充すると再挑戦できます/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "この注文をスキップ" })).not.toBeInTheDocument();
     expect(screen.getByText(/\+0 Pitz/)).toBeInTheDocument();
     const stored = JSON.parse(window.localStorage.getItem(SAVE_STORAGE_KEY)!);

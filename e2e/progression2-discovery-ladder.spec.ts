@@ -117,7 +117,7 @@ test.describe("Discovery Ladder Shop (I4b)", () => {
     await expect(notice).not.toContainText(/プレゼント|無料|🎁/);
     // #358: ONE Shop CTA -- the discovery's primary 「新しい食材を見る」; the notice itself carries no button.
     await expect(page.locator(".material-unlock-notice button")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /ショップへ/ })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /お店へ/ })).toHaveCount(0);
     await expectFullyVisible(page, ".dex-registration-row__cta--primary", "RESULT: 新しい食材を見る CTA");
     // The sole way forward keeps the 44px minimum touch target (PIZZA_GAME_UI_SPEC §5).
     expect((await page.locator(".dex-registration-row__cta--primary").boundingBox())!.height).toBeGreaterThanOrEqual(44);

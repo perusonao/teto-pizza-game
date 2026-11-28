@@ -87,6 +87,6 @@ test.describe("B案 Phase 3a: the curated 60 are the shop's Dex (shop model)", (
     await expect(page.getByRole("heading", { name: "練習するピザを選ぼう！" })).toBeVisible();
     const headings = await page.locator(".pizza-select-section").allTextContents();
     expect(headings.length).toBe(5);
-    for (const h of headings) expect(h).toMatch(/開発 \d+\/12/);
+    for (const h of headings) expect(h).toMatch(/メニュー \d+\/12/);
   });
 });

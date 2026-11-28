@@ -98,7 +98,7 @@ describe("Mission Detail", () => {
     expect(start).toBeDisabled();
     fireEvent.click(start);
     expect(onStart).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: /ショップで補充する/ }));
+    fireEvent.click(screen.getByRole("button", { name: /お店で補充する/ }));
     expect(onOpenShop).toHaveBeenCalled();
   });
 

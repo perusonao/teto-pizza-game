@@ -50,7 +50,7 @@ test.describe("Dinner Mission DM-3R-2", () => {
     await openDinnerDetail(page, /特別注文 1/);
     await expect(page.getByRole("alert")).toContainText("たまご 必要 2 / 所持 1");
     await expect(page.getByRole("button", { name: /スタート/ })).toBeDisabled();
-    await page.getByRole("button", { name: /ショップで補充する/ }).click();
+    await page.getByRole("button", { name: /お店で補充する/ }).click();
     await expect(page.locator(".shop-overlay__balance")).toBeVisible();
   });
 

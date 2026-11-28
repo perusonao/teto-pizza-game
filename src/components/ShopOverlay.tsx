@@ -188,7 +188,7 @@ export function ShopOverlay({
     <div className="dex-overlay">
       <div className="dex-overlay__panel shop-overlay__panel">
         <div className="dex-overlay__header">
-          <h2>{"\u{1F6D2}"} SHOP</h2>
+          <h2>{"\u{1F6D2}"} お店</h2>
           <button type="button" className="dex-overlay__close dex-overlay__close--tap44" onClick={onClose}>
             閉じる
           </button>

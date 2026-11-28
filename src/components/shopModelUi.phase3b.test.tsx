@@ -116,7 +116,7 @@ describe("RESULT: the promotion banner lists what the stage opened", () => {
     expect(list).toHaveTextContent("メニュー開発ボーナス +50 Pitz・評判 +3");
     // The materials are listed once (in the banner); the Shop CTA stays.
     expect(screen.getAllByText(/アンチョビ/)).toHaveLength(1);
-    expect(screen.getByRole("button", { name: /ショップへ/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /お店へ/ })).toBeInTheDocument();
     // The entry bonus is part of this round's Pitz.
     expect(screen.getByText(/今回の獲得/)).toHaveTextContent("+150 Pitz");
   });

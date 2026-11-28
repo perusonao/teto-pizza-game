@@ -45,7 +45,7 @@ test.describe("Static screens fit the viewport with no page/body scroll", () => 
 
   test("Settings / Shop / Inventory / Dex overlays never grow the page", async ({ page }) => {
     await freshHome(page);
-    for (const name of [/ショップ/, /材料/, /ピザ図鑑/]) {
+    for (const name of [/お店/, /材料/, /ピザ図鑑/]) {
       await page.getByRole("button", { name }).click();
       const s = await pageScrollState(page);
       expect(s.docScrollHeight, `${name} overlay produced page scroll`).toBeLessThanOrEqual(s.innerHeight);

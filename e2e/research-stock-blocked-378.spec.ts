@@ -51,7 +51,7 @@ test("stock-blocked research card -> Shop (在庫なし) -> refill -> close -> r
   expect(text).not.toMatch(/ペスト|ポッロ|No\.|あと|残り|不足|種類|\d/);
   await shot(page, testInfo, "before-01-dex-stock-blocked");
 
-  await section.getByRole("button", { name: /ショップで補充する/ }).click();
+  await section.getByRole("button", { name: /お店で補充する/ }).click();
   const shop = page.locator(".shop-overlay__panel");
   await expect(shop).toBeVisible();
   const chicken = shop.locator('[data-ingredient-id="chicken"]');

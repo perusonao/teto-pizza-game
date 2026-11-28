@@ -403,7 +403,7 @@ test.describe("Discovery Hint 2.0 sheet (229-B)", () => {
   });
 
   for (const [kind, save, text] of [
-    ["SHOP_NEW", ladderSave(6, { newestOwned: false }), /ショップに入荷した材料/],
+    ["SHOP_NEW", ladderSave(6, { newestOwned: false }), /お店に入荷した材料/],
     ["REFILL", ladderSave(6, { newestStock: 0 }), /材料が足りない/],
     ["COMPLETE", ladderSave(LADDER_PLAY.length, { complete: true }), /ピザ図鑑コンプリート/],
   ] as const) {

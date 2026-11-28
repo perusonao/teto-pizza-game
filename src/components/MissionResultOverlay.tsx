@@ -135,7 +135,7 @@ export function MissionResultOverlay({
             もう一度
           </button>
           {retryBlocked && (
-            <p className="mission-result__retry-blocked">{"\u{1F6D2}"} ショップで材料を補充すると再挑戦できます</p>
+            <p className="mission-result__retry-blocked">{"\u{1F6D2}"} お店で材料を補充すると再挑戦できます</p>
           )}
           {/* Gameplay UX Phase 2 (Issue #157): ピザ作りへ/🏠ホームへ paired side-by-side
               (`.mission-result__nav-row`, `.home-cta-row`'s own flex:1-pair pattern) instead of

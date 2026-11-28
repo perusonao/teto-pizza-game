@@ -461,7 +461,7 @@ test.describe("I5b-5 Layout Contract", () => {
 
     await page.getByRole("button", { name: /レシピ一覧に戻る/ }).click();
     await page.getByRole("button", { name: /ホーム/ }).click();
-    await page.locator(".home-menu__card").filter({ hasText: "ショップ" }).click();
+    await page.locator(".home-menu__card").filter({ hasText: "お店" }).click();
     await page.waitForSelector(".shop-overlay__list");
     // The Shop list scrolls inside `.dex-overlay__body` (its bottom padding includes the inset). #422 PR-B
     // appends the anonymous LOCKED grid below the list, so the very end of the body is no longer the last

@@ -22,7 +22,7 @@ export function MissionIntroOverlay({ durationSeconds, onStart, onClose }: Missi
         <button type="button" className="mission-overlay__close" onClick={onClose}>
           閉じる
         </button>
-        <h2 className="mission-overlay__title">{"⏱"} LUNCH RUSH</h2>
+        <h2 className="mission-overlay__title">{"⏱"} ランチラッシュ</h2>
         <p className="mission-overlay__body">
           制限時間{duration}以内に
           <br />

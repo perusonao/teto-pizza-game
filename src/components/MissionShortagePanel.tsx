@@ -43,7 +43,7 @@ export function MissionShortagePanel({ shortages, onSkip }: MissionShortagePanel
           );
         })}
       </ul>
-      <p className="mission-shortage-panel__note">補充はランチラッシュのあとでショップへ</p>
+      <p className="mission-shortage-panel__note">補充はランチラッシュのあとでお店へ</p>
       <button type="button" className="cta-button cta-button--primary" onClick={onSkip}>
         この注文をスキップ
       </button>

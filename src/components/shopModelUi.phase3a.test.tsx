@@ -139,7 +139,7 @@ describe("screens", () => {
     render(<PizzaSelectScreen dex={dex} ownedIngredientIds={STARTER_INGREDIENT_IDS} shop={shop} onSelectRecipe={vi.fn()} onBack={vi.fn()} onGoFreeCook={vi.fn()} />);
     const sections = document.querySelectorAll(".pizza-select-section");
     expect(sections).toHaveLength(5);
-    expect(within(sections[0] as HTMLElement).getByText(/開発 1\/12/)).toBeInTheDocument();
-    expect(within(sections[1] as HTMLElement).getByText(/開発 1\/12/)).toBeInTheDocument();
+    expect(within(sections[0] as HTMLElement).getByText(/メニュー 1\/12/)).toBeInTheDocument();
+    expect(within(sections[1] as HTMLElement).getByText(/メニュー 1\/12/)).toBeInTheDocument();
   });
 });

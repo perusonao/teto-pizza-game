@@ -208,7 +208,7 @@ describe("DinnerResultOverlay", () => {
     expect(screen.getByTestId("dinner-result-last")).toHaveTextContent("最後のピザ：ビスマルク");
     expect(screen.getByTestId("dinner-result-last")).not.toHaveTextContent("これはもう完成済み！");
     expect(screen.getByRole("button", { name: "もう一度" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "ショップへ" }));
+    fireEvent.click(screen.getByRole("button", { name: "お店へ" }));
     expect(onOpenShop).toHaveBeenCalled();
   });
 

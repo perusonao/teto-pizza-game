@@ -184,6 +184,6 @@ describe("MissionResultOverlay -- Issue #212 (OD-2)", () => {
     expect(retry).toBeDisabled();
     await user.click(retry);
     expect(props.onRetry).not.toHaveBeenCalled();
-    expect(screen.getByText(/ショップで材料を補充すると再挑戦できます/)).toBeInTheDocument();
+    expect(screen.getByText(/お店で材料を補充すると再挑戦できます/)).toBeInTheDocument();
   });
 });

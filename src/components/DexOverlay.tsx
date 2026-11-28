@@ -137,9 +137,9 @@ function ResearchEntryCard({
               type="button"
               className="dex-card__tag-cta dex-card__tag-cta--shop"
               onClick={onOpenShop}
-              aria-label={`${view.label}の材料をショップで補充する`}
+              aria-label={`${view.label}の材料をお店で補充する`}
             >
-              {"\u{1F6D2}"} ショップで補充する
+              {"\u{1F6D2}"} お店で補充する
             </button>
           )}
         </>
@@ -189,7 +189,7 @@ function UndiscoveredSlot({
         tag &&
         cta && (
           <button type="button" className="dex-card__tag-cta" onClick={cta}>
-            {state === "DISCOVERABLE" ? shopCopy("レシピ発見へ", "メニュー開発へ") : "ショップを見る"}
+            {state === "DISCOVERABLE" ? shopCopy("レシピ発見へ", "メニュー開発へ") : "お店を見る"}
           </button>
         )
       )}

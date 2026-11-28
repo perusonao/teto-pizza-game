@@ -49,7 +49,7 @@ describe("W1-e HOME badges and bubble", () => {
   it("bubble priority: Dex 0 -> NEW Shop material -> DISCOVERABLE -> default, never a recipe name", () => {
     const cases = [
       [{ lunchRushLocked: true, newShopMaterialCount: 1, discoverableCount: 1 }, "まずはレシピ発見で最初の1枚を見つけよう！"],
-      [{ lunchRushLocked: false, newShopMaterialCount: 1, discoverableCount: 1 }, "ショップに新しい材料が入ったよ！"],
+      [{ lunchRushLocked: false, newShopMaterialCount: 1, discoverableCount: 1 }, "お店に新しい材料が入ったよ！"],
       [{ lunchRushLocked: false, newShopMaterialCount: 0, discoverableCount: 2 }, "今の材料で新しいピザが作れるかも！"],
       [{ lunchRushLocked: false, newShopMaterialCount: 0, discoverableCount: 0 }, "今日はどんなピザを作ろう？"],
     ] as const;
