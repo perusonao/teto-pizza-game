@@ -110,6 +110,62 @@ test("shop starts with the four menu targets, clears at ★3+, pays first and re
   });
 });
 
+for (const arrival of ["HOME button", "reload from results"] as const) {
+  test(`Dinner and waiting menu bonuses settle separately via ${arrival}`, async ({ page }) => {
+    test.setTimeout(300_000);
+    const awaitingRecipe = "tonno-e-cipolla";
+    const save = {
+      ...dinnerSave([...DM_A, awaitingRecipe]),
+      shopProgress: { reputation: 39, grantedMenuRecipeIds: [], awaitingMenuRecipeIds: [awaitingRecipe] },
+      dinnerMissionRecords: {
+        "dm-a": { revision: 1, clears: 1, bestClearMs: 120_000, bestTier: null, firstClearRewarded: false },
+      },
+    };
+    const notice = page.getByRole("status", { name: "メニューに加わりました" });
+    await openWithSave(page, save, SHOP);
+    await expect(notice).toHaveCount(0);
+    const before = await readSave(page);
+    expect(before.pitzBalance).toBe(500);
+    expect(before.shopProgress.reputation).toBe(39);
+    await openDinnerDetail(page, title);
+    await launch(page).click();
+    await clearDinner(page, true);
+    await expect(result(page)).toContainText(/GOLD\s+\+250 Pitz/);
+    await expect(result(page)).toContainText(/評判\s+\+5/);
+    await expect(result(page)).not.toContainText("メニュー開発ボーナス");
+    await expect(notice).toHaveCount(0);
+    const clear = await readSave(page);
+    expect(clear).toMatchObject({
+      pitzBalance: 750,
+      shopProgress: { reputation: 44, awaitingMenuRecipeIds: [awaitingRecipe] },
+      dinnerMissionRecords: { "dm-a": { clears: 2, firstClearRewarded: true } },
+    });
+    expect(clear.shopProgress.menuEntryPaidRecipeIds).toBeUndefined();
+    if (arrival === "HOME button") await capture(page, "08-dinner-result");
+
+    if (arrival === "HOME button") await result(page).getByRole("button", { name: /ホーム/ }).click();
+    else await page.reload();
+    await expect(page.locator(".home-screen")).toBeVisible();
+    if (arrival === "HOME button") await capture(page, "09-home-menu-entry");
+    await expect(notice).toContainText("メニュー開発ボーナス +50 Pitz・評判 +3");
+    await expect(notice).toContainText(RECIPES.find((recipe) => recipe.id === awaitingRecipe)!.nameJa);
+    await expect(page.getByTestId("home-reputation")).toContainText(/評判\s+47/);
+    const paid = await readSave(page);
+    expect(paid).toMatchObject({
+      pitzBalance: 800,
+      shopProgress: { reputation: 47, menuEntryPaidRecipeIds: [awaitingRecipe] },
+      dinnerMissionRecords: clear.dinnerMissionRecords,
+    });
+    expect(paid.inventory).toEqual(clear.inventory);
+    await notice.getByRole("button", { name: "確認した" }).click();
+    await expect(notice).toHaveCount(0);
+    await page.reload();
+    await expect(page.locator(".home-screen")).toBeVisible();
+    await expect(notice).toHaveCount(0);
+    expect(await readSave(page)).toEqual(paid);
+  });
+}
+
 test("shop takes the 360-second timeout without a reward or record", async ({ page }) => {
   await page.clock.install();
   await openWithSave(page, menuSave(), `${SHOP}&dinnerDuration=1&dinnerMinStars=5`);
