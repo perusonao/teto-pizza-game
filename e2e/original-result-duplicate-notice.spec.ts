@@ -1,3 +1,4 @@
+import { legacyProgressionUrl } from "./support/legacyProgression";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { test, expect, type Page } from "@playwright/test";
@@ -50,7 +51,7 @@ async function openWithSave(page: Page) {
     localStorage.setItem(key, value);
     localStorage.setItem("teto.dev.hint5Ladder", "0");
   }, [SAVE_KEY, JSON.stringify(DEX3_SAVE)] as const);
-  await page.goto("/");
+  await page.goto(legacyProgressionUrl("/"));
   await page.waitForSelector(".app-frame");
   await expect(page.locator(".app-header__dex-pill")).toHaveText(new RegExp(`3/${CATALOG_COUNTS.recipes}`));
 }
