@@ -681,7 +681,7 @@ export function GameScreen({
   return (
     <>
     <div
-      className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}${prepBusy ? " game-screen--prep-busy" : ""}`}
+      className={`game-screen${isCookingLayout ? " game-screen--cooking" : ""}${prepBusy ? " game-screen--prep-busy" : ""}${state.freeCook ? " game-screen--research" : state.isMissionRound && state.dinner === null ? " game-screen--lunch" : state.dinner === null ? " game-screen--order" : ""}`}
       // Research UX Phase 1: while the PREPARE 試作ノート is open nothing behind it can take focus or a keypress
       // (Shift+Tab / Enter would otherwise reset the pizza, advance a step or bake). The sheet itself is rendered
       // beside this root, below, so it is not inert. Same pattern as the Hint sheet's own notebook.

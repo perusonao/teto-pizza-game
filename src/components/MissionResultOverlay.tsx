@@ -62,7 +62,7 @@ export function MissionResultOverlay({
   materialUnlockNotice = null,
 }: MissionResultOverlayProps) {
   return (
-    <div className="mission-overlay">
+    <div className="mission-overlay mission-overlay--lunch">
       <div className="mission-overlay__panel">
         <h2 className="mission-overlay__title">ランチラッシュ結果</h2>
         {endedEarly && (
