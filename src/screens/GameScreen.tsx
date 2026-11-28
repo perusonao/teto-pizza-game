@@ -105,6 +105,7 @@ import { isLunchRushRound, isPracticeRound } from "../state/roundKind";
 import { shopCopy } from "../logic/progression/shopCopy";
 import { CookingPrepLayer } from "../components/CookingPrepLayer";
 import { SearLayer } from "../components/SearLayer";
+import { SteamLayer } from "../components/SteamLayer";
 
 /**
  * GAME screen (Issue #24). Everything that happens while an actual round is in play --
@@ -184,6 +185,8 @@ interface GameScreenProps {
   onPrepIngredient?: (ingredientId: string, progress: number) => void;
   /** Cooking Sear Phase 1 (#724): dispatches SEAR_INGREDIENT (the optional 炙る long press). Absent = the sear UI is never offered. */
   onSearIngredient?: (ingredientId: string, amount: number) => void;
+  /** Cooking Steam Phase 1 (#726, S3): dispatches STEAM_INGREDIENT (the optional 蒸す pot). Absent = the steam UI is never offered. */
+  onSteamIngredient?: (ingredientId: string, amount: number) => void;
   onConfirmMakingStep: () => void;
   onStartBake: () => void;
   onShowHint: () => void;
@@ -305,6 +308,7 @@ export function GameScreen({
   onUndoPlacement,
   onPrepIngredient,
   onSearIngredient,
+  onSteamIngredient,
   onConfirmMakingStep,
   onStartBake,
   onShowHint,
@@ -956,6 +960,24 @@ export function GameScreen({
         preparedIngredientIds={state.preparedIngredientIds}
         preparedLook={state.preparedLook}
         searedLook={state.searedLook}
+        steamedLook={state.steamedLook}
+        steamOverlay={
+          onSteamIngredient ? (
+            <SteamLayer
+              phase={state.phase}
+              makingStep={state.makingStep}
+              roundKind={state.roundKind}
+              active={stageInputActive}
+              selectedIngredientId={selectedIngredientId}
+              ownedIngredientIds={state.ownedIngredientIds}
+              steamedLook={state.steamedLook}
+              makingStepToken={state.makingStepToken}
+              resetToken={pizzaResetToken}
+              onSteam={onSteamIngredient}
+              onBusyChange={setPrepBusy}
+            />
+          ) : undefined
+        }
         searOverlay={
           onSearIngredient ? (
             <SearLayer

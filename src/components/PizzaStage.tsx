@@ -23,6 +23,7 @@ import { IngredientPieceVisual } from "./IngredientPieceVisual";
 import { IngredientGlyph } from "./IngredientGlyph";
 import { preparedPieceVisual } from "../logic/prep/beefDoneness";
 import { searedPieceVisual } from "../logic/sear/sausageSear";
+import { steamedPieceVisual } from "../logic/steam/steamedLook";
 import { PostBakePiece } from "./PostBakePiece";
 import { activeToppingRankScale } from "../preview/toppingScalePreview";
 import { toppingPhaseScale } from "../preview/resultScalePreview";
@@ -217,6 +218,10 @@ interface PizzaStageProps {
   searedLook?: Readonly<Record<string, number>>;
   /** Cooking Sear Phase 1 (#724): an element rendered inside the stage after `overlay` (the "炙る" pill / sear screen, ./SearLayer.tsx). */
   searOverlay?: ReactNode;
+  /** Cooking Steam Phase 1 (#726, S3): how far each steamed ingredient was steamed (`GameState.steamedLook`); picks the piece's sheen. Absent = today's drawing. */
+  steamedLook?: Readonly<Record<string, number>>;
+  /** Cooking Steam Phase 1 (#726, S3): an element rendered inside the stage after `searOverlay` (the "蒸す" pill / steam screen, ./SteamLayer.tsx). */
+  steamOverlay?: ReactNode;
 }
 
 interface GestureState {
@@ -301,6 +306,8 @@ export function PizzaStage({
   overlay,
   searedLook: searedLookByIngredient,
   searOverlay,
+  steamedLook: steamedLookByIngredient,
+  steamOverlay,
 }: PizzaStageProps) {
   const circleRef = useRef<HTMLDivElement>(null);
   // Square-Pan Dough D2-a2 (#537): the pan this round is cooked on, for every step DOUGH..RESULT -- the Preview / DEV override or the recipe's own pan,
@@ -1534,10 +1541,11 @@ export function PizzaStage({
             {t.trail ? null : (() => {
               const preparedLook = preparedIngredientIds?.includes(ingredient.id) ? preparedPieceVisual(ingredient.id, preparedLookByIngredient?.[ingredient.id]) : null;
               const searLook = searedPieceVisual(ingredient.id, searedLookByIngredient?.[ingredient.id]);
+              const steamLook = steamedPieceVisual(steamedLookByIngredient?.[ingredient.id]);
               const m1Piece = (
                 <IngredientPieceVisual
                   ingredient={ingredient}
-                  className={preparedLook?.className ?? searLook?.className}
+                  className={preparedLook?.className ?? searLook?.className ?? steamLook?.className}
                   style={
                     ingredient.category === "cheese"
                       ? cheeseStyle
@@ -1545,7 +1553,9 @@ export function PizzaStage({
                         ? { ...toppingPieceStyle(ingredient), ...preparedLook.style }
                         : searLook
                           ? { ...toppingPieceStyle(ingredient), ...searLook.style }
-                          : toppingPieceStyle(ingredient)
+                          : steamLook
+                            ? { ...toppingPieceStyle(ingredient), ...steamLook.style }
+                            : toppingPieceStyle(ingredient)
                   }
                 />
               );
@@ -1891,6 +1901,7 @@ export function PizzaStage({
       )}
       {overlay}
       {searOverlay}
+      {steamOverlay}
     </div>
   );
 }
