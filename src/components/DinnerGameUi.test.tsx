@@ -35,10 +35,10 @@ function run(patch: Partial<DinnerRunState> = {}): DinnerRunState {
 }
 
 describe("DinnerHud", () => {
-  it("shows DINNER, the time left from the run's own clock, and completed / total", () => {
+  it("shows 特別注文, the time left from the run's own clock, and completed / total", () => {
     render(<DinnerHud run={run({ completedRecipeIds: ["funghi", "bismarck"] })} now={T0 + 78_000} />);
     const hud = screen.getByTestId("dinner-hud");
-    expect(hud).toHaveTextContent("DINNER");
+    expect(hud).toHaveTextContent("特別注文");
     expect(hud).toHaveTextContent("01:42");
     expect(hud).toHaveTextContent("2 / 4");
   });
@@ -155,14 +155,14 @@ describe("DinnerResultOverlay", () => {
     render(
       <DinnerResultOverlay
         run={r}
-        titleJa="ディナーミッション 1"
+        titleJa="特別注文 1"
         lastResult={{ category: "TARGET_PASS", recipeId: "breakfast-pizza", nameJa: "ブレックファストピザ", stars: 4, minimumStars: 3 }}
         retryBlocked={false}
         {...handlers}
       />,
     );
     const dialog = screen.getByRole("dialog");
-    expect(dialog).toHaveTextContent("DINNER CLEAR!");
+    expect(dialog).toHaveTextContent("特別注文クリア！");
     // The pizza that cleared the run is named, not only the aggregate.
     expect(screen.getByTestId("dinner-result-last")).toHaveTextContent("最後のピザ：ブレックファストピザ ★4");
     // OD-DUI-3a: the pizza itself, never a headline.
@@ -178,7 +178,7 @@ describe("DinnerResultOverlay", () => {
     render(
       <DinnerResultOverlay
         run={r}
-        titleJa="ディナーミッション 1"
+        titleJa="特別注文 1"
         lastResult={{ category: "ORIGINAL" }}
         retryBlocked={false}
         {...handlers}
@@ -201,7 +201,7 @@ describe("DinnerResultOverlay", () => {
       },
     });
     const onOpenShop = vi.fn();
-    render(<DinnerResultOverlay run={r} titleJa="ディナーミッション 1" lastResult={{ category: "DUPLICATE_TARGET", recipeId: "bismarck", nameJa: "ビスマルク" }} retryBlocked onRetry={vi.fn()} onHome={vi.fn()} onOpenShop={onOpenShop} />);
+    render(<DinnerResultOverlay run={r} titleJa="特別注文 1" lastResult={{ category: "DUPLICATE_TARGET", recipeId: "bismarck", nameJa: "ビスマルク" }} retryBlocked onRetry={vi.fn()} onHome={vi.fn()} onOpenShop={onOpenShop} />);
     const dialog = screen.getByRole("dialog");
     expect(dialog).toHaveTextContent("材料が足りなくなりました");
     expect(dialog).toHaveTextContent("たまご 必要 1 / 所持 0");

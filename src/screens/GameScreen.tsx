@@ -607,7 +607,7 @@ export function GameScreen({
   const dinnerSession = state.dinner;
   const dinnerRun = dinnerSession?.run ?? null;
   const dinnerPlaying = dinnerRun?.status === "PLAYING";
-  const dinnerTitleJa = dinnerRun ? (getDinnerMission(dinnerRun.missionId)?.display.titleJa ?? "ディナーミッション") : "";
+  const dinnerTitleJa = dinnerRun ? (getDinnerMission(dinnerRun.missionId)?.display.titleJa ?? "特別注文") : "";
   const isDinnerResult = dinnerSession !== null && state.phase === "RESULT";
   const dinnerReferenceRecipe = dinnerReferenceId ? (getRecipe(dinnerReferenceId as RecipeId) ?? null) : null;
   const dinnerReferencePizza = dinnerReferenceId ? getReferencePizza(dinnerReferenceId) : null;

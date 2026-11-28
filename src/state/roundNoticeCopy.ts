@@ -103,7 +103,7 @@ export function describeRoundSaveFailure(
   }
   if (step === "dinner-clear") {
     return {
-      title: "ディナーの報酬を保存できませんでした",
+      title: "特別注文の報酬を保存できませんでした",
       lines: [reason, "保存できる状態で、制限時間内にもう一度お試しください。"],
     };
   }

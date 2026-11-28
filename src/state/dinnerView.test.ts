@@ -60,7 +60,7 @@ describe("formatDinnerClock", () => {
 describe("dinnerMissionCardView (privacy)", () => {
   it("a locked card carries counts only -- no target ids or names, discovered or not", () => {
     const card = dinnerMissionCardView(DM_B, dexOf(["margherita", "funghi"]));
-    expect(card).toEqual({ missionId: "dm-b", titleJa: "ディナーミッション 2", totalTargets: 4, unlocked: false, undiscoveredCount: 2 });
+    expect(card).toEqual({ missionId: "dm-b", titleJa: "特別注文 2", totalTargets: 4, unlocked: false, undiscoveredCount: 2 });
     const json = JSON.stringify(card);
     for (const r of RECIPES) {
       expect(json, r.id).not.toContain(r.id);

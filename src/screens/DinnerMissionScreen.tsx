@@ -60,7 +60,7 @@ export function DinnerMissionScreen({
         >
           {detailId ? "← もどる" : `${"\u{1F3E0}"} ホーム`}
         </button>
-        <h1 className="app-header__title">{"\u{1F319}"} ディナーミッション</h1>
+        <h1 className="app-header__title">{"\u{1F319}"} 特別注文</h1>
       </header>
 
       {detailMission && detailCard?.unlocked ? (

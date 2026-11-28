@@ -43,7 +43,7 @@ afterEach(() => {
 
 async function openDetail(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: /特別注文/ }));
-  await user.click(screen.getByRole("button", { name: /ディナーミッション 1/ }));
+  await user.click(screen.getByRole("button", { name: /特別注文 1/ }));
 }
 
 describe("App: Dinner Mission (DM-3 / DM-3R-2)", () => {
@@ -123,7 +123,7 @@ describe("App: Dinner Mission (DM-3 / DM-3R-2)", () => {
     await user.click(screen.getByTestId("dinner-chip-margherita"));
     expect(screen.getByRole("dialog", { name: /マルゲリータ/ })).toBeInTheDocument();
 
-    const result = await screen.findByRole("dialog", { name: "ディナーミッション結果" }, { timeout: 3000 });
+    const result = await screen.findByRole("dialog", { name: "特別注文の結果" }, { timeout: 3000 });
     expect(result).toHaveTextContent("時間切れ！");
     await user.click(within(result).getByRole("button", { name: "もう一度" }));
     expect(screen.getByTestId("dinner-target-row")).toBeInTheDocument();

@@ -740,7 +740,7 @@ test.describe("DM-3R-2 Dinner Stage Size Stability (LC-S1..LC-S4)", () => {
     await openWithSave(page, makeSave(["margherita", "bismarck", "breakfast-pizza", "funghi"]), "?dinnerDuration=900");
     await lc.apply(mount);
     await page.getByRole("button", { name: /特別注文/ }).click();
-    await page.locator(".dinner-mission-card", { hasText: /ディナーミッション 1/ }).click();
+    await page.locator(".dinner-mission-card", { hasText: /特別注文 1/ }).click();
     await page.getByRole("button", { name: /スタート/ }).click();
     await page.waitForSelector(".pizza-stage");
     await expect(page.getByTestId("dinner-target-row")).toBeVisible();

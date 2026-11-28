@@ -148,7 +148,7 @@ for (const [label, width, height] of [
     await page.goto(legacyProgressionUrl("/?dinnerDuration=900"));
     await page.waitForSelector(".app-frame");
     await page.getByRole("button", { name: /特別注文/ }).click();
-    await page.locator(".dinner-mission-card", { hasText: /ディナーミッション 1/ }).click();
+    await page.locator(".dinner-mission-card", { hasText: /特別注文 1/ }).click();
     await page.getByRole("button", { name: /スタート/ }).click();
     await page.waitForSelector(".pizza-stage");
     await expect(page.getByTestId("dinner-target-row")).toBeVisible();
